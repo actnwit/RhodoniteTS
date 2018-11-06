@@ -1,14 +1,14 @@
 import Entity from './Entity';
 
-let singleton:any = Symbol();
+const singleton:any = Symbol();
 
 export default class EntityRepository {
-  private static singleton: EntityRepository;
+  private static __singleton: EntityRepository;
   private __entity_uid_count: number;
   private __entities: Array<Entity>;
   private static __singletonEnforcer:Symbol;
 
-  constructor(enforcer: Symbol) {
+  private constructor(enforcer: Symbol) {
     if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
@@ -23,10 +23,10 @@ export default class EntityRepository {
 
   static getInstance() {
     const thisClass = EntityRepository;
-    if (!thisClass.singleton) {
-      thisClass.singleton = new EntityRepository(thisClass.__singletonEnforcer);
+    if (!thisClass.__singleton) {
+      thisClass.__singleton = new EntityRepository(thisClass.__singletonEnforcer);
     }
-    return thisClass.singleton;
+    return thisClass.__singleton;
   }
 
   createEntity() {
