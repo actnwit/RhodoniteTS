@@ -1,10 +1,14 @@
-//const Entity = require('./Entity');
-//import * as Is from '../misc/IsUtil';
 import Entity from './Entity';
+import EntityRepository from './EntityRepository';
 
 
 test('A Entity is creatable', () => {
-  let entity = new Entity(1, true);
+  const entity = new Entity(1, true);
   expect(entity instanceof Entity).toBe(true);
 });
 
+test('The EntityRepository creates a entity whose uid is 1', () => {
+  const repo = EntityRepository.getInstance();
+  const firstEntity = repo.createEntity();
+  expect(firstEntity.entityUid).toBe(1);
+});
