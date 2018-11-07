@@ -5,7 +5,7 @@ export default class Component {
 
   constructor() {
     this._component_sid = 0;
-    this. __isAlive = true;
+    this.__isAlive = true;
   }
 
   static get componentTid() {
