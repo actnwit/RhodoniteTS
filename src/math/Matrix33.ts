@@ -21,7 +21,7 @@ export default class Matrix33 {
     m0: any, m1:any, m2?:number,
     m3?:number, m4?:number, m5?:number,
     m6?:number, m7?:number, m8?:number,
-    isColumnMajor?:boolean)
+    isColumnMajor:boolean = false)
  {
     this.m = new Float32Array(9); // Data order is column major
 

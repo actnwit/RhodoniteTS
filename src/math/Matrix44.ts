@@ -8,8 +8,26 @@ import MathUtil from './MathUtil';
 export default class Matrix44 {
   m: TypedArray;
 
-  constructor(m, isColumnMajor = false, notCopyFloat32Array = false
-  ) {
+  constructor(m: Float32Array, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(m: Array<number>, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(
+    m0: number, m1: number, m2: number, m3: number,
+    m4: number, m5: number, m6: number, m7: number,
+    m8: number, m9: number, m10: number, m11: number,
+    m12: number, m13: number, m14: number, m15: number,
+    isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(
+    m0: any, m1: any, m2: any, m3?: any,
+    m4?: number, m5?: number, m6?: number, m7?: number,
+    m8?: number, m9?: number, m10?: number, m11?: number,
+    m12?: number, m13?: number, m14?: number, m15?: number,
+    isColumnMajor:Boolean = false, notCopyFloat32Array:Boolean = false) {
+    
+    const m = m0;
+
     if (arguments.length >= 16) {
       this.m = new Float32Array(16); // Data order is column major
       if (isColumnMajor === true) {
@@ -22,7 +40,7 @@ export default class Matrix44 {
       } else {
         this.setComponents.apply(this, arguments);  // arguments[0-15] must be row major values if isColumnMajor is false
       }
-    } else if (Array.isArray(m)) {
+    } else if (Array.isArray(m as Array<number>)) {
       this.m = new Float32Array(16);
       if (isColumnMajor === true) {
         this.setComponents(
@@ -88,7 +106,12 @@ export default class Matrix44 {
     }
   }
 
-  setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+  setComponents(
+    m00:number, m01:number, m02:number, m03:number,
+    m10:number, m11:number, m12:number, m13:number,
+    m20:number, m21:number, m22:number, m23:number,
+    m30:number, m31:number, m32:number, m33:number
+    ) {
     this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
     this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
     this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
@@ -97,7 +120,7 @@ export default class Matrix44 {
     return this;
   }
 
-  copyComponents(mat4) {
+  copyComponents(mat4: Matrix44) {
     //this.m.set(mat4.m);
     this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
   }
@@ -140,7 +163,7 @@ export default class Matrix44 {
     );
   }
 
-  translate(vec) {
+  translate(vec: Vector3) {
     return this.setComponents(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
@@ -149,7 +172,7 @@ export default class Matrix44 {
     );
   }
 
-  putTranslate(vec) {
+  putTranslate(vec: Vector3) {
     this.m03 = vec.x;
     this.m13 = vec.y;
     this.m23 = vec.z;
@@ -159,7 +182,7 @@ export default class Matrix44 {
     return new Vector3(this.m03, this.m13, this.m23);
   }
 
-  static translate(vec) {
+  static translate(vec:Vector3) {
     return new Matrix44(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
@@ -168,7 +191,7 @@ export default class Matrix44 {
     );
   }
 
-  scale(vec) {
+  scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
@@ -177,7 +200,7 @@ export default class Matrix44 {
     );
   }
 
-  static scale(vec) {
+  static scale(vec: Vector3) {
     return new Matrix44(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
@@ -186,7 +209,7 @@ export default class Matrix44 {
     );
   }
 
-  addScale(vec) {
+  addScale(vec: Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;
@@ -197,14 +220,7 @@ export default class Matrix44 {
   /**
    * Create X oriented Rotation Matrix
    */
-  rotateX(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return this.setComponents(
@@ -217,14 +233,7 @@ export default class Matrix44 {
   /**
    * Create X oriented Rotation Matrix
   */
-  static rotateX(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix44(
@@ -238,14 +247,8 @@ export default class Matrix44 {
   /**
    * Create Y oriented Rotation Matrix
    */
-  rotateY(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  rotateY(radian:number) {
+    
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return this.setComponents(
@@ -258,14 +261,7 @@ export default class Matrix44 {
   /**
    * Create Y oriented Rotation Matrix
    */
-  static rotateY(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix44(
@@ -279,14 +275,7 @@ export default class Matrix44 {
   /**
    * Create Z oriented Rotation Matrix
    */
-  rotateZ(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return this.setComponents(
@@ -299,14 +288,7 @@ export default class Matrix44 {
   /**
    * Create Z oriented Rotation Matrix
    */
-  static rotateZ(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix44(
@@ -317,7 +299,7 @@ export default class Matrix44 {
     );
   }
 
-  static rotateXYZ(x, y, z) {
+  static rotateXYZ(x: number, y: number, z: number) {
     return new Matrix44(Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
   }
 
@@ -335,12 +317,6 @@ export default class Matrix44 {
       rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI/2.0, 0.0);
     } else {
       rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI/2.0, 0.0);
-    }
-
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      rotate.x = MathUtil.radianToDegree(rotate.x);
-      rotate.y = MathUtil.radianToDegree(rotate.y);
-      rotate.z = MathUtil.radianToDegree(rotate.z);
     }
 
     return rotate;
@@ -369,7 +345,7 @@ export default class Matrix44 {
       this.m[12], this.m[13], this.m[14], this.m[15]];
   }
 
-  _swap(l, r) {
+  _swap(l:Index, r:Index) {
     this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
   }
 
@@ -390,7 +366,7 @@ export default class Matrix44 {
   /**
    * transpose(static version)
    */
-  static transpose(mat) {
+  static transpose(mat:Matrix44) {
 
     var mat_t = new Matrix44(
       mat.m00, mat.m10, mat.m20, mat.m30,
@@ -402,7 +378,7 @@ export default class Matrix44 {
     return mat_t;
   }
 
-  multiplyVector(vec) {
+  multiplyVector(vec: Vector4) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
@@ -414,7 +390,7 @@ export default class Matrix44 {
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat) {
+  multiply(mat: Matrix44) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20 + this.m03*mat.m30;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21 + this.m03*mat.m31;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22 + this.m03*mat.m32;
@@ -443,7 +419,7 @@ export default class Matrix44 {
     );
   }
 
-  multiplyByLeft(mat) {
+  multiplyByLeft(mat:Matrix44) {
     var m00 = mat.m00*this.m00 + mat.m01*this.m10 + mat.m02*this.m20 + mat.m03*this.m30;
     var m01 = mat.m00*this.m01 + mat.m01*this.m11 + mat.m02*this.m21 + mat.m03*this.m31;
     var m02 = mat.m00*this.m02 + mat.m01*this.m12 + mat.m02*this.m22 + mat.m03*this.m32;
@@ -475,7 +451,7 @@ export default class Matrix44 {
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m, r_m) {
+  static multiply(l_m:Matrix44, r_m:Matrix44) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20 + l_m.m03*r_m.m30;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20 + l_m.m13*r_m.m30;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20 + l_m.m23*r_m.m30;
@@ -516,7 +492,7 @@ export default class Matrix44 {
       this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
   }
 
-  static determinant(mat) {
+  static determinant(mat:Matrix44) {
     return mat.m00*mat.m11*mat.m22*mat.m33 + mat.m00*mat.m12*mat.m23*mat.m31 + mat.m00*mat.m13*mat.m21*mat.m32 +
       mat.m01*mat.m10*mat.m23*mat.m32 + mat.m01*mat.m12*mat.m20*mat.m33 + mat.m01*mat.m13*mat.m22*mat.m30 +
       mat.m02*mat.m10*mat.m21*mat.m33 + mat.m02*mat.m11*mat.m23*mat.m30 + mat.m02*mat.m13*mat.m20*mat.m31 +
@@ -555,7 +531,7 @@ export default class Matrix44 {
     );
   }
 
-  static invert(mat) {
+  static invert(mat:Matrix44) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22*mat.m33 + mat.m12*mat.m23*mat.m31 + mat.m13*mat.m21*mat.m32 - mat.m11*mat.m23*mat.m32 - mat.m12*mat.m21*mat.m33 - mat.m13*mat.m22*mat.m31) / det;
     var m01 = (mat.m01*mat.m23*mat.m32 + mat.m02*mat.m21*mat.m33 + mat.m03*mat.m22*mat.m31 - mat.m01*mat.m22*mat.m33 - mat.m02*mat.m23*mat.m31 - mat.m03*mat.m21*mat.m32) / det;
@@ -717,7 +693,7 @@ export default class Matrix44 {
       this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
   }
 
-  nearZeroToZero(value) {
+  nearZeroToZero(value:number) {
     if (Math.abs(value) < 0.00001) {
       value = 0;
     } else if (0.99999 < value && value < 1.00001) {
