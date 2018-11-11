@@ -4,9 +4,6 @@ import Vector2 from './Vector2';
 import Vector4 from './Vector4';
 import is from '../misc/IsUtil';
 
-type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array |
-Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
-
 export default class Vector3 {
   v: TypedArray;
 

@@ -1,10 +1,6 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-import is from '../misc/IsUtil';
-
-type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array |
-Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 export default class Vector4 {
   v: TypedArray;
@@ -17,7 +13,7 @@ export default class Vector4 {
       this.v = new Float32Array(4);
     }
 
-    if (is.not.exist(x)) {
+    if (!(x != null)) {
       this.x = 0;
       this.y = 0;
       this.z = 0;
