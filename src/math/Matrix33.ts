@@ -2,12 +2,12 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import MathUtil from './MathUtil';
+import Quaternion from './Quaternion';
 
 export default class Matrix33 {
+  m: TypedArray;
 
-  constructor(m: Float32Array|Array<number>|number|Matrix33|Matrix44, isColumnMajor = false,
-    shaderParameterType = void 0, shaderParameterEntityIndex = void 0, shaderParameterName = void 0
-  ) {
+  constructor(m: Float32Array|Array<number>|Matrix33|Matrix44|Quaternion|number, isColumnMajor:boolean|number = false, ...) {
     this.m = new Float32Array(9); // Data order is column major
     if (arguments.length >= 9) {
       if (isColumnMajor === true) {
@@ -37,25 +37,28 @@ export default class Matrix33 {
       } else {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
-    } else if (!!m && typeof m.m22 !== 'undefined') {
+    } else if (!!m && typeof (m as Matrix33|Matrix44).m22 !== 'undefined') {
       if (isColumnMajor === true) {
+        const _m = m as Matrix33|Matrix44; 
         this.setComponents(
-          m.m00, m.m01, m.m02,
-          m.m10, m.m11, m.m12,
-          m.m20, m.m21, m.m22);
+          _m.m00, _m.m01, _m.m02,
+          _m.m10, _m.m11, _m.m12,
+          _m.m20, _m.m21, _m.m22);
       } else {
-        this.setComponents(m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22); // 'm' must be row major array if isColumnMajor is false
+        const _m = m as Matrix33|Matrix44; 
+        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
       }
-    } else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-      const sx = m.x * m.x;
-      const sy = m.y * m.y;
-      const sz = m.z * m.z;
-      const cx = m.y * m.z;
-      const cy = m.x * m.z;
-      const cz = m.x * m.y;
-      const wx = m.w * m.x;
-      const wy = m.w * m.y;
-      const wz = m.w * m.z;
+    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
+      const q = m as Quaternion;
+      const sx = q.x * q.x;
+      const sy = q.y * q.y;
+      const sz = q.z * q.z;
+      const cx = q.y * q.z;
+      const cy = q.x * q.z;
+      const cz = q.x * q.y;
+      const wx = q.w * q.x;
+      const wy = q.w * q.y;
+      const wz = q.w * q.z;
   
       this.setComponents(
         1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy),
@@ -67,7 +70,11 @@ export default class Matrix33 {
     }
   }
 
-  setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22) {
+  setComponents(
+    m00: number, m01: number, m02: number,
+    m10: number, m11: number, m12: number,
+    m20: number, m21: number, m22: number
+    ) {
     this.m00 = m00; this.m01 = m01; this.m02 = m02;
     this.m10 = m10; this.m11 = m11; this.m12 = m12;
     this.m20 = m20; this.m21 = m21; this.m22 = m22;
@@ -110,13 +117,7 @@ export default class Matrix33 {
   /**
    * Create X oriented Rotation Matrix
    */
-  rotateX(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
+  rotateX(radian:number) {
 
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
@@ -129,14 +130,7 @@ export default class Matrix33 {
   /**
    * Create X oriented Rotation Matrix
    */
-  static rotateX(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix33(
@@ -149,13 +143,7 @@ export default class Matrix33 {
   /**
    * Create Y oriented Rotation Matrix
    */
-  rotateY(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
+  rotateY(radian:number) {
 
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
@@ -169,14 +157,7 @@ export default class Matrix33 {
   /**
    * Create Y oriented Rotation Matrix
    */
-  static rotateY(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateY(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix33(
@@ -189,14 +170,7 @@ export default class Matrix33 {
   /**
    * Create Z oriented Rotation Matrix
    */
-  rotateZ(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  rotateZ(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return this.setComponents(
@@ -208,14 +182,7 @@ export default class Matrix33 {
   /**
    * Create Z oriented Rotation Matrix
    */
-  static rotateZ(angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
-
+  static rotateZ(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return new Matrix33(
@@ -225,15 +192,15 @@ export default class Matrix33 {
     );
   }
 
-  static rotateXYZ(x, y, z) {
+  static rotateXYZ(x:number, y:number, z:number) {
     return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
   }
 
-  static rotate(vec3) {
+  static rotate(vec3:Vector3) {
     return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
   }
 
-  scale(vec) {
+  scale(vec:Vector3) {
     return this.setComponents(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -241,7 +208,7 @@ export default class Matrix33 {
     );
   }
 
-  static scale(vec) {
+  static scale(vec:Vector3) {
     return new Matrix33(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -274,7 +241,7 @@ export default class Matrix33 {
       this.m[6], this.m[7], this.m[8]];
   }
 
-  _swap(l, r) {
+  _swap(l:Index, r:Index) {
     this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
   }
 
@@ -292,7 +259,7 @@ export default class Matrix33 {
   /**
    * transpose(static version)
    */
-  static transpose(mat) {
+  static transpose(mat:Matrix33) {
 
     var mat_t = new Matrix33(
       mat.m00, mat.m10, mat.m20,
@@ -303,7 +270,7 @@ export default class Matrix33 {
     return mat_t;
   }
 
-  multiplyVector(vec) {
+  multiplyVector(vec:Vector3) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
@@ -314,7 +281,7 @@ export default class Matrix33 {
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat) {
+  multiply(mat:Matrix33) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22;
@@ -338,7 +305,7 @@ export default class Matrix33 {
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m, r_m) {
+  static multiply(l_m:Matrix33, r_m:Matrix33) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20;
@@ -363,7 +330,7 @@ export default class Matrix33 {
       - this.m00*this.m21*this.m12 - this.m20*this.m11*this.m02 - this.m10*this.m01*this.m22;
   }
 
-  static determinant(mat) {
+  static determinant(mat:Matrix33) {
     return mat.m00*mat.m11*mat.m22 + mat.m10*mat.m21*mat.m02 + mat.m20*mat.m01*mat.m12
       - mat.m00*mat.m21*mat.m12 - mat.m20*mat.m11*mat.m02 - mat.m10*mat.m01*mat.m22;
   }
@@ -387,7 +354,7 @@ export default class Matrix33 {
     );
   }
 
-  static invert(mat) {
+  static invert(mat:Matrix33) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22 - mat.m12*mat.m21) / det;
     var m01 = (mat.m02*mat.m21 - mat.m01*mat.m22) / det;
@@ -406,76 +373,76 @@ export default class Matrix33 {
     );
   }
 
-  set m00(val) {
+  public set m00(val) {
     this.m[0] = val;
   }
 
-  get m00() {
+  public get m00() {
     return this.m[0];
   }
 
-  set m10(val) {
+  public set m10(val) {
     this.m[1] = val;
   }
 
-  get m10() {
+  public get m10() {
     return this.m[1];
   }
 
-  set m20(val) {
+  public set m20(val) {
     this.m[2] = val;
   }
 
-  get m20() {
+  public get m20() {
     return this.m[2];
   }
 
 
-  set m01(val) {
+  public set m01(val) {
     this.m[3] = val;
   }
 
-  get m01() {
+  public get m01() {
     return this.m[3];
   }
 
-  set m11(val) {
+  public set m11(val) {
     this.m[4] = val;
   }
 
-  get m11() {
+  public get m11() {
     return this.m[4];
   }
 
-  set m21(val) {
+  public set m21(val) {
     this.m[5] = val;
   }
 
-  get m21() {
+  public get m21() {
     return this.m[5];
   }
 
-  set m02(val) {
+  public set m02(val) {
     this.m[6] = val;
   }
 
-  get m02() {
+  public get m02() {
     return this.m[6];
   }
 
-  set m12(val) {
+  public set m12(val) {
     this.m[7] = val;
   }
 
-  get m12() {
+  public get m12() {
     return this.m[7];
   }
 
-  set m22(val) {
+  public set m22(val) {
     this.m[8] = val;
   }
 
-  get m22() {
+  public get m22() {
     return this.m[8];
   }
 
@@ -485,7 +452,7 @@ export default class Matrix33 {
       this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
   }
 
-  nearZeroToZero(value) {
+  nearZeroToZero(value:number) {
     if (Math.abs(value) < 0.00001) {
       value = 0;
     } else if (0.99999 < value && value < 1.00001) {
@@ -510,7 +477,7 @@ export default class Matrix33 {
     );
   }
 
-  addScale(vec) {
+  addScale(vec:Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;
