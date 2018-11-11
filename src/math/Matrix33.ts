@@ -6,11 +6,30 @@ import Quaternion from './Quaternion';
 
 export default class Matrix33 {
   m: TypedArray;
-
-  constructor(m: Float32Array|Array<number>|Matrix33|Matrix44|Quaternion|number, isColumnMajor:boolean|number = false, ...) {
+  
+  constructor(m: Float32Array, isColumnMajor?:boolean);
+  constructor(m: Array<number>, isColumnMajor?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean);
+  constructor(
+    m0: number, m1:number, m2:number,
+    m3:number, m4:number, m5:number,
+    m6:number, m7:number, m8:number,
+    isColumnMajor?:boolean);
+  constructor(
+    m0: any, m1:any, m2?:number,
+    m3?:number, m4?:number, m5?:number,
+    m6?:number, m7?:number, m8?:number,
+    isColumnMajor?:boolean)
+ {
     this.m = new Float32Array(9); // Data order is column major
-    if (arguments.length >= 9) {
-      if (isColumnMajor === true) {
+
+    const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
+    const m = m0; 
+
+    if (arguments.length === 10) {
+      if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
           m[0], m[3], m[6],
@@ -19,8 +38,8 @@ export default class Matrix33 {
       } else {
         this.setComponents.apply(this, arguments);  // arguments[0-8] must be row major values if isColumnMajor is false
       }
-    } else if (Array.isArray(m)) {
-      if (isColumnMajor === true) {
+    } else if (Array.isArray(m as Array<Number>)) {
+      if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[3], m[6],
           m[1], m[4], m[7],
@@ -29,7 +48,7 @@ export default class Matrix33 {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
     } else if (m instanceof Float32Array) {
-      if (isColumnMajor === true) {
+      if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[3], m[6],
           m[1], m[4], m[7],
@@ -37,8 +56,8 @@ export default class Matrix33 {
       } else {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
-    } else if (!!m && typeof (m as Matrix33|Matrix44).m22 !== 'undefined') {
-      if (isColumnMajor === true) {
+    } else if (!!m && typeof m.m22 !== 'undefined') {
+      if (_isColumnMajor === true) {
         const _m = m as Matrix33|Matrix44; 
         this.setComponents(
           _m.m00, _m.m01, _m.m02,
