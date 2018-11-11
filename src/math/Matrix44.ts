@@ -25,12 +25,15 @@ export default class Matrix44 {
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
     isColumnMajor:Boolean = false, notCopyFloat32Array:Boolean = false) {
-    
+  
+    const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
+    const _notCopyFloat32Array = (arguments.length >= 16) ? notCopyFloat32Array : m2;
+     
     const m = m0;
 
     if (arguments.length >= 16) {
       this.m = new Float32Array(16); // Data order is column major
-      if (isColumnMajor === true) {
+      if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
           m[0], m[4], m[8], m[12],
@@ -42,7 +45,7 @@ export default class Matrix44 {
       }
     } else if (Array.isArray(m as Array<number>)) {
       this.m = new Float32Array(16);
-      if (isColumnMajor === true) {
+      if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[4], m[8], m[12],
           m[1], m[5], m[9], m[13],
@@ -52,11 +55,11 @@ export default class Matrix44 {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
     } else if (m instanceof Float32Array) {
-      if (notCopyFloat32Array) {
+      if (_notCopyFloat32Array) {
         this.m = m;
       } else {
         this.m = new Float32Array(16);
-        if (isColumnMajor === true) {
+        if (_isColumnMajor === true) {
           this.setComponents(
             m[0], m[4], m[8], m[12],
             m[1], m[5], m[9], m[13],
@@ -67,11 +70,11 @@ export default class Matrix44 {
         }  
       }
     } else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
-      if (notCopyFloat32Array) {
+      if (_notCopyFloat32Array) {
         this.m = m.m;
       } else {
         this.m = new Float32Array(16);
-        if (isColumnMajor === true) {
+        if (_isColumnMajor === true) {
           this.setComponents(
             m.m00, m.m01, m.m02, 0,
             m.m10, m.m11, m.m12, 0,
