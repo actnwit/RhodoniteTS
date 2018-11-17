@@ -5,6 +5,7 @@ import Quaternion from '../math/Quaternion';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
 import MathUtil from '../math/MathUtil';
+import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
 
 import Component from '../core/Component';
@@ -42,7 +43,7 @@ export default class TransformComponent extends Component {
     this._quaternion = new Quaternion(0, 0, 0, 1);
     this._matrix = Matrix44.identity();
     this._invMatrix = Matrix44.identity();
-    this._normalMatrix = Matrix44.identity();
+    this._normalMatrix = Matrix33.identity();
 
     this._is_translate_updated = true;
     this._is_euler_angles_updated = true;
@@ -198,10 +199,9 @@ export default class TransformComponent extends Component {
         this._is_quaternion_updated = true;
         this._quaternion = value;
         return value;
-      } else {
-        console.log('Not Quaternion Updated in error!');
       }
     }
+    return this._quaternion;
   }
 
   set matrix(mat: Matrix44) {
@@ -381,12 +381,12 @@ export default class TransformComponent extends Component {
 
   __updateMatrix() {
     if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-      const rotationMatrix = new Matrix44(this.getQuaternionNotAnimated());
+      const rotationMatrix = new Matrix44(this._quaternion);
   
-      let scale = this.getScaleNotAnimated();
+      let scale = this._scale;
   
       this._matrix = Matrix44.multiply(rotationMatrix, Matrix44.scale(scale));
-      let translateVec = this.getTranslateNotAnimated();
+      let translateVec = this._translate;
       this._matrix.m03 = translateVec.x;
       this._matrix.m13 = translateVec.y;
       this._matrix.m23 = translateVec.z;
@@ -404,9 +404,11 @@ export default class TransformComponent extends Component {
     for(let key in json) {
       if(json.hasOwnProperty(key) && key in this) {
         if (key === "quaternion") {
-          this[key] = MathClassUtil.arrayToQuaternion(json[key]);
+          this[key] = new Quaternion(json[key] as Array<number>);
+        } else if (key === 'matrix') {
+          this[key] = new Matrix44(json[key] as Array<number>);
         } else {
-          this[key] = MathClassUtil.arrayToVectorOrMatrix(json[key]);
+          this[key] = new Vector3(json[key] as Array<number>);
         }
       }
     }
@@ -431,7 +433,7 @@ export default class TransformComponent extends Component {
     rotateMatrix.m12 = zDir.y;
     rotateMatrix.m22 = zDir.z;
   
-    this.rotateMatrix33 = rotateMatrix;
+    this.rotateMatrix44 = rotateMatrix;
   }
 
   headToDirection(fromVec: Vector3, toVec: Vector3) {
@@ -440,18 +442,15 @@ export default class TransformComponent extends Component {
     const rotationDir = Vector3.cross(fromDir, toDir);
     const cosTheta = Vector3.dotProduct(fromDir, toDir);
     let theta = Math.acos(cosTheta);
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      theta = MathUtil.radianToDegree(theta);
-    }
     this.quaternion = Quaternion.axisAngle(rotationDir, theta);
   }
 
-  set rotateMatrix33(rotateMatrix: Matrix33) {
+  set rotateMatrix44(rotateMatrix: Matrix44) {
     this.quaternion = Quaternion.fromMatrix(rotateMatrix);
   }
 
-  get rotateMatrix33() {
-    return new Matrix33(this.quaternion);
+  get rotateMatrix44() {
+    return new Matrix44(this.quaternion);
   }
 }
 

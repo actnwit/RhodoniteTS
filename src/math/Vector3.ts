@@ -7,7 +7,7 @@ import is from '../misc/IsUtil';
 export default class Vector3 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|Vector4, y?:number, z?:number) {
+  constructor(x:number|TypedArray|Vector2|Vector3|Vector4|Array<number>, y?:number, z?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;

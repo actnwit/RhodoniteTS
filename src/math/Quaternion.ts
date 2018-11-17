@@ -8,7 +8,7 @@ import Matrix44 from './Matrix44';
 export default class Quaternion {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector3|Vector4, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|Vector4|Array<number>, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;

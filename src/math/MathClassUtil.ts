@@ -61,14 +61,17 @@ export default class MathClassUtil {
 
   }
 
-  static arrayToQuaternion(element:Array<number>) {
+  static isAcceptableArrayForQuaternion(element: Array<number>) {
     if (Array.isArray(element)) {
       if(typeof(element[3]) !== 'undefined') {
-        return new Quaternion(element[0], element[1], element[2], element[3]);
+        return true;
       }
-    } else {
-      return element;
     }
+    return false;
+  }
+
+  static arrayToQuaternion(element:Array<number>) {
+    return new Quaternion(element[0], element[1], element[2], element[3]);
   }
 
   static makeSubArray(array:Array<any>, componentN:number) {
