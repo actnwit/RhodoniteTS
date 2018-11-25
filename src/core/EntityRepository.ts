@@ -9,7 +9,7 @@ export default class EntityRepository {
   private __entities: Array<Entity>;
   static __singletonEnforcer:Symbol;
   private __componentRepository: ComponentRepository;
-  private __components: Map<EntityUID, Map<ComponentTID, Component>>;
+  _components: Map<EntityUID, Map<ComponentTID, Component>>;
  
   private constructor(enforcer: Symbol) {
     if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
@@ -19,7 +19,7 @@ export default class EntityRepository {
     this.__entity_uid_count = 0;
 
     this.__entities = [];
-    this.__components = new Map();
+    this._components = new Map();
     this.__componentRepository = ComponentRepository.getInstance();
   }
 
@@ -31,14 +31,14 @@ export default class EntityRepository {
     return thisClass.__singleton;
   }
 
-  createEntity(componentTidArray: Array<ComponentTID>) {
+  createEntity(componentTidArray: Array<ComponentTID>): Entity {
     const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer);
     this.__entities.push(entity);
     for (let componentTid of componentTidArray) {
       const component = this.__componentRepository.createComponent(componentTid);
       const map = new Map();
       map.set(componentTid, component);
-      this.__components.set(entity.entityUID, map);
+      this._components.set(entity.entityUID, map);
     }
 
     return entity;
