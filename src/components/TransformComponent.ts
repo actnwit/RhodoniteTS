@@ -9,7 +9,6 @@ import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
 import Component from '../core/Component';
 import ComponentRepository from '../core/ComponentRepository';
-import MemeoryManager from '../core/MemoryManager';
 import MemoryManager from '../core/MemoryManager';
 
 // import AnimationComponent from './AnimationComponent';
@@ -32,8 +31,6 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
-  private __entityUid: EntityUID;
-  private __memoryManager: MemoryManager;
   private __initialAddressInThisMemoryPoolArea: number;
   private __currentAddressInThisMemoryPoolArea: number;
   
@@ -43,10 +40,8 @@ export default class TransformComponent extends Component {
   private _dependentAnimationComponentId: number = 0;
 
   constructor(entityUid: EntityUID) {
-    super();
+    super(entityUid);
     
-    this.__entityUid = entityUid;
-    this.__memoryManager = MemeoryManager.getInstance();
     this.__initialAddressInThisMemoryPoolArea = (TransformComponent.componentTID - 1) * entityUid;
     this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
 

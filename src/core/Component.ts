@@ -1,10 +1,17 @@
+import MemoryManager from '../core/MemoryManager';
+
 export default class Component {
   private _component_sid: number;
   private __isAlive: Boolean;
+  private __entityUid: EntityUID;
+  protected __memoryManager: MemoryManager;
 
-  constructor() {
+  constructor(entityUid: EntityUID) {
+    this.__entityUid = entityUid
     this._component_sid = 0;
     this.__isAlive = true;
+
+    this.__memoryManager = MemoryManager.getInstance();
   }
 
   static get componentTID() {
