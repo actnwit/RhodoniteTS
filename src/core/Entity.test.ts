@@ -9,6 +9,6 @@ test('A Entity is creatable', () => {
 
 test('The EntityRepository creates a entity whose uid is 1', () => {
   const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity();
-  expect(firstEntity.entityUid).toBe(1);
+  const firstEntity = repo.createEntity([]);
+  expect(firstEntity.entityUID).toBe(1);
 });

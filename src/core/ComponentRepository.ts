@@ -21,6 +21,7 @@ export default class ComponentRepository {
 
     this.__component_sid_count_map = new Map();
     this.__components = new Map;
+    ComponentRepository.__componentClasses = new Map();
   }
 
   static registerComponentClass(componentTID: ComponentTID, componentClass: ComponentConstructor) {
