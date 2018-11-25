@@ -9,7 +9,7 @@
 const singleton = Symbol();
 
 export default class MemoryManager {
-  private __renderingMemoryPool: Float32Array;
+  private __renderingMemoryPool: Float64Array;
   private static __singletonEnforcer: Symbol;
   //__entityMaxCount: number;
 
@@ -21,7 +21,7 @@ export default class MemoryManager {
 
     thisClass.__singletonEnforcer = Symbol();
 
-    this.__renderingMemoryPool = new Float32Array(67108864); //(2^12)*(2^12)*4(rgba)
+    this.__renderingMemoryPool = new Float64Array(67108864); //(2^12)*(2^12)*4(rgba)
     //this.__entityMaxCount = 1000000;
   }
 
@@ -33,4 +33,7 @@ export default class MemoryManager {
     return (thisClass as any)[singleton];
   }
 
+  allocate(begin: number, size: number): Float64Array {
+    return this.__renderingMemoryPool.subarray(begin, begin+size);
+  } 
 }

@@ -52,5 +52,5 @@ export default class Component {
 }
 
 export interface ComponentConstructor {
-  new(): Component;
+  new(entityUid: EntityUID): Component;
 }

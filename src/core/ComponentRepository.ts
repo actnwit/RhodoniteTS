@@ -38,11 +38,11 @@ export default class ComponentRepository {
     return (thisClass as any).singleton;
   }
 
-  createComponent(componentTID: ComponentTID) {
+  createComponent(componentTID: ComponentTID, entityUid: EntityUID) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTID);
     if (componentClass != null) {
-      const component = new componentClass() as Component;
+      const component = new componentClass(entityUid) as Component;
       const componentTid = (component as any).constructor.componentTID;
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
 

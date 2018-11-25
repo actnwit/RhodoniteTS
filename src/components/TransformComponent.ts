@@ -9,6 +9,8 @@ import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
 import Component from '../core/Component';
 import ComponentRepository from '../core/ComponentRepository';
+import MemeoryManager from '../core/MemoryManager';
+import MemoryManager from '../core/MemoryManager';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -30,19 +32,30 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
+  private __entityUid: EntityUID;
+  private __memoryManager: MemoryManager;
+  private __initialAddressInThisMemoryPoolArea: number;
+  private __currentAddressInThisMemoryPoolArea: number;
+  
   _updateCountAsElement: number;
   
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
-  constructor() {
+  constructor(entityUid: EntityUID) {
     super();
     
+    this.__entityUid = entityUid;
+    this.__memoryManager = MemeoryManager.getInstance();
+    this.__initialAddressInThisMemoryPoolArea = (TransformComponent.componentTID - 1) * entityUid;
+    this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
+
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
     this._quaternion = new Quaternion(0, 0, 0, 1);
-    this._matrix = Matrix44.identity();
+    this._matrix = new Matrix44(this.allocate(16), false, true);
+    this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
 
@@ -67,6 +80,20 @@ export default class TransformComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return 1;
+  }
+
+  get sizeOfThisComponent() {
+    return 64;
+  }
+
+  allocate(size: number) {
+    const memory = this.__memoryManager.allocate(this.__currentAddressInThisMemoryPoolArea, size);
+    this.__currentAddressInThisMemoryPoolArea += size;
+    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > this.sizeOfThisComponent) {
+      console.error('Exceeded allocation aginst max memory size of compoment!');
+    }
+
+    return memory;
   }
 
   $create() {

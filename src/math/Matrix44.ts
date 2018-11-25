@@ -5,34 +5,37 @@ import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import MathUtil from './MathUtil';
 
+const FloatArray = Float64Array;
+type FloatArray = Float64Array;
+
 export default class Matrix44 {
   m: TypedArray;
 
-  constructor(m: Float32Array, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
-  constructor(m: Array<number>, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
-  constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
-  constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
-  constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+  constructor(m: FloatArray, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: Array<number>, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
     m4: number, m5: number, m6: number, m7: number,
     m8: number, m9: number, m10: number, m11: number,
     m12: number, m13: number, m14: number, m15: number,
-    isColumnMajor?:Boolean, notCopyFloat32Array?:Boolean);
+    isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
   constructor(
     m0: any, m1: any, m2: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor:Boolean = false, notCopyFloat32Array:Boolean = false) {
+    isColumnMajor:Boolean = false, notCopyFloatArray:Boolean = false) {
   
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-    const _notCopyFloat32Array = (arguments.length >= 16) ? notCopyFloat32Array : m2;
+    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
      
     const m = m0;
 
     if (arguments.length >= 16) {
-      this.m = new Float32Array(16); // Data order is column major
+      this.m = new FloatArray(16); // Data order is column major
       if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
@@ -44,7 +47,7 @@ export default class Matrix44 {
         this.setComponents.apply(this, arguments);  // arguments[0-15] must be row major values if isColumnMajor is false
       }
     } else if (Array.isArray(m as Array<number>)) {
-      this.m = new Float32Array(16);
+      this.m = new FloatArray(16);
       if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[4], m[8], m[12],
@@ -54,11 +57,11 @@ export default class Matrix44 {
       } else {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
-    } else if (m instanceof Float32Array) {
-      if (_notCopyFloat32Array) {
+    } else if (m instanceof FloatArray) {
+      if (_notCopyFloatArray) {
         this.m = m;
       } else {
-        this.m = new Float32Array(16);
+        this.m = new FloatArray(16);
         if (_isColumnMajor === true) {
           this.setComponents(
             m[0], m[4], m[8], m[12],
@@ -70,10 +73,10 @@ export default class Matrix44 {
         }  
       }
     } else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
-      if (_notCopyFloat32Array) {
+      if (_notCopyFloatArray) {
         this.m = m.m;
       } else {
-        this.m = new Float32Array(16);
+        this.m = new FloatArray(16);
         if (_isColumnMajor === true) {
           this.setComponents(
             m.m00, m.m01, m.m02, 0,
@@ -85,7 +88,7 @@ export default class Matrix44 {
         }  
       }
     } else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-      this.m = new Float32Array(16);
+      this.m = new FloatArray(16);
 
       const sx = m.x * m.x;
       const sy = m.y * m.y;
@@ -104,7 +107,7 @@ export default class Matrix44 {
         0.0, 0.0, 0.0, 1.0
       );
     } else {
-      this.m = new Float32Array(16);
+      this.m = new FloatArray(16);
       this.identity();
     }
   }

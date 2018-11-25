@@ -35,7 +35,7 @@ export default class EntityRepository {
     const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer);
     this.__entities.push(entity);
     for (let componentTid of componentTidArray) {
-      const component = this.__componentRepository.createComponent(componentTid);
+      const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
       const map = new Map();
       map.set(componentTid, component);
       this._components.set(entity.entityUID, map);

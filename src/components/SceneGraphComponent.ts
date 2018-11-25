@@ -2,6 +2,11 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 
 export default class SceneGraphComponent extends Component {
+  private __parent?: SceneGraphComponent;
+  constructor() {
+    super();
+
+  }
 
   static get maxCount() {
     return 1000000;
