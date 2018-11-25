@@ -7,7 +7,7 @@ export default class EntityRepository {
   private static __singleton: EntityRepository;
   private __entity_uid_count: number;
   private __entities: Array<Entity>;
-  private static __singletonEnforcer:Symbol;
+  static __singletonEnforcer:Symbol;
   private __componentRepository: ComponentRepository;
   private __components: Map<EntityUID, Map<ComponentTID, Component>>;
  
@@ -15,8 +15,6 @@ export default class EntityRepository {
     if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
-
-    EntityRepository.__singletonEnforcer = Symbol();
 
     this.__entity_uid_count = 0;
 
@@ -34,7 +32,7 @@ export default class EntityRepository {
   }
 
   createEntity(componentTidArray: Array<ComponentTID>) {
-    const entity = new Entity(++this.__entity_uid_count, true);
+    const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer);
     this.__entities.push(entity);
     for (let componentTid of componentTidArray) {
       const component = this.__componentRepository.createComponent(componentTid);
@@ -48,3 +46,4 @@ export default class EntityRepository {
 
 }
 
+EntityRepository.__singletonEnforcer = Symbol();

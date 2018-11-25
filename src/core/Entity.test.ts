@@ -1,10 +1,15 @@
 import Entity from './Entity';
 import EntityRepository from './EntityRepository';
+import is from '../misc/IsUtil';
 
 
-test('A Entity is creatable', () => {
-  const entity = new Entity(1, true);
-  expect(entity instanceof Entity).toBe(true);
+test('Entities cannot be instantiated by new operator.', () => {
+  let entity = null;
+  try {
+    entity = new Entity(1, true, Symbol());
+  } catch {
+    expect(is.not.exist(entity)).toBe(true);
+  }
 });
 
 test('The EntityRepository creates a entity whose uid is 1', () => {

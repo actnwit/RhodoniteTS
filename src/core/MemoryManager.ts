@@ -6,17 +6,16 @@
  *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
  * ); 
  */
-const singleton:any = Symbol();
+const singleton = Symbol();
 
 export default class MemoryManager {
   private __renderingMemoryPool: Float32Array;
   private static __singletonEnforcer: Symbol;
-  private static __singleton: MemoryManager;
   //__entityMaxCount: number;
 
   private constructor(enforcer: Symbol) {
     const thisClass = MemoryManager;
-    if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof EntityRepository)) {
+    if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof MemoryManager)) {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
 
@@ -28,10 +27,10 @@ export default class MemoryManager {
 
   static getInstance() {
     const thisClass = MemoryManager;
-    if (!thisClass.__singleton) {
-      thisClass.__singleton = new MemoryManager(thisClass.__singletonEnforcer);
+    if (!(thisClass as any)[singleton]) {
+      (thisClass as any)[singleton] = new MemoryManager(thisClass.__singletonEnforcer);
     }
-    return thisClass.__singleton;
+    return (thisClass as any)[singleton];
   }
 
 }
