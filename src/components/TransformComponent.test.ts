@@ -5,16 +5,28 @@ import TransformComponent from './TransformComponent';
 import is from '../misc/IsUtil';
 import Vector3 from '../math/Vector3';
 
-test('The EntityRepository creates a entity whose uid is 1', () => {
+function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity([TransformComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent.componentTID]);
+  return entity;
+}
+
+test('The EntityRepository creates a entity whose uid is 1', () => {
+  const firstEntity = generateEntity();
   expect(firstEntity.entityUID).toBe(1);
 });
 
-test('translate', () => {
-  const repo = EntityRepository.getInstance();
-  const firstEntity = repo.createEntity([TransformComponent.componentTID]);
+test('Use translate simply', () => {
+  const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransfrom();
   transformComponent.translate = new Vector3(1, 0, 0);
   expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
 });
+
+test('Use translate simply', () => {
+  const firstEntity = generateEntity();
+  const transformComponent = firstEntity.getTransfrom();
+  transformComponent.translate = new Vector3(1, 0, 0);
+  expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
+});
+

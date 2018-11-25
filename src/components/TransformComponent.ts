@@ -66,7 +66,7 @@ export default class TransformComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
-    return 2;
+    return 1;
   }
 
   $create() {
