@@ -1,4 +1,5 @@
 import Component from './Component';
+import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
 
 type ComponentTID = number;
@@ -11,6 +12,8 @@ export default class ComponentRepository {
   private __component_sid_count_map: Map<ComponentTID, number>;
   private __components: Map<ComponentTID, Map<ComponentSID, Component>>;
   private static __singleton: ComponentRepository;
+  private static __componentClasses: Map<ComponentTID, ComponentConstructor>;
+
 
   constructor(enforcer: Symbol) {
     if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
@@ -23,6 +26,16 @@ export default class ComponentRepository {
     this.__components = new Map;
   }
 
+  static registerComponentClass(componentTID: ComponentTID, componentClass: ComponentConstructor) {
+    const thisClass = ComponentRepository;
+    thisClass.__componentClasses.set(componentTID, componentClass);
+  }
+
+  static unregisterComponentClass(componentTID: ComponentTID) {
+    const thisClass = ComponentRepository;
+    thisClass.__componentClasses.delete(componentTID);
+  }
+
   static getInstance() {
     const thisClass = ComponentRepository;
     if (!thisClass.__singleton) {
@@ -31,25 +44,30 @@ export default class ComponentRepository {
     return thisClass.__singleton;
   }
 
-  createComponent(componentClass: Component) {
-    const component = componentClass.constructor();
-    let component_sid_count = this.__component_sid_count_map.get(component.componentTID);
-    if (!is.exist(component_sid_count)) {
-      this.__component_sid_count_map.set(component.componentTID, 0);
-      component_sid_count = 0;
-    }
-    component._component_uid = this.__component_sid_count_map.set(
-      component.componentTID,
-      component_sid_count !== undefined ? ++component_sid_count : 1
-    );
+  createComponent(componentTID: ComponentTID) {
+    const thisClass = ComponentRepository;
+    const componentClass = thisClass.__componentClasses.get(componentTID);
+    if (componentClass != null) {
+      const component = new componentClass() as Component;
+      let component_sid_count = this.__component_sid_count_map.get(component.componentTID);
 
-    if (!this.__components.has(component.componentTID)) {
-      this.__components.set(component.componentTID, new Map());
-    }
-    this.__components.set(component.componentTID, new Map(component));
+      if (!is.exist(component_sid_count)) {
+        this.__component_sid_count_map.set(component.constructor.componentTID, 0);
+        component_sid_count = 0;
+      }
+      component._component_uid = this.__component_sid_count_map.set(
+        component.componentTID,
+        component_sid_count !== undefined ? ++component_sid_count : 1
+      );
 
-    return component;
+      if (!this.__components.has(component.componentTID)) {
+        this.__components.set(component.componentTID, new Map());
+      }
+      this.__components.set(component.componentTID, new Map(component));
+
+      return component;
+    }
+
+    return null;
   }
-
-
 }

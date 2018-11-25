@@ -1,4 +1,3 @@
-
 export default class Component {
   private _component_sid: number;
   private __isAlive: Boolean;
@@ -8,11 +7,11 @@ export default class Component {
     this.__isAlive = true;
   }
 
-  static get componentTid() {
+  static get componentTID() {
     return 0;
   }
 
-  get componentSid() {
+  get componentSID() {
     return this._component_sid;
   }
 
@@ -50,4 +49,8 @@ export default class Component {
   $discard() {
     
   }
+}
+
+interface ComponentConstructor {
+  new(): Component;
 }

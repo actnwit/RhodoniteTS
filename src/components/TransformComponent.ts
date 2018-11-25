@@ -7,6 +7,7 @@ import Matrix44 from '../math/Matrix44';
 import MathUtil from '../math/MathUtil';
 import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
+import Context from '../core/Context';
 
 import Component from '../core/Component';
 // import AnimationComponent from './AnimationComponent';
@@ -404,11 +405,11 @@ export default class TransformComponent extends Component {
     for(let key in json) {
       if(json.hasOwnProperty(key) && key in this) {
         if (key === "quaternion") {
-          this[key] = new Quaternion(json[key] as Array<number>);
+          this[key] = new Quaternion((json as any)[key] as Array<number>);
         } else if (key === 'matrix') {
-          this[key] = new Matrix44(json[key] as Array<number>);
+          this[key] = new Matrix44((json as any)[key] as Array<number>);
         } else {
-          this[key] = new Vector3(json[key] as Array<number>);
+          (this as any)[key] = new Vector3((json as any)[key] as Array<number>);
         }
       }
     }
@@ -454,3 +455,4 @@ export default class TransformComponent extends Component {
   }
 }
 
+Context.registerComponentType(TransformComponent.componentTID());

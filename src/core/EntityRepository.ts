@@ -7,7 +7,7 @@ export default class EntityRepository {
   private __entity_uid_count: number;
   private __entities: Array<Entity>;
   private static __singletonEnforcer:Symbol;
-
+  
   private constructor(enforcer: Symbol) {
     if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
