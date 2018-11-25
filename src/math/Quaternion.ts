@@ -67,7 +67,13 @@ export default class Quaternion {
   }
 
   static invert(quat: Quaternion) {
-    return new Quaternion(-quat.x, -quat.y, -quat.z, quat.w).multiply(1.0/(quat.x*quat.x + quat.y*quat.y + quat.z*quat.z + quat.w*quat.w));
+    quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
+    const inorm2 = 1.0/(quat.x*quat.x + quat.y*quat.y + quat.z*quat.z + quat.w*quat.w);
+    quat.x *= inorm2;
+    quat.y *= inorm2;
+    quat.z *= inorm2;
+    quat.w *= inorm2;
+    return quat;
   }
 
   static qlerp(lhq: Quaternion, rhq: Quaternion, ratio:number) {
@@ -111,13 +117,7 @@ export default class Quaternion {
     }
   }
 
-  axisAngle(axisVec3:Vector3, angle:number) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
+  axisAngle(axisVec3:Vector3, radian:number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
@@ -130,13 +130,7 @@ export default class Quaternion {
     return this;
   }
 
-  static axisAngle(axisVec3, angle) {
-    var radian = 0;
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      radian = MathUtil.degreeToRadian(angle);
-    } else {
-      radian = angle;
-    }
+  static axisAngle(axisVec3: Vector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
@@ -257,7 +251,7 @@ export default class Quaternion {
   }
 */
 
-  static fromPosition(vec3) {
+  static fromPosition(vec3: Vector3) {
     let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }

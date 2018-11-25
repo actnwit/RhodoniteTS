@@ -5,11 +5,10 @@ import is from '../misc/IsUtil';
 let singleton:any = Symbol();
 
 export default class ComponentRepository {
-  private static __singletonEnforcer: Symbol;
+  static __singletonEnforcer: Symbol;
   private __component_sid_count_map: Map<ComponentTID, number>;
   private __components: Map<ComponentTID, Array<Component>>;
-  private static __singleton: ComponentRepository;
-  private static __componentClasses: Map<ComponentTID, ComponentConstructor>;
+  static __componentClasses: Map<ComponentTID, ComponentConstructor>;
 
 
   constructor(enforcer: Symbol) {
@@ -17,11 +16,8 @@ export default class ComponentRepository {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
 
-    ComponentRepository.__singletonEnforcer = Symbol();
-
     this.__component_sid_count_map = new Map();
-    this.__components = new Map;
-    ComponentRepository.__componentClasses = new Map();
+    this.__components = new Map();
   }
 
   static registerComponentClass(componentTID: ComponentTID, componentClass: ComponentConstructor) {
@@ -36,10 +32,10 @@ export default class ComponentRepository {
 
   static getInstance() {
     const thisClass = ComponentRepository;
-    if (!thisClass.__singleton) {
-      thisClass.__singleton = new ComponentRepository(ComponentRepository.__singletonEnforcer);
+    if (!(thisClass as any).singleton) {
+      (thisClass as any).singleton = new ComponentRepository(ComponentRepository.__singletonEnforcer);
     }
-    return thisClass.__singleton;
+    return (thisClass as any).singleton;
   }
 
   createComponent(componentTID: ComponentTID) {
@@ -47,7 +43,7 @@ export default class ComponentRepository {
     const componentClass = thisClass.__componentClasses.get(componentTID);
     if (componentClass != null) {
       const component = new componentClass() as Component;
-      const componentTid = (component as any).constuctor.componentTID;
+      const componentTid = (component as any).constructor.componentTID;
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
 
       if (!is.exist(component_sid_count)) {
@@ -71,3 +67,5 @@ export default class ComponentRepository {
     return null;
   }
 }
+ComponentRepository.__componentClasses = new Map();
+ComponentRepository.__singletonEnforcer = Symbol();

@@ -276,10 +276,6 @@ export default class Vector3 {
 
     let sita = Math.acos(cos_sita);
 
-    if (GLBoost["VALUE_ANGLE_UNIT"] === GLBoost.DEGREE) {
-      sita = MathUtil.radianToDegree(sita);
-    }
-
     return sita;
   }
 
