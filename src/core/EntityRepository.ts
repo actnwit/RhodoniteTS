@@ -44,6 +44,9 @@ export default class EntityRepository {
     return entity;
   }
 
+  getEntity(entityUid: EntityUID) {
+    return this.__entities[entityUid];
+  }
 }
 
 EntityRepository.__singletonEnforcer = Symbol();
