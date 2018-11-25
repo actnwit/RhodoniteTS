@@ -7,9 +7,9 @@ import Matrix44 from '../math/Matrix44';
 import MathUtil from '../math/MathUtil';
 import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
-import Context from '../core/Context';
-
 import Component from '../core/Component';
+import ComponentRepository from '../core/ComponentRepository';
+
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
@@ -65,7 +65,7 @@ export default class TransformComponent extends Component {
     return 1000000;
   }
 
-  static get componentTID() {
+  static get componentTID(): ComponentTID {
     return 2;
   }
 
@@ -455,4 +455,4 @@ export default class TransformComponent extends Component {
   }
 }
 
-Context.registerComponentType(TransformComponent.componentTID());
+ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);

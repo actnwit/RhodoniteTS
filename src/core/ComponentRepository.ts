@@ -2,15 +2,12 @@ import Component from './Component';
 import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
 
-type ComponentTID = number;
-type ComponentSID = number;
-
 let singleton:any = Symbol();
 
 export default class ComponentRepository {
   private static __singletonEnforcer: Symbol;
   private __component_sid_count_map: Map<ComponentTID, number>;
-  private __components: Map<ComponentTID, Map<ComponentSID, Component>>;
+  private __components: Map<ComponentTID, Array<Component>>;
   private static __singleton: ComponentRepository;
   private static __componentClasses: Map<ComponentTID, ComponentConstructor>;
 
@@ -49,25 +46,27 @@ export default class ComponentRepository {
     const componentClass = thisClass.__componentClasses.get(componentTID);
     if (componentClass != null) {
       const component = new componentClass() as Component;
-      let component_sid_count = this.__component_sid_count_map.get(component.componentTID);
+      const componentTid = (component as any).constuctor.componentTID;
+      let component_sid_count = this.__component_sid_count_map.get(componentTid);
 
       if (!is.exist(component_sid_count)) {
-        this.__component_sid_count_map.set(component.constructor.componentTID, 0);
+        this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = 0;
       }
-      component._component_uid = this.__component_sid_count_map.set(
-        component.componentTID,
+      this.__component_sid_count_map.set(
+        componentTid,
         component_sid_count !== undefined ? ++component_sid_count : 1
       );
 
-      if (!this.__components.has(component.componentTID)) {
-        this.__components.set(component.componentTID, new Map());
+      if (!this.__components.has(componentTid)) {
+        this.__components.set(componentTid, []);
       }
-      this.__components.set(component.componentTID, new Map(component));
-
-      return component;
+      const array = this.__components.get(componentTid);
+      if (array != null) {
+        array[component.componentSID] = component;
+        return component;
+      }
     }
-
     return null;
   }
 }

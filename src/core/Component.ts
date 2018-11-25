@@ -51,6 +51,6 @@ export default class Component {
   }
 }
 
-interface ComponentConstructor {
+export interface ComponentConstructor {
   new(): Component;
 }
