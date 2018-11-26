@@ -43,7 +43,7 @@ export default class TransformComponent extends Component {
   constructor(entityUid: EntityUID) {
     super(entityUid);
     
-    this.__initialAddressInThisMemoryPoolArea = (TransformComponent.componentTID - 1) * this.sizeOfThisComponent * this.componentSID;
+    this.__initialAddressInThisMemoryPoolArea = ComponentRepository.getMemoryBeginIndex(TransformComponent.componentTID) + TransformComponent.sizeOfThisComponent * this.componentSID;
     this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
 
     this._translate = Vector3.zero();
@@ -79,14 +79,14 @@ export default class TransformComponent extends Component {
     return 1;
   }
 
-  get sizeOfThisComponent() {
+  static get sizeOfThisComponent() {
     return 64;
   }
 
   allocate(size: number) {
     const memory = this.__memoryManager.allocate(this.__currentAddressInThisMemoryPoolArea, size);
     this.__currentAddressInThisMemoryPoolArea += size;
-    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > this.sizeOfThisComponent) {
+    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > TransformComponent.sizeOfThisComponent) {
       console.error('Exceeded allocation aginst max memory size of compoment!');
     }
 

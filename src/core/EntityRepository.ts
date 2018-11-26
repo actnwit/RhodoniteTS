@@ -52,6 +52,10 @@ export default class EntityRepository {
   getEntity(entityUid: EntityUID) {
     return this.__entities[entityUid];
   }
+
+  static getMaxEntityNumber() {
+    return 10000;
+  }
 }
 
 EntityRepository.__singletonEnforcer = Symbol();

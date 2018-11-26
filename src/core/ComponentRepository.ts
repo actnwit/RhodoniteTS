@@ -1,6 +1,7 @@
 import Component from './Component';
 import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
+import EntityRepository from './EntityRepository';
 
 let singleton:any = Symbol();
 
@@ -65,6 +66,19 @@ export default class ComponentRepository {
       }
     }
     return null;
+  }
+
+  static getMemoryBeginIndex(componentTid: ComponentTID) {
+    let memoryBeginIndex = 0;
+    for (let i=0; i<componentTid; i++) {
+      const componentClass = ComponentRepository.__componentClasses.get(i); 
+      if (componentClass != null) {
+        const sizeOfComponent = (componentClass as any).sizeOfThisComponent;
+        const maxEntityNumber = EntityRepository.getMaxEntityNumber();
+        memoryBeginIndex += sizeOfComponent * maxEntityNumber;
+      }
+    }
+    return memoryBeginIndex;
   }
 }
 ComponentRepository.__componentClasses = new Map();

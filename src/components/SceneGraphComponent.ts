@@ -12,13 +12,13 @@ export default class SceneGraphComponent extends Component {
   private __worldMatrix: Matrix44;
   private __initialAddressInThisMemoryPoolArea: number;
   private __currentAddressInThisMemoryPoolArea: number;
-  private __updatedProperly: boolean;
+  //private __updatedProperly: boolean;
   private __entityRepository: EntityRepository;
 
   constructor(entityUid: EntityUID) {
     super(entityUid);
 
-    this.__initialAddressInThisMemoryPoolArea = 10000 + (SceneGraphComponent.componentTID - 1) * this.sizeOfThisComponent * this.componentSID;
+    this.__initialAddressInThisMemoryPoolArea = ComponentRepository.getMemoryBeginIndex(SceneGraphComponent.componentTID) + SceneGraphComponent.sizeOfThisComponent * this.componentSID;
     //this.__initialAddressInThisMemoryPoolArea = (SceneGraphComponent.componentTID - 1)*64 + entityUid;
     this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
 
@@ -28,7 +28,7 @@ export default class SceneGraphComponent extends Component {
     //this.__worldMatrix = Matrix44.identity();
     this.__worldMatrix.identity();
 
-    this.__updatedProperly = false;
+    //this.__updatedProperly = false;
 
     this.__entityRepository = EntityRepository.getInstance();
   }
@@ -41,7 +41,7 @@ export default class SceneGraphComponent extends Component {
     return 2;
   }
 
-  get sizeOfThisComponent() {
+  static get sizeOfThisComponent() {
     return 64;
   }
 
@@ -55,11 +55,9 @@ export default class SceneGraphComponent extends Component {
   }
 
   allocate(size: number) {
-    console.log('AAAA', this.__currentAddressInThisMemoryPoolArea, size);
     const memory = this.__memoryManager.allocate(this.__currentAddressInThisMemoryPoolArea, size);
     this.__currentAddressInThisMemoryPoolArea += size;
-    console.log('AAAA', this.__currentAddressInThisMemoryPoolArea, size);
-    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > this.sizeOfThisComponent) {
+    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > SceneGraphComponent.sizeOfThisComponent) {
       console.error('Exceeded allocation aginst max memory size of compoment!');
     }
 
@@ -87,8 +85,10 @@ export default class SceneGraphComponent extends Component {
     if (!(this.__parent != null)) {
       // if there is not parent
       const entity = this.__entityRepository.getEntity(this.__entityUid);
-      if (!this.__updatedProperly && entity.getTransform()._dirty) {
-        this.__updatedProperly = true;
+//      if (!this.__updatedProperly && entity.getTransform()._dirty) {
+      if (entity.getTransform()._dirty) {
+        //this.__updatedProperly = true;
+        entity.getTransform()._dirty = false; 
         this.__worldMatrix = entity.getTransform().matrix;
         console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
       } else {
@@ -98,8 +98,10 @@ export default class SceneGraphComponent extends Component {
     }
     const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
     const entity = this.__entityRepository.getEntity(this.__entityUid);
-    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-      this.__updatedProperly = true;
+//    if (!this.__updatedProperly && entity.getTransform()._dirty) {
+    if (entity.getTransform()._dirty) {
+      //this.__updatedProperly = true;
+      entity.getTransform()._dirty = false;
       this.__worldMatrix = entity.getTransform().matrix;
       console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
     } else {

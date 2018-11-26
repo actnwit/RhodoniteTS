@@ -22,6 +22,10 @@ export default class Component {
     return this._component_sid;
   }
 
+  static get sizeOfThisComponent() {
+    return 0;
+  }
+
   registerDependency(component: Component, isMust: boolean) {
 
   }
