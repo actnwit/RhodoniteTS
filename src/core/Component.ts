@@ -3,7 +3,7 @@ import MemoryManager from '../core/MemoryManager';
 export default class Component {
   private _component_sid: number;
   private __isAlive: Boolean;
-  private __entityUid: EntityUID;
+  protected __entityUid: EntityUID;
   protected __memoryManager: MemoryManager;
 
   constructor(entityUid: EntityUID) {

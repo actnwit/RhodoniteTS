@@ -34,7 +34,8 @@ export default class TransformComponent extends Component {
   private __initialAddressInThisMemoryPoolArea: number;
   private __currentAddressInThisMemoryPoolArea: number;
   
-  _updateCountAsElement: number;
+  _updateCount: number;
+  _dirty: boolean;
   
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -62,7 +63,8 @@ export default class TransformComponent extends Component {
     this._is_inverse_trs_matrix_updated = true;
     this._is_normal_trs_matrix_updated = true;
 
-    this._updateCountAsElement = 0;
+    this._updateCount = 0;
+    this._dirty = false;
   }
 
   static get renderedPropertyCount() {
@@ -102,12 +104,9 @@ export default class TransformComponent extends Component {
 
   }
 
-  get updateCount() {
-    return this._updateCountAsElement;
-  }
-
   _needUpdate() {
-    this._updateCountAsElement++;
+    this._updateCount++;
+    this._dirty = true;
   }
 
   set translate(vec: Vector3) {
