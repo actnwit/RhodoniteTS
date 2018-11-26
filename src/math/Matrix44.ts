@@ -118,11 +118,12 @@ export default class Matrix44 {
     m20:number, m21:number, m22:number, m23:number,
     m30:number, m31:number, m32:number, m33:number
     ) {
+
     this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
     this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
     this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
     this.m30 = m30; this.m31 = m31; this.m32 = m32; this.m33 = m33;
-
+    
     return this;
   }
 
@@ -167,6 +168,10 @@ export default class Matrix44 {
         0, 0, 1, 0,
         0, 0, 0, 1
     );
+  }
+
+  isEqual() {
+
   }
 
   translate(vec: Vector3) {
@@ -565,8 +570,7 @@ export default class Matrix44 {
   }
 
   public set m00(val) {
-    this.m[0] = val;
-  }
+    this.m[0] = val;  }
 
   public get m00() {
     return this.m[0];

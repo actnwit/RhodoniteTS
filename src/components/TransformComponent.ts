@@ -43,7 +43,7 @@ export default class TransformComponent extends Component {
   constructor(entityUid: EntityUID) {
     super(entityUid);
     
-    this.__initialAddressInThisMemoryPoolArea = (TransformComponent.componentTID - 1) * entityUid;
+    this.__initialAddressInThisMemoryPoolArea = (TransformComponent.componentTID - 1) * this.sizeOfThisComponent * this.componentSID;
     this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
 
     this._translate = Vector3.zero();
@@ -64,11 +64,11 @@ export default class TransformComponent extends Component {
     this._is_normal_trs_matrix_updated = true;
 
     this._updateCount = 0;
-    this._dirty = false;
+    this._dirty = true;
   }
 
   static get renderedPropertyCount() {
-    return null;
+    return null
   }
 
   static get maxCount() {

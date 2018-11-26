@@ -50,8 +50,19 @@ export default class Vector4 {
     return this.constructor.name;
   }
 
-  isEqual(vec:Vector4): boolean {
+  isTrulyEqual(vec:Vector4): boolean {
     if (this.x === vec.x && this.y === vec.y && this.z === vec.z && this.w === vec.w) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(vec: Vector4, delta: number = Number.EPSILON) {
+    if (Math.abs(vec.x - this.x) < delta &&
+      Math.abs(vec.y - this.y) < delta &&
+      Math.abs(vec.z - this.z) < delta &&
+      Math.abs(vec.w - this.w) < delta) {
       return true;
     } else {
       return false;
