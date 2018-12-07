@@ -1,25 +1,12 @@
-import { EnumIO } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
 
 export interface PrimitiveModeEnum extends EnumIO {
 
 }
 
-class PrimitiveModeClass implements PrimitiveModeEnum {
-  static currentIndex = 0;
-  index = PrimitiveModeClass.currentIndex++;
-  readonly str: string;
-
+class PrimitiveModeClass extends EnumClass implements PrimitiveModeEnum {
   constructor({index, str} : {index: number, str: string}) {
-    this.index = index;
-    this.str = str;
-  }
-
-  toString(): string {
-    return this.str;
-  }
-
-  toJSON(): number {
-    return this.index;
+    super({index, str});
   }
 }
 
@@ -31,15 +18,10 @@ const Triangles: PrimitiveModeEnum = new PrimitiveModeClass({index:4, str:'TRIAN
 const TriangleStrip: PrimitiveModeEnum = new PrimitiveModeClass({index:5, str:'TRIANGLE_STRIP'});
 const TriangleFan: PrimitiveModeEnum = new PrimitiveModeClass({index:6, str:'TRIANGLE_FAN'});
 
-const primitiveMode = [Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+const typeList = [Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
 
 function from({ index }: { index: number }): PrimitiveModeEnum {
-  const match = primitiveMode.find(primitiveMode => primitiveMode.index === index);
-  if (!match) {
-    throw new Error(`Invalid PrimitiveMode index: [${index}]`);
-  }
-
-  return match;
+  return _from({typeList, index});
 }
 
 export default Object.freeze({ Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from });

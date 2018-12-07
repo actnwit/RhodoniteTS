@@ -1,25 +1,11 @@
-import { EnumIO } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
 
 export interface VertexAttributeEnum extends EnumIO {
 
 }
-
-class VertexAttributeClass implements VertexAttributeEnum {
-  static currentIndex = 0;
-  index = VertexAttributeClass.currentIndex++;
-  readonly str: string;
-
+class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
   constructor({index, str} : {index: number, str: string}) {
-    this.index = index;
-    this.str = str;
-  }
-
-  toString(): string {
-    return this.str;
-  }
-
-  toJSON(): number {
-    return this.index;
+    super({index, str});
   }
 }
 
@@ -33,15 +19,10 @@ const Joints0: VertexAttributeEnum = new VertexAttributeClass({index:6, str:'JOI
 const Weights0: VertexAttributeEnum = new VertexAttributeClass({index:7, str:'WEIGHTS_0'});
 
 
-const vertexAttribute = [Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+const typeList = [Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
 
 function from({ index }: { index: number }): VertexAttributeEnum {
-  const match = vertexAttribute.find(attribute => attribute.index === index);
-  if (!match) {
-    throw new Error(`Invalid PrimitiveMode index: [${index}]`);
-  }
-
-  return match;
+  return _from({typeList, index});
 }
 
 export default Object.freeze({ Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from });
