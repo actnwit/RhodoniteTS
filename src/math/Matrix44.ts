@@ -169,8 +169,27 @@ export default class Matrix44 {
     );
   }
 
-  isEqual() {
-
+  isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
+    if (Math.abs(mat.m[0] - this.m[0]) < delta &&
+      Math.abs(mat.m[1] - this.m[1]) < delta &&
+      Math.abs(mat.m[2] - this.m[2]) < delta &&
+      Math.abs(mat.m[3] - this.m[3]) < delta &&
+      Math.abs(mat.m[4] - this.m[4]) < delta &&
+      Math.abs(mat.m[5] - this.m[5]) < delta &&
+      Math.abs(mat.m[6] - this.m[6]) < delta &&
+      Math.abs(mat.m[7] - this.m[7]) < delta &&
+      Math.abs(mat.m[8] - this.m[8]) < delta &&
+      Math.abs(mat.m[9] - this.m[9]) < delta &&
+      Math.abs(mat.m[10] - this.m[10]) < delta &&
+      Math.abs(mat.m[11] - this.m[11]) < delta &&
+      Math.abs(mat.m[12] - this.m[12]) < delta &&
+      Math.abs(mat.m[13] - this.m[13]) < delta &&
+      Math.abs(mat.m[14] - this.m[14]) < delta &&
+      Math.abs(mat.m[15] - this.m[15]) < delta) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   translate(vec: Vector3) {
