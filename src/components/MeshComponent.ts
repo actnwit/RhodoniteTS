@@ -2,7 +2,11 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 
 export default class MeshComponent extends Component {
+  constructor(entityUid: EntityUID) {
+    super(entityUid);
 
+    
+  }
   static get maxCount() {
     return 1000000;
   }
