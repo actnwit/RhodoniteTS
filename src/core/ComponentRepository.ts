@@ -8,7 +8,7 @@ let singleton:any = Symbol();
 export default class ComponentRepository {
   static __singletonEnforcer: Symbol;
   private __component_sid_count_map: Map<ComponentTID, number>;
-  private __components: Map<ComponentTID, Array<Component>>;
+  private __components: Map<ComponentTID, Array<Component>>; // index of array is ComponentSID
   static __componentClasses: Map<ComponentTID, ComponentConstructor>;
 
 
@@ -63,6 +63,19 @@ export default class ComponentRepository {
       if (array != null) {
         array[component.componentSID] = component;
         return component;
+      }
+    }
+    return null;
+  }
+
+  getComponent(componentTid: ComponentTID, componentSid: ComponentSID) {
+    const map = this.__components.get(componentTid);
+    if (map != null) {
+      const component = map[componentSid];
+      if (component != null) {
+        return map[componentSid]
+      } else {
+        return null;
       }
     }
     return null;
