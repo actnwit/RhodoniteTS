@@ -118,12 +118,11 @@ export default class Matrix44 {
     m20:number, m21:number, m22:number, m23:number,
     m30:number, m31:number, m32:number, m33:number
     ) {
+    this.m[0] = m00; this.m[4] = m01; this.m[8] = m02; this.m[12] = m03;
+    this.m[1] = m10; this.m[5] = m11; this.m[9] = m12; this.m[13] = m13;
+    this.m[2] = m20; this.m[6] = m21; this.m[10] = m22; this.m[14] = m23;
+    this.m[3] = m30; this.m[7] = m31; this.m[11] = m32; this.m[15] = m33;
 
-    this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
-    this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
-    this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
-    this.m30 = m30; this.m31 = m31; this.m32 = m32; this.m33 = m33;
-    
     return this;
   }
 
