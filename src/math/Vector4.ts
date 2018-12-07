@@ -51,7 +51,7 @@ export default class Vector4 {
   }
 
   isStrictEqual(vec:Vector4): boolean {
-    if (this.x === vec.x && this.y === vec.y && this.z === vec.z && this.w === vec.w) {
+    if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
     } else {
       return false;
@@ -59,10 +59,10 @@ export default class Vector4 {
   }
 
   isEqual(vec: Vector4, delta: number = Number.EPSILON) {
-    if (Math.abs(vec.x - this.x) < delta &&
-      Math.abs(vec.y - this.y) < delta &&
-      Math.abs(vec.z - this.z) < delta &&
-      Math.abs(vec.w - this.w) < delta) {
+    if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+      Math.abs(vec.v[1] - this.v[1]) < delta &&
+      Math.abs(vec.v[2] - this.v[2]) < delta &&
+      Math.abs(vec.v[3] - this.v[3]) < delta) {
       return true;
     } else {
       return false;
