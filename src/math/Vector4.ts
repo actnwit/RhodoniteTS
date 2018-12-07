@@ -50,7 +50,7 @@ export default class Vector4 {
     return this.constructor.name;
   }
 
-  isTrulyEqual(vec:Vector4): boolean {
+  isStrictEqual(vec:Vector4): boolean {
     if (this.x === vec.x && this.y === vec.y && this.z === vec.z && this.w === vec.w) {
       return true;
     } else {

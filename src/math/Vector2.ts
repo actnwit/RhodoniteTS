@@ -28,6 +28,23 @@ export default class Vector2 {
     return this;
   }
 
+  isStrictEqual(vec:Vector2) {
+    if (this.x === vec.x && this.y === vec.y) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(vec: Vector2, delta: number = Number.EPSILON) {
+    if (Math.abs(vec.x - this.x) < delta &&
+      Math.abs(vec.y - this.y) < delta) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   static multiply(vec2:Vector2, val:number) {
     return new Vector2(vec2.x * val, vec2.y * val);
   }

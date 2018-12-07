@@ -46,8 +46,18 @@ export default class Vector3 {
     return this.constructor.name;
   }
 
-  isEqual(vec:Vector3) {
+  isStrictEqual(vec:Vector3) {
     if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(vec: Vector3, delta: number = Number.EPSILON) {
+    if (Math.abs(vec.x - this.x) < delta &&
+      Math.abs(vec.y - this.y) < delta &&
+      Math.abs(vec.z - this.z) < delta) {
       return true;
     } else {
       return false;
