@@ -10,6 +10,7 @@ class PrimitiveModeClass extends EnumClass implements PrimitiveModeEnum {
   }
 }
 
+const Unknown: PrimitiveModeEnum = new PrimitiveModeClass({index:-1, str:'UNKNOWN'});
 const Points: PrimitiveModeEnum = new PrimitiveModeClass({index:0, str:'POINTS'});
 const Lines: PrimitiveModeEnum = new PrimitiveModeClass({index:1, str:'LINES'});
 const LineLoop: PrimitiveModeEnum = new PrimitiveModeClass({index:2, str:'LINE_LOOP'});
@@ -18,10 +19,10 @@ const Triangles: PrimitiveModeEnum = new PrimitiveModeClass({index:4, str:'TRIAN
 const TriangleStrip: PrimitiveModeEnum = new PrimitiveModeClass({index:5, str:'TRIANGLE_STRIP'});
 const TriangleFan: PrimitiveModeEnum = new PrimitiveModeClass({index:6, str:'TRIANGLE_FAN'});
 
-const typeList = [Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+const typeList = [Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
 
 function from({ index }: { index: number }): PrimitiveModeEnum {
   return _from({typeList, index});
 }
 
-export default Object.freeze({ Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from });
+export default Object.freeze({ Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from });

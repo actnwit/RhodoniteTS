@@ -9,6 +9,7 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   }
 }
 
+const Unknown: ComponentTypeEnum = new ComponentTypeClass({index:5119, str:'UNKNOWN'});
 const Byte: ComponentTypeEnum = new ComponentTypeClass({index:5120, str:'BYTE'});
 const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({index:5121, str:'UNSIGNED_BYTE'});
 const Short: ComponentTypeEnum = new ComponentTypeClass({index:5122, str:'SHORT'});
@@ -18,10 +19,10 @@ const UnsingedInt: ComponentTypeEnum = new ComponentTypeClass({index:5125, str:'
 const Float: ComponentTypeEnum = new ComponentTypeClass({index:5126, str:'FLOAT'});
 const Double: ComponentTypeEnum = new ComponentTypeClass({index:5127, str:'DOUBLE'});
 
-const typeList = [Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
+const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
 
 function from({ index }: { index: number }): ComponentTypeEnum {
   return _from({typeList, index});
 }
 
-export default Object.freeze({ Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });
+export default Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });
