@@ -14,6 +14,7 @@ export default class MemoryManager {
   private static __singletonEnforcer: Symbol = Symbol();
   //__entityMaxCount: number;
   private __buffers: Map<ObjectUID, Buffer> = new Map();
+  private __bufferForGPU: Buffer;
 
   private constructor(enforcer: Symbol) {
     const thisClass = MemoryManager;
@@ -27,6 +28,7 @@ export default class MemoryManager {
       arrayBuffer: arrayBuffer,
       name: 'BufferForGPU'});
     this.__buffers.set(buffer.objectUid, buffer);
+    this.__bufferForGPU = buffer;
     this.__renderingMemoryPool = new Float64Array(67108864); //(2^12)*(2^12)*4(rgba)
     //this.__entityMaxCount = 1000000;
   }
@@ -40,12 +42,10 @@ export default class MemoryManager {
   }
 
   allocate(begin: number, size: number): Float64Array {
-
     return this.__renderingMemoryPool.subarray(begin, begin+size);
   }
 
-  allocateBufferView({fromBufferUid, begin, size} : {fromBufferUid: ObjectUID, begin: Byte, size: Byte}) {
-    const buffer = this.__buffers.get(fromBufferUid)!;
-    const float64ArrayBuffer = new buffer.raw
+  getBufferForGPU() {
+    this.__bufferForGPU;
   }
 }

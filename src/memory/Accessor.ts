@@ -13,7 +13,7 @@ export default class Accessor extends RnObject {
   __takenCount: Count = 0;
 
   constructor({bufferView, byteOffset, compositionType, componentType, count, raw} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, raw: ComponentType}) {
+    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, raw: Uint8Array}) {
     super();
     this.__bufferView = bufferView;
     this.__byteOffset = byteOffset;
