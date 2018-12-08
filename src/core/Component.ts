@@ -22,8 +22,11 @@ export default class Component {
     return this._component_sid;
   }
 
-  static get sizeOfThisComponent() {
+  static get byteSizeOfThisComponent() {
     return 0;
+  }
+
+  static setupBufferView() {
   }
 
   registerDependency(component: Component, isMust: boolean) {
@@ -64,4 +67,5 @@ export default class Component {
 
 export interface ComponentConstructor {
   new(entityUid: EntityUID): Component;
+  setupBufferView(): void;
 }

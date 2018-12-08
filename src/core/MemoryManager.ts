@@ -15,6 +15,7 @@ export default class MemoryManager {
   //__entityMaxCount: number;
   private __buffers: Map<ObjectUID, Buffer> = new Map();
   private __bufferForGPU: Buffer;
+  private __bufferForCPU: Buffer;
 
   private constructor(enforcer: Symbol) {
     const thisClass = MemoryManager;
@@ -22,15 +23,28 @@ export default class MemoryManager {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
 
-    const arrayBuffer = new ArrayBuffer((2^12)*(2^12)/*width*height*/*4/*rgba*/*8/*byte*/);
-    const buffer = new Buffer({
-      byteLength:arrayBuffer.byteLength,
-      arrayBuffer: arrayBuffer,
-      name: 'BufferForGPU'});
-    this.__buffers.set(buffer.objectUid, buffer);
-    this.__bufferForGPU = buffer;
-    this.__renderingMemoryPool = new Float64Array(67108864); //(2^12)*(2^12)*4(rgba)
-    //this.__entityMaxCount = 1000000;
+    // BufferForGPU
+    {
+      const arrayBuffer = new ArrayBuffer((Math.pow(2,11))*Math.pow(2,11)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const buffer = new Buffer({
+        byteLength:arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: 'BufferForGPU'});
+      this.__buffers.set(buffer.objectUid, buffer);
+      this.__bufferForGPU = buffer;
+    }
+
+    // BufferForCPU
+    {
+      const arrayBuffer = new ArrayBuffer((Math.pow(2,11))*Math.pow(2,11)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const buffer = new Buffer({
+        byteLength:arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: 'BufferForCPU'});
+      this.__buffers.set(buffer.objectUid, buffer);
+      this.__bufferForCPU = buffer;
+    }
+
   }
 
   static getInstance() {
@@ -41,11 +55,10 @@ export default class MemoryManager {
     return (thisClass as any)[singleton];
   }
 
-  allocate(begin: number, size: number): Float64Array {
-    return this.__renderingMemoryPool.subarray(begin, begin+size);
+  getBufferForGPU(): Buffer {
+    return this.__bufferForGPU;
   }
-
-  getBufferForGPU() {
-    this.__bufferForGPU;
+  getBufferForCPU(): Buffer {
+    return this.__bufferForCPU;
   }
 }

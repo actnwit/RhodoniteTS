@@ -10,16 +10,23 @@ import is from '../misc/IsUtil';
 import Component from '../core/Component';
 import ComponentRepository from '../core/ComponentRepository';
 import MemoryManager from '../core/MemoryManager';
+import BufferView from '../memory/BufferView';
+import Accessor from '../memory/Accessor';
+import { CompositionType } from '../definitions/CompositionType';
+import { ComponentType } from '../definitions/ComponentType';
+import EntityRepository from '../core/EntityRepository';
 
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-
+  private static __bufferView: BufferView;
   private _translate: Vector3;
   private _rotate: Vector3;
   private _scale: Vector3;
   private _quaternion: Quaternion;
+  private static __accesseor_quaternion: Accessor;
   private _matrix: Matrix44;
+  private static __accesseor_matrix: Accessor;
   private _invMatrix: Matrix44;
   private _normalMatrix: Matrix33;
 
@@ -31,26 +38,22 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
-  private __initialAddressInThisMemoryPoolArea: number;
-  private __currentAddressInThisMemoryPoolArea: number;
-  
   _updateCount: number;
   _dirty: boolean;
-  
+
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
   constructor(entityUid: EntityUID) {
     super(entityUid);
-    
-    this.__initialAddressInThisMemoryPoolArea = ComponentRepository.getMemoryBeginIndex(TransformComponent.componentTID) + TransformComponent.sizeOfThisComponent * this.componentSID;
-    this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
+
+    const thisClass = TransformComponent;
 
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
     this._quaternion = new Quaternion(0, 0, 0, 1);
-    this._matrix = new Matrix44(this.allocate(16), false, true);
+    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float64Array, false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -79,18 +82,18 @@ export default class TransformComponent extends Component {
     return 1;
   }
 
-  static get sizeOfThisComponent() {
-    return 64;
+  static get byteSizeOfThisComponent() {
+    return 128;
   }
 
-  allocate(size: number) {
-    const memory = this.__memoryManager.allocate(this.__currentAddressInThisMemoryPoolArea, size);
-    this.__currentAddressInThisMemoryPoolArea += size;
-    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > TransformComponent.sizeOfThisComponent) {
-      console.error('Exceeded allocation aginst max memory size of compoment!');
-    }
+  static setupBufferView() {
+    const thisClass = TransformComponent;
+    const buffer = MemoryManager.getInstance().getBufferForCPU();    const count = EntityRepository.getMaxEntityNumber();
+    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0});
 
-    return memory;
+    // accessors
+    thisClass.__accesseor_matrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
+    thisClass.__accesseor_quaternion = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Double, count: count});
   }
 
   $create() {

@@ -23,7 +23,7 @@ export default class Accessor extends RnObject {
     this.__raw = raw;
   }
 
-  takeOne() {
+  takeOne(): TypedArray {
     const componentType = this.__componentType
     const getTypedArrayClass = (componentType: ComponentTypeEnum) => {
       switch (componentType) {
@@ -48,6 +48,6 @@ export default class Accessor extends RnObject {
     const subTypedArray = new typedArrayClass!(arrayBufferOfBufferView, this.__byteOffset + stride * this.__takenCount, this.__compositionType.getNumberOfComponents());
     this.__takenCount += 1;
 
-    return subTypedArray
+    return subTypedArray;
   }
 }

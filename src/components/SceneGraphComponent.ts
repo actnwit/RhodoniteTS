@@ -4,27 +4,29 @@ import Matrix44 from '../math/Matrix44';
 import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import MemoryManager from '../core/MemoryManager';
+import BufferView from '../memory/BufferView';
+import Accessor from '../memory/Accessor';
+import { CompositionType } from '../definitions/CompositionType';
+import { ComponentType } from '../definitions/ComponentType';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
   private __worldMatrix: Matrix44;
-  private __initialAddressInThisMemoryPoolArea: number;
-  private __currentAddressInThisMemoryPoolArea: number;
   //private __updatedProperly: boolean;
   private __entityRepository: EntityRepository;
+  private static __bufferView: BufferView;
+  private static __accesseor_worldMatrix: Accessor;
 
   constructor(entityUid: EntityUID) {
     super(entityUid);
-
-    this.__initialAddressInThisMemoryPoolArea = ComponentRepository.getMemoryBeginIndex(SceneGraphComponent.componentTID) + SceneGraphComponent.sizeOfThisComponent * this.componentSID;
-    //this.__initialAddressInThisMemoryPoolArea = (SceneGraphComponent.componentTID - 1)*64 + entityUid;
-    this.__currentAddressInThisMemoryPoolArea = this.__initialAddressInThisMemoryPoolArea;
+    
+    const thisClass = SceneGraphComponent;
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new Matrix44(this.allocate(16), false, true);
+    this.__worldMatrix = new Matrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float64Array, false, true);
     //this.__worldMatrix = Matrix44.identity();
     this.__worldMatrix.identity();
 
@@ -41,8 +43,15 @@ export default class SceneGraphComponent extends Component {
     return 2;
   }
 
-  static get sizeOfThisComponent() {
+  static get byteSizeOfThisComponent() {
     return 64;
+  }
+
+  static setupBufferView() {
+    const thisClass = SceneGraphComponent;
+    const buffer = MemoryManager.getInstance().getBufferForGPU();    const count = EntityRepository.getMaxEntityNumber();
+    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0});
+    thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
   }
 
   beAbleToBeParent(flag: boolean) {
@@ -52,16 +61,6 @@ export default class SceneGraphComponent extends Component {
     } else {
       this.__children = void 0;
     }
-  }
-
-  allocate(size: number) {
-    const memory = this.__memoryManager.allocate(this.__currentAddressInThisMemoryPoolArea, size);
-    this.__currentAddressInThisMemoryPoolArea += size;
-    if (this.__currentAddressInThisMemoryPoolArea - this.__initialAddressInThisMemoryPoolArea > SceneGraphComponent.sizeOfThisComponent) {
-      console.error('Exceeded allocation aginst max memory size of compoment!');
-    }
-
-    return memory;
   }
 
   addChild(sg: SceneGraphComponent) {

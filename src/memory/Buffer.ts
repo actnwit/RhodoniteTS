@@ -26,14 +26,7 @@ export default class Buffer extends RnObject {
     return this.__raw;
   }
 
-  /*
-  takeAsFloat64Array(countsOfElement: Count) {
-    const array = new Float64Array(this.__raw, this.__takenBytesIndex, countsOfElement);
-    this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * countsOfElement;
-    return array;
-  }
-  */
-  takeBufferView(byteLengthToNeed: Byte, byteStride: Byte = 0) {
+  takeBufferView({byteLengthToNeed, byteStride} : {byteLengthToNeed: Byte, byteStride: Byte}) {
     if (byteLengthToNeed % 4 !== 0) {
       console.error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
     }
@@ -44,7 +37,6 @@ export default class Buffer extends RnObject {
 
     const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array});
     bufferView.byteStride = byteStride;
-
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
 
     return bufferView;

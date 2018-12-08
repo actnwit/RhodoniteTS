@@ -45,23 +45,6 @@ export default class BufferView extends RnObject {
     const arrayBufferOfBuffer = this.__raw.buffer;
     const byteOffsetOfThisBufferView = this.__raw.byteOffset;
 
-    /*
-    const getTypedArrayClass = (componentType: ComponentTypeEnum) => {
-      switch (componentType) {
-        case ComponentType.Byte: return Int8Array;
-        case ComponentType.UnsignedByte: return Uint8Array;
-        case ComponentType.Short: return Int16Array;
-        case ComponentType.UnsignedShort: return Uint16Array;
-        case ComponentType.Int: return Int32Array;
-        case ComponentType.UnsingedInt: return Uint32Array;
-        case ComponentType.Float: return Float32Array;
-        case ComponentType.Double: return Float64Array;
-        default: console.error('Unexpected ComponentType!');
-      }
-    }
-    const typedArrayClass = getTypedArrayClass(componentType);
-    */
-
     let byteOffset = 0;
     if (this.isAoS) {
       byteOffset = this.__takenByteIndex;

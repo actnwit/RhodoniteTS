@@ -43,6 +43,7 @@ export default class ComponentRepository {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTID);
     if (componentClass != null) {
+      componentClass.setupBufferView();
       const component = new componentClass(entityUid) as Component;
       const componentTid = (component as any).constructor.componentTID;
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
