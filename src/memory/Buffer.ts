@@ -33,11 +33,20 @@ export default class Buffer extends RnObject {
     return array;
   }
   */
-  takeBufferView(byteLengthToNeed: Byte, byteStride: Byte) {
+  takeBufferView(byteLengthToNeed: Byte, byteStride: Byte = 0) {
+    if (byteLengthToNeed % 4 !== 0) {
+      console.error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
+    }
+    if (byteStride % 4 !== 0) {
+      console.error('Because of memory alignment constraints, byteStride must be a multiple of 4.');
+    }
     const array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
+
+    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array});
+    bufferView.byteStride = byteStride;
+
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
 
-    const bufferView = new BufferView({buffer: this, byteOffset: array.byteOffset, byteLength: array.byteLength});
     return bufferView;
   }
 }
