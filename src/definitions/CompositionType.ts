@@ -1,13 +1,18 @@
 import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
 
 export interface CompositionTypeEnum extends EnumIO {
+  getNumberOfComponents(): Count;
 }
 
 class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
-  readonly numberOfComponents: number = 0;
+  readonly __numberOfComponents: number = 0;
   constructor({index, str, numberOfComponent} : {index: number, str: string, numberOfComponent: number}) {
     super({index, str});
-    this.numberOfComponents = numberOfComponent;
+    this.__numberOfComponents = numberOfComponent;
+  }
+
+  getNumberOfComponents(): Count {
+    return this.__numberOfComponents;
   }
 }
 
@@ -23,7 +28,7 @@ const Mat4: CompositionTypeEnum = new CompositionTypeClass({index:6, str:'MAT4',
 const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
 
 function from({ index }: { index: number }): CompositionTypeEnum {
-  return _from({typeList, index});
+  return _from({typeList, index}) as CompositionTypeEnum;
 }
 
 export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from });

@@ -1,13 +1,18 @@
 import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
 
 export interface ComponentTypeEnum extends EnumIO {
+  getSizeInBytes(): Byte;
 }
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
-  readonly sizeInBytes: number;
+  readonly __sizeInBytes: number;
   constructor({index, str, sizeInBytes} : {index: number, str: string, sizeInBytes: number}) {
     super({index, str});
-    this.sizeInBytes = sizeInBytes
+    this.__sizeInBytes = sizeInBytes
+  }
+
+  getSizeInBytes(): Byte {
+    return this.__sizeInBytes;
   }
 }
 
@@ -24,7 +29,7 @@ const Double: ComponentTypeEnum = new ComponentTypeClass({index:5127, str:'DOUBL
 const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
 
 function from({ index }: { index: number }): ComponentTypeEnum {
-  return _from({typeList, index});
+  return _from({typeList, index}) as ComponentTypeEnum;
 }
 
 export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });

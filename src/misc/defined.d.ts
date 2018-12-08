@@ -3,6 +3,8 @@ Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 type Index = number;
 type Size = number;
+type Count = number;
+type Byte = number;
 
 type ObjectUID = number;
 type EntityUID = number;
