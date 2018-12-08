@@ -45,7 +45,7 @@ export default class Accessor extends RnObject {
     if (this.__bufferView.isAoS) {
       stride = this.__bufferView.byteStride;
     }
-    const subTypedArray = new typedArrayClass!(arrayBufferOfBufferView, this.__byteOffset + stride * this.__takenCount);
+    const subTypedArray = new typedArrayClass!(arrayBufferOfBufferView, this.__byteOffset + stride * this.__takenCount, this.__compositionType.getNumberOfComponents());
     this.__takenCount += 1;
 
     return subTypedArray
