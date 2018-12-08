@@ -25,4 +25,4 @@ function from({ index }: { index: number }): PrimitiveModeEnum {
   return _from({typeList, index});
 }
 
-export default Object.freeze({ Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from });
+export const PrimitiveMode = Object.freeze({ Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from });

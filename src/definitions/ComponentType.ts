@@ -25,4 +25,4 @@ function from({ index }: { index: number }): ComponentTypeEnum {
   return _from({typeList, index});
 }
 
-export default Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });

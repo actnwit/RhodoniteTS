@@ -26,4 +26,4 @@ function from({ index }: { index: number }): VertexAttributeEnum {
   return _from({typeList, index});
 }
 
-export default Object.freeze({ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from });
+export const VertexAttribute = Object.freeze({ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from });
