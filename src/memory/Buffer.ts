@@ -28,10 +28,12 @@ export default class Buffer extends RnObject {
 
   takeBufferView({byteLengthToNeed, byteStride} : {byteLengthToNeed: Byte, byteStride: Byte}) {
     if (byteLengthToNeed % 4 !== 0) {
-      console.error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
+      throw new Error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
+      return null;
     }
     if (byteStride % 4 !== 0) {
-      console.error('Because of memory alignment constraints, byteStride must be a multiple of 4.');
+      throw new Error('Because of memory alignment constraints, byteStride must be a multiple of 4.');
+      return null;
     }
     const array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
 

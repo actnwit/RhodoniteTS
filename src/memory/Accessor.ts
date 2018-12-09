@@ -11,6 +11,7 @@ export default class Accessor extends RnObject {
   __count: Count = 0;
   __raw: Uint8Array;
   __takenCount: Count = 0;
+  __byteStride: Byte = 0;
 
   constructor({bufferView, byteOffset, compositionType, componentType, count, raw} :
     {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, raw: Uint8Array}) {
@@ -21,6 +22,16 @@ export default class Accessor extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__raw = raw;
+
+    this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+    if (this.__bufferView.isAoS) {
+      this.__byteStride = this.__bufferView.byteStride;
+    }
+
+    console.log('GG', this.__byteOffset + this.__byteStride * count, this.__bufferView.__byteLength)
+    if (this.__byteOffset + this.__byteStride * count > this.__bufferView.__byteLength) {
+      throw new Error('The range of the accessor exceeds the range of the buffer view.')
+    }
   }
 
   takeOne(): TypedArray {
