@@ -49,6 +49,12 @@ export default class Quaternion {
     }
   }
 
+  identity() {
+    this.x = 0;
+    this.y = 0;
+    this.x = 0;
+    this.w = 1;
+  }
 
   isEqual(quat: Quaternion) {
     if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
