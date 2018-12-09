@@ -22,24 +22,18 @@ test('create Parents and children.', () => {
   const sceneEntity = generateEntity();
   const parentEntity = generateEntity();
   const childEntity = generateEntity();
-  const child2Entity = generateEntity();
+//  const child2Entity = generateEntity();
 
   // set transform info
   sceneEntity.getTransform().translate = new Vector3(1, 0, 0);
   parentEntity.getTransform().translate = new Vector3(1, 0, 0);
   childEntity.getTransform().translate = new Vector3(1, 0, 0);
-  child2Entity.getTransform().translate = new Vector3(0, 1, 0);
+//  child2Entity.getTransform().translate = new Vector3(0, 1, 0);
 
   // setup scene graph
   parentEntity.getScenGraph().addChild(childEntity.getScenGraph());
-  parentEntity.getScenGraph().addChild(child2Entity.getScenGraph());
+//  parentEntity.getScenGraph().addChild(child2Entity.getScenGraph());
   sceneEntity.getScenGraph().addChild(parentEntity.getScenGraph());
-
-  console.log(childEntity.getScenGraph().worldMatrix.toString());
-  console.log(child2Entity.getScenGraph().worldMatrix.toString());
-  //expect(true).toBe(true);
-
-  console.log(childEntity.getScenGraph().worldMatrix.toStringApproximately());
 
   expect(childEntity.getScenGraph().worldMatrix.isEqual(
     new Matrix44(
