@@ -44,7 +44,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   static get byteSizeOfThisComponent() {
-    return 64;
+    return 128;
   }
 
   static setupBufferView() {

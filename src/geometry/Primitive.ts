@@ -1,9 +1,15 @@
 import { PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import Accessor from '../memory/Accessor';
+import RnObject from '../core/Object';
 
-export default class Primitive {
+export default class Primitive extends RnObject {
   __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
-  __indices: ObjectUID = 0;
-  __attributes: Map<VertexAttributeEnum, ObjectUID> = new Map();
-  __material: ObjectUID = 0;
+  __indices: Accessor;
+  __attributes: Map<VertexAttributeEnum, Accessor> = new Map();
+  __material: ObjectUID;
+
+  constructor() {
+    super()
+  }
 }

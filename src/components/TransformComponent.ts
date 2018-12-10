@@ -84,7 +84,7 @@ export default class TransformComponent extends Component {
   }
 
   static get byteSizeOfThisComponent() {
-    return 128;
+    return 160;
   }
 
   static setupBufferView() {

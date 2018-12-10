@@ -33,11 +33,11 @@ export default class BufferView extends RnObject {
     return this.__byteStride;
   }
 
-  isSoA() {
+  get isSoA() {
     return (this.__byteStride === 0) ? true : false;
   }
 
-  isAoS() {
+  get isAoS() {
     return (this.__byteStride !== 0) ? true : false;
   }
 
@@ -46,7 +46,7 @@ export default class BufferView extends RnObject {
     const byteOffsetOfThisBufferView = this.__raw.byteOffset;
 
     let byteOffset = 0;
-    if (this.isAoS) {
+    if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;
     } else {

@@ -24,8 +24,27 @@ test('An accessor can take full size typedArray of the buffer', () => {
 test('The range of the accessor exceeds the range of the buffer view', () => {
   const buffer = createBuffer(100);
   const bufferView = buffer.takeBufferView({byteLengthToNeed: 64, byteStride: 0});
-  const accessor = bufferView!.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: 4});
-  const typedArray = accessor.takeOne() as Float32Array;
+  let accessor = null;
+  try {
+    accessor = bufferView!.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: 2});
+    const typedArray = accessor.takeOne() as Float32Array;
+  } catch {
+  }
+  expect(accessor).toBe(null);
 
-  expect(typedArray.byteLength).toBe(64);
+});
+
+test('The range of the accessor exceeds the range of the buffer view', () => {
+  const buffer = createBuffer(72);
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 0});
+  let accessor0 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
+  let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
+  let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
+  //let accessor3 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
+  //let accessor4 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
+
+  accessor0.setScalar(0, 100);
+  accessor0.setScalar(1, 150);
+  accessor1.setScalar(0, 200);
+  
 });
