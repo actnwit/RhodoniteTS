@@ -46,5 +46,10 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
   accessor0.setScalar(0, 100);
   accessor0.setScalar(1, 150);
   accessor1.setScalar(0, 200);
-  
+
+  const arrayBuffer = buffer.getArrayBuffer();
+  const dataView = new DataView(arrayBuffer);
+
+  expect(dataView.getFloat32(0, true)).toBe(100);
+  expect(dataView.getFloat32(16, true)).toBe(150);
 });

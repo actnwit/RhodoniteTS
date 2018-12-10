@@ -22,7 +22,7 @@ export default class Buffer extends RnObject {
     return this.__name;
   }
 
-  get raw() {
+  getArrayBuffer() {
     return this.__raw;
   }
 

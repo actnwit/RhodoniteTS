@@ -41,6 +41,10 @@ export default class BufferView extends RnObject {
     return (this.__byteStride !== 0) ? true : false;
   }
 
+  getUint8Array() {
+    return this.__raw;
+  }
+
   takeAccessor({compositionType, componentType, count} : {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count}) {
     const arrayBufferOfBuffer = this.__raw.buffer;
     const byteOffsetOfThisBufferView = this.__raw.byteOffset;

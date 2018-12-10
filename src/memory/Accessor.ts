@@ -118,74 +118,73 @@ export default class Accessor extends RnObject {
     return this.__byteStride;
   }
 
-  getScalar(index: Index): number {
-    return this.__dataViewGetter(this.__byteStride*index);
+  getScalar(index: Index, endian: boolean = true): number {
+    return this.__dataViewGetter(this.__byteStride*index, endian);
   }
 
-  getScalarAt(index: Index, compositionOffset: Index): number {
-    return this.__dataViewGetter(this.__byteStride*index + compositionOffset);
+  getScalarAt(index: Index, compositionOffset: Index, endian: boolean = true): number {
+    return this.__dataViewGetter(this.__byteStride*index + compositionOffset, endian);
   }
 
-  getVec2AsArray(index: Index): Array<number> {
-    return [this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1)];
+  getVec2AsArray(index: Index, endian: boolean = true): Array<number> {
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian)];
   }
 
-  getVec3AsArray(index: Index): Array<number> {
-    return [this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2)];
+  getVec3AsArray(index: Index, endian: boolean = true): Array<number> {
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian)];
   }
 
-  getVec4AsArray(index: Index): Array<number> {
-    return [this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2), this.__dataViewGetter(this.__byteStride*index+3)];
+  getVec4AsArray(index: Index, endian: boolean = true): Array<number> {
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian)];
   }
 
-  getMat3AsArray(index: Index): Array<number> {
+  getMat3AsArray(index: Index, endian: boolean = true): Array<number> {
     return [
-      this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2),
-      this.__dataViewGetter(this.__byteStride*index+3), this.__dataViewGetter(this.__byteStride*index+4), this.__dataViewGetter(this.__byteStride*index+5),
-      this.__dataViewGetter(this.__byteStride*index+6), this.__dataViewGetter(this.__byteStride*index+7), this.__dataViewGetter(this.__byteStride*index+8),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
+      this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
+      this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian), this.__dataViewGetter(this.__byteStride*index+8, endian),
     ];
   }
 
-  getMat4AsArray(index: Index): Array<number> {
+  getMat4AsArray(index: Index, endian: boolean = true): Array<number> {
     return [
-      this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2), this.__dataViewGetter(this.__byteStride*index+3),
-      this.__dataViewGetter(this.__byteStride*index+4), this.__dataViewGetter(this.__byteStride*index+5), this.__dataViewGetter(this.__byteStride*index+6), this.__dataViewGetter(this.__byteStride*index+7),
-      this.__dataViewGetter(this.__byteStride*index+8), this.__dataViewGetter(this.__byteStride*index+9), this.__dataViewGetter(this.__byteStride*index+10), this.__dataViewGetter(this.__byteStride*index+11),
-      this.__dataViewGetter(this.__byteStride*index+12), this.__dataViewGetter(this.__byteStride*index+13), this.__dataViewGetter(this.__byteStride*index+14), this.__dataViewGetter(this.__byteStride*index+15),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
+      this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
+      this.__dataViewGetter(this.__byteStride*index+8, endian), this.__dataViewGetter(this.__byteStride*index+9, endian), this.__dataViewGetter(this.__byteStride*index+10, endian), this.__dataViewGetter(this.__byteStride*index+11, endian),
+      this.__dataViewGetter(this.__byteStride*index+12, endian), this.__dataViewGetter(this.__byteStride*index+13, endian), this.__dataViewGetter(this.__byteStride*index+14, endian), this.__dataViewGetter(this.__byteStride*index+15, endian),
     ];
   }
 
-  getVec2(index: Index): Vector2 {
-    return new Vector2(this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1));
+  getVec2(index: Index, endian: boolean = true): Vector2 {
+    return new Vector2(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian));
   }
 
-  getVec3(index: Index): Vector3 {
-    return new Vector3(this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2));
+  getVec3(index: Index, endian: boolean = true): Vector3 {
+    return new Vector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian));
   }
 
-  getVec4(index: Index): Vector4 {
-    return new Vector4(this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2), this.__dataViewGetter(this.__byteStride*index+3));
+  getVec4(index: Index, endian: boolean = true): Vector4 {
+    return new Vector4(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian));
   }
 
-  getMat3(index: Index): Matrix33 {
+  getMat3(index: Index, endian: boolean = true): Matrix33 {
     return new Matrix33(
-      this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2),
-      this.__dataViewGetter(this.__byteStride*index+3), this.__dataViewGetter(this.__byteStride*index+4), this.__dataViewGetter(this.__byteStride*index+5),
-      this.__dataViewGetter(this.__byteStride*index+6), this.__dataViewGetter(this.__byteStride*index+7), this.__dataViewGetter(this.__byteStride*index+8),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
+      this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
+      this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian), this.__dataViewGetter(this.__byteStride*index+8, endian),
     );
   }
 
-  getMat4(index: Index): Matrix44 {
+  getMat4(index: Index, endian: boolean = true): Matrix44 {
     return new Matrix44(
-      this.__dataViewGetter(this.__byteStride*index), this.__dataViewGetter(this.__byteStride*index+1), this.__dataViewGetter(this.__byteStride*index+2), this.__dataViewGetter(this.__byteStride*index+3),
-      this.__dataViewGetter(this.__byteStride*index+4), this.__dataViewGetter(this.__byteStride*index+5), this.__dataViewGetter(this.__byteStride*index+6), this.__dataViewGetter(this.__byteStride*index+7),
-      this.__dataViewGetter(this.__byteStride*index+8), this.__dataViewGetter(this.__byteStride*index+9), this.__dataViewGetter(this.__byteStride*index+10), this.__dataViewGetter(this.__byteStride*index+11),
-      this.__dataViewGetter(this.__byteStride*index+12), this.__dataViewGetter(this.__byteStride*index+13), this.__dataViewGetter(this.__byteStride*index+14), this.__dataViewGetter(this.__byteStride*index+15),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
+      this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
+      this.__dataViewGetter(this.__byteStride*index+8, endian), this.__dataViewGetter(this.__byteStride*index+9, endian), this.__dataViewGetter(this.__byteStride*index+10, endian), this.__dataViewGetter(this.__byteStride*index+11, endian),
+      this.__dataViewGetter(this.__byteStride*index+12, endian), this.__dataViewGetter(this.__byteStride*index+13, endian), this.__dataViewGetter(this.__byteStride*index+14, endian), this.__dataViewGetter(this.__byteStride*index+15, endian),
     );
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
-    console.log(this.__byteStride);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
   }
 
