@@ -15,12 +15,4 @@ export default class Geometry  extends RnObject {
 
   }
 
-  static setupBufferView() {
-    const thisClass = Geometry;
-    const buffer = MemoryManager.getInstance().getBufferForGPU();
-    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0});
-    thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
-  }
-
 }
