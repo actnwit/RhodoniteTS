@@ -7,7 +7,6 @@ import MemoryManager from '../core/MemoryManager';
 import EntityRepository from '../core/EntityRepository';
 
 export default class Geometry  extends RnObject {
-  private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private __primitives: Array<Primitive>
 
   constructor(primitives: Array<Primitive>) {
