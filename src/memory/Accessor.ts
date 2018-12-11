@@ -32,19 +32,23 @@ export default class Accessor extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__raw = raw.buffer;
-
-    this.__typedArrayClass = this.getTypedArrayClass(componentType);
-    this.__dataView = new DataView(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count);
-    this.__typedArray = new this.__typedArrayClass!(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * count);
-    this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(componentType)!].bind(this.__dataView);
-    this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(componentType)!].bind(this.__dataView);
-
     this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     if (this.__bufferView.isAoS) {
       this.__byteStride = this.__bufferView.byteStride;
     }
 
-    console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.__byteLength)
+    this.__typedArrayClass = this.getTypedArrayClass(componentType);
+    if (this.__bufferView.isSoA) {
+      this.__dataView = new DataView(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count);
+    } else {
+      this.__dataView = new DataView(raw.buffer, this.__byteOffset);
+    }
+    this.__typedArray = new this.__typedArrayClass!(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * count);
+    this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(componentType)!].bind(this.__dataView);
+    this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(componentType)!].bind(this.__dataView);
+
+
+    //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.__byteLength)
     if (this.__byteOffset + this.__byteStride * (count - 1) > this.__bufferView.__byteLength) {
       throw new Error('The range of the accessor exceeds the range of the buffer view.')
     }
@@ -185,6 +189,7 @@ export default class Accessor extends RnObject {
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
+//    console.log('GGG', this.__typedArrayClass, this.__byteOffset, this.__dataView.byteLength, this.__byteStride*index);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
   }
 

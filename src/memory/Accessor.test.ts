@@ -34,14 +34,12 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
 
 });
 
-test('The range of the accessor exceeds the range of the buffer view', () => {
+test('In SoA mode, data can be written in the correct position.', () => {
   const buffer = createBuffer(72);
   const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 0});
   let accessor0 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
   let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
   let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
-  //let accessor3 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
-  //let accessor4 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
 
   accessor0.setScalar(0, 100);
   accessor0.setScalar(1, 150);
@@ -52,4 +50,26 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
 
   expect(dataView.getFloat32(0, true)).toBe(100);
   expect(dataView.getFloat32(16, true)).toBe(150);
+  expect(dataView.getFloat32(32, true)).toBe(200);
+
+});
+
+test('In AoS mode, data can be written in the correct position.', () => {
+  const buffer = createBuffer(72);
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 36});
+  let accessor0 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
+  let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
+  let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
+
+  accessor0.setScalar(0, 100);
+  accessor0.setScalar(1, 150);
+  accessor1.setScalar(0, 200);
+
+  const arrayBuffer = buffer.getArrayBuffer();
+  const dataView = new DataView(arrayBuffer);
+
+  expect(dataView.getFloat32(0, true)).toBe(100);
+  expect(dataView.getFloat32(36, true)).toBe(150);
+  expect(dataView.getFloat32(16, true)).toBe(200);
+
 });
