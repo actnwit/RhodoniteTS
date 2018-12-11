@@ -31,11 +31,11 @@ test('create Parents and children.', () => {
 //  child2Entity.getTransform().translate = new Vector3(0, 1, 0);
 
   // setup scene graph
-  parentEntity.getScenGraph().addChild(childEntity.getScenGraph());
-//  parentEntity.getScenGraph().addChild(child2Entity.getScenGraph());
-  sceneEntity.getScenGraph().addChild(parentEntity.getScenGraph());
+  parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
+//  parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
+  sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
 
-  expect(childEntity.getScenGraph().worldMatrix.isEqual(
+  expect(childEntity.getSceneGraph().worldMatrix.isEqual(
     new Matrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,

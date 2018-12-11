@@ -42,7 +42,7 @@ export default class Entity {
     return this.getComponent(TransformComponent.componentTID) as TransformComponent;
   }
 
-  getScenGraph(): SceneGraphComponent {
+  getSceneGraph(): SceneGraphComponent {
     if (this.__sceneGraphComponent != null) {
       return this.__sceneGraphComponent;
     }
