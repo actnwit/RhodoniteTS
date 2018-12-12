@@ -33,10 +33,10 @@ export default class ComponentRepository {
 
   static getInstance() {
     const thisClass = ComponentRepository;
-    if (!(thisClass as any).singleton) {
-      (thisClass as any).singleton = new ComponentRepository(ComponentRepository.__singletonEnforcer);
+    if (!(thisClass as any)[singleton]) {
+      (thisClass as any)[singleton] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
     }
-    return (thisClass as any).singleton;
+    return (thisClass as any)[singleton];
   }
 
   createComponent(componentTID: ComponentTID, entityUid: EntityUID) {
