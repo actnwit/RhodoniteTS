@@ -5,6 +5,7 @@ import RnObject from '../core/Object';
 import BufferView from '../memory/BufferView';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
+import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
@@ -13,9 +14,15 @@ export default class Primitive extends RnObject {
   private __indices: Accessor;
   private __indicesBufferView: BufferView;
   private __attributesBufferView: BufferView;
+  private __indicesComponentType: ComponentTypeEnum,
+  private __attributeCompositionTypes: Array<CompositionTypeEnum>,
+  private __attributeComponentTypes: Array<ComponentTypeEnum>,
 
   private constructor(
+    indicesComponentType: ComponentTypeEnum,
     indicesAccessor: Accessor,
+    attributeCompositionTypes: Array<CompositionTypeEnum>,
+    attributeComponentTypes: Array<ComponentTypeEnum>,
     attributeAccessors: Array<Accessor>,
     mode: PrimitiveModeEnum,
     material: ObjectUID,
@@ -30,13 +37,17 @@ export default class Primitive extends RnObject {
     this.__mode = mode;
     this.__indicesBufferView = indicesBufferView;
     this.__attributesBufferView = attributesBufferView;
+    this.__indicesComponentType = indicesComponentType;
+    this.__attributeCompositionTypes = attributeCompositionTypes;
+    this.__attributeComponentTypes = attributeComponentTypes;
   }
 
   static createPrimitive(
-    {indicesComponentType, indices, attributeComponentTypes, attributes, material, primitiveMode} :
+    {indicesComponentType, indices, attributeCompositionTypes, attributeComponentTypes, attributes, material, primitiveMode} :
     {
       indicesComponentType: ComponentTypeEnum,
       indices: ArrayBuffer,
+      attributeCompositionTypes: Array<CompositionTypeEnum>,
       attributeComponentTypes: Array<ComponentTypeEnum>,
       attributes: Array<ArrayBuffer>,
       primitiveMode: PrimitiveModeEnum,
@@ -44,7 +55,40 @@ export default class Primitive extends RnObject {
     })
   {
     const buffer = MemoryManager.getInstance().getBufferForCPU();
-    Primitive.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0});
-    thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
+    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0});
+    const indicesAccessor = indicesBufferView.takeAccessor({
+      compositionType: CompositionType.Scalar,
+      componentType: indicesComponentType,
+      count: indices.byteLength / indicesComponentType.getSizeInBytes()
+    });
+
+    let sumOfAttributesByteSize = 0;
+    attributes.forEach(attribute=>{
+      sumOfAttributesByteSize += attribute.byteLength;
+    });
+    const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0});
+
+    const attributeAccessors: Array<Accessor> = [];
+    attributes.forEach((attribute, i)=>{
+      attributeAccessors.push(
+        attributesBufferView.takeAccessor({
+          compositionType: attributeCompositionTypes[i],
+          componentType: attributeComponentTypes[i],
+          count: indices.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+        })
+      );
+    });
+
+    return new Primitive(
+      indicesComponentType,
+      indicesAccessor,
+      attributeCompositionTypes,
+      attributeComponentTypes,
+      attributeAccessors,
+      primitiveMode,
+      material,
+      indicesBufferView,
+      attributesBufferView
+    );
   }
 }
