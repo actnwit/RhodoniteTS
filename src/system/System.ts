@@ -1,5 +1,6 @@
 import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
 import EntityRepository from "../core/EntityRepository";
+import Component from "../core/Component";
 
 const singleton:any = Symbol();
 
@@ -26,12 +27,19 @@ export default class System {
   process() {
     this.__processStages.forEach(stage=>{
       const entities = this.__entityRepository._getEntities();
-      for(let i=0; i<entities.length; i++) {
+      for(let i=1; i<entities.length; i++) {
         const methodName = stage.getMethodName();
-        const method = (entities[i] as any)[methodName];
-        if (method !== undefined) {
-          method();
+        const map = this.__entityRepository._components[entities[i].entityUID] as Map<ComponentTID, Component>;
+
+        for(let component of map.values()) {
+          if (component != null) {
+            const method = (component as any)[methodName];
+            if (method != null) {
+              method();
+            }
+          }
         }
+
       }
     });
   }

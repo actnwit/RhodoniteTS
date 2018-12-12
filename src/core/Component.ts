@@ -48,16 +48,20 @@ export default class Component {
 
   }
 
-  $updateLogic() {
+  $logic() {
 
   }
 
-  $updateForRendering() {
+  $PreRender() {
 
   }
 
   $render() {
 
+  }
+
+  $unmount() {
+    
   }
 
   $discard() {

@@ -27,7 +27,7 @@ export default class Entity {
   }
 
   getComponent(componentTid: ComponentTID) {
-    const map = this.__entityRepository._components.get(this.entityUID);
+    const map = this.__entityRepository._components[this.entityUID];
     if (map != null) {
       const component = map.get(componentTid);
       return component;

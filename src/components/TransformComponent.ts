@@ -102,6 +102,8 @@ export default class TransformComponent extends Component {
     // If circular depenencies are detected, the error will be repoated.
 
     //this.registerDependency(AnimationComponent.componentTID, false);
+
+    console.log('$create');
   }
 
   $updateLogic() {

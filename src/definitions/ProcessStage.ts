@@ -31,7 +31,7 @@ const Discard: ProcessStageEnum = new ProcessStageClass({index:7, str:'DISCARD',
 const typeList = [Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
 
 function from({ index }: { index: number }): ProcessStageEnum {
-  return _from({typeList, index});
+  return _from({typeList, index}) as ProcessStageEnum;
 }
 
 export const ProcessStage = Object.freeze({ Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from });
