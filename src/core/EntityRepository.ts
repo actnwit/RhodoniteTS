@@ -4,7 +4,6 @@ import ComponentRepository from './ComponentRepository';
 const singleton:any = Symbol();
 
 export default class EntityRepository {
-  private static __singleton: EntityRepository;
   private __entity_uid_count: number;
   private __entities: Array<Entity>;
   static __singletonEnforcer:Symbol;
@@ -25,10 +24,11 @@ export default class EntityRepository {
 
   static getInstance() {
     const thisClass = EntityRepository;
-    if (!thisClass.__singleton) {
-      thisClass.__singleton = new EntityRepository(thisClass.__singletonEnforcer);
+    if (!(thisClass as any)[singleton]) {
+      (thisClass as any)[singleton] = new EntityRepository(thisClass.__singletonEnforcer);
     }
-    return thisClass.__singleton;
+    return (thisClass as any)[singleton];
+
   }
 
   createEntity(componentTidArray: Array<ComponentTID>): Entity {
