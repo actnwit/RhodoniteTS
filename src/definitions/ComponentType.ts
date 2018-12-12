@@ -32,4 +32,26 @@ function from({ index }: { index: number }): ComponentTypeEnum {
   return _from({typeList, index}) as ComponentTypeEnum;
 }
 
-export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from });
+function fromTypedArray(typedArray: TypedArray) : ComponentTypeEnum {
+  if (typedArray instanceof Int8Array) {
+    return Byte;
+  } else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
+    return UnsignedByte;
+  } else if (typedArray instanceof Int16Array) {
+    return Short;
+  } else if (typedArray instanceof Uint16Array) {
+    return UnsignedShort;
+  } else if (typedArray instanceof Int32Array) {
+    return Int;
+  } else if (typedArray instanceof Uint32Array) {
+    return UnsingedInt;
+  } else if (typedArray instanceof Float32Array) {
+    return Float;
+  } else if (typedArray instanceof Float64Array) {
+    return Double;
+  }
+
+  return Unknown;
+}
+
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from, fromTypedArray });

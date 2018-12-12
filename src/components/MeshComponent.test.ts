@@ -6,6 +6,10 @@ import is from '../misc/IsUtil';
 import Vector3 from '../math/Vector3';
 import SceneGraphComponent from './SceneGraphComponent';
 import MeshComponent from './MeshComponent';
+import Primitive from '../geometry/Primitive';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -13,14 +17,27 @@ function generateEntity() {
   return entity;
 }
 
-test('The EntityRepository creates a entity whose uid is 1', () => {
-  const firstEntity = generateEntity();
-  expect(firstEntity.entityUID).toBe(1);
-});
-
 test('Use translate simply', () => {
   const firstEntity = generateEntity();
-  const transformComponent = firstEntity.getTransform();
-  transformComponent.translate = new Vector3(1, 0, 0);
-  expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
+
+  const indices = new Float32Array([
+    0, 1, 3, 3, 1, 2
+  ]);
+
+  const position = new Float32Array([
+    -1.5, -0.5, 0.0,
+    -0.5, -0.5, 0.0,
+    -0.5, 0.5, 0.0,
+    -1.5, 0.5, 0.0
+  ]);
+
+  Primitive.createPrimitive({
+    indices: indices,
+    attributeCompositionTypes: [CompositionType.Mat3],
+    attributes: [],
+    material: 0,
+    primitiveMode: PrimitiveMode.Triangles
+  });
+
+ // expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
 });

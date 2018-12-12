@@ -3,7 +3,7 @@ import { VertexAttributeEnum } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/Object';
 import BufferView from '../memory/BufferView';
-import { ComponentTypeEnum } from '../definitions/ComponentType';
+import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 
@@ -14,9 +14,9 @@ export default class Primitive extends RnObject {
   private __indices: Accessor;
   private __indicesBufferView: BufferView;
   private __attributesBufferView: BufferView;
-  private __indicesComponentType: ComponentTypeEnum,
-  private __attributeCompositionTypes: Array<CompositionTypeEnum>,
-  private __attributeComponentTypes: Array<ComponentTypeEnum>,
+  private __indicesComponentType: ComponentTypeEnum;
+  private __attributeCompositionTypes: Array<CompositionTypeEnum>;
+  private __attributeComponentTypes: Array<ComponentTypeEnum>;
 
   private constructor(
     indicesComponentType: ComponentTypeEnum,
@@ -43,17 +43,17 @@ export default class Primitive extends RnObject {
   }
 
   static createPrimitive(
-    {indicesComponentType, indices, attributeCompositionTypes, attributeComponentTypes, attributes, material, primitiveMode} :
+    {indices, attributeCompositionTypes, attributes, material, primitiveMode} :
     {
-      indicesComponentType: ComponentTypeEnum,
-      indices: ArrayBuffer,
+      indices: TypedArray,
       attributeCompositionTypes: Array<CompositionTypeEnum>,
-      attributeComponentTypes: Array<ComponentTypeEnum>,
-      attributes: Array<ArrayBuffer>,
+      attributes: Array<TypedArray>,
       primitiveMode: PrimitiveModeEnum,
       material: ObjectUID
     })
   {
+
+    const indicesComponentType = ComponentType.fromTypedArray(indices);
     const buffer = MemoryManager.getInstance().getBufferForCPU();
     const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0});
     const indicesAccessor = indicesBufferView.takeAccessor({
@@ -69,11 +69,13 @@ export default class Primitive extends RnObject {
     const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0});
 
     const attributeAccessors: Array<Accessor> = [];
+    const attributeComponentTypes: Array<ComponentTypeEnum> = [];
     attributes.forEach((attribute, i)=>{
+      attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       attributeAccessors.push(
         attributesBufferView.takeAccessor({
           compositionType: attributeCompositionTypes[i],
-          componentType: attributeComponentTypes[i],
+          componentType: ComponentType.fromTypedArray(attributes[i]),
           count: indices.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
         })
       );
