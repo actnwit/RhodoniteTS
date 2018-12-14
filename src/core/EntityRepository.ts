@@ -53,6 +53,20 @@ export default class EntityRepository {
     return this.__entities[entityUid];
   }
 
+  getComponentOfEntity(entityUid: EntityUID, componentTid: ComponentTID): Component | null {
+    const entity = this._components[entityUid];
+    let component = null;
+    if (entity != null) {
+      component = entity.get(componentTid);
+      if (component != null) {
+        return component;
+      } else {
+        return null;
+      }
+    }
+    return component;
+  }
+
   static getMaxEntityNumber() {
     return 10000;
   }
