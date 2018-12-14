@@ -10,7 +10,6 @@ import Buffer from '../memory/Buffer';
 const singleton = Symbol();
 
 export default class MemoryManager {
-  private __renderingMemoryPool: Float64Array;
   private static __singletonEnforcer: Symbol = Symbol();
   //__entityMaxCount: number;
   private __buffers: Map<ObjectUID, Buffer> = new Map();
