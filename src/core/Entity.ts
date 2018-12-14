@@ -1,6 +1,7 @@
 import EntityRepository from './EntityRepository';
 import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
+import Component from './Component';
 
 export default class Entity {
   private __entity_uid: number;
@@ -26,11 +27,15 @@ export default class Entity {
     return this.__entity_uid;
   }
 
-  getComponent(componentTid: ComponentTID) {
+  getComponent(componentTid: ComponentTID): Component | null {
     const map = this.__entityRepository._components[this.entityUID];
     if (map != null) {
       const component = map.get(componentTid);
-      return component;
+      if (component != null) {
+        return component;
+      } else {
+        return null;
+      }
     }
     return null;
   }
