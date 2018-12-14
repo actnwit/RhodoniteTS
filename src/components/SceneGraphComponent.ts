@@ -15,7 +15,7 @@ export default class SceneGraphComponent extends Component {
   private __children?: Array<SceneGraphComponent>
   private __worldMatrix: Matrix44;
   //private __updatedProperly: boolean;
-  private __entityRepository: EntityRepository;
+
   private static __bufferView: BufferView;
   private static __accesseor_worldMatrix: Accessor;
 
@@ -31,8 +31,6 @@ export default class SceneGraphComponent extends Component {
     this.__worldMatrix.identity();
 
     //this.__updatedProperly = false;
-
-    this.__entityRepository = EntityRepository.getInstance();
   }
 
   static get maxCount() {
