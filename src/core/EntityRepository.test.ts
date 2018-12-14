@@ -11,7 +11,7 @@ function generateEntity() {
   return entity;
 }
 
-test('The EntityRepository creates a entity whose uid is 1', () => {
+test('The entity repository can provide the component corresponding to the specified entityUID and componentTID', () => {
   const firstEntity = generateEntity();
   const entityRepository = EntityRepository.getInstance();
   const sceneGraphComponent = entityRepository.getComponentOfEntity(firstEntity.entityUID, SceneGraphComponent.componentTID);
