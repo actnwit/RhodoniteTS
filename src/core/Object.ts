@@ -1,9 +1,11 @@
 export default class RnObject {
-  private readonly __objectUid: ObjectUID;
+  private readonly __objectUid: ObjectUID = 0;
   static currentMaxObjectCount = 0;
 
-  constructor() {
-    this.__objectUid = ++RnObject.currentMaxObjectCount;
+  constructor(needToManage = false) {
+    if (needToManage) {
+      this.__objectUid = ++RnObject.currentMaxObjectCount;
+    }
   }
 
   get objectUid() {
