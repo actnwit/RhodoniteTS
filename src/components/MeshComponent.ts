@@ -26,5 +26,12 @@ export default class MeshComponent extends Component {
   addPrimitive(primitive: Primitive) {
     this.__primitives.push(primitive);
   }
+
+  getPrimitiveAt(i:number) {
+    return this.__primitives[i];
+  }
+  getPrimitiveNumber() {
+    return this.__primitives.length;
+  }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);

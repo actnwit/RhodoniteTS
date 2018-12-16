@@ -118,6 +118,14 @@ export default class Accessor extends RnObject {
     return this.__typedArray!;
   }
 
+  get isAoS() {
+    return this.__bufferView.isAoS;
+  }
+
+  get isSoA() {
+    return this.__bufferView.isSoA;
+  }
+
   byteStride() {
     return this.__byteStride;
   }
@@ -213,5 +221,9 @@ export default class Accessor extends RnObject {
 
   setScalarAt(index: Index, conpositionOffset: Index, value: number, endian: boolean = true) {
     this.__dataViewSetter(this.__byteStride*index + conpositionOffset, value, endian);
+  }
+
+  get arrayBufferOfBufferView(): ArrayBuffer {
+    return this.__raw;
   }
 }

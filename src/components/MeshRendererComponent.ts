@@ -10,7 +10,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import MeshComponent from './MeshComponent';
 
 export default class MeshRendererComponent extends Component {
-
+  private __meshComponent?: MeshComponent;
   constructor(entityUid: EntityUID) {
     super(entityUid);
 
@@ -24,9 +24,18 @@ export default class MeshRendererComponent extends Component {
   }
 
   $create() {
-    const meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID) as MeshComponent;
+  }
 
-
+  $load() {
+    if (this.__meshComponent == null) {
+      return;
+    }
+    const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+    for (let i=0; i<primitiveNum; i++) {
+      const primitive = this.__meshComponent.getPrimitiveAt(i);
+      primitive.indicesAccessor
+    }
   }
 
 }
