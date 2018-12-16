@@ -9,52 +9,59 @@ import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
 
 export default class AccessorBase extends RnObject {
-  private __bufferView: BufferView;
-  private __byteOffset: number;
-  private __compositionType: CompositionTypeEnum = CompositionType.Unknown;
-  private __componentType: ComponentTypeEnum = ComponentType.Unknown;
-  private __count: Count = 0;
-  private __raw: ArrayBuffer;
-  private __dataView: DataView;
-  private __typedArray: TypedArray;
-  private __takenCount: Count = 0;
-  private __byteStride: Byte = 0;
-  private __typedArrayClass: any;
-  private __dataViewGetter: any;
-  private __dataViewSetter: any;
+  protected __bufferView: BufferView;
+  protected __byteOffset: number;
+  protected __compositionType: CompositionTypeEnum = CompositionType.Unknown;
+  protected __componentType: ComponentTypeEnum = ComponentType.Unknown;
+  protected __count: Count = 0;
+  protected __raw: ArrayBuffer;
+  protected __dataView?: DataView;
+  protected __typedArray?: TypedArray;
+  protected __takenCount: Count = 0;
+  protected __byteStride: Byte = 0;
+  protected __typedArrayClass?: TypedArrayConstructor;
+  protected __dataViewGetter: any;
+  protected __dataViewSetter: any;
 
-  constructor({bufferView, byteOffset, compositionType, componentType, count, raw} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, raw: Uint8Array}) {
+  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw} :
+    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array}) {
     super();
+    
     this.__bufferView = bufferView;
     this.__byteOffset = byteOffset;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
     this.__raw = raw.buffer;
-    this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
-    if (this.__bufferView.isAoS) {
-      this.__byteStride = this.__bufferView.byteStride;
+
+    this.__byteStride = byteStride;
+
+    if (this.__byteStride === 0) {
+      this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     }
 
-    this.__typedArrayClass = this.getTypedArrayClass(componentType);
+    this.prepare();
+  }
+
+  prepare() {
+    const typedArrayClass = this.getTypedArrayClass(this.__componentType);
+    this.__typedArrayClass = typedArrayClass;
     if (this.__bufferView.isSoA) {
-      this.__dataView = new DataView(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
-      this.__dataView = new DataView(raw.buffer, this.__byteOffset);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset);
     }
-    this.__typedArray = new this.__typedArrayClass!(raw.buffer, this.__byteOffset, compositionType.getNumberOfComponents() * count);
-    this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(componentType)!].bind(this.__dataView);
-    this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(componentType)!].bind(this.__dataView);
-
+    this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
+    this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
+    this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
 
     //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-    if (this.__byteOffset + this.__byteStride * (count - 1) > this.__bufferView.byteLength) {
+    if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
       throw new Error('The range of the accessor exceeds the range of the buffer view.')
     }
   }
 
-  getTypedArrayClass(componentType: ComponentTypeEnum)
+  getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined
    {
     switch (componentType) {
       case ComponentType.Byte: return Int8Array;
@@ -111,16 +118,16 @@ export default class AccessorBase extends RnObject {
     return subTypedArray;
   }
 
-  getNumberOfComponents() {
+  get numberOfComponents() {
     return this.__compositionType.getNumberOfComponents();
   }
 
-  getComponentSizeInBytes() {
+  get componentSizeInBytes() {
     return this.__componentType.getSizeInBytes();
   }
 
-  getElementSizeInBytes() {
-    return this.getNumberOfComponents() * this.getComponentSizeInBytes();
+  get elementSizeInBytes() {
+    return this.numberOfComponents * this.componentSizeInBytes;
   }
 
   getTypedArray(): TypedArray {
@@ -138,7 +145,7 @@ export default class AccessorBase extends RnObject {
     return this.__bufferView.isSoA;
   }
 
-  byteStride() {
+  get byteStride() {
     return this.__byteStride;
   }
 
@@ -209,7 +216,6 @@ export default class AccessorBase extends RnObject {
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
-//    console.log('GGG', this.__typedArrayClass, this.__byteOffset, this.__dataView.byteLength, this.__byteStride*index);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
   }
 
@@ -240,6 +246,6 @@ export default class AccessorBase extends RnObject {
   }
 
   get dataViewOfBufferView(): DataView {
-    return this.__dataView;
+    return this.__dataView!;
   }
 }

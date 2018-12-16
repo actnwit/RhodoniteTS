@@ -14,7 +14,7 @@ function createBuffer(byteSize: Byte) {
 
 test('An accessor can take full size typedArray of the buffer', () => {
   const buffer = createBuffer(100);
-  const bufferView = buffer.takeBufferView({byteLengthToNeed: 64, byteStride: 0});
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 64, byteStride: 0, isAoS: false});
   const accessor = bufferView!.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: 1});
   const typedArray = accessor.takeOne() as Float32Array;
 
@@ -23,7 +23,7 @@ test('An accessor can take full size typedArray of the buffer', () => {
 
 test('The range of the accessor exceeds the range of the buffer view', () => {
   const buffer = createBuffer(100);
-  const bufferView = buffer.takeBufferView({byteLengthToNeed: 64, byteStride: 0});
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 64, byteStride: 0, isAoS: false});
   let accessor = null;
   try {
     accessor = bufferView!.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: 2});
@@ -36,7 +36,7 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
 
 test('In SoA mode, data can be written in the correct position.', () => {
   const buffer = createBuffer(72);
-  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 0});
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 0, isAoS: false});
   let accessor0 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
   let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
   let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
@@ -56,7 +56,7 @@ test('In SoA mode, data can be written in the correct position.', () => {
 
 test('In AoS mode, data can be written in the correct position.', () => {
   const buffer = createBuffer(72);
-  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 36});
+  const bufferView = buffer.takeBufferView({byteLengthToNeed: 72, byteStride: 36, isAoS: true});
   let accessor0 = bufferView!.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 2});
   let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
   let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});

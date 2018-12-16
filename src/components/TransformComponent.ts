@@ -90,7 +90,7 @@ export default class TransformComponent extends Component {
   static setupBufferView() {
     const thisClass = TransformComponent;
     const buffer = MemoryManager.getInstance().getBufferForCPU();    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0});
+    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 
     // accessors
     thisClass.__accesseor_matrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});

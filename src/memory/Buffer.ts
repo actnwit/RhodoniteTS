@@ -26,7 +26,7 @@ export default class Buffer extends RnObject {
     return this.__raw;
   }
 
-  takeBufferView({byteLengthToNeed, byteStride} : {byteLengthToNeed: Byte, byteStride: Byte}) {
+  takeBufferView({byteLengthToNeed, byteStride, isAoS} : {byteLengthToNeed: Byte, byteStride: Byte, isAoS: boolean}) {
     if (byteLengthToNeed % 4 !== 0) {
       throw new Error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
       return null;
@@ -37,7 +37,7 @@ export default class Buffer extends RnObject {
     }
     const array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
 
-    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array});
+    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS});
     bufferView.byteStride = byteStride;
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
 

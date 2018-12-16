@@ -61,7 +61,7 @@ export default class Primitive extends RnObject {
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
       const buffer = MemoryManager.getInstance().getBufferForCPU();
-      indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0});
+      indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false});
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
@@ -75,7 +75,7 @@ export default class Primitive extends RnObject {
     });
     const memoryManager = MemoryManager.getInstance();
     const buffer = memoryManager.getBufferForCPU();
-    const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0});
+    const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
