@@ -79,7 +79,7 @@ export default class BufferView extends RnObject {
     return accessor;
   }
 
-  takeFlexibleAccessor({compositionType, componentType, count, byteStride}: {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte}) {
+  takeFlexibleAccessor({compositionType, componentType, count, byteStride}: {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte}): FlexibleAccessor {
     const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor});
 
     return accessor;
