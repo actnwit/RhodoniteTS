@@ -114,4 +114,8 @@ export default class Primitive extends RnObject {
   get indicesAccessor(): Accessor | undefined {
     return this.__indices;
   }
+
+  get attributeAccessors(): Array<Accessor> {
+    return this.__attributes.concat();
+  }
 }
