@@ -23,11 +23,20 @@
       "jsx",
       "json",
       "node"
-    ]
+    ],
+    "globalSetup": "./globalSetup.js",
+    "setupTestFrameworkScriptFile": "./setup.js",
+    "globalTeardown": "./globalTeardown.js",
+    "preset": "jest-puppeteer",
+    "testEnvironment": "./testEnvironment.js"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "jest": "^23.6.0",
+    "jest-image-snapshot": "^2.7.0",
+    "jest-puppeteer": "^3.7.0",
+    "puppeteer": "^1.11.0",
+    "rimraf": "^2.6.2",
     "rollup": "^0.66.6",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-typescript2": "^0.17.2",
