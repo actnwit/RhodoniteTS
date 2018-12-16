@@ -36,7 +36,7 @@ export default class WebGLResouceRepository extends Renderer {
     return ++this.__resourceCounter;
   }
 
-  createIndexBuffer(entityUid: EntityUID, componentTid: ComponentTID, accsessor: Accessor) {
+  createIndexBuffer(accsessor: Accessor) {
     const gl = this.__gl;
 
     if (gl == null) {
@@ -52,5 +52,28 @@ export default class WebGLResouceRepository extends Renderer {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     return resourceUid;
+  }
+
+  createVertexBuffer(accsessor: Accessor) {
+    const gl = this.__gl;
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const ibo = gl.createBuffer();
+    const resourceUid = this.getResourceNumber();
+    this.__webglResources.set(resourceUid, ibo!);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    return resourceUid;
+
+  }
+
+  getWebGLResource(webglResourceUid: WebGLResourceUID): WebGLObject | undefined {
+    return this.__webglResources.get(webglResourceUid)
   }
 }
