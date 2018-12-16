@@ -62,10 +62,20 @@ test('Create WebGL resources.', async () => {
   const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
   meshComponent.addPrimitive(primitive);
   const ib_uid = repo.createIndexBuffer(primitive.indicesAccessor!);
-  const eb_handle = repo.getWebGLResource(ib_uid);
+  const ib_handle = repo.getWebGLResource(ib_uid);
 
-  expect(eb_handle).not.toBe(undefined);
-  expect(eb_handle).not.toBe(-1);
+  const vb_pos_uid = repo.createIndexBuffer(primitive.attributeAccessors[0]!);
+  const vb_pos_handle = repo.getWebGLResource(vb_pos_uid);
+  const vb_col_uid = repo.createIndexBuffer(primitive.attributeAccessors[1]!);
+  const vb_col_handle = repo.getWebGLResource(vb_col_uid);
+
+  expect(ib_handle).not.toBe(undefined);
+  expect(ib_handle).not.toBe(-1);
+  expect(vb_pos_handle).not.toBe(undefined);
+  expect(vb_pos_handle).not.toBe(-1);
+  expect(vb_col_handle).not.toBe(undefined);
+  expect(vb_col_handle).not.toBe(-1);
+
 });
 
 afterAll(() => {
