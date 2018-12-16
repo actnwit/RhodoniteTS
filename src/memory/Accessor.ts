@@ -111,6 +111,18 @@ export default class Accessor extends RnObject {
     return subTypedArray;
   }
 
+  getNumberOfComponents() {
+    return this.__compositionType.getNumberOfComponents();
+  }
+
+  getComponentSizeInBytes() {
+    return this.__componentType.getSizeInBytes();
+  }
+
+  getElementSizeInBytes() {
+    return this.getNumberOfComponents() * this.getComponentSizeInBytes();
+  }
+
   getTypedArray(): TypedArray {
     if (this.__bufferView.isAoS) {
       console.warn('Be careful. this referance bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.');
@@ -225,5 +237,9 @@ export default class Accessor extends RnObject {
 
   get arrayBufferOfBufferView(): ArrayBuffer {
     return this.__raw;
+  }
+
+  get dataViewOfBufferView(): DataView {
+    return this.__dataView;
   }
 }

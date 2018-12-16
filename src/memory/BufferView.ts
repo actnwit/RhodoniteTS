@@ -6,14 +6,15 @@ import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 
 
 export default class BufferView extends RnObject {
-  __buffer: Buffer;
-  __byteOffset: Byte;
-  __byteLength: Byte;
-  __byteStride: Byte = 0;
-  __target: Index = 0;
-  __takenByteIndex: Byte = 0;
-  __takenByteOffsetOfFirstElement = 0;
-  __raw: Uint8Array;
+  private __buffer: Buffer;
+  private __byteOffset: Byte;
+  private __byteLength: Byte;
+  private __byteStride: Byte = 0;
+  private __target: Index = 0;
+  private __takenByteIndex: Byte = 0;
+  private __takenByteOffsetOfFirstElement = 0;
+  private __raw: Uint8Array;
+  private __accessors: Array<Accessor> = [];
 
   constructor({buffer, byteOffset, byteLength, raw} :
     {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: Uint8Array})
@@ -60,6 +61,8 @@ export default class BufferView extends RnObject {
     const accessor = new Accessor({
       bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, count: count, raw: this.__raw
     });
+
+    this.__accessors.push(accessor);
 
     return accessor;
   }
