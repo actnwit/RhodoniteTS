@@ -115,6 +115,10 @@ export default class Primitive extends RnObject {
     return this.__indices;
   }
 
+  hasIndices() {
+    return this.__indices != null;
+  }
+
   get attributeAccessors(): Array<Accessor> {
     return this.__attributes.concat();
   }
