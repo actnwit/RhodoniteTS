@@ -48,8 +48,8 @@ export default class Accessor extends RnObject {
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(componentType)!].bind(this.__dataView);
 
 
-    //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.__byteLength)
-    if (this.__byteOffset + this.__byteStride * (count - 1) > this.__bufferView.__byteLength) {
+    //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
+    if (this.__byteOffset + this.__byteStride * (count - 1) > this.__bufferView.byteLength) {
       throw new Error('The range of the accessor exceeds the range of the buffer view.')
     }
   }

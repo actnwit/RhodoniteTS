@@ -1,8 +1,8 @@
-import Renderer from "../Renderer";
 import Accessor from "../../memory/Accessor";
+import CGAPIResourceRepository from "../CGAPIResourceRepository";
 const singleton:any = Symbol();
 
-export default class WebGLResouceRepository extends Renderer {
+export default class WebGLResouceRepository extends CGAPIResourceRepository {
   static __singletonEnforcer:Symbol;
   private __webglContexts: Map<string, WebGLRenderingContext> = new Map();
   private __gl?: WebGLRenderingContext;

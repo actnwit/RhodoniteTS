@@ -34,6 +34,10 @@ export default class BufferView extends RnObject {
     return this.__byteStride;
   }
 
+  get byteLength() {
+    return this.__byteLength;
+  }
+
   get isSoA() {
     return (this.__byteStride === 0) ? true : false;
   }
