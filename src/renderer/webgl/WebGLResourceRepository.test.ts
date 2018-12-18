@@ -6,6 +6,7 @@ import MeshComponent from '../../components/MeshComponent';
 import Primitive from '../../geometry/Primitive';
 import { CompositionType } from '../../definitions/CompositionType';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
 
 const puppeteer = require('puppeteer')
 
@@ -54,6 +55,7 @@ test('Create WebGL resources.', async () => {
   const primitive = Primitive.createPrimitive({
     indices: indices,
     attributeCompositionTypes: [CompositionType.Mat3, CompositionType.Mat3],
+    attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
     attributes: [positions, colors],
     material: 0,
     primitiveMode: PrimitiveMode.Triangles

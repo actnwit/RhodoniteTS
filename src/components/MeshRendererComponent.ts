@@ -8,12 +8,15 @@ import BufferView from '../memory/BufferView';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import MeshComponent from './MeshComponent';
+import WebGLResouceRepository from '../renderer/webgl/WebGLResourceRepository';
+import GLSLShader from '../renderer/webgl/GLSLShader';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
+  private __webglResourceRepository: WebGLResouceRepository = WebGLResouceRepository.getInstance();
   constructor(entityUid: EntityUID) {
     super(entityUid);
-
+    
   }
   static get maxCount() {
     return 1000000;
@@ -34,8 +37,15 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent.getPrimitiveNumber();
     for (let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent.getPrimitiveAt(i);
-      primitive.indicesAccessor
+      this.__webglResourceRepository.createVertexDataResources(primitive);
     }
+
+    this.__webglResourceRepository.createShaderProgram(
+      GLSLShader.vertexShader,
+      GLSLShader.fragmentShader,
+      GLSLShader.attributeNanes,
+      GLSLShader.attributeSemantics
+    );
   }
 
 }

@@ -1,6 +1,8 @@
 import Accessor from "../../memory/Accessor";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import Primitive from "../../geometry/Primitive";
+import GLSLShader, {AttributeNames} from "./GLSLShader";
+import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 const singleton:any = Symbol();
 
 export default class WebGLResouceRepository extends CGAPIResourceRepository {
@@ -37,6 +39,10 @@ export default class WebGLResouceRepository extends CGAPIResourceRepository {
 
   private getResourceNumber(): WebGLResourceUID {
     return ++this.__resourceCounter;
+  }
+
+  getWebGLResource(webglResourceUid: WebGLResourceUID): WebGLObject | undefined {
+    return this.__webglResources.get(webglResourceUid)
   }
 
   createIndexBuffer(accsessor: Accessor) {
@@ -113,8 +119,6 @@ export default class WebGLResouceRepository extends CGAPIResourceRepository {
 
     const vaoUid = this.createVertexArray();
 
-    const bindVertexArray = this.__getVAOFunc('bindVertexArray');
-
     let iboUid;
     if (primitive.hasIndices) {
       const iboUid = this.createIndexBuffer(primitive.indicesAccessor!);
@@ -126,13 +130,112 @@ export default class WebGLResouceRepository extends CGAPIResourceRepository {
       vboUids.push(vboUid);
     });
 
-    bindVertexArray(gl, null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     return {vaoUid, iboUid, vboUids};
   }
 
-  getWebGLResource(webglResourceUid: WebGLResourceUID): WebGLObject | undefined {
-    return this.__webglResources.get(webglResourceUid)
+  createShaderProgram(vertexShaderStr:string, fragmentShaderStr:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>) {
+    const gl = this.__gl;
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+
+    gl.shaderSource(vertexShader, vertexShaderStr);
+    gl.shaderSource(fragmentShader, fragmentShaderStr);
+
+    gl.compileShader(vertexShader);
+    this.__checkShaderCompileStatus(vertexShader);
+
+    gl.compileShader(fragmentShader);
+    this.__checkShaderCompileStatus(fragmentShader);
+
+    const shaderProgram = gl.createProgram()!;
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+
+    attributeNames.forEach((attributeName, i)=>{
+      gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName)
+    });
+
+    gl.linkProgram(shaderProgram);
+
+    const resourceUid = this.getResourceNumber();
+    this.__webglResources.set(resourceUid, shaderProgram);
+
+
+    this.__checkShaderProgramLinkStatus(shaderProgram);
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    return resourceUid;
+  }
+
+  private __checkShaderCompileStatus(shader: WebGLShader) {
+    const gl = this.__gl!;
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
+    }
+  }
+
+  private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram) {
+    const gl = this.__gl!;
+
+    // If creating the shader program failed, alert
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+    }
+  }
+
+  setVertexDataToShaderProgram(
+    {vaoUid, iboUid, vboUids} : {vaoUid: WebGLResourceUID, iboUid?: WebGLResourceUID, vboUids: Array<WebGLResourceUID>},
+    shaderProgramUid: WebGLResourceUID,
+    primitive: Primitive)
+  {
+    const gl = this.__gl!;
+
+    const vao = this.getWebGLResource(vaoUid);
+    const bindVertexArray = this.__getVAOFunc('bindVertexArray');
+
+    bindVertexArray(vao);
+
+    if (iboUid != null) {
+      const ibo = this.getWebGLResource(iboUid);
+      if (ibo != null) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+      } else {
+        throw new Error('Nothing Element Array Buffer!');
+      }
+    }
+
+    const shaderProgram = this.getWebGLResource(shaderProgramUid);
+    if (shaderProgram == null) {
+      throw new Error('Nothing ShaderProgram!');
+    }
+    vboUids.forEach((vboUid, i)=>{
+      const vbo = this.getWebGLResource(vboUid);
+      if (vbo != null) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      } else {
+        throw new Error('Nothing Element Array Buffer at index '+ i);
+      }
+      gl.vertexAttribPointer(
+        primitive.attributeSemantics[i].index,
+        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+        primitive.attributeComponentTypes[i].index,
+        false,
+        primitive.attributeAccessors[i].byteStride,
+        0
+        );
+    });
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    bindVertexArray(null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 }

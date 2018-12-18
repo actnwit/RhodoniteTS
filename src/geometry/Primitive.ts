@@ -14,6 +14,7 @@ export default class Primitive extends RnObject {
   private __attributesBufferView: BufferView;
   private __attributeCompositionTypes: Array<CompositionTypeEnum>;
   private __attributeComponentTypes: Array<ComponentTypeEnum>;
+  private __attributeSemantics: Array<VertexAttributeEnum>;
   private __indicesComponentType?: ComponentTypeEnum;
   private __indices?: Accessor;
   private __indicesBufferView?: BufferView;
@@ -22,6 +23,7 @@ export default class Primitive extends RnObject {
     attributeCompositionTypes: Array<CompositionTypeEnum>,
     attributeComponentTypes: Array<ComponentTypeEnum>,
     attributeAccessors: Array<Accessor>,
+    attributeSemantics: Array<VertexAttributeEnum>,
     mode: PrimitiveModeEnum,
     material: ObjectUID,
     attributesBufferView: BufferView,
@@ -32,23 +34,24 @@ export default class Primitive extends RnObject {
   {
     super();
 
-
     this.__indices = indicesAccessor;
+    this.__attributeCompositionTypes = attributeCompositionTypes;
+    this.__attributeComponentTypes = attributeComponentTypes;
     this.__attributes = attributeAccessors;
+    this.__attributeSemantics = attributeSemantics;
     this.__material = material;
     this.__mode = mode;
     this.__indicesBufferView = indicesBufferView;
     this.__attributesBufferView = attributesBufferView;
     this.__indicesComponentType = indicesComponentType;
-    this.__attributeCompositionTypes = attributeCompositionTypes;
-    this.__attributeComponentTypes = attributeComponentTypes;
   }
 
   static createPrimitive(
-    {indices, attributeCompositionTypes, attributes, material, primitiveMode} :
+    {indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode} :
     {
       indices?: TypedArray,
       attributeCompositionTypes: Array<CompositionTypeEnum>,
+      attributeSemantics: Array<VertexAttributeEnum>,
       attributes: Array<TypedArray>,
       primitiveMode: PrimitiveModeEnum,
       material: ObjectUID
@@ -102,6 +105,7 @@ export default class Primitive extends RnObject {
       attributeCompositionTypes,
       attributeComponentTypes,
       attributeAccessors,
+      attributeSemantics,
       primitiveMode,
       material,
       attributesBufferView,
@@ -121,5 +125,17 @@ export default class Primitive extends RnObject {
 
   get attributeAccessors(): Array<Accessor> {
     return this.__attributes.concat();
+  }
+
+  get attributeSemantics(): Array<VertexAttributeEnum> {
+    return this.__attributeSemantics.concat();
+  }
+
+  get attributeCompositionTypes(): Array<CompositionTypeEnum> {
+    return this.__attributeCompositionTypes;
+  }
+
+  get attributeComponentTypes(): Array<ComponentTypeEnum> {
+    return this.__attributeComponentTypes;
   }
 }
