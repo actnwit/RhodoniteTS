@@ -5,7 +5,7 @@ import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 const singleton:any = Symbol();
 
-export default class WebGLResouceRepository extends CGAPIResourceRepository {
+export default class WebGLResourceRepository extends CGAPIResourceRepository {
   static __singletonEnforcer:Symbol;
   private __webglContexts: Map<string, WebGLRenderingContext> = new Map();
   private __gl?: WebGLRenderingContext;
@@ -17,15 +17,15 @@ export default class WebGLResouceRepository extends CGAPIResourceRepository {
   private constructor(enforcer: Symbol) {
     super();
 
-    if (enforcer !== WebGLResouceRepository.__singletonEnforcer || !(this instanceof WebGLResouceRepository)) {
+    if (enforcer !== WebGLResourceRepository.__singletonEnforcer || !(this instanceof WebGLResourceRepository)) {
       throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
     }
   }
 
   static getInstance() {
-    const thisClass = WebGLResouceRepository;
+    const thisClass = WebGLResourceRepository;
     if (!(thisClass as any)[singleton]) {
-      (thisClass as any)[singleton] = new WebGLResouceRepository(thisClass.__singletonEnforcer);
+      (thisClass as any)[singleton] = new WebGLResourceRepository(thisClass.__singletonEnforcer);
     }
     return (thisClass as any)[singleton];
   }

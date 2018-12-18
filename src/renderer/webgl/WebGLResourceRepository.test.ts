@@ -1,4 +1,4 @@
-import WebGLResouceRepository from './WebGLResourceRepository';
+import WebGLResourceRepository from './WebGLResourceRepository';
 import EntityRepository from '../../core/EntityRepository';
 import TransformComponent from '../../components/TransformComponent';
 import SceneGraphComponent from '../../components/SceneGraphComponent';
@@ -24,7 +24,7 @@ function generateEntity() {
 }
 
 test('Create WebGL resources.', async () => {
-  const repo: WebGLResouceRepository = WebGLResouceRepository.getInstance();
+  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
 
   var width   = 64
   var height  = 64

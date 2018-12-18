@@ -8,12 +8,12 @@ import BufferView from '../memory/BufferView';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import MeshComponent from './MeshComponent';
-import WebGLResouceRepository from '../renderer/webgl/WebGLResourceRepository';
+import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import GLSLShader from '../renderer/webgl/GLSLShader';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
-  private __webglResourceRepository: WebGLResouceRepository = WebGLResouceRepository.getInstance();
+  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   constructor(entityUid: EntityUID) {
     super(entityUid);
     
