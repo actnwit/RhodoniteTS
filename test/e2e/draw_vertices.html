@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>GLBoost Index Buffer example</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+</head>
+
+<body>
+  <header>
+    <p class="header-title">GLBoost Index Buffer example</p>
+  </header>
+  <main>
+    <canvas id="world" width="600" height="600"></canvas>
+  </main>
+  <script type="module">
+
+    import Rn from '../../dist/index.mjs';
+
+    function generateEntity() {
+      const repo = Rn.EntityRepository.getInstance();
+      const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID]);
+      return entity;
+    }
+
+    const repo = Rn.WebGLResourceRepository.getInstance();
+
+    const gl = document.getElementById('world').getContext('webgl');
+
+    repo.addWebGLContext(gl, true);
+
+    const firstEntity = generateEntity();
+
+    const indices = new Float32Array([
+      0, 1, 3, 3, 1, 2
+    ]);
+
+    const positions = new Float32Array([
+      -1.5, -0.5, 0.0,
+      -0.5, -0.5, 0.0,
+      -0.5, 0.5, 0.0,
+      -1.5, 0.5, 0.0
+    ]);
+
+    const colors = new Float32Array([
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0
+    ]);
+
+    const primitive = Rn.Primitive.createPrimitive({
+      indices: indices,
+      attributeCompositionTypes: [Rn.CompositionType.Mat3, Rn.CompositionType.Mat3],
+      attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
+      attributes: [positions, colors],
+      material: 0,
+      primitiveMode: Rn.PrimitiveMode.Triangles
+    });
+
+    const meshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
+    meshComponent.addPrimitive(primitive);
+    const ib_uid = repo.createIndexBuffer(primitive.indicesAccessor);
+    const ib_handle = repo.getWebGLResource(ib_uid);
+
+    const vb_pos_uid = repo.createIndexBuffer(primitive.attributeAccessors[0]);
+    const vb_pos_handle = repo.getWebGLResource(vb_pos_uid);
+    const vb_col_uid = repo.createIndexBuffer(primitive.attributeAccessors[1]);
+    const vb_col_handle = repo.getWebGLResource(vb_col_uid);
+
+
+  </script>
+</body>
+
+</html>
