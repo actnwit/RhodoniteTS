@@ -1,7 +1,7 @@
 import Component from './Component';
 import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
-import EntityRepository from './EntityRepository';
+import InitialSetting from '../system/InitialSetting';
 
 let singleton:any = Symbol();
 
@@ -85,10 +85,10 @@ export default class ComponentRepository {
   static getMemoryBeginIndex(componentTid: ComponentTID) {
     let memoryBeginIndex = 0;
     for (let i=0; i<componentTid; i++) {
-      const componentClass = ComponentRepository.__componentClasses.get(i); 
+      const componentClass = ComponentRepository.__componentClasses.get(i);
       if (componentClass != null) {
         const sizeOfComponent = (componentClass as any).sizeOfThisComponent;
-        const maxEntityNumber = EntityRepository.getMaxEntityNumber();
+        const maxEntityNumber = InitialSetting.maxEntityNumber;
         memoryBeginIndex += sizeOfComponent * maxEntityNumber;
       }
     }
