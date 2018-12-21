@@ -170,6 +170,53 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 }
 
+const TransformComponentTID = 1;
+const SceneGraphComponentTID = 2;
+const WellKnownComponentTIDs = Object.freeze({
+    TransformComponentTID,
+    SceneGraphComponentTID
+});
+
+class Entity {
+    constructor(entityUID, isAlive, enforcer, entityComponent) {
+        if (enforcer !== Entity._enforcer) {
+            throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
+        }
+        this.__entity_uid = entityUID;
+        this.__isAlive = isAlive;
+        this.__entityRepository = entityComponent;
+    }
+    get entityUID() {
+        return this.__entity_uid;
+    }
+    getComponent(componentTid) {
+        const map = this.__entityRepository._components[this.entityUID];
+        if (map != null) {
+            const component = map.get(componentTid);
+            if (component != null) {
+                return component;
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
+    getTransform() {
+        if (this.__transformComponent == null) {
+            this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID);
+        }
+        return this.__transformComponent;
+    }
+    getSceneGraph() {
+        if (this.__sceneGraphComponent == null) {
+            this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID);
+        }
+        return this.__sceneGraphComponent;
+    }
+}
+Entity._enforcer = Symbol();
+
 const IsUtil = {
     not: {},
     all: {},
@@ -223,6 +270,147 @@ for (let fn in IsUtil) {
         }
     }
 }
+
+class InitialSetting {
+}
+InitialSetting.maxEntityNumber = 10000;
+
+let singleton$1 = Symbol();
+class ComponentRepository {
+    constructor(enforcer) {
+        if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+        this.__component_sid_count_map = new Map();
+        this.__components = new Map();
+    }
+    static registerComponentClass(componentTID, componentClass) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.set(componentTID, componentClass);
+    }
+    static unregisterComponentClass(componentTID) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.delete(componentTID);
+    }
+    static getInstance() {
+        const thisClass = ComponentRepository;
+        if (!thisClass[singleton$1]) {
+            thisClass[singleton$1] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
+        }
+        return thisClass[singleton$1];
+    }
+    createComponent(componentTID, entityUid) {
+        const thisClass = ComponentRepository;
+        const componentClass = thisClass.__componentClasses.get(componentTID);
+        if (componentClass != null) {
+            componentClass.setupBufferView();
+            const component = new componentClass(entityUid);
+            const componentTid = component.constructor.componentTID;
+            let component_sid_count = this.__component_sid_count_map.get(componentTid);
+            if (!IsUtil.exist(component_sid_count)) {
+                this.__component_sid_count_map.set(componentTid, 0);
+                component_sid_count = 0;
+            }
+            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
+            if (!this.__components.has(componentTid)) {
+                this.__components.set(componentTid, []);
+            }
+            const array = this.__components.get(componentTid);
+            if (array != null) {
+                array[component.componentSID] = component;
+                return component;
+            }
+        }
+        return null;
+    }
+    getComponent(componentTid, componentSid) {
+        const map = this.__components.get(componentTid);
+        if (map != null) {
+            const component = map[componentSid];
+            if (component != null) {
+                return map[componentSid];
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
+    static getMemoryBeginIndex(componentTid) {
+        let memoryBeginIndex = 0;
+        for (let i = 0; i < componentTid; i++) {
+            const componentClass = ComponentRepository.__componentClasses.get(i);
+            if (componentClass != null) {
+                const sizeOfComponent = componentClass.sizeOfThisComponent;
+                const maxEntityNumber = InitialSetting.maxEntityNumber;
+                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
+            }
+        }
+        return memoryBeginIndex;
+    }
+}
+ComponentRepository.__componentClasses = new Map();
+ComponentRepository.__singletonEnforcer = Symbol();
+
+const singleton$2 = Symbol();
+class EntityRepository {
+    constructor(enforcer) {
+        if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+        this.__entity_uid_count = 0;
+        this.__entities = [];
+        this._components = [];
+        this.__componentRepository = ComponentRepository.getInstance();
+    }
+    static getInstance() {
+        const thisClass = EntityRepository;
+        if (!thisClass[singleton$2]) {
+            thisClass[singleton$2] = new EntityRepository(thisClass.__singletonEnforcer);
+        }
+        return thisClass[singleton$2];
+    }
+    createEntity(componentTidArray) {
+        const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer, this);
+        this.__entities[this.__entity_uid_count] = entity;
+        for (let componentTid of componentTidArray) {
+            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+            let map = this._components[entity.entityUID];
+            if (!(map != null)) {
+                map = new Map();
+            }
+            if (component != null) {
+                map.set(componentTid, component);
+            }
+            this._components[entity.entityUID] = map;
+        }
+        return entity;
+    }
+    getEntity(entityUid) {
+        return this.__entities[entityUid];
+    }
+    getComponentOfEntity(entityUid, componentTid) {
+        const entity = this._components[entityUid];
+        let component = null;
+        if (entity != null) {
+            component = entity.get(componentTid);
+            if (component != null) {
+                return component;
+            }
+            else {
+                return null;
+            }
+        }
+        return component;
+    }
+    static getMaxEntityNumber() {
+        return 10000;
+    }
+    _getEntities() {
+        return this.__entities.concat();
+    }
+}
+EntityRepository.__singletonEnforcer = Symbol();
 
 class Vector3 {
     constructor(x, y, z) {
@@ -2420,7 +2608,7 @@ class Buffer extends RnObject {
  *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
  * );
  */
-const singleton$1 = Symbol();
+const singleton$3 = Symbol();
 class MemoryManager {
     constructor(enforcer) {
         //__entityMaxCount: number;
@@ -2454,10 +2642,10 @@ class MemoryManager {
     }
     static getInstance() {
         const thisClass = MemoryManager;
-        if (!thisClass[singleton$1]) {
-            thisClass[singleton$1] = new MemoryManager(thisClass.__singletonEnforcer);
+        if (!thisClass[singleton$3]) {
+            thisClass[singleton$3] = new MemoryManager(thisClass.__singletonEnforcer);
         }
-        return thisClass[singleton$1];
+        return thisClass[singleton$3];
     }
     getBufferForGPU() {
         return this.__bufferForGPU;
@@ -2510,87 +2698,6 @@ class Component {
     }
 }
 
-class InitialSetting {
-}
-InitialSetting.maxEntityNumber = 10000;
-
-let singleton$2 = Symbol();
-class ComponentRepository {
-    constructor(enforcer) {
-        if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
-            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-        }
-        this.__component_sid_count_map = new Map();
-        this.__components = new Map();
-    }
-    static registerComponentClass(componentTID, componentClass) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.set(componentTID, componentClass);
-    }
-    static unregisterComponentClass(componentTID) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.delete(componentTID);
-    }
-    static getInstance() {
-        const thisClass = ComponentRepository;
-        if (!thisClass[singleton$2]) {
-            thisClass[singleton$2] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
-        }
-        return thisClass[singleton$2];
-    }
-    createComponent(componentTID, entityUid) {
-        const thisClass = ComponentRepository;
-        const componentClass = thisClass.__componentClasses.get(componentTID);
-        if (componentClass != null) {
-            componentClass.setupBufferView();
-            const component = new componentClass(entityUid);
-            const componentTid = component.constructor.componentTID;
-            let component_sid_count = this.__component_sid_count_map.get(componentTid);
-            if (!IsUtil.exist(component_sid_count)) {
-                this.__component_sid_count_map.set(componentTid, 0);
-                component_sid_count = 0;
-            }
-            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
-            if (!this.__components.has(componentTid)) {
-                this.__components.set(componentTid, []);
-            }
-            const array = this.__components.get(componentTid);
-            if (array != null) {
-                array[component.componentSID] = component;
-                return component;
-            }
-        }
-        return null;
-    }
-    getComponent(componentTid, componentSid) {
-        const map = this.__components.get(componentTid);
-        if (map != null) {
-            const component = map[componentSid];
-            if (component != null) {
-                return map[componentSid];
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
-    static getMemoryBeginIndex(componentTid) {
-        let memoryBeginIndex = 0;
-        for (let i = 0; i < componentTid; i++) {
-            const componentClass = ComponentRepository.__componentClasses.get(i);
-            if (componentClass != null) {
-                const sizeOfComponent = componentClass.sizeOfThisComponent;
-                const maxEntityNumber = InitialSetting.maxEntityNumber;
-                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-            }
-        }
-        return memoryBeginIndex;
-    }
-}
-ComponentRepository.__componentClasses = new Map();
-ComponentRepository.__singletonEnforcer = Symbol();
-
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
     constructor(entityUid) {
@@ -2624,7 +2731,7 @@ class TransformComponent extends Component {
         return 1000000;
     }
     static get componentTID() {
-        return 1;
+        return WellKnownComponentTIDs.TransformComponentTID;
     }
     static get byteSizeOfThisComponent() {
         return 160;
@@ -2985,7 +3092,7 @@ class SceneGraphComponent extends Component {
         return 1000000;
     }
     static get componentTID() {
-        return 2;
+        return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
     static get byteSizeOfThisComponent() {
         return 128;
@@ -3048,106 +3155,6 @@ class SceneGraphComponent extends Component {
     }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
-
-class Entity {
-    constructor(entityUID, isAlive, enforcer) {
-        if (enforcer !== Entity._enforcer) {
-            throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
-        }
-        this.__entity_uid = entityUID;
-        this.__isAlive = isAlive;
-        this.__entityRepository = EntityRepository.getInstance();
-    }
-    get entityUID() {
-        return this.__entity_uid;
-    }
-    getComponent(componentTid) {
-        const map = this.__entityRepository._components[this.entityUID];
-        if (map != null) {
-            const component = map.get(componentTid);
-            if (component != null) {
-                return component;
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
-    getTransform() {
-        if (this.__transformComponent != null) {
-            return this.__transformComponent;
-        }
-        return this.getComponent(TransformComponent.componentTID);
-    }
-    getSceneGraph() {
-        if (this.__sceneGraphComponent != null) {
-            return this.__sceneGraphComponent;
-        }
-        return this.getComponent(SceneGraphComponent.componentTID);
-    }
-}
-Entity._enforcer = Symbol();
-
-const singleton$3 = Symbol();
-class EntityRepository {
-    constructor(enforcer) {
-        if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
-            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-        }
-        this.__entity_uid_count = 0;
-        this.__entities = [];
-        this._components = [];
-        this.__componentRepository = ComponentRepository.getInstance();
-    }
-    static getInstance() {
-        const thisClass = EntityRepository;
-        if (!thisClass[singleton$3]) {
-            thisClass[singleton$3] = new EntityRepository(thisClass.__singletonEnforcer);
-        }
-        return thisClass[singleton$3];
-    }
-    createEntity(componentTidArray) {
-        const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer);
-        this.__entities[this.__entity_uid_count] = entity;
-        for (let componentTid of componentTidArray) {
-            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
-            let map = this._components[entity.entityUID];
-            if (!(map != null)) {
-                map = new Map();
-            }
-            if (component != null) {
-                map.set(componentTid, component);
-            }
-            this._components[entity.entityUID] = map;
-        }
-        return entity;
-    }
-    getEntity(entityUid) {
-        return this.__entities[entityUid];
-    }
-    getComponentOfEntity(entityUid, componentTid) {
-        const entity = this._components[entityUid];
-        let component = null;
-        if (entity != null) {
-            component = entity.get(componentTid);
-            if (component != null) {
-                return component;
-            }
-            else {
-                return null;
-            }
-        }
-        return component;
-    }
-    static getMaxEntityNumber() {
-        return 10000;
-    }
-    _getEntities() {
-        return this.__entities.concat();
-    }
-}
-EntityRepository.__singletonEnforcer = Symbol();
 
 class MeshComponent extends Component {
     constructor(entityUid) {

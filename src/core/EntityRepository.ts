@@ -32,7 +32,7 @@ export default class EntityRepository {
   }
 
   createEntity(componentTidArray: Array<ComponentTID>): Entity {
-    const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer);
+    const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer, this);
     this.__entities[this.__entity_uid_count] = entity;
     for (let componentTid of componentTidArray) {
       const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
