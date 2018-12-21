@@ -2,6 +2,8 @@ import EntityRepository from './EntityRepository';
 import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
+import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
+
 
 export default class Entity {
   private __entity_uid: number;
@@ -12,14 +14,14 @@ export default class Entity {
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
 
-  constructor(entityUID: EntityUID, isAlive: Boolean, enforcer:Symbol) {
+  constructor(entityUID: EntityUID, isAlive: Boolean, enforcer:Symbol, entityComponent: EntityRepository) {
     if (enforcer !== Entity._enforcer) {
       throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
     }
 
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
-    this.__entityRepository = EntityRepository.getInstance();
+    this.__entityRepository = entityComponent;
     
   }
 
@@ -41,17 +43,17 @@ export default class Entity {
   }
 
   getTransform(): TransformComponent {
-    if (this.__transformComponent != null) {
-      return this.__transformComponent;
+    if (this.__transformComponent == null) {
+      this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID) as TransformComponent;
     }
-    return this.getComponent(TransformComponent.componentTID) as TransformComponent;
+    return this.__transformComponent;
   }
 
   getSceneGraph(): SceneGraphComponent {
-    if (this.__sceneGraphComponent != null) {
-      return this.__sceneGraphComponent;
+    if (this.__sceneGraphComponent == null) {
+      this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID) as SceneGraphComponent;
     }
-    return this.getComponent(SceneGraphComponent.componentTID) as SceneGraphComponent;
+    return this.__sceneGraphComponent;
   }
 }
 Entity._enforcer = Symbol();

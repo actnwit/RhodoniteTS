@@ -15,6 +15,7 @@ import Accessor from '../memory/Accessor';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -80,7 +81,7 @@ export default class TransformComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
-    return 1;
+    return WellKnownComponentTIDs.TransformComponentTID;
   }
 
   static get byteSizeOfThisComponent() {

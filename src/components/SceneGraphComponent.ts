@@ -8,6 +8,7 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -38,7 +39,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
-    return 2;
+    return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
   static get byteSizeOfThisComponent() {
