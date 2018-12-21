@@ -348,6 +348,16 @@ class ComponentRepository {
         }
         return memoryBeginIndex;
     }
+    getComponentsWithType(componentTid) {
+        return this.__components.get(componentTid);
+    }
+    getComponentTIDs() {
+        const indices = [];
+        for (let type of this.__components.keys()) {
+            indices.push(type);
+        }
+        return indices;
+    }
 }
 ComponentRepository.__componentClasses = new Map();
 ComponentRepository.__singletonEnforcer = Symbol();
