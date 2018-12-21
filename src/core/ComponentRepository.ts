@@ -94,6 +94,19 @@ export default class ComponentRepository {
     }
     return memoryBeginIndex;
   }
+
+  getComponentsWithType(componentTid: ComponentTID): Array<Component> | undefined {
+    return this.__components.get(componentTid);
+  }
+
+  getComponentTIDs(): Array<ComponentTID> {
+    const indices = [];
+    for (let type of this.__components.keys()) {
+      indices.push(type);
+    }
+    return indices;
+  }
 }
 ComponentRepository.__componentClasses = new Map();
 ComponentRepository.__singletonEnforcer = Symbol();
+

@@ -1,6 +1,7 @@
 import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
 import EntityRepository from "../core/EntityRepository";
 import Component from "../core/Component";
+import ComponentRepository from "../core/ComponentRepository";
 
 const singleton:any = Symbol();
 
@@ -17,6 +18,7 @@ export default class System {
     ProcessStage.Discard
   ];
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
+  private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   private constructor(enforcer: Symbol) {
     if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
@@ -26,21 +28,30 @@ export default class System {
 
   process() {
     this.__processStages.forEach(stage=>{
-      const entities = this.__entityRepository._getEntities();
-      for(let i=1; i<entities.length; i++) {
-        const methodName = stage.getMethodName();
-        const map = this.__entityRepository._components[entities[i].entityUID] as Map<ComponentTID, Component>;
+      const methodName = stage.getMethodName();
+      const componentTids = this.__componentRepository.getComponentTIDs();
 
-        for(let component of map.values()) {
-          if (component != null) {
-            const method = (component as any)[methodName];
-            if (method != null) {
-              method();
-            }
-          }
+      componentTids.forEach(componentTid=>{
+        const component = this.__componentRepository.getComponentsWithType(componentTid)!;
+        const method = (component as any)[methodName];
+        if (method != null) {
+          method();
         }
+      });
 
-      }
+      // const entities = this.__entityRepository._getEntities();
+      // for(let i=1; i<entities.length; i++) {
+      //   const map = this.__entityRepository._components[entities[i].entityUID] as Map<ComponentTID, Component>;
+      //   for(let component of map.values()) {
+      //     if (component != null) {
+      //       const method = (component as any)[methodName];
+      //       if (method != null) {
+      //         method();
+      //       }
+      //     }
+      //   }
+      // }
+
     });
   }
 
