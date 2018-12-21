@@ -2510,6 +2510,10 @@ class Component {
     }
 }
 
+class InitialSetting {
+}
+InitialSetting.maxEntityNumber = 10000;
+
 let singleton$2 = Symbol();
 class ComponentRepository {
     constructor(enforcer) {
@@ -2577,7 +2581,7 @@ class ComponentRepository {
             const componentClass = ComponentRepository.__componentClasses.get(i);
             if (componentClass != null) {
                 const sizeOfComponent = componentClass.sizeOfThisComponent;
-                const maxEntityNumber = EntityRepository.getMaxEntityNumber();
+                const maxEntityNumber = InitialSetting.maxEntityNumber;
                 memoryBeginIndex += sizeOfComponent * maxEntityNumber;
             }
         }
