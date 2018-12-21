@@ -5,6 +5,7 @@ import MeshComponent from './MeshComponent';
 import Primitive from '../geometry/Primitive';
 import { CompositionType } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { VertexAttribute } from '../definitions/VertexAttribute';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -36,6 +37,7 @@ test('Use translate simply', () => {
   const primitive = Primitive.createPrimitive({
     indices: indices,
     attributeCompositionTypes: [CompositionType.Mat3, CompositionType.Mat3],
+    attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
     attributes: [positions, colors],
     material: 0,
     primitiveMode: PrimitiveMode.Triangles
