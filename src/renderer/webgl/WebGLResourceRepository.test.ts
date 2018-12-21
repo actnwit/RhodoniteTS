@@ -7,6 +7,7 @@ import Primitive from '../../geometry/Primitive';
 import { CompositionType } from '../../definitions/CompositionType';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import GLSLShader from './GLSLShader';
 
 const puppeteer = require('puppeteer')
 
@@ -23,17 +24,7 @@ function generateEntity() {
   return entity;
 }
 
-test('Create WebGL resources.', async () => {
-  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-
-  var width   = 64
-  var height  = 64
-  var gl = require('gl')(width, height)
-
-  repo.addWebGLContext(gl, true);
-
-  const firstEntity = generateEntity();
-
+function readyBasicVerticesData() {
   const indices = new Float32Array([
     0, 1, 3, 3, 1, 2
   ]);
@@ -61,8 +52,25 @@ test('Create WebGL resources.', async () => {
     primitiveMode: PrimitiveMode.Triangles
   });
 
-  const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
+  return primitive;
+}
+
+test('Create WebGL resources.', async () => {
+  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+
+  var width   = 64
+  var height  = 64
+  var gl = require('gl')(width, height)
+
+  repo.addWebGLContext(gl, true);
+
+  const firstEntity = generateEntity();
+
+  const primitive = readyBasicVerticesData();
+  const meshComponent = EntityRepository.getInstance().getComponent(firstEntity.entityUID, MeshComponent.componentTID) as MeshComponent;
   meshComponent.addPrimitive(primitive);
+
+
   const ib_uid = repo.createIndexBuffer(primitive.indicesAccessor!);
   const ib_handle = repo.getWebGLResource(ib_uid);
 
@@ -77,6 +85,34 @@ test('Create WebGL resources.', async () => {
   expect(vb_pos_handle).not.toBe(-1);
   expect(vb_col_handle).not.toBe(undefined);
   expect(vb_col_handle).not.toBe(-1);
+
+});
+
+test('Create WebGL resources. 2', async () => {
+  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+
+  var width   = 64
+  var height  = 64
+  var gl = require('gl')(width, height)
+
+  repo.addWebGLContext(gl, true);
+
+  const firstEntity = generateEntity();
+
+  const primitive = readyBasicVerticesData();
+  const meshComponent = EntityRepository.getInstance().getComponent(firstEntity.entityUID, MeshComponent.componentTID) as MeshComponent;
+  meshComponent.addPrimitive(primitive);
+
+  // const vertexUids = repo.createVertexDataResources(primitive);
+
+  // const shaderProgramUid = repo.createShaderProgram(
+  //   GLSLShader.vertexShader,
+  //   GLSLShader.fragmentShader,
+  //   GLSLShader.attributeNanes,
+  //   GLSLShader.attributeSemantics);
+
+  // repo.setVertexDataToShaderProgram(vertexUids, shaderProgramUid, primitive);
+
 
 });
 
