@@ -19,17 +19,20 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         }
         return thisClass[singleton];
     }
-    addWebGLContext(webglContext, asDefault) {
+    addWebGLContext(webglContext, asCurrent) {
         this.__webglContexts.set('default', webglContext);
-        if (asDefault) {
+        if (asCurrent) {
             this.__gl = webglContext;
         }
+    }
+    get currentWebGLContext() {
+        return this.__gl;
     }
     getResourceNumber() {
         return ++this.__resourceCounter;
     }
-    getWebGLResource(webglResourceUid) {
-        return this.__webglResources.get(webglResourceUid);
+    getWebGLResource(WebGLResourceHandle) {
+        return this.__webglResources.get(WebGLResourceHandle);
     }
     createIndexBuffer(accsessor) {
         const gl = this.__gl;
@@ -37,12 +40,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
         const ibo = gl.createBuffer();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, ibo);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, ibo);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return resourceUid;
+        return resourceHandle;
     }
     createVertexBuffer(accsessor) {
         const gl = this.__gl;
@@ -50,14 +53,14 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
         const vbo = gl.createBuffer();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, vbo);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vbo);
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
         gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        return resourceUid;
+        return resourceHandle;
     }
-    __getVAOFunc(functionName) {
+    getVAOFunc(functionName) {
         const gl = this.__gl;
         if (gl[functionName] != null) {
             return gl[functionName];
@@ -75,26 +78,26 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
-        const createVertexArray = this.__getVAOFunc('createVertexArray');
+        const createVertexArray = this.getVAOFunc('createVertexArray');
         const vao = createVertexArray();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, vao);
-        return resourceUid;
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vao);
+        return resourceHandle;
     }
     createVertexDataResources(primitive) {
         const gl = this.__gl;
-        const vaoUid = this.createVertexArray();
-        let iboUid;
+        const vaoHandle = this.createVertexArray();
+        let iboHandle;
         if (primitive.hasIndices) {
-            const iboUid = this.createIndexBuffer(primitive.indicesAccessor);
+            const iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
         }
-        const vboUids = [];
+        const vboHandles = [];
         primitive.attributeAccessors.forEach(accessor => {
-            const vboUid = this.createVertexBuffer(accessor);
-            vboUids.push(vboUid);
+            const vboHandle = this.createVertexBuffer(accessor);
+            vboHandles.push(vboHandle);
         });
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return { vaoUid, iboUid, vboUids };
+        return { vaoHandle, iboHandle, vboHandles };
     }
     createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
         const gl = this.__gl;
@@ -116,12 +119,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
         });
         gl.linkProgram(shaderProgram);
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, shaderProgram);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, shaderProgram);
         this.__checkShaderProgramLinkStatus(shaderProgram);
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
-        return resourceUid;
+        return resourceHandle;
     }
     __checkShaderCompileStatus(shader) {
         const gl = this.__gl;
@@ -136,13 +139,13 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
-    setVertexDataToShaderProgram({ vaoUid, iboUid, vboUids }, shaderProgramUid, primitive) {
+    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
         const gl = this.__gl;
-        const vao = this.getWebGLResource(vaoUid);
-        const bindVertexArray = this.__getVAOFunc('bindVertexArray');
+        const vao = this.getWebGLResource(vaoHandle);
+        const bindVertexArray = this.getVAOFunc('bindVertexArray');
         bindVertexArray(vao);
-        if (iboUid != null) {
-            const ibo = this.getWebGLResource(iboUid);
+        if (iboHandle != null) {
+            const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
             }
@@ -150,18 +153,19 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
                 throw new Error('Nothing Element Array Buffer!');
             }
         }
-        const shaderProgram = this.getWebGLResource(shaderProgramUid);
+        const shaderProgram = this.getWebGLResource(shaderProgramHandle);
         if (shaderProgram == null) {
             throw new Error('Nothing ShaderProgram!');
         }
-        vboUids.forEach((vboUid, i) => {
-            const vbo = this.getWebGLResource(vboUid);
+        vboHandles.forEach((vboHandle, i) => {
+            const vbo = this.getWebGLResource(vboHandle);
             if (vbo != null) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
             }
             else {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
+            gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -2408,6 +2412,15 @@ class AccessorBase extends RnObject {
     get elementSizeInBytes() {
         return this.numberOfComponents * this.componentSizeInBytes;
     }
+    get elementCount() {
+        return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+    }
+    get componentType() {
+        return this.__componentType;
+    }
+    get compositionType() {
+        return this.__compositionType;
+    }
     getTypedArray() {
         if (this.__bufferView.isAoS) {
             console.warn('Be careful. this referance bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.');
@@ -2698,7 +2711,7 @@ class Component {
     }
     $logic() {
     }
-    $PreRender() {
+    $prerender() {
     }
     $render() {
     }
@@ -3139,25 +3152,25 @@ class SceneGraphComponent extends Component {
         return this.calcWorldMatrixRecursively().clone();
     }
     calcWorldMatrixRecursively() {
+        const entity = this.__entityRepository.getEntity(this.__entityUid);
+        const transform = entity.getTransform();
         if (!(this.__parent != null)) {
             // if there is not parent
-            const entity = this.__entityRepository.getEntity(this.__entityUid);
             //      if (!this.__updatedProperly && entity.getTransform()._dirty) {
-            if (entity.getTransform()._dirty) {
+            if (transform._dirty) {
                 //this.__updatedProperly = true;
-                entity.getTransform()._dirty = false;
-                this.__worldMatrix = entity.getTransform().matrix;
+                transform._dirty = false;
+                this.__worldMatrix = transform.matrix;
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
         }
         const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-        const entity = this.__entityRepository.getEntity(this.__entityUid);
         //    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-        if (entity.getTransform()._dirty) {
+        if (transform._dirty) {
             //this.__updatedProperly = true;
-            entity.getTransform()._dirty = false;
-            this.__worldMatrix = entity.getTransform().matrix;
+            transform._dirty = false;
+            this.__worldMatrix = transform.matrix;
             //      console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
         }
         //console.log('return Skip!', this.__worldMatrix.toString(), this.__entityUid);
@@ -3166,10 +3179,69 @@ class SceneGraphComponent extends Component {
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
+class VertexAttributeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown$2 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
+const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
+const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
+const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
+const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
+const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
+const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
+const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
+const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
+const typeList$2 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
+}
+const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$2 });
+
+class GLSLShader {
+}
+GLSLShader.vertexShader = `
+attribute vec3 i_position;
+void main ()
+{
+	gl_Position = vec4(i_position, 1.0);
+}
+  `;
+GLSLShader.fragmentShader = `
+  precision mediump float;
+  void main ()
+  {
+    gl_FragColor = vec4(1.0);
+  }
+`;
+GLSLShader.attributeNanes = ['i_position'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position];
+
+const WebGLRenderingPipeline = new class {
+    constructor() {
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+    }
+    render(vaoHandle, shaderProgramHandle, primitive) {
+        const gl = this.__webglResourceRepository.currentWebGLContext;
+        if (gl == null) {
+            throw new Error('No WebGLRenderingContext!');
+        }
+        const bindVertexArray = this.__webglResourceRepository.getVAOFunc('bindVertexArray');
+        bindVertexArray(vaoHandle);
+        gl.useProgram(shaderProgramHandle);
+        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
+    }
+};
+
 class MeshComponent extends Component {
     constructor(entityUid) {
         super(entityUid);
         this.__primitives = [];
+        this.__vertexVaoHandles = [];
+        this.__vertexShaderProgramHandles = [];
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__renderingPipeline = WebGLRenderingPipeline;
     }
     static get maxCount() {
         return 1000000;
@@ -3185,6 +3257,20 @@ class MeshComponent extends Component {
     }
     getPrimitiveNumber() {
         return this.__primitives.length;
+    }
+    $prerender() {
+        this.__primitives.forEach((primitive, i) => {
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexVaoHandles[i] = vertexHandles.vaoHandle;
+            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            this.__webglResourceRepository.setVertexDataToShaderProgram(vertexHandles, shaderProgramHandle, primitive);
+        });
+    }
+    $render() {
+        this.__primitives.forEach((primitive, i) => {
+            this.__renderingPipeline.render(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
+        });
     }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
@@ -3261,6 +3347,9 @@ class Primitive extends RnObject {
     get attributeComponentTypes() {
         return this.__attributeComponentTypes;
     }
+    get primitiveMode() {
+        return this.__mode;
+    }
 }
 
 class PrimitiveModeClass extends EnumClass {
@@ -3268,7 +3357,7 @@ class PrimitiveModeClass extends EnumClass {
         super({ index, str });
     }
 }
-const Unknown$2 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
 const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
 const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
 const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
@@ -3276,31 +3365,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$2 = [Unknown$2, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
-}
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$2, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$2 });
-
-class VertexAttributeClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const Unknown$3 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const typeList$3 = [Unknown$3, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+const typeList$3 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
 function from$3({ index }) {
     return _from({ typeList: typeList$3, index });
 }
-const VertexAttribute = Object.freeze({ Unknown: Unknown$3, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$3 });
 
 var main = Object.freeze({
     EntityRepository,

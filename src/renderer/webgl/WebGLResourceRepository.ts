@@ -10,7 +10,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private __webglContexts: Map<string, WebGLRenderingContext> = new Map();
   private __gl?: WebGLRenderingContext;
   private __resourceCounter: number = 0;
-  private __webglResources: Map<WebGLResourceUID, WebGLObject> = new Map();
+  private __webglResources: Map<WebGLResourceHandle, WebGLObject> = new Map();
 
   private __extVAO?: any;
 
@@ -30,19 +30,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return (thisClass as any)[singleton];
   }
 
-  addWebGLContext(webglContext: WebGLRenderingContext, asDefault: boolean) {
+  addWebGLContext(webglContext: WebGLRenderingContext, asCurrent: boolean) {
     this.__webglContexts.set('default', webglContext);
-    if (asDefault) {
+    if (asCurrent) {
       this.__gl = webglContext;
     }
   }
 
-  private getResourceNumber(): WebGLResourceUID {
+  get currentWebGLContext() {
+    return this.__gl;
+  }
+
+  private getResourceNumber(): WebGLResourceHandle {
     return ++this.__resourceCounter;
   }
 
-  getWebGLResource(webglResourceUid: WebGLResourceUID): WebGLObject | undefined {
-    return this.__webglResources.get(webglResourceUid)
+  getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | undefined {
+    return this.__webglResources.get(WebGLResourceHandle)
   }
 
   createIndexBuffer(accsessor: Accessor) {
@@ -53,14 +57,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ibo = gl.createBuffer();
-    const resourceUid = this.getResourceNumber();
-    this.__webglResources.set(resourceUid, ibo!);
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, ibo!);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-    return resourceUid;
+    return resourceHandle;
   }
 
   createVertexBuffer(accsessor: Accessor) {
@@ -71,18 +75,18 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const vbo = gl.createBuffer();
-    const resourceUid = this.getResourceNumber();
-    this.__webglResources.set(resourceUid, vbo!);
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    return resourceUid;
+    return resourceHandle;
 
   }
 
-  private __getVAOFunc(functionName: string) {
+  getVAOFunc(functionName: string) {
     const gl: any = this.__gl;
     if (gl[functionName] != null) {
       return gl[functionName];
@@ -105,34 +109,36 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
-    const createVertexArray = this.__getVAOFunc('createVertexArray');
+    const createVertexArray = this.getVAOFunc('createVertexArray');
     const vao = createVertexArray();
 
-    const resourceUid = this.getResourceNumber();
-    this.__webglResources.set(resourceUid, vao);
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, vao);
 
-    return resourceUid;
+    return resourceHandle;
   }
 
-  createVertexDataResources(primitive: Primitive) {
+  createVertexDataResources(primitive: Primitive): {
+    vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>
+  } {
     const gl = this.__gl!;
 
-    const vaoUid = this.createVertexArray();
+    const vaoHandle = this.createVertexArray();
 
-    let iboUid;
+    let iboHandle;
     if (primitive.hasIndices) {
-      const iboUid = this.createIndexBuffer(primitive.indicesAccessor!);
+      const iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
 
-    const vboUids:Array<WebGLResourceUID> = [];
+    const vboHandles:Array<WebGLResourceHandle> = [];
     primitive.attributeAccessors.forEach(accessor=>{
-      const vboUid = this.createVertexBuffer(accessor);
-      vboUids.push(vboUid);
+      const vboHandle = this.createVertexBuffer(accessor);
+      vboHandles.push(vboHandle);
     });
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-    return {vaoUid, iboUid, vboUids};
+    return {vaoHandle, iboHandle, vboHandles};
   }
 
   createShaderProgram(vertexShaderStr:string, fragmentShaderStr:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>) {
@@ -164,8 +170,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.linkProgram(shaderProgram);
 
-    const resourceUid = this.getResourceNumber();
-    this.__webglResources.set(resourceUid, shaderProgram);
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, shaderProgram);
 
 
     this.__checkShaderProgramLinkStatus(shaderProgram);
@@ -173,7 +179,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
 
-    return resourceUid;
+    return resourceHandle;
   }
 
   private __checkShaderCompileStatus(shader: WebGLShader) {
@@ -194,19 +200,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setVertexDataToShaderProgram(
-    {vaoUid, iboUid, vboUids} : {vaoUid: WebGLResourceUID, iboUid?: WebGLResourceUID, vboUids: Array<WebGLResourceUID>},
-    shaderProgramUid: WebGLResourceUID,
+    {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
+    shaderProgramHandle: WebGLResourceHandle,
     primitive: Primitive)
   {
     const gl = this.__gl!;
 
-    const vao = this.getWebGLResource(vaoUid);
-    const bindVertexArray = this.__getVAOFunc('bindVertexArray');
+    const vao = this.getWebGLResource(vaoHandle);
+    const bindVertexArray = this.getVAOFunc('bindVertexArray');
 
     bindVertexArray(vao);
 
-    if (iboUid != null) {
-      const ibo = this.getWebGLResource(iboUid);
+    if (iboHandle != null) {
+      const ibo = this.getWebGLResource(iboHandle);
       if (ibo != null) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
       } else {
@@ -214,17 +220,18 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     }
 
-    const shaderProgram = this.getWebGLResource(shaderProgramUid);
+    const shaderProgram = this.getWebGLResource(shaderProgramHandle);
     if (shaderProgram == null) {
       throw new Error('Nothing ShaderProgram!');
     }
-    vboUids.forEach((vboUid, i)=>{
-      const vbo = this.getWebGLResource(vboUid);
+    vboHandles.forEach((vboHandle, i)=>{
+      const vbo = this.getWebGLResource(vboHandle);
       if (vbo != null) {
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
       } else {
         throw new Error('Nothing Element Array Buffer at index '+ i);
       }
+      gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
       gl.vertexAttribPointer(
         primitive.attributeSemantics[i].index,
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),

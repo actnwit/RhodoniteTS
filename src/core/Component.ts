@@ -55,7 +55,7 @@ export default class Component {
 
   }
 
-  $PreRender() {
+  $prerender() {
 
   }
 

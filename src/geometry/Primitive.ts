@@ -138,4 +138,8 @@ export default class Primitive extends RnObject {
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
     return this.__attributeComponentTypes;
   }
+
+  get primitiveMode(): PrimitiveModeEnum {
+    return this.__mode;
+  }
 }
