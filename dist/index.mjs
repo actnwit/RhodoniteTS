@@ -1,6 +1,35 @@
 class CGAPIResourceRepository {
 }
 
+// This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
+class EnumClass {
+    constructor({ index, str }) {
+        this.index = index;
+        this.str = str;
+    }
+    toString() {
+        return this.str;
+    }
+    toJSON() {
+        return this.index;
+    }
+}
+function _from({ typeList, index }) {
+    const match = typeList.find(type => type.index === index);
+    if (!match) {
+        throw new Error(`Invalid PrimitiveMode index: [${index}]`);
+    }
+    return match;
+}
+
+class WebGLExtensionClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const VertexArrayObject = new WebGLExtensionClass({ index: 0, str: 'OES_vertex_array_object' });
+const WebGLExtension = Object.freeze({ VertexArrayObject });
+
 const singleton = Symbol();
 class WebGLResourceRepository extends CGAPIResourceRepository {
     constructor(enforcer) {
@@ -8,6 +37,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         this.__webglContexts = new Map();
         this.__resourceCounter = 0;
         this.__webglResources = new Map();
+        this.__extensions = new Map();
         if (enforcer !== WebGLResourceRepository.__singletonEnforcer || !(this instanceof WebGLResourceRepository)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
@@ -60,26 +90,25 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         return resourceHandle;
     }
-    getVAOFunc(functionName) {
+    getExtension(extension) {
         const gl = this.__gl;
-        if (gl[functionName] != null) {
-            return gl[functionName];
-        }
-        if (this.__extVAO == null) {
-            this.__extVAO = gl.getExtension('OES_vertex_array_object');
-            if (this.__extVAO == null) {
-                throw new Error('The library does not support this environment because the OES_vertex_array_object is not available');
+        if (this.__extensions.has(extension)) {
+            const extObj = gl.getExtension(extension.toString());
+            if (extObj == null) {
+                throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
             }
+            this.__extensions.set(extension, extObj);
+            return extObj;
         }
-        return this.__extVAO[functionName];
+        return null;
     }
     createVertexArray() {
         const gl = this.__gl;
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
-        const createVertexArray = this.getVAOFunc('createVertexArray');
-        const vao = createVertexArray();
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = extVAO.createVertexArrayOES();
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, vao);
         return resourceHandle;
@@ -142,8 +171,8 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
     setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
         const gl = this.__gl;
         const vao = this.getWebGLResource(vaoHandle);
-        const bindVertexArray = this.getVAOFunc('bindVertexArray');
-        bindVertexArray(vao);
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        extVAO.bindVertexArray(vao);
         if (iboHandle != null) {
             const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
@@ -169,7 +198,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        bindVertexArray(null);
+        extVAO.bindVertexArray(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
@@ -2155,27 +2184,6 @@ class RnObject {
 }
 RnObject.currentMaxObjectCount = 0;
 
-// This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
-class EnumClass {
-    constructor({ index, str }) {
-        this.index = index;
-        this.str = str;
-    }
-    toString() {
-        return this.str;
-    }
-    toJSON() {
-        return this.index;
-    }
-}
-function _from({ typeList, index }) {
-    const match = typeList.find(type => type.index === index);
-    if (!match) {
-        throw new Error(`Invalid PrimitiveMode index: [${index}]`);
-    }
-    return match;
-}
-
 class ComponentTypeClass extends EnumClass {
     constructor({ index, str, sizeInBytes }) {
         super({ index, str });
@@ -2194,9 +2202,9 @@ const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
 const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
 const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
 const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
-const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
-function from({ index }) {
-    return _from({ typeList, index });
+const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
+function from$1({ index }) {
+    return _from({ typeList: typeList$1, index });
 }
 function fromTypedArray(typedArray) {
     if (typedArray instanceof Int8Array) {
@@ -2225,7 +2233,7 @@ function fromTypedArray(typedArray) {
     }
     return Unknown;
 }
-const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from, fromTypedArray });
+const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from: from$1, fromTypedArray });
 
 class CompositionTypeClass extends EnumClass {
     constructor({ index, str, numberOfComponent }) {
@@ -2245,11 +2253,11 @@ const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponent
 const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponent: 4 });
 const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponent: 9 });
 const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponent: 16 });
-const typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
+const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
 }
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1 });
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
 
 class _Vector2 {
     constructor(typedArray, x, y) {
@@ -3193,11 +3201,11 @@ const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
 const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
 const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
 const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const typeList$2 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
+const typeList$3 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+function from$3({ index }) {
+    return _from({ typeList: typeList$3, index });
 }
-const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$2 });
+const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
 
 class GLSLShader {
 }
@@ -3227,8 +3235,8 @@ const WebGLRenderingPipeline = new class {
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
-        const bindVertexArray = this.__webglResourceRepository.getVAOFunc('bindVertexArray');
-        bindVertexArray(vaoHandle);
+        const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
+        extVAO.bindVertexArray(vaoHandle);
         gl.useProgram(shaderProgramHandle);
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
     }
@@ -3365,11 +3373,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$3 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$3({ index }) {
-    return _from({ typeList: typeList$3, index });
+const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$4({ index }) {
+    return _from({ typeList: typeList$4, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$3 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
 var main = Object.freeze({
     EntityRepository,

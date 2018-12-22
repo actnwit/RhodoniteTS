@@ -3,6 +3,7 @@ import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import Primitive from "../../geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
+import { WebGLExtension, WebGLExtensionEnum } from "../../definitions/WebGLExtension";
 const singleton:any = Symbol();
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -12,7 +13,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private __resourceCounter: number = 0;
   private __webglResources: Map<WebGLResourceHandle, WebGLObject> = new Map();
 
-  private __extVAO?: any;
+  private __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
   private constructor(enforcer: Symbol) {
     super();
@@ -86,20 +87,18 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
-  getVAOFunc(functionName: string) {
+  getExtension(extension: WebGLExtensionEnum) {
     const gl: any = this.__gl;
-    if (gl[functionName] != null) {
-      return gl[functionName];
-    }
-    if (this.__extVAO == null) {
-      this.__extVAO = gl.getExtension('OES_vertex_array_object');
+    if (this.__extensions.has(extension)) {
 
-      if (this.__extVAO == null) {
-        throw new Error('The library does not support this environment because the OES_vertex_array_object is not available');
+      const extObj = gl.getExtension(extension.toString());
+      if (extObj == null) {
+        throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
       }
+      this.__extensions.set(extension, extObj);
+      return extObj;
     }
-
-    return this.__extVAO[functionName];
+    return null;
   }
 
 　createVertexArray() {
@@ -109,8 +108,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
-    const createVertexArray = this.getVAOFunc('createVertexArray');
-    const vao = createVertexArray();
+    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+    const vao = extVAO.createVertexArrayOES();
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vao);
@@ -207,9 +206,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__gl!;
 
     const vao = this.getWebGLResource(vaoHandle);
-    const bindVertexArray = this.getVAOFunc('bindVertexArray');
+    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
 
-    bindVertexArray(vao);
+    extVAO.bindVertexArray(vao);
 
     if (iboHandle != null) {
       const ibo = this.getWebGLResource(iboHandle);
@@ -242,7 +241,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         );
     });
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    bindVertexArray(null);
+    extVAO.bindVertexArray(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 }
