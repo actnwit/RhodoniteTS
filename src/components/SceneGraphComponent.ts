@@ -81,14 +81,15 @@ export default class SceneGraphComponent extends Component {
   }
 
   calcWorldMatrixRecursively(): Matrix44 {
+    const entity = this.__entityRepository.getEntity(this.__entityUid);
+    const transform = entity.getTransform();
     if (!(this.__parent != null)) {
       // if there is not parent
-      const entity = this.__entityRepository.getEntity(this.__entityUid);
 //      if (!this.__updatedProperly && entity.getTransform()._dirty) {
-      if (entity.getTransform()._dirty) {
+      if (transform._dirty) {
         //this.__updatedProperly = true;
-        entity.getTransform()._dirty = false;
-        this.__worldMatrix = entity.getTransform().matrix;
+        transform._dirty = false;
+        this.__worldMatrix = transform.matrix;
 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
       } else {
 //        console.log('Skip!', this.__worldMatrix.toString(), this.__entityUid);
@@ -96,12 +97,11 @@ export default class SceneGraphComponent extends Component {
       return this.__worldMatrix;
     }
     const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-    const entity = this.__entityRepository.getEntity(this.__entityUid);
 //    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-    if (entity.getTransform()._dirty) {
+    if (transform._dirty) {
       //this.__updatedProperly = true;
-      entity.getTransform()._dirty = false;
-      this.__worldMatrix = entity.getTransform().matrix;
+      transform._dirty = false;
+      this.__worldMatrix = transform.matrix;
 //      console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
     } else {
 //      console.log('Skip!', this.__worldMatrix.toString(), this.__entityUid);
