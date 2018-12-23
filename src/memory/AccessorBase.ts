@@ -229,27 +229,16 @@ export default class AccessorBase extends RnObject {
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
-    console.log(this.__byteStride*index, value, endian);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
-    // const componentSetter = this.__dataViewSetter(this.componentType)!;
-    // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
-    // console.log(componentSetter);
-    // compositionSetter(this.__byteStride*index, value, endian);
   }
 
   setVec2(index: Index, x: number, y: number, endian: boolean = true) {
+    const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
-    this.__dataViewSetter(this.__byteStride*index+1, y, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
   }
 
   setVec3(index: Index, x: number, y: number, z: number, endian: boolean = true) {
-    // const setter = this.__dataViewSetter(this.componentType)!;
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
-
-    console.log(this.__byteStride, index, x, endian);
-
     const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
     this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
@@ -257,10 +246,11 @@ export default class AccessorBase extends RnObject {
   }
 
   setVec4(index: Index, x: number, y: number, z: number, w: number, endian: boolean = true) {
+    const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
-    this.__dataViewSetter(this.__byteStride*index+1, y, endian);
-    this.__dataViewSetter(this.__byteStride*index+2, z, endian);
-    this.__dataViewSetter(this.__byteStride*index+3, w, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
+    this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, z, endian);
+    this.__dataViewSetter(this.__byteStride*index+3*sizeInBytes, w, endian);
   }
 
   copyFromTypedArray(typedArray: TypedArray) {
