@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>GLBoost Index Buffer example</title>
+  <title>Rhodonite Index Buffer example</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -75,16 +75,6 @@
 
     const meshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
     meshComponent.addPrimitive(primitive);
-
-    //const vertexUids = repo.createVertexDataResources(primitive);
-
-    // const shaderProgramUid = repo.createShaderProgram(
-    // Rn.GLSLShader.vertexShader,
-    // Rn.GLSLShader.fragmentShader,
-    // Rn.GLSLShader.attributeNanes,
-    // Rn.GLSLShader.attributeSemantics);
-
-    // repo.setVertexDataToShaderProgram(vertexUids, shaderProgramUid, primitive);
 
     const system = Rn.System.getInstance();
     system.process();
