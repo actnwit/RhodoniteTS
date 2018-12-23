@@ -263,12 +263,21 @@ export default class AccessorBase extends RnObject {
     this.__dataViewSetter(this.__byteStride*index+3, w, endian);
   }
 
-  // copyArrayBuffer(arrayBuffer: ArrayBuffer) {
-  //   const compN = this.compositionType.index;
-  //   const dataView = new DataView(arrayBuffer);
-  //   for (let i=0; i<dataView.byteLength/this.componentSizeInBytes; i++) {
-  //   }
-  // }
+  copyFromTypedArray(typedArray: TypedArray) {
+    const componentN = this.numberOfComponents;
+    const setter = (this as any)['setVec'+componentN];
+    for (let j=0; j<(typedArray.byteLength/this.componentSizeInBytes); j++) {
+      const idx = Math.floor(j/componentN);
+      const idxN = idx * componentN;
+      switch(componentN) {
+        case 1: setter.call(this, idx, typedArray[idxN+0]); break;
+        case 2: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1]); break;
+        case 3: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2]); break;
+        case 4: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2], typedArray[idxN+3]); break;
+        default: throw new Error('Other than vectors are currently not supported.');
+      }
+    }
+  }
 
   setScalarAt(index: Index, conpositionOffset: Index, value: number, endian: boolean = true) {
     this.__dataViewSetter(this.__byteStride*index + conpositionOffset, value, endian);

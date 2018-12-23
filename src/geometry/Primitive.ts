@@ -6,6 +6,7 @@ import BufferView from '../memory/BufferView';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import AccessorBase from '../memory/AccessorBase';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
@@ -59,7 +60,7 @@ export default class Primitive extends RnObject {
   {
 
     const buffer = MemoryManager.getInstance().getBufferForCPU();
-    
+
     let indicesComponentType;
     let indicesBufferView;
     let indicesAccessor;
@@ -91,16 +92,12 @@ export default class Primitive extends RnObject {
 
     attributes.forEach((attribute, i)=>{
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor = attributesBufferView.takeAccessor({
+      const accessor:AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
       });
-      //console.log('attribute.byteLength/accessor.componentSizeInBytes', attribute.byteLength, accessor.componentSizeInBytes);
-      for (let j=0; j<(attribute.byteLength/accessor.componentSizeInBytes); j++) {
-        //console.log(Math.floor(j/3), attribute[Math.floor(j/3)+0], attribute[Math.floor(j/3)+1], attribute[Math.floor(j/3)+2]);
-        accessor.setVec3(Math.floor(j/3), attribute[Math.floor(j/3)*3+0], attribute[Math.floor(j/3)*3+1], attribute[Math.floor(j/3)*3+2]);
-      }
+      accessor.copyFromTypedArray(attribute);
       attributeAccessors.push(accessor);
     });
 

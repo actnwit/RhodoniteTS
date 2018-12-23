@@ -2526,12 +2526,29 @@ class AccessorBase extends RnObject {
         this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
         this.__dataViewSetter(this.__byteStride * index + 3, w, endian);
     }
-    // copyArrayBuffer(arrayBuffer: ArrayBuffer) {
-    //   const compN = this.compositionType.index;
-    //   const dataView = new DataView(arrayBuffer);
-    //   for (let i=0; i<dataView.byteLength/this.componentSizeInBytes; i++) {
-    //   }
-    // }
+    copyFromTypedArray(typedArray) {
+        const componentN = this.numberOfComponents;
+        const setter = this['setVec' + componentN];
+        for (let j = 0; j < (typedArray.byteLength / this.componentSizeInBytes); j++) {
+            const idx = Math.floor(j / componentN);
+            const idxN = idx * componentN;
+            switch (componentN) {
+                case 1:
+                    setter.call(this, idx, typedArray[idxN + 0]);
+                    break;
+                case 2:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1]);
+                    break;
+                case 3:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2]);
+                    break;
+                case 4:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], typedArray[idxN + 3]);
+                    break;
+                default: throw new Error('Other than vectors are currently not supported.');
+            }
+        }
+    }
     setScalarAt(index, conpositionOffset, value, endian = true) {
         this.__dataViewSetter(this.__byteStride * index + conpositionOffset, value, endian);
     }
@@ -3270,9 +3287,7 @@ const WebGLRenderingPipeline = new class {
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
         extVAO.bindVertexArrayOES(vao);
         gl.useProgram(shaderProgram);
-        console.log(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index);
-        //  gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
-        gl.drawElements(primitive.primitiveMode.index, 6, primitive.indicesAccessor.componentType.index, 0);
+        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
     }
 };
 
@@ -3363,11 +3378,12 @@ class Primitive extends RnObject {
                 componentType: ComponentType.fromTypedArray(attributes[i]),
                 count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
             });
-            //console.log('attribute.byteLength/accessor.componentSizeInBytes', attribute.byteLength, accessor.componentSizeInBytes);
-            for (let j = 0; j < (attribute.byteLength / accessor.componentSizeInBytes); j++) {
-                //console.log(Math.floor(j/3), attribute[Math.floor(j/3)+0], attribute[Math.floor(j/3)+1], attribute[Math.floor(j/3)+2]);
-                accessor.setVec3(Math.floor(j / 3), attribute[Math.floor(j / 3) * 3 + 0], attribute[Math.floor(j / 3) * 3 + 1], attribute[Math.floor(j / 3) * 3 + 2]);
-            }
+            // for (let j=0; j<(attribute.byteLength/accessor.componentSizeInBytes); j++) {
+            //   const idx = Math.floor(j/3);
+            //   const idx3 = idx * 3;
+            //   accessor.setVec3(idx, attribute[idx3+0], attribute[idx3+1], attribute[idx3+2]);
+            // }
+            accessor.copyFromTypedArray(attribute);
             attributeAccessors.push(accessor);
         });
         return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
