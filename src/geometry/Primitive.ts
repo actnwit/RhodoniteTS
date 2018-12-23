@@ -6,6 +6,7 @@ import BufferView from '../memory/BufferView';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import AccessorBase from '../memory/AccessorBase';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
@@ -58,47 +59,46 @@ export default class Primitive extends RnObject {
     })
   {
 
-      let indicesComponentType;
-      let indicesBufferView;
-      let indicesAccessor;
+    const buffer = MemoryManager.getInstance().getBufferForCPU();
+
+    let indicesComponentType;
+    let indicesBufferView;
+    let indicesAccessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
-      const buffer = MemoryManager.getInstance().getBufferForCPU();
       indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false});
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
         count: indices.byteLength / indicesComponentType.getSizeInBytes()
       });
+      // copy indices
+      for (let i=0; i<indices!.byteLength/indicesAccessor!.componentSizeInBytes; i++) {
+        indicesAccessor!.setScalar(i, indices![i]);
+      }
     }
+
+
 
     let sumOfAttributesByteSize = 0;
     attributes.forEach(attribute=>{
       sumOfAttributesByteSize += attribute.byteLength;
     });
-    const memoryManager = MemoryManager.getInstance();
-    const buffer = memoryManager.getBufferForCPU();
     const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
-    let byteLength: number;
-    if (indices != null) {
-      byteLength = indices.byteLength;
-    } else {
-      byteLength = attributes[0].byteLength;
-    }
 
     attributes.forEach((attribute, i)=>{
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      attributeAccessors.push(
-        attributesBufferView.takeAccessor({
-          compositionType: attributeCompositionTypes[i],
-          componentType: ComponentType.fromTypedArray(attributes[i]),
-          count: byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-        })
-      );
+      const accessor:AccessorBase = attributesBufferView.takeAccessor({
+        compositionType: attributeCompositionTypes[i],
+        componentType: ComponentType.fromTypedArray(attributes[i]),
+        count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+      });
+      accessor.copyFromTypedArray(attribute);
+      attributeAccessors.push(accessor);
     });
 
     return new Primitive(
@@ -137,5 +137,9 @@ export default class Primitive extends RnObject {
 
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
     return this.__attributeComponentTypes;
+  }
+
+  get primitiveMode(): PrimitiveModeEnum {
+    return this.__mode;
   }
 }

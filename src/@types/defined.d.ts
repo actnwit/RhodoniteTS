@@ -14,5 +14,7 @@ type EntityUID = number;
 type ComponentTID = number;
 type ComponentSID = number;
 
-type WebGLResourceUID = number;
+type WebGLResourceHandle = number;
+
+type CGAPIResourceHandle = WebGLResourceHandle;
 

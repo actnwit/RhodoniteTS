@@ -23,8 +23,8 @@ export default class AccessorBase extends RnObject {
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
 
-  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array}) {
+  constructor({bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw} :
+    {bufferView: BufferView, byteOffset: Byte, byteOffsetFromBuffer: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array}) {
     super();
     
     this.__bufferView = bufferView;
@@ -40,16 +40,16 @@ export default class AccessorBase extends RnObject {
       this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     }
 
-    this.prepare();
+    this.prepare(byteOffsetFromBuffer);
   }
 
-  prepare() {
+  prepare(byteOffsetFromBuffer:Byte) {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
     this.__typedArrayClass = typedArrayClass;
     if (this.__bufferView.isSoA) {
-      this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
-      this.__dataView = new DataView(this.__raw, this.__byteOffset);
+      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
     }
     this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
@@ -76,7 +76,7 @@ export default class AccessorBase extends RnObject {
     }
   }
 
-  getDataViewGetter(componentType: ComponentTypeEnum)
+  getDataViewGetter(componentType: ComponentTypeEnum): string | undefined
   {
     switch (componentType) {
       case ComponentType.Byte: return 'getInt8';
@@ -91,7 +91,7 @@ export default class AccessorBase extends RnObject {
     }
   }
 
-  getDataViewSetter(componentType: ComponentTypeEnum)
+  getDataViewSetter(componentType: ComponentTypeEnum): string | undefined
   {
     switch (componentType) {
       case ComponentType.Byte: return 'setInt8';
@@ -104,6 +104,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.Double: return 'setFloat64';
       default: console.error('Unexpected ComponentType!');
     }
+    return undefined;
   }
 
   takeOne(): TypedArray {
@@ -128,6 +129,18 @@ export default class AccessorBase extends RnObject {
 
   get elementSizeInBytes() {
     return this.numberOfComponents * this.componentSizeInBytes;
+  }
+
+  get elementCount(): Count {
+    return this.__dataView!.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+  }
+
+  get componentType(): ComponentTypeEnum {
+    return this.__componentType;
+  }
+
+  get compositionType(): CompositionTypeEnum{
+    return this.__compositionType;
   }
 
   getTypedArray(): TypedArray {
@@ -216,7 +229,12 @@ export default class AccessorBase extends RnObject {
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
+    console.log(this.__byteStride*index, value, endian);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
+    // const componentSetter = this.__dataViewSetter(this.componentType)!;
+    // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
+    // console.log(componentSetter);
+    // compositionSetter(this.__byteStride*index, value, endian);
   }
 
   setVec2(index: Index, x: number, y: number, endian: boolean = true) {
@@ -225,9 +243,17 @@ export default class AccessorBase extends RnObject {
   }
 
   setVec3(index: Index, x: number, y: number, z: number, endian: boolean = true) {
+    // const setter = this.__dataViewSetter(this.componentType)!;
+    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
+    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
+    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
+
+    console.log(this.__byteStride, index, x, endian);
+
+    const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
-    this.__dataViewSetter(this.__byteStride*index+1, y, endian);
-    this.__dataViewSetter(this.__byteStride*index+2, z, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
+    this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, z, endian);
   }
 
   setVec4(index: Index, x: number, y: number, z: number, w: number, endian: boolean = true) {
@@ -235,6 +261,22 @@ export default class AccessorBase extends RnObject {
     this.__dataViewSetter(this.__byteStride*index+1, y, endian);
     this.__dataViewSetter(this.__byteStride*index+2, z, endian);
     this.__dataViewSetter(this.__byteStride*index+3, w, endian);
+  }
+
+  copyFromTypedArray(typedArray: TypedArray) {
+    const componentN = this.numberOfComponents;
+    const setter = (this as any)['setVec'+componentN];
+    for (let j=0; j<(typedArray.byteLength/this.componentSizeInBytes); j++) {
+      const idx = Math.floor(j/componentN);
+      const idxN = idx * componentN;
+      switch(componentN) {
+        case 1: setter.call(this, idx, typedArray[idxN+0]); break;
+        case 2: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1]); break;
+        case 3: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2]); break;
+        case 4: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2], typedArray[idxN+3]); break;
+        default: throw new Error('Other than vectors are currently not supported.');
+      }
+    }
   }
 
   setScalarAt(index: Index, conpositionOffset: Index, value: number, endian: boolean = true) {
@@ -248,4 +290,10 @@ export default class AccessorBase extends RnObject {
   get dataViewOfBufferView(): DataView {
     return this.__dataView!;
   }
+
+  // get getArrayBufferCopyOfThisAccessor(): ArrayBuffer {
+  //   this.dataViewOfBufferView.byteLength
+  //   //return
+  // }
+
 }

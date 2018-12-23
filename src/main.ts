@@ -8,7 +8,8 @@ import { PrimitiveMode, PrimitiveModeEnum } from './definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttribute';
 import { CompositionType, CompositionTypeEnum } from './definitions/CompositionType';
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
-
+import GLSLShader from './renderer/webgl/GLSLShader';
+import System from './system/System';
 
 export default Object.freeze({
   EntityRepository,
@@ -21,6 +22,8 @@ export default Object.freeze({
   ComponentType,
   VertexAttribute,
   PrimitiveMode,
+  GLSLShader,
+  System,
 });
 
 export type CompositionTypeEnum = CompositionTypeEnum;

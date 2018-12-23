@@ -36,7 +36,7 @@ test('Use translate simply', () => {
 
   const primitive = Primitive.createPrimitive({
     indices: indices,
-    attributeCompositionTypes: [CompositionType.Mat3, CompositionType.Mat3],
+    attributeCompositionTypes: [CompositionType.Vec3, CompositionType.Vec3],
     attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
     attributes: [positions, colors],
     material: 0,

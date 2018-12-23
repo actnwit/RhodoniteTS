@@ -9,8 +9,8 @@ export default class Buffer extends RnObject {
 
   constructor({byteLength, arrayBuffer, name} : {byteLength: Size, arrayBuffer: ArrayBuffer, name: string}) {
     super();
-    this.__name = this.__name;
-    this.__byteLength = this.__byteLength;
+    this.__name = name;
+    this.__byteLength = byteLength;
     this.__raw = arrayBuffer;
   }
 

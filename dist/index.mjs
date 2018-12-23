@@ -1,6 +1,35 @@
 class CGAPIResourceRepository {
 }
 
+// This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
+class EnumClass {
+    constructor({ index, str }) {
+        this.index = index;
+        this.str = str;
+    }
+    toString() {
+        return this.str;
+    }
+    toJSON() {
+        return this.index;
+    }
+}
+function _from({ typeList, index }) {
+    const match = typeList.find(type => type.index === index);
+    if (!match) {
+        throw new Error(`Invalid PrimitiveMode index: [${index}]`);
+    }
+    return match;
+}
+
+class WebGLExtensionClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const VertexArrayObject = new WebGLExtensionClass({ index: 0, str: 'OES_vertex_array_object' });
+const WebGLExtension = Object.freeze({ VertexArrayObject });
+
 const singleton = Symbol();
 class WebGLResourceRepository extends CGAPIResourceRepository {
     constructor(enforcer) {
@@ -8,6 +37,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         this.__webglContexts = new Map();
         this.__resourceCounter = 0;
         this.__webglResources = new Map();
+        this.__extensions = new Map();
         if (enforcer !== WebGLResourceRepository.__singletonEnforcer || !(this instanceof WebGLResourceRepository)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
@@ -19,17 +49,20 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         }
         return thisClass[singleton];
     }
-    addWebGLContext(webglContext, asDefault) {
+    addWebGLContext(webglContext, asCurrent) {
         this.__webglContexts.set('default', webglContext);
-        if (asDefault) {
+        if (asCurrent) {
             this.__gl = webglContext;
         }
+    }
+    get currentWebGLContext() {
+        return this.__gl;
     }
     getResourceNumber() {
         return ++this.__resourceCounter;
     }
-    getWebGLResource(webglResourceUid) {
-        return this.__webglResources.get(webglResourceUid);
+    getWebGLResource(WebGLResourceHandle) {
+        return this.__webglResources.get(WebGLResourceHandle);
     }
     createIndexBuffer(accsessor) {
         const gl = this.__gl;
@@ -37,12 +70,15 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
         const ibo = gl.createBuffer();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, ibo);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, ibo);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return resourceUid;
+        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
+        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
+        // accsessor.dataViewOfBufferView.getUint16(10, true))
+        return resourceHandle;
     }
     createVertexBuffer(accsessor) {
         const gl = this.__gl;
@@ -50,51 +86,52 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
         const vbo = gl.createBuffer();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, vbo);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vbo);
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
         gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        return resourceUid;
+        console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true), accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true), accsessor.dataViewOfBufferView.getFloat32(20, true), accsessor.dataViewOfBufferView.getFloat32(24, true), accsessor.dataViewOfBufferView.getFloat32(28, true), accsessor.dataViewOfBufferView.getFloat32(32, true), accsessor.dataViewOfBufferView.getFloat32(36, true), accsessor.dataViewOfBufferView.getFloat32(40, true), accsessor.dataViewOfBufferView.getFloat32(44, true));
+        //console.log(accsessor.dataViewOfBufferView.byteLength);
+        return resourceHandle;
     }
-    __getVAOFunc(functionName) {
+    getExtension(extension) {
         const gl = this.__gl;
-        if (gl[functionName] != null) {
-            return gl[functionName];
-        }
-        if (this.__extVAO == null) {
-            this.__extVAO = gl.getExtension('OES_vertex_array_object');
-            if (this.__extVAO == null) {
-                throw new Error('The library does not support this environment because the OES_vertex_array_object is not available');
+        if (!this.__extensions.has(extension)) {
+            const extObj = gl.getExtension(extension.toString());
+            if (extObj == null) {
+                throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
             }
+            this.__extensions.set(extension, extObj);
+            return extObj;
         }
-        return this.__extVAO[functionName];
+        return this.__extensions.get(extension);
     }
     createVertexArray() {
         const gl = this.__gl;
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
-        const createVertexArray = this.__getVAOFunc('createVertexArray');
-        const vao = createVertexArray();
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, vao);
-        return resourceUid;
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = extVAO.createVertexArrayOES();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vao);
+        return resourceHandle;
     }
     createVertexDataResources(primitive) {
         const gl = this.__gl;
-        const vaoUid = this.createVertexArray();
-        let iboUid;
+        const vaoHandle = this.createVertexArray();
+        let iboHandle;
         if (primitive.hasIndices) {
-            const iboUid = this.createIndexBuffer(primitive.indicesAccessor);
+            iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
         }
-        const vboUids = [];
+        const vboHandles = [];
         primitive.attributeAccessors.forEach(accessor => {
-            const vboUid = this.createVertexBuffer(accessor);
-            vboUids.push(vboUid);
+            const vboHandle = this.createVertexBuffer(accessor);
+            vboHandles.push(vboHandle);
         });
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return { vaoUid, iboUid, vboUids };
+        return { vaoHandle, iboHandle, vboHandles };
     }
     createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
         const gl = this.__gl;
@@ -116,12 +153,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
         });
         gl.linkProgram(shaderProgram);
-        const resourceUid = this.getResourceNumber();
-        this.__webglResources.set(resourceUid, shaderProgram);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, shaderProgram);
         this.__checkShaderProgramLinkStatus(shaderProgram);
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
-        return resourceUid;
+        return resourceHandle;
     }
     __checkShaderCompileStatus(shader) {
         const gl = this.__gl;
@@ -136,36 +173,39 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
-    setVertexDataToShaderProgram({ vaoUid, iboUid, vboUids }, shaderProgramUid, primitive) {
+    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
         const gl = this.__gl;
-        const vao = this.getWebGLResource(vaoUid);
-        const bindVertexArray = this.__getVAOFunc('bindVertexArray');
-        bindVertexArray(vao);
-        if (iboUid != null) {
-            const ibo = this.getWebGLResource(iboUid);
+        const vao = this.getWebGLResource(vaoHandle);
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        extVAO.bindVertexArrayOES(vao);
+        if (iboHandle != null) {
+            const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+                console.log('ELEMENT');
             }
             else {
                 throw new Error('Nothing Element Array Buffer!');
             }
         }
-        const shaderProgram = this.getWebGLResource(shaderProgramUid);
+        const shaderProgram = this.getWebGLResource(shaderProgramHandle);
         if (shaderProgram == null) {
             throw new Error('Nothing ShaderProgram!');
         }
-        vboUids.forEach((vboUid, i) => {
-            const vbo = this.getWebGLResource(vboUid);
+        vboHandles.forEach((vboHandle, i) => {
+            const vbo = this.getWebGLResource(vboHandle);
             if (vbo != null) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
             }
             else {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
+            gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
+            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        bindVertexArray(null);
+        extVAO.bindVertexArrayOES(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
@@ -347,6 +387,16 @@ class ComponentRepository {
             }
         }
         return memoryBeginIndex;
+    }
+    getComponentsWithType(componentTid) {
+        return this.__components.get(componentTid);
+    }
+    getComponentTIDs() {
+        const indices = [];
+        for (let type of this.__components.keys()) {
+            indices.push(type);
+        }
+        return indices;
     }
 }
 ComponentRepository.__componentClasses = new Map();
@@ -2141,27 +2191,6 @@ class RnObject {
 }
 RnObject.currentMaxObjectCount = 0;
 
-// This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
-class EnumClass {
-    constructor({ index, str }) {
-        this.index = index;
-        this.str = str;
-    }
-    toString() {
-        return this.str;
-    }
-    toJSON() {
-        return this.index;
-    }
-}
-function _from({ typeList, index }) {
-    const match = typeList.find(type => type.index === index);
-    if (!match) {
-        throw new Error(`Invalid PrimitiveMode index: [${index}]`);
-    }
-    return match;
-}
-
 class ComponentTypeClass extends EnumClass {
     constructor({ index, str, sizeInBytes }) {
         super({ index, str });
@@ -2180,9 +2209,9 @@ const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
 const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
 const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
 const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
-const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
-function from({ index }) {
-    return _from({ typeList, index });
+const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
+function from$1({ index }) {
+    return _from({ typeList: typeList$1, index });
 }
 function fromTypedArray(typedArray) {
     if (typedArray instanceof Int8Array) {
@@ -2211,31 +2240,31 @@ function fromTypedArray(typedArray) {
     }
     return Unknown;
 }
-const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from, fromTypedArray });
+const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from: from$1, fromTypedArray });
 
 class CompositionTypeClass extends EnumClass {
-    constructor({ index, str, numberOfComponent }) {
+    constructor({ index, str, numberOfComponents }) {
         super({ index, str });
         this.__numberOfComponents = 0;
-        this.__numberOfComponents = numberOfComponent;
+        this.__numberOfComponents = numberOfComponents;
     }
     getNumberOfComponents() {
         return this.__numberOfComponents;
     }
 }
-const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponent: 0 });
-const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponent: 1 });
-const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponent: 2 });
-const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponent: 3 });
-const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponent: 4 });
-const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponent: 4 });
-const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponent: 9 });
-const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponent: 16 });
-const typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
+const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
+const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
+const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
+const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
+const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
+const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
+const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
+const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
+const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
 }
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1 });
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
 
 class _Vector2 {
     constructor(typedArray, x, y) {
@@ -2304,7 +2333,7 @@ class Vector2_F64 extends _Vector2 {
 }
 
 class AccessorBase extends RnObject {
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
+    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
         super();
         this.__compositionType = CompositionType.Unknown;
         this.__componentType = ComponentType.Unknown;
@@ -2321,16 +2350,16 @@ class AccessorBase extends RnObject {
         if (this.__byteStride === 0) {
             this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
         }
-        this.prepare();
+        this.prepare(byteOffsetFromBuffer);
     }
-    prepare() {
+    prepare(byteOffsetFromBuffer) {
         const typedArrayClass = this.getTypedArrayClass(this.__componentType);
         this.__typedArrayClass = typedArrayClass;
         if (this.__bufferView.isSoA) {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
         }
         else {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset);
+            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
         }
         this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
@@ -2378,6 +2407,7 @@ class AccessorBase extends RnObject {
             case ComponentType.Double: return 'setFloat64';
             default: console.error('Unexpected ComponentType!');
         }
+        return undefined;
     }
     takeOne() {
         const arrayBufferOfBufferView = this.__raw;
@@ -2397,6 +2427,15 @@ class AccessorBase extends RnObject {
     }
     get elementSizeInBytes() {
         return this.numberOfComponents * this.componentSizeInBytes;
+    }
+    get elementCount() {
+        return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+    }
+    get componentType() {
+        return this.__componentType;
+    }
+    get compositionType() {
+        return this.__compositionType;
     }
     getTypedArray() {
         if (this.__bufferView.isAoS) {
@@ -2459,22 +2498,56 @@ class AccessorBase extends RnObject {
         return new Matrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
     }
     setScalar(index, value, endian = true) {
+        console.log(this.__byteStride * index, value, endian);
         this.__dataViewSetter(this.__byteStride * index, value, endian);
+        // const componentSetter = this.__dataViewSetter(this.componentType)!;
+        // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
+        // console.log(componentSetter);
+        // compositionSetter(this.__byteStride*index, value, endian);
     }
     setVec2(index, x, y, endian = true) {
         this.__dataViewSetter(this.__byteStride * index, x, endian);
         this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
     }
     setVec3(index, x, y, z, endian = true) {
+        // const setter = this.__dataViewSetter(this.componentType)!;
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
+        console.log(this.__byteStride, index, x, endian);
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
-        this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     }
     setVec4(index, x, y, z, w, endian = true) {
         this.__dataViewSetter(this.__byteStride * index, x, endian);
         this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
         this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
         this.__dataViewSetter(this.__byteStride * index + 3, w, endian);
+    }
+    copyFromTypedArray(typedArray) {
+        const componentN = this.numberOfComponents;
+        const setter = this['setVec' + componentN];
+        for (let j = 0; j < (typedArray.byteLength / this.componentSizeInBytes); j++) {
+            const idx = Math.floor(j / componentN);
+            const idxN = idx * componentN;
+            switch (componentN) {
+                case 1:
+                    setter.call(this, idx, typedArray[idxN + 0]);
+                    break;
+                case 2:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1]);
+                    break;
+                case 3:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2]);
+                    break;
+                case 4:
+                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], typedArray[idxN + 3]);
+                    break;
+                default: throw new Error('Other than vectors are currently not supported.');
+            }
+        }
     }
     setScalarAt(index, conpositionOffset, value, endian = true) {
         this.__dataViewSetter(this.__byteStride * index + conpositionOffset, value, endian);
@@ -2488,8 +2561,8 @@ class AccessorBase extends RnObject {
 }
 
 class FlexibleAccessor extends AccessorBase {
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
-        super({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw });
+    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
+        super({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw });
     }
 }
 
@@ -2558,7 +2631,7 @@ class BufferView extends RnObject {
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
         }
         const accessor = new accessorClass({
-            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+            bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
         });
         this.__accessors.push(accessor);
         return accessor;
@@ -2571,8 +2644,8 @@ class Buffer extends RnObject {
         this.__byteLength = 0;
         this.__name = '';
         this.__takenBytesIndex = 0;
-        this.__name = this.__name;
-        this.__byteLength = this.__byteLength;
+        this.__name = name;
+        this.__byteLength = byteLength;
         this.__raw = arrayBuffer;
     }
     set name(str) {
@@ -2688,7 +2761,7 @@ class Component {
     }
     $logic() {
     }
-    $PreRender() {
+    $prerender() {
     }
     $render() {
     }
@@ -3129,25 +3202,25 @@ class SceneGraphComponent extends Component {
         return this.calcWorldMatrixRecursively().clone();
     }
     calcWorldMatrixRecursively() {
+        const entity = this.__entityRepository.getEntity(this.__entityUid);
+        const transform = entity.getTransform();
         if (!(this.__parent != null)) {
             // if there is not parent
-            const entity = this.__entityRepository.getEntity(this.__entityUid);
             //      if (!this.__updatedProperly && entity.getTransform()._dirty) {
-            if (entity.getTransform()._dirty) {
+            if (transform._dirty) {
                 //this.__updatedProperly = true;
-                entity.getTransform()._dirty = false;
-                this.__worldMatrix = entity.getTransform().matrix;
+                transform._dirty = false;
+                this.__worldMatrix = transform.matrix;
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
         }
         const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-        const entity = this.__entityRepository.getEntity(this.__entityUid);
         //    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-        if (entity.getTransform()._dirty) {
+        if (transform._dirty) {
             //this.__updatedProperly = true;
-            entity.getTransform()._dirty = false;
-            this.__worldMatrix = entity.getTransform().matrix;
+            transform._dirty = false;
+            this.__worldMatrix = transform.matrix;
             //      console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
         }
         //console.log('return Skip!', this.__worldMatrix.toString(), this.__entityUid);
@@ -3156,10 +3229,76 @@ class SceneGraphComponent extends Component {
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
+class VertexAttributeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown$2 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
+const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
+const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
+const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
+const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
+const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
+const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
+const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
+const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
+const typeList$3 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+function from$3({ index }) {
+    return _from({ typeList: typeList$3, index });
+}
+const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
+
+class GLSLShader {
+}
+GLSLShader.vertexShader = `
+attribute vec3 in_position;
+attribute vec3 in_color;
+
+varying vec3 v_color;
+void main ()
+{
+  gl_Position = vec4(in_position, 1.0);
+  v_color = in_color;
+}
+  `;
+GLSLShader.fragmentShader = `
+  precision mediump float;
+  varying vec3 v_color;
+  void main ()
+  {
+    gl_FragColor = vec4(v_color, 1.0);
+  }
+`;
+GLSLShader.attributeNanes = ['in_position', 'in_color'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0];
+
+const WebGLRenderingPipeline = new class {
+    constructor() {
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+    }
+    render(vaoHandle, shaderProgramHandle, primitive) {
+        const gl = this.__webglResourceRepository.currentWebGLContext;
+        if (gl == null) {
+            throw new Error('No WebGLRenderingContext!');
+        }
+        const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+        extVAO.bindVertexArrayOES(vao);
+        gl.useProgram(shaderProgram);
+        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
+    }
+};
+
 class MeshComponent extends Component {
     constructor(entityUid) {
         super(entityUid);
         this.__primitives = [];
+        this.__vertexVaoHandles = [];
+        this.__vertexShaderProgramHandles = [];
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__renderingPipeline = WebGLRenderingPipeline;
     }
     static get maxCount() {
         return 1000000;
@@ -3175,6 +3314,20 @@ class MeshComponent extends Component {
     }
     getPrimitiveNumber() {
         return this.__primitives.length;
+    }
+    $prerender() {
+        this.__primitives.forEach((primitive, i) => {
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexVaoHandles[i] = vertexHandles.vaoHandle;
+            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            this.__webglResourceRepository.setVertexDataToShaderProgram(vertexHandles, shaderProgramHandle, primitive);
+        });
+    }
+    $render() {
+        this.__primitives.forEach((primitive, i) => {
+            this.__renderingPipeline.render(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
+        });
     }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
@@ -3194,42 +3347,44 @@ class Primitive extends RnObject {
         this.__indicesComponentType = indicesComponentType;
     }
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
         let indicesComponentType;
         let indicesBufferView;
         let indicesAccessor;
         if (indices != null) {
             indicesComponentType = ComponentType.fromTypedArray(indices);
-            const buffer = MemoryManager.getInstance().getBufferForCPU();
             indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
             indicesAccessor = indicesBufferView.takeAccessor({
                 compositionType: CompositionType.Scalar,
                 componentType: indicesComponentType,
                 count: indices.byteLength / indicesComponentType.getSizeInBytes()
             });
+            // copy indices
+            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
+                indicesAccessor.setScalar(i, indices[i]);
+            }
         }
         let sumOfAttributesByteSize = 0;
         attributes.forEach(attribute => {
             sumOfAttributesByteSize += attribute.byteLength;
         });
-        const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForCPU();
         const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
         const attributeAccessors = [];
         const attributeComponentTypes = [];
-        let byteLength;
-        if (indices != null) {
-            byteLength = indices.byteLength;
-        }
-        else {
-            byteLength = attributes[0].byteLength;
-        }
         attributes.forEach((attribute, i) => {
             attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-            attributeAccessors.push(attributesBufferView.takeAccessor({
+            const accessor = attributesBufferView.takeAccessor({
                 compositionType: attributeCompositionTypes[i],
                 componentType: ComponentType.fromTypedArray(attributes[i]),
-                count: byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-            }));
+                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+            });
+            // for (let j=0; j<(attribute.byteLength/accessor.componentSizeInBytes); j++) {
+            //   const idx = Math.floor(j/3);
+            //   const idx3 = idx * 3;
+            //   accessor.setVec3(idx, attribute[idx3+0], attribute[idx3+1], attribute[idx3+2]);
+            // }
+            accessor.copyFromTypedArray(attribute);
+            attributeAccessors.push(accessor);
         });
         return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
     }
@@ -3251,6 +3406,9 @@ class Primitive extends RnObject {
     get attributeComponentTypes() {
         return this.__attributeComponentTypes;
     }
+    get primitiveMode() {
+        return this.__mode;
+    }
 }
 
 class PrimitiveModeClass extends EnumClass {
@@ -3258,7 +3416,7 @@ class PrimitiveModeClass extends EnumClass {
         super({ index, str });
     }
 }
-const Unknown$2 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
 const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
 const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
 const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
@@ -3266,31 +3424,77 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$2 = [Unknown$2, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
+const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$4({ index }) {
+    return _from({ typeList: typeList$4, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$2, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$2 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
-class VertexAttributeClass extends EnumClass {
-    constructor({ index, str }) {
+class ProcessStageClass extends EnumClass {
+    constructor({ index, str, methodName }) {
         super({ index, str });
+        this.__methodName = methodName;
+    }
+    getMethodName() {
+        return this.__methodName;
     }
 }
-const Unknown$3 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const typeList$3 = [Unknown$3, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
-function from$3({ index }) {
-    return _from({ typeList: typeList$3, index });
+const Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
+const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
+const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
+const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
+const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
+const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
+const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
+const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
+const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
+const typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$5({ index }) {
+    return _from({ typeList: typeList$5, index });
 }
-const VertexAttribute = Object.freeze({ Unknown: Unknown$3, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+
+const singleton$4 = Symbol();
+class System {
+    constructor(enforcer) {
+        this.__processStages = [
+            ProcessStage.Create,
+            ProcessStage.Load,
+            ProcessStage.Mount,
+            ProcessStage.Logic,
+            ProcessStage.PreRender,
+            ProcessStage.Render,
+            ProcessStage.Unmount,
+            ProcessStage.Discard
+        ];
+        this.__componentRepository = ComponentRepository.getInstance();
+        if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+    }
+    process() {
+        this.__processStages.forEach(stage => {
+            const componentTids = this.__componentRepository.getComponentTIDs();
+            componentTids.forEach(componentTid => {
+                const components = this.__componentRepository.getComponentsWithType(componentTid);
+                components.forEach(component => {
+                    const methodName = stage.getMethodName();
+                    const method = component[methodName];
+                    if (method != null) {
+                        method.apply(component);
+                    }
+                });
+            });
+        });
+    }
+    static getInstance() {
+        const thisClass = System;
+        if (!thisClass[singleton$4]) {
+            thisClass[singleton$4] = new System(thisClass.__singletonEnforcer);
+        }
+        return thisClass[singleton$4];
+    }
+}
 
 var main = Object.freeze({
     EntityRepository,
@@ -3303,6 +3507,8 @@ var main = Object.freeze({
     ComponentType,
     VertexAttribute,
     PrimitiveMode,
+    GLSLShader,
+    System,
 });
 
 export default main;
