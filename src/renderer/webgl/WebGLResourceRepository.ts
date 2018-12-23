@@ -4,6 +4,11 @@ import Primitive from "../../geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import { WebGLExtension, WebGLExtensionEnum } from "../../definitions/WebGLExtension";
+import MemoryManager from "../../core/MemoryManager";
+import { TextureParameterEnum } from "../../definitions/TextureParameter";
+import { PixelFormatEnum } from "../../definitions/PixelFormat";
+import { ComponentTypeEnum } from "../../main";
+import Buffer from "../../memory/Buffer";
 const singleton:any = Symbol();
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -226,7 +231,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       const ibo = this.getWebGLResource(iboHandle);
       if (ibo != null) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        console.log('ELEMENT')
       } else {
         throw new Error('Nothing Element Array Buffer!');
       }
@@ -263,5 +267,27 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     extVAO.bindVertexArrayOES(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
+  createTexture(typedArray: TypedArray, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT}:
+    {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
+      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
+    const gl = this.__gl!;
+    const memoryManager:MemoryManager = MemoryManager.getInstance();
+    const buffer: Buffer = memoryManager.getBufferForGPU();
+    const dataTexture = gl.createTexture();
+
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, dataTexture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border,
+                  format.index, type.index, new Float32Array(buffer.getArrayBuffer()));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+
+    return resourceHandle;
   }
 }

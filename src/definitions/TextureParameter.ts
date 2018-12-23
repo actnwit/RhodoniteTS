@@ -25,6 +25,13 @@ const Texture1: TextureParameterEnum = new TextureParameterClass({index:0x84C1, 
 const ActiveTexture: TextureParameterEnum = new TextureParameterClass({index:0x84E0, str:'ACTIVE_TEXTURE'});
 const Repeat: TextureParameterEnum = new TextureParameterClass({index:0x2901, str:'REPEAT'});
 const ClampToEdge: TextureParameterEnum = new TextureParameterClass({index:0x812F, str:'CLAMP_TO_EDGE'});
+const RGB8: TextureParameterEnum = new TextureParameterClass({index:0x8051, str:'RGB8'});
+const RGBA8: TextureParameterEnum = new TextureParameterClass({index:0x8058, str:'RGBA8'});
+const RGB10_A2: TextureParameterEnum = new TextureParameterClass({index:0x8059, str:'RGB10_A2'});
+const RGB16F: TextureParameterEnum = new TextureParameterClass({index:0x881B, str:'RGB16F'});
+const RGB32F: TextureParameterEnum = new TextureParameterClass({index:0x8815, str:'RGB32F'});
+const RGBA16F: TextureParameterEnum = new TextureParameterClass({index:0x881A, str:'RGBA16F'});
+const RGBA32F: TextureParameterEnum = new TextureParameterClass({index:0x8814, str:'RGBA32F'});
 
 const typeList = [ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge ];
 
