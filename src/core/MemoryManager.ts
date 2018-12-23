@@ -15,6 +15,7 @@ export default class MemoryManager {
   private __buffers: Map<ObjectUID, Buffer> = new Map();
   private __bufferForGPU: Buffer;
   private __bufferForCPU: Buffer;
+  private __bufferLengthOfOneSide: Size = Math.pow(2,11);
 
   private constructor(enforcer: Symbol) {
     const thisClass = MemoryManager;
@@ -24,7 +25,7 @@ export default class MemoryManager {
 
     // BufferForGPU
     {
-      const arrayBuffer = new ArrayBuffer((Math.pow(2,11))*Math.pow(2,11)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide*this.__bufferLengthOfOneSide/*width*height*/*4/*rgba*/*8/*byte*/);
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -35,7 +36,7 @@ export default class MemoryManager {
 
     // BufferForCPU
     {
-      const arrayBuffer = new ArrayBuffer((Math.pow(2,11))*Math.pow(2,11)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide*this.__bufferLengthOfOneSide/*width*height*/*4/*rgba*/*8/*byte*/);
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -59,5 +60,9 @@ export default class MemoryManager {
   }
   getBufferForCPU(): Buffer {
     return this.__bufferForCPU;
+  }
+
+  get bufferLengthOfOneSide(): Size {
+    return this.__bufferLengthOfOneSide;
   }
 }
