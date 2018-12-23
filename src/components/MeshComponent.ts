@@ -36,7 +36,18 @@ export default class MeshComponent extends Component {
     return this.__primitives.length;
   }
 
+  isReady() {
+    if (this.__vertexVaoHandles.length > 0) {
+      return true;
+    } else {
+      return false
+    }
+  }
+
   $prerender() {
+    if (this.isReady()) {
+      return;
+    }
 
     this.__primitives.forEach((primitive, i)=>{
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
