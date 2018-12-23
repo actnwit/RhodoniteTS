@@ -73,8 +73,11 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, ibo);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
+        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
+        // accsessor.dataViewOfBufferView.getUint16(10, true))
         return resourceHandle;
     }
     createVertexBuffer(accsessor) {
@@ -88,11 +91,13 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
         gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true), accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true), accsessor.dataViewOfBufferView.getFloat32(20, true), accsessor.dataViewOfBufferView.getFloat32(24, true), accsessor.dataViewOfBufferView.getFloat32(28, true), accsessor.dataViewOfBufferView.getFloat32(32, true), accsessor.dataViewOfBufferView.getFloat32(36, true), accsessor.dataViewOfBufferView.getFloat32(40, true), accsessor.dataViewOfBufferView.getFloat32(44, true));
+        //console.log(accsessor.dataViewOfBufferView.byteLength);
         return resourceHandle;
     }
     getExtension(extension) {
         const gl = this.__gl;
-        if (this.__extensions.has(extension)) {
+        if (!this.__extensions.has(extension)) {
             const extObj = gl.getExtension(extension.toString());
             if (extObj == null) {
                 throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
@@ -100,7 +105,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             this.__extensions.set(extension, extObj);
             return extObj;
         }
-        return null;
+        return this.__extensions.get(extension);
     }
     createVertexArray() {
         const gl = this.__gl;
@@ -118,7 +123,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         const vaoHandle = this.createVertexArray();
         let iboHandle;
         if (primitive.hasIndices) {
-            const iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
+            iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
         }
         const vboHandles = [];
         primitive.attributeAccessors.forEach(accessor => {
@@ -172,11 +177,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         const gl = this.__gl;
         const vao = this.getWebGLResource(vaoHandle);
         const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        extVAO.bindVertexArray(vao);
+        extVAO.bindVertexArrayOES(vao);
         if (iboHandle != null) {
             const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+                console.log('ELEMENT');
             }
             else {
                 throw new Error('Nothing Element Array Buffer!');
@@ -195,10 +201,11 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
             gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
+            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        extVAO.bindVertexArray(null);
+        extVAO.bindVertexArrayOES(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
@@ -2236,23 +2243,23 @@ function fromTypedArray(typedArray) {
 const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from: from$1, fromTypedArray });
 
 class CompositionTypeClass extends EnumClass {
-    constructor({ index, str, numberOfComponent }) {
+    constructor({ index, str, numberOfComponents }) {
         super({ index, str });
         this.__numberOfComponents = 0;
-        this.__numberOfComponents = numberOfComponent;
+        this.__numberOfComponents = numberOfComponents;
     }
     getNumberOfComponents() {
         return this.__numberOfComponents;
     }
 }
-const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponent: 0 });
-const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponent: 1 });
-const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponent: 2 });
-const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponent: 3 });
-const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponent: 4 });
-const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponent: 4 });
-const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponent: 9 });
-const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponent: 16 });
+const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
+const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
+const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
+const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
+const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
+const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
+const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
+const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
 const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
 function from$2({ index }) {
     return _from({ typeList: typeList$2, index });
@@ -2326,7 +2333,7 @@ class Vector2_F64 extends _Vector2 {
 }
 
 class AccessorBase extends RnObject {
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
+    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
         super();
         this.__compositionType = CompositionType.Unknown;
         this.__componentType = ComponentType.Unknown;
@@ -2343,16 +2350,16 @@ class AccessorBase extends RnObject {
         if (this.__byteStride === 0) {
             this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
         }
-        this.prepare();
+        this.prepare(byteOffsetFromBuffer);
     }
-    prepare() {
+    prepare(byteOffsetFromBuffer) {
         const typedArrayClass = this.getTypedArrayClass(this.__componentType);
         this.__typedArrayClass = typedArrayClass;
         if (this.__bufferView.isSoA) {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
         }
         else {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset);
+            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
         }
         this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
@@ -2400,6 +2407,7 @@ class AccessorBase extends RnObject {
             case ComponentType.Double: return 'setFloat64';
             default: console.error('Unexpected ComponentType!');
         }
+        return undefined;
     }
     takeOne() {
         const arrayBufferOfBufferView = this.__raw;
@@ -2490,16 +2498,27 @@ class AccessorBase extends RnObject {
         return new Matrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
     }
     setScalar(index, value, endian = true) {
+        console.log(this.__byteStride * index, value, endian);
         this.__dataViewSetter(this.__byteStride * index, value, endian);
+        // const componentSetter = this.__dataViewSetter(this.componentType)!;
+        // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
+        // console.log(componentSetter);
+        // compositionSetter(this.__byteStride*index, value, endian);
     }
     setVec2(index, x, y, endian = true) {
         this.__dataViewSetter(this.__byteStride * index, x, endian);
         this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
     }
     setVec3(index, x, y, z, endian = true) {
+        // const setter = this.__dataViewSetter(this.componentType)!;
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
+        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
+        console.log(this.__byteStride, index, x, endian);
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
-        this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     }
     setVec4(index, x, y, z, w, endian = true) {
         this.__dataViewSetter(this.__byteStride * index, x, endian);
@@ -2507,6 +2526,12 @@ class AccessorBase extends RnObject {
         this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
         this.__dataViewSetter(this.__byteStride * index + 3, w, endian);
     }
+    // copyArrayBuffer(arrayBuffer: ArrayBuffer) {
+    //   const compN = this.compositionType.index;
+    //   const dataView = new DataView(arrayBuffer);
+    //   for (let i=0; i<dataView.byteLength/this.componentSizeInBytes; i++) {
+    //   }
+    // }
     setScalarAt(index, conpositionOffset, value, endian = true) {
         this.__dataViewSetter(this.__byteStride * index + conpositionOffset, value, endian);
     }
@@ -2519,8 +2544,8 @@ class AccessorBase extends RnObject {
 }
 
 class FlexibleAccessor extends AccessorBase {
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
-        super({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw });
+    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
+        super({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw });
     }
 }
 
@@ -2589,7 +2614,7 @@ class BufferView extends RnObject {
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
         }
         const accessor = new accessorClass({
-            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+            bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
         });
         this.__accessors.push(accessor);
         return accessor;
@@ -2602,8 +2627,8 @@ class Buffer extends RnObject {
         this.__byteLength = 0;
         this.__name = '';
         this.__takenBytesIndex = 0;
-        this.__name = this.__name;
-        this.__byteLength = this.__byteLength;
+        this.__name = name;
+        this.__byteLength = byteLength;
         this.__raw = arrayBuffer;
     }
     set name(str) {
@@ -3210,21 +3235,26 @@ const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Ta
 class GLSLShader {
 }
 GLSLShader.vertexShader = `
-attribute vec3 i_position;
+attribute vec3 in_position;
+attribute vec3 in_color;
+
+varying vec3 v_color;
 void main ()
 {
-	gl_Position = vec4(i_position, 1.0);
+  gl_Position = vec4(in_position, 1.0);
+  v_color = in_color;
 }
   `;
 GLSLShader.fragmentShader = `
   precision mediump float;
+  varying vec3 v_color;
   void main ()
   {
-    gl_FragColor = vec4(1.0);
+    gl_FragColor = vec4(v_color, 1.0);
   }
 `;
-GLSLShader.attributeNanes = ['i_position'];
-GLSLShader.attributeSemantics = [VertexAttribute.Position];
+GLSLShader.attributeNanes = ['in_position', 'in_color'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0];
 
 const WebGLRenderingPipeline = new class {
     constructor() {
@@ -3236,9 +3266,13 @@ const WebGLRenderingPipeline = new class {
             throw new Error('No WebGLRenderingContext!');
         }
         const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
-        extVAO.bindVertexArray(vaoHandle);
-        gl.useProgram(shaderProgramHandle);
-        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
+        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+        extVAO.bindVertexArrayOES(vao);
+        gl.useProgram(shaderProgram);
+        console.log(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index);
+        //  gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+        gl.drawElements(primitive.primitiveMode.index, 6, primitive.indicesAccessor.componentType.index, 0);
     }
 };
 
@@ -3298,42 +3332,43 @@ class Primitive extends RnObject {
         this.__indicesComponentType = indicesComponentType;
     }
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
         let indicesComponentType;
         let indicesBufferView;
         let indicesAccessor;
         if (indices != null) {
             indicesComponentType = ComponentType.fromTypedArray(indices);
-            const buffer = MemoryManager.getInstance().getBufferForCPU();
             indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
             indicesAccessor = indicesBufferView.takeAccessor({
                 compositionType: CompositionType.Scalar,
                 componentType: indicesComponentType,
                 count: indices.byteLength / indicesComponentType.getSizeInBytes()
             });
+            // copy indices
+            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
+                indicesAccessor.setScalar(i, indices[i]);
+            }
         }
         let sumOfAttributesByteSize = 0;
         attributes.forEach(attribute => {
             sumOfAttributesByteSize += attribute.byteLength;
         });
-        const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForCPU();
         const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
         const attributeAccessors = [];
         const attributeComponentTypes = [];
-        let byteLength;
-        if (indices != null) {
-            byteLength = indices.byteLength;
-        }
-        else {
-            byteLength = attributes[0].byteLength;
-        }
         attributes.forEach((attribute, i) => {
             attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-            attributeAccessors.push(attributesBufferView.takeAccessor({
+            const accessor = attributesBufferView.takeAccessor({
                 compositionType: attributeCompositionTypes[i],
                 componentType: ComponentType.fromTypedArray(attributes[i]),
-                count: byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-            }));
+                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+            });
+            //console.log('attribute.byteLength/accessor.componentSizeInBytes', attribute.byteLength, accessor.componentSizeInBytes);
+            for (let j = 0; j < (attribute.byteLength / accessor.componentSizeInBytes); j++) {
+                //console.log(Math.floor(j/3), attribute[Math.floor(j/3)+0], attribute[Math.floor(j/3)+1], attribute[Math.floor(j/3)+2]);
+                accessor.setVec3(Math.floor(j / 3), attribute[Math.floor(j / 3) * 3 + 0], attribute[Math.floor(j / 3) * 3 + 1], attribute[Math.floor(j / 3) * 3 + 2]);
+            }
+            attributeAccessors.push(accessor);
         });
         return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
     }
@@ -3379,6 +3414,72 @@ function from$4({ index }) {
 }
 const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
+class ProcessStageClass extends EnumClass {
+    constructor({ index, str, methodName }) {
+        super({ index, str });
+        this.__methodName = methodName;
+    }
+    getMethodName() {
+        return this.__methodName;
+    }
+}
+const Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
+const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
+const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
+const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
+const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
+const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
+const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
+const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
+const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
+const typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$5({ index }) {
+    return _from({ typeList: typeList$5, index });
+}
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+
+const singleton$4 = Symbol();
+class System {
+    constructor(enforcer) {
+        this.__processStages = [
+            ProcessStage.Create,
+            ProcessStage.Load,
+            ProcessStage.Mount,
+            ProcessStage.Logic,
+            ProcessStage.PreRender,
+            ProcessStage.Render,
+            ProcessStage.Unmount,
+            ProcessStage.Discard
+        ];
+        this.__componentRepository = ComponentRepository.getInstance();
+        if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+    }
+    process() {
+        this.__processStages.forEach(stage => {
+            const componentTids = this.__componentRepository.getComponentTIDs();
+            componentTids.forEach(componentTid => {
+                const components = this.__componentRepository.getComponentsWithType(componentTid);
+                components.forEach(component => {
+                    const methodName = stage.getMethodName();
+                    const method = component[methodName];
+                    if (method != null) {
+                        method.apply(component);
+                    }
+                });
+            });
+        });
+    }
+    static getInstance() {
+        const thisClass = System;
+        if (!thisClass[singleton$4]) {
+            thisClass[singleton$4] = new System(thisClass.__singletonEnforcer);
+        }
+        return thisClass[singleton$4];
+    }
+}
+
 var main = Object.freeze({
     EntityRepository,
     TransformComponent,
@@ -3390,6 +3491,8 @@ var main = Object.freeze({
     ComponentType,
     VertexAttribute,
     PrimitiveMode,
+    GLSLShader,
+    System,
 });
 
 export default main;

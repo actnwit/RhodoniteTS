@@ -17,7 +17,6 @@ export default class System {
     ProcessStage.Unmount,
     ProcessStage.Discard
   ];
-  private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   private constructor(enforcer: Symbol) {
@@ -30,12 +29,14 @@ export default class System {
     this.__processStages.forEach(stage=>{
       const componentTids = this.__componentRepository.getComponentTIDs();
       componentTids.forEach(componentTid=>{
-      const component = this.__componentRepository.getComponentsWithType(componentTid)!;
-        const methodName = stage.getMethodName();
-        const method = (component as any)[methodName];
-        if (method != null) {
-          method();
-        }
+        const components = this.__componentRepository.getComponentsWithType(componentTid)!;
+        components.forEach(component=>{
+          const methodName = stage.getMethodName();
+          const method = (component as any)[methodName];
+          if (method != null) {
+            method.apply(component);
+          }
+        });
       });
     });
   }

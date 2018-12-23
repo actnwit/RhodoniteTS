@@ -14,9 +14,14 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     }
 
     const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
-    extVAO.bindVertexArray(vaoHandle);
-    gl.useProgram(shaderProgramHandle);
-    gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+    extVAO.bindVertexArrayOES(vao);
+    gl.useProgram(shaderProgram!);
+    
+    console.log(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index);
+  //  gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+    gl.drawElements(primitive.primitiveMode.index, 6, primitive.indicesAccessor!.componentType.index, 0);
   }
 
 }

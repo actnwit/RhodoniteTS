@@ -96,7 +96,7 @@ export default class BufferView extends RnObject {
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
     }
     const accessor = new accessorClass({
-      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+      bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer:this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
     });
 
     this.__accessors.push(accessor);

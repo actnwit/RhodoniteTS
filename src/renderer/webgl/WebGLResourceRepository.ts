@@ -62,9 +62,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, ibo!);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
+
+    // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
+    // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
+    // accsessor.dataViewOfBufferView.getUint16(10, true))
     return resourceHandle;
   }
 
@@ -83,13 +87,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
+    console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true),
+    accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true),
+    accsessor.dataViewOfBufferView.getFloat32(20, true),accsessor.dataViewOfBufferView.getFloat32(24, true),
+    accsessor.dataViewOfBufferView.getFloat32(28, true),accsessor.dataViewOfBufferView.getFloat32(32, true),accsessor.dataViewOfBufferView.getFloat32(36, true),
+    accsessor.dataViewOfBufferView.getFloat32(40, true),accsessor.dataViewOfBufferView.getFloat32(44, true))
+
+    //console.log(accsessor.dataViewOfBufferView.byteLength);
+
     return resourceHandle;
 
   }
 
   getExtension(extension: WebGLExtensionEnum) {
     const gl: any = this.__gl;
-    if (this.__extensions.has(extension)) {
+    if (!this.__extensions.has(extension)) {
 
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
@@ -98,7 +110,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       this.__extensions.set(extension, extObj);
       return extObj;
     }
-    return null;
+    return this.__extensions.get(extension);
   }
 
 　createVertexArray() {
@@ -126,7 +138,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     let iboHandle;
     if (primitive.hasIndices) {
-      const iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
+      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
 
     const vboHandles:Array<WebGLResourceHandle> = [];
@@ -208,12 +220,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vao = this.getWebGLResource(vaoHandle);
     const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
 
-    extVAO.bindVertexArray(vao);
+    extVAO.bindVertexArrayOES(vao);
 
     if (iboHandle != null) {
       const ibo = this.getWebGLResource(iboHandle);
       if (ibo != null) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        console.log('ELEMENT')
       } else {
         throw new Error('Nothing Element Array Buffer!');
       }
@@ -231,6 +244,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         throw new Error('Nothing Element Array Buffer at index '+ i);
       }
       gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
+      console.log(        primitive.attributeSemantics[i].index,
+        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+        primitive.attributeComponentTypes[i].index,
+        false,
+        primitive.attributeAccessors[i].byteStride,
+        primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength
+);
       gl.vertexAttribPointer(
         primitive.attributeSemantics[i].index,
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
@@ -241,7 +261,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         );
     });
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    extVAO.bindVertexArray(null);
+    extVAO.bindVertexArrayOES(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 }
