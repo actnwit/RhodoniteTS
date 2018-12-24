@@ -55,7 +55,8 @@ const TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float
 const TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
 const TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
 const TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
-const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear });
+const InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });
+const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays });
 
 class RnObject {
     constructor(needToManage = false) {
@@ -2420,9 +2421,6 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
-        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
-        // accsessor.dataViewOfBufferView.getUint16(10, true))
         return resourceHandle;
     }
     createVertexBuffer(accsessor) {
@@ -2547,6 +2545,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         });
         // for InstanceIDBuffer
         if (instanceIDBufferUid !== 0) {
+            const ext = this.getExtension(WebGLExtension.InstancedArrays);
             const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
             if (instanceIDBuffer != null) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -2556,6 +2555,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             }
             gl.enableVertexAttribArray(VertexAttribute.Instance.index);
             gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
+            ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         extVAO.bindVertexArrayOES(null);
@@ -2873,7 +2873,6 @@ class TransformComponent extends Component {
         // Define process dependencies with other components.
         // If circular depenencies are detected, the error will be repoated.
         //this.registerDependency(AnimationComponent.componentTID, false);
-        console.log('$create');
     }
     $updateLogic() {
     }
@@ -3306,14 +3305,15 @@ ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshCompo
 class GLSLShader {
 }
 GLSLShader.vertexShader = `
-attribute vec3 in_position;
-attribute vec3 in_color;
+attribute vec3 a_position;
+attribute vec3 a_color;
+attribute float a_instanceID;
 
 varying vec3 v_color;
 void main ()
 {
-  gl_Position = vec4(in_position, 1.0);
-  v_color = in_color;
+  gl_Position = vec4(a_position, 1.0);
+  v_color = a_color;
 }
   `;
 GLSLShader.fragmentShader = `
@@ -3324,8 +3324,8 @@ GLSLShader.fragmentShader = `
     gl_FragColor = vec4(v_color, 1.0);
   }
 `;
-GLSLShader.attributeNanes = ['in_position', 'in_color'];
-GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0];
+GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 
 class TextureParameterClass extends EnumClass {
     constructor({ index, str }) {
@@ -3401,6 +3401,9 @@ const WebGLRenderingPipeline = new class {
         const count = EntityRepository.getMaxEntityNumber();
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
         const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+        for (var i = 0; i < count; i++) {
+            accesseor.setScalar(i, i);
+        }
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
     __createDataTexture() {
@@ -3414,12 +3417,13 @@ const WebGLRenderingPipeline = new class {
     }
     render(vaoHandle, shaderProgramHandle, primitive) {
         const gl = this.__webglResourceRepository.currentWebGLContext;
+        const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
         const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
         const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
         extVAO.bindVertexArrayOES(vao);
         gl.useProgram(shaderProgram);
-        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
+        ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 4);
     }
 };
 

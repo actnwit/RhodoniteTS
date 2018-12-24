@@ -72,10 +72,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-
-    // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
-    // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
-    // accsessor.dataViewOfBufferView.getUint16(10, true))
     return resourceHandle;
   }
 
@@ -254,6 +250,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     // for InstanceIDBuffer
     if (instanceIDBufferUid !== 0) {
+      const ext = this.getExtension(WebGLExtension.InstancedArrays);
       const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
       if (instanceIDBuffer != null) {
         gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -269,6 +266,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         0,
         0
         );
+      ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);

@@ -47,6 +47,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
     const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
 
+    for (var i = 0; i < count; i++) {
+      accesseor.setScalar(i, i);
+    }
+
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
@@ -62,6 +66,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   render(vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
     const gl = this.__webglResourceRepository.currentWebGLContext!;
+    const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
 
     const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
@@ -69,7 +74,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     extVAO.bindVertexArrayOES(vao);
     gl.useProgram(shaderProgram!);
 
-    gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+    ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 4);
   }
 
 }

@@ -4,14 +4,15 @@ export type AttributeNames = Array<string>;
 
 export default class GLSLShader {
   static vertexShader:string = `
-attribute vec3 in_position;
-attribute vec3 in_color;
+attribute vec3 a_position;
+attribute vec3 a_color;
+attribute float a_instanceID;
 
 varying vec3 v_color;
 void main ()
 {
-  gl_Position = vec4(in_position, 1.0);
-  v_color = in_color;
+  gl_Position = vec4(a_position, 1.0);
+  v_color = a_color;
 }
   `;
 
@@ -24,6 +25,6 @@ void main ()
   }
 `;
 
-  static attributeNanes: AttributeNames = ['in_position', 'in_color'];
-  static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0];
+  static attributeNanes: AttributeNames = ['a_position', 'a_color', 'a_instanceID'];
+  static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 }

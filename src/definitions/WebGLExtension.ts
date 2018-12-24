@@ -14,12 +14,12 @@ const TextureFloat: WebGLExtensionEnum = new WebGLExtensionClass({index:2, str:'
 const TextureHalfFloat: WebGLExtensionEnum = new WebGLExtensionClass({index:3, str:'OES_texture_half_float'});
 const TextureFloatLinear: WebGLExtensionEnum = new WebGLExtensionClass({index:4, str:'OES_texture_float_linear'});
 const TextureHalfFloatLinear: WebGLExtensionEnum = new WebGLExtensionClass({index:5, str:'OES_texture_half_float_linear'});
+const InstancedArrays: WebGLExtensionEnum = new WebGLExtensionClass({index:6, str:'ANGLE_instanced_arrays'});
 
-
-const typeList = [ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear ];
+const typeList = [ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays ];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
   return _from({typeList, index}) as WebGLExtensionEnum;
 }
 
-export const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear });
+export const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays });

@@ -105,7 +105,6 @@ export default class TransformComponent extends Component {
 
     //this.registerDependency(AnimationComponent.componentTID, false);
 
-    console.log('$create');
   }
 
   $updateLogic() {
