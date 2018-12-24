@@ -28,7 +28,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  static getInstance() {
+  static getInstance(): WebGLResourceRepository {
     const thisClass = WebGLResourceRepository;
     if (!(thisClass as any)[singleton]) {
       (thisClass as any)[singleton] = new WebGLResourceRepository(thisClass.__singletonEnforcer);
@@ -91,14 +91,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true),
-    accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true),
-    accsessor.dataViewOfBufferView.getFloat32(20, true),accsessor.dataViewOfBufferView.getFloat32(24, true),
-    accsessor.dataViewOfBufferView.getFloat32(28, true),accsessor.dataViewOfBufferView.getFloat32(32, true),accsessor.dataViewOfBufferView.getFloat32(36, true),
-    accsessor.dataViewOfBufferView.getFloat32(40, true),accsessor.dataViewOfBufferView.getFloat32(44, true))
-
-    //console.log(accsessor.dataViewOfBufferView.byteLength);
 
     return resourceHandle;
 
@@ -273,6 +265,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
     const gl = this.__gl!;
+
+    this.getExtension(WebGLExtension.TextureFloat);
+    this.getExtension(WebGLExtension.TextureHalfFloat);
+    this.getExtension(WebGLExtension.TextureFloatLinear);
+    this.getExtension(WebGLExtension.TextureHalfFloatLinear);
+
     const memoryManager:MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const dataTexture = gl.createTexture();

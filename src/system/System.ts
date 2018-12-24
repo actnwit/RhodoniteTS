@@ -2,6 +2,8 @@ import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
 import EntityRepository from "../core/EntityRepository";
 import Component from "../core/Component";
 import ComponentRepository from "../core/ComponentRepository";
+import RenderingPipeline from "../renderer/RenderingPipeline";
+import { WebGLRenderingPipeline } from "../renderer/webgl/WebGLRenderingPipeline";
 
 const singleton:any = Symbol();
 
@@ -18,6 +20,7 @@ export default class System {
     ProcessStage.Discard
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+  private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
 
   private constructor(enforcer: Symbol) {
     if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
@@ -27,14 +30,20 @@ export default class System {
 
   process() {
     this.__processStages.forEach(stage=>{
+      const methodName = stage.getMethodName();
+      const args:Array<any> = [];
+      let instanceIDBufferUid = 0;
+      if (methodName === '$prerender') {
+        instanceIDBufferUid = this.__renderingPipeline.common_prerender();
+        args.push(instanceIDBufferUid);
+      }
       const componentTids = this.__componentRepository.getComponentTIDs();
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
         components.forEach(component=>{
-          const methodName = stage.getMethodName();
           const method = (component as any)[methodName];
           if (method != null) {
-            method.apply(component);
+            method.apply(component, args);
           }
         });
       });

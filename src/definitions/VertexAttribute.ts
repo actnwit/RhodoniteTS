@@ -18,7 +18,7 @@ const Texcoord1: VertexAttributeEnum = new VertexAttributeClass({index:4, str:'T
 const Color0: VertexAttributeEnum = new VertexAttributeClass({index:5, str:'COLOR_0'});
 const Joints0: VertexAttributeEnum = new VertexAttributeClass({index:6, str:'JOINTS_0'});
 const Weights0: VertexAttributeEnum = new VertexAttributeClass({index:7, str:'WEIGHTS_0'});
-
+const Instance: VertexAttributeEnum = new VertexAttributeClass({index:4, str:'INSTANCE'});
 
 const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
 

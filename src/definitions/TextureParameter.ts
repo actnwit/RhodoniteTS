@@ -35,6 +35,7 @@ const RGB32F: TextureParameterEnum = new TextureParameterClass({index:0x8815, st
 const RGBA16F: TextureParameterEnum = new TextureParameterClass({index:0x881A, str:'RGBA16F'});
 const RGBA32F: TextureParameterEnum = new TextureParameterClass({index:0x8814, str:'RGBA32F'});
 
+
 const typeList = [ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
   Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F ];
 

@@ -27,235 +27,167 @@ class WebGLExtensionClass extends EnumClass {
         super({ index, str });
     }
 }
-const VertexArrayObject = new WebGLExtensionClass({ index: 0, str: 'OES_vertex_array_object' });
-const WebGLExtension = Object.freeze({ VertexArrayObject });
+const VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });
+const TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });
+const TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
+const TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
+const TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
+const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear });
 
-const singleton = Symbol();
-class WebGLResourceRepository extends CGAPIResourceRepository {
-    constructor(enforcer) {
-        super();
-        this.__webglContexts = new Map();
-        this.__resourceCounter = 0;
-        this.__webglResources = new Map();
-        this.__extensions = new Map();
-        if (enforcer !== WebGLResourceRepository.__singletonEnforcer || !(this instanceof WebGLResourceRepository)) {
-            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+class RnObject {
+    constructor(needToManage = false) {
+        this.__objectUid = 0;
+        if (needToManage) {
+            this.__objectUid = ++RnObject.currentMaxObjectCount;
         }
     }
-    static getInstance() {
-        const thisClass = WebGLResourceRepository;
-        if (!thisClass[singleton]) {
-            thisClass[singleton] = new WebGLResourceRepository(thisClass.__singletonEnforcer);
-        }
-        return thisClass[singleton];
-    }
-    addWebGLContext(webglContext, asCurrent) {
-        this.__webglContexts.set('default', webglContext);
-        if (asCurrent) {
-            this.__gl = webglContext;
-        }
-    }
-    get currentWebGLContext() {
-        return this.__gl;
-    }
-    getResourceNumber() {
-        return ++this.__resourceCounter;
-    }
-    getWebGLResource(WebGLResourceHandle) {
-        return this.__webglResources.get(WebGLResourceHandle);
-    }
-    createIndexBuffer(accsessor) {
-        const gl = this.__gl;
-        if (gl == null) {
-            throw new Error("No WebGLRenderingContext set as Default.");
-        }
-        const ibo = gl.createBuffer();
-        const resourceHandle = this.getResourceNumber();
-        this.__webglResources.set(resourceHandle, ibo);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
-        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
-        // accsessor.dataViewOfBufferView.getUint16(10, true))
-        return resourceHandle;
-    }
-    createVertexBuffer(accsessor) {
-        const gl = this.__gl;
-        if (gl == null) {
-            throw new Error("No WebGLRenderingContext set as Default.");
-        }
-        const vbo = gl.createBuffer();
-        const resourceHandle = this.getResourceNumber();
-        this.__webglResources.set(resourceHandle, vbo);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-        gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true), accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true), accsessor.dataViewOfBufferView.getFloat32(20, true), accsessor.dataViewOfBufferView.getFloat32(24, true), accsessor.dataViewOfBufferView.getFloat32(28, true), accsessor.dataViewOfBufferView.getFloat32(32, true), accsessor.dataViewOfBufferView.getFloat32(36, true), accsessor.dataViewOfBufferView.getFloat32(40, true), accsessor.dataViewOfBufferView.getFloat32(44, true));
-        //console.log(accsessor.dataViewOfBufferView.byteLength);
-        return resourceHandle;
-    }
-    getExtension(extension) {
-        const gl = this.__gl;
-        if (!this.__extensions.has(extension)) {
-            const extObj = gl.getExtension(extension.toString());
-            if (extObj == null) {
-                throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
-            }
-            this.__extensions.set(extension, extObj);
-            return extObj;
-        }
-        return this.__extensions.get(extension);
-    }
-    createVertexArray() {
-        const gl = this.__gl;
-        if (gl == null) {
-            throw new Error("No WebGLRenderingContext set as Default.");
-        }
-        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        const vao = extVAO.createVertexArrayOES();
-        const resourceHandle = this.getResourceNumber();
-        this.__webglResources.set(resourceHandle, vao);
-        return resourceHandle;
-    }
-    createVertexDataResources(primitive) {
-        const gl = this.__gl;
-        const vaoHandle = this.createVertexArray();
-        let iboHandle;
-        if (primitive.hasIndices) {
-            iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
-        }
-        const vboHandles = [];
-        primitive.attributeAccessors.forEach(accessor => {
-            const vboHandle = this.createVertexBuffer(accessor);
-            vboHandles.push(vboHandle);
-        });
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return { vaoHandle, iboHandle, vboHandles };
-    }
-    createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
-        const gl = this.__gl;
-        if (gl == null) {
-            throw new Error("No WebGLRenderingContext set as Default.");
-        }
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(vertexShader, vertexShaderStr);
-        gl.shaderSource(fragmentShader, fragmentShaderStr);
-        gl.compileShader(vertexShader);
-        this.__checkShaderCompileStatus(vertexShader);
-        gl.compileShader(fragmentShader);
-        this.__checkShaderCompileStatus(fragmentShader);
-        const shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertexShader);
-        gl.attachShader(shaderProgram, fragmentShader);
-        attributeNames.forEach((attributeName, i) => {
-            gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
-        });
-        gl.linkProgram(shaderProgram);
-        const resourceHandle = this.getResourceNumber();
-        this.__webglResources.set(resourceHandle, shaderProgram);
-        this.__checkShaderProgramLinkStatus(shaderProgram);
-        gl.deleteShader(vertexShader);
-        gl.deleteShader(fragmentShader);
-        return resourceHandle;
-    }
-    __checkShaderCompileStatus(shader) {
-        const gl = this.__gl;
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
-        }
-    }
-    __checkShaderProgramLinkStatus(shaderProgram) {
-        const gl = this.__gl;
-        // If creating the shader program failed, alert
-        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
-        }
-    }
-    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
-        const gl = this.__gl;
-        const vao = this.getWebGLResource(vaoHandle);
-        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        extVAO.bindVertexArrayOES(vao);
-        if (iboHandle != null) {
-            const ibo = this.getWebGLResource(iboHandle);
-            if (ibo != null) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                console.log('ELEMENT');
-            }
-            else {
-                throw new Error('Nothing Element Array Buffer!');
-            }
-        }
-        const shaderProgram = this.getWebGLResource(shaderProgramHandle);
-        if (shaderProgram == null) {
-            throw new Error('Nothing ShaderProgram!');
-        }
-        vboHandles.forEach((vboHandle, i) => {
-            const vbo = this.getWebGLResource(vboHandle);
-            if (vbo != null) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-            }
-            else {
-                throw new Error('Nothing Element Array Buffer at index ' + i);
-            }
-            gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
-            gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
-        });
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        extVAO.bindVertexArrayOES(null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    get objectUid() {
+        return this.__objectUid;
     }
 }
+RnObject.currentMaxObjectCount = 0;
 
-const TransformComponentTID = 1;
-const SceneGraphComponentTID = 2;
-const WellKnownComponentTIDs = Object.freeze({
-    TransformComponentTID,
-    SceneGraphComponentTID
-});
-
-class Entity {
-    constructor(entityUID, isAlive, enforcer, entityComponent) {
-        if (enforcer !== Entity._enforcer) {
-            throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
-        }
-        this.__entity_uid = entityUID;
-        this.__isAlive = isAlive;
-        this.__entityRepository = entityComponent;
+class ComponentTypeClass extends EnumClass {
+    constructor({ index, str, sizeInBytes }) {
+        super({ index, str });
+        this.__sizeInBytes = sizeInBytes;
     }
-    get entityUID() {
-        return this.__entity_uid;
-    }
-    getComponent(componentTid) {
-        const map = this.__entityRepository._components[this.entityUID];
-        if (map != null) {
-            const component = map.get(componentTid);
-            if (component != null) {
-                return component;
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
-    getTransform() {
-        if (this.__transformComponent == null) {
-            this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID);
-        }
-        return this.__transformComponent;
-    }
-    getSceneGraph() {
-        if (this.__sceneGraphComponent == null) {
-            this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID);
-        }
-        return this.__sceneGraphComponent;
+    getSizeInBytes() {
+        return this.__sizeInBytes;
     }
 }
-Entity._enforcer = Symbol();
+const Unknown = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
+const Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
+const UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
+const Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
+const UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
+const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
+const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
+const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
+const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
+const HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
+const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
+function from$1({ index }) {
+    return _from({ typeList: typeList$1, index });
+}
+function fromTypedArray(typedArray) {
+    if (typedArray instanceof Int8Array) {
+        return Byte;
+    }
+    else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
+        return UnsignedByte;
+    }
+    else if (typedArray instanceof Int16Array) {
+        return Short;
+    }
+    else if (typedArray instanceof Uint16Array) {
+        return UnsignedShort;
+    }
+    else if (typedArray instanceof Int32Array) {
+        return Int;
+    }
+    else if (typedArray instanceof Uint32Array) {
+        return UnsingedInt;
+    }
+    else if (typedArray instanceof Float32Array) {
+        return Float;
+    }
+    else if (typedArray instanceof Float64Array) {
+        return Double;
+    }
+    return Unknown;
+}
+const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$1, fromTypedArray });
+
+class CompositionTypeClass extends EnumClass {
+    constructor({ index, str, numberOfComponents }) {
+        super({ index, str });
+        this.__numberOfComponents = 0;
+        this.__numberOfComponents = numberOfComponents;
+    }
+    getNumberOfComponents() {
+        return this.__numberOfComponents;
+    }
+}
+const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
+const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
+const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
+const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
+const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
+const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
+const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
+const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
+const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
+}
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
+
+class _Vector2 {
+    constructor(typedArray, x, y) {
+        this.__typedArray = typedArray;
+        if (ArrayBuffer.isView(x)) {
+            this.v = x;
+            return;
+        }
+        else {
+            this.v = new typedArray(2);
+        }
+        this.x = x;
+        this.y = y;
+    }
+    get className() {
+        return this.constructor.name;
+    }
+    clone() {
+        return new _Vector2(this.__typedArray, this.x, this.y);
+    }
+    multiply(val) {
+        this.x *= val;
+        this.y *= val;
+        return this;
+    }
+    isStrictEqual(vec) {
+        if (this.x === vec.x && this.y === vec.y) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    isEqual(vec, delta = Number.EPSILON) {
+        if (Math.abs(vec.x - this.x) < delta &&
+            Math.abs(vec.y - this.y) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    static multiply(typedArray, vec2, val) {
+        return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
+    }
+    get x() {
+        return this.v[0];
+    }
+    set x(x) {
+        this.v[0] = x;
+    }
+    get y() {
+        return this.v[1];
+    }
+    set y(y) {
+        this.v[1] = y;
+    }
+    get raw() {
+        return this.v;
+    }
+}
+class Vector2_F64 extends _Vector2 {
+    constructor(x, y) {
+        super(Float64Array, x, y);
+    }
+}
 
 const IsUtil = {
     not: {},
@@ -310,157 +242,6 @@ for (let fn in IsUtil) {
         }
     }
 }
-
-class InitialSetting {
-}
-InitialSetting.maxEntityNumber = 10000;
-
-let singleton$1 = Symbol();
-class ComponentRepository {
-    constructor(enforcer) {
-        if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
-            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-        }
-        this.__component_sid_count_map = new Map();
-        this.__components = new Map();
-    }
-    static registerComponentClass(componentTID, componentClass) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.set(componentTID, componentClass);
-    }
-    static unregisterComponentClass(componentTID) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.delete(componentTID);
-    }
-    static getInstance() {
-        const thisClass = ComponentRepository;
-        if (!thisClass[singleton$1]) {
-            thisClass[singleton$1] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
-        }
-        return thisClass[singleton$1];
-    }
-    createComponent(componentTID, entityUid) {
-        const thisClass = ComponentRepository;
-        const componentClass = thisClass.__componentClasses.get(componentTID);
-        if (componentClass != null) {
-            componentClass.setupBufferView();
-            const component = new componentClass(entityUid);
-            const componentTid = component.constructor.componentTID;
-            let component_sid_count = this.__component_sid_count_map.get(componentTid);
-            if (!IsUtil.exist(component_sid_count)) {
-                this.__component_sid_count_map.set(componentTid, 0);
-                component_sid_count = 0;
-            }
-            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
-            if (!this.__components.has(componentTid)) {
-                this.__components.set(componentTid, []);
-            }
-            const array = this.__components.get(componentTid);
-            if (array != null) {
-                array[component.componentSID] = component;
-                return component;
-            }
-        }
-        return null;
-    }
-    getComponent(componentTid, componentSid) {
-        const map = this.__components.get(componentTid);
-        if (map != null) {
-            const component = map[componentSid];
-            if (component != null) {
-                return map[componentSid];
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
-    static getMemoryBeginIndex(componentTid) {
-        let memoryBeginIndex = 0;
-        for (let i = 0; i < componentTid; i++) {
-            const componentClass = ComponentRepository.__componentClasses.get(i);
-            if (componentClass != null) {
-                const sizeOfComponent = componentClass.sizeOfThisComponent;
-                const maxEntityNumber = InitialSetting.maxEntityNumber;
-                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-            }
-        }
-        return memoryBeginIndex;
-    }
-    getComponentsWithType(componentTid) {
-        return this.__components.get(componentTid);
-    }
-    getComponentTIDs() {
-        const indices = [];
-        for (let type of this.__components.keys()) {
-            indices.push(type);
-        }
-        return indices;
-    }
-}
-ComponentRepository.__componentClasses = new Map();
-ComponentRepository.__singletonEnforcer = Symbol();
-
-const singleton$2 = Symbol();
-class EntityRepository {
-    constructor(enforcer) {
-        if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
-            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-        }
-        this.__entity_uid_count = 0;
-        this.__entities = [];
-        this._components = [];
-        this.__componentRepository = ComponentRepository.getInstance();
-    }
-    static getInstance() {
-        const thisClass = EntityRepository;
-        if (!thisClass[singleton$2]) {
-            thisClass[singleton$2] = new EntityRepository(thisClass.__singletonEnforcer);
-        }
-        return thisClass[singleton$2];
-    }
-    createEntity(componentTidArray) {
-        const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer, this);
-        this.__entities[this.__entity_uid_count] = entity;
-        for (let componentTid of componentTidArray) {
-            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
-            let map = this._components[entity.entityUID];
-            if (!(map != null)) {
-                map = new Map();
-            }
-            if (component != null) {
-                map.set(componentTid, component);
-            }
-            this._components[entity.entityUID] = map;
-        }
-        return entity;
-    }
-    getEntity(entityUid) {
-        return this.__entities[entityUid];
-    }
-    getComponentOfEntity(entityUid, componentTid) {
-        const entity = this._components[entityUid];
-        let component = null;
-        if (entity != null) {
-            component = entity.get(componentTid);
-            if (component != null) {
-                return component;
-            }
-            else {
-                return null;
-            }
-        }
-        return component;
-    }
-    static getMaxEntityNumber() {
-        return 10000;
-    }
-    _getEntities() {
-        return this.__entities.concat();
-    }
-}
-EntityRepository.__singletonEnforcer = Symbol();
 
 class Vector3 {
     constructor(x, y, z) {
@@ -762,8 +543,7 @@ class Vector3 {
 }
 //GLBoost['Vector3'] = Vector3;
 
-//import GLBoost from '../../globals';
-class Quaternion {
+class Vector4 {
     constructor(x, y, z, w) {
         if (ArrayBuffer.isView(x)) {
             this.v = x;
@@ -809,225 +589,146 @@ class Quaternion {
             this.w = w;
         }
     }
-    identity() {
-        this.x = 0;
-        this.y = 0;
-        this.x = 0;
-        this.w = 1;
+    get className() {
+        return this.constructor.name;
     }
-    isEqual(quat) {
-        if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
+    isStrictEqual(vec) {
+        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
             return true;
         }
         else {
             return false;
         }
     }
-    get className() {
-        return this.constructor.name;
+    isEqual(vec, delta = Number.EPSILON) {
+        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+            Math.abs(vec.v[1] - this.v[1]) < delta &&
+            Math.abs(vec.v[2] - this.v[2]) < delta &&
+            Math.abs(vec.v[3] - this.v[3]) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     clone() {
-        return new Quaternion(this.x, this.y, this.z, this.w);
+        return new Vector4(this.x, this.y, this.z, this.w);
     }
-    static invert(quat) {
-        quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-        const inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
-        quat.x *= inorm2;
-        quat.y *= inorm2;
-        quat.z *= inorm2;
-        quat.w *= inorm2;
-        return quat;
+    /**
+     * Zero Vector
+     */
+    static zero() {
+        return new Vector4(0, 0, 0, 1);
     }
-    static qlerp(lhq, rhq, ratio) {
-        var q = new Quaternion(0, 0, 0, 1);
-        var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-        var ss = 1.0 - qr * qr;
-        if (ss === 0.0) {
-            q.w = lhq.w;
-            q.x = lhq.x;
-            q.y = lhq.y;
-            q.z = lhq.z;
-            return q;
-        }
-        else {
-            if (qr > 1) {
-                qr = 0.999;
-            }
-            else if (qr < -1) {
-                qr = -0.999;
-            }
-            let ph = Math.acos(qr);
-            let s2;
-            if (qr < 0.0 && ph > Math.PI / 2.0) {
-                qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
-                ph = Math.acos(qr);
-                s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
-            }
-            else {
-                s2 = Math.sin(ph * ratio) / Math.sin(ph);
-            }
-            let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-            q.x = lhq.x * s1 + rhq.x * s2;
-            q.y = lhq.y * s1 + rhq.y * s2;
-            q.z = lhq.z * s1 + rhq.z * s2;
-            q.w = lhq.w * s1 + rhq.w * s2;
-            return q;
-        }
-    }
-    axisAngle(axisVec3, radian) {
-        var halfAngle = 0.5 * radian;
-        var sin = Math.sin(halfAngle);
-        var axis = Vector3.normalize(axisVec3);
-        this.w = Math.cos(halfAngle);
-        this.x = sin * axis.x;
-        this.y = sin * axis.y;
-        this.z = sin * axis.z;
-        return this;
-    }
-    static axisAngle(axisVec3, radian) {
-        var halfAngle = 0.5 * radian;
-        var sin = Math.sin(halfAngle);
-        var axis = Vector3.normalize(axisVec3);
-        return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
-    }
-    add(q) {
-        this.x += q.x;
-        this.y += q.y;
-        this.z += q.z;
-        this.w += q.w;
-        return this;
-    }
-    multiply(q) {
-        let result = new Quaternion(0, 0, 0, 1);
-        result.x = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-        result.y = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-        result.z = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-        result.w = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-        this.x = result.x;
-        this.y = result.y;
-        this.z = result.z;
-        this.w = result.w;
-        return this;
-    }
-    static multiply(q1, q2) {
-        let result = new Quaternion(0, 0, 0, 1);
-        result.x = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-        result.y = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-        result.z = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-        result.w = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
-        return result;
-    }
-    static fromMatrix(m) {
-        let q = new Quaternion();
-        let tr = m.m00 + m.m11 + m.m22;
-        if (tr > 0) {
-            let S = 0.5 / Math.sqrt(tr + 1.0);
-            q.w = 0.25 / S;
-            q.x = (m.m21 - m.m12) * S;
-            q.y = (m.m02 - m.m20) * S;
-            q.z = (m.m10 - m.m01) * S;
-        }
-        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-            let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-            q.w = (m.m21 - m.m12) / S;
-            q.x = 0.25 * S;
-            q.y = (m.m01 + m.m10) / S;
-            q.z = (m.m02 + m.m20) / S;
-        }
-        else if (m.m11 > m.m22) {
-            let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-            q.w = (m.m02 - m.m20) / S;
-            q.x = (m.m01 + m.m10) / S;
-            q.y = 0.25 * S;
-            q.z = (m.m12 + m.m21) / S;
-        }
-        else {
-            let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-            q.w = (m.m10 - m.m01) / S;
-            q.x = (m.m02 + m.m20) / S;
-            q.y = (m.m12 + m.m21) / S;
-            q.z = 0.25 * S;
-        }
-        return q;
-    }
-    /*
-      static fromMatrix(m) {
-        let fTrace = m.m[0] + m.m[4] + m.m[8];
-        let fRoot;
-        let q = new Quaternion();
-        if ( fTrace > 0.0 ) {
-          // |w| > 1/2, may as well choose w > 1/2
-          fRoot = Math.sqrt(fTrace + 1.0);  // 2w
-          q.w = 0.5 * fRoot;
-          fRoot = 0.5/fRoot;  // 1/(4w)
-          q.x = (m.m[5]-m.m[7])*fRoot;
-          q.y = (m.m[6]-m.m[2])*fRoot;
-          q.z = (m.m[1]-m.m[3])*fRoot;
-        } else {
-          // |w| <= 1/2
-          let i = 0;
-          if ( m.m[4] > m.m[0] )
-            i = 1;
-          if ( m.m[8] > m.m[i*3+i] )
-            i = 2;
-          let j = (i+1)%3;
-          let k = (i+2)%3;
-          fRoot = Math.sqrt(m.m[i*3+i]-m.m[j*3+j]-m.m[k*3+k] + 1.0);
-          
-          let setValue = function(q, i, value) {
-            switch (i) {
-              case 0: q.x = value; break;
-              case 1: q.y = value; break;
-              case 2: q.z = value; break;
-            }
-          }
-    
-          setValue(q, i, 0.5 * fRoot); //      q[i] = 0.5 * fRoot;
-          fRoot = 0.5 / fRoot;
-          q.w = (m.m[j*3+k] - m.m[k*3+j]) * fRoot;
-    
-          setValue(q, j, (m.m[j*3+i] + m.m[i*3+j]) * fRoot); //      q[j] = (m.m[j*3+i] + m.m[i*3+j]) * fRoot;
-          setValue(q, k, (m.m[k*3+i] + m.m[i*3+k]) * fRoot); //      q[k] = (m.m[k*3+i] + m.m[i*3+k]) * fRoot;
-        }
-    
-        return q;
-      }
-    */
-    static fromPosition(vec3) {
-        let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
-        return q;
-    }
-    at(i) {
-        switch (i % 4) {
-            case 0: return this.x;
-            case 1: return this.y;
-            case 2: return this.z;
-            case 3: return this.w;
-        }
-    }
-    setAt(i, val) {
-        switch (i % 4) {
-            case 0:
-                this.x = val;
-                break;
-            case 1:
-                this.y = val;
-                break;
-            case 2:
-                this.z = val;
-                break;
-            case 3:
-                this.w = val;
-                break;
-        }
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
     }
     normalize() {
-        let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        this.x /= norm;
-        this.y /= norm;
-        this.z /= norm;
-        this.w /= norm;
+        var length = this.length();
+        this.divide(length);
         return this;
+    }
+    static normalize(vec4) {
+        var length = vec4.length();
+        var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
+        newVec.divide(length);
+        return newVec;
+    }
+    /**
+     * add value
+     */
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        this.w += v.w;
+        return this;
+    }
+    /**
+     * add value（static version）
+     */
+    static add(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+    }
+    /**
+     * add value except w component
+     */
+    addWithOutW(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        return this;
+    }
+    subtract(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+        this.w -= v.w;
+        return this;
+    }
+    static subtract(lv, rv) {
+        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+    }
+    /**
+     * add value except w component（static version）
+     */
+    static addWithOutW(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+    }
+    multiply(val) {
+        this.x *= val;
+        this.y *= val;
+        this.z *= val;
+        this.w *= val;
+        return this;
+    }
+    multiplyVector(vec) {
+        this.x *= vec.x;
+        this.y *= vec.y;
+        this.z *= vec.z;
+        this.w *= vec.w;
+        return this;
+    }
+    static multiply(vec4, val) {
+        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+    }
+    static multiplyVector(vec4, vec) {
+        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+    }
+    divide(val) {
+        if (val !== 0) {
+            this.x /= val;
+            this.y /= val;
+            this.z /= val;
+            this.w /= val;
+        }
+        else {
+            console.warn("0 division occured!");
+            this.x = Infinity;
+            this.y = Infinity;
+            this.z = Infinity;
+            this.w = Infinity;
+        }
+        return this;
+    }
+    static divide(vec4, val) {
+        if (val !== 0) {
+            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+        }
+        else {
+            console.warn("0 division occured!");
+            return new Vector4(Infinity, Infinity, Infinity, Infinity);
+        }
+    }
+    divideVector(vec4) {
+        this.x /= vec4.x;
+        this.y /= vec4.y;
+        this.z /= vec4.z;
+        this.w /= vec4.w;
+        return this;
+    }
+    static divideVector(lvec4, rvec4) {
+        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
     }
     toString() {
         return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
@@ -1060,7 +761,7 @@ class Quaternion {
         return this.v;
     }
 }
-//GLBoost["Quaternion"] = Quaternion;
+// GLBoost["Vector4"] = Vector4;
 
 // import GLBoost from '../../globals';
 class Matrix33 {
@@ -1423,7 +1124,8 @@ class Matrix33 {
 }
 // GLBoost['Matrix33'] = Matrix33;
 
-class Vector4 {
+//import GLBoost from '../../globals';
+class Quaternion {
     constructor(x, y, z, w) {
         if (ArrayBuffer.isView(x)) {
             this.v = x;
@@ -1469,146 +1171,225 @@ class Vector4 {
             this.w = w;
         }
     }
+    identity() {
+        this.x = 0;
+        this.y = 0;
+        this.x = 0;
+        this.w = 1;
+    }
+    isEqual(quat) {
+        if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     get className() {
         return this.constructor.name;
     }
-    isStrictEqual(vec) {
-        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    isEqual(vec, delta = Number.EPSILON) {
-        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-            Math.abs(vec.v[1] - this.v[1]) < delta &&
-            Math.abs(vec.v[2] - this.v[2]) < delta &&
-            Math.abs(vec.v[3] - this.v[3]) < delta) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
     clone() {
-        return new Vector4(this.x, this.y, this.z, this.w);
+        return new Quaternion(this.x, this.y, this.z, this.w);
     }
-    /**
-     * Zero Vector
-     */
-    static zero() {
-        return new Vector4(0, 0, 0, 1);
+    static invert(quat) {
+        quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
+        const inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
+        quat.x *= inorm2;
+        quat.y *= inorm2;
+        quat.z *= inorm2;
+        quat.w *= inorm2;
+        return quat;
     }
-    length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    static qlerp(lhq, rhq, ratio) {
+        var q = new Quaternion(0, 0, 0, 1);
+        var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+        var ss = 1.0 - qr * qr;
+        if (ss === 0.0) {
+            q.w = lhq.w;
+            q.x = lhq.x;
+            q.y = lhq.y;
+            q.z = lhq.z;
+            return q;
+        }
+        else {
+            if (qr > 1) {
+                qr = 0.999;
+            }
+            else if (qr < -1) {
+                qr = -0.999;
+            }
+            let ph = Math.acos(qr);
+            let s2;
+            if (qr < 0.0 && ph > Math.PI / 2.0) {
+                qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
+                ph = Math.acos(qr);
+                s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+            }
+            else {
+                s2 = Math.sin(ph * ratio) / Math.sin(ph);
+            }
+            let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+            q.x = lhq.x * s1 + rhq.x * s2;
+            q.y = lhq.y * s1 + rhq.y * s2;
+            q.z = lhq.z * s1 + rhq.z * s2;
+            q.w = lhq.w * s1 + rhq.w * s2;
+            return q;
+        }
+    }
+    axisAngle(axisVec3, radian) {
+        var halfAngle = 0.5 * radian;
+        var sin = Math.sin(halfAngle);
+        var axis = Vector3.normalize(axisVec3);
+        this.w = Math.cos(halfAngle);
+        this.x = sin * axis.x;
+        this.y = sin * axis.y;
+        this.z = sin * axis.z;
+        return this;
+    }
+    static axisAngle(axisVec3, radian) {
+        var halfAngle = 0.5 * radian;
+        var sin = Math.sin(halfAngle);
+        var axis = Vector3.normalize(axisVec3);
+        return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
+    }
+    add(q) {
+        this.x += q.x;
+        this.y += q.y;
+        this.z += q.z;
+        this.w += q.w;
+        return this;
+    }
+    multiply(q) {
+        let result = new Quaternion(0, 0, 0, 1);
+        result.x = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
+        result.y = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
+        result.z = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
+        result.w = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
+        this.x = result.x;
+        this.y = result.y;
+        this.z = result.z;
+        this.w = result.w;
+        return this;
+    }
+    static multiply(q1, q2) {
+        let result = new Quaternion(0, 0, 0, 1);
+        result.x = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
+        result.y = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
+        result.z = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
+        result.w = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
+        return result;
+    }
+    static fromMatrix(m) {
+        let q = new Quaternion();
+        let tr = m.m00 + m.m11 + m.m22;
+        if (tr > 0) {
+            let S = 0.5 / Math.sqrt(tr + 1.0);
+            q.w = 0.25 / S;
+            q.x = (m.m21 - m.m12) * S;
+            q.y = (m.m02 - m.m20) * S;
+            q.z = (m.m10 - m.m01) * S;
+        }
+        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+            let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+            q.w = (m.m21 - m.m12) / S;
+            q.x = 0.25 * S;
+            q.y = (m.m01 + m.m10) / S;
+            q.z = (m.m02 + m.m20) / S;
+        }
+        else if (m.m11 > m.m22) {
+            let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+            q.w = (m.m02 - m.m20) / S;
+            q.x = (m.m01 + m.m10) / S;
+            q.y = 0.25 * S;
+            q.z = (m.m12 + m.m21) / S;
+        }
+        else {
+            let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+            q.w = (m.m10 - m.m01) / S;
+            q.x = (m.m02 + m.m20) / S;
+            q.y = (m.m12 + m.m21) / S;
+            q.z = 0.25 * S;
+        }
+        return q;
+    }
+    /*
+      static fromMatrix(m) {
+        let fTrace = m.m[0] + m.m[4] + m.m[8];
+        let fRoot;
+        let q = new Quaternion();
+        if ( fTrace > 0.0 ) {
+          // |w| > 1/2, may as well choose w > 1/2
+          fRoot = Math.sqrt(fTrace + 1.0);  // 2w
+          q.w = 0.5 * fRoot;
+          fRoot = 0.5/fRoot;  // 1/(4w)
+          q.x = (m.m[5]-m.m[7])*fRoot;
+          q.y = (m.m[6]-m.m[2])*fRoot;
+          q.z = (m.m[1]-m.m[3])*fRoot;
+        } else {
+          // |w| <= 1/2
+          let i = 0;
+          if ( m.m[4] > m.m[0] )
+            i = 1;
+          if ( m.m[8] > m.m[i*3+i] )
+            i = 2;
+          let j = (i+1)%3;
+          let k = (i+2)%3;
+          fRoot = Math.sqrt(m.m[i*3+i]-m.m[j*3+j]-m.m[k*3+k] + 1.0);
+          
+          let setValue = function(q, i, value) {
+            switch (i) {
+              case 0: q.x = value; break;
+              case 1: q.y = value; break;
+              case 2: q.z = value; break;
+            }
+          }
+    
+          setValue(q, i, 0.5 * fRoot); //      q[i] = 0.5 * fRoot;
+          fRoot = 0.5 / fRoot;
+          q.w = (m.m[j*3+k] - m.m[k*3+j]) * fRoot;
+    
+          setValue(q, j, (m.m[j*3+i] + m.m[i*3+j]) * fRoot); //      q[j] = (m.m[j*3+i] + m.m[i*3+j]) * fRoot;
+          setValue(q, k, (m.m[k*3+i] + m.m[i*3+k]) * fRoot); //      q[k] = (m.m[k*3+i] + m.m[i*3+k]) * fRoot;
+        }
+    
+        return q;
+      }
+    */
+    static fromPosition(vec3) {
+        let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
+        return q;
+    }
+    at(i) {
+        switch (i % 4) {
+            case 0: return this.x;
+            case 1: return this.y;
+            case 2: return this.z;
+            case 3: return this.w;
+        }
+    }
+    setAt(i, val) {
+        switch (i % 4) {
+            case 0:
+                this.x = val;
+                break;
+            case 1:
+                this.y = val;
+                break;
+            case 2:
+                this.z = val;
+                break;
+            case 3:
+                this.w = val;
+                break;
+        }
     }
     normalize() {
-        var length = this.length();
-        this.divide(length);
+        let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        this.x /= norm;
+        this.y /= norm;
+        this.z /= norm;
+        this.w /= norm;
         return this;
-    }
-    static normalize(vec4) {
-        var length = vec4.length();
-        var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-        newVec.divide(length);
-        return newVec;
-    }
-    /**
-     * add value
-     */
-    add(v) {
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
-        this.w += v.w;
-        return this;
-    }
-    /**
-     * add value（static version）
-     */
-    static add(lv, rv) {
-        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-    }
-    /**
-     * add value except w component
-     */
-    addWithOutW(v) {
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
-        return this;
-    }
-    subtract(v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        this.z -= v.z;
-        this.w -= v.w;
-        return this;
-    }
-    static subtract(lv, rv) {
-        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-    }
-    /**
-     * add value except w component（static version）
-     */
-    static addWithOutW(lv, rv) {
-        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-    }
-    multiply(val) {
-        this.x *= val;
-        this.y *= val;
-        this.z *= val;
-        this.w *= val;
-        return this;
-    }
-    multiplyVector(vec) {
-        this.x *= vec.x;
-        this.y *= vec.y;
-        this.z *= vec.z;
-        this.w *= vec.w;
-        return this;
-    }
-    static multiply(vec4, val) {
-        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-    }
-    static multiplyVector(vec4, vec) {
-        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-    }
-    divide(val) {
-        if (val !== 0) {
-            this.x /= val;
-            this.y /= val;
-            this.z /= val;
-            this.w /= val;
-        }
-        else {
-            console.warn("0 division occured!");
-            this.x = Infinity;
-            this.y = Infinity;
-            this.z = Infinity;
-            this.w = Infinity;
-        }
-        return this;
-    }
-    static divide(vec4, val) {
-        if (val !== 0) {
-            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-        }
-        else {
-            console.warn("0 division occured!");
-            return new Vector4(Infinity, Infinity, Infinity, Infinity);
-        }
-    }
-    divideVector(vec4) {
-        this.x /= vec4.x;
-        this.y /= vec4.y;
-        this.z /= vec4.z;
-        this.w /= vec4.w;
-        return this;
-    }
-    static divideVector(lvec4, rvec4) {
-        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
     }
     toString() {
         return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
@@ -1641,7 +1422,7 @@ class Vector4 {
         return this.v;
     }
 }
-// GLBoost["Vector4"] = Vector4;
+//GLBoost["Quaternion"] = Quaternion;
 
 //import GLBoost from '../../globals';
 const FloatArray = Float64Array;
@@ -2178,160 +1959,6 @@ class Matrix44 {
 }
 //GLBoost["Matrix44"] = Matrix44;
 
-class RnObject {
-    constructor(needToManage = false) {
-        this.__objectUid = 0;
-        if (needToManage) {
-            this.__objectUid = ++RnObject.currentMaxObjectCount;
-        }
-    }
-    get objectUid() {
-        return this.__objectUid;
-    }
-}
-RnObject.currentMaxObjectCount = 0;
-
-class ComponentTypeClass extends EnumClass {
-    constructor({ index, str, sizeInBytes }) {
-        super({ index, str });
-        this.__sizeInBytes = sizeInBytes;
-    }
-    getSizeInBytes() {
-        return this.__sizeInBytes;
-    }
-}
-const Unknown = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
-const Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
-const UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
-const Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
-const UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
-const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
-const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
-const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
-const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
-const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
-}
-function fromTypedArray(typedArray) {
-    if (typedArray instanceof Int8Array) {
-        return Byte;
-    }
-    else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
-        return UnsignedByte;
-    }
-    else if (typedArray instanceof Int16Array) {
-        return Short;
-    }
-    else if (typedArray instanceof Uint16Array) {
-        return UnsignedShort;
-    }
-    else if (typedArray instanceof Int32Array) {
-        return Int;
-    }
-    else if (typedArray instanceof Uint32Array) {
-        return UnsingedInt;
-    }
-    else if (typedArray instanceof Float32Array) {
-        return Float;
-    }
-    else if (typedArray instanceof Float64Array) {
-        return Double;
-    }
-    return Unknown;
-}
-const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from: from$1, fromTypedArray });
-
-class CompositionTypeClass extends EnumClass {
-    constructor({ index, str, numberOfComponents }) {
-        super({ index, str });
-        this.__numberOfComponents = 0;
-        this.__numberOfComponents = numberOfComponents;
-    }
-    getNumberOfComponents() {
-        return this.__numberOfComponents;
-    }
-}
-const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
-const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
-const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
-const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
-const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
-const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
-const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
-const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
-const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
-}
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
-
-class _Vector2 {
-    constructor(typedArray, x, y) {
-        this.__typedArray = typedArray;
-        if (ArrayBuffer.isView(x)) {
-            this.v = x;
-            return;
-        }
-        else {
-            this.v = new typedArray(2);
-        }
-        this.x = x;
-        this.y = y;
-    }
-    get className() {
-        return this.constructor.name;
-    }
-    clone() {
-        return new _Vector2(this.__typedArray, this.x, this.y);
-    }
-    multiply(val) {
-        this.x *= val;
-        this.y *= val;
-        return this;
-    }
-    isStrictEqual(vec) {
-        if (this.x === vec.x && this.y === vec.y) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    isEqual(vec, delta = Number.EPSILON) {
-        if (Math.abs(vec.x - this.x) < delta &&
-            Math.abs(vec.y - this.y) < delta) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    static multiply(typedArray, vec2, val) {
-        return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
-    }
-    get x() {
-        return this.v[0];
-    }
-    set x(x) {
-        this.v[0] = x;
-    }
-    get y() {
-        return this.v[1];
-    }
-    set y(y) {
-        this.v[1] = y;
-    }
-    get raw() {
-        return this.v;
-    }
-}
-class Vector2_F64 extends _Vector2 {
-    constructor(x, y) {
-        super(Float64Array, x, y);
-    }
-}
-
 class AccessorBase extends RnObject {
     constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
         super();
@@ -2498,33 +2125,25 @@ class AccessorBase extends RnObject {
         return new Matrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
     }
     setScalar(index, value, endian = true) {
-        console.log(this.__byteStride * index, value, endian);
         this.__dataViewSetter(this.__byteStride * index, value, endian);
-        // const componentSetter = this.__dataViewSetter(this.componentType)!;
-        // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
-        // console.log(componentSetter);
-        // compositionSetter(this.__byteStride*index, value, endian);
     }
     setVec2(index, x, y, endian = true) {
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
     }
     setVec3(index, x, y, z, endian = true) {
-        // const setter = this.__dataViewSetter(this.componentType)!;
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
-        console.log(this.__byteStride, index, x, endian);
         const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
         this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
         this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     }
     setVec4(index, x, y, z, w, endian = true) {
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
-        this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
-        this.__dataViewSetter(this.__byteStride * index + 3, w, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
+        this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);
     }
     copyFromTypedArray(typedArray) {
         const componentN = this.numberOfComponents;
@@ -2681,18 +2300,19 @@ class Buffer extends RnObject {
  *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
  * );
  */
-const singleton$3 = Symbol();
+const singleton = Symbol();
 class MemoryManager {
     constructor(enforcer) {
         //__entityMaxCount: number;
         this.__buffers = new Map();
+        this.__bufferLengthOfOneSide = Math.pow(2, 11);
         const thisClass = MemoryManager;
         if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof MemoryManager)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
         // BufferForGPU
         {
-            const arrayBuffer = new ArrayBuffer((Math.pow(2, 11)) * Math.pow(2, 11) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide * this.__bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2703,7 +2323,7 @@ class MemoryManager {
         }
         // BufferForCPU
         {
-            const arrayBuffer = new ArrayBuffer((Math.pow(2, 11)) * Math.pow(2, 11) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide * this.__bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2715,10 +2335,10 @@ class MemoryManager {
     }
     static getInstance() {
         const thisClass = MemoryManager;
-        if (!thisClass[singleton$3]) {
-            thisClass[singleton$3] = new MemoryManager(thisClass.__singletonEnforcer);
+        if (!thisClass[singleton]) {
+            thisClass[singleton] = new MemoryManager(thisClass.__singletonEnforcer);
         }
-        return thisClass[singleton$3];
+        return thisClass[singleton];
     }
     getBufferForGPU() {
         return this.__bufferForGPU;
@@ -2726,8 +2346,405 @@ class MemoryManager {
     getBufferForCPU() {
         return this.__bufferForCPU;
     }
+    get bufferLengthOfOneSide() {
+        return this.__bufferLengthOfOneSide;
+    }
 }
 MemoryManager.__singletonEnforcer = Symbol();
+
+const singleton$1 = Symbol();
+class WebGLResourceRepository extends CGAPIResourceRepository {
+    constructor(enforcer) {
+        super();
+        this.__webglContexts = new Map();
+        this.__resourceCounter = 0;
+        this.__webglResources = new Map();
+        this.__extensions = new Map();
+        if (enforcer !== WebGLResourceRepository.__singletonEnforcer || !(this instanceof WebGLResourceRepository)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+    }
+    static getInstance() {
+        const thisClass = WebGLResourceRepository;
+        if (!thisClass[singleton$1]) {
+            thisClass[singleton$1] = new WebGLResourceRepository(thisClass.__singletonEnforcer);
+        }
+        return thisClass[singleton$1];
+    }
+    addWebGLContext(webglContext, asCurrent) {
+        this.__webglContexts.set('default', webglContext);
+        if (asCurrent) {
+            this.__gl = webglContext;
+        }
+    }
+    get currentWebGLContext() {
+        return this.__gl;
+    }
+    getResourceNumber() {
+        return ++this.__resourceCounter;
+    }
+    getWebGLResource(WebGLResourceHandle) {
+        return this.__webglResources.get(WebGLResourceHandle);
+    }
+    createIndexBuffer(accsessor) {
+        const gl = this.__gl;
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const ibo = gl.createBuffer();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, ibo);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
+        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
+        // accsessor.dataViewOfBufferView.getUint16(10, true))
+        return resourceHandle;
+    }
+    createVertexBuffer(accsessor) {
+        const gl = this.__gl;
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const vbo = gl.createBuffer();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vbo);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        return resourceHandle;
+    }
+    getExtension(extension) {
+        const gl = this.__gl;
+        if (!this.__extensions.has(extension)) {
+            const extObj = gl.getExtension(extension.toString());
+            if (extObj == null) {
+                throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
+            }
+            this.__extensions.set(extension, extObj);
+            return extObj;
+        }
+        return this.__extensions.get(extension);
+    }
+    createVertexArray() {
+        const gl = this.__gl;
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = extVAO.createVertexArrayOES();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vao);
+        return resourceHandle;
+    }
+    createVertexDataResources(primitive) {
+        const gl = this.__gl;
+        const vaoHandle = this.createVertexArray();
+        let iboHandle;
+        if (primitive.hasIndices) {
+            iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
+        }
+        const vboHandles = [];
+        primitive.attributeAccessors.forEach(accessor => {
+            const vboHandle = this.createVertexBuffer(accessor);
+            vboHandles.push(vboHandle);
+        });
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return { vaoHandle, iboHandle, vboHandles };
+    }
+    createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
+        const gl = this.__gl;
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(vertexShader, vertexShaderStr);
+        gl.shaderSource(fragmentShader, fragmentShaderStr);
+        gl.compileShader(vertexShader);
+        this.__checkShaderCompileStatus(vertexShader);
+        gl.compileShader(fragmentShader);
+        this.__checkShaderCompileStatus(fragmentShader);
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        attributeNames.forEach((attributeName, i) => {
+            gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
+        });
+        gl.linkProgram(shaderProgram);
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, shaderProgram);
+        this.__checkShaderProgramLinkStatus(shaderProgram);
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        return resourceHandle;
+    }
+    __checkShaderCompileStatus(shader) {
+        const gl = this.__gl;
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
+        }
+    }
+    __checkShaderProgramLinkStatus(shaderProgram) {
+        const gl = this.__gl;
+        // If creating the shader program failed, alert
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+        }
+    }
+    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
+        const gl = this.__gl;
+        const vao = this.getWebGLResource(vaoHandle);
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        extVAO.bindVertexArrayOES(vao);
+        if (iboHandle != null) {
+            const ibo = this.getWebGLResource(iboHandle);
+            if (ibo != null) {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+            }
+            else {
+                throw new Error('Nothing Element Array Buffer!');
+            }
+        }
+        const shaderProgram = this.getWebGLResource(shaderProgramHandle);
+        if (shaderProgram == null) {
+            throw new Error('Nothing ShaderProgram!');
+        }
+        vboHandles.forEach((vboHandle, i) => {
+            const vbo = this.getWebGLResource(vboHandle);
+            if (vbo != null) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+            }
+            else {
+                throw new Error('Nothing Element Array Buffer at index ' + i);
+            }
+            gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
+            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
+            gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
+        });
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        extVAO.bindVertexArrayOES(null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    createTexture(typedArray, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT }) {
+        const gl = this.__gl;
+        this.getExtension(WebGLExtension.TextureFloat);
+        this.getExtension(WebGLExtension.TextureHalfFloat);
+        this.getExtension(WebGLExtension.TextureFloatLinear);
+        this.getExtension(WebGLExtension.TextureHalfFloatLinear);
+        const memoryManager = MemoryManager.getInstance();
+        const buffer = memoryManager.getBufferForGPU();
+        const dataTexture = gl.createTexture();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, dataTexture);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border, format.index, type.index, new Float32Array(buffer.getArrayBuffer()));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+        return resourceHandle;
+    }
+}
+
+const TransformComponentTID = 1;
+const SceneGraphComponentTID = 2;
+const WellKnownComponentTIDs = Object.freeze({
+    TransformComponentTID,
+    SceneGraphComponentTID
+});
+
+class Entity {
+    constructor(entityUID, isAlive, enforcer, entityComponent) {
+        if (enforcer !== Entity._enforcer) {
+            throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
+        }
+        this.__entity_uid = entityUID;
+        this.__isAlive = isAlive;
+        this.__entityRepository = entityComponent;
+    }
+    get entityUID() {
+        return this.__entity_uid;
+    }
+    getComponent(componentTid) {
+        const map = this.__entityRepository._components[this.entityUID];
+        if (map != null) {
+            const component = map.get(componentTid);
+            if (component != null) {
+                return component;
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
+    getTransform() {
+        if (this.__transformComponent == null) {
+            this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID);
+        }
+        return this.__transformComponent;
+    }
+    getSceneGraph() {
+        if (this.__sceneGraphComponent == null) {
+            this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID);
+        }
+        return this.__sceneGraphComponent;
+    }
+}
+Entity._enforcer = Symbol();
+
+class InitialSetting {
+}
+InitialSetting.maxEntityNumber = 10000;
+
+let singleton$2 = Symbol();
+class ComponentRepository {
+    constructor(enforcer) {
+        if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+        this.__component_sid_count_map = new Map();
+        this.__components = new Map();
+    }
+    static registerComponentClass(componentTID, componentClass) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.set(componentTID, componentClass);
+    }
+    static unregisterComponentClass(componentTID) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.delete(componentTID);
+    }
+    static getInstance() {
+        const thisClass = ComponentRepository;
+        if (!thisClass[singleton$2]) {
+            thisClass[singleton$2] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
+        }
+        return thisClass[singleton$2];
+    }
+    createComponent(componentTID, entityUid) {
+        const thisClass = ComponentRepository;
+        const componentClass = thisClass.__componentClasses.get(componentTID);
+        if (componentClass != null) {
+            componentClass.setupBufferView();
+            const component = new componentClass(entityUid);
+            const componentTid = component.constructor.componentTID;
+            let component_sid_count = this.__component_sid_count_map.get(componentTid);
+            if (!IsUtil.exist(component_sid_count)) {
+                this.__component_sid_count_map.set(componentTid, 0);
+                component_sid_count = 0;
+            }
+            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
+            if (!this.__components.has(componentTid)) {
+                this.__components.set(componentTid, []);
+            }
+            const array = this.__components.get(componentTid);
+            if (array != null) {
+                array[component.componentSID] = component;
+                return component;
+            }
+        }
+        return null;
+    }
+    getComponent(componentTid, componentSid) {
+        const map = this.__components.get(componentTid);
+        if (map != null) {
+            const component = map[componentSid];
+            if (component != null) {
+                return map[componentSid];
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
+    static getMemoryBeginIndex(componentTid) {
+        let memoryBeginIndex = 0;
+        for (let i = 0; i < componentTid; i++) {
+            const componentClass = ComponentRepository.__componentClasses.get(i);
+            if (componentClass != null) {
+                const sizeOfComponent = componentClass.sizeOfThisComponent;
+                const maxEntityNumber = InitialSetting.maxEntityNumber;
+                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
+            }
+        }
+        return memoryBeginIndex;
+    }
+    getComponentsWithType(componentTid) {
+        return this.__components.get(componentTid);
+    }
+    getComponentTIDs() {
+        const indices = [];
+        for (let type of this.__components.keys()) {
+            indices.push(type);
+        }
+        return indices;
+    }
+}
+ComponentRepository.__componentClasses = new Map();
+ComponentRepository.__singletonEnforcer = Symbol();
+
+const singleton$3 = Symbol();
+class EntityRepository {
+    constructor(enforcer) {
+        if (enforcer !== EntityRepository.__singletonEnforcer || !(this instanceof EntityRepository)) {
+            throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
+        }
+        this.__entity_uid_count = 0;
+        this.__entities = [];
+        this._components = [];
+        this.__componentRepository = ComponentRepository.getInstance();
+    }
+    static getInstance() {
+        const thisClass = EntityRepository;
+        if (!thisClass[singleton$3]) {
+            thisClass[singleton$3] = new EntityRepository(thisClass.__singletonEnforcer);
+        }
+        return thisClass[singleton$3];
+    }
+    createEntity(componentTidArray) {
+        const entity = new Entity(++this.__entity_uid_count, true, Entity._enforcer, this);
+        this.__entities[this.__entity_uid_count] = entity;
+        for (let componentTid of componentTidArray) {
+            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+            let map = this._components[entity.entityUID];
+            if (!(map != null)) {
+                map = new Map();
+            }
+            if (component != null) {
+                map.set(componentTid, component);
+            }
+            this._components[entity.entityUID] = map;
+        }
+        return entity;
+    }
+    getEntity(entityUid) {
+        return this.__entities[entityUid];
+    }
+    getComponentOfEntity(entityUid, componentTid) {
+        const entity = this._components[entityUid];
+        let component = null;
+        if (entity != null) {
+            component = entity.get(componentTid);
+            if (component != null) {
+                return component;
+            }
+            else {
+                return null;
+            }
+        }
+        return component;
+    }
+    static getMaxEntityNumber() {
+        return 1000;
+    }
+    _getEntities() {
+        return this.__entities.concat();
+    }
+}
+EntityRepository.__singletonEnforcer = Symbol();
 
 class Component {
     constructor(entityUid) {
@@ -3243,6 +3260,7 @@ const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
 const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
 const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
 const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
+const Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
 const typeList$3 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
 function from$3({ index }) {
     return _from({ typeList: typeList$3, index });
@@ -3273,15 +3291,93 @@ GLSLShader.fragmentShader = `
 GLSLShader.attributeNanes = ['in_position', 'in_color'];
 GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0];
 
+class TextureParameterClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
+const Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
+const TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
+const TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
+const TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
+const TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
+const Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
+const Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
+const Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
+const Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
+const ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
+const Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
+const ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
+const RGB = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
+const RGBA = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
+const RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
+const RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
+const RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
+const RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
+const RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
+const RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
+const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
+const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
+    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
+
+class PixelFormatClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
+const Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
+const RGB$1 = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
+const RGBA$1 = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
+const Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
+const LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
+const PixelFormat = Object.freeze({ DepthComponent, Alpha, RGB: RGB$1, RGBA: RGBA$1, Luminance, LuminanceAlpha });
+
 const WebGLRenderingPipeline = new class {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__dataTextureUid = 0;
+        this.__instanceIDBufferUid = 0;
     }
-    render(vaoHandle, shaderProgramHandle, primitive) {
+    common_prerender() {
         const gl = this.__webglResourceRepository.currentWebGLContext;
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
+        if (this.__isReady()) {
+            return 0;
+        }
+        this.__createDataTexture();
+        this.__createInstanceIDBuffer();
+        return this.__instanceIDBufferUid;
+    }
+    __isReady() {
+        if (this.__dataTextureUid !== 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    __createInstanceIDBuffer() {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const count = EntityRepository.getMaxEntityNumber();
+        const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
+        const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+        this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+    }
+    __createDataTexture() {
+        const memoryManager = MemoryManager.getInstance();
+        const buffer = memoryManager.getBufferForGPU();
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(new Float32Array(buffer.getArrayBuffer()), {
+            level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge
+        });
+    }
+    render(vaoHandle, shaderProgramHandle, primitive) {
+        const gl = this.__webglResourceRepository.currentWebGLContext;
         const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
         const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
@@ -3315,7 +3411,18 @@ class MeshComponent extends Component {
     getPrimitiveNumber() {
         return this.__primitives.length;
     }
+    isReady() {
+        if (this.__vertexVaoHandles.length > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     $prerender() {
+        if (this.isReady()) {
+            return;
+        }
         this.__primitives.forEach((primitive, i) => {
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
             this.__vertexVaoHandles[i] = vertexHandles.vaoHandle;
@@ -3378,11 +3485,6 @@ class Primitive extends RnObject {
                 componentType: ComponentType.fromTypedArray(attributes[i]),
                 count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
             });
-            // for (let j=0; j<(attribute.byteLength/accessor.componentSizeInBytes); j++) {
-            //   const idx = Math.floor(j/3);
-            //   const idx3 = idx * 3;
-            //   accessor.setVec3(idx, attribute[idx3+0], attribute[idx3+1], attribute[idx3+2]);
-            // }
             accessor.copyFromTypedArray(attribute);
             attributeAccessors.push(accessor);
         });
@@ -3424,11 +3526,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$4({ index }) {
-    return _from({ typeList: typeList$4, index });
+const typeList$6 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$6({ index }) {
+    return _from({ typeList: typeList$6, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$6 });
 
 class ProcessStageClass extends EnumClass {
     constructor({ index, str, methodName }) {
@@ -3448,11 +3550,11 @@ const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodNam
 const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
 const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
 const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-const typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$5({ index }) {
-    return _from({ typeList: typeList$5, index });
+const typeList$7 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$7({ index }) {
+    return _from({ typeList: typeList$7, index });
 }
-const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$7 });
 
 const singleton$4 = Symbol();
 class System {
@@ -3468,20 +3570,27 @@ class System {
             ProcessStage.Discard
         ];
         this.__componentRepository = ComponentRepository.getInstance();
+        this.__renderingPipeline = WebGLRenderingPipeline;
         if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
     }
     process() {
         this.__processStages.forEach(stage => {
+            const methodName = stage.getMethodName();
+            const args = [];
+            let instanceIDBufferUid = 0;
+            if (methodName === '$prerender') {
+                instanceIDBufferUid = this.__renderingPipeline.common_prerender();
+                args.push(instanceIDBufferUid);
+            }
             const componentTids = this.__componentRepository.getComponentTIDs();
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
                 components.forEach(component => {
-                    const methodName = stage.getMethodName();
                     const method = component[methodName];
                     if (method != null) {
-                        method.apply(component);
+                        method.apply(component, args);
                     }
                 });
             });

@@ -3,6 +3,7 @@ import EntityRepository from '../core/EntityRepository';
 import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import MeshComponent from '../components/MeshComponent';
+import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -15,7 +16,16 @@ test('The system does processes', () => {
 
   const system = System.getInstance();
 
-  system.process();
+  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+
+  var width   = 64
+  var height  = 64
+  var gl = require('gl')(width, height)
+
+  repo.addWebGLContext(gl, true);
+
+
+  //system.process();
 
   //expect(is.defined(null)).toBe(true);
 });

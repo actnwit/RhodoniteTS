@@ -25,8 +25,9 @@ const Int: ComponentTypeEnum = new ComponentTypeClass({index:5124, str:'INT', si
 const UnsingedInt: ComponentTypeEnum = new ComponentTypeClass({index:5125, str:'UNSIGNED_INT', sizeInBytes: 4});
 const Float: ComponentTypeEnum = new ComponentTypeClass({index:5126, str:'FLOAT', sizeInBytes: 4});
 const Double: ComponentTypeEnum = new ComponentTypeClass({index:5127, str:'DOUBLE', sizeInBytes: 8});
+const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({index:0x8D61, str:'HALF_FLOAT_OES', sizeInBytes: 2});
 
-const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
+const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
 
 function from({ index }: { index: number }): ComponentTypeEnum {
   return _from({typeList, index}) as ComponentTypeEnum;
@@ -54,4 +55,4 @@ function fromTypedArray(typedArray: TypedArray) : ComponentTypeEnum {
   return Unknown;
 }
 
-export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from, fromTypedArray });
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from, fromTypedArray });
