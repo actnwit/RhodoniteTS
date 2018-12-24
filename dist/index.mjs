@@ -2021,10 +2021,6 @@ class AccessorBase extends RnObject {
         this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
         this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
-        //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-        // if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-        //   throw new Error('The range of the accessor exceeds the range of the buffer view.')
-        // }
     }
     getTypedArrayClass(componentType) {
         switch (componentType) {
@@ -3330,6 +3326,7 @@ varying vec3 v_color;
 void main ()
 {
   gl_Position = vec4(a_position, 1.0);
+  gl_Position.x += a_instanceID / 5.0;
   v_color = a_color;
 }
   `;
@@ -3689,6 +3686,10 @@ var main = Object.freeze({
     PrimitiveMode,
     GLSLShader,
     System,
+    Vector3,
+    Vector4,
+    Matrix33,
+    Matrix44,
 });
 
 export default main;

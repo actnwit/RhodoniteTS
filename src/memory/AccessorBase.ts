@@ -62,10 +62,6 @@ export default class AccessorBase extends RnObject {
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
 
-    //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-    // if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-    //   throw new Error('The range of the accessor exceeds the range of the buffer view.')
-    // }
   }
 
   getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined
