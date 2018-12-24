@@ -71,21 +71,29 @@
 
 
     
-    const firstEntity = generateEntity();
-    const firstMeshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
-    const primitive = readyBasicVerticesData();
+    // const firstEntity = generateEntity();
+    // const firstMeshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
     
-    const secondEntity = generateEntity();
-    const secondMeshComponent = secondEntity.getComponent(Rn.MeshComponent.componentTID);
-    firstMeshComponent.addPrimitive(primitive);
-    secondMeshComponent.addPrimitive(primitive);
-
-    firstEntity.getTransform.translate = new Rn.Vector3(0.2, 0.0, 0.0);
-    secondEntity.getTransform.translate = new Rn.Vector3(0.0, 0.2, 0.0);
-
     // const secondEntity = generateEntity();
     // const secondMeshComponent = secondEntity.getComponent(Rn.MeshComponent.componentTID);
+    
+    const primitive = readyBasicVerticesData();
+    // firstMeshComponent.addPrimitive(primitive);
     // secondMeshComponent.addPrimitive(primitive);
+
+    // firstEntity.getTransform().translate = new Rn.Vector3(0.2, 0.0, 0.0);
+    // secondEntity.getTransform().translate = new Rn.Vector3(0.0, 0.2, 0.0);
+
+    for (let i=0; i<1000; i++) {
+      const entity = generateEntity();
+      const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
+      meshComponent.addPrimitive(primitive);
+      //entity.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
+      entity.getTransform().translate = new Rn.Vector3(0.1 * i, 0.0, 0.0);
+      entity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, 0.1 * i);
+    }
+
+
 
     const system = Rn.System.getInstance();
     system.process();

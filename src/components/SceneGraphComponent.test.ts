@@ -35,6 +35,8 @@ test('create Parents and children.', () => {
 //  parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
   sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
 
+  console.log(childEntity.getSceneGraph().worldMatrix);
+
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
     new Matrix44(
       1, 0, 0, 3,

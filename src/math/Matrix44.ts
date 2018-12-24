@@ -5,8 +5,8 @@ import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import MathUtil from './MathUtil';
 
-const FloatArray = Float64Array;
-type FloatArray = Float64Array;
+const FloatArray = Float32Array;
+type FloatArray = Float32Array;
 
 export default class Matrix44 {
   m: TypedArray;
@@ -128,7 +128,24 @@ export default class Matrix44 {
 
   copyComponents(mat4: Matrix44) {
     //this.m.set(mat4.m);
-    this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+    //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+    const m = mat4.m;
+    this.m[0] = m[0];
+    this.m[1] = m[1];
+    this.m[2] = m[2];
+    this.m[3] = m[3];
+    this.m[4] = m[4];
+    this.m[5] = m[5];
+    this.m[6] = m[6];
+    this.m[7] = m[7];
+    this.m[8] = m[8];
+    this.m[9] = m[9];
+    this.m[10] = m[10];
+    this.m[11] = m[11];
+    this.m[12] = m[12];
+    this.m[13] = m[13];
+    this.m[14] = m[14];
+    this.m[15] = m[15];
   }
 
   get className() {

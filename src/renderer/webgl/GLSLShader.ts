@@ -4,21 +4,60 @@ export type AttributeNames = Array<string>;
 
 export default class GLSLShader {
   static vertexShader:string = `
+precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_color;
 attribute float a_instanceID;
 
 varying vec3 v_color;
+uniform sampler2D u_dataTexture;
+
+/*
+ * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+ * arg = vec2(1. / size.x, 1. / size.x / size.y);
+ */
+vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+{
+  return texture2D( tex, arg * (index + 0.5) );
+}
+
 void main ()
 {
-  gl_Position = vec4(a_position, 1.0);
-  gl_Position.x += a_instanceID / 5.0;
+  float index = a_instanceID - 1.0;
+  vec2 arg = vec2(0.00048828125, 0.000000238418579);
+  //vec2 arg = vec2(0.00048828125, 0.00048828125);
+   
+  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+  vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+  vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+  vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
+
+  mat4 matrix = mat4(
+    col0.x, col0.y, col0.z, col0.w,
+    col1.x, col1.y, col1.z, col1.w,
+    col2.x, col2.y, col2.z, col2.w,
+    col3.x, col3.y, col3.z, col3.w
+    );
+
+  // mat4 matrix = mat4(
+  //   col0.x, col1.x, col2.x, col3.x,
+  //   col0.y, col1.y, col2.y, col3.y,
+  //   col0.z, col1.z, col2.z, col3.z,
+  //   col0.w, col1.w, col2.w, col3.w
+  //   );
+
+
+  gl_Position = matrix * vec4(a_position, 1.0);
+//  gl_Position = vec4(a_position, 1.0);
+//  gl_Position.x += a_instanceID / 5.0;
+//  gl_Position.x += col0.x / 5.0;
+
   v_color = a_color;
 }
   `;
 
   static fragmentShader:string = `
-  precision mediump float;
+  precision highp float;
   varying vec3 v_color;
   void main ()
   {

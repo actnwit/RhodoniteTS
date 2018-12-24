@@ -45,8 +45,8 @@ export default class TransformComponent extends Component {
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
-  constructor(entityUid: EntityUID) {
-    super(entityUid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+    super(entityUid, componentSid);
 
     const thisClass = TransformComponent;
 
@@ -55,7 +55,7 @@ export default class TransformComponent extends Component {
     this._scale = new Vector3(1, 1, 1);
     this._quaternion = new Quaternion(thisClass.__accesseor_quaternion.takeOne());
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float64Array, false, true);
+    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float32Array, false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -262,7 +262,7 @@ export default class TransformComponent extends Component {
 
     // rotate
     const rotationMatrix = new Matrix44(this.quaternion);
-    const matrix = Matrix44.multiply(rotationMatrix, scaleMatrix);
+    this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
 
     // translate
     const translate = this.translate;
@@ -484,3 +484,4 @@ export default class TransformComponent extends Component {
 }
 
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
+TransformComponent.setupBufferView();

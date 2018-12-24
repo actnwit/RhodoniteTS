@@ -39,23 +39,22 @@ export default class ComponentRepository {
     return (thisClass as any)[singleton];
   }
 
-  createComponent(componentTID: ComponentTID, entityUid: EntityUID) {
+  createComponent(componentTid: ComponentTID, entityUid: EntityUID) {
     const thisClass = ComponentRepository;
-    const componentClass = thisClass.__componentClasses.get(componentTID);
+    const componentClass = thisClass.__componentClasses.get(componentTid);
     if (componentClass != null) {
-      componentClass.setupBufferView();
-      const component = new componentClass(entityUid) as Component;
-      const componentTid = (component as any).constructor.componentTID;
-      let component_sid_count = this.__component_sid_count_map.get(componentTid);
 
+      let component_sid_count = this.__component_sid_count_map.get(componentTid);
       if (!is.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = 0;
       }
       this.__component_sid_count_map.set(
         componentTid,
-        component_sid_count !== undefined ? ++component_sid_count : 1
+        ++component_sid_count!
       );
+
+      const component = new componentClass(entityUid, component_sid_count!) as Component;
 
       if (!this.__components.has(componentTid)) {
         this.__components.set(componentTid, []);
@@ -96,7 +95,10 @@ export default class ComponentRepository {
   }
 
   getComponentsWithType(componentTid: ComponentTID): Array<Component> | undefined {
-    return this.__components.get(componentTid);
+    const components = this.__components.get(componentTid);
+    const copyArray = components!.concat();
+    copyArray.shift();
+    return copyArray;
   }
 
   getComponentTIDs(): Array<ComponentTID> {

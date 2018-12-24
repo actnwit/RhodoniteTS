@@ -20,8 +20,8 @@ export default class MeshRendererComponent extends Component {
   }> = new Map();
   private static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
 
-  constructor(entityUid: EntityUID) {
-    super(entityUid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+    super(entityUid, componentSid);
   }
   static get maxCount() {
     return 1000000;

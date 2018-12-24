@@ -61,10 +61,11 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __createDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
-    this.__dataTextureUid = this.__webglResourceRepository.createTexture(new Float32Array(buffer.getArrayBuffer()), {
+    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
     level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
       border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge
+      wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
     });
   }
 
@@ -74,11 +75,16 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
     const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle)!;
+    const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)!;
     extVAO.bindVertexArrayOES(vao);
-    gl.useProgram(shaderProgram!);
+    gl.useProgram(shaderProgram);
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    gl.uniform1i(uniform_dataTexture, 0);
 
-    ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 4);
+    const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
+    ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
   }
 
 }

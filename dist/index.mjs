@@ -1449,7 +1449,7 @@ class Quaternion {
 //GLBoost["Quaternion"] = Quaternion;
 
 //import GLBoost from '../../globals';
-const FloatArray = Float64Array;
+const FloatArray = Float32Array;
 class Matrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
@@ -1541,7 +1541,24 @@ class Matrix44 {
     }
     copyComponents(mat4) {
         //this.m.set(mat4.m);
-        this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        const m = mat4.m;
+        this.m[0] = m[0];
+        this.m[1] = m[1];
+        this.m[2] = m[2];
+        this.m[3] = m[3];
+        this.m[4] = m[4];
+        this.m[5] = m[5];
+        this.m[6] = m[6];
+        this.m[7] = m[7];
+        this.m[8] = m[8];
+        this.m[9] = m[9];
+        this.m[10] = m[10];
+        this.m[11] = m[11];
+        this.m[12] = m[12];
+        this.m[13] = m[13];
+        this.m[14] = m[14];
+        this.m[15] = m[15];
     }
     get className() {
         return this.constructor.name;
@@ -2667,19 +2684,17 @@ class ComponentRepository {
         }
         return thisClass[singleton$2];
     }
-    createComponent(componentTID, entityUid) {
+    createComponent(componentTid, entityUid) {
         const thisClass = ComponentRepository;
-        const componentClass = thisClass.__componentClasses.get(componentTID);
+        const componentClass = thisClass.__componentClasses.get(componentTid);
         if (componentClass != null) {
-            componentClass.setupBufferView();
-            const component = new componentClass(entityUid);
-            const componentTid = component.constructor.componentTID;
             let component_sid_count = this.__component_sid_count_map.get(componentTid);
             if (!IsUtil.exist(component_sid_count)) {
                 this.__component_sid_count_map.set(componentTid, 0);
                 component_sid_count = 0;
             }
-            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
+            this.__component_sid_count_map.set(componentTid, ++component_sid_count);
+            const component = new componentClass(entityUid, component_sid_count);
             if (!this.__components.has(componentTid)) {
                 this.__components.set(componentTid, []);
             }
@@ -2717,7 +2732,10 @@ class ComponentRepository {
         return memoryBeginIndex;
     }
     getComponentsWithType(componentTid) {
-        return this.__components.get(componentTid);
+        const components = this.__components.get(componentTid);
+        const copyArray = components.concat();
+        copyArray.shift();
+        return copyArray;
     }
     getComponentTIDs() {
         const indices = [];
@@ -2791,9 +2809,9 @@ class EntityRepository {
 EntityRepository.__singletonEnforcer = Symbol();
 
 class Component {
-    constructor(entityUid) {
+    constructor(entityUid, componentSid) {
         this.__entityUid = entityUid;
-        this._component_sid = 0;
+        this._component_sid = componentSid;
         this.__isAlive = true;
         this.__memoryManager = MemoryManager.getInstance();
         this.__entityRepository = EntityRepository.getInstance();
@@ -2837,8 +2855,8 @@ class Component {
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         // dependencies
         this._dependentAnimationComponentId = 0;
         const thisClass = TransformComponent;
@@ -3019,7 +3037,7 @@ class TransformComponent extends Component {
         const scaleMatrix = Matrix44.scale(this.scale);
         // rotate
         const rotationMatrix = new Matrix44(this.quaternion);
-        const matrix = Matrix44.multiply(rotationMatrix, scaleMatrix);
+        this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
         // translate
         const translate = this.translate;
         this._matrix.m03 = translate.x;
@@ -3212,10 +3230,11 @@ class TransformComponent extends Component {
     }
 }
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
+TransformComponent.setupBufferView();
 
 class SceneGraphComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         const thisClass = SceneGraphComponent;
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
@@ -3238,7 +3257,7 @@ class SceneGraphComponent extends Component {
         const buffer = MemoryManager.getInstance().getBufferForGPU();
         const count = EntityRepository.getMaxEntityNumber();
         thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
-        thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count });
+        thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
     }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
@@ -3262,39 +3281,34 @@ class SceneGraphComponent extends Component {
         return this.calcWorldMatrixRecursively();
     }
     get worldMatrix() {
-        return this.calcWorldMatrixRecursively().clone();
+        return this.worldMatrixInner.clone();
+    }
+    $logic() {
+        this.calcWorldMatrixRecursively();
     }
     calcWorldMatrixRecursively() {
         const entity = this.__entityRepository.getEntity(this.__entityUid);
         const transform = entity.getTransform();
-        if (!(this.__parent != null)) {
+        if (this.__parent == null) {
             // if there is not parent
-            //      if (!this.__updatedProperly && entity.getTransform()._dirty) {
             if (transform._dirty) {
-                //this.__updatedProperly = true;
                 transform._dirty = false;
-                this.__worldMatrix = transform.matrix;
+                this.__worldMatrix.copyComponents(transform.matrix);
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
         }
         const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-        //    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-        if (transform._dirty) {
-            //this.__updatedProperly = true;
-            transform._dirty = false;
-            this.__worldMatrix = transform.matrix;
-            //      console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
-        }
-        //console.log('return Skip!', this.__worldMatrix.toString(), this.__entityUid);
-        return Matrix44.multiply(matrixFromAncestorToParent, this.__worldMatrix);
+        this.__worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
+        return this.__worldMatrix;
     }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
+SceneGraphComponent.setupBufferView();
 
 class MeshComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         this.__primitives = [];
     }
     static get maxCount() {
@@ -3318,20 +3332,59 @@ ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshCompo
 class GLSLShader {
 }
 GLSLShader.vertexShader = `
+precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_color;
 attribute float a_instanceID;
 
 varying vec3 v_color;
+uniform sampler2D u_dataTexture;
+
+/*
+ * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+ * arg = vec2(1. / size.x, 1. / size.x / size.y);
+ */
+vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+{
+  return texture2D( tex, arg * (index + 0.5) );
+}
+
 void main ()
 {
-  gl_Position = vec4(a_position, 1.0);
-  gl_Position.x += a_instanceID / 5.0;
+  float index = a_instanceID - 1.0;
+  vec2 arg = vec2(0.00048828125, 0.000000238418579);
+  //vec2 arg = vec2(0.00048828125, 0.00048828125);
+   
+  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+  vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+  vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+  vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
+
+  mat4 matrix = mat4(
+    col0.x, col0.y, col0.z, col0.w,
+    col1.x, col1.y, col1.z, col1.w,
+    col2.x, col2.y, col2.z, col2.w,
+    col3.x, col3.y, col3.z, col3.w
+    );
+
+  // mat4 matrix = mat4(
+  //   col0.x, col1.x, col2.x, col3.x,
+  //   col0.y, col1.y, col2.y, col3.y,
+  //   col0.z, col1.z, col2.z, col3.z,
+  //   col0.w, col1.w, col2.w, col3.w
+  //   );
+
+
+  gl_Position = matrix * vec4(a_position, 1.0);
+//  gl_Position = vec4(a_position, 1.0);
+//  gl_Position.x += a_instanceID / 5.0;
+//  gl_Position.x += col0.x / 5.0;
+
   v_color = a_color;
 }
   `;
 GLSLShader.fragmentShader = `
-  precision mediump float;
+  precision highp float;
   varying vec3 v_color;
   void main ()
   {
@@ -3425,10 +3478,11 @@ const WebGLRenderingPipeline = new class {
     __createDataTexture() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(new Float32Array(buffer.getArrayBuffer()), {
+        const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
             level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
         });
     }
     render(vaoHandle, shaderProgramHandle, primitive) {
@@ -3437,15 +3491,20 @@ const WebGLRenderingPipeline = new class {
         const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
         const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+        const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
         extVAO.bindVertexArrayOES(vao);
         gl.useProgram(shaderProgram);
-        ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 4);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+        gl.uniform1i(uniform_dataTexture, 0);
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
     }
 };
 
 class MeshRendererComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexShaderProgramHandles = [];
         this.__renderingPipeline = WebGLRenderingPipeline;

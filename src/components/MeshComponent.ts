@@ -9,8 +9,8 @@ import { WebGLRenderingPipeline } from '../renderer/webgl/WebGLRenderingPipeline
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
 
-  constructor(entityUid: EntityUID) {
-    super(entityUid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+    super(entityUid, componentSid);
 
   }
   static get maxCount() {
