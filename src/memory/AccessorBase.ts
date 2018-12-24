@@ -28,7 +28,7 @@ export default class AccessorBase extends RnObject {
     super();
     
     this.__bufferView = bufferView;
-    this.__byteOffset = byteOffset;
+    this.__byteOffset = byteOffsetFromBuffer + byteOffset;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
@@ -40,25 +40,32 @@ export default class AccessorBase extends RnObject {
       this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     }
 
-    this.prepare(byteOffsetFromBuffer);
+    this.prepare();
   }
 
-  prepare(byteOffsetFromBuffer:Byte) {
+  prepare() {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
     this.__typedArrayClass = typedArrayClass;
+
+    if (this.__componentType.getSizeInBytes() === 8) {
+      if (this.__byteOffset % 8 !== 0) {
+        console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
+        this.__byteOffset += 8 - this.__byteOffset % 8;
+      }
+    }
     if (this.__bufferView.isSoA) {
-      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
-      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset);
     }
     this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
 
     //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-    if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-      throw new Error('The range of the accessor exceeds the range of the buffer view.')
-    }
+    // if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
+    //   throw new Error('The range of the accessor exceeds the range of the buffer view.')
+    // }
   }
 
   getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined

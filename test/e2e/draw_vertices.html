@@ -69,12 +69,20 @@
 		// バッファをクリアする
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
+
+    
     const firstEntity = generateEntity();
-
+    const firstMeshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
     const primitive = readyBasicVerticesData();
+    
+    const secondEntity = generateEntity();
+    const secondMeshComponent = secondEntity.getComponent(Rn.MeshComponent.componentTID);
+    firstMeshComponent.addPrimitive(primitive);
+    secondMeshComponent.addPrimitive(primitive);
 
-    const meshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
-    meshComponent.addPrimitive(primitive);
+    // const secondEntity = generateEntity();
+    // const secondMeshComponent = secondEntity.getComponent(Rn.MeshComponent.componentTID);
+    // secondMeshComponent.addPrimitive(primitive);
 
     const system = Rn.System.getInstance();
     system.process();

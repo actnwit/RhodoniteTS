@@ -1992,7 +1992,7 @@ class AccessorBase extends RnObject {
         this.__takenCount = 0;
         this.__byteStride = 0;
         this.__bufferView = bufferView;
-        this.__byteOffset = byteOffset;
+        this.__byteOffset = byteOffsetFromBuffer + byteOffset;
         this.__compositionType = compositionType;
         this.__componentType = componentType;
         this.__count = count;
@@ -2001,24 +2001,30 @@ class AccessorBase extends RnObject {
         if (this.__byteStride === 0) {
             this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
         }
-        this.prepare(byteOffsetFromBuffer);
+        this.prepare();
     }
-    prepare(byteOffsetFromBuffer) {
+    prepare() {
         const typedArrayClass = this.getTypedArrayClass(this.__componentType);
         this.__typedArrayClass = typedArrayClass;
+        if (this.__componentType.getSizeInBytes() === 8) {
+            if (this.__byteOffset % 8 !== 0) {
+                console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
+                this.__byteOffset += 8 - this.__byteOffset % 8;
+            }
+        }
         if (this.__bufferView.isSoA) {
-            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+            this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
         }
         else {
-            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
+            this.__dataView = new DataView(this.__raw, this.__byteOffset);
         }
         this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
         this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
         //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-        if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-            throw new Error('The range of the accessor exceeds the range of the buffer view.');
-        }
+        // if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
+        //   throw new Error('The range of the accessor exceeds the range of the buffer view.')
+        // }
     }
     getTypedArrayClass(componentType) {
         switch (componentType) {
@@ -2272,6 +2278,14 @@ class BufferView extends RnObject {
         else {
             byteOffset = this.__takenByteIndex;
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+        }
+        if (byteOffset % 4 !== 0) {
+            console.info('Padding added because of byteOffset is not 4byte aligned.');
+            byteOffset += 4 - byteOffset % 4;
+        }
+        if (this.__byteOffset % 4 !== 0) {
+            console.info('Padding added because of byteOffsetFromBuffer is not 4byte aligned.');
+            this.__byteOffset += 4 - this.__byteOffset % 4;
         }
         const accessor = new accessorClass({
             bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
@@ -3283,8 +3297,6 @@ class SceneGraphComponent extends Component {
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
 class MeshComponent extends Component {
-    //private __instancedEntityUids: Array<EntityUID> = [];
-    //private static __isPrimitiveExisted: Set<ObjectUID> = new Set();
     constructor(entityUid) {
         super(entityUid);
         this.__primitives = [];
@@ -3297,20 +3309,6 @@ class MeshComponent extends Component {
     }
     addPrimitive(primitive) {
         this.__primitives.push(primitive);
-        // if (isInstance) {
-        //   // if (MeshComponent.__instanceCountOfPrimitiveObjectUids.has(primitive.objectUid)) {
-        //   //   const count: Count = MeshComponent.__instanceCountOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        //   //   MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, count+1);
-        //   //   this.__instancedEntityUid = count+1;
-        //   // } else {
-        //   //   this.__instanceId = 1;
-        //   //   MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, 1);
-        //   // }
-        //   this.__instancedEntityUids[this.__primitives.length-1] = this.__entityUid;
-        // } else {
-        //   this.__instancedEntityUids[this.__primitives.length-1] = 0;
-        // }
-        //MeshComponent.__isPrimitiveExisted.add(primitive.objectUid);
     }
     getPrimitiveAt(i) {
         return this.__primitives[i];
@@ -3470,13 +3468,6 @@ class MeshRendererComponent extends Component {
             return false;
         }
     }
-    // private __isInstancedAt(index: Index) {
-    //   if (this.__meshComponent!.getInstancedEntityUid(index) !== 0) {
-    //     return true;
-    //   } else {
-    //     return false;
-    //   }
-    // }
     $create() {
         this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
     }
