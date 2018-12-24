@@ -15,7 +15,9 @@ export default class MeshRendererComponent extends Component {
   private __vertexVaoHandles: Array<{
     vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
   }> = [];
-  private static __vertexVaoHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
+  private static __vertexVaoHandleOfPrimitiveObjectUids: Map<ObjectUID, {
+    vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
+  }> = new Map();
   private static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
 
   constructor(entityUid: EntityUID) {
@@ -63,7 +65,7 @@ export default class MeshRendererComponent extends Component {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       this.__vertexVaoHandles[i] = vertexHandles;
-      MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles.vaoHandle);
+      MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
 
       const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
         GLSLShader.vertexShader,
@@ -77,7 +79,13 @@ export default class MeshRendererComponent extends Component {
   }
 
   $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
-    if (this.__isInstanced()) {
+    if (this.__isInstanced() && !this.__isLoaded()) {
+      const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
+      for(let i=0; i<primitiveNum; i++) {
+        const primitive = this.__meshComponent!.getPrimitiveAt(i);
+        this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+      }
       return;
     }
 
@@ -94,15 +102,7 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      let vaoHandle, shaderProgramHandle;
-      if (this.__isInstanced()) {
-        vaoHandle = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-      } else {
-        vaoHandle = this.__vertexVaoHandles[i].vaoHandle;
-        shaderProgramHandle = this.__vertexShaderProgramHandles[i];
-      }
-      this.__renderingPipeline.render(vaoHandle, shaderProgramHandle, primitive);
+      this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
     }
   }
 
