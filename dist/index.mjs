@@ -3283,6 +3283,7 @@ class MeshComponent extends Component {
     constructor(entityUid) {
         super(entityUid);
         this.__primitives = [];
+        this.__instanceId = 0;
     }
     static get maxCount() {
         return 1000000;
@@ -3290,8 +3291,19 @@ class MeshComponent extends Component {
     static get componentTID() {
         return 3;
     }
-    addPrimitive(primitive) {
+    addPrimitive(primitive, isInstance = false) {
         this.__primitives.push(primitive);
+        if (isInstance) {
+            if (MeshComponent.__instanceCountOfPrimitiveObjectUids.has(primitive.objectUid)) {
+                const count = MeshComponent.__instanceCountOfPrimitiveObjectUids.get(primitive.objectUid);
+                MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, count + 1);
+                this.__instanceId = count + 1;
+            }
+            else {
+                this.__instanceId = 1;
+                MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, 1);
+            }
+        }
     }
     getPrimitiveAt(i) {
         return this.__primitives[i];
@@ -3299,7 +3311,11 @@ class MeshComponent extends Component {
     getPrimitiveNumber() {
         return this.__primitives.length;
     }
+    get instanceID() {
+        return this.__instanceId;
+    }
 }
+MeshComponent.__instanceCountOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
 class GLSLShader {
@@ -3449,6 +3465,14 @@ class MeshRendererComponent extends Component {
             return false;
         }
     }
+    __isInstanced() {
+        if (this.__meshComponent.instanceID !== 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     $create() {
         this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
     }
@@ -3456,16 +3480,24 @@ class MeshRendererComponent extends Component {
         if (this.__isLoaded()) {
             return;
         }
+        if (this.__isInstanced()) {
+            return;
+        }
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
             this.__vertexVaoHandles[i] = vertexHandles;
+            MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles.vaoHandle);
             const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
             this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
         }
     }
     $prerender(instanceIDBufferUid) {
+        if (this.__isInstanced()) {
+            return;
+        }
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
@@ -3476,10 +3508,21 @@ class MeshRendererComponent extends Component {
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
-            this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
+            let vaoHandle, shaderProgramHandle;
+            if (this.__isInstanced()) {
+                vaoHandle = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            }
+            else {
+                vaoHandle = this.__vertexVaoHandles[i].vaoHandle;
+                shaderProgramHandle = this.__vertexShaderProgramHandles[i];
+            }
+            this.__renderingPipeline.render(vaoHandle, shaderProgramHandle, primitive);
         }
     }
 }
+MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
 class Primitive extends RnObject {

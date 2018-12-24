@@ -8,6 +8,8 @@ import { WebGLRenderingPipeline } from '../renderer/webgl/WebGLRenderingPipeline
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
+  private __instanceId: Index = 0;
+  private static __instanceCountOfPrimitiveObjectUids: Map<ObjectUID, Count> = new Map();
 
   constructor(entityUid: EntityUID) {
     super(entityUid);
@@ -21,15 +23,30 @@ export default class MeshComponent extends Component {
     return 3;
   }
 
-  addPrimitive(primitive: Primitive) {
+  addPrimitive(primitive: Primitive, isInstance: boolean = false) {
     this.__primitives.push(primitive);
+
+    if (isInstance) {
+      if (MeshComponent.__instanceCountOfPrimitiveObjectUids.has(primitive.objectUid)) {
+        const count: Count = MeshComponent.__instanceCountOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, count+1);
+        this.__instanceId = count+1;
+      } else {
+        this.__instanceId = 1;
+        MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, 1);
+      }
+    }
   }
 
-  getPrimitiveAt(i:number) {
+  getPrimitiveAt(i: number) {
     return this.__primitives[i];
   }
   getPrimitiveNumber() {
     return this.__primitives.length;
+  }
+
+  get instanceID(): Index {
+    return this.__instanceId;
   }
 
 
