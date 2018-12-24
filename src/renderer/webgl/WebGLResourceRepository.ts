@@ -2,13 +2,15 @@ import Accessor from "../../memory/Accessor";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import Primitive from "../../geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
-import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute } from "../../definitions/VertexAttribute";
 import { WebGLExtension, WebGLExtensionEnum } from "../../definitions/WebGLExtension";
 import MemoryManager from "../../core/MemoryManager";
 import { TextureParameterEnum } from "../../definitions/TextureParameter";
 import { PixelFormatEnum } from "../../definitions/PixelFormat";
 import { ComponentTypeEnum } from "../../main";
 import Buffer from "../../memory/Buffer";
+import { CompositionType } from "../../definitions/CompositionType";
+import { ComponentType } from "../../definitions/ComponentType";
 const singleton:any = Symbol();
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -210,7 +212,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setVertexDataToShaderProgram(
     {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
     shaderProgramHandle: WebGLResourceHandle,
-    primitive: Primitive)
+    primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = 0)
   {
     const gl = this.__gl!;
 
@@ -240,13 +242,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         throw new Error('Nothing Element Array Buffer at index '+ i);
       }
       gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-      console.log(        primitive.attributeSemantics[i].index,
-        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
-        primitive.attributeComponentTypes[i].index,
-        false,
-        primitive.attributeAccessors[i].byteStride,
-        primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength
-);
       gl.vertexAttribPointer(
         primitive.attributeSemantics[i].index,
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
@@ -256,6 +251,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         0
         );
     });
+
+    // for InstanceIDBuffer
+    if (instanceIDBufferUid !== 0) {
+      const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
+      if (instanceIDBuffer != null) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
+      } else {
+        throw new Error('Nothing Element Array Buffer at index');
+      }
+      gl.enableVertexAttribArray(VertexAttribute.Instance.index);
+      gl.vertexAttribPointer(
+        VertexAttribute.Instance.index,
+        CompositionType.Scalar.getNumberOfComponents(),
+        ComponentType.Float.index,
+        false,
+        0,
+        0
+        );
+    }
+
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     extVAO.bindVertexArrayOES(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);

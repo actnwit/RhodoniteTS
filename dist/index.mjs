@@ -22,6 +22,29 @@ function _from({ typeList, index }) {
     return match;
 }
 
+class VertexAttributeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
+const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
+const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
+const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
+const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
+const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
+const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
+const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
+const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
+const Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
+const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
+function from({ index }) {
+    return _from({ typeList, index });
+}
+const VertexAttribute = Object.freeze({
+    Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
+});
+
 class WebGLExtensionClass extends EnumClass {
     constructor({ index, str }) {
         super({ index, str });
@@ -56,7 +79,7 @@ class ComponentTypeClass extends EnumClass {
         return this.__sizeInBytes;
     }
 }
-const Unknown = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
+const Unknown$1 = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
 const Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
 const UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
 const Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
@@ -66,9 +89,9 @@ const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', s
 const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
 const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
 const HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
-const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
+const typeList$2 = [Unknown$1, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
 }
 function fromTypedArray(typedArray) {
     if (typedArray instanceof Int8Array) {
@@ -95,9 +118,9 @@ function fromTypedArray(typedArray) {
     else if (typedArray instanceof Float64Array) {
         return Double;
     }
-    return Unknown;
+    return Unknown$1;
 }
-const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$1, fromTypedArray });
+const ComponentType = Object.freeze({ Unknown: Unknown$1, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$2, fromTypedArray });
 
 class CompositionTypeClass extends EnumClass {
     constructor({ index, str, numberOfComponents }) {
@@ -109,7 +132,7 @@ class CompositionTypeClass extends EnumClass {
         return this.__numberOfComponents;
     }
 }
-const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
+const Unknown$2 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
 const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
 const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
 const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
@@ -117,11 +140,11 @@ const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponent
 const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
 const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
 const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
-const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
+const typeList$3 = [Unknown$2, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$3({ index }) {
+    return _from({ typeList: typeList$3, index });
 }
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
+const CompositionType = Object.freeze({ Unknown: Unknown$2, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$3 });
 
 class _Vector2 {
     constructor(typedArray, x, y) {
@@ -2493,7 +2516,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
-    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
+    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive, instanceIDBufferUid = 0) {
         const gl = this.__gl;
         const vao = this.getWebGLResource(vaoHandle);
         const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
@@ -2520,9 +2543,20 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
             gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
+        // for InstanceIDBuffer
+        if (instanceIDBufferUid !== 0) {
+            const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
+            if (instanceIDBuffer != null) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
+            }
+            else {
+                throw new Error('Nothing Element Array Buffer at index');
+            }
+            gl.enableVertexAttribArray(VertexAttribute.Instance.index);
+            gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
+        }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         extVAO.bindVertexArrayOES(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -2778,7 +2812,7 @@ class Component {
     }
     $logic() {
     }
-    $prerender() {
+    $prerender(instanceIDBufferUid) {
     }
     $render() {
     }
@@ -3269,27 +3303,6 @@ class MeshComponent extends Component {
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
-class VertexAttributeClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const Unknown$2 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
-const typeList$3 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
-function from$3({ index }) {
-    return _from({ typeList: typeList$3, index });
-}
-const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
-
 class GLSLShader {
 }
 GLSLShader.vertexShader = `
@@ -3448,11 +3461,11 @@ class MeshRendererComponent extends Component {
             this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
         }
     }
-    $prerender() {
+    $prerender(instanceIDBufferUid) {
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
-            this.__webglResourceRepository.setVertexDataToShaderProgram(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
+            this.__webglResourceRepository.setVertexDataToShaderProgram(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive, instanceIDBufferUid);
         }
     }
     $render() {

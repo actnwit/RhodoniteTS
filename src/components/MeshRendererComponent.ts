@@ -59,11 +59,13 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  $prerender() {
+  $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToShaderProgram(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
+      this.__webglResourceRepository.setVertexDataToShaderProgram(
+        this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive, instanceIDBufferUid
+        );
     }
   }
 

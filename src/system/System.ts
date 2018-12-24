@@ -32,7 +32,7 @@ export default class System {
     this.__processStages.forEach(stage=>{
       const methodName = stage.getMethodName();
       const args:Array<any> = [];
-      let instanceIDBufferUid = 0;
+      let instanceIDBufferUid: CGAPIResourceHandle = 0;
       if (methodName === '$prerender') {
         instanceIDBufferUid = this.__renderingPipeline.common_prerender();
         args.push(instanceIDBufferUid);

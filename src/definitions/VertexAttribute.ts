@@ -20,10 +20,12 @@ const Joints0: VertexAttributeEnum = new VertexAttributeClass({index:6, str:'JOI
 const Weights0: VertexAttributeEnum = new VertexAttributeClass({index:7, str:'WEIGHTS_0'});
 const Instance: VertexAttributeEnum = new VertexAttributeClass({index:4, str:'INSTANCE'});
 
-const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
+const typeList = [ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance ];
 
 function from({ index }: { index: number }): VertexAttributeEnum {
   return _from({typeList, index});
 }
 
-export const VertexAttribute = Object.freeze({ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from });
+export const VertexAttribute = Object.freeze({
+  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
+});
