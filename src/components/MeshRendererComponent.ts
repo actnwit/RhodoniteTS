@@ -39,8 +39,8 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  private __isInstanced() {
-    if (this.__meshComponent!.instanceID !== 0) {
+  private __isInstancedAt(index: Index) {
+    if (this.__meshComponent!.getInstancedEntityUid(index) !== 0) {
       return true;
     } else {
       return false;
@@ -56,12 +56,12 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    if (this.__isInstanced()) {
-      return;
-    }
 
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
+      if (this.__isInstancedAt(i)) {
+        continue;
+      }
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       this.__vertexVaoHandles[i] = vertexHandles;
@@ -79,19 +79,14 @@ export default class MeshRendererComponent extends Component {
   }
 
   $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
-    if (this.__isInstanced() && !this.__isLoaded()) {
-      const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-      for(let i=0; i<primitiveNum; i++) {
-        const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-      }
-      return;
-    }
-
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
+      if (this.__isInstancedAt(i) && !this.__isLoaded()) {
+        this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        continue;
+      }
       this.__webglResourceRepository.setVertexDataToShaderProgram(
         this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive, instanceIDBufferUid
         );

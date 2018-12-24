@@ -8,8 +8,8 @@ import { WebGLRenderingPipeline } from '../renderer/webgl/WebGLRenderingPipeline
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
-  private __instanceId: Index = 0;
-  private static __instanceCountOfPrimitiveObjectUids: Map<ObjectUID, Count> = new Map();
+  private __instancedEntityUids: Array<EntityUID> = [];
+//  private static __instanceCountOfPrimitiveObjectUids: Map<ObjectUID, Count> = new Map();
 
   constructor(entityUid: EntityUID) {
     super(entityUid);
@@ -27,14 +27,17 @@ export default class MeshComponent extends Component {
     this.__primitives.push(primitive);
 
     if (isInstance) {
-      if (MeshComponent.__instanceCountOfPrimitiveObjectUids.has(primitive.objectUid)) {
-        const count: Count = MeshComponent.__instanceCountOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, count+1);
-        this.__instanceId = count+1;
-      } else {
-        this.__instanceId = 1;
-        MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, 1);
-      }
+      // if (MeshComponent.__instanceCountOfPrimitiveObjectUids.has(primitive.objectUid)) {
+      //   const count: Count = MeshComponent.__instanceCountOfPrimitiveObjectUids.get(primitive.objectUid)!;
+      //   MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, count+1);
+      //   this.__instancedEntityUid = count+1;
+      // } else {
+      //   this.__instanceId = 1;
+      //   MeshComponent.__instanceCountOfPrimitiveObjectUids.set(primitive.objectUid, 1);
+      // }
+      this.__instancedEntityUids[this.__primitives.length-1] = this.__entityUid;
+    } else {
+      this.__instancedEntityUids[this.__primitives.length-1] = 0;
     }
   }
 
@@ -45,10 +48,9 @@ export default class MeshComponent extends Component {
     return this.__primitives.length;
   }
 
-  get instanceID(): Index {
-    return this.__instanceId;
+  getInstancedEntityUid(index: Index): EntityUID {
+    return this.__instancedEntityUids[index];
   }
-
 
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
