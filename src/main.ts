@@ -3,6 +3,7 @@ import EntityRepository from './core/EntityRepository';
 import TransformComponent from './components/TransformComponent';
 import SceneGraphComponent from './components/SceneGraphComponent';
 import MeshComponent from './components/MeshComponent';
+import MeshRendererComponent from './components/MeshRendererComponent';
 import Primitive from './geometry/Primitive';
 import { PrimitiveMode, PrimitiveModeEnum } from './definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttribute';
@@ -16,6 +17,7 @@ export default Object.freeze({
   TransformComponent,
   SceneGraphComponent,
   MeshComponent,
+  MeshRendererComponent,
   Primitive,
   WebGLResourceRepository,
   CompositionType,

@@ -3246,6 +3246,29 @@ class SceneGraphComponent extends Component {
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
+class MeshComponent extends Component {
+    constructor(entityUid) {
+        super(entityUid);
+        this.__primitives = [];
+    }
+    static get maxCount() {
+        return 1000000;
+    }
+    static get componentTID() {
+        return 3;
+    }
+    addPrimitive(primitive) {
+        this.__primitives.push(primitive);
+    }
+    getPrimitiveAt(i) {
+        return this.__primitives[i];
+    }
+    getPrimitiveNumber() {
+        return this.__primitives.length;
+    }
+}
+ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
+
 class VertexAttributeClass extends EnumClass {
     constructor({ index, str }) {
         super({ index, str });
@@ -3387,31 +3410,21 @@ const WebGLRenderingPipeline = new class {
     }
 };
 
-class MeshComponent extends Component {
+class MeshRendererComponent extends Component {
     constructor(entityUid) {
         super(entityUid);
-        this.__primitives = [];
-        this.__vertexVaoHandles = [];
-        this.__vertexShaderProgramHandles = [];
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__vertexShaderProgramHandles = [];
         this.__renderingPipeline = WebGLRenderingPipeline;
+        this.__vertexVaoHandles = [];
     }
     static get maxCount() {
         return 1000000;
     }
     static get componentTID() {
-        return 3;
+        return 4;
     }
-    addPrimitive(primitive) {
-        this.__primitives.push(primitive);
-    }
-    getPrimitiveAt(i) {
-        return this.__primitives[i];
-    }
-    getPrimitiveNumber() {
-        return this.__primitives.length;
-    }
-    isReady() {
+    __isLoaded() {
         if (this.__vertexVaoHandles.length > 0) {
             return true;
         }
@@ -3419,25 +3432,38 @@ class MeshComponent extends Component {
             return false;
         }
     }
-    $prerender() {
-        if (this.isReady()) {
+    $create() {
+        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
+    }
+    $load() {
+        if (this.__isLoaded()) {
             return;
         }
-        this.__primitives.forEach((primitive, i) => {
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexVaoHandles[i] = vertexHandles.vaoHandle;
+            this.__vertexVaoHandles[i] = vertexHandles;
             const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
             this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-            this.__webglResourceRepository.setVertexDataToShaderProgram(vertexHandles, shaderProgramHandle, primitive);
-        });
+        }
+    }
+    $prerender() {
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            this.__webglResourceRepository.setVertexDataToShaderProgram(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
+        }
     }
     $render() {
-        this.__primitives.forEach((primitive, i) => {
-            this.__renderingPipeline.render(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
-        });
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
+        }
     }
 }
-ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
+ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
 class Primitive extends RnObject {
     constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
@@ -3610,6 +3636,7 @@ var main = Object.freeze({
     TransformComponent,
     SceneGraphComponent,
     MeshComponent,
+    MeshRendererComponent,
     Primitive,
     WebGLResourceRepository,
     CompositionType,

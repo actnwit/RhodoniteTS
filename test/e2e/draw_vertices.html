@@ -21,7 +21,7 @@
 
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
-      const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID]);
+      const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
       return entity;
     }
 
