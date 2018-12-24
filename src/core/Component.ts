@@ -25,6 +25,10 @@ export default class Component {
     return this._component_sid;
   }
 
+  get entityUID() {
+    return this.__entityUid;
+  }
+
   static get byteSizeOfThisComponent() {
     return 0;
   }

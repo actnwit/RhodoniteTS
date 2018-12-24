@@ -31,19 +31,11 @@ export default class MeshRendererComponent extends Component {
     return 4;
   }
 
-  private __isLoaded() {
-    if (this.__vertexVaoHandles.length > 0) {
+  private __isLoaded(index: Index) {
+    if (this.__vertexVaoHandles[index] != null) {
       return true;
     } else {
       return false
-    }
-  }
-
-  private __isInstancedAt(index: Index) {
-    if (this.__meshComponent!.getInstancedEntityUid(index) !== 0) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -52,14 +44,10 @@ export default class MeshRendererComponent extends Component {
   }
 
   $load() {
-    if (this.__isLoaded()) {
-      return;
-    }
-
 
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      if (this.__isInstancedAt(i)) {
+      if (this.__isLoaded(i)) {
         continue;
       }
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
@@ -82,10 +70,9 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      if (this.__isInstancedAt(i) && !this.__isLoaded()) {
+      if (this.__isLoaded(i)) {
         this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
         this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        continue;
       }
       this.__webglResourceRepository.setVertexDataToShaderProgram(
         this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive, instanceIDBufferUid

@@ -9,13 +9,16 @@ import { PixelFormat } from "../../definitions/PixelFormat";
 import { ComponentType } from "../../definitions/ComponentType";
 import EntityRepository from "../../core/EntityRepository";
 import { CompositionType } from "../../definitions/CompositionType";
+import ComponentRepository from "../../core/ComponentRepository";
+import MeshComponent from "../../components/MeshComponent";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = 0;
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
 
-  common_prerender():CGAPIResourceHandle {
+  common_prerender(): CGAPIResourceHandle {
     const gl = this.__webglResourceRepository.currentWebGLContext;
 
     if (gl == null) {
@@ -47,8 +50,9 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
     const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
 
-    for (var i = 0; i < count; i++) {
-      accesseor.setScalar(i, i);
+    const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
+    for (var i = 0; i < meshComponents.length; i++) {
+      accesseor.setScalar(i, meshComponents[i].entityUID);
     }
 
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);

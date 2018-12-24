@@ -33,11 +33,11 @@ export default class System {
       const methodName = stage.getMethodName();
       const args:Array<any> = [];
       let instanceIDBufferUid: CGAPIResourceHandle = 0;
+      const componentTids = this.__componentRepository.getComponentTIDs();
       if (methodName === '$prerender') {
         instanceIDBufferUid = this.__renderingPipeline.common_prerender();
         args.push(instanceIDBufferUid);
       }
-      const componentTids = this.__componentRepository.getComponentTIDs();
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
         components.forEach(component=>{
