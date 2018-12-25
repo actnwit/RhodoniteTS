@@ -132,23 +132,10 @@
 		// バッファをクリアする
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
-
-    
-    // const firstEntity = generateEntity();
-    // const firstMeshComponent = firstEntity.getComponent(Rn.MeshComponent.componentTID);
-    
-    // const secondEntity = generateEntity();
-    // const secondMeshComponent = secondEntity.getComponent(Rn.MeshComponent.componentTID);
-    
     const primitive = readyBasicVerticesData();
-    // firstMeshComponent.addPrimitive(primitive);
-    // secondMeshComponent.addPrimitive(primitive);
-
-    // firstEntity.getTransform().translate = new Rn.Vector3(0.2, 0.0, 0.0);
-    // secondEntity.getTransform().translate = new Rn.Vector3(0.0, 0.2, 0.0);
 
     const entities = [];
-    const entityNumber = 1000;
+    const entityNumber = 100;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();

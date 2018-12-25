@@ -284,8 +284,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.getExtension(WebGLExtension.TextureFloatLinear);
     this.getExtension(WebGLExtension.TextureHalfFloatLinear);
 
-    const memoryManager:MemoryManager = MemoryManager.getInstance();
-    //const buffer: Buffer = memoryManager.getBufferForGPU();
     const dataTexture = gl.createTexture();
 
     const resourceHandle = this.getResourceNumber();

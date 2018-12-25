@@ -61,50 +61,59 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   private __createDataTexture() {
     if (this.__dataTextureUid !== 0) {
-      //return;
       this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = 0;
     }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-    
-    // const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-    // let convertLength = buffer.byteSizeInUse / 4; //components
-    // convertLength /= 2; // bytes
-    // for (let i=0; i<convertLength; i++) {
-    //   halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-    // }
 
-    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-    });
+    const isHalfFloatMode = true;
+    if (isHalfFloatMode) {
 
-    // this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDateTextureBuffer, {
-    //   level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
-    //     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-    //     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-    //   });
+      const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+      let convertLength = buffer.byteSizeInUse / 4; //components
+      convertLength /= 2; // bytes
+      for (let i=0; i<convertLength; i++) {
+        halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+      }
+
+      this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDateTextureBuffer, {
+        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+          border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+        });
+
+    } else {
+      this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+      level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+      });
+    }
+
   }
 
   render(vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
     const gl = this.__webglResourceRepository.currentWebGLContext!;
     const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
-
     const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle)!;
-    const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)!;
     extVAO.bindVertexArrayOES(vao);
     gl.useProgram(shaderProgram);
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-    gl.uniform1i(uniform_dataTexture, 0);
+
+    this.__setDataTexture(gl, shaderProgram);
 
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
     ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
   }
 
+
+  private __setDataTexture(gl: WebGLRenderingContext, shaderProgram: WebGLObject) {
+    const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)!;
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    gl.uniform1i(uniform_dataTexture, 0);
+  }
 }
