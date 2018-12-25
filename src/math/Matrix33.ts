@@ -1,7 +1,6 @@
 // import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
-import MathUtil from './MathUtil';
 import Quaternion from './Quaternion';
 
 export default class Matrix33 {

@@ -7,84 +7,50 @@ import Quaternion from './Quaternion';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class Matrix44 {
+export default class RowMajarMatrix44 {
   m: TypedArray;
 
-  constructor(m: FloatArray, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Array<number>, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: FloatArray, notCopyFloatArray?:Boolean);
+  constructor(m: Array<number>, notCopyFloatArray?:Boolean);
+  constructor(m: Matrix33, notCopyFloatArray?:Boolean);
+  constructor(m: RowMajarMatrix44, notCopyFloatArray?:Boolean);
+  constructor(m: Quaternion, notCopyFloatArray?:Boolean);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
     m4: number, m5: number, m6: number, m7: number,
     m8: number, m9: number, m10: number, m11: number,
     m12: number, m13: number, m14: number, m15: number,
-    isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+    notCopyFloatArray?:Boolean);
   constructor(
-    m0: any, m1: any, m2: any, m3?: any,
+    m0: any, m1: any, m2?: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor:Boolean = false, notCopyFloatArray:Boolean = false) {
+    notCopyFloatArray:Boolean = false) {
   
-    const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
+    const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
      
     const m = m0;
 
     if (arguments.length >= 16) {
-      this.m = new FloatArray(16); // Data order is column major
-      if (_isColumnMajor === true) {
-        let m = arguments;
-        this.setComponents(
-          m[0], m[4], m[8], m[12],
-          m[1], m[5], m[9], m[13],
-          m[2], m[6], m[10], m[14],
-          m[3], m[7], m[11], m[15]);
-      } else {
-        this.setComponents.apply(this, arguments as any);  // arguments[0-15] must be row major values if isColumnMajor is false
-      }
+      this.m = new FloatArray(16); // Data order is row major
+        this.setComponents.apply(this, arguments as any);
     } else if (Array.isArray(m as Array<number>)) {
       this.m = new FloatArray(16);
-      if (_isColumnMajor === true) {
-        this.setComponents(
-          m[0], m[4], m[8], m[12],
-          m[1], m[5], m[9], m[13],
-          m[2], m[6], m[10], m[14],
-          m[3], m[7], m[11], m[15]);
-      } else {
-        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-      }
+      this.setComponents.apply(this, m);
     } else if (m instanceof FloatArray) {
       if (_notCopyFloatArray) {
         this.m = m;
       } else {
         this.m = new FloatArray(16);
-        if (_isColumnMajor === true) {
-          this.setComponents(
-            m[0], m[4], m[8], m[12],
-            m[1], m[5], m[9], m[13],
-            m[2], m[6], m[10], m[14],
-            m[3], m[7], m[11], m[15]);
-        } else {
-          this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-        }  
+        this.setComponents.apply(this, m as any); // 'm' must be row major array if isColumnMajor is false
       }
     } else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
       if (_notCopyFloatArray) {
         this.m = m.m;
       } else {
         this.m = new FloatArray(16);
-        if (_isColumnMajor === true) {
-          this.setComponents(
-            m.m00, m.m01, m.m02, 0,
-            m.m10, m.m11, m.m12, 0,
-            m.m20, m.m21, m.m22, 0,
-            0, 0, 0, 1);
-        } else {
-          this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
-        }  
+        this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
       }
     } else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
       this.m = new FloatArray(16);
@@ -117,34 +83,52 @@ export default class Matrix44 {
     m20:number, m21:number, m22:number, m23:number,
     m30:number, m31:number, m32:number, m33:number
     ) {
-    this.m[0] = m00; this.m[4] = m01; this.m[8] = m02; this.m[12] = m03;
-    this.m[1] = m10; this.m[5] = m11; this.m[9] = m12; this.m[13] = m13;
-    this.m[2] = m20; this.m[6] = m21; this.m[10] = m22; this.m[14] = m23;
-    this.m[3] = m30; this.m[7] = m31; this.m[11] = m32; this.m[15] = m33;
+    this.m[0] = m00; this.m[4] = m10; this.m[8] = m20; this.m[12] = m30;
+    this.m[1] = m01; this.m[5] = m11; this.m[9] = m21; this.m[13] = m31;
+    this.m[2] = m02; this.m[6] = m12; this.m[10] = m22; this.m[14] = m32;
+    this.m[3] = m03; this.m[7] = m13; this.m[11] = m23; this.m[15] = m33;
 
     return this;
   }
 
-  copyComponents(mat4: Matrix44) {
+  copyComponents(mat4: RowMajarMatrix44) {
     //this.m.set(mat4.m);
     //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
-    const m = mat4.m;
-    this.m[0] = m[0];
-    this.m[1] = m[1];
-    this.m[2] = m[2];
-    this.m[3] = m[3];
-    this.m[4] = m[4];
-    this.m[5] = m[5];
-    this.m[6] = m[6];
-    this.m[7] = m[7];
-    this.m[8] = m[8];
-    this.m[9] = m[9];
-    this.m[10] = m[10];
-    this.m[11] = m[11];
-    this.m[12] = m[12];
-    this.m[13] = m[13];
-    this.m[14] = m[14];
-    this.m[15] = m[15];
+    const m = mat4;
+    // this.m[0] = m[0];
+    // this.m[1] = m[1];
+    // this.m[2] = m[2];
+    // this.m[3] = m[3];
+    // this.m[4] = m[4];
+    // this.m[5] = m[5];
+    // this.m[6] = m[6];
+    // this.m[7] = m[7];
+    // this.m[8] = m[8];
+    // this.m[9] = m[9];
+    // this.m[10] = m[10];
+    // this.m[11] = m[11];
+    // this.m[12] = m[12];
+    // this.m[13] = m[13];
+    // this.m[14] = m[14];
+    // this.m[15] = m[15];
+
+    this.m00 = m.m00;
+    this.m01 = m.m01;
+    this.m02 = m.m02;
+    this.m03 = m.m03;
+    this.m10 = m.m10;
+    this.m11 = m.m11;
+    this.m12 = m.m12;
+    this.m13 = m.m13;
+    this.m20 = m.m20;
+    this.m21 = m.m21;
+    this.m22 = m.m22;
+    this.m23 = m.m23;
+    this.m30 = m.m30;
+    this.m31 = m.m31;
+    this.m32 = m.m32;
+    this.m33 = m.m33;
+
   }
 
   get className() {
@@ -152,11 +136,11 @@ export default class Matrix44 {
   }
 
   clone() {
-    return new Matrix44(
-      this.m[0], this.m[4], this.m[8], this.m[12],
-      this.m[1], this.m[5], this.m[9], this.m[13],
-      this.m[2], this.m[6], this.m[10], this.m[14],
-      this.m[3], this.m[7], this.m[11], this.m[15]
+    return new RowMajarMatrix44(
+      this.m[0], this.m[1], this.m[2], this.m[3],
+      this.m[4], this.m[5], this.m[6], this.m[7],
+      this.m[8], this.m[9], this.m[10], this.m[11],
+      this.m[12], this.m[13], this.m[14], this.m[15]
     );
   }
 
@@ -177,7 +161,7 @@ export default class Matrix44 {
    * to the identity matrix（static版）
    */
   static identity() {
-    return new Matrix44(
+    return new RowMajarMatrix44(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -185,7 +169,7 @@ export default class Matrix44 {
     );
   }
 
-  isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
+  isEqual(mat: RowMajarMatrix44, delta: number = Number.EPSILON) {
     if (Math.abs(mat.m[0] - this.m[0]) < delta &&
       Math.abs(mat.m[1] - this.m[1]) < delta &&
       Math.abs(mat.m[2] - this.m[2]) < delta &&
@@ -228,7 +212,7 @@ export default class Matrix44 {
   }
 
   static translate(vec:Vector3) {
-    return new Matrix44(
+    return new RowMajarMatrix44(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
       0, 0, 1, vec.z,
@@ -246,7 +230,7 @@ export default class Matrix44 {
   }
 
   static scale(vec: Vector3) {
-    return new Matrix44(
+    return new RowMajarMatrix44(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
       0, 0, vec.z, 0,
@@ -281,7 +265,7 @@ export default class Matrix44 {
   static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new RowMajarMatrix44(
       1, 0, 0, 0,
       0, cos, -sin, 0,
       0, sin, cos, 0,
@@ -309,7 +293,7 @@ export default class Matrix44 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new RowMajarMatrix44(
       cos, 0, sin, 0,
       0, 1, 0, 0,
       -sin, 0, cos, 0,
@@ -336,7 +320,7 @@ export default class Matrix44 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new Matrix44(
+    return new RowMajarMatrix44(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
       0, 0, 1, 0,
@@ -345,7 +329,7 @@ export default class Matrix44 {
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return new Matrix44(Matrix33.rotateXYZ(x, y, z));
+    return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
   }
 
   /**
@@ -376,7 +360,7 @@ export default class Matrix44 {
   }
 
   static zero() {
-    return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   flatten() {
@@ -411,9 +395,9 @@ export default class Matrix44 {
   /**
    * transpose(static version)
    */
-  static transpose(mat:Matrix44) {
+  static transpose(mat: RowMajarMatrix44) {
 
-    var mat_t = new Matrix44(
+    var mat_t = new RowMajarMatrix44(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -435,7 +419,7 @@ export default class Matrix44 {
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat: Matrix44) {
+  multiply(mat: RowMajarMatrix44) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20 + this.m03*mat.m30;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21 + this.m03*mat.m31;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22 + this.m03*mat.m32;
@@ -464,7 +448,7 @@ export default class Matrix44 {
     );
   }
 
-  multiplyByLeft(mat:Matrix44) {
+  multiplyByLeft(mat: RowMajarMatrix44) {
     var m00 = mat.m00*this.m00 + mat.m01*this.m10 + mat.m02*this.m20 + mat.m03*this.m30;
     var m01 = mat.m00*this.m01 + mat.m01*this.m11 + mat.m02*this.m21 + mat.m03*this.m31;
     var m02 = mat.m00*this.m02 + mat.m01*this.m12 + mat.m02*this.m22 + mat.m03*this.m32;
@@ -496,7 +480,7 @@ export default class Matrix44 {
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m:Matrix44, r_m:Matrix44) {
+  static multiply(l_m: RowMajarMatrix44, r_m: RowMajarMatrix44) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20 + l_m.m03*r_m.m30;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20 + l_m.m13*r_m.m30;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20 + l_m.m23*r_m.m30;
@@ -517,7 +501,7 @@ export default class Matrix44 {
     var m23 = l_m.m20*r_m.m03 + l_m.m21*r_m.m13 + l_m.m22*r_m.m23 + l_m.m23*r_m.m33;
     var m33 = l_m.m30*r_m.m03 + l_m.m31*r_m.m13 + l_m.m32*r_m.m23 + l_m.m33*r_m.m33;
 
-    return new Matrix44(
+    return new RowMajarMatrix44(
         m00, m01, m02, m03,
         m10, m11, m12, m13,
         m20, m21, m22, m23,
@@ -537,7 +521,7 @@ export default class Matrix44 {
       this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
   }
 
-  static determinant(mat:Matrix44) {
+  static determinant(mat: RowMajarMatrix44) {
     return mat.m00*mat.m11*mat.m22*mat.m33 + mat.m00*mat.m12*mat.m23*mat.m31 + mat.m00*mat.m13*mat.m21*mat.m32 +
       mat.m01*mat.m10*mat.m23*mat.m32 + mat.m01*mat.m12*mat.m20*mat.m33 + mat.m01*mat.m13*mat.m22*mat.m30 +
       mat.m02*mat.m10*mat.m21*mat.m33 + mat.m02*mat.m11*mat.m23*mat.m30 + mat.m02*mat.m13*mat.m20*mat.m31 +
@@ -576,7 +560,7 @@ export default class Matrix44 {
     );
   }
 
-  static invert(mat:Matrix44) {
+  static invert(mat: RowMajarMatrix44) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22*mat.m33 + mat.m12*mat.m23*mat.m31 + mat.m13*mat.m21*mat.m32 - mat.m11*mat.m23*mat.m32 - mat.m12*mat.m21*mat.m33 - mat.m13*mat.m22*mat.m31) / det;
     var m01 = (mat.m01*mat.m23*mat.m32 + mat.m02*mat.m21*mat.m33 + mat.m03*mat.m22*mat.m31 - mat.m01*mat.m22*mat.m33 - mat.m02*mat.m23*mat.m31 - mat.m03*mat.m21*mat.m32) / det;
@@ -595,7 +579,7 @@ export default class Matrix44 {
     var m32 = (mat.m00*mat.m12*mat.m31 + mat.m01*mat.m10*mat.m32 + mat.m02*mat.m11*mat.m30 - mat.m00*mat.m11*mat.m32 - mat.m01*mat.m12*mat.m30 - mat.m02*mat.m10*mat.m31) / det;
     var m33 = (mat.m00*mat.m11*mat.m22 + mat.m01*mat.m12*mat.m20 + mat.m02*mat.m10*mat.m21 - mat.m00*mat.m12*mat.m21 - mat.m01*mat.m10*mat.m22 - mat.m02*mat.m11*mat.m20) / det;
 
-    return new Matrix44(
+    return new RowMajarMatrix44(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -610,35 +594,35 @@ export default class Matrix44 {
     return this.m[0];
   }
 
-  public set m10(val) {
+  public set m01(val) {
     this.m[1] = val;
   }
 
-  public get m10() {
+  public get m01() {
     return this.m[1];
   }
 
-  public set m20(val) {
+  public set m02(val) {
     this.m[2] = val;
   }
 
-  public get m20() {
+  public get m02() {
     return this.m[2];
   }
 
-  public set m30(val) {
+  public set m03(val) {
     this.m[3] = val;
   }
 
-  public get m30() {
+  public get m03() {
     return this.m[3];
   }
 
-  public set m01(val) {
+  public set m10(val) {
     this.m[4] = val;
   }
 
-  public get m01() {
+  public get m10() {
     return this.m[4];
   }
 
@@ -650,35 +634,35 @@ export default class Matrix44 {
     return this.m[5];
   }
 
-  public set m21(val) {
+  public set m12(val) {
     this.m[6] = val;
   }
 
-  public get m21() {
+  public get m12() {
     return this.m[6];
   }
 
-  public set m31(val) {
+  public set m13(val) {
     this.m[7] = val;
   }
 
-  public get m31() {
+  public get m13() {
     return this.m[7];
   }
 
-  public set m02(val) {
+  public set m20(val) {
     this.m[8] = val;
   }
 
-  public get m02() {
+  public get m20() {
     return this.m[8];
   }
 
-  public set m12(val) {
+  public set m21(val) {
     this.m[9] = val;
   }
 
-  public get m12() {
+  public get m21() {
     return this.m[9];
   }
 
@@ -690,35 +674,35 @@ export default class Matrix44 {
     return this.m[10];
   }
 
-  public set m32(val) {
+  public set m23(val) {
     this.m[11] = val;
   }
 
-  public get m32() {
+  public get m23() {
     return this.m[11];
   }
 
-  public set m03(val) {
+  public set m30(val) {
     this.m[12] = val;
   }
 
-  public get m03() {
+  public get m30() {
     return this.m[12];
   }
 
-  public set m13(val) {
+  public set m31(val) {
     this.m[13] = val;
   }
 
-  public get m13() {
+  public get m31() {
     return this.m[13];
   }
 
-  public set m23(val) {
+  public set m32(val) {
     this.m[14] = val;
   }
 
-  public get m23() {
+  public get m32() {
     return this.m[14];
   }
 
@@ -765,9 +749,8 @@ export default class Matrix44 {
 
   getRotate() {
     const quat = Quaternion.fromMatrix(this);
-    const rotateMat = new Matrix44(quat);
+    const rotateMat = new RowMajarMatrix44(quat);
     return rotateMat;
   }
 }
 
-//GLBoost["Matrix44"] = Matrix44;

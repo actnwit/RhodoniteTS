@@ -1,5 +1,4 @@
 //import GLBoost from './../../globals';
-import MathUtil from './MathUtil';
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';
 import is from '../misc/IsUtil';

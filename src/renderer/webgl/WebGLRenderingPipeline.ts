@@ -72,7 +72,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     // const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
     // for (let i=0; i<floatDataTextureBuffer.length; i++) {
     //   halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-    // }
+    //  }
 
     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
     level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,

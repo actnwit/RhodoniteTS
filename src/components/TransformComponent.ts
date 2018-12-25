@@ -4,7 +4,6 @@ import Vector4 from '../math/Vector4';
 import Quaternion from '../math/Quaternion';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
-import MathUtil from '../math/MathUtil';
 import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
 import Component from '../core/Component';
