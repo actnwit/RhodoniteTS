@@ -148,14 +148,14 @@
     // secondEntity.getTransform().translate = new Rn.Vector3(0.0, 0.2, 0.0);
 
     const entities = [];
-    const entityNumber = 100;
+    const entityNumber = 1000;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
       entities.push(entity);
       const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
       meshComponent.addPrimitive(primitive);
-      entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber, 1/sqrtEntityNumber, 1/sqrtEntityNumber);
+      entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);
       entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
     }
 
@@ -164,7 +164,7 @@
     const draw = ()=>{
       const date = new Date();
       entities.forEach(entity=>{
-        entity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, 0.001 * (date.getTime() - startTime));
+        entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
       });
 //      console.log(date.getTime());
       system.process();
