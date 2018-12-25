@@ -793,7 +793,7 @@ class Matrix33 {
         this.m = new Float32Array(9); // Data order is column major
         const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
         const m = m0;
-        if (arguments.length === 10) {
+        if (arguments.length === 9) {
             if (_isColumnMajor === true) {
                 let m = arguments;
                 this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
@@ -1677,7 +1677,7 @@ class Matrix44 {
         return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     static rotateXYZ(x, y, z) {
-        return new Matrix44(Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+        return new Matrix44(Matrix33.rotateXYZ(x, y, z));
     }
     /**
      * @return Euler Angles Rotation (x, y, z)

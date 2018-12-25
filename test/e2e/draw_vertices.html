@@ -88,7 +88,7 @@
       const entity = generateEntity();
       const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
       meshComponent.addPrimitive(primitive);
-      //entity.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
+      entity.getTransform().scale = new Rn.Vector3(0.2 * i, 0.2 * i, 0.2 * i);
       entity.getTransform().translate = new Rn.Vector3(0.1 * i, 0.0, 0.0);
       entity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, 0.1 * i);
     }

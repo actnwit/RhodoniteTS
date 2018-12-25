@@ -346,7 +346,7 @@ export default class Matrix44 {
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
-    return new Matrix44(Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+    return new Matrix44(Matrix33.rotateXYZ(x, y, z));
   }
 
   /**

@@ -28,7 +28,7 @@ export default class Matrix33 {
     const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
     const m = m0; 
 
-    if (arguments.length === 10) {
+    if (arguments.length === 9) {
       if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
