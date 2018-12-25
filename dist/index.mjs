@@ -22,13 +22,117 @@ function _from({ typeList, index }) {
     return match;
 }
 
+class VertexAttributeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
+const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
+const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
+const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
+const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
+const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
+const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
+const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
+const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
+const Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
+const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
+function from({ index }) {
+    return _from({ typeList, index });
+}
+const VertexAttribute = Object.freeze({
+    Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
+});
+
 class WebGLExtensionClass extends EnumClass {
     constructor({ index, str }) {
         super({ index, str });
     }
 }
-const VertexArrayObject = new WebGLExtensionClass({ index: 0, str: 'OES_vertex_array_object' });
-const WebGLExtension = Object.freeze({ VertexArrayObject });
+const VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });
+const TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });
+const TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
+const TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
+const TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
+const InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });
+const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays });
+
+class CompositionTypeClass extends EnumClass {
+    constructor({ index, str, numberOfComponents }) {
+        super({ index, str });
+        this.__numberOfComponents = 0;
+        this.__numberOfComponents = numberOfComponents;
+    }
+    getNumberOfComponents() {
+        return this.__numberOfComponents;
+    }
+}
+const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
+const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
+const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
+const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
+const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
+const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
+const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
+const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
+const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
+}
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
+
+class ComponentTypeClass extends EnumClass {
+    constructor({ index, str, sizeInBytes }) {
+        super({ index, str });
+        this.__sizeInBytes = sizeInBytes;
+    }
+    getSizeInBytes() {
+        return this.__sizeInBytes;
+    }
+}
+const Unknown$2 = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
+const Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
+const UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
+const Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
+const UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
+const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
+const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
+const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
+const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
+const HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
+const typeList$3 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
+function from$3({ index }) {
+    return _from({ typeList: typeList$3, index });
+}
+function fromTypedArray(typedArray) {
+    if (typedArray instanceof Int8Array) {
+        return Byte;
+    }
+    else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
+        return UnsignedByte;
+    }
+    else if (typedArray instanceof Int16Array) {
+        return Short;
+    }
+    else if (typedArray instanceof Uint16Array) {
+        return UnsignedShort;
+    }
+    else if (typedArray instanceof Int32Array) {
+        return Int;
+    }
+    else if (typedArray instanceof Uint32Array) {
+        return UnsingedInt;
+    }
+    else if (typedArray instanceof Float32Array) {
+        return Float;
+    }
+    else if (typedArray instanceof Float64Array) {
+        return Double;
+    }
+    return Unknown$2;
+}
+const ComponentType = Object.freeze({ Unknown: Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$3, fromTypedArray });
 
 const singleton = Symbol();
 class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -75,9 +179,6 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
-        // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
-        // accsessor.dataViewOfBufferView.getUint16(10, true))
         return resourceHandle;
     }
     createVertexBuffer(accsessor) {
@@ -91,8 +192,6 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
         gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true), accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true), accsessor.dataViewOfBufferView.getFloat32(20, true), accsessor.dataViewOfBufferView.getFloat32(24, true), accsessor.dataViewOfBufferView.getFloat32(28, true), accsessor.dataViewOfBufferView.getFloat32(32, true), accsessor.dataViewOfBufferView.getFloat32(36, true), accsessor.dataViewOfBufferView.getFloat32(40, true), accsessor.dataViewOfBufferView.getFloat32(44, true));
-        //console.log(accsessor.dataViewOfBufferView.byteLength);
         return resourceHandle;
     }
     getExtension(extension) {
@@ -173,7 +272,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
-    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive) {
+    setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive, instanceIDBufferUid = 0) {
         const gl = this.__gl;
         const vao = this.getWebGLResource(vaoHandle);
         const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
@@ -182,7 +281,6 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                console.log('ELEMENT');
             }
             else {
                 throw new Error('Nothing Element Array Buffer!');
@@ -201,12 +299,50 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
             gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-            console.log(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength);
             gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
+        // for InstanceIDBuffer
+        if (instanceIDBufferUid !== 0) {
+            const ext = this.getExtension(WebGLExtension.InstancedArrays);
+            const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
+            if (instanceIDBuffer != null) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
+            }
+            else {
+                throw new Error('Nothing Element Array Buffer at index');
+            }
+            gl.enableVertexAttribArray(VertexAttribute.Instance.index);
+            gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
+            ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
+        }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         extVAO.bindVertexArrayOES(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    createTexture(typedArray, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT }) {
+        const gl = this.__gl;
+        this.getExtension(WebGLExtension.TextureFloat);
+        this.getExtension(WebGLExtension.TextureHalfFloat);
+        this.getExtension(WebGLExtension.TextureFloatLinear);
+        this.getExtension(WebGLExtension.TextureHalfFloatLinear);
+        const dataTexture = gl.createTexture();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, dataTexture);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border, format.index, type.index, typedArray);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+        return resourceHandle;
+    }
+    deleteTexture(textureHandle) {
+        const texture = this.getWebGLResource(textureHandle);
+        const gl = this.__gl;
+        if (texture != null) {
+            gl.deleteTexture(texture);
+            this.__webglResources.delete(textureHandle);
+        }
     }
 }
 
@@ -339,19 +475,17 @@ class ComponentRepository {
         }
         return thisClass[singleton$1];
     }
-    createComponent(componentTID, entityUid) {
+    createComponent(componentTid, entityUid) {
         const thisClass = ComponentRepository;
-        const componentClass = thisClass.__componentClasses.get(componentTID);
+        const componentClass = thisClass.__componentClasses.get(componentTid);
         if (componentClass != null) {
-            componentClass.setupBufferView();
-            const component = new componentClass(entityUid);
-            const componentTid = component.constructor.componentTID;
             let component_sid_count = this.__component_sid_count_map.get(componentTid);
             if (!IsUtil.exist(component_sid_count)) {
                 this.__component_sid_count_map.set(componentTid, 0);
                 component_sid_count = 0;
             }
-            this.__component_sid_count_map.set(componentTid, component_sid_count !== undefined ? ++component_sid_count : 1);
+            this.__component_sid_count_map.set(componentTid, ++component_sid_count);
+            const component = new componentClass(entityUid, component_sid_count);
             if (!this.__components.has(componentTid)) {
                 this.__components.set(componentTid, []);
             }
@@ -389,7 +523,10 @@ class ComponentRepository {
         return memoryBeginIndex;
     }
     getComponentsWithType(componentTid) {
-        return this.__components.get(componentTid);
+        const components = this.__components.get(componentTid);
+        const copyArray = components.concat();
+        copyArray.shift();
+        return copyArray;
     }
     getComponentTIDs() {
         const indices = [];
@@ -454,7 +591,7 @@ class EntityRepository {
         return component;
     }
     static getMaxEntityNumber() {
-        return 10000;
+        return 5000;
     }
     _getEntities() {
         return this.__entities.concat();
@@ -1068,7 +1205,7 @@ class Matrix33 {
         this.m = new Float32Array(9); // Data order is column major
         const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
         const m = m0;
-        if (arguments.length === 10) {
+        if (arguments.length === 9) {
             if (_isColumnMajor === true) {
                 let m = arguments;
                 this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
@@ -1644,7 +1781,7 @@ class Vector4 {
 // GLBoost["Vector4"] = Vector4;
 
 //import GLBoost from '../../globals';
-const FloatArray = Float64Array;
+const FloatArray = Float32Array;
 class Matrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
@@ -1736,7 +1873,24 @@ class Matrix44 {
     }
     copyComponents(mat4) {
         //this.m.set(mat4.m);
-        this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        const m = mat4.m;
+        this.m[0] = m[0];
+        this.m[1] = m[1];
+        this.m[2] = m[2];
+        this.m[3] = m[3];
+        this.m[4] = m[4];
+        this.m[5] = m[5];
+        this.m[6] = m[6];
+        this.m[7] = m[7];
+        this.m[8] = m[8];
+        this.m[9] = m[9];
+        this.m[10] = m[10];
+        this.m[11] = m[11];
+        this.m[12] = m[12];
+        this.m[13] = m[13];
+        this.m[14] = m[14];
+        this.m[15] = m[15];
     }
     get className() {
         return this.constructor.name;
@@ -1855,7 +2009,7 @@ class Matrix44 {
         return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     static rotateXYZ(x, y, z) {
-        return new Matrix44(Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+        return new Matrix44(Matrix33.rotateXYZ(x, y, z));
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -2191,81 +2345,6 @@ class RnObject {
 }
 RnObject.currentMaxObjectCount = 0;
 
-class ComponentTypeClass extends EnumClass {
-    constructor({ index, str, sizeInBytes }) {
-        super({ index, str });
-        this.__sizeInBytes = sizeInBytes;
-    }
-    getSizeInBytes() {
-        return this.__sizeInBytes;
-    }
-}
-const Unknown = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
-const Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
-const UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
-const Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
-const UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
-const Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
-const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
-const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
-const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
-const typeList$1 = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
-}
-function fromTypedArray(typedArray) {
-    if (typedArray instanceof Int8Array) {
-        return Byte;
-    }
-    else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
-        return UnsignedByte;
-    }
-    else if (typedArray instanceof Int16Array) {
-        return Short;
-    }
-    else if (typedArray instanceof Uint16Array) {
-        return UnsignedShort;
-    }
-    else if (typedArray instanceof Int32Array) {
-        return Int;
-    }
-    else if (typedArray instanceof Uint32Array) {
-        return UnsingedInt;
-    }
-    else if (typedArray instanceof Float32Array) {
-        return Float;
-    }
-    else if (typedArray instanceof Float64Array) {
-        return Double;
-    }
-    return Unknown;
-}
-const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from: from$1, fromTypedArray });
-
-class CompositionTypeClass extends EnumClass {
-    constructor({ index, str, numberOfComponents }) {
-        super({ index, str });
-        this.__numberOfComponents = 0;
-        this.__numberOfComponents = numberOfComponents;
-    }
-    getNumberOfComponents() {
-        return this.__numberOfComponents;
-    }
-}
-const Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
-const Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
-const Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
-const Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
-const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
-const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
-const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
-const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
-const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
-}
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
-
 class _Vector2 {
     constructor(typedArray, x, y) {
         this.__typedArray = typedArray;
@@ -2341,7 +2420,7 @@ class AccessorBase extends RnObject {
         this.__takenCount = 0;
         this.__byteStride = 0;
         this.__bufferView = bufferView;
-        this.__byteOffset = byteOffset;
+        this.__byteOffset = byteOffsetFromBuffer + byteOffset;
         this.__compositionType = compositionType;
         this.__componentType = componentType;
         this.__count = count;
@@ -2350,24 +2429,26 @@ class AccessorBase extends RnObject {
         if (this.__byteStride === 0) {
             this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
         }
-        this.prepare(byteOffsetFromBuffer);
+        this.prepare();
     }
-    prepare(byteOffsetFromBuffer) {
+    prepare() {
         const typedArrayClass = this.getTypedArrayClass(this.__componentType);
         this.__typedArrayClass = typedArrayClass;
+        if (this.__componentType.getSizeInBytes() === 8) {
+            if (this.__byteOffset % 8 !== 0) {
+                console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
+                this.__byteOffset += 8 - this.__byteOffset % 8;
+            }
+        }
         if (this.__bufferView.isSoA) {
-            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+            this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
         }
         else {
-            this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
+            this.__dataView = new DataView(this.__raw, this.__byteOffset);
         }
         this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
         this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
-        //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-        if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-            throw new Error('The range of the accessor exceeds the range of the buffer view.');
-        }
     }
     getTypedArrayClass(componentType) {
         switch (componentType) {
@@ -2498,33 +2579,25 @@ class AccessorBase extends RnObject {
         return new Matrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
     }
     setScalar(index, value, endian = true) {
-        console.log(this.__byteStride * index, value, endian);
         this.__dataViewSetter(this.__byteStride * index, value, endian);
-        // const componentSetter = this.__dataViewSetter(this.componentType)!;
-        // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
-        // console.log(componentSetter);
-        // compositionSetter(this.__byteStride*index, value, endian);
     }
     setVec2(index, x, y, endian = true) {
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
     }
     setVec3(index, x, y, z, endian = true) {
-        // const setter = this.__dataViewSetter(this.componentType)!;
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
-        // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
-        console.log(this.__byteStride, index, x, endian);
         const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
         this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
         this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     }
     setVec4(index, x, y, z, w, endian = true) {
+        const sizeInBytes = this.componentSizeInBytes;
         this.__dataViewSetter(this.__byteStride * index, x, endian);
-        this.__dataViewSetter(this.__byteStride * index + 1, y, endian);
-        this.__dataViewSetter(this.__byteStride * index + 2, z, endian);
-        this.__dataViewSetter(this.__byteStride * index + 3, w, endian);
+        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
+        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
+        this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);
     }
     copyFromTypedArray(typedArray) {
         const componentN = this.numberOfComponents;
@@ -2630,6 +2703,14 @@ class BufferView extends RnObject {
             byteOffset = this.__takenByteIndex;
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
         }
+        if (byteOffset % 4 !== 0) {
+            console.info('Padding added because of byteOffset is not 4byte aligned.');
+            byteOffset += 4 - byteOffset % 4;
+        }
+        if (this.__byteOffset % 4 !== 0) {
+            console.info('Padding added because of byteOffsetFromBuffer is not 4byte aligned.');
+            this.__byteOffset += 4 - this.__byteOffset % 4;
+        }
         const accessor = new accessorClass({
             bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
         });
@@ -2672,6 +2753,9 @@ class Buffer extends RnObject {
         this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
         return bufferView;
     }
+    get byteSizeInUse() {
+        return this.__byteLength;
+    }
 }
 
 /**
@@ -2692,7 +2776,7 @@ class MemoryManager {
         }
         // BufferForGPU
         {
-            const arrayBuffer = new ArrayBuffer((Math.pow(2, 11)) * Math.pow(2, 11) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2703,7 +2787,7 @@ class MemoryManager {
         }
         // BufferForCPU
         {
-            const arrayBuffer = new ArrayBuffer((Math.pow(2, 11)) * Math.pow(2, 11) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2726,13 +2810,17 @@ class MemoryManager {
     getBufferForCPU() {
         return this.__bufferForCPU;
     }
+    static get bufferLengthOfOneSide() {
+        return MemoryManager.__bufferLengthOfOneSide;
+    }
 }
 MemoryManager.__singletonEnforcer = Symbol();
+MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
 
 class Component {
-    constructor(entityUid) {
+    constructor(entityUid, componentSid) {
         this.__entityUid = entityUid;
-        this._component_sid = 0;
+        this._component_sid = componentSid;
         this.__isAlive = true;
         this.__memoryManager = MemoryManager.getInstance();
         this.__entityRepository = EntityRepository.getInstance();
@@ -2742,6 +2830,9 @@ class Component {
     }
     get componentSID() {
         return this._component_sid;
+    }
+    get entityUID() {
+        return this.__entityUid;
     }
     static get byteSizeOfThisComponent() {
         return 0;
@@ -2761,7 +2852,7 @@ class Component {
     }
     $logic() {
     }
-    $prerender() {
+    $prerender(instanceIDBufferUid) {
     }
     $render() {
     }
@@ -2773,8 +2864,8 @@ class Component {
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         // dependencies
         this._dependentAnimationComponentId = 0;
         const thisClass = TransformComponent;
@@ -2822,7 +2913,6 @@ class TransformComponent extends Component {
         // Define process dependencies with other components.
         // If circular depenencies are detected, the error will be repoated.
         //this.registerDependency(AnimationComponent.componentTID, false);
-        console.log('$create');
     }
     $updateLogic() {
     }
@@ -2956,7 +3046,7 @@ class TransformComponent extends Component {
         const scaleMatrix = Matrix44.scale(this.scale);
         // rotate
         const rotationMatrix = new Matrix44(this.quaternion);
-        const matrix = Matrix44.multiply(rotationMatrix, scaleMatrix);
+        this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
         // translate
         const translate = this.translate;
         this._matrix.m03 = translate.x;
@@ -3149,15 +3239,560 @@ class TransformComponent extends Component {
     }
 }
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
+TransformComponent.setupBufferView();
+
+//import GLBoost from '../../globals';
+const FloatArray$1 = Float32Array;
+class RowMajarMatrix44 {
+    constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
+        const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
+        const m = m0;
+        if (arguments.length >= 16) {
+            this.m = new FloatArray$1(16); // Data order is row major
+            this.setComponents.apply(this, arguments);
+        }
+        else if (Array.isArray(m)) {
+            this.m = new FloatArray$1(16);
+            this.setComponents.apply(this, m);
+        }
+        else if (m instanceof FloatArray$1) {
+            if (_notCopyFloatArray) {
+                this.m = m;
+            }
+            else {
+                this.m = new FloatArray$1(16);
+                this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+            }
+        }
+        else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
+            if (_notCopyFloatArray) {
+                this.m = m.m;
+            }
+            else {
+                this.m = new FloatArray$1(16);
+                this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
+            }
+        }
+        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+            this.m = new FloatArray$1(16);
+            const sx = m.x * m.x;
+            const sy = m.y * m.y;
+            const sz = m.z * m.z;
+            const cx = m.y * m.z;
+            const cy = m.x * m.z;
+            const cz = m.x * m.y;
+            const wx = m.w * m.x;
+            const wy = m.w * m.y;
+            const wz = m.w * m.z;
+            this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 0.0, 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 0.0, 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy), 0.0, 0.0, 0.0, 0.0, 1.0);
+        }
+        else {
+            this.m = new FloatArray$1(16);
+            this.identity();
+        }
+    }
+    setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+        this.m[0] = m00;
+        this.m[4] = m10;
+        this.m[8] = m20;
+        this.m[12] = m30;
+        this.m[1] = m01;
+        this.m[5] = m11;
+        this.m[9] = m21;
+        this.m[13] = m31;
+        this.m[2] = m02;
+        this.m[6] = m12;
+        this.m[10] = m22;
+        this.m[14] = m32;
+        this.m[3] = m03;
+        this.m[7] = m13;
+        this.m[11] = m23;
+        this.m[15] = m33;
+        return this;
+    }
+    copyComponents(mat4) {
+        //this.m.set(mat4.m);
+        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        const m = mat4;
+        // this.m[0] = m[0];
+        // this.m[1] = m[1];
+        // this.m[2] = m[2];
+        // this.m[3] = m[3];
+        // this.m[4] = m[4];
+        // this.m[5] = m[5];
+        // this.m[6] = m[6];
+        // this.m[7] = m[7];
+        // this.m[8] = m[8];
+        // this.m[9] = m[9];
+        // this.m[10] = m[10];
+        // this.m[11] = m[11];
+        // this.m[12] = m[12];
+        // this.m[13] = m[13];
+        // this.m[14] = m[14];
+        // this.m[15] = m[15];
+        this.m00 = m.m00;
+        this.m01 = m.m01;
+        this.m02 = m.m02;
+        this.m03 = m.m03;
+        this.m10 = m.m10;
+        this.m11 = m.m11;
+        this.m12 = m.m12;
+        this.m13 = m.m13;
+        this.m20 = m.m20;
+        this.m21 = m.m21;
+        this.m22 = m.m22;
+        this.m23 = m.m23;
+        this.m30 = m.m30;
+        this.m31 = m.m31;
+        this.m32 = m.m32;
+        this.m33 = m.m33;
+    }
+    get className() {
+        return this.constructor.name;
+    }
+    clone() {
+        return new RowMajarMatrix44(this.m[0], this.m[1], this.m[2], this.m[3], this.m[4], this.m[5], this.m[6], this.m[7], this.m[8], this.m[9], this.m[10], this.m[11], this.m[12], this.m[13], this.m[14], this.m[15]);
+    }
+    /**
+     * to the identity matrix
+     */
+    identity() {
+        this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        return this;
+    }
+    /**
+     * to the identity matrix（static版）
+     */
+    static identity() {
+        return new RowMajarMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    isEqual(mat, delta = Number.EPSILON) {
+        if (Math.abs(mat.m[0] - this.m[0]) < delta &&
+            Math.abs(mat.m[1] - this.m[1]) < delta &&
+            Math.abs(mat.m[2] - this.m[2]) < delta &&
+            Math.abs(mat.m[3] - this.m[3]) < delta &&
+            Math.abs(mat.m[4] - this.m[4]) < delta &&
+            Math.abs(mat.m[5] - this.m[5]) < delta &&
+            Math.abs(mat.m[6] - this.m[6]) < delta &&
+            Math.abs(mat.m[7] - this.m[7]) < delta &&
+            Math.abs(mat.m[8] - this.m[8]) < delta &&
+            Math.abs(mat.m[9] - this.m[9]) < delta &&
+            Math.abs(mat.m[10] - this.m[10]) < delta &&
+            Math.abs(mat.m[11] - this.m[11]) < delta &&
+            Math.abs(mat.m[12] - this.m[12]) < delta &&
+            Math.abs(mat.m[13] - this.m[13]) < delta &&
+            Math.abs(mat.m[14] - this.m[14]) < delta &&
+            Math.abs(mat.m[15] - this.m[15]) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    translate(vec) {
+        return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+    }
+    putTranslate(vec) {
+        this.m03 = vec.x;
+        this.m13 = vec.y;
+        this.m23 = vec.z;
+    }
+    getTranslate() {
+        return new Vector3(this.m03, this.m13, this.m23);
+    }
+    static translate(vec) {
+        return new RowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+    }
+    scale(vec) {
+        return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+    }
+    static scale(vec) {
+        return new RowMajarMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+    }
+    addScale(vec) {
+        this.m00 *= vec.x;
+        this.m11 *= vec.y;
+        this.m22 *= vec.z;
+        return this;
+    }
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    rotateX(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+    }
+    /**
+     * Create X oriented Rotation Matrix
+    */
+    static rotateX(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new RowMajarMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+    }
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    rotateY(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+    }
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    static rotateY(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new RowMajarMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+    }
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    rotateZ(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    static rotateZ(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    static rotateXYZ(x, y, z) {
+        return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
+    }
+    /**
+     * @return Euler Angles Rotation (x, y, z)
+     */
+    toEulerAngles() {
+        let rotate = null;
+        if (Math.abs(this.m20) != 1.0) {
+            let y = -Math.asin(this.m20);
+            let x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
+            let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+            rotate = new Vector3(x, y, z);
+        }
+        else if (this.m20 === -1.0) {
+            rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
+        }
+        else {
+            rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
+        }
+        return rotate;
+    }
+    /**
+     * ゼロ行列
+     */
+    zero() {
+        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return this;
+    }
+    static zero() {
+        return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+    flatten() {
+        return this.m;
+    }
+    flattenAsArray() {
+        return [this.m[0], this.m[1], this.m[2], this.m[3],
+            this.m[4], this.m[5], this.m[6], this.m[7],
+            this.m[8], this.m[9], this.m[10], this.m[11],
+            this.m[12], this.m[13], this.m[14], this.m[15]];
+    }
+    _swap(l, r) {
+        this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
+    }
+    /**
+     * transpose
+     */
+    transpose() {
+        this._swap(1, 4);
+        this._swap(2, 8);
+        this._swap(3, 12);
+        this._swap(6, 9);
+        this._swap(7, 13);
+        this._swap(11, 14);
+        return this;
+    }
+    /**
+     * transpose(static version)
+     */
+    static transpose(mat) {
+        var mat_t = new RowMajarMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
+        return mat_t;
+    }
+    multiplyVector(vec) {
+        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
+        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
+        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
+        var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
+        return new Vector4(x, y, z, w);
+    }
+    /**
+     * multiply zero matrix and zero matrix
+     */
+    multiply(mat) {
+        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
+        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
+        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
+        var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
+        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
+        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
+        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
+        var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
+        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
+        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
+        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
+        var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
+        var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
+        var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
+        var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
+        var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
+        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+    multiplyByLeft(mat) {
+        var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
+        var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
+        var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
+        var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
+        var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
+        var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
+        var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
+        var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
+        var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
+        var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
+        var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
+        var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
+        var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
+        var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
+        var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
+        var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
+        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+    /**
+     * multiply zero matrix and zero matrix(static version)
+     */
+    static multiply(l_m, r_m) {
+        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
+        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
+        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
+        var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
+        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
+        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
+        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
+        var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
+        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
+        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
+        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
+        var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
+        var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
+        var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
+        var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
+        var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
+        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+    determinant() {
+        return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
+            this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
+            this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
+            this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -
+            this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -
+            this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -
+            this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
+            this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
+    }
+    static determinant(mat) {
+        return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
+            mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
+            mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
+            mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -
+            mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -
+            mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -
+            mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
+            mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
+    }
+    invert() {
+        var det = this.determinant();
+        var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
+        var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
+        var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
+        var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
+        var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
+        var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
+        var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
+        var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
+        var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
+        var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
+        var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
+        var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
+        var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
+        var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
+        var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
+        var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
+        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+    static invert(mat) {
+        var det = mat.determinant();
+        var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
+        var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
+        var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
+        var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
+        var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
+        var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
+        var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
+        var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
+        var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
+        var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
+        var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
+        var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
+        var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
+        var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
+        var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
+        var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
+        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+    set m00(val) {
+        this.m[0] = val;
+    }
+    get m00() {
+        return this.m[0];
+    }
+    set m01(val) {
+        this.m[1] = val;
+    }
+    get m01() {
+        return this.m[1];
+    }
+    set m02(val) {
+        this.m[2] = val;
+    }
+    get m02() {
+        return this.m[2];
+    }
+    set m03(val) {
+        this.m[3] = val;
+    }
+    get m03() {
+        return this.m[3];
+    }
+    set m10(val) {
+        this.m[4] = val;
+    }
+    get m10() {
+        return this.m[4];
+    }
+    set m11(val) {
+        this.m[5] = val;
+    }
+    get m11() {
+        return this.m[5];
+    }
+    set m12(val) {
+        this.m[6] = val;
+    }
+    get m12() {
+        return this.m[6];
+    }
+    set m13(val) {
+        this.m[7] = val;
+    }
+    get m13() {
+        return this.m[7];
+    }
+    set m20(val) {
+        this.m[8] = val;
+    }
+    get m20() {
+        return this.m[8];
+    }
+    set m21(val) {
+        this.m[9] = val;
+    }
+    get m21() {
+        return this.m[9];
+    }
+    set m22(val) {
+        this.m[10] = val;
+    }
+    get m22() {
+        return this.m[10];
+    }
+    set m23(val) {
+        this.m[11] = val;
+    }
+    get m23() {
+        return this.m[11];
+    }
+    set m30(val) {
+        this.m[12] = val;
+    }
+    get m30() {
+        return this.m[12];
+    }
+    set m31(val) {
+        this.m[13] = val;
+    }
+    get m31() {
+        return this.m[13];
+    }
+    set m32(val) {
+        this.m[14] = val;
+    }
+    get m32() {
+        return this.m[14];
+    }
+    set m33(val) {
+        this.m[15] = val;
+    }
+    get m33() {
+        return this.m[15];
+    }
+    toString() {
+        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
+            this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
+            this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
+            this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
+    }
+    nearZeroToZero(value) {
+        if (Math.abs(value) < 0.00001) {
+            value = 0;
+        }
+        else if (0.99999 < value && value < 1.00001) {
+            value = 1;
+        }
+        else if (-1.00001 < value && value < -0.99999) {
+            value = -1;
+        }
+        return value;
+    }
+    toStringApproximately() {
+        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
+            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
+            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
+            this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
+    }
+    getScale() {
+        return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+    }
+    getRotate() {
+        const quat = Quaternion.fromMatrix(this);
+        const rotateMat = new RowMajarMatrix44(quat);
+        return rotateMat;
+    }
+}
 
 class SceneGraphComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         const thisClass = SceneGraphComponent;
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
-        this.__worldMatrix = new Matrix44(thisClass.__accesseor_worldMatrix.takeOne(), false, true);
-        //this.__worldMatrix = Matrix44.identity();
+        this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne(), true);
         this.__worldMatrix.identity();
         //this.__updatedProperly = false;
     }
@@ -3175,7 +3810,7 @@ class SceneGraphComponent extends Component {
         const buffer = MemoryManager.getInstance().getBufferForGPU();
         const count = EntityRepository.getMaxEntityNumber();
         thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
-        thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count });
+        thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
     }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
@@ -3199,106 +3834,35 @@ class SceneGraphComponent extends Component {
         return this.calcWorldMatrixRecursively();
     }
     get worldMatrix() {
-        return this.calcWorldMatrixRecursively().clone();
+        return this.worldMatrixInner.clone();
+    }
+    $logic() {
+        this.calcWorldMatrixRecursively();
     }
     calcWorldMatrixRecursively() {
         const entity = this.__entityRepository.getEntity(this.__entityUid);
         const transform = entity.getTransform();
-        if (!(this.__parent != null)) {
+        if (this.__parent == null) {
             // if there is not parent
-            //      if (!this.__updatedProperly && entity.getTransform()._dirty) {
             if (transform._dirty) {
-                //this.__updatedProperly = true;
                 transform._dirty = false;
-                this.__worldMatrix = transform.matrix;
+                this.__worldMatrix.copyComponents(transform.matrix);
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
         }
         const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-        //    if (!this.__updatedProperly && entity.getTransform()._dirty) {
-        if (transform._dirty) {
-            //this.__updatedProperly = true;
-            transform._dirty = false;
-            this.__worldMatrix = transform.matrix;
-            //      console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
-        }
-        //console.log('return Skip!', this.__worldMatrix.toString(), this.__entityUid);
-        return Matrix44.multiply(matrixFromAncestorToParent, this.__worldMatrix);
+        this.__worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
+        return this.__worldMatrix;
     }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
-
-class VertexAttributeClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const Unknown$2 = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const typeList$3 = [Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0];
-function from$3({ index }) {
-    return _from({ typeList: typeList$3, index });
-}
-const VertexAttribute = Object.freeze({ Unknown: Unknown$2, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, from: from$3 });
-
-class GLSLShader {
-}
-GLSLShader.vertexShader = `
-attribute vec3 in_position;
-attribute vec3 in_color;
-
-varying vec3 v_color;
-void main ()
-{
-  gl_Position = vec4(in_position, 1.0);
-  v_color = in_color;
-}
-  `;
-GLSLShader.fragmentShader = `
-  precision mediump float;
-  varying vec3 v_color;
-  void main ()
-  {
-    gl_FragColor = vec4(v_color, 1.0);
-  }
-`;
-GLSLShader.attributeNanes = ['in_position', 'in_color'];
-GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0];
-
-const WebGLRenderingPipeline = new class {
-    constructor() {
-        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-    }
-    render(vaoHandle, shaderProgramHandle, primitive) {
-        const gl = this.__webglResourceRepository.currentWebGLContext;
-        if (gl == null) {
-            throw new Error('No WebGLRenderingContext!');
-        }
-        const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
-        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
-        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
-        extVAO.bindVertexArrayOES(vao);
-        gl.useProgram(shaderProgram);
-        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
-    }
-};
+SceneGraphComponent.setupBufferView();
 
 class MeshComponent extends Component {
-    constructor(entityUid) {
-        super(entityUid);
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
         this.__primitives = [];
-        this.__vertexVaoHandles = [];
-        this.__vertexShaderProgramHandles = [];
-        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__renderingPipeline = WebGLRenderingPipeline;
     }
     static get maxCount() {
         return 1000000;
@@ -3315,22 +3879,324 @@ class MeshComponent extends Component {
     getPrimitiveNumber() {
         return this.__primitives.length;
     }
-    $prerender() {
-        this.__primitives.forEach((primitive, i) => {
-            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexVaoHandles[i] = vertexHandles.vaoHandle;
-            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
-            this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-            this.__webglResourceRepository.setVertexDataToShaderProgram(vertexHandles, shaderProgramHandle, primitive);
-        });
-    }
-    $render() {
-        this.__primitives.forEach((primitive, i) => {
-            this.__renderingPipeline.render(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive);
-        });
-    }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
+
+class GLSLShader {
+}
+GLSLShader.vertexShader = `
+precision highp float;
+attribute vec3 a_position;
+attribute vec3 a_color;
+attribute float a_instanceID;
+
+varying vec3 v_color;
+uniform sampler2D u_dataTexture;
+
+/*
+ * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+ * arg = vec2(1. / size.x, 1. / size.x / size.y);
+ */
+// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+// {
+//   return texture2D( tex, arg * (index + 0.5) );
+// }
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+{
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return texture2D( tex, vec2(x, y) );
+}
+
+void main ()
+{
+  float index = a_instanceID - 1.0;
+  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
+  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+
+  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+  vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+  vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+  //vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
+
+  mat4 matrix = mat4(
+    col0.x, col1.x, col2.x, 0.0,
+    col0.y, col1.y, col2.y, 0.0,
+    col0.z, col1.z, col2.z, 0.0,
+    col0.w, col1.w, col2.w, 1.0
+    );
+
+  // mat4 matrix = mat4(
+  //   col0.x, col0.y, col0.z, 0.0,
+  //   col1.x, col1.y, col1.z, 0.0,
+  //   col2.x, col2.y, col2.z, 0.0,
+  //   col3.x, col3.y, col3.z, 1.0
+  //   );
+
+    // mat4 matrix = mat4(
+  //   col0.x, col1.x, col2.x, col3.x,
+  //   col0.y, col1.y, col2.y, col3.y,
+  //   col0.z, col1.z, col2.z, col3.z,
+  //   col0.w, col1.w, col2.w, col3.w
+  //   );
+
+
+  gl_Position = matrix * vec4(a_position, 1.0);
+//  gl_Position = vec4(a_position, 1.0);
+//  gl_Position.x += a_instanceID / 5.0;
+//  gl_Position.x += col0.x / 5.0;
+
+  v_color = a_color;
+}
+  `;
+GLSLShader.fragmentShader = `
+  precision highp float;
+  varying vec3 v_color;
+  void main ()
+  {
+    gl_FragColor = vec4(v_color, 1.0);
+  }
+`;
+GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
+
+class TextureParameterClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
+const Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
+const TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
+const TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
+const TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
+const TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
+const Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
+const Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
+const Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
+const Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
+const ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
+const Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
+const ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
+const RGB = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
+const RGBA = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
+const RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
+const RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
+const RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
+const RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
+const RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
+const RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
+const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
+const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
+    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
+
+class PixelFormatClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
+const Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
+const RGB$1 = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
+const RGBA$1 = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
+const Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
+const LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
+const PixelFormat = Object.freeze({ DepthComponent, Alpha, RGB: RGB$1, RGBA: RGBA$1, Luminance, LuminanceAlpha });
+
+//import GLBoost from '../../globals';
+function radianToDegree(rad) {
+    return rad * 180 / Math.PI;
+}
+function degreeToRadian(deg) {
+    return deg * Math.PI / 180;
+}
+// https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
+const toHalfFloat = (function () {
+    var floatView = new Float32Array(1);
+    var int32View = new Int32Array(floatView.buffer);
+    /* This method is faster than the OpenEXR implementation (very often
+      * used, eg. in Ogre), with the additional benefit of rounding, inspired
+      * by James Tursa?s half-precision code. */
+    return function toHalf(val) {
+        floatView[0] = val;
+        var x = int32View[0];
+        var bits = (x >> 16) & 0x8000; /* Get the sign */
+        var m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */
+        var e = (x >> 23) & 0xff; /* Using int is faster here */
+        /* If zero, or denormal, or exponent underflows too much for a denormal
+          * half, return signed zero. */
+        if (e < 103) {
+            return bits;
+        }
+        /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */
+        if (e > 142) {
+            bits |= 0x7c00;
+            /* If exponent was 0xff and one mantissa bit was set, it means NaN,
+                  * not Inf, so make sure we set one mantissa bit too. */
+            bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);
+            return bits;
+        }
+        /* If exponent underflows but not too much, return a denormal */
+        if (e < 113) {
+            m |= 0x0800;
+            /* Extra rounding may overflow and set mantissa to 0 and exponent
+              * to 1, which is OK. */
+            bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
+            return bits;
+        }
+        bits |= ((e - 112) << 10) | (m >> 1);
+        /* Extra rounding. An overflow will set mantissa to 0 and increment
+          * the exponent, which is OK. */
+        bits += m & 1;
+        return bits;
+    };
+}());
+const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
+
+const WebGLRenderingPipeline = new class {
+    constructor() {
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__componentRepository = ComponentRepository.getInstance();
+        this.__dataTextureUid = 0;
+        this.__instanceIDBufferUid = 0;
+    }
+    common_prerender() {
+        const gl = this.__webglResourceRepository.currentWebGLContext;
+        if (gl == null) {
+            throw new Error('No WebGLRenderingContext!');
+        }
+        this.__createDataTexture();
+        if (this.__isReady()) {
+            return 0;
+        }
+        this.__createInstanceIDBuffer();
+        return this.__instanceIDBufferUid;
+    }
+    __isReady() {
+        if (this.__instanceIDBufferUid !== 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    __createInstanceIDBuffer() {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const count = EntityRepository.getMaxEntityNumber();
+        const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
+        const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        for (var i = 0; i < meshComponents.length; i++) {
+            accesseor.setScalar(i, meshComponents[i].entityUID);
+        }
+        this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+    }
+    __createDataTexture() {
+        if (this.__dataTextureUid !== 0) {
+            this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+            this.__dataTextureUid = 0;
+        }
+        const memoryManager = MemoryManager.getInstance();
+        const buffer = memoryManager.getBufferForGPU();
+        const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        {
+            const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+            let convertLength = buffer.byteSizeInUse / 4; //components
+            convertLength /= 2; // bytes
+            for (let i = 0; i < convertLength; i++) {
+                halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+            }
+            this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDateTextureBuffer, {
+                level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+            });
+        }
+    }
+    render(vaoHandle, shaderProgramHandle, primitive) {
+        const gl = this.__webglResourceRepository.currentWebGLContext;
+        const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
+        const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+        extVAO.bindVertexArrayOES(vao);
+        gl.useProgram(shaderProgram);
+        this.__setDataTexture(gl, shaderProgram);
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
+    }
+    __setDataTexture(gl, shaderProgram) {
+        const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+        gl.uniform1i(uniform_dataTexture, 0);
+    }
+};
+
+class MeshRendererComponent extends Component {
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__vertexShaderProgramHandles = [];
+        this.__renderingPipeline = WebGLRenderingPipeline;
+        this.__vertexVaoHandles = [];
+    }
+    static get maxCount() {
+        return 1000000;
+    }
+    static get componentTID() {
+        return 4;
+    }
+    __isLoaded(index) {
+        if (this.__vertexVaoHandles[index] != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $create() {
+        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
+    }
+    $load() {
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            if (this.__isLoaded(i)) {
+                continue;
+            }
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexVaoHandles[i] = vertexHandles;
+            MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+        }
+    }
+    $prerender(instanceIDBufferUid) {
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            if (this.__isLoaded(i)) {
+                this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            }
+            this.__webglResourceRepository.setVertexDataToShaderProgram(this.__vertexVaoHandles[i], this.__vertexShaderProgramHandles[i], primitive, instanceIDBufferUid);
+        }
+    }
+    $render() {
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
+        }
+    }
+}
+MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
+ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
 class Primitive extends RnObject {
     constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
@@ -3378,11 +4244,6 @@ class Primitive extends RnObject {
                 componentType: ComponentType.fromTypedArray(attributes[i]),
                 count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
             });
-            // for (let j=0; j<(attribute.byteLength/accessor.componentSizeInBytes); j++) {
-            //   const idx = Math.floor(j/3);
-            //   const idx3 = idx * 3;
-            //   accessor.setVec3(idx, attribute[idx3+0], attribute[idx3+1], attribute[idx3+2]);
-            // }
             accessor.copyFromTypedArray(attribute);
             attributeAccessors.push(accessor);
         });
@@ -3424,11 +4285,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$4({ index }) {
-    return _from({ typeList: typeList$4, index });
+const typeList$6 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$6({ index }) {
+    return _from({ typeList: typeList$6, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$6 });
 
 class ProcessStageClass extends EnumClass {
     constructor({ index, str, methodName }) {
@@ -3448,11 +4309,11 @@ const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodNam
 const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
 const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
 const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-const typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$5({ index }) {
-    return _from({ typeList: typeList$5, index });
+const typeList$7 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$7({ index }) {
+    return _from({ typeList: typeList$7, index });
 }
-const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$7 });
 
 const singleton$4 = Symbol();
 class System {
@@ -3468,20 +4329,27 @@ class System {
             ProcessStage.Discard
         ];
         this.__componentRepository = ComponentRepository.getInstance();
+        this.__renderingPipeline = WebGLRenderingPipeline;
         if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
     }
     process() {
         this.__processStages.forEach(stage => {
+            const methodName = stage.getMethodName();
+            const args = [];
+            let instanceIDBufferUid = 0;
             const componentTids = this.__componentRepository.getComponentTIDs();
+            if (methodName === '$prerender') {
+                instanceIDBufferUid = this.__renderingPipeline.common_prerender();
+                args.push(instanceIDBufferUid);
+            }
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
                 components.forEach(component => {
-                    const methodName = stage.getMethodName();
                     const method = component[methodName];
                     if (method != null) {
-                        method.apply(component);
+                        method.apply(component, args);
                     }
                 });
             });
@@ -3501,6 +4369,7 @@ var main = Object.freeze({
     TransformComponent,
     SceneGraphComponent,
     MeshComponent,
+    MeshRendererComponent,
     Primitive,
     WebGLResourceRepository,
     CompositionType,
@@ -3509,6 +4378,10 @@ var main = Object.freeze({
     PrimitiveMode,
     GLSLShader,
     System,
+    Vector3,
+    Vector4,
+    Matrix33,
+    Matrix44,
 });
 
 export default main;

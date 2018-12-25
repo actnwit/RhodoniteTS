@@ -2,8 +2,15 @@ import Accessor from "../../memory/Accessor";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import Primitive from "../../geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
-import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute } from "../../definitions/VertexAttribute";
 import { WebGLExtension, WebGLExtensionEnum } from "../../definitions/WebGLExtension";
+import MemoryManager from "../../core/MemoryManager";
+import { TextureParameterEnum } from "../../definitions/TextureParameter";
+import { PixelFormatEnum } from "../../definitions/PixelFormat";
+import { ComponentTypeEnum } from "../../main";
+import Buffer from "../../memory/Buffer";
+import { CompositionType } from "../../definitions/CompositionType";
+import { ComponentType } from "../../definitions/ComponentType";
 const singleton:any = Symbol();
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -23,7 +30,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  static getInstance() {
+  static getInstance(): WebGLResourceRepository {
     const thisClass = WebGLResourceRepository;
     if (!(thisClass as any)[singleton]) {
       (thisClass as any)[singleton] = new WebGLResourceRepository(thisClass.__singletonEnforcer);
@@ -65,10 +72,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-
-    // console.log(accsessor.dataViewOfBufferView.getUint16(0, true), accsessor.dataViewOfBufferView.getUint16(2, true),
-    // accsessor.dataViewOfBufferView.getUint16(4, true), accsessor.dataViewOfBufferView.getUint16(6, true), accsessor.dataViewOfBufferView.getUint16(8, true),
-    // accsessor.dataViewOfBufferView.getUint16(10, true))
     return resourceHandle;
   }
 
@@ -86,14 +89,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    console.log(accsessor.dataViewOfBufferView.getFloat32(0, true), accsessor.dataViewOfBufferView.getFloat32(4, true),
-    accsessor.dataViewOfBufferView.getFloat32(8, true), accsessor.dataViewOfBufferView.getFloat32(12, true), accsessor.dataViewOfBufferView.getFloat32(16, true),
-    accsessor.dataViewOfBufferView.getFloat32(20, true),accsessor.dataViewOfBufferView.getFloat32(24, true),
-    accsessor.dataViewOfBufferView.getFloat32(28, true),accsessor.dataViewOfBufferView.getFloat32(32, true),accsessor.dataViewOfBufferView.getFloat32(36, true),
-    accsessor.dataViewOfBufferView.getFloat32(40, true),accsessor.dataViewOfBufferView.getFloat32(44, true))
-
-    //console.log(accsessor.dataViewOfBufferView.byteLength);
 
     return resourceHandle;
 
@@ -213,7 +208,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setVertexDataToShaderProgram(
     {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
     shaderProgramHandle: WebGLResourceHandle,
-    primitive: Primitive)
+    primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = 0)
   {
     const gl = this.__gl!;
 
@@ -226,7 +221,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       const ibo = this.getWebGLResource(iboHandle);
       if (ibo != null) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        console.log('ELEMENT')
       } else {
         throw new Error('Nothing Element Array Buffer!');
       }
@@ -244,13 +238,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         throw new Error('Nothing Element Array Buffer at index '+ i);
       }
       gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-      console.log(        primitive.attributeSemantics[i].index,
-        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
-        primitive.attributeComponentTypes[i].index,
-        false,
-        primitive.attributeAccessors[i].byteStride,
-        primitive.attributeAccessors[i].arrayBufferOfBufferView.byteLength
-);
       gl.vertexAttribPointer(
         primitive.attributeSemantics[i].index,
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
@@ -260,8 +247,65 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         0
         );
     });
+
+    // for InstanceIDBuffer
+    if (instanceIDBufferUid !== 0) {
+      const ext = this.getExtension(WebGLExtension.InstancedArrays);
+      const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
+      if (instanceIDBuffer != null) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
+      } else {
+        throw new Error('Nothing Element Array Buffer at index');
+      }
+      gl.enableVertexAttribArray(VertexAttribute.Instance.index);
+      gl.vertexAttribPointer(
+        VertexAttribute.Instance.index,
+        CompositionType.Scalar.getNumberOfComponents(),
+        ComponentType.Float.index,
+        false,
+        0,
+        0
+        );
+      ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
+    }
+
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     extVAO.bindVertexArrayOES(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
+  createTexture(typedArray: TypedArray, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT}:
+    {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
+      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
+    const gl = this.__gl!;
+
+    this.getExtension(WebGLExtension.TextureFloat);
+    this.getExtension(WebGLExtension.TextureHalfFloat);
+    this.getExtension(WebGLExtension.TextureFloatLinear);
+    this.getExtension(WebGLExtension.TextureHalfFloatLinear);
+
+    const dataTexture = gl.createTexture();
+
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, dataTexture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
+                  format.index, type.index, typedArray);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+
+    return resourceHandle;
+  }
+
+  deleteTexture(textureHandle: WebGLResourceHandle) {
+    const texture = this.getWebGLResource(textureHandle);
+    const gl = this.__gl!;
+    if (texture != null) {
+      gl.deleteTexture(texture!);
+      this.__webglResources.delete(textureHandle);
+    }
   }
 }

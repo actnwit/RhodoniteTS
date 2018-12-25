@@ -8,7 +8,7 @@ export default class RnObject {
     }
   }
 
-  get objectUid() {
+  get objectUid(): ObjectUID {
     return this.__objectUid;
   }
 }

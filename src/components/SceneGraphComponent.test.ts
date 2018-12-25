@@ -4,6 +4,7 @@ import TransformComponent from './TransformComponent';
 import Vector3 from '../math/Vector3';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -35,8 +36,10 @@ test('create Parents and children.', () => {
 //  parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
   sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
 
+  console.log(childEntity.getSceneGraph().worldMatrix);
+
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
-    new Matrix44(
+    new RowMajarMatrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,
       0, 0, 1, 0,

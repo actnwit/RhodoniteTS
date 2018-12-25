@@ -1,7 +1,6 @@
 // import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
-import MathUtil from './MathUtil';
 import Quaternion from './Quaternion';
 
 export default class Matrix33 {
@@ -28,7 +27,7 @@ export default class Matrix33 {
     const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
     const m = m0; 
 
-    if (arguments.length === 10) {
+    if (arguments.length === 9) {
       if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(

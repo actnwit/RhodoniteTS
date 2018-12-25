@@ -95,6 +95,17 @@ export default class BufferView extends RnObject {
       byteOffset = this.__takenByteIndex;
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
     }
+
+    if (byteOffset % 4 !== 0) {
+      console.info('Padding added because of byteOffset is not 4byte aligned.');
+      byteOffset += 4 - byteOffset % 4;
+    }
+
+    if (this.__byteOffset % 4 !== 0) {
+      console.info('Padding added because of byteOffsetFromBuffer is not 4byte aligned.');
+      this.__byteOffset += 4 - this.__byteOffset % 4;
+    }
+
     const accessor = new accessorClass({
       bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer:this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
     });

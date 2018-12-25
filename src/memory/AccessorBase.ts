@@ -28,7 +28,7 @@ export default class AccessorBase extends RnObject {
     super();
     
     this.__bufferView = bufferView;
-    this.__byteOffset = byteOffset;
+    this.__byteOffset = byteOffsetFromBuffer + byteOffset;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
@@ -40,25 +40,28 @@ export default class AccessorBase extends RnObject {
       this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     }
 
-    this.prepare(byteOffsetFromBuffer);
+    this.prepare();
   }
 
-  prepare(byteOffsetFromBuffer:Byte) {
+  prepare() {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
     this.__typedArrayClass = typedArrayClass;
+
+    if (this.__componentType.getSizeInBytes() === 8) {
+      if (this.__byteOffset % 8 !== 0) {
+        console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
+        this.__byteOffset += 8 - this.__byteOffset % 8;
+      }
+    }
     if (this.__bufferView.isSoA) {
-      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
-      this.__dataView = new DataView(this.__raw, byteOffsetFromBuffer + this.__byteOffset);
+      this.__dataView = new DataView(this.__raw, this.__byteOffset);
     }
     this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
 
-    //console.log('Test', this.__byteOffset + this.__byteStride * (count - 1), this.__bufferView.byteLength)
-    if (this.__byteOffset + this.__byteStride * (this.__count - 1) > this.__bufferView.byteLength) {
-      throw new Error('The range of the accessor exceeds the range of the buffer view.')
-    }
   }
 
   getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined
@@ -229,27 +232,16 @@ export default class AccessorBase extends RnObject {
   }
 
   setScalar(index: Index, value: number, endian: boolean = true) {
-    console.log(this.__byteStride*index, value, endian);
     this.__dataViewSetter(this.__byteStride*index, value, endian);
-    // const componentSetter = this.__dataViewSetter(this.componentType)!;
-    // const compositionSetter = (this.dataViewOfBufferView as any)[componentSetter]! as Function;
-    // console.log(componentSetter);
-    // compositionSetter(this.__byteStride*index, value, endian);
   }
 
   setVec2(index: Index, x: number, y: number, endian: boolean = true) {
+    const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
-    this.__dataViewSetter(this.__byteStride*index+1, y, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
   }
 
   setVec3(index: Index, x: number, y: number, z: number, endian: boolean = true) {
-    // const setter = this.__dataViewSetter(this.componentType)!;
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index, x, endian);
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+1, y, endian);
-    // (this.dataViewOfBufferView as any)[setter](this.__byteStride*index+2, z, endian);
-
-    console.log(this.__byteStride, index, x, endian);
-
     const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
     this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
@@ -257,10 +249,11 @@ export default class AccessorBase extends RnObject {
   }
 
   setVec4(index: Index, x: number, y: number, z: number, w: number, endian: boolean = true) {
+    const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
-    this.__dataViewSetter(this.__byteStride*index+1, y, endian);
-    this.__dataViewSetter(this.__byteStride*index+2, z, endian);
-    this.__dataViewSetter(this.__byteStride*index+3, w, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
+    this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, z, endian);
+    this.__dataViewSetter(this.__byteStride*index+3*sizeInBytes, w, endian);
   }
 
   copyFromTypedArray(typedArray: TypedArray) {

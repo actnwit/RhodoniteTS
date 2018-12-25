@@ -2,7 +2,6 @@
 
 import Vector3 from './Vector3';
 import Vector4 from './Vector4';
-import MathUtil from './MathUtil';
 import Matrix44 from './Matrix44';
 
 export default class Quaternion {

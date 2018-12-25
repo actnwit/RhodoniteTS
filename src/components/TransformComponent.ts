@@ -4,7 +4,6 @@ import Vector4 from '../math/Vector4';
 import Quaternion from '../math/Quaternion';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
-import MathUtil from '../math/MathUtil';
 import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
 import Component from '../core/Component';
@@ -45,8 +44,8 @@ export default class TransformComponent extends Component {
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
-  constructor(entityUid: EntityUID) {
-    super(entityUid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+    super(entityUid, componentSid);
 
     const thisClass = TransformComponent;
 
@@ -55,7 +54,7 @@ export default class TransformComponent extends Component {
     this._scale = new Vector3(1, 1, 1);
     this._quaternion = new Quaternion(thisClass.__accesseor_quaternion.takeOne());
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float64Array, false, true);
+    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float32Array, false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -90,7 +89,8 @@ export default class TransformComponent extends Component {
 
   static setupBufferView() {
     const thisClass = TransformComponent;
-    const buffer = MemoryManager.getInstance().getBufferForCPU();    const count = EntityRepository.getMaxEntityNumber();
+    const buffer = MemoryManager.getInstance().getBufferForCPU();
+    const count = EntityRepository.getMaxEntityNumber();
     thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 
     // accessors
@@ -104,7 +104,6 @@ export default class TransformComponent extends Component {
 
     //this.registerDependency(AnimationComponent.componentTID, false);
 
-    console.log('$create');
   }
 
   $updateLogic() {
@@ -262,7 +261,7 @@ export default class TransformComponent extends Component {
 
     // rotate
     const rotationMatrix = new Matrix44(this.quaternion);
-    const matrix = Matrix44.multiply(rotationMatrix, scaleMatrix);
+    this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
 
     // translate
     const translate = this.translate;
@@ -484,3 +483,4 @@ export default class TransformComponent extends Component {
 }
 
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
+TransformComponent.setupBufferView();

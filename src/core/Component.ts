@@ -8,9 +8,9 @@ export default class Component {
   protected __memoryManager: MemoryManager;
   protected __entityRepository: EntityRepository;
 
-  constructor(entityUid: EntityUID) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     this.__entityUid = entityUid
-    this._component_sid = 0;
+    this._component_sid = componentSid;
     this.__isAlive = true;
 
     this.__memoryManager = MemoryManager.getInstance();
@@ -23,6 +23,10 @@ export default class Component {
 
   get componentSID() {
     return this._component_sid;
+  }
+
+  get entityUID() {
+    return this.__entityUid;
   }
 
   static get byteSizeOfThisComponent() {
@@ -55,7 +59,7 @@ export default class Component {
 
   }
 
-  $prerender() {
+  $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
 
   }
 
@@ -73,6 +77,6 @@ export default class Component {
 }
 
 export interface ComponentConstructor {
-  new(entityUid: EntityUID): Component;
+  new(entityUid: EntityUID, componentSid: ComponentSID): Component;
   setupBufferView(): void;
 }
