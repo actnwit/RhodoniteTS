@@ -2704,11 +2704,11 @@ class BufferView extends RnObject {
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
         }
         if (byteOffset % 4 !== 0) {
-            console.info('Padding added because of byteOffset is not 4byte aligned.');
+            console.info('Padding bytes added because byteOffset is not 4byte aligned.');
             byteOffset += 4 - byteOffset % 4;
         }
         if (this.__byteOffset % 4 !== 0) {
-            console.info('Padding added because of byteOffsetFromBuffer is not 4byte aligned.');
+            console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
             this.__byteOffset += 4 - this.__byteOffset % 4;
         }
         const accessor = new accessorClass({
@@ -2740,12 +2740,12 @@ class Buffer extends RnObject {
     }
     takeBufferView({ byteLengthToNeed, byteStride, isAoS }) {
         if (byteLengthToNeed % 4 !== 0) {
-            throw new Error('Because of memory alignment constraints, byteLengthToNeed must be a multiple of 4.');
-            return null;
+            console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
+            byteLengthToNeed += 4 - (byteLengthToNeed % 4);
         }
         if (byteStride % 4 !== 0) {
-            throw new Error('Because of memory alignment constraints, byteStride must be a multiple of 4.');
-            return null;
+            console.info('Padding bytes added, byteStride must be a multiple of 4.');
+            byteStride += 4 - (byteStride % 4);
         }
         const array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
         const bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });

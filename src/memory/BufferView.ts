@@ -97,12 +97,12 @@ export default class BufferView extends RnObject {
     }
 
     if (byteOffset % 4 !== 0) {
-      console.info('Padding added because of byteOffset is not 4byte aligned.');
+      console.info('Padding bytes added because byteOffset is not 4byte aligned.');
       byteOffset += 4 - byteOffset % 4;
     }
 
     if (this.__byteOffset % 4 !== 0) {
-      console.info('Padding added because of byteOffsetFromBuffer is not 4byte aligned.');
+      console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
       this.__byteOffset += 4 - this.__byteOffset % 4;
     }
 
