@@ -2342,6 +2342,9 @@ class Buffer extends RnObject {
         this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
         return bufferView;
     }
+    get byteSizeInUse() {
+        return this.__byteLength;
+    }
 }
 
 /**
@@ -2356,14 +2359,13 @@ class MemoryManager {
     constructor(enforcer) {
         //__entityMaxCount: number;
         this.__buffers = new Map();
-        this.__bufferLengthOfOneSide = Math.pow(2, 10);
         const thisClass = MemoryManager;
         if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof MemoryManager)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
         }
         // BufferForGPU
         {
-            const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide * this.__bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2374,7 +2376,7 @@ class MemoryManager {
         }
         // BufferForCPU
         {
-            const arrayBuffer = new ArrayBuffer(this.__bufferLengthOfOneSide * this.__bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -2397,11 +2399,12 @@ class MemoryManager {
     getBufferForCPU() {
         return this.__bufferForCPU;
     }
-    get bufferLengthOfOneSide() {
-        return this.__bufferLengthOfOneSide;
+    static get bufferLengthOfOneSide() {
+        return MemoryManager.__bufferLengthOfOneSide;
     }
 }
 MemoryManager.__singletonEnforcer = Symbol();
+MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
 
 const singleton$1 = Symbol();
 class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -3912,13 +3915,13 @@ vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
 void main ()
 {
   float index = a_instanceID - 1.0;
-  float powVal = pow(2.0, 10.0);
+  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
   vec2 arg = vec2(1.0/powVal, 1.0/powVal);
 
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-  vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
+  //vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
 
   mat4 matrix = mat4(
     col0.x, col1.x, col2.x, 0.0,
@@ -4052,14 +4055,21 @@ const WebGLRenderingPipeline = new class {
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         // const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-        // for (let i=0; i<floatDataTextureBuffer.length; i++) {
+        // let convertLength = buffer.byteSizeInUse / 4; //components
+        // convertLength /= 2; // bytes
+        // for (let i=0; i<convertLength; i++) {
         //   halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-        //  }
+        // }
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-            level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
+            level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
         });
+        // this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDateTextureBuffer, {
+        //   level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
+        //     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+        //     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+        //   });
     }
     render(vaoHandle, shaderProgramHandle, primitive) {
         const gl = this.__webglResourceRepository.currentWebGLContext;

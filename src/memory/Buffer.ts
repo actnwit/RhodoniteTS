@@ -43,4 +43,8 @@ export default class Buffer extends RnObject {
 
     return bufferView;
   }
+
+  get byteSizeInUse() {
+    return this.__byteLength;
+  }
 }

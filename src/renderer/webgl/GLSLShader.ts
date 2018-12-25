@@ -1,4 +1,5 @@
 import { VertexAttributeEnum, VertexAttribute } from "../../definitions/VertexAttribute";
+import MemoryManager from "../../core/MemoryManager";
 
 export type AttributeNames = Array<string>;
 
@@ -32,13 +33,13 @@ vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
 void main ()
 {
   float index = a_instanceID - 1.0;
-  float powVal = pow(2.0, 10.0);
+  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
   vec2 arg = vec2(1.0/powVal, 1.0/powVal);
 
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-  vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
+  //vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
 
   mat4 matrix = mat4(
     col0.x, col1.x, col2.x, 0.0,
