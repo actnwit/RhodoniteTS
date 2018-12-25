@@ -292,7 +292,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, dataTexture!);
 
     gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border,
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
                   format.index, type.index, typedArray);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
