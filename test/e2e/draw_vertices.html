@@ -31,10 +31,10 @@
       ]);
 
       const positions = new Float32Array([
-        -0.1, -0.1, 0.0,
-         0.1, -0.1, 0.0,
-         0.1, 0.1, 0.0,
-        -0.1, 0.1, 0.0
+        -1, -1, 0.0,
+         1, -1, 0.0,
+         1, 1, 0.0,
+        -1, 1, 0.0
       ]);
 
       const colors = new Float32Array([
@@ -84,19 +84,31 @@
     // firstEntity.getTransform().translate = new Rn.Vector3(0.2, 0.0, 0.0);
     // secondEntity.getTransform().translate = new Rn.Vector3(0.0, 0.2, 0.0);
 
-    for (let i=0; i<1000; i++) {
+    const entities = [];
+    const entityNumber = 1000;
+    for (let i=0; i<entityNumber; i++) {
+      const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
+      entities.push(entity);
       const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
       meshComponent.addPrimitive(primitive);
-      entity.getTransform().scale = new Rn.Vector3(0.2 * i, 0.2 * i, 0.2 * i);
-      entity.getTransform().translate = new Rn.Vector3(0.1 * i, 0.0, 0.0);
-      entity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, 0.1 * i);
+      entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber, 1/sqrtEntityNumber, 1/sqrtEntityNumber);
+      entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
     }
 
-
-
     const system = Rn.System.getInstance();
-    system.process();
+    const startTime = Date.now();
+    const draw = ()=>{
+      const date = new Date();
+      entities.forEach(entity=>{
+        entity.getTransform().rotate = new Rn.Vector3(0.0, 0.0, 0.001 * (date.getTime() - startTime));
+      });
+//      console.log(date.getTime());
+      system.process();
+      requestAnimationFrame(draw);
+    }
+
+    draw();
 
   </script>
 </body>

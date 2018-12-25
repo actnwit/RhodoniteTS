@@ -285,7 +285,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.getExtension(WebGLExtension.TextureHalfFloatLinear);
 
     const memoryManager:MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPU();
+    //const buffer: Buffer = memoryManager.getBufferForGPU();
     const dataTexture = gl.createTexture();
 
     const resourceHandle = this.getResourceNumber();
@@ -293,12 +293,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindTexture(gl.TEXTURE_2D, dataTexture);
     gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border,
-                  format.index, type.index, new Float32Array(buffer.getArrayBuffer()));
+                  format.index, type.index, typedArray);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
 
     return resourceHandle;
+  }
+
+  deleteTexture(textureHandle: WebGLResourceHandle) {
+    const texture = this.getWebGLResource(textureHandle);
+    const gl = this.__gl!;
+    if (texture != null) {
+      gl.deleteTexture(texture!);
+      this.__webglResources.delete(textureHandle);
+    }
   }
 }

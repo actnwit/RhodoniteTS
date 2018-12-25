@@ -2356,7 +2356,7 @@ class MemoryManager {
     constructor(enforcer) {
         //__entityMaxCount: number;
         this.__buffers = new Map();
-        this.__bufferLengthOfOneSide = Math.pow(2, 11);
+        this.__bufferLengthOfOneSide = Math.pow(2, 9);
         const thisClass = MemoryManager;
         if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof MemoryManager)) {
             throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
@@ -2595,17 +2595,25 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         this.getExtension(WebGLExtension.TextureFloatLinear);
         this.getExtension(WebGLExtension.TextureHalfFloatLinear);
         const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForGPU();
+        //const buffer: Buffer = memoryManager.getBufferForGPU();
         const dataTexture = gl.createTexture();
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, dataTexture);
         gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border, format.index, type.index, new Float32Array(buffer.getArrayBuffer()));
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, memoryManager.bufferLengthOfOneSide, memoryManager.bufferLengthOfOneSide, border, format.index, type.index, typedArray);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
         return resourceHandle;
+    }
+    deleteTexture(textureHandle) {
+        const texture = this.getWebGLResource(textureHandle);
+        const gl = this.__gl;
+        if (texture != null) {
+            gl.deleteTexture(texture);
+            this.__webglResources.delete(textureHandle);
+        }
     }
 }
 
@@ -3344,16 +3352,24 @@ uniform sampler2D u_dataTexture;
  * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
  * arg = vec2(1. / size.x, 1. / size.x / size.y);
  */
-vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+// {
+//   return texture2D( tex, arg * (index + 0.5) );
+// }
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
 {
-  return texture2D( tex, arg * (index + 0.5) );
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return texture2D( tex, vec2(x, y) );
 }
 
 void main ()
 {
   float index = a_instanceID - 1.0;
-  vec2 arg = vec2(0.00048828125, 0.000000238418579);
-  //vec2 arg = vec2(0.00048828125, 0.00048828125);
+  float powVal = pow(2.0, 9.0);
+  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
    
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
@@ -3449,15 +3465,15 @@ const WebGLRenderingPipeline = new class {
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
+        this.__createDataTexture();
         if (this.__isReady()) {
             return 0;
         }
-        this.__createDataTexture();
         this.__createInstanceIDBuffer();
         return this.__instanceIDBufferUid;
     }
     __isReady() {
-        if (this.__dataTextureUid !== 0) {
+        if (this.__instanceIDBufferUid !== 0) {
             return true;
         }
         else {
@@ -3476,9 +3492,18 @@ const WebGLRenderingPipeline = new class {
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
     __createDataTexture() {
+        if (this.__dataTextureUid !== 0) {
+            //return;
+            this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+            this.__dataTextureUid = 0;
+        }
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        // const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+        // for (let i=0; i<floatDataTextureBuffer.length; i++) {
+        //   halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+        // }
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
             level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,

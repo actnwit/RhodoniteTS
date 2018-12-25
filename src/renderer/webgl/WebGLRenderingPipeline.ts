@@ -11,6 +11,7 @@ import EntityRepository from "../../core/EntityRepository";
 import { CompositionType } from "../../definitions/CompositionType";
 import ComponentRepository from "../../core/ComponentRepository";
 import MeshComponent from "../../components/MeshComponent";
+import { MathUtil } from "../../math/MathUtil";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -25,11 +26,11 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       throw new Error('No WebGLRenderingContext!');
     }
 
+    this.__createDataTexture();
+
     if (this.__isReady()) {
       return 0;
     }
-
-    this.__createDataTexture();
 
     this.__createInstanceIDBuffer();
 
@@ -37,7 +38,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __isReady() {
-    if (this.__dataTextureUid !== 0) {
+    if (this.__instanceIDBufferUid !== 0) {
       return true;
     } else {
       return false;
@@ -59,9 +60,20 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __createDataTexture() {
+    if (this.__dataTextureUid !== 0) {
+      //return;
+      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = 0;
+    }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+    
+    // const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+    // for (let i=0; i<floatDataTextureBuffer.length; i++) {
+    //   halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+    // }
+
     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
     level: 0, internalFormat: PixelFormat.RGBA, width: memoryManager.bufferLengthOfOneSide, height: memoryManager.bufferLengthOfOneSide,
       border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
