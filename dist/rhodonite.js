@@ -134,6 +134,80 @@ function fromTypedArray(typedArray) {
 }
 const ComponentType = Object.freeze({ Unknown: Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$3, fromTypedArray });
 
+class WebGLContextWrapper {
+    constructor(gl) {
+        this.__webglVersion = 1;
+        this.__extensions = new Map();
+        this.__gl = gl;
+        if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
+            this.__webglVersion = 2;
+        }
+        else {
+            this.__webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
+            this.__webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
+            this.__webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
+            this.__webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
+            this.__webgl1ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
+            this.__webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear);
+        }
+    }
+    getRawContext() {
+        return this.__gl;
+    }
+    get isWebGL2() {
+        if (this.__webglVersion === 2) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    createVertexArray() {
+        if (this.isWebGL2) {
+            this.__gl.createVertexArray();
+        }
+        else {
+            this.__webgl1ExtVAO.createVertexArrayOES();
+        }
+    }
+    bindVertexArray(vao) {
+        if (this.isWebGL2) {
+            this.__gl.bindVertexArray(vao);
+        }
+        else {
+            this.__webgl1ExtVAO.bindVertexArrayOES(vao);
+        }
+    }
+    vertexAttribDivisor(index, divisor) {
+        if (this.isWebGL2) {
+            this.__gl.vertexAttribDivisor(index, divisor);
+        }
+        else {
+            this.__webgl1ExtIA.bindVertexArrayANGLE(index, divisor);
+        }
+    }
+    drawElementsInstanced(primitiveMode, indicesCount, type, instancesCount) {
+        if (this.isWebGL2) {
+            this.__gl.drawElementsInstanced(primitiveMode, indicesCount, type, instancesCount);
+        }
+        else {
+            this.__webgl1ExtIA.drawElementsInstancedANGLE(primitiveMode, indicesCount, type, instancesCount);
+        }
+    }
+    __getExtension(extension) {
+        const gl = this.__gl;
+        if (!this.__extensions.has(extension)) {
+            const extObj = gl.getExtension(extension.toString());
+            if (extObj == null) {
+                console.error(`The library does not support this environment because the ${extension.toString()} is not available`);
+            }
+            this.__extensions.set(extension, extObj);
+            return extObj;
+        }
+        return this.__extensions.get(extension);
+    }
+}
+
 const singleton = Symbol();
 class WebGLResourceRepository extends CGAPIResourceRepository {
     constructor(enforcer) {
@@ -153,14 +227,15 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         }
         return thisClass[singleton];
     }
-    addWebGLContext(webglContext, asCurrent) {
-        this.__webglContexts.set('default', webglContext);
+    addWebGLContext(gl, asCurrent) {
+        const glw = new WebGLContextWrapper(gl);
+        this.__webglContexts.set('default', glw);
         if (asCurrent) {
-            this.__gl = webglContext;
+            this.__glw = glw;
         }
     }
-    get currentWebGLContext() {
-        return this.__gl;
+    get currentWebGLContextWrapper() {
+        return this.__glw;
     }
     getResourceNumber() {
         return ++this.__resourceCounter;
@@ -169,7 +244,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return this.__webglResources.get(WebGLResourceHandle);
     }
     createIndexBuffer(accsessor) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
@@ -182,7 +257,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return resourceHandle;
     }
     createVertexBuffer(accsessor) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
@@ -195,7 +270,10 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return resourceHandle;
     }
     getExtension(extension) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
+        if (gl.constructor.name === 'WebGL2RenderingContext') {
+            return gl;
+        }
         if (!this.__extensions.has(extension)) {
             const extObj = gl.getExtension(extension.toString());
             if (extObj == null) {
@@ -206,8 +284,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         }
         return this.__extensions.get(extension);
     }
+    __createVertexArrayInner() {
+        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+        const vao = extVAO.createVertexArrayOES();
+    }
     createVertexArray() {
-        const gl = this.__gl;
+        const gl = this.__glw;
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
@@ -218,7 +300,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return resourceHandle;
     }
     createVertexDataResources(primitive) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         const vaoHandle = this.createVertexArray();
         let iboHandle;
         if (primitive.hasIndices) {
@@ -233,7 +315,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return { vaoHandle, iboHandle, vboHandles };
     }
     createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
@@ -260,20 +342,20 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         return resourceHandle;
     }
     __checkShaderCompileStatus(shader) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
         }
     }
     __checkShaderProgramLinkStatus(shaderProgram) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         // If creating the shader program failed, alert
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
     setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive, instanceIDBufferUid = 0) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         const vao = this.getWebGLResource(vaoHandle);
         const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
         extVAO.bindVertexArrayOES(vao);
@@ -320,7 +402,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
     createTexture(typedArray, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT }) {
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         this.getExtension(WebGLExtension.TextureFloat);
         this.getExtension(WebGLExtension.TextureHalfFloat);
         this.getExtension(WebGLExtension.TextureFloatLinear);
@@ -338,7 +420,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
     }
     deleteTexture(textureHandle) {
         const texture = this.getWebGLResource(textureHandle);
-        const gl = this.__gl;
+        const gl = this.__glw.getRawContext();
         if (texture != null) {
             gl.deleteTexture(texture);
             this.__webglResources.delete(textureHandle);
@@ -4063,7 +4145,7 @@ const WebGLRenderingPipeline = new class {
         this.__instanceIDBufferUid = 0;
     }
     common_prerender() {
-        const gl = this.__webglResourceRepository.currentWebGLContext;
+        const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
@@ -4116,7 +4198,7 @@ const WebGLRenderingPipeline = new class {
         }
     }
     render(vaoHandle, shaderProgramHandle, primitive) {
-        const gl = this.__webglResourceRepository.currentWebGLContext;
+        const gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
         const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
         const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
         const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);

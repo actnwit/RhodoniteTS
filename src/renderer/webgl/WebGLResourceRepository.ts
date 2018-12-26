@@ -11,12 +11,13 @@ import { ComponentTypeEnum } from "../../main";
 import Buffer from "../../memory/Buffer";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
+import WebGLContextWrapper from "./WebGLContextWrapper";
 const singleton:any = Symbol();
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   static __singletonEnforcer:Symbol;
-  private __webglContexts: Map<string, WebGLRenderingContext> = new Map();
-  private __gl?: WebGLRenderingContext;
+  private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
+  private __glw?: WebGLContextWrapper;
   private __resourceCounter: number = 0;
   private __webglResources: Map<WebGLResourceHandle, WebGLObject> = new Map();
 
@@ -38,15 +39,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return (thisClass as any)[singleton];
   }
 
-  addWebGLContext(webglContext: WebGLRenderingContext, asCurrent: boolean) {
-    this.__webglContexts.set('default', webglContext);
+  addWebGLContext(gl: WebGLRenderingContext, asCurrent: boolean) {
+    const glw = new WebGLContextWrapper(gl);
+    this.__webglContexts.set('default', glw);
     if (asCurrent) {
-      this.__gl = webglContext;
+      this.__glw = glw;
     }
   }
 
-  get currentWebGLContext() {
-    return this.__gl;
+  get currentWebGLContextWrapper() {
+    return this.__glw;
   }
 
   private getResourceNumber(): WebGLResourceHandle {
@@ -58,7 +60,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   createIndexBuffer(accsessor: Accessor) {
-    const gl = this.__gl;
+    const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
@@ -76,7 +78,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   createVertexBuffer(accsessor: Accessor) {
-    const gl = this.__gl;
+    const gl = this.__glw!.getRawContext();;
 
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
@@ -95,9 +97,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   getExtension(extension: WebGLExtensionEnum) {
-    const gl: any = this.__gl;
-    if (!this.__extensions.has(extension)) {
+    const gl: any = this.__glw!.getRawContext();;
+    if (gl.constructor.name === 'WebGL2RenderingContext') {
+      return gl;
+    }
 
+    if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
         throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
@@ -108,8 +113,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.__extensions.get(extension);
   }
 
+  private __createVertexArrayInner() {
+    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
+    const vao = extVAO.createVertexArrayOES();
+
+  }
+
 　createVertexArray() {
-    const gl = this.__gl;
+    const gl = this.__glw;
 
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
@@ -127,7 +138,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createVertexDataResources(primitive: Primitive): {
     vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>
   } {
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();
 
     const vaoHandle = this.createVertexArray();
 
@@ -148,7 +159,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   createShaderProgram(vertexShaderStr:string, fragmentShaderStr:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>) {
-    const gl = this.__gl;
+    const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
@@ -189,7 +200,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderCompileStatus(shader: WebGLShader) {
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();;
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
@@ -197,7 +208,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram) {
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();;
 
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
@@ -210,7 +221,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     shaderProgramHandle: WebGLResourceHandle,
     primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = 0)
   {
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();;
 
     const vao = this.getWebGLResource(vaoHandle);
     const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
@@ -277,7 +288,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createTexture(typedArray: TypedArray, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();;
 
     this.getExtension(WebGLExtension.TextureFloat);
     this.getExtension(WebGLExtension.TextureHalfFloat);
@@ -302,7 +313,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   deleteTexture(textureHandle: WebGLResourceHandle) {
     const texture = this.getWebGLResource(textureHandle);
-    const gl = this.__gl!;
+    const gl = this.__glw!.getRawContext();;
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);

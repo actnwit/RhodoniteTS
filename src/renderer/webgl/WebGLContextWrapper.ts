@@ -26,6 +26,10 @@ export default class WebGLContextWrapper {
     }
   }
 
+  getRawContext(): WebGLRenderingContext|any {
+    return this.__gl;
+  }
+
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;

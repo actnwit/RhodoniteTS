@@ -20,7 +20,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
 
   common_prerender(): CGAPIResourceHandle {
-    const gl = this.__webglResourceRepository.currentWebGLContext;
+    const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
 
     if (gl == null) {
       throw new Error('No WebGLRenderingContext!');
@@ -95,7 +95,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   render(vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-    const gl = this.__webglResourceRepository.currentWebGLContext!;
+    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
     const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
