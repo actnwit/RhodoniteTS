@@ -71,25 +71,41 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const isHalfFloatMode = true;
     if (isHalfFloatMode) {
 
-      const halfFloatDateTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-      let convertLength = buffer.byteSizeInUse / 4; //components
-      convertLength /= 2; // bytes
-      for (let i=0; i<convertLength; i++) {
-        halfFloatDateTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+          level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+          });
+      } else {
+        const halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+        let convertLength = buffer.byteSizeInUse / 4; //components
+        convertLength /= 2; // bytes
+        for (let i=0; i<convertLength; i++) {
+          halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+        }
+  
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+          });
       }
 
-      this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDateTextureBuffer, {
-        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-          border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-        });
-
     } else {
-      this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-      level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-      });
+      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+          });
+      } else {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+          });
+      }
     }
 
   }
