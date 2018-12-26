@@ -31,7 +31,7 @@
       </div>
     </section>
     <section class="correct">
-      <h2>Currect PNG Image</h2>
+      <h2>Correct PNG Image</h2>
       <img src="__image_snapshots__/test-js-regression-test-1-snap.png" />
     </section>
   </main>
@@ -145,12 +145,14 @@
 
     repo.addWebGLContext(gl, true);
 
+    gl.enable(gl.DEPTH_TEST);
+
     gl.viewport(0, 0, 600, 600);
 
     // 背景描画
-		gl.clearColor(0.8, 0.8, 0.8, 1.0);
-		// バッファをクリアする
-		gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearColor(0.8, 0.8, 0.8, 1.0);
+    // バッファをクリアする
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     const primitive = readyBasicVerticesData();
 
