@@ -45,19 +45,6 @@ const VertexAttribute = Object.freeze({
     Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
 });
 
-class WebGLExtensionClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });
-const TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });
-const TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
-const TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
-const TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
-const InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });
-const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays });
-
 class CompositionTypeClass extends EnumClass {
     constructor({ index, str, numberOfComponents }) {
         super({ index, str });
@@ -76,11 +63,11 @@ const Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponent
 const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
 const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
 const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
-const typeList$2 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$2({ index }) {
-    return _from({ typeList: typeList$2, index });
+const typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+function from$1({ index }) {
+    return _from({ typeList: typeList$1, index });
 }
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$2 });
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1 });
 
 class ComponentTypeClass extends EnumClass {
     constructor({ index, str, sizeInBytes }) {
@@ -101,9 +88,9 @@ const UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', s
 const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
 const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
 const HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
-const typeList$3 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
-function from$3({ index }) {
-    return _from({ typeList: typeList$3, index });
+const typeList$2 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
+function from$2({ index }) {
+    return _from({ typeList: typeList$2, index });
 }
 function fromTypedArray(typedArray) {
     if (typedArray instanceof Int8Array) {
@@ -132,7 +119,20 @@ function fromTypedArray(typedArray) {
     }
     return Unknown$2;
 }
-const ComponentType = Object.freeze({ Unknown: Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$3, fromTypedArray });
+const ComponentType = Object.freeze({ Unknown: Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from: from$2, fromTypedArray });
+
+class WebGLExtensionClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });
+const TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });
+const TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
+const TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
+const TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
+const InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });
+const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays });
 
 class WebGLContextWrapper {
     constructor(gl) {
@@ -164,10 +164,10 @@ class WebGLContextWrapper {
     }
     createVertexArray() {
         if (this.isWebGL2) {
-            this.__gl.createVertexArray();
+            return this.__gl.createVertexArray();
         }
         else {
-            this.__webgl1ExtVAO.createVertexArrayOES();
+            return this.__webgl1ExtVAO.createVertexArrayOES();
         }
     }
     bindVertexArray(vao) {
@@ -183,15 +183,15 @@ class WebGLContextWrapper {
             this.__gl.vertexAttribDivisor(index, divisor);
         }
         else {
-            this.__webgl1ExtIA.bindVertexArrayANGLE(index, divisor);
+            this.__webgl1ExtIA.vertexAttribDivisorANGLE(index, divisor);
         }
     }
-    drawElementsInstanced(primitiveMode, indicesCount, type, instancesCount) {
+    drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount) {
         if (this.isWebGL2) {
-            this.__gl.drawElementsInstanced(primitiveMode, indicesCount, type, instancesCount);
+            this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
         }
         else {
-            this.__webgl1ExtIA.drawElementsInstancedANGLE(primitiveMode, indicesCount, type, instancesCount);
+            this.__webgl1ExtIA.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
         }
     }
     __getExtension(extension) {
@@ -269,32 +269,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         return resourceHandle;
     }
-    getExtension(extension) {
-        const gl = this.__glw.getRawContext();
-        if (gl.constructor.name === 'WebGL2RenderingContext') {
-            return gl;
-        }
-        if (!this.__extensions.has(extension)) {
-            const extObj = gl.getExtension(extension.toString());
-            if (extObj == null) {
-                throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
-            }
-            this.__extensions.set(extension, extObj);
-            return extObj;
-        }
-        return this.__extensions.get(extension);
-    }
-    __createVertexArrayInner() {
-        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        const vao = extVAO.createVertexArrayOES();
-    }
     createVertexArray() {
         const gl = this.__glw;
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
-        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        const vao = extVAO.createVertexArrayOES();
+        const vao = this.__glw.createVertexArray();
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, vao);
         return resourceHandle;
@@ -357,8 +337,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
     setVertexDataToShaderProgram({ vaoHandle, iboHandle, vboHandles }, shaderProgramHandle, primitive, instanceIDBufferUid = 0) {
         const gl = this.__glw.getRawContext();
         const vao = this.getWebGLResource(vaoHandle);
-        const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-        extVAO.bindVertexArrayOES(vao);
+        this.__glw.bindVertexArray(vao);
         if (iboHandle != null) {
             const ibo = this.getWebGLResource(iboHandle);
             if (ibo != null) {
@@ -385,7 +364,6 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         });
         // for InstanceIDBuffer
         if (instanceIDBufferUid !== 0) {
-            const ext = this.getExtension(WebGLExtension.InstancedArrays);
             const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
             if (instanceIDBuffer != null) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -395,18 +373,14 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             }
             gl.enableVertexAttribArray(VertexAttribute.Instance.index);
             gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
-            ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
+            this.__glw.vertexAttribDivisor(VertexAttribute.Instance.index, 1);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        extVAO.bindVertexArrayOES(null);
+        this.__glw.bindVertexArray(null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
     createTexture(typedArray, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT }) {
         const gl = this.__glw.getRawContext();
-        this.getExtension(WebGLExtension.TextureFloat);
-        this.getExtension(WebGLExtension.TextureHalfFloat);
-        this.getExtension(WebGLExtension.TextureFloatLinear);
-        this.getExtension(WebGLExtension.TextureHalfFloatLinear);
         const dataTexture = gl.createTexture();
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, dataTexture);
@@ -4198,16 +4172,15 @@ const WebGLRenderingPipeline = new class {
         }
     }
     render(vaoHandle, shaderProgramHandle, primitive) {
-        const gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
-        const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
-        const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
+        const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+        const gl = glw.getRawContext();
         const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
-        extVAO.bindVertexArrayOES(vao);
+        glw.bindVertexArray(vao);
         gl.useProgram(shaderProgram);
         this.__setDataTexture(gl, shaderProgram);
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-        ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
+        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
     }
     __setDataTexture(gl, shaderProgram) {
         const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);

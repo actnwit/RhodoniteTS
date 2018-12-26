@@ -95,18 +95,17 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   render(vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
-    const ext = this.__webglResourceRepository.getExtension(WebGLExtension.InstancedArrays);
-    const extVAO = this.__webglResourceRepository.getExtension(WebGLExtension.VertexArrayObject);
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandle);
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle)!;
-    extVAO.bindVertexArrayOES(vao);
+    glw.bindVertexArray(vao!);
     gl.useProgram(shaderProgram);
 
     this.__setDataTexture(gl, shaderProgram);
 
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
-    ext.drawElementsInstancedANGLE(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
+    glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
   }
 
 

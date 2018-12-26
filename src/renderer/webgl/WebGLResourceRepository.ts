@@ -96,29 +96,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
-  getExtension(extension: WebGLExtensionEnum) {
-    const gl: any = this.__glw!.getRawContext();;
-    if (gl.constructor.name === 'WebGL2RenderingContext') {
-      return gl;
-    }
-
-    if (!this.__extensions.has(extension)) {
-      const extObj = gl.getExtension(extension.toString());
-      if (extObj == null) {
-        throw new Error(`The library does not support this environment because the ${extension.toString()} is not available`);
-      }
-      this.__extensions.set(extension, extObj);
-      return extObj;
-    }
-    return this.__extensions.get(extension);
-  }
-
-  private __createVertexArrayInner() {
-    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-    const vao = extVAO.createVertexArrayOES();
-
-  }
-
 　createVertexArray() {
     const gl = this.__glw;
 
@@ -126,8 +103,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
-    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
-    const vao = extVAO.createVertexArrayOES();
+    const vao = this.__glw!.createVertexArray();
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vao);
@@ -224,9 +200,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();;
 
     const vao = this.getWebGLResource(vaoHandle);
-    const extVAO = this.getExtension(WebGLExtension.VertexArrayObject);
 
-    extVAO.bindVertexArrayOES(vao);
+    this.__glw!.bindVertexArray(vao!);
 
     if (iboHandle != null) {
       const ibo = this.getWebGLResource(iboHandle);
@@ -261,7 +236,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     // for InstanceIDBuffer
     if (instanceIDBufferUid !== 0) {
-      const ext = this.getExtension(WebGLExtension.InstancedArrays);
       const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
       if (instanceIDBuffer != null) {
         gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -277,11 +251,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         0,
         0
         );
-      ext.vertexAttribDivisorANGLE(VertexAttribute.Instance.index, 1);
+      this.__glw!.vertexAttribDivisor(VertexAttribute.Instance.index, 1);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    extVAO.bindVertexArrayOES(null);
+    this.__glw!.bindVertexArray(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
@@ -289,11 +263,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
     const gl = this.__glw!.getRawContext();;
-
-    this.getExtension(WebGLExtension.TextureFloat);
-    this.getExtension(WebGLExtension.TextureHalfFloat);
-    this.getExtension(WebGLExtension.TextureFloatLinear);
-    this.getExtension(WebGLExtension.TextureHalfFloatLinear);
 
     const dataTexture = gl.createTexture();
 

@@ -40,13 +40,13 @@ export default class WebGLContextWrapper {
 
   createVertexArray() {
     if (this.isWebGL2) {
-      this.__gl.createVertexArray();
+      return this.__gl.createVertexArray();
     } else {
-      this.__webgl1ExtVAO!.createVertexArrayOES();
+      return this.__webgl1ExtVAO!.createVertexArrayOES();
     }
   }
 
-  bindVertexArray(vao: WebGLObject) {
+  bindVertexArray(vao: WebGLObject|null) {
     if (this.isWebGL2) {
       this.__gl.bindVertexArray(vao);
     } else {
@@ -58,15 +58,15 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       this.__gl.vertexAttribDivisor(index, divisor);
     } else {
-      this.__webgl1ExtIA!.bindVertexArrayANGLE(index, divisor);
+      this.__webgl1ExtIA!.vertexAttribDivisorANGLE(index, divisor);
     }
   }
 
-  drawElementsInstanced(primitiveMode: number, indicesCount: number, type: number, instancesCount: number) {
+  drawElementsInstanced(primitiveMode: number, indexCount: number, type: number, offset: number, instanceCount: number) {
     if (this.isWebGL2) {
-      this.__gl.drawElementsInstanced(primitiveMode, indicesCount, type, instancesCount);
+      this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
     } else {
-      this.__webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indicesCount, type, instancesCount);
+      this.__webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
     }
   }
 
