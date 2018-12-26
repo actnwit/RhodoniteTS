@@ -17,7 +17,7 @@ export default {
   ],
   
   output: {
-    file: 'dist/index.mjs',
+    file: 'dist/rhodonite.js',
     format: 'es',
   }
 

@@ -11,25 +11,6 @@
     "test-coverage": "jest --coverage",
     "doc": "typedoc --includeDeclarations --exclude '**/*.test.ts' --out ./docs/ ./src/"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "globalSetup": "./globalSetup.js",
-    "setupTestFrameworkScriptFile": "./setup.js",
-    "globalTeardown": "./globalTeardown.js",
-    "preset": "jest-puppeteer",
-    "testEnvironment": "./testEnvironment.js"
-  },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "gl": "^4.1.1",
