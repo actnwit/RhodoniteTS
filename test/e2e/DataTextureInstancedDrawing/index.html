@@ -32,12 +32,12 @@
     </section>
     <section class="correct">
       <h2>Currect PNG Image</h2>
-      <img src="./CorrectImage.png" />
+      <img src="__image_snapshots__/test-js-regression-test-1-snap.png" />
     </section>
   </main>
   <script type="module">
 
-    import Rn from '../../../dist/index.mjs';
+    import Rn from '../../../dist/rhodonite.js';
 
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
@@ -168,7 +168,15 @@
 
     const system = Rn.System.getInstance();
     const startTime = Date.now();
-    const draw = ()=>{
+    let p = null;
+    const draw = (time)=>{
+
+      if (time != null && p == null ) {
+        p = document.createElement('p');
+        p.setAttribute("id", "rendered");
+        p.innerText = 'Rendered.';
+        document.body.appendChild(p);
+      }
       const date = new Date();
 
       if (window.isAnimating) {
@@ -176,13 +184,15 @@
           entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
         });
       }
-      
+
 //      console.log(date.getTime());
       system.process();
       requestAnimationFrame(draw);
     }
-
+    
     draw();
+
+
 
   </script>
 </body>

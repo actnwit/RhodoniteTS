@@ -16,6 +16,6 @@ module.exports = {
   "setupTestFrameworkScriptFile": require.resolve("./setup.js"),
   //"globalTeardown": "./globalTeardown.js",
   //"testEnvironment": "./testEnvironment.js",
-  "rootDir": process.cwd()
+  "rootDir": process.cwd(),
 
 };
