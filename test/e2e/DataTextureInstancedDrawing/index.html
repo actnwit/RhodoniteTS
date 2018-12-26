@@ -6,18 +6,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
 </head>
 
 <body>
   <header>
-    <p class="header-title">Rhodonite Index Buffer example</p>
+    <h1 class="header-title">Rhodonite E2E Test - DataTexture Instanced Drawing</h1>
   </header>
   <main>
-    <canvas id="world" width="600" height="600"></canvas>
+    <section class="test">
+      <h2>Rendering Test Image</h2>
+      <canvas id="world" width="600" height="600"></canvas>
+      <div>
+        <button onclick="window.isAnimating = true;">Animate</button>
+      </div>
+    </section>
+    <section class="correct">
+      <h2>Currect PNG Image</h2>
+      <img src="./CorrectImage.png" />
+    </section>
   </main>
   <script type="module">
 
-    import Rn from '../../dist/index.mjs';
+    import Rn from '../../../dist/index.mjs';
 
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
@@ -150,9 +170,13 @@
     const startTime = Date.now();
     const draw = ()=>{
       const date = new Date();
-      entities.forEach(entity=>{
-        entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
-      });
+
+      if (window.isAnimating) {
+        entities.forEach(entity=>{
+          entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
+        });
+      }
+      
 //      console.log(date.getTime());
       system.process();
       requestAnimationFrame(draw);
