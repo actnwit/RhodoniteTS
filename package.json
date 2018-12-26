@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build": "npx rollup -c ./rollup.config.js",
-    "test": "jest",
+    "test": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest",
+    "test-update": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest --updateSnapshot",
     "test-coverage": "jest --coverage",
     "doc": "typedoc --includeDeclarations --exclude '**/*.test.ts' --out ./docs/ ./src/"
   },
@@ -27,6 +28,7 @@
     "typescript": "^3.1.4"
   },
   "dependencies": {
+    "http-server": "^0.11.1",
     "reflect-metadata": "^0.1.12"
   }
 }

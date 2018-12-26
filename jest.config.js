@@ -12,10 +12,6 @@ module.exports = {
     "json",
     "node"
   ],
-  //"globalSetup": require.resolve("./globalSetup.js"),
   "setupTestFrameworkScriptFile": require.resolve("./setup.js"),
-  //"globalTeardown": "./globalTeardown.js",
-  //"testEnvironment": "./testEnvironment.js",
   "rootDir": process.cwd(),
-
 };
