@@ -77,7 +77,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  createVertexBuffer(accsessor: Accessor) {
+  createVertexBuffer(accessor: Accessor) {
     const gl = this.__glw!.getRawContext();;
 
     if (gl == null) {
@@ -89,7 +89,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     return resourceHandle;
