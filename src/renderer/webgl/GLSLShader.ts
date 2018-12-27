@@ -18,23 +18,29 @@ uniform sampler2D u_dataTexture;
  * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
  * arg = vec2(1. / size.x, 1. / size.x / size.y);
  */
-vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+vec4 fetchElement(sampler2D tex, float index, vec2 arg)
 {
-  float t = (index + 0.5) * invSize.x;
-  float x = fract(t);
-  float y = (floor(t) + 0.5) * invSize.y;
-  return texture2D( tex, vec2(x, y) );
+  return texture2D( tex, arg * (index + 0.5) );
 }
+
+// vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+// {
+//   float t = (index + 0.5) * invSize.x;
+//   float x = fract(t);
+//   float y = (floor(t) + 0.5) * invSize.y;
+//   return texture2D( tex, vec2(x, y) );
+// }
 
 mat4 getMatrix(float instanceId)
 {
   float index = instanceId - 1.0;
   float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+//  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
 
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
-  vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
-  vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+ vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+ vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
 
   mat4 matrix = mat4(
     col0.x, col1.x, col2.x, 0.0,
@@ -43,6 +49,13 @@ mat4 getMatrix(float instanceId)
     col0.w, col1.w, col2.w, 1.0
     );
 
+    // mat4 matrix = mat4(
+    //   1.0/100.0, 0.0, 0.0, 0.0,
+    //   0.0, 1.0/100.0, 0.0, 0.0,
+    //   0.0, 0.0, 1.0/100.0, 0.0,
+    //   0.0, 0.0, 0.0, 1.0
+    //   );
+  
   return matrix;
 }
 
@@ -61,7 +74,7 @@ layout (std140) uniform matrix {
 
 mat4 getMatrix(float instanceId) {
   float index = instanceId - 1.0;
-  return u_matrix.world[int(index)];
+  return transpose(u_matrix.world[int(index)]);
 }
   `
   static vertexShaderBody:string = `
@@ -70,6 +83,7 @@ mat4 getMatrix(float instanceId) {
 void main ()
 {
   mat4 matrix = getMatrix(a_instanceID);
+  //mat4 matrix = getMatrix(gl_InstanceID);
 
   gl_Position = matrix * vec4(a_position, 1.0);
 //  gl_Position = vec4(a_position, 1.0);
