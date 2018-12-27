@@ -256,7 +256,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         return resourceHandle;
     }
-    createVertexBuffer(accsessor) {
+    createVertexBuffer(accessor) {
         const gl = this.__glw.getRawContext();
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
@@ -265,7 +265,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         const resourceHandle = this.getResourceNumber();
         this.__webglResources.set(resourceHandle, vbo);
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-        gl.bufferData(gl.ARRAY_BUFFER, accsessor.dataViewOfBufferView, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         return resourceHandle;
     }
@@ -399,6 +399,19 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             gl.deleteTexture(texture);
             this.__webglResources.delete(textureHandle);
         }
+    }
+    createUniformBuffer(accessor) {
+        const gl = this.__glw.getRawContext();
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const vbo = gl.createBuffer();
+        const resourceHandle = this.getResourceNumber();
+        this.__webglResources.set(resourceHandle, vbo);
+        gl.bindBuffer(gl.UNIFORM_BUFFER, vbo);
+        gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+        return resourceHandle;
     }
 }
 
@@ -3939,8 +3952,11 @@ class MeshComponent extends Component {
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
 class GLSLShader {
+    static get vertexShader() {
+        return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
+    }
 }
-GLSLShader.vertexShader = `
+GLSLShader.vertexShaderDefinitions_webgl1 = `
 precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_color;
@@ -3949,15 +3965,11 @@ attribute float a_instanceID;
 varying vec3 v_color;
 uniform sampler2D u_dataTexture;
 
+
 /*
  * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
  * arg = vec2(1. / size.x, 1. / size.x / size.y);
  */
-// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
-// {
-//   return texture2D( tex, arg * (index + 0.5) );
-// }
-
 vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
 {
   float t = (index + 0.5) * invSize.x;
@@ -3966,16 +3978,15 @@ vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
   return texture2D( tex, vec2(x, y) );
 }
 
-void main ()
+mat4 getMatrix(float instanceId)
 {
-  float index = a_instanceID - 1.0;
+  float index = instanceId - 1.0;
   float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
   vec2 arg = vec2(1.0/powVal, 1.0/powVal);
 
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-  //vec4 col3 = fetchElement(u_dataTexture, index * 4.0 + 3.0, arg);
 
   mat4 matrix = mat4(
     col0.x, col1.x, col2.x, 0.0,
@@ -3984,20 +3995,33 @@ void main ()
     col0.w, col1.w, col2.w, 1.0
     );
 
-  // mat4 matrix = mat4(
-  //   col0.x, col0.y, col0.z, 0.0,
-  //   col1.x, col1.y, col1.z, 0.0,
-  //   col2.x, col2.y, col2.z, 0.0,
-  //   col3.x, col3.y, col3.z, 1.0
-  //   );
+  return matrix;
+}
 
-    // mat4 matrix = mat4(
-  //   col0.x, col1.x, col2.x, col3.x,
-  //   col0.y, col1.y, col2.y, col3.y,
-  //   col0.z, col1.z, col2.z, col3.z,
-  //   col0.w, col1.w, col2.w, col3.w
-  //   );
+    `;
+GLSLShader.vertexShaderDefinitions_webgl2 = `
+#version 300 es
+precision highp float;
+in vec3 a_position;
+in vec3 a_color;
+in float a_instanceID;
 
+out vec3 v_color;
+layout (std140) uniform matrix {
+  mat4 world[4000];
+} u_matrix;
+;
+
+mat4 getMatrix(float instanceId) {
+  return u_matrix.world[instanceId];
+}
+  `;
+GLSLShader.vertexShaderBody = `
+
+
+void main ()
+{
+  mat4 matrix = getMatrix(a_instanceID);
 
   gl_Position = matrix * vec4(a_position, 1.0);
 //  gl_Position = vec4(a_position, 1.0);
