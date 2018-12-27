@@ -35,6 +35,8 @@
       <img src="__image_snapshots__/test-js-regression-test-1-snap.png" />
     </section>
   </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
   <script type="module">
 
     import Rn from '../../../dist/rhodonite.js';
@@ -157,7 +159,7 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 1000;
+    const entityNumber = 100;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
