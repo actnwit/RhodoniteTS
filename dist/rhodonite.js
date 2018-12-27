@@ -392,6 +392,12 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
         return resourceHandle;
     }
+    updateTexture(textureUid, typedArray, { level, width, height, format, type }) {
+        const gl = this.__glw.getRawContext();
+        const texture = this.getWebGLResource(textureUid);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
+    }
     deleteTexture(textureHandle) {
         const texture = this.getWebGLResource(textureHandle);
         const gl = this.__glw.getRawContext();
@@ -405,13 +411,20 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
-        const vbo = gl.createBuffer();
+        const ubo = gl.createBuffer();
         const resourceHandle = this.getResourceNumber();
-        this.__webglResources.set(resourceHandle, vbo);
-        gl.bindBuffer(gl.UNIFORM_BUFFER, vbo);
-        gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
+        this.__webglResources.set(resourceHandle, ubo);
+        gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+        gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.DYNAMIC_DRAW);
         gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         return resourceHandle;
+    }
+    updateUniformBuffer(uboUid, accessor) {
+        const gl = this.__glw.getRawContext();
+        const ubo = this.getWebGLResource(uboUid);
+        gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+        void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, accessor.dataViewOfBufferView, 0);
+        gl.bindBuffer(gl.UNIFORM_BUFFER, null);
     }
     bindUniformBlock(shaderProgramUid, blockName, blockIndex) {
         const gl = this.__glw.getRawContext();
@@ -582,7 +595,7 @@ class ComponentRepository {
             }
             const array = this.__components.get(componentTid);
             if (array != null) {
-                array[component.componentSID] = component;
+                array[component.componentSID - 1] = component;
                 return component;
             }
         }
@@ -615,8 +628,8 @@ class ComponentRepository {
     }
     getComponentsWithType(componentTid) {
         const components = this.__components.get(componentTid);
-        const copyArray = components.concat();
-        copyArray.shift();
+        const copyArray = components; //.concat();
+        //copyArray.shift();
         return copyArray;
     }
     getComponentTIDs() {
@@ -2906,7 +2919,7 @@ class MemoryManager {
     }
 }
 MemoryManager.__singletonEnforcer = Symbol();
-MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
+MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 8);
 
 class Component {
     constructor(entityUid, componentSid) {
@@ -3883,7 +3896,13 @@ class SceneGraphComponent extends Component {
         const thisClass = SceneGraphComponent;
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
-        this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne(), true);
+        const isWebGL2 = WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2;
+        if (isWebGL2) {
+            this.__worldMatrix = new Matrix44(thisClass.__accesseor_worldMatrix.takeOne(), false, true);
+        }
+        else {
+            this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne(), true);
+        }
         this.__worldMatrix.identity();
         //this.__updatedProperly = false;
     }
@@ -3983,6 +4002,12 @@ class GLSLShader {
     static get vertexShaderWebGL2() {
         return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
     }
+    static get fragmentShaderWebGL1() {
+        return GLSLShader.fragmentShader_webgl1;
+    }
+    static get fragmentShaderWebGL2() {
+        return GLSLShader.fragmentShader_webgl2;
+    }
 }
 GLSLShader.vertexShaderDefinitions_webgl1 = `
 precision highp float;
@@ -4027,8 +4052,7 @@ mat4 getMatrix(float instanceId)
 }
 
     `;
-GLSLShader.vertexShaderDefinitions_webgl2 = `
-#version 300 es
+GLSLShader.vertexShaderDefinitions_webgl2 = `#version 300 es
 precision highp float;
 in vec3 a_position;
 in vec3 a_color;
@@ -4036,12 +4060,12 @@ in float a_instanceID;
 
 out vec3 v_color;
 layout (std140) uniform matrix {
-  mat4 world[4000];
+  mat4 world[1024];
 } u_matrix;
-;
 
 mat4 getMatrix(float instanceId) {
-  return u_matrix.world[instanceId];
+  float index = instanceId - 1.0;
+  return u_matrix.world[int(index)];
 }
   `;
 GLSLShader.vertexShaderBody = `
@@ -4059,13 +4083,22 @@ void main ()
   v_color = a_color;
 }
   `;
-GLSLShader.fragmentShader = `
-  precision highp float;
-  varying vec3 v_color;
-  void main ()
-  {
-    gl_FragColor = vec4(v_color, 1.0);
-  }
+GLSLShader.fragmentShader_webgl1 = `
+precision highp float;
+varying vec3 v_color;
+void main ()
+{
+  gl_FragColor = vec4(v_color, 1.0);
+}
+`;
+GLSLShader.fragmentShader_webgl2 = `#version 300 es
+precision highp float;
+in vec3 v_color;
+layout(location = 0) out vec4 rt0;
+void main ()
+{
+  rt0 = vec4(v_color, 1.0);
+}
 `;
 GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
 GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
@@ -4176,7 +4209,12 @@ const WebGLRenderingPipeline = new class {
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
-        this.__createDataTexture();
+        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+            this.__createUBO();
+        }
+        else {
+            this.__createDataTexture();
+        }
         if (this.__isReady()) {
             return 0;
         }
@@ -4202,22 +4240,51 @@ const WebGLRenderingPipeline = new class {
         }
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
-    createUBO() {
+    __createUBO() {
         if (this.__uboUid !== 0) {
-            this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-            this.__uboUid = 0;
+            //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
+            //this.__uboUid = 0;
+            this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor());
+            return;
         }
         this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor());
         this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
     __createDataTexture() {
-        if (this.__dataTextureUid !== 0) {
-            this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-            this.__dataTextureUid = 0;
-        }
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        let halfFloatDataTextureBuffer;
+        {
+            if (!this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                let convertLength = buffer.byteSizeInUse / 4; //components
+                convertLength /= 2; // bytes
+                for (let i = 0; i < convertLength; i++) {
+                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+                }
+            }
+        }
+        // if already 
+        if (this.__dataTextureUid !== 0) {
+            //      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+            //      this.__dataTextureUid = 0;
+            {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.Float
+                    });
+                }
+                else {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.HalfFloat
+                    });
+                }
+            }
+            return;
+        }
         {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
@@ -4227,12 +4294,6 @@ const WebGLRenderingPipeline = new class {
                 });
             }
             else {
-                const halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-                let convertLength = buffer.byteSizeInUse / 4; //components
-                convertLength /= 2; // bytes
-                for (let i = 0; i < convertLength; i++) {
-                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-                }
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
                     level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
@@ -4304,10 +4365,12 @@ class MeshRendererComponent extends Component {
             this.__vertexVaoHandles[i] = vertexHandles;
             MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             let vertexShader = GLSLShader.vertexShaderWebGL1;
+            let fragmentShader = GLSLShader.fragmentShaderWebGL1;
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 vertexShader = GLSLShader.vertexShaderWebGL2;
+                fragmentShader = GLSLShader.fragmentShaderWebGL2;
             }
-            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
             this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
             MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
         }

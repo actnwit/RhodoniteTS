@@ -47,8 +47,8 @@ mat4 getMatrix(float instanceId)
 }
 
     `
-  static vertexShaderDefinitions_webgl2:string = `
-#version 300 es
+  static vertexShaderDefinitions_webgl2:string =
+`#version 300 es
 precision highp float;
 in vec3 a_position;
 in vec3 a_color;
@@ -56,12 +56,12 @@ in float a_instanceID;
 
 out vec3 v_color;
 layout (std140) uniform matrix {
-  mat4 world[4000];
+  mat4 world[1024];
 } u_matrix;
-;
 
 mat4 getMatrix(float instanceId) {
-  return u_matrix.world[instanceId];
+  float index = instanceId - 1.0;
+  return u_matrix.world[int(index)];
 }
   `
   static vertexShaderBody:string = `
@@ -80,13 +80,24 @@ void main ()
 }
   `;
 
-  static fragmentShader:string = `
-  precision highp float;
-  varying vec3 v_color;
-  void main ()
-  {
-    gl_FragColor = vec4(v_color, 1.0);
-  }
+  static fragmentShader_webgl1:string =
+`
+precision highp float;
+varying vec3 v_color;
+void main ()
+{
+  gl_FragColor = vec4(v_color, 1.0);
+}
+`;
+  static fragmentShader_webgl2:string =
+`#version 300 es
+precision highp float;
+in vec3 v_color;
+layout(location = 0) out vec4 rt0;
+void main ()
+{
+  rt0 = vec4(v_color, 1.0);
+}
 `;
 
   static get vertexShaderWebGL1() {
@@ -96,6 +107,15 @@ void main ()
   static get vertexShaderWebGL2() {
     return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
   }
+
+  static get fragmentShaderWebGL1() {
+    return GLSLShader.fragmentShader_webgl1;
+  }
+
+  static get fragmentShaderWebGL2() {
+    return GLSLShader.fragmentShader_webgl2;
+  }
+
   static attributeNanes: AttributeNames = ['a_position', 'a_color', 'a_instanceID'];
   static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 }

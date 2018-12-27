@@ -28,7 +28,11 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       throw new Error('No WebGLRenderingContext!');
     }
 
-    this.__createDataTexture();
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      this.__createUBO();
+    } else {
+      this.__createDataTexture();
+    }
 
     if (this.__isReady()) {
       return 0;
@@ -61,10 +65,12 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
-  private createUBO() {
+  private __createUBO() {
     if (this.__uboUid !== 0) {
-      this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-      this.__uboUid = 0;
+      //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
+      //this.__uboUid = 0;
+      this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor());
+      return;
     }
 
     this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor());
@@ -73,15 +79,54 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __createDataTexture() {
-    if (this.__dataTextureUid !== 0) {
-      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-      this.__dataTextureUid = 0;
-    }
+    const isHalfFloatMode = true;
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+    let halfFloatDataTextureBuffer: Uint16Array;
+    if (isHalfFloatMode) {
+      if (!this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+        halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+        let convertLength = buffer.byteSizeInUse / 4; //components
+        convertLength /= 2; // bytes
+        for (let i=0; i<convertLength; i++) {
+          halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+        }
+      }
+    }
 
-    const isHalfFloatMode = true;
+    // if already 
+    if (this.__dataTextureUid !== 0) {
+//      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+//      this.__dataTextureUid = 0;
+      if (isHalfFloatMode) {
+        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+              format: PixelFormat.RGBA, type: ComponentType.Float
+            });
+        } else {
+          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
+            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+              format: PixelFormat.RGBA, type: ComponentType.HalfFloat
+            });
+        }
+      } else {
+        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+            level:0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+              format: PixelFormat.RGBA, type: ComponentType.Float
+            });
+        } else {
+          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+              format: PixelFormat.RGBA, type: ComponentType.Float
+            });
+        }
+      }
+      return;
+    }
+
     if (isHalfFloatMode) {
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
@@ -91,14 +136,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
           });
       } else {
-        const halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-        let convertLength = buffer.byteSizeInUse / 4; //components
-        convertLength /= 2; // bytes
-        for (let i=0; i<convertLength; i++) {
-          halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-        }
-
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer!, {
           level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat

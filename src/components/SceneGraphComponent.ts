@@ -10,12 +10,13 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
-  private __worldMatrix: RowMajarMatrix44;
+  private __worldMatrix: Matrix44 | RowMajarMatrix44;
   //private __updatedProperly: boolean;
 
   private static __bufferView: BufferView;
@@ -28,7 +29,12 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float32Array, true);
+    const isWebGL2 = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2;
+    if (isWebGL2) {
+      this.__worldMatrix = new Matrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float32Array, false, true);
+    } else {
+      this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float32Array, true);
+    }
     this.__worldMatrix.identity();
 
     //this.__updatedProperly = false;

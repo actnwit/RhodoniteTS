@@ -280,6 +280,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, {level, width, height, format, type}:
+    {level:Index, width:Size, height:Size, format:PixelFormatEnum, type:ComponentTypeEnum}) {
+    const gl = this.__glw!.getRawContext();;
+    const texture = this.getWebGLResource(textureUid);
+ 
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
+
+  }
+
   deleteTexture(textureHandle: WebGLResourceHandle) {
     const texture = this.getWebGLResource(textureHandle);
     const gl = this.__glw!.getRawContext();
@@ -296,16 +306,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
-    const vbo = gl.createBuffer();
+    const ubo = gl.createBuffer();
     const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    this.__webglResources.set(resourceHandle, ubo!);
 
-    gl.bindBuffer(gl.UNIFORM_BUFFER, vbo);
-    gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+    gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     return resourceHandle;
+  }
 
+  updateUniformBuffer(uboUid: WebGLResourceHandle, accessor: Accessor) {
+    const gl = this.__glw!.getRawContext();
+    const ubo = this.getWebGLResource(uboUid);
+
+    gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+    void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, accessor.dataViewOfBufferView, 0);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
   bindUniformBlock(shaderProgramUid: WebGLResourceHandle, blockName: string, blockIndex: Index) {

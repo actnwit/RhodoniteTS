@@ -61,7 +61,7 @@ export default class ComponentRepository {
       }
       const array = this.__components.get(componentTid);
       if (array != null) {
-        array[component.componentSID] = component;
+        array[component.componentSID-1] = component;
         return component;
       }
     }
@@ -96,8 +96,8 @@ export default class ComponentRepository {
 
   getComponentsWithType(componentTid: ComponentTID): Array<Component> | undefined {
     const components = this.__components.get(componentTid);
-    const copyArray = components!.concat();
-    copyArray.shift();
+    const copyArray = components!;//.concat();
+    //copyArray.shift();
     return copyArray;
   }
 
