@@ -288,4 +288,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       this.__webglResources.delete(textureHandle);
     }
   }
+
+  createUniformBuffer(accessor: Accessor) {
+    const gl = this.__glw!.getRawContext();;
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const vbo = gl.createBuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, vbo!);
+
+    gl.bindBuffer(gl.UNIFORM_BUFFER, vbo);
+    gl.bufferData(gl.UNIFORM_BUFFER, accessor.dataViewOfBufferView, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+
+    return resourceHandle;
+
+  }
 }
