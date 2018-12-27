@@ -413,6 +413,28 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         return resourceHandle;
     }
+    bindUniformBlock(shaderProgramUid, blockName, blockIndex) {
+        const gl = this.__glw.getRawContext();
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const shaderProgram = this.getWebGLResource(shaderProgramUid);
+        const block = gl.getUniformBlockIndex(shaderProgram, blockName);
+        gl.uniformBlockBinding(shaderProgram, block, blockIndex);
+    }
+    bindUniformBufferBase(blockIndex, uboUid) {
+        const gl = this.__glw.getRawContext();
+        if (gl == null) {
+            throw new Error("No WebGLRenderingContext set as Default.");
+        }
+        const ubo = this.getWebGLResource(uboUid);
+        gl.bindBufferBase(gl.UNIFORM_BUFFER, blockIndex, ubo);
+    }
+    deleteUniformBuffer(uboUid) {
+        const gl = this.__glw.getRawContext();
+        const ubo = this.getWebGLResource(uboUid);
+        gl.deleteBuffer(ubo);
+    }
 }
 
 const TransformComponentTID = 1;
@@ -3881,6 +3903,9 @@ class SceneGraphComponent extends Component {
         thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
     }
+    static getWorldMatrixAccessor() {
+        return SceneGraphComponent.__accesseor_worldMatrix;
+    }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
         if (this.__isAbleToBeParent) {
@@ -3952,8 +3977,11 @@ class MeshComponent extends Component {
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
 class GLSLShader {
-    static get vertexShader() {
+    static get vertexShaderWebGL1() {
         return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
+    }
+    static get vertexShaderWebGL2() {
+        return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
     }
 }
 GLSLShader.vertexShaderDefinitions_webgl1 = `
@@ -4141,6 +4169,7 @@ const WebGLRenderingPipeline = new class {
         this.__componentRepository = ComponentRepository.getInstance();
         this.__dataTextureUid = 0;
         this.__instanceIDBufferUid = 0;
+        this.__uboUid = 0;
     }
     common_prerender() {
         const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
@@ -4172,6 +4201,14 @@ const WebGLRenderingPipeline = new class {
             accesseor.setScalar(i, meshComponents[i].entityUID);
         }
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+    }
+    createUBO() {
+        if (this.__uboUid !== 0) {
+            this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
+            this.__uboUid = 0;
+        }
+        this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor());
+        this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
     __createDataTexture() {
         if (this.__dataTextureUid !== 0) {
@@ -4211,9 +4248,17 @@ const WebGLRenderingPipeline = new class {
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
         glw.bindVertexArray(vao);
         gl.useProgram(shaderProgram);
-        this.__setDataTexture(gl, shaderProgram);
+        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+            this.__setUniformBuffer(gl, shaderProgramHandle);
+        }
+        else {
+            this.__setDataTexture(gl, shaderProgram);
+        }
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
         glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
+    }
+    __setUniformBuffer(gl, shaderProgramUid) {
+        this.__webglResourceRepository.bindUniformBlock(shaderProgramUid, 'matrix', 0);
     }
     __setDataTexture(gl, shaderProgram) {
         const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
@@ -4258,7 +4303,11 @@ class MeshRendererComponent extends Component {
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
             this.__vertexVaoHandles[i] = vertexHandles;
             MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(GLSLShader.vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            let vertexShader = GLSLShader.vertexShaderWebGL1;
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                vertexShader = GLSLShader.vertexShaderWebGL2;
+            }
+            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, GLSLShader.fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
             this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
             MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
         }

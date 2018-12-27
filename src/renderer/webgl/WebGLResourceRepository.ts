@@ -282,7 +282,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   deleteTexture(textureHandle: WebGLResourceHandle) {
     const texture = this.getWebGLResource(textureHandle);
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
@@ -290,7 +290,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   createUniformBuffer(accessor: Accessor) {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
@@ -306,5 +306,43 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return resourceHandle;
 
+  }
+
+  bindUniformBlock(shaderProgramUid: WebGLResourceHandle, blockName: string, blockIndex: Index) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const shaderProgram = this.getWebGLResource(shaderProgramUid)!;
+
+    const block = gl.getUniformBlockIndex(shaderProgram, blockName);
+    gl.uniformBlockBinding(shaderProgram, block, blockIndex);
+
+  }
+
+  bindUniformBufferBase(blockIndex: Index, uboUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const ubo = this.getWebGLResource(uboUid)!;
+
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, blockIndex, ubo);
+  }
+
+  deleteUniformBuffer(uboUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+       new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const ubo = this.getWebGLResource(uboUid)!;
+
+    gl.deleteBuffer(ubo);
   }
 }

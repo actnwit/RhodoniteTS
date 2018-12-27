@@ -55,8 +55,13 @@ export default class MeshRendererComponent extends Component {
       this.__vertexVaoHandles[i] = vertexHandles;
       MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
 
+      let vertexShader = GLSLShader.vertexShaderWebGL1;
+      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+        vertexShader = GLSLShader.vertexShaderWebGL2;
+      }
+
       const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
-        GLSLShader.vertexShader,
+        vertexShader,
         GLSLShader.fragmentShader,
         GLSLShader.attributeNanes,
         GLSLShader.attributeSemantics

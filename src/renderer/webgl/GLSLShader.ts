@@ -89,10 +89,13 @@ void main ()
   }
 `;
 
- static get vertexShader() {
-   return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
- }
+  static get vertexShaderWebGL1() {
+    return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
+  }
 
+  static get vertexShaderWebGL2() {
+    return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
+  }
   static attributeNanes: AttributeNames = ['a_position', 'a_color', 'a_instanceID'];
   static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 }

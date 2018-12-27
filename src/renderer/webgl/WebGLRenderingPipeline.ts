@@ -12,12 +12,14 @@ import { CompositionType } from "../../definitions/CompositionType";
 import ComponentRepository from "../../core/ComponentRepository";
 import MeshComponent from "../../components/MeshComponent";
 import { MathUtil } from "../../math/MathUtil";
+import SceneGraphComponent from "../../components/SceneGraphComponent";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = 0;
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
+  private __uboUid: CGAPIResourceHandle = 0;
 
   common_prerender(): CGAPIResourceHandle {
     const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
@@ -59,6 +61,17 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
+  private createUBO() {
+    if (this.__uboUid !== 0) {
+      this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
+      this.__uboUid = 0;
+    }
+
+    this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor());
+    this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
+
+  }
+
   private __createDataTexture() {
     if (this.__dataTextureUid !== 0) {
       this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
@@ -84,7 +97,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
         for (let i=0; i<convertLength; i++) {
           halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
         }
-  
+
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
           level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
@@ -118,12 +131,19 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     glw.bindVertexArray(vao!);
     gl.useProgram(shaderProgram);
 
-    this.__setDataTexture(gl, shaderProgram);
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      this.__setUniformBuffer(gl, shaderProgramHandle)
+    } else {
+      this.__setDataTexture(gl, shaderProgram);
+    }
 
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
   }
 
+  private __setUniformBuffer(gl: WebGLRenderingContext, shaderProgramUid: number) {
+    this.__webglResourceRepository.bindUniformBlock(shaderProgramUid, 'matrix', 0);
+  }
 
   private __setDataTexture(gl: WebGLRenderingContext, shaderProgram: WebGLObject) {
     const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)!;

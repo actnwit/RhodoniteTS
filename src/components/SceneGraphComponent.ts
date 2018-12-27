@@ -54,6 +54,10 @@ export default class SceneGraphComponent extends Component {
     thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count});
   }
 
+  static getWorldMatrixAccessor() {
+    return SceneGraphComponent.__accesseor_worldMatrix;
+  }
+
   beAbleToBeParent(flag: boolean) {
     this.__isAbleToBeParent = flag;
     if (this.__isAbleToBeParent) {
