@@ -87,7 +87,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, halfFloatDataTextureBuffer!);
         return;
       }
-  
+
       this.__uboUid = this.__webglResourceRepository.createUniformBuffer(halfFloatDataTextureBuffer!);
 
     } else {
@@ -97,9 +97,9 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
         return;
       }
-  
+
       this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
-  
+
     }
     this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
 
@@ -188,7 +188,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-  common_render(instanceIDBufferUid: CGAPIResourceHandle){
+  common_render(){
     const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID)!;
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
 
@@ -209,7 +209,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       if (vao != null) {
         glw.bindVertexArray(vao);
       } else {
-        this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+        this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
       }
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {

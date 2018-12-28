@@ -4475,7 +4475,7 @@ const WebGLRenderingPipeline = new class {
             }
         }
     }
-    common_render(instanceIDBufferUid) {
+    common_render() {
         const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
         const meshRendererComponent = meshRendererComponents[0];
@@ -4494,7 +4494,7 @@ const WebGLRenderingPipeline = new class {
                 glw.bindVertexArray(vao);
             }
             else {
-                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
             }
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__setUniformBuffer(gl, shaderProgramHandle);
@@ -4545,7 +4545,7 @@ class System {
                 args.push(instanceIDBufferUid);
             }
             if (methodName === '$render') {
-                this.__renderingPipeline.common_render(instanceIDBufferUid);
+                this.__renderingPipeline.common_render();
             }
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);

@@ -33,7 +33,7 @@ export default class System {
         args.push(instanceIDBufferUid);
       }
       if (methodName === '$render') {
-        this.__renderingPipeline.common_render(instanceIDBufferUid);
+        this.__renderingPipeline.common_render();
       }
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;

@@ -5116,7 +5116,7 @@
                 }
             }
         };
-        class_1.prototype.common_render = function (instanceIDBufferUid) {
+        class_1.prototype.common_render = function () {
             var meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             var meshRendererComponent = meshRendererComponents[0];
@@ -5135,7 +5135,7 @@
                     glw.bindVertexArray(vao);
                 }
                 else {
-                    this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+                    this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
                 }
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__setUniformBuffer(gl, shaderProgramHandle);
@@ -5188,7 +5188,7 @@
                     args.push(instanceIDBufferUid);
                 }
                 if (methodName === '$render') {
-                    _this.__renderingPipeline.common_render(instanceIDBufferUid);
+                    _this.__renderingPipeline.common_render();
                 }
                 componentTids.forEach(function (componentTid) {
                     var components = _this.__componentRepository.getComponentsWithType(componentTid);
