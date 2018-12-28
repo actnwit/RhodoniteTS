@@ -3469,13 +3469,6 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TransformComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(TransformComponent, "componentTID", {
             get: function () {
                 return WellKnownComponentTIDs.TransformComponentTID;
@@ -4520,13 +4513,6 @@
             return _this;
             //this.__updatedProperly = false;
         }
-        Object.defineProperty(SceneGraphComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(SceneGraphComponent, "componentTID", {
             get: function () {
                 return WellKnownComponentTIDs.SceneGraphComponentTID;
@@ -4614,13 +4600,6 @@
             _this.__primitives = [];
             return _this;
         }
-        Object.defineProperty(MeshComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(MeshComponent, "componentTID", {
             get: function () {
                 return 3;
@@ -4691,13 +4670,6 @@
             _this.__isVAOSet = false;
             return _this;
         }
-        Object.defineProperty(MeshRendererComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(MeshRendererComponent, "componentTID", {
             get: function () {
                 return 4;

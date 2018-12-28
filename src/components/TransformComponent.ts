@@ -75,10 +75,6 @@ export default class TransformComponent extends Component {
     return null
   }
 
-  static get maxCount() {
-    return 1000000;
-  }
-
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.TransformComponentTID;
   }

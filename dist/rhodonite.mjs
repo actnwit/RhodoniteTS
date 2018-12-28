@@ -2978,9 +2978,6 @@ class TransformComponent extends Component {
     static get renderedPropertyCount() {
         return null;
     }
-    static get maxCount() {
-        return 1000000;
-    }
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
@@ -3883,9 +3880,6 @@ class SceneGraphComponent extends Component {
         this.__worldMatrix.identity();
         //this.__updatedProperly = false;
     }
-    static get maxCount() {
-        return 1000000;
-    }
     static get componentTID() {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
@@ -3953,9 +3947,6 @@ class MeshComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this.__primitives = [];
-    }
-    static get maxCount() {
-        return 1000000;
     }
     static get componentTID() {
         return 3;
@@ -4101,9 +4092,6 @@ class MeshRendererComponent extends Component {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexHandles = [];
         this.__isVAOSet = false;
-    }
-    static get maxCount() {
-        return 1000000;
     }
     static get componentTID() {
         return 4;

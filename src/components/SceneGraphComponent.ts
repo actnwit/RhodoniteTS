@@ -35,10 +35,6 @@ export default class SceneGraphComponent extends Component {
     //this.__updatedProperly = false;
   }
 
-  static get maxCount() {
-    return 1000000;
-  }
-
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
