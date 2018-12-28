@@ -18,25 +18,25 @@ uniform sampler2D u_dataTexture;
  * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
  * arg = vec2(1. / size.x, 1. / size.x / size.y);
  */
-vec4 fetchElement(sampler2D tex, float index, vec2 arg)
-{
-  return texture2D( tex, arg * (index + 0.5) );
-}
-
-// vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
 // {
-//   float t = (index + 0.5) * invSize.x;
-//   float x = fract(t);
-//   float y = (floor(t) + 0.5) * invSize.y;
-//   return texture2D( tex, vec2(x, y) );
+//   return texture2D( tex, arg * (index + 0.5) );
 // }
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+{
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return texture2D( tex, vec2(x, y) );
+}
 
 mat4 getMatrix(float instanceId)
 {
   float index = instanceId - 1.0;
   float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-//  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
 
   vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
  vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
@@ -86,8 +86,9 @@ void main ()
   //mat4 matrix = getMatrix(gl_InstanceID);
 
   gl_Position = matrix * vec4(a_position, 1.0);
-//  gl_Position = vec4(a_position, 1.0);
-//  gl_Position.x += a_instanceID / 5.0;
+  // gl_Position = vec4(a_position, 1.0);
+  // gl_Position.xyz /= 10.0;
+  // gl_Position.x += a_instanceID / 20.0;
 //  gl_Position.x += col0.x / 5.0;
 
   v_color = a_color;
