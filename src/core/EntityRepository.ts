@@ -64,7 +64,7 @@ export default class EntityRepository {
   }
 
   static getMaxEntityNumber() {
-    return 1000;
+    return 5000;
   }
 
   _getEntities() {

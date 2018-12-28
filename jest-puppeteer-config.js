@@ -1,6 +1,6 @@
 module.exports = {
   server: {
-    command: 'npx http-server -p 8082',
+    command: 'node server.js',
     port: 8082, // jest-puppeteer waits until this port respond before starting the tests. 5000 is the default port of serve
     usedPortAction: 'error', // If the port is used, stop everything
     launchTimeout: 5000, // Wait 5 secs max before timing out

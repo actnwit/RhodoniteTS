@@ -1,5 +1,5 @@
 
-    //import Rn from '../../../dist/rhodonite.js';
+//    import Rn from '../../../dist/rhodonite.js';
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
       const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
@@ -134,7 +134,7 @@
     let p = null;
     const draw = function(time){
 
-      if (time != null && p == null ) {
+      if (p == null ) {
         p = document.createElement('p');
         p.setAttribute("id", "rendered");
         p.innerText = 'Rendered.';

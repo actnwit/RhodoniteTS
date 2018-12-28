@@ -32,14 +32,12 @@
     </section>
     <section class="correct">
       <h2>Correct PNG Image</h2>
-      <img src="__image_snapshots__/test-js-regression-test-1-snap.png" />
+      <img src="__image_snapshots__/test-js-regression-test-ubo-instanced-drawing-1-snap.png" />
     </section>
   </main>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
   <script type="module">
 
-    import Rn from '../../../dist/rhodonite.js';
+    import Rn from '../../../dist/rhodonite.mjs';
 
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
@@ -159,7 +157,7 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 100;
+    const entityNumber = 10;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
@@ -175,7 +173,7 @@
     let p = null;
     const draw = (time)=>{
 
-      if (time != null && p == null ) {
+      if (p == null) {
         p = document.createElement('p');
         p.setAttribute("id", "rendered");
         p.innerText = 'Rendered.';
