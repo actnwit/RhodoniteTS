@@ -1,14 +1,11 @@
 import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
-import EntityRepository from "../core/EntityRepository";
-import Component from "../core/Component";
 import ComponentRepository from "../core/ComponentRepository";
 import RenderingPipeline from "../renderer/RenderingPipeline";
 import { WebGLRenderingPipeline } from "../renderer/webgl/WebGLRenderingPipeline";
-
-const singleton:any = Symbol();
+import MeshRendererComponent from "../components/MeshRendererComponent";
 
 export default class System {
-  private static __singletonEnforcer: Symbol;
+  private static __instance: System;
   private __processStages: Array<ProcessStageEnum> = [
     ProcessStage.Create,
     ProcessStage.Load,
@@ -22,10 +19,7 @@ export default class System {
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
 
-  private constructor(enforcer: Symbol) {
-    if (enforcer !== System.__singletonEnforcer || !(this instanceof System)) {
-      throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-    }
+  private constructor() {
   }
 
   process() {
@@ -40,7 +34,11 @@ export default class System {
       }
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-        components.forEach(component=>{
+        components.forEach((component, i)=>{
+          if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
+            this.__renderingPipeline.common_render(component as MeshRendererComponent, instanceIDBufferUid);
+            args.push(instanceIDBufferUid);
+          }
           const method = (component as any)[methodName];
           if (method != null) {
             method.apply(component, args);
@@ -51,11 +49,10 @@ export default class System {
   }
 
   static getInstance() {
-    const thisClass = System;
-    if (!(thisClass as any)[singleton]) {
-      (thisClass as any)[singleton] = new System(thisClass.__singletonEnforcer);
+    if (!this.__instance) {
+     this.__instance = new System();
     }
 
-    return (thisClass as any)[singleton];
+    return this.__instance;
   }
 }

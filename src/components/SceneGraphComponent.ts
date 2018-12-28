@@ -10,6 +10,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -52,6 +53,10 @@ export default class SceneGraphComponent extends Component {
     const count = EntityRepository.getMaxEntityNumber();
     thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
     thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count});
+  }
+
+  static getWorldMatrixAccessor() {
+    return SceneGraphComponent.__accesseor_worldMatrix;
   }
 
   beAbleToBeParent(flag: boolean) {

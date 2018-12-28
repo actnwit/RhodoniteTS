@@ -103,17 +103,6 @@ test('Create WebGL resources. 2', async () => {
   const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
   meshComponent.addPrimitive(primitive);
 
-  // const vertexUids = repo.createVertexDataResources(primitive);
-
-  // const shaderProgramUid = repo.createShaderProgram(
-  //   GLSLShader.vertexShader,
-  //   GLSLShader.fragmentShader,
-  //   GLSLShader.attributeNanes,
-  //   GLSLShader.attributeSemantics);
-
-  // repo.setVertexDataToShaderProgram(vertexUids, shaderProgramUid, primitive);
-
-
 });
 
 afterAll(() => {

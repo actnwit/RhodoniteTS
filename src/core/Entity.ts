@@ -8,21 +8,16 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 export default class Entity {
   private __entity_uid: number;
   private __isAlive: Boolean;
-  static _enforcer: Symbol;
+  private static __instance: Entity;
   private __entityRepository: EntityRepository;
 
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
 
-  constructor(entityUID: EntityUID, isAlive: Boolean, enforcer:Symbol, entityComponent: EntityRepository) {
-    if (enforcer !== Entity._enforcer) {
-      throw new Error('You cannot use this constructor. Use entiryRepository.createEntity() method insterad.');
-    }
-
+  constructor(entityUID: EntityUID, isAlive: Boolean, entityComponent: EntityRepository) {
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
     this.__entityRepository = entityComponent;
-    
   }
 
   get entityUID() {
@@ -56,4 +51,3 @@ export default class Entity {
     return this.__sceneGraphComponent;
   }
 }
-Entity._enforcer = Symbol();

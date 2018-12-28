@@ -6,7 +6,7 @@ import is from '../misc/IsUtil';
 test('Entities cannot be instantiated by new operator.', () => {
   let entity = null;
   try {
-    entity = new Entity(1, true, Symbol(), EntityRepository.getInstance());
+    entity = new Entity(1, true, EntityRepository.getInstance());
   } catch {
     expect(is.not.exist(entity)).toBe(true);
   }

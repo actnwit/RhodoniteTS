@@ -9,6 +9,7 @@ export default {
     typescript({
       tsconfigOverride: {
         compilerOptions: {
+          target: "ES5",
           module: "es2015",
           moduleResolution: "node",
         }
@@ -18,7 +19,8 @@ export default {
   
   output: {
     file: 'dist/rhodonite.js',
-    format: 'es',
+    format: 'umd',
+    name: 'rhodonite'
   }
 
 }
