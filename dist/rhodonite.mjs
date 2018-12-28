@@ -4099,8 +4099,6 @@ class MeshRendererComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        //  __vertexShaderProgramHandles: Array<CGAPIResourceHandle> = [];
-        //private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
         this.__vertexVaoHandles = [];
         this.__isVAOSet = false;
     }
@@ -4477,13 +4475,14 @@ const WebGLRenderingPipeline = new class {
             }
         }
     }
-    common_render(meshRendererComponent, instanceIDBufferUid) {
-        // vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-        const meshComponent = meshRendererComponent.__meshComponent;
+    common_render(instanceIDBufferUid) {
+        const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        const meshRendererComponent = meshRendererComponents[0];
+        const meshComponent = meshComponents[0];
         const primitiveNum = meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = meshComponent.getPrimitiveAt(i);
-            //this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
             const shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
             const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
             const gl = glw.getRawContext();
@@ -4507,7 +4506,6 @@ const WebGLRenderingPipeline = new class {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
             const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
-            //      gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
         }
     }
     __setUniformBuffer(gl, shaderProgramUid) {
@@ -4546,13 +4544,12 @@ class System {
                 instanceIDBufferUid = this.__renderingPipeline.common_prerender();
                 args.push(instanceIDBufferUid);
             }
+            if (methodName === '$render') {
+                this.__renderingPipeline.common_render(instanceIDBufferUid);
+            }
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
                 components.forEach((component, i) => {
-                    if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-                        this.__renderingPipeline.common_render(component, instanceIDBufferUid);
-                        args.push(instanceIDBufferUid);
-                    }
                     const method = component[methodName];
                     if (method != null) {
                         method.apply(component, args);

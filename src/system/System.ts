@@ -32,13 +32,12 @@ export default class System {
         instanceIDBufferUid = this.__renderingPipeline.common_prerender();
         args.push(instanceIDBufferUid);
       }
+      if (methodName === '$render') {
+        this.__renderingPipeline.common_render(instanceIDBufferUid);
+      }
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
         components.forEach((component, i)=>{
-          if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-            this.__renderingPipeline.common_render(component as MeshRendererComponent, instanceIDBufferUid);
-            args.push(instanceIDBufferUid);
-          }
           const method = (component as any)[methodName];
           if (method != null) {
             method.apply(component, args);

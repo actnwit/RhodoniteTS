@@ -188,14 +188,15 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-  common_render(meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: CGAPIResourceHandle){
-    // vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
+  common_render(instanceIDBufferUid: CGAPIResourceHandle){
+    const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID)!;
+    const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
 
-    const meshComponent = meshRendererComponent.__meshComponent!;
+    const meshRendererComponent = meshRendererComponents[0] as MeshRendererComponent;
+    const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
-      //this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
 
       const shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;//meshRendererComponent.__vertexShaderProgramHandles[i];
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
@@ -221,7 +222,6 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
       const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
       glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
-//      gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
 
     }
 

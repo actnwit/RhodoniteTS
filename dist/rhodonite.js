@@ -4687,8 +4687,6 @@
         function MeshRendererComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
             _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            //  __vertexShaderProgramHandles: Array<CGAPIResourceHandle> = [];
-            //private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
             _this.__vertexVaoHandles = [];
             _this.__isVAOSet = false;
             return _this;
@@ -5118,13 +5116,14 @@
                 }
             }
         };
-        class_1.prototype.common_render = function (meshRendererComponent, instanceIDBufferUid) {
-            // vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-            var meshComponent = meshRendererComponent.__meshComponent;
+        class_1.prototype.common_render = function (instanceIDBufferUid) {
+            var meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
+            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+            var meshRendererComponent = meshRendererComponents[0];
+            var meshComponent = meshComponents[0];
             var primitiveNum = meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = meshComponent.getPrimitiveAt(i);
-                //this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
                 var shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
                 var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
                 var gl = glw.getRawContext();
@@ -5146,9 +5145,8 @@
                 }
                 var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-                glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
-                //      gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+                var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+                glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
             }
         };
         class_1.prototype.__setUniformBuffer = function (gl, shaderProgramUid) {
@@ -5189,13 +5187,12 @@
                     instanceIDBufferUid = _this.__renderingPipeline.common_prerender();
                     args.push(instanceIDBufferUid);
                 }
+                if (methodName === '$render') {
+                    _this.__renderingPipeline.common_render(instanceIDBufferUid);
+                }
                 componentTids.forEach(function (componentTid) {
                     var components = _this.__componentRepository.getComponentsWithType(componentTid);
                     components.forEach(function (component, i) {
-                        if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-                            _this.__renderingPipeline.common_render(component, instanceIDBufferUid);
-                            args.push(instanceIDBufferUid);
-                        }
                         var method = component[methodName];
                         if (method != null) {
                             method.apply(component, args);

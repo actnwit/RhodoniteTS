@@ -8,10 +8,8 @@ import RenderingPipeline from '../renderer/RenderingPipeline';
 import Primitive from '../geometry/Primitive';
 
 export default class MeshRendererComponent extends Component {
-  __meshComponent?: MeshComponent;
+  private __meshComponent?: MeshComponent;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-//  __vertexShaderProgramHandles: Array<CGAPIResourceHandle> = [];
-  //private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
   __vertexVaoHandles: Array<{
     vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
   }> = [];
