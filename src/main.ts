@@ -16,8 +16,7 @@ import Vector4 from './math/Vector4';
 import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
 
-
-export default Object.freeze({
+const Rn = Object.freeze({
   EntityRepository,
   TransformComponent,
   SceneGraphComponent,
@@ -36,6 +35,10 @@ export default Object.freeze({
   Matrix33,
   Matrix44,
 });
+export default Rn;
+
+declare var window:any;
+window['Rn'] = Rn;
 
 export type CompositionTypeEnum = CompositionTypeEnum;
 export type ComponentTypeEnum = ComponentTypeEnum;

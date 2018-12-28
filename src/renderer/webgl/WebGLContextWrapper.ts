@@ -42,7 +42,9 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       return this.__gl.createVertexArray();
     } else {
-      return this.__webgl1ExtVAO!.createVertexArrayOES();
+      if (this.__webgl1ExtVAO != null) {
+        return this.__webgl1ExtVAO.createVertexArrayOES();
+      }
     }
   }
 
@@ -50,7 +52,9 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       this.__gl.bindVertexArray(vao);
     } else {
-      this.__webgl1ExtVAO!.bindVertexArrayOES(vao);
+      if (this.__webgl1ExtVAO != null) {
+        this.__webgl1ExtVAO.bindVertexArrayOES(vao);
+      }
     }
   }
 
@@ -76,7 +80,12 @@ export default class WebGLContextWrapper {
     if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
-        console.error(`The library does not support this environment because the ${extension.toString()} is not available`);
+        const text = `The library does not support this environment because the ${extension.toString()} is not available`;
+        if (console.error != null) {
+          console.error(text);
+        } else {
+          console.log(text);
+        }
       }
       this.__extensions.set(extension, extObj);
       return extObj;

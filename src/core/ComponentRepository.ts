@@ -3,20 +3,14 @@ import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
 import InitialSetting from '../system/InitialSetting';
 
-let singleton:any = Symbol();
-
 export default class ComponentRepository {
-  static __singletonEnforcer: Symbol;
+  private static __instance: ComponentRepository;
   private __component_sid_count_map: Map<ComponentTID, number>;
   private __components: Map<ComponentTID, Array<Component>>; // index of array is ComponentSID
-  static __componentClasses: Map<ComponentTID, ComponentConstructor>;
+  static __componentClasses: Map<ComponentTID, ComponentConstructor> = new Map();
 
 
-  constructor(enforcer: Symbol) {
-    if (enforcer !== ComponentRepository.__singletonEnforcer || !(this instanceof ComponentRepository)) {
-      throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-    }
-
+  constructor() {
     this.__component_sid_count_map = new Map();
     this.__components = new Map();
   }
@@ -32,11 +26,10 @@ export default class ComponentRepository {
   }
 
   static getInstance() {
-    const thisClass = ComponentRepository;
-    if (!(thisClass as any)[singleton]) {
-      (thisClass as any)[singleton] = new ComponentRepository(ComponentRepository.__singletonEnforcer);
+    if (!this.__instance) {
+      this.__instance = new ComponentRepository();
     }
-    return (thisClass as any)[singleton];
+    return this.__instance;
   }
 
   createComponent(componentTid: ComponentTID, entityUid: EntityUID) {
@@ -109,6 +102,4 @@ export default class ComponentRepository {
     return indices;
   }
 }
-ComponentRepository.__componentClasses = new Map();
-ComponentRepository.__singletonEnforcer = Symbol();
 

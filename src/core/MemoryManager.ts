@@ -7,21 +7,16 @@ import Buffer from '../memory/Buffer';
  *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
  * );
  */
-const singleton = Symbol();
 
 export default class MemoryManager {
-  private static __singletonEnforcer: Symbol = Symbol();
+  private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: Map<ObjectUID, Buffer> = new Map();
   private __bufferForGPU: Buffer;
   private __bufferForCPU: Buffer;
-  private static __bufferLengthOfOneSide: Size = Math.pow(2,8);
+  private static __bufferLengthOfOneSide: Size = Math.pow(2,9);
 
-  private constructor(enforcer: Symbol) {
-    const thisClass = MemoryManager;
-    if (enforcer !== thisClass.__singletonEnforcer || !(this instanceof MemoryManager)) {
-      throw new Error('This is a Singleton class. get the instance using \'getInstance\' static method.');
-    }
+  private constructor() {
 
     // BufferForGPU
     {
@@ -48,11 +43,10 @@ export default class MemoryManager {
   }
 
   static getInstance() {
-    const thisClass = MemoryManager;
-    if (!(thisClass as any)[singleton]) {
-      (thisClass as any)[singleton] = new MemoryManager(thisClass.__singletonEnforcer);
+    if (!this.__instance) {
+      this.__instance = new MemoryManager();
     }
-    return (thisClass as any)[singleton];
+    return this.__instance;
   }
 
   getBufferForGPU(): Buffer {

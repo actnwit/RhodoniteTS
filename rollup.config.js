@@ -18,7 +18,8 @@ export default {
   
   output: {
     file: 'dist/rhodonite.js',
-    format: 'es',
+    format: 'umd',//'es',
+    name: 'rhodonite'
   }
 
 }
