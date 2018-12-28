@@ -13,6 +13,10 @@ import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 
+export type VertexHandles = {
+  vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
+};
+
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance:WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();

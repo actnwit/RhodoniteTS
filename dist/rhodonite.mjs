@@ -4099,7 +4099,7 @@ class MeshRendererComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__vertexVaoHandles = [];
+        this.__vertexHandles = [];
         this.__isVAOSet = false;
     }
     static get maxCount() {
@@ -4109,7 +4109,7 @@ class MeshRendererComponent extends Component {
         return 4;
     }
     __isLoaded(index) {
-        if (this.__vertexVaoHandles[index] != null) {
+        if (this.__vertexHandles[index] != null) {
             return true;
         }
         else {
@@ -4127,8 +4127,8 @@ class MeshRendererComponent extends Component {
             }
             const primitive = this.__meshComponent.getPrimitiveAt(i);
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexVaoHandles[i] = vertexHandles;
-            MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+            this.__vertexHandles[i] = vertexHandles;
+            MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             let vertexShader = GLSLShader.vertexShaderWebGL1;
             let fragmentShader = GLSLShader.fragmentShaderWebGL1;
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
@@ -4145,11 +4145,11 @@ class MeshRendererComponent extends Component {
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
             if (this.__isLoaded(i) && this.__isVAOSet) {
-                this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
                 //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
                 continue;
             }
-            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexVaoHandles[i], primitive, instanceIDBufferUid);
+            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
             this.__isVAOSet = true;
         }
     }
@@ -4157,11 +4157,11 @@ class MeshRendererComponent extends Component {
         // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
         //   for(let i=0; i<primitiveNum; i++) {
         //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        //   this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
+        //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
         // }
     }
 }
-MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
 MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
@@ -4488,7 +4488,7 @@ const WebGLRenderingPipeline = new class {
             const gl = glw.getRawContext();
             const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
             gl.useProgram(shaderProgram);
-            const vaoHandles = meshRendererComponent.__vertexVaoHandles[i];
+            const vaoHandles = meshRendererComponent.__vertexHandles[i];
             const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
             if (vao != null) {
                 glw.bindVertexArray(vao);

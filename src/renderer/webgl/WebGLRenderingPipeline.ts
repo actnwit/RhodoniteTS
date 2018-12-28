@@ -204,7 +204,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle)! as WebGLProgram;
       gl.useProgram(shaderProgram);
 
-      const vaoHandles = meshRendererComponent.__vertexVaoHandles[i];
+      const vaoHandles = meshRendererComponent.__vertexHandles[i];
       const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
       if (vao != null) {
         glw.bindVertexArray(vao);
