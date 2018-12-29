@@ -4516,48 +4516,17 @@ function from$5({ index }) {
 }
 const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
 
-class TextureParameterClass extends EnumClass {
+class ProcessApproachClass extends EnumClass {
     constructor({ index, str }) {
         super({ index, str });
     }
 }
-const Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
-const Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
-const TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
-const TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
-const TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
-const TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
-const Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
-const Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
-const Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
-const Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
-const ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
-const Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
-const ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
-const RGB = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
-const RGBA = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
-const RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
-const RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
-const RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
-const RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
-const RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
-const RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
-const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
-const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
-    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
-
-class PixelFormatClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
-const Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
-const RGB$1 = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
-const RGBA$1 = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
-const Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
-const LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
-const PixelFormat = Object.freeze({ DepthComponent, Alpha, RGB: RGB$1, RGBA: RGBA$1, Luminance, LuminanceAlpha });
+const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2 });
 
 //import GLBoost from '../../globals';
 function radianToDegree(rad) {
@@ -4609,78 +4578,22 @@ const toHalfFloat = (function () {
 }());
 const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
 
-class ProcessApproachClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
-const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
-const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
-const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
-const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
-const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2 });
-
-const WebGLRenderingPipeline = new class {
+class WebGLStrategyUBO {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__componentRepository = ComponentRepository.getInstance();
-        this.__dataTextureUid = 0;
-        this.__instanceIDBufferUid = 0;
         this.__uboUid = 0;
         this.__shaderProgramUid = 0;
     }
-    common_$load() {
+    setupShaderProgram() {
         if (this.__shaderProgramUid !== 0) {
             return;
         }
-        let vertexShader = GLSLShader.vertexShaderDataTexture;
+        // Shader Setup
+        let vertexShader = GLSLShader.vertexShaderUBO;
         let fragmentShader = GLSLShader.fragmentShader;
-        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-            vertexShader = GLSLShader.vertexShaderUBO;
-        }
         this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
     }
-    common_$prerender() {
-        const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
-        if (gl == null) {
-            throw new Error('No WebGLRenderingContext!');
-        }
-        this.__setupGeometryData();
-        if (this.__isReady()) {
-            return 0;
-        }
-        this.__setupInstanceIDBuffer();
-        return this.__instanceIDBufferUid;
-    }
-    __isReady() {
-        if (this.__instanceIDBufferUid !== 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    __setupGeometryData() {
-        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-            this.__setupUBO();
-        }
-        else {
-            this.__setupDataTexture();
-        }
-    }
-    __setupInstanceIDBuffer() {
-        const buffer = MemoryManager.getInstance().getBufferForCPU();
-        const count = EntityRepository.getMaxEntityNumber();
-        const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
-        const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
-        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-        for (var i = 0; i < meshComponents.length; i++) {
-            accesseor.setScalar(i, meshComponents[i].entityUID);
-        }
-        this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
-    }
-    __setupUBO() {
+    setupGPUData() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -4693,7 +4606,85 @@ const WebGLRenderingPipeline = new class {
         }
         this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
-    __setupDataTexture() {
+    ;
+    attachGPUData() {
+        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'matrix', 0);
+    }
+    ;
+    attatchShaderProgram() {
+        const shaderProgramUid = this.__shaderProgramUid;
+        const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+        const gl = glw.getRawContext();
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
+        gl.useProgram(shaderProgram);
+    }
+    static getInstance() {
+        if (!this.__instance) {
+            this.__instance = new WebGLStrategyUBO();
+        }
+        return this.__instance;
+    }
+}
+
+class PixelFormatClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
+const Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
+const RGB = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
+const RGBA = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
+const Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
+const LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
+const PixelFormat = Object.freeze({ DepthComponent, Alpha, RGB, RGBA, Luminance, LuminanceAlpha });
+
+class TextureParameterClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
+const Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
+const TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
+const TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
+const TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
+const TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
+const Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
+const Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
+const Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
+const Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
+const ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
+const Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
+const ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
+const RGB$1 = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
+const RGBA$1 = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
+const RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
+const RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
+const RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
+const RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
+const RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
+const RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
+const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
+const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
+    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB: RGB$1, RGBA: RGBA$1, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
+
+class WebGLStrategyDataTexture {
+    constructor() {
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__dataTextureUid = 0;
+        this.__shaderProgramUid = 0;
+    }
+    setupShaderProgram() {
+        if (this.__shaderProgramUid !== 0) {
+            return;
+        }
+        // Shader Setup
+        let vertexShader = GLSLShader.vertexShaderDataTexture;
+        let fragmentShader = GLSLShader.fragmentShader;
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+    }
+    setupGPUData() {
         let isHalfFloatMode = false;
         if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
             this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -4711,7 +4702,6 @@ const WebGLRenderingPipeline = new class {
                 halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
             }
         }
-        // if already
         if (this.__dataTextureUid !== 0) {
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
@@ -4776,6 +4766,79 @@ const WebGLRenderingPipeline = new class {
             }
         }
     }
+    ;
+    attachGPUData() {
+        const gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
+        const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+        gl.uniform1i(uniform_dataTexture, 0);
+    }
+    ;
+    attatchShaderProgram() {
+        const shaderProgramUid = this.__shaderProgramUid;
+        const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+        const gl = glw.getRawContext();
+        const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
+        gl.useProgram(shaderProgram);
+    }
+    static getInstance() {
+        if (!this.__instance) {
+            this.__instance = new WebGLStrategyDataTexture();
+        }
+        return this.__instance;
+    }
+}
+
+const WebGLRenderingPipeline = new class {
+    constructor() {
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__componentRepository = ComponentRepository.getInstance();
+        this.__instanceIDBufferUid = 0;
+    }
+    common_$load() {
+        // Strategy
+        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+            this.__webGLStrategy = WebGLStrategyUBO.getInstance();
+        }
+        else {
+            this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
+        }
+        // Shader setup
+        this.__webGLStrategy.setupShaderProgram();
+    }
+    common_$prerender() {
+        const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
+        if (gl == null) {
+            throw new Error('No WebGLRenderingContext!');
+        }
+        this.__webGLStrategy.setupGPUData();
+        if (this.__isReady()) {
+            return 0;
+        }
+        this.__setupInstanceIDBuffer();
+        return this.__instanceIDBufferUid;
+    }
+    __isReady() {
+        if (this.__instanceIDBufferUid !== 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    __setupInstanceIDBuffer() {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const count = EntityRepository.getMaxEntityNumber();
+        const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
+        const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        for (var i = 0; i < meshComponents.length; i++) {
+            accesseor.setScalar(i, meshComponents[i].entityUID);
+        }
+        this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+    }
     common_$render() {
         const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -4784,11 +4847,8 @@ const WebGLRenderingPipeline = new class {
         const primitiveNum = meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = meshComponent.getPrimitiveAt(i);
-            const shaderProgramUid = this.__shaderProgramUid;
             const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
             const gl = glw.getRawContext();
-            const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
-            gl.useProgram(shaderProgram);
             const vaoHandles = meshRendererComponent.__vertexHandles[i];
             const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
             if (vao != null) {
@@ -4797,26 +4857,13 @@ const WebGLRenderingPipeline = new class {
             else {
                 this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
             }
-            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-                this.__setUniformBuffer(gl, shaderProgramUid);
-            }
-            else {
-                this.__setDataTexture(gl, shaderProgram);
-            }
+            this.__webGLStrategy.attatchShaderProgram();
+            this.__webGLStrategy.attachGPUData();
             const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
             const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
         }
-    }
-    __setUniformBuffer(gl, shaderProgramUid) {
-        this.__webglResourceRepository.bindUniformBlock(shaderProgramUid, 'matrix', 0);
-    }
-    __setDataTexture(gl, shaderProgram) {
-        const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
-        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-        gl.uniform1i(uniform_dataTexture, 0);
     }
 };
 

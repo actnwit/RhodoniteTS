@@ -5194,54 +5194,20 @@
     }
     var ProcessStage = Object.freeze({ Unknown: Unknown$4, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
 
-    var TextureParameterClass = /** @class */ (function (_super) {
-        __extends(TextureParameterClass, _super);
-        function TextureParameterClass(_a) {
+    var ProcessApproachClass = /** @class */ (function (_super) {
+        __extends(ProcessApproachClass, _super);
+        function ProcessApproachClass(_a) {
             var index = _a.index, str = _a.str;
             return _super.call(this, { index: index, str: str }) || this;
         }
-        return TextureParameterClass;
+        return ProcessApproachClass;
     }(EnumClass));
-    var Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
-    var Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
-    var TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
-    var TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
-    var TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
-    var TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
-    var Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
-    var Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
-    var Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
-    var Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
-    var ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
-    var Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
-    var ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
-    var RGB = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
-    var RGBA = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
-    var RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
-    var RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
-    var RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
-    var RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
-    var RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
-    var RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
-    var RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
-    var TextureParameter = Object.freeze({ Nearest: Nearest, Linear: Linear, TextureMagFilter: TextureMagFilter, TextureMinFilter: TextureMinFilter, TextureWrapS: TextureWrapS, TextureWrapT: TextureWrapT, Texture2D: Texture2D, Texture: Texture,
-        Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB: RGB, RGBA: RGBA, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });
-
-    var PixelFormatClass = /** @class */ (function (_super) {
-        __extends(PixelFormatClass, _super);
-        function PixelFormatClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return PixelFormatClass;
-    }(EnumClass));
-    var DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
-    var Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
-    var RGB$1 = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
-    var RGBA$1 = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
-    var Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
-    var LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
-    var PixelFormat = Object.freeze({ DepthComponent: DepthComponent, Alpha: Alpha, RGB: RGB$1, RGBA: RGBA$1, Luminance: Luminance, LuminanceAlpha: LuminanceAlpha });
+    var None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+    var UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+    var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+    var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+    var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2 });
 
     //import GLBoost from '../../globals';
     function radianToDegree(rad) {
@@ -5293,81 +5259,22 @@
     }());
     var MathUtil = Object.freeze({ radianToDegree: radianToDegree, degreeToRadian: degreeToRadian, toHalfFloat: toHalfFloat });
 
-    var ProcessApproachClass = /** @class */ (function (_super) {
-        __extends(ProcessApproachClass, _super);
-        function ProcessApproachClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return ProcessApproachClass;
-    }(EnumClass));
-    var None = new ProcessApproachClass({ index: 0, str: 'NONE' });
-    var UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
-    var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
-    var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
-    var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
-    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2 });
-
-    var WebGLRenderingPipeline = new /** @class */ (function () {
-        function class_1() {
+    var WebGLStrategyUBO = /** @class */ (function () {
+        function WebGLStrategyUBO() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__componentRepository = ComponentRepository.getInstance();
-            this.__dataTextureUid = 0;
-            this.__instanceIDBufferUid = 0;
             this.__uboUid = 0;
             this.__shaderProgramUid = 0;
         }
-        class_1.prototype.common_$load = function () {
+        WebGLStrategyUBO.prototype.setupShaderProgram = function () {
             if (this.__shaderProgramUid !== 0) {
                 return;
             }
-            var vertexShader = GLSLShader.vertexShaderDataTexture;
+            // Shader Setup
+            var vertexShader = GLSLShader.vertexShaderUBO;
             var fragmentShader = GLSLShader.fragmentShader;
-            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-                vertexShader = GLSLShader.vertexShaderUBO;
-            }
             this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
         };
-        class_1.prototype.common_$prerender = function () {
-            var gl = this.__webglResourceRepository.currentWebGLContextWrapper;
-            if (gl == null) {
-                throw new Error('No WebGLRenderingContext!');
-            }
-            this.__setupGeometryData();
-            if (this.__isReady()) {
-                return 0;
-            }
-            this.__setupInstanceIDBuffer();
-            return this.__instanceIDBufferUid;
-        };
-        class_1.prototype.__isReady = function () {
-            if (this.__instanceIDBufferUid !== 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        class_1.prototype.__setupGeometryData = function () {
-            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-                this.__setupUBO();
-            }
-            else {
-                this.__setupDataTexture();
-            }
-        };
-        class_1.prototype.__setupInstanceIDBuffer = function () {
-            var buffer = MemoryManager.getInstance().getBufferForCPU();
-            var count = EntityRepository.getMaxEntityNumber();
-            var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
-            var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
-            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-            for (var i = 0; i < meshComponents.length; i++) {
-                accesseor.setScalar(i, meshComponents[i].entityUID);
-            }
-            this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
-        };
-        class_1.prototype.__setupUBO = function () {
+        WebGLStrategyUBO.prototype.setupGPUData = function () {
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -5380,7 +5287,90 @@
             }
             this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
         };
-        class_1.prototype.__setupDataTexture = function () {
+        WebGLStrategyUBO.prototype.attachGPUData = function () {
+            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'matrix', 0);
+        };
+        WebGLStrategyUBO.prototype.attatchShaderProgram = function () {
+            var shaderProgramUid = this.__shaderProgramUid;
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            var gl = glw.getRawContext();
+            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
+            gl.useProgram(shaderProgram);
+        };
+        WebGLStrategyUBO.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new WebGLStrategyUBO();
+            }
+            return this.__instance;
+        };
+        return WebGLStrategyUBO;
+    }());
+
+    var PixelFormatClass = /** @class */ (function (_super) {
+        __extends(PixelFormatClass, _super);
+        function PixelFormatClass(_a) {
+            var index = _a.index, str = _a.str;
+            return _super.call(this, { index: index, str: str }) || this;
+        }
+        return PixelFormatClass;
+    }(EnumClass));
+    var DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
+    var Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
+    var RGB = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
+    var RGBA = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
+    var Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
+    var LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
+    var PixelFormat = Object.freeze({ DepthComponent: DepthComponent, Alpha: Alpha, RGB: RGB, RGBA: RGBA, Luminance: Luminance, LuminanceAlpha: LuminanceAlpha });
+
+    var TextureParameterClass = /** @class */ (function (_super) {
+        __extends(TextureParameterClass, _super);
+        function TextureParameterClass(_a) {
+            var index = _a.index, str = _a.str;
+            return _super.call(this, { index: index, str: str }) || this;
+        }
+        return TextureParameterClass;
+    }(EnumClass));
+    var Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
+    var Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
+    var TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
+    var TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
+    var TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
+    var TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
+    var Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
+    var Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
+    var Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
+    var Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
+    var ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
+    var Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
+    var ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
+    var RGB$1 = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
+    var RGBA$1 = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
+    var RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
+    var RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
+    var RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
+    var RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
+    var RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
+    var RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
+    var RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
+    var TextureParameter = Object.freeze({ Nearest: Nearest, Linear: Linear, TextureMagFilter: TextureMagFilter, TextureMinFilter: TextureMinFilter, TextureWrapS: TextureWrapS, TextureWrapT: TextureWrapT, Texture2D: Texture2D, Texture: Texture,
+        Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB: RGB$1, RGBA: RGBA$1, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });
+
+    var WebGLStrategyDataTexture = /** @class */ (function () {
+        function WebGLStrategyDataTexture() {
+            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+            this.__dataTextureUid = 0;
+            this.__shaderProgramUid = 0;
+        }
+        WebGLStrategyDataTexture.prototype.setupShaderProgram = function () {
+            if (this.__shaderProgramUid !== 0) {
+                return;
+            }
+            // Shader Setup
+            var vertexShader = GLSLShader.vertexShaderDataTexture;
+            var fragmentShader = GLSLShader.fragmentShader;
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+        };
+        WebGLStrategyDataTexture.prototype.setupGPUData = function () {
             var isHalfFloatMode = false;
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
                 this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -5398,7 +5388,6 @@
                     halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
                 }
             }
-            // if already
             if (this.__dataTextureUid !== 0) {
                 if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
@@ -5463,6 +5452,78 @@
                 }
             }
         };
+        WebGLStrategyDataTexture.prototype.attachGPUData = function () {
+            var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
+            var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
+            gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+            var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+            var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+            gl.uniform1i(uniform_dataTexture, 0);
+        };
+        WebGLStrategyDataTexture.prototype.attatchShaderProgram = function () {
+            var shaderProgramUid = this.__shaderProgramUid;
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            var gl = glw.getRawContext();
+            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
+            gl.useProgram(shaderProgram);
+        };
+        WebGLStrategyDataTexture.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new WebGLStrategyDataTexture();
+            }
+            return this.__instance;
+        };
+        return WebGLStrategyDataTexture;
+    }());
+
+    var WebGLRenderingPipeline = new /** @class */ (function () {
+        function class_1() {
+            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+            this.__componentRepository = ComponentRepository.getInstance();
+            this.__instanceIDBufferUid = 0;
+        }
+        class_1.prototype.common_$load = function () {
+            // Strategy
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                this.__webGLStrategy = WebGLStrategyUBO.getInstance();
+            }
+            else {
+                this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
+            }
+            // Shader setup
+            this.__webGLStrategy.setupShaderProgram();
+        };
+        class_1.prototype.common_$prerender = function () {
+            var gl = this.__webglResourceRepository.currentWebGLContextWrapper;
+            if (gl == null) {
+                throw new Error('No WebGLRenderingContext!');
+            }
+            this.__webGLStrategy.setupGPUData();
+            if (this.__isReady()) {
+                return 0;
+            }
+            this.__setupInstanceIDBuffer();
+            return this.__instanceIDBufferUid;
+        };
+        class_1.prototype.__isReady = function () {
+            if (this.__instanceIDBufferUid !== 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        class_1.prototype.__setupInstanceIDBuffer = function () {
+            var buffer = MemoryManager.getInstance().getBufferForCPU();
+            var count = EntityRepository.getMaxEntityNumber();
+            var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
+            var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
+            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+            for (var i = 0; i < meshComponents.length; i++) {
+                accesseor.setScalar(i, meshComponents[i].entityUID);
+            }
+            this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+        };
         class_1.prototype.common_$render = function () {
             var meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -5471,11 +5532,8 @@
             var primitiveNum = meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = meshComponent.getPrimitiveAt(i);
-                var shaderProgramUid = this.__shaderProgramUid;
                 var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
                 var gl = glw.getRawContext();
-                var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
-                gl.useProgram(shaderProgram);
                 var vaoHandles = meshRendererComponent.__vertexHandles[i];
                 var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
                 if (vao != null) {
@@ -5484,26 +5542,13 @@
                 else {
                     this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
                 }
-                if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-                    this.__setUniformBuffer(gl, shaderProgramUid);
-                }
-                else {
-                    this.__setDataTexture(gl, shaderProgram);
-                }
+                this.__webGLStrategy.attatchShaderProgram();
+                this.__webGLStrategy.attachGPUData();
                 var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
                 var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
                 glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
             }
-        };
-        class_1.prototype.__setUniformBuffer = function (gl, shaderProgramUid) {
-            this.__webglResourceRepository.bindUniformBlock(shaderProgramUid, 'matrix', 0);
-        };
-        class_1.prototype.__setDataTexture = function (gl, shaderProgram) {
-            var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
-            gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-            var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-            gl.uniform1i(uniform_dataTexture, 0);
         };
         return class_1;
     }());
