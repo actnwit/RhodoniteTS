@@ -1,44 +1,5 @@
-<!doctype html>
-<html>
 
-<head>
-  <title>Rhodonite Index Buffer example</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <style>
-    main {
-      display: flex;
-    }
-    section {
-      background-color: darkgray;
-      padding: 10px;
-      margin: 20px;
-    }
-  </style>
-</head>
-
-<body>
-  <header>
-    <h1 class="header-title">Rhodonite E2E Test - UBO Instanced Drawing</h1>
-  </header>
-  <main>
-    <section class="test">
-      <h2>Rendering Test Image</h2>
-      <canvas id="world" width="600" height="600"></canvas>
-      <div>
-        <button onclick="window.isAnimating = true;">Animate</button>
-      </div>
-    </section>
-    <section class="correct">
-      <h2>Correct PNG Image</h2>
-      <img src="__image_snapshots__/test-js-regression-test-ubo-instanced-drawing-1-snap.png" />
-    </section>
-  </main>
-  <script type="module">
-
-    import Rn from '../../../dist/rhodonite.mjs';
-
+//    import Rn from '../../../dist/rhodonite.js';
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
       const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
@@ -140,7 +101,7 @@
     }
 
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UBOWebGL2, document.getElementById('world'));
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.DataTextureWebGL2, document.getElementById('world'));
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -167,8 +128,9 @@
 
     const startTime = Date.now();
     let p = null;
-    let count = 0;
-    const draw = (time)=>{
+    const rotationVec3 = Rn.Vector3.zero();
+    let count = 0
+    const draw = function(time){
 
       if (p == null) {
         p = document.createElement('p');
@@ -179,20 +141,19 @@
       const date = new Date();
 
       if (window.isAnimating) {
-        entities.forEach(entity=>{
-          entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
+        const rotation = 0.001 * (date.getTime() - startTime);
+        entities.forEach(function(entity){
+        rotationVec3.v[0] = rotation;
+        rotationVec3.v[1] = rotation;
+        rotationVec3.v[2] = rotation;
+        entity.getTransform().rotate = rotationVec3;
         });
       }
 
+  //      console.log(date.getTime());
       system.process();
-
-
       requestAnimationFrame(draw);
     }
+
     document.body.onload = draw;
 
-
-  </script>
-</body>
-
-</html>

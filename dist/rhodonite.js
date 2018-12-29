@@ -246,6 +246,14 @@
         WebGLContextWrapper.prototype.getRawContext = function () {
             return this.__gl;
         };
+        WebGLContextWrapper.prototype.isSupportWebGL1Extension = function (webGLExtension) {
+            if (this.__getExtension(webGLExtension)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
         Object.defineProperty(WebGLContextWrapper.prototype, "isWebGL2", {
             get: function () {
                 if (this.__webglVersion === 2) {
@@ -413,9 +421,9 @@
             gl.shaderSource(vertexShader, vertexShaderStr);
             gl.shaderSource(fragmentShader, fragmentShaderStr);
             gl.compileShader(vertexShader);
-            this.__checkShaderCompileStatus(vertexShader);
+            this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
             gl.compileShader(fragmentShader);
-            this.__checkShaderCompileStatus(fragmentShader);
+            this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
             var shaderProgram = gl.createProgram();
             gl.attachShader(shaderProgram, vertexShader);
             gl.attachShader(shaderProgram, fragmentShader);
@@ -430,9 +438,26 @@
             gl.deleteShader(fragmentShader);
             return resourceHandle;
         };
-        WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader) {
+        WebGLResourceRepository.prototype.__addLineNumber = function (shaderString) {
+            var shaderTextLines = shaderString.split(/\r\n|\r|\n/);
+            var shaderTextWithLineNumber = '';
+            for (var i = 0; i < shaderTextLines.length; i++) {
+                var lineIndex = i + 1;
+                var splitter = ' : ';
+                if (lineIndex < 10) {
+                    splitter = '  : ';
+                }
+                else if (lineIndex >= 100) {
+                    splitter = ': ';
+                }
+                shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
+            }
+            return shaderTextWithLineNumber;
+        };
+        WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader, shaderText) {
             var gl = this.__glw.getRawContext();
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.log(this.__addLineNumber(shaderText));
                 throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
             }
         };
@@ -830,7 +855,7 @@
             return component;
         };
         EntityRepository.getMaxEntityNumber = function () {
-            return 5000;
+            return 100000;
         };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();
@@ -1351,6 +1376,38 @@
                 q.z = 0.25 * S;
             }
             return q;
+        };
+        Quaternion.prototype.fromMatrix = function (m) {
+            var tr = m.m00 + m.m11 + m.m22;
+            if (tr > 0) {
+                var S = 0.5 / Math.sqrt(tr + 1.0);
+                this.v[0] = (m.m21 - m.m12) * S;
+                this.v[1] = (m.m02 - m.m20) * S;
+                this.v[2] = (m.m10 - m.m01) * S;
+                this.v[3] = 0.25 / S;
+            }
+            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+                this.v[0] = 0.25 * S;
+                this.v[1] = (m.m01 + m.m10) / S;
+                this.v[2] = (m.m02 + m.m20) / S;
+                this.v[3] = (m.m21 - m.m12) / S;
+            }
+            else if (m.m11 > m.m22) {
+                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+                this.v[0] = (m.m01 + m.m10) / S;
+                this.v[1] = 0.25 * S;
+                this.v[2] = (m.m12 + m.m21) / S;
+                this.v[3] = (m.m02 - m.m20) / S;
+            }
+            else {
+                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+                this.v[0] = (m.m02 + m.m20) / S;
+                this.v[1] = (m.m12 + m.m21) / S;
+                this.v[2] = 0.25 * S;
+                this.v[3] = (m.m10 - m.m01) / S;
+            }
+            return this;
         };
         /*
           static fromMatrix(m) {
@@ -2370,8 +2427,66 @@
             var sin = Math.sin(radian);
             return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
-        Matrix44.rotateXYZ = function (x, y, z) {
-            return new Matrix44(Matrix33.rotateXYZ(x, y, z));
+        Matrix44.prototype.rotateXYZ = function (x, y, z) {
+            var cosX = Math.cos(x);
+            var sinX = Math.sin(x);
+            var cosY = Math.cos(y);
+            var sinY = Math.sin(y);
+            var cosZ = Math.cos(z);
+            var sinZ = Math.sin(z);
+            var xm00 = 1;
+            //const xm01 = 0;
+            //const xm02 = 0;
+            //const xm10 = 0;
+            var xm11 = cosX;
+            var xm12 = -sinX;
+            //const xm20 = 0;
+            var xm21 = sinX;
+            var xm22 = cosX;
+            var ym00 = cosY;
+            //const ym01 = 0;
+            var ym02 = sinY;
+            //const ym10 = 0;
+            var ym11 = 1;
+            //const ym12 = 0;
+            var ym20 = -sinY;
+            //const ym21 = 0;
+            var ym22 = cosY;
+            var zm00 = cosZ;
+            var zm01 = -sinZ;
+            //const zm02 = 0;
+            var zm10 = sinZ;
+            var zm11 = cosZ;
+            //const zm12 = 0;
+            //const zm20 = 0;
+            //const zm21 = 0;
+            var zm22 = 1;
+            var yxm00 = ym00 * xm00;
+            var yxm01 = ym02 * xm21;
+            var yxm02 = ym02 * xm22;
+            //const yxm10 = 0;
+            var yxm11 = ym11 * xm11;
+            var yxm12 = ym11 * xm12;
+            var yxm20 = ym20 * xm00;
+            var yxm21 = ym22 * xm21;
+            var yxm22 = ym22 * xm22;
+            this.m[0] = zm00 * yxm00;
+            this.m[4] = zm00 * yxm01 + zm01 * yxm11;
+            this.m[8] = zm00 * yxm02 + zm01 * yxm12;
+            this.m[12] = 0;
+            this.m[1] = zm10 * yxm00;
+            this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+            this.m[9] = zm10 * yxm02 + zm11 * yxm12;
+            this.m[13] = 0;
+            this.m[2] = zm22 * yxm20;
+            this.m[6] = zm22 * yxm21;
+            this.m[10] = zm22 * yxm22;
+            this.m[14] = 0;
+            this.m[3] = 0;
+            this.m[7] = 0;
+            this.m[11] = 0;
+            this.m[15] = 1;
+            return this;
         };
         /**
          * @return Euler Angles Rotation (x, y, z)
@@ -3368,7 +3483,7 @@
             enumerable: true,
             configurable: true
         });
-        MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 9);
+        MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
         return MemoryManager;
     }());
 
@@ -3412,25 +3527,6 @@
         };
         Component.prototype.registerDependency = function (component, isMust) {
         };
-        Component.prototype.$create = function () {
-            // Define process dependencies with other components.
-            // If circular depenencies are detected, the error will be repoated.
-            // this.registerDependency(TransformComponent);
-        };
-        Component.prototype.$load = function () {
-        };
-        Component.prototype.$mount = function () {
-        };
-        Component.prototype.$logic = function () {
-        };
-        Component.prototype.$prerender = function (instanceIDBufferUid) {
-        };
-        Component.prototype.$render = function () {
-        };
-        Component.prototype.$unmount = function () {
-        };
-        Component.prototype.$discard = function () {
-        };
         return Component;
     }());
 
@@ -3465,13 +3561,6 @@
         Object.defineProperty(TransformComponent, "renderedPropertyCount", {
             get: function () {
                 return null;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent, "maxCount", {
-            get: function () {
-                return 1000000;
             },
             enumerable: true,
             configurable: true
@@ -3515,7 +3604,9 @@
                 return this.translateInner.clone();
             },
             set: function (vec) {
-                this._translate = vec.clone();
+                this._translate.v[0] = vec.v[0];
+                this._translate.v[1] = vec.v[1];
+                this._translate.v[2] = vec.v[2];
                 this._is_translate_updated = true;
                 this._is_trs_matrix_updated = false;
                 this._is_inverse_trs_matrix_updated = false;
@@ -3546,7 +3637,9 @@
                 return this.rotateInner.clone();
             },
             set: function (vec) {
-                this._rotate = vec.clone();
+                this._rotate.v[0] = vec.v[0];
+                this._rotate.v[1] = vec.v[1];
+                this._rotate.v[2] = vec.v[2];
                 this._is_euler_angles_updated = true;
                 this._is_quaternion_updated = false;
                 this._is_trs_matrix_updated = false;
@@ -3579,7 +3672,9 @@
                 return this.scaleInner.clone();
             },
             set: function (vec) {
-                this._scale = vec.clone();
+                this._scale.v[0] = vec.v[0];
+                this._scale.v[1] = vec.v[1];
+                this._scale.v[2] = vec.v[2];
                 this._is_scale_updated = true;
                 this._is_trs_matrix_updated = false;
                 this._is_inverse_trs_matrix_updated = false;
@@ -3608,10 +3703,12 @@
         });
         Object.defineProperty(TransformComponent.prototype, "quaternion", {
             get: function () {
-                return this.guaternionInner.clone();
+                return this.quaternionInner.clone();
             },
             set: function (quat) {
-                this._quaternion = quat.clone();
+                this._quaternion.v[0] = quat.v[0];
+                this._quaternion.v[1] = quat.v[1];
+                this._quaternion.v[2] = quat.v[2];
                 this._is_quaternion_updated = true;
                 this._is_euler_angles_updated = false;
                 this._is_trs_matrix_updated = false;
@@ -3622,23 +3719,22 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TransformComponent.prototype, "guaternionInner", {
+        Object.defineProperty(TransformComponent.prototype, "quaternionInner", {
             get: function () {
                 if (this._is_quaternion_updated) {
                     return this._quaternion;
                 }
                 else if (!this._is_quaternion_updated) {
                     if (this._is_trs_matrix_updated) {
-                        var value = Quaternion.fromMatrix(this._matrix);
                         this._is_quaternion_updated = true;
-                        this._quaternion = value;
-                        return value;
+                        this._quaternion.fromMatrix(this._matrix);
+                        return this._quaternion;
                     }
                     else if (this._is_euler_angles_updated) {
-                        var value = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+                        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
                         this._is_quaternion_updated = true;
-                        this._quaternion = value;
-                        return value;
+                        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
+                        return this._quaternion;
                     }
                 }
                 return this._quaternion;
@@ -3669,16 +3765,48 @@
                 if (this._is_trs_matrix_updated) {
                     return this._matrix;
                 }
-                // scale
-                var scaleMatrix = Matrix44.scale(this.scale);
-                // rotate
-                var rotationMatrix = new Matrix44(this.quaternion);
-                this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
-                // translate
-                var translate = this.translate;
-                this._matrix.m03 = translate.x;
-                this._matrix.m13 = translate.y;
-                this._matrix.m23 = translate.z;
+                // Clear and set Scale
+                var scale = this.scaleInner;
+                var n00 = scale.v[0];
+                var n11 = scale.v[1];
+                var n22 = scale.v[2];
+                var q = this.quaternionInner;
+                var sx = q.v[0] * q.v[0];
+                var sy = q.v[1] * q.v[1];
+                var sz = q.v[2] * q.v[2];
+                var cx = q.v[1] * q.v[2];
+                var cy = q.v[0] * q.v[2];
+                var cz = q.v[0] * q.v[1];
+                var wx = q.v[3] * q.v[0];
+                var wy = q.v[3] * q.v[1];
+                var wz = q.v[3] * q.v[2];
+                var m00 = 1.0 - 2.0 * (sy + sz);
+                var m01 = 2.0 * (cz - wz);
+                var m02 = 2.0 * (cy + wy);
+                var m10 = 2.0 * (cz + wz);
+                var m11 = 1.0 - 2.0 * (sx + sz);
+                var m12 = 2.0 * (cx - wx);
+                var m20 = 2.0 * (cy - wy);
+                var m21 = 2.0 * (cx + wx);
+                var m22 = 1.0 - 2.0 * (sx + sy);
+                var translate = this.translateInner;
+                // TranslateMatrix * RotateMatrix * ScaleMatrix
+                this._matrix.m00 = m00 * n00;
+                this._matrix.m01 = m01 * n11;
+                this._matrix.m02 = m02 * n22;
+                this._matrix.m03 = translate.v[0];
+                this._matrix.m10 = m10 * n00;
+                this._matrix.m11 = m11 * n11;
+                this._matrix.m12 = m12 * n22;
+                this._matrix.m13 = translate.v[1];
+                this._matrix.m20 = m20 * n00;
+                this._matrix.m21 = m21 * n11;
+                this._matrix.m22 = m22 * n22;
+                this._matrix.m23 = translate.v[2];
+                this._matrix.m30 = 0;
+                this._matrix.m31 = 0;
+                this._matrix.m32 = 0;
+                this._matrix.m33 = 1;
                 this._is_trs_matrix_updated = true;
                 return this._matrix;
             },
@@ -3789,7 +3917,8 @@
         };
         TransformComponent.prototype.__updateRotation = function () {
             if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-                this._quaternion = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+                TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+                this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
                 this._is_quaternion_updated = true;
             }
             else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
@@ -3798,7 +3927,7 @@
             }
             else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
                 var m = this._matrix;
-                this._quaternion = Quaternion.fromMatrix(m);
+                this._quaternion.fromMatrix(m);
                 this._is_quaternion_updated = true;
                 this._rotate = m.toEulerAngles();
                 this._is_euler_angles_updated = true;
@@ -3882,11 +4011,13 @@
                 return new Matrix44(this.quaternion);
             },
             set: function (rotateMatrix) {
-                this.quaternion = Quaternion.fromMatrix(rotateMatrix);
+                this.quaternion.fromMatrix(rotateMatrix);
             },
             enumerable: true,
             configurable: true
         });
+        TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
+        TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
         return TransformComponent;
     }(Component));
     ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
@@ -4120,8 +4251,67 @@
             var sin = Math.sin(radian);
             return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
-        RowMajarMatrix44.rotateXYZ = function (x, y, z) {
-            return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
+        RowMajarMatrix44.prototype.rotateXYZ = function (x, y, z) {
+            var cosX = Math.cos(x);
+            var sinX = Math.sin(x);
+            var cosY = Math.cos(y);
+            var sinY = Math.sin(y);
+            var cosZ = Math.cos(z);
+            var sinZ = Math.sin(z);
+            var xm00 = 1;
+            //const xm01 = 0;
+            //const xm02 = 0;
+            //const xm10 = 0;
+            var xm11 = cosX;
+            var xm12 = -sinX;
+            //const xm20 = 0;
+            var xm21 = sinX;
+            var xm22 = cosX;
+            var ym00 = cosY;
+            //const ym01 = 0;
+            var ym02 = sinY;
+            //const ym10 = 0;
+            var ym11 = 1;
+            //const ym12 = 0;
+            var ym20 = -sinY;
+            //const ym21 = 0;
+            var ym22 = cosY;
+            var zm00 = cosZ;
+            var zm01 = -sinZ;
+            //const zm02 = 0;
+            var zm10 = sinZ;
+            var zm11 = cosZ;
+            //const zm12 = 0;
+            //const zm20 = 0;
+            //const zm21 = 0;
+            var zm22 = 1;
+            var yxm00 = ym00 * xm00;
+            var yxm01 = ym02 * xm21;
+            var yxm02 = ym02 * xm22;
+            //const yxm10 = 0;
+            var yxm11 = ym11 * xm11;
+            var yxm12 = ym11 * xm12;
+            var yxm20 = ym20 * xm00;
+            var yxm21 = ym22 * xm21;
+            var yxm22 = ym22 * xm22;
+            this.m[0] = zm00 * yxm00;
+            this.m[1] = zm00 * yxm01 + zm01 * yxm11;
+            this.m[2] = zm00 * yxm02 + zm01 * yxm12;
+            this.m[3] = 0;
+            this.m[4] = zm10 * yxm00;
+            this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+            this.m[6] = zm10 * yxm02 + zm11 * yxm12;
+            this.m[7] = 0;
+            this.m[8] = zm22 * yxm20;
+            this.m[9] = zm22 * yxm21;
+            this.m[10] = zm22 * yxm22;
+            this.m[11] = 0;
+            this.m[12] = 0;
+            this.m[13] = 0;
+            this.m[14] = 0;
+            this.m[15] = 1;
+            return this;
+            //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
         };
         /**
          * @return Euler Angles Rotation (x, y, z)
@@ -4520,13 +4710,6 @@
             return _this;
             //this.__updatedProperly = false;
         }
-        Object.defineProperty(SceneGraphComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(SceneGraphComponent, "componentTID", {
             get: function () {
                 return WellKnownComponentTIDs.SceneGraphComponentTID;
@@ -4593,7 +4776,7 @@
                 // if there is not parent
                 if (transform._dirty) {
                     transform._dirty = false;
-                    this.__worldMatrix.copyComponents(transform.matrix);
+                    this.__worldMatrix.copyComponents(transform.matrixInner);
                     //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
                 }
                 return this.__worldMatrix;
@@ -4614,13 +4797,6 @@
             _this.__primitives = [];
             return _this;
         }
-        Object.defineProperty(MeshComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(MeshComponent, "componentTID", {
             get: function () {
                 return 3;
@@ -4641,65 +4817,15 @@
     }(Component));
     ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
-    var GLSLShader = /** @class */ (function () {
-        function GLSLShader() {
-        }
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL1", {
-            get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL2", {
-            get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL1", {
-            get: function () {
-                return GLSLShader.fragmentShader_webgl1;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL2", {
-            get: function () {
-                return GLSLShader.fragmentShader_webgl2;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        GLSLShader.vertexShaderDefinitions_webgl1 = "\nprecision highp float;\nattribute vec3 a_position;\nattribute vec3 a_color;\nattribute float a_instanceID;\n\nvarying vec3 v_color;\nuniform sampler2D u_dataTexture;\n\n\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return texture2D( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return texture2D( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n    // mat4 matrix = mat4(\n    //   1.0/100.0, 0.0, 0.0, 0.0,\n    //   0.0, 1.0/100.0, 0.0, 0.0,\n    //   0.0, 0.0, 1.0/100.0, 0.0,\n    //   0.0, 0.0, 0.0, 1.0\n    //   );\n  \n  return matrix;\n}\n\n    ";
-        GLSLShader.vertexShaderDefinitions_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 a_position;\nin vec3 a_color;\nin float a_instanceID;\n\nout vec3 v_color;\nlayout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
-        GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
-        GLSLShader.fragmentShader_webgl1 = "\nprecision highp float;\nvarying vec3 v_color;\nvoid main ()\n{\n  gl_FragColor = vec4(v_color, 1.0);\n}\n";
-        GLSLShader.fragmentShader_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 v_color;\nlayout(location = 0) out vec4 rt0;\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n}\n";
-        GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
-        GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
-        return GLSLShader;
-    }());
-
     var MeshRendererComponent = /** @class */ (function (_super) {
         __extends(MeshRendererComponent, _super);
         function MeshRendererComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
             _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            //  __vertexShaderProgramHandles: Array<CGAPIResourceHandle> = [];
-            //private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
-            _this.__vertexVaoHandles = [];
+            _this.__vertexHandles = [];
             _this.__isVAOSet = false;
             return _this;
         }
-        Object.defineProperty(MeshRendererComponent, "maxCount", {
-            get: function () {
-                return 1000000;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(MeshRendererComponent, "componentTID", {
             get: function () {
                 return 4;
@@ -4708,7 +4834,7 @@
             configurable: true
         });
         MeshRendererComponent.prototype.__isLoaded = function (index) {
-            if (this.__vertexVaoHandles[index] != null) {
+            if (this.__vertexHandles[index] != null) {
                 return true;
             }
             else {
@@ -4716,50 +4842,55 @@
             }
         };
         MeshRendererComponent.prototype.$create = function () {
+            if (this.__meshComponent != null) {
+                return;
+            }
             this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
         };
         MeshRendererComponent.prototype.$load = function () {
+            if (this.__isLoaded(0)) {
+                return;
+            }
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
-                if (this.__isLoaded(i)) {
-                    continue;
-                }
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
                 var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-                this.__vertexVaoHandles[i] = vertexHandles;
-                MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-                var vertexShader = GLSLShader.vertexShaderWebGL1;
-                var fragmentShader = GLSLShader.fragmentShaderWebGL1;
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    vertexShader = GLSLShader.vertexShaderWebGL2;
-                    fragmentShader = GLSLShader.fragmentShaderWebGL2;
-                }
-                var shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
-                //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-                MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+                this.__vertexHandles[i] = vertexHandles;
+                MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+                // let vertexShader = GLSLShader.vertexShaderWebGL1;
+                // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+                // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+                //   vertexShader = GLSLShader.vertexShaderWebGL2;
+                //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
+                // }
+                // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
+                //   vertexShader,
+                //   fragmentShader,
+                //   GLSLShader.attributeNanes,
+                //   GLSLShader.attributeSemantics
+                // );
+                // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+                // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
             }
         };
-        MeshRendererComponent.prototype.$prerender = function (instanceIDBufferUid) {
+        MeshRendererComponent.prototype.$prerender = function (args) {
+            if (this.__isVAOSet) {
+                return;
+            }
+            var instanceIDBufferUid = args[0];
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
-                if (this.__isLoaded(i) && this.__isVAOSet) {
-                    this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                    //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                    continue;
-                }
-                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexVaoHandles[i], primitive, instanceIDBufferUid);
-                this.__isVAOSet = true;
+                // if (this.__isLoaded(i) && this.__isVAOSet) {
+                this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+                //  continue;
+                // }
+                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
             }
+            this.__isVAOSet = true;
         };
-        MeshRendererComponent.prototype.$render = function () {
-            // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-            //   for(let i=0; i<primitiveNum; i++) {
-            //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-            //   this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-            // }
-        };
-        MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids = new Map();
+        MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
         MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
         return MeshRendererComponent;
     }(Component));
@@ -4890,6 +5021,150 @@
     }
     var PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$4 });
 
+    var GLSLShader = /** @class */ (function () {
+        function GLSLShader() {
+        }
+        Object.defineProperty(GLSLShader, "glsl_vertex_in", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'in';
+                }
+                else {
+                    return 'attribute';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_fragment_in", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'in';
+                }
+                else {
+                    return 'varying';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_vertex_out", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'out';
+                }
+                else {
+                    return 'varying';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_texture", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'texture';
+                }
+                else {
+                    return 'texture2D';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_versionText", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return '#version 300 es\n';
+                }
+                else {
+                    return '';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderVariableDefinitions", {
+            get: function () {
+                var _version = this.glsl_versionText;
+                var _in = this.glsl_vertex_in;
+                var _out = this.glsl_vertex_out;
+                return _version + "\nprecision highp float;\n" + _in + " vec3 a_position;\n" + _in + " vec3 a_color;\n" + _in + " float a_instanceID;\n" + _out + " vec3 v_color;";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderMethodDefinitions_dataTexture", {
+            get: function () {
+                var _texture = this.glsl_texture;
+                return "\nuniform sampler2D u_dataTexture;\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return " + _texture + "( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return " + _texture + "( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n  return matrix;\n}\n";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_rt0", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'layout(location = 0) out vec4 rt0;\n';
+                }
+                else {
+                    return 'vec4 rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_fragColor", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return '';
+                }
+                else {
+                    return 'gl_FragColor = rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShaderSimple", {
+            get: function () {
+                var _version = this.glsl_versionText;
+                var _in = this.glsl_fragment_in;
+                var _def_rt0 = this.glsl_rt0;
+                var _def_fragColor = this.glsl_fragColor;
+                return _version + "\nprecision highp float;\n" + _in + " vec3 v_color;\n" + _def_rt0 + "\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n  " + _def_fragColor + "\n}\n";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderDataTexture", {
+            get: function () {
+                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderUBO", {
+            get: function () {
+                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShader", {
+            get: function () {
+                return GLSLShader.fragmentShaderSimple;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GLSLShader.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
+        GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
+        GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+        GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
+        return GLSLShader;
+    }());
+
     var ProcessStageClass = /** @class */ (function (_super) {
         __extends(ProcessStageClass, _super);
         function ProcessStageClass(_a) {
@@ -5018,6 +5293,21 @@
     }());
     var MathUtil = Object.freeze({ radianToDegree: radianToDegree, degreeToRadian: degreeToRadian, toHalfFloat: toHalfFloat });
 
+    var ProcessApproachClass = /** @class */ (function (_super) {
+        __extends(ProcessApproachClass, _super);
+        function ProcessApproachClass(_a) {
+            var index = _a.index, str = _a.str;
+            return _super.call(this, { index: index, str: str }) || this;
+        }
+        return ProcessApproachClass;
+    }(EnumClass));
+    var None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+    var UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+    var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+    var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+    var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2 });
+
     var WebGLRenderingPipeline = new /** @class */ (function () {
         function class_1() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -5025,22 +5315,29 @@
             this.__dataTextureUid = 0;
             this.__instanceIDBufferUid = 0;
             this.__uboUid = 0;
+            this.__shaderProgramUid = 0;
         }
-        class_1.prototype.common_prerender = function () {
+        class_1.prototype.common_$load = function () {
+            if (this.__shaderProgramUid !== 0) {
+                return;
+            }
+            var vertexShader = GLSLShader.vertexShaderDataTexture;
+            var fragmentShader = GLSLShader.fragmentShader;
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                vertexShader = GLSLShader.vertexShaderUBO;
+            }
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+        };
+        class_1.prototype.common_$prerender = function () {
             var gl = this.__webglResourceRepository.currentWebGLContextWrapper;
             if (gl == null) {
                 throw new Error('No WebGLRenderingContext!');
             }
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__createUBO();
-            }
-            else {
-                this.__createDataTexture();
-            }
+            this.__setupGeometryData();
             if (this.__isReady()) {
                 return 0;
             }
-            this.__createInstanceIDBuffer();
+            this.__setupInstanceIDBuffer();
             return this.__instanceIDBufferUid;
         };
         class_1.prototype.__isReady = function () {
@@ -5051,7 +5348,15 @@
                 return false;
             }
         };
-        class_1.prototype.__createInstanceIDBuffer = function () {
+        class_1.prototype.__setupGeometryData = function () {
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                this.__setupUBO();
+            }
+            else {
+                this.__setupDataTexture();
+            }
+        };
+        class_1.prototype.__setupInstanceIDBuffer = function () {
             var buffer = MemoryManager.getInstance().getBufferForCPU();
             var count = EntityRepository.getMaxEntityNumber();
             var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
@@ -5062,14 +5367,12 @@
             }
             this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
         };
-        class_1.prototype.__createUBO = function () {
+        class_1.prototype.__setupUBO = function () {
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
                 if (this.__uboUid !== 0) {
-                    //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-                    //this.__uboUid = 0;
                     this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
                     return;
                 }
@@ -5077,15 +5380,41 @@
             }
             this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
         };
-        class_1.prototype.__createDataTexture = function () {
+        class_1.prototype.__setupDataTexture = function () {
+            var isHalfFloatMode = false;
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
+                this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+                isHalfFloatMode = true;
+            }
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            var halfFloatDataTextureBuffer;
+            if (isHalfFloatMode) {
+                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                var convertLength = buffer.byteSizeInUse / 4; //components
+                convertLength /= 2; // bytes
+                for (var i = 0; i < convertLength; i++) {
+                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+                }
+            }
             // if already
             if (this.__dataTextureUid !== 0) {
-                //      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-                //      this.__dataTextureUid = 0;
-                {
+                if (isHalfFloatMode) {
+                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                    else {
+                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.HalfFloat
+                        });
+                    }
+                }
+                else {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
                             level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -5101,7 +5430,23 @@
                 }
                 return;
             }
-            {
+            if (isHalfFloatMode) {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+                else {
+                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+            }
+            else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                         level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -5118,37 +5463,37 @@
                 }
             }
         };
-        class_1.prototype.common_render = function (meshRendererComponent, instanceIDBufferUid) {
-            // vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-            var meshComponent = meshRendererComponent.__meshComponent;
+        class_1.prototype.common_$render = function () {
+            var meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
+            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+            var meshRendererComponent = meshRendererComponents[0];
+            var meshComponent = meshComponents[0];
             var primitiveNum = meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = meshComponent.getPrimitiveAt(i);
-                //this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-                var shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
+                var shaderProgramUid = this.__shaderProgramUid;
                 var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
                 var gl = glw.getRawContext();
-                var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+                var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
                 gl.useProgram(shaderProgram);
-                var vaoHandles = meshRendererComponent.__vertexVaoHandles[i];
+                var vaoHandles = meshRendererComponent.__vertexHandles[i];
                 var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
                 if (vao != null) {
                     glw.bindVertexArray(vao);
                 }
                 else {
-                    this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+                    this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
                 }
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__setUniformBuffer(gl, shaderProgramHandle);
+                if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                    this.__setUniformBuffer(gl, shaderProgramUid);
                 }
                 else {
                     this.__setDataTexture(gl, shaderProgram);
                 }
                 var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-                glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
-                //      gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
+                var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+                glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
             }
         };
         class_1.prototype.__setUniformBuffer = function (gl, shaderProgramUid) {
@@ -5177,33 +5522,55 @@
             ];
             this.__componentRepository = ComponentRepository.getInstance();
             this.__renderingPipeline = WebGLRenderingPipeline;
+            this.__processApproach = ProcessApproach.None;
         }
         System.prototype.process = function () {
             var _this = this;
+            if (this.__processApproach === ProcessApproach.None) {
+                throw new Error('Choose a process approach first.');
+            }
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
                 var args = [];
                 var instanceIDBufferUid = 0;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
-                if (methodName === '$prerender') {
-                    instanceIDBufferUid = _this.__renderingPipeline.common_prerender();
-                    args.push(instanceIDBufferUid);
+                var commonMethod = _this.__renderingPipeline['common_' + methodName];
+                if (commonMethod != null) {
+                    instanceIDBufferUid = commonMethod.apply(_this.__renderingPipeline);
                 }
+                args.push(instanceIDBufferUid);
                 componentTids.forEach(function (componentTid) {
                     var components = _this.__componentRepository.getComponentsWithType(componentTid);
-                    components.forEach(function (component, i) {
-                        if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-                            _this.__renderingPipeline.common_render(component, instanceIDBufferUid);
-                            args.push(instanceIDBufferUid);
-                        }
+                    components.forEach(function (component) {
                         var method = component[methodName];
                         if (method != null) {
-                            method.apply(component, args);
+                            //method.apply(component, args);
+                            component[methodName](args);
                         }
                     });
                 });
             });
         };
+        System.prototype.setProcessApproachAndCanvas = function (approach, canvas) {
+            var repo = WebGLResourceRepository.getInstance();
+            var gl;
+            if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+                gl = canvas.getContext('webgl2');
+            }
+            else {
+                gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            }
+            repo.addWebGLContext(gl, true);
+            this.__processApproach = approach;
+            return gl;
+        };
+        Object.defineProperty(System.prototype, "processApproach", {
+            get: function () {
+                return this.__processApproach;
+            },
+            enumerable: true,
+            configurable: true
+        });
         System.getInstance = function () {
             if (!this.__instance) {
                 this.__instance = new System();
@@ -5231,6 +5598,7 @@
         Vector4: Vector4,
         Matrix33: Matrix33,
         Matrix44: Matrix44,
+        ProcessApproach: ProcessApproach
     });
     window['Rn'] = Rn;
 

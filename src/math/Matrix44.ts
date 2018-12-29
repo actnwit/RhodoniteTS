@@ -344,8 +344,73 @@ export default class Matrix44 {
     );
   }
 
-  static rotateXYZ(x: number, y: number, z: number) {
-    return new Matrix44(Matrix33.rotateXYZ(x, y, z));
+  rotateXYZ(x: number, y: number, z: number) {
+    var cosX = Math.cos(x);
+    var sinX = Math.sin(x);
+    var cosY = Math.cos(y);
+    var sinY = Math.sin(y);
+    var cosZ = Math.cos(z);
+    var sinZ = Math.sin(z);
+
+    const xm00 = 1;
+    //const xm01 = 0;
+    //const xm02 = 0;
+    //const xm10 = 0;
+    const xm11 = cosX;
+    const xm12 = -sinX;
+    //const xm20 = 0;
+    const xm21 = sinX;
+    const xm22 = cosX;
+
+    const ym00 = cosY;
+    //const ym01 = 0;
+    const ym02 = sinY;
+    //const ym10 = 0;
+    const ym11 = 1;
+    //const ym12 = 0;
+    const ym20 = -sinY;
+    //const ym21 = 0;
+    const ym22 = cosY;
+
+    const zm00 = cosZ;
+    const zm01 = -sinZ;
+    //const zm02 = 0;
+    const zm10 = sinZ;
+    const zm11 = cosZ;
+    //const zm12 = 0;
+    //const zm20 = 0;
+    //const zm21 = 0;
+    const zm22 = 1;
+
+    const yxm00 = ym00*xm00;
+    const yxm01 = ym02*xm21;
+    const yxm02 = ym02*xm22;
+    //const yxm10 = 0;
+    const yxm11 = ym11*xm11;
+    const yxm12 = ym11*xm12;
+    const yxm20 = ym20*xm00;
+    const yxm21 = ym22*xm21;
+    const yxm22 = ym22*xm22;
+
+    this.m[0] = zm00*yxm00;
+    this.m[4] = zm00*yxm01 + zm01*yxm11;
+    this.m[8] = zm00*yxm02 + zm01*yxm12;
+    this.m[12] = 0;
+    this.m[1] = zm10*yxm00;
+    this.m[5] = zm10*yxm01 + zm11*yxm11;
+    this.m[9] = zm10*yxm02 + zm11*yxm12;
+    this.m[13] = 0;
+    this.m[2] = zm22*yxm20;
+    this.m[6] = zm22*yxm21;
+    this.m[10] = zm22*yxm22;
+    this.m[14] = 0;
+    this.m[3] = 0;
+    this.m[7] = 0;
+    this.m[11] = 0;
+    this.m[15] = 1;
+
+    return this;
+
   }
 
   /**

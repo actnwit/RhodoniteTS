@@ -154,6 +154,14 @@ class WebGLContextWrapper {
     getRawContext() {
         return this.__gl;
     }
+    isSupportWebGL1Extension(webGLExtension) {
+        if (this.__getExtension(webGLExtension)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     get isWebGL2() {
         if (this.__webglVersion === 2) {
             return true;
@@ -309,9 +317,9 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.shaderSource(vertexShader, vertexShaderStr);
         gl.shaderSource(fragmentShader, fragmentShaderStr);
         gl.compileShader(vertexShader);
-        this.__checkShaderCompileStatus(vertexShader);
+        this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
         gl.compileShader(fragmentShader);
-        this.__checkShaderCompileStatus(fragmentShader);
+        this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
         const shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
@@ -326,9 +334,26 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.deleteShader(fragmentShader);
         return resourceHandle;
     }
-    __checkShaderCompileStatus(shader) {
+    __addLineNumber(shaderString) {
+        let shaderTextLines = shaderString.split(/\r\n|\r|\n/);
+        let shaderTextWithLineNumber = '';
+        for (let i = 0; i < shaderTextLines.length; i++) {
+            let lineIndex = i + 1;
+            let splitter = ' : ';
+            if (lineIndex < 10) {
+                splitter = '  : ';
+            }
+            else if (lineIndex >= 100) {
+                splitter = ': ';
+            }
+            shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
+        }
+        return shaderTextWithLineNumber;
+    }
+    __checkShaderCompileStatus(shader, shaderText) {
         const gl = this.__glw.getRawContext();
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.log(this.__addLineNumber(shaderText));
             throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
         }
     }
@@ -686,7 +711,7 @@ class EntityRepository {
         return component;
     }
     static getMaxEntityNumber() {
-        return 5000;
+        return 100000;
     }
     _getEntities() {
         return this.__entities.concat();
@@ -1180,6 +1205,38 @@ class Quaternion {
             q.z = 0.25 * S;
         }
         return q;
+    }
+    fromMatrix(m) {
+        let tr = m.m00 + m.m11 + m.m22;
+        if (tr > 0) {
+            let S = 0.5 / Math.sqrt(tr + 1.0);
+            this.v[0] = (m.m21 - m.m12) * S;
+            this.v[1] = (m.m02 - m.m20) * S;
+            this.v[2] = (m.m10 - m.m01) * S;
+            this.v[3] = 0.25 / S;
+        }
+        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+            let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+            this.v[0] = 0.25 * S;
+            this.v[1] = (m.m01 + m.m10) / S;
+            this.v[2] = (m.m02 + m.m20) / S;
+            this.v[3] = (m.m21 - m.m12) / S;
+        }
+        else if (m.m11 > m.m22) {
+            let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+            this.v[0] = (m.m01 + m.m10) / S;
+            this.v[1] = 0.25 * S;
+            this.v[2] = (m.m12 + m.m21) / S;
+            this.v[3] = (m.m02 - m.m20) / S;
+        }
+        else {
+            let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+            this.v[0] = (m.m02 + m.m20) / S;
+            this.v[1] = (m.m12 + m.m21) / S;
+            this.v[2] = 0.25 * S;
+            this.v[3] = (m.m10 - m.m01) / S;
+        }
+        return this;
     }
     /*
       static fromMatrix(m) {
@@ -2102,8 +2159,66 @@ class Matrix44 {
         var sin = Math.sin(radian);
         return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
-    static rotateXYZ(x, y, z) {
-        return new Matrix44(Matrix33.rotateXYZ(x, y, z));
+    rotateXYZ(x, y, z) {
+        var cosX = Math.cos(x);
+        var sinX = Math.sin(x);
+        var cosY = Math.cos(y);
+        var sinY = Math.sin(y);
+        var cosZ = Math.cos(z);
+        var sinZ = Math.sin(z);
+        const xm00 = 1;
+        //const xm01 = 0;
+        //const xm02 = 0;
+        //const xm10 = 0;
+        const xm11 = cosX;
+        const xm12 = -sinX;
+        //const xm20 = 0;
+        const xm21 = sinX;
+        const xm22 = cosX;
+        const ym00 = cosY;
+        //const ym01 = 0;
+        const ym02 = sinY;
+        //const ym10 = 0;
+        const ym11 = 1;
+        //const ym12 = 0;
+        const ym20 = -sinY;
+        //const ym21 = 0;
+        const ym22 = cosY;
+        const zm00 = cosZ;
+        const zm01 = -sinZ;
+        //const zm02 = 0;
+        const zm10 = sinZ;
+        const zm11 = cosZ;
+        //const zm12 = 0;
+        //const zm20 = 0;
+        //const zm21 = 0;
+        const zm22 = 1;
+        const yxm00 = ym00 * xm00;
+        const yxm01 = ym02 * xm21;
+        const yxm02 = ym02 * xm22;
+        //const yxm10 = 0;
+        const yxm11 = ym11 * xm11;
+        const yxm12 = ym11 * xm12;
+        const yxm20 = ym20 * xm00;
+        const yxm21 = ym22 * xm21;
+        const yxm22 = ym22 * xm22;
+        this.m[0] = zm00 * yxm00;
+        this.m[4] = zm00 * yxm01 + zm01 * yxm11;
+        this.m[8] = zm00 * yxm02 + zm01 * yxm12;
+        this.m[12] = 0;
+        this.m[1] = zm10 * yxm00;
+        this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+        this.m[9] = zm10 * yxm02 + zm11 * yxm12;
+        this.m[13] = 0;
+        this.m[2] = zm22 * yxm20;
+        this.m[6] = zm22 * yxm21;
+        this.m[10] = zm22 * yxm22;
+        this.m[14] = 0;
+        this.m[3] = 0;
+        this.m[7] = 0;
+        this.m[11] = 0;
+        this.m[15] = 1;
+        return this;
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -2902,7 +3017,7 @@ class MemoryManager {
         return MemoryManager.__bufferLengthOfOneSide;
     }
 }
-MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 9);
+MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
 
 class Component {
     constructor(entityUid, componentSid) {
@@ -2927,25 +3042,6 @@ class Component {
     static setupBufferView() {
     }
     registerDependency(component, isMust) {
-    }
-    $create() {
-        // Define process dependencies with other components.
-        // If circular depenencies are detected, the error will be repoated.
-        // this.registerDependency(TransformComponent);
-    }
-    $load() {
-    }
-    $mount() {
-    }
-    $logic() {
-    }
-    $prerender(instanceIDBufferUid) {
-    }
-    $render() {
-    }
-    $unmount() {
-    }
-    $discard() {
     }
 }
 
@@ -2978,9 +3074,6 @@ class TransformComponent extends Component {
     static get renderedPropertyCount() {
         return null;
     }
-    static get maxCount() {
-        return 1000000;
-    }
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
@@ -3008,7 +3101,9 @@ class TransformComponent extends Component {
         this._dirty = true;
     }
     set translate(vec) {
-        this._translate = vec.clone();
+        this._translate.v[0] = vec.v[0];
+        this._translate.v[1] = vec.v[1];
+        this._translate.v[2] = vec.v[2];
         this._is_translate_updated = true;
         this._is_trs_matrix_updated = false;
         this._is_inverse_trs_matrix_updated = false;
@@ -3031,7 +3126,9 @@ class TransformComponent extends Component {
         return this._translate;
     }
     set rotate(vec) {
-        this._rotate = vec.clone();
+        this._rotate.v[0] = vec.v[0];
+        this._rotate.v[1] = vec.v[1];
+        this._rotate.v[2] = vec.v[2];
         this._is_euler_angles_updated = true;
         this._is_quaternion_updated = false;
         this._is_trs_matrix_updated = false;
@@ -3056,7 +3153,9 @@ class TransformComponent extends Component {
         return this._rotate;
     }
     set scale(vec) {
-        this._scale = vec.clone();
+        this._scale.v[0] = vec.v[0];
+        this._scale.v[1] = vec.v[1];
+        this._scale.v[2] = vec.v[2];
         this._is_scale_updated = true;
         this._is_trs_matrix_updated = false;
         this._is_inverse_trs_matrix_updated = false;
@@ -3080,7 +3179,9 @@ class TransformComponent extends Component {
         return this._scale;
     }
     set quaternion(quat) {
-        this._quaternion = quat.clone();
+        this._quaternion.v[0] = quat.v[0];
+        this._quaternion.v[1] = quat.v[1];
+        this._quaternion.v[2] = quat.v[2];
         this._is_quaternion_updated = true;
         this._is_euler_angles_updated = false;
         this._is_trs_matrix_updated = false;
@@ -3089,24 +3190,23 @@ class TransformComponent extends Component {
         this.__updateTransform();
     }
     get quaternion() {
-        return this.guaternionInner.clone();
+        return this.quaternionInner.clone();
     }
-    get guaternionInner() {
+    get quaternionInner() {
         if (this._is_quaternion_updated) {
             return this._quaternion;
         }
         else if (!this._is_quaternion_updated) {
             if (this._is_trs_matrix_updated) {
-                const value = Quaternion.fromMatrix(this._matrix);
                 this._is_quaternion_updated = true;
-                this._quaternion = value;
-                return value;
+                this._quaternion.fromMatrix(this._matrix);
+                return this._quaternion;
             }
             else if (this._is_euler_angles_updated) {
-                const value = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+                TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
                 this._is_quaternion_updated = true;
-                this._quaternion = value;
-                return value;
+                this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
+                return this._quaternion;
             }
         }
         return this._quaternion;
@@ -3129,16 +3229,48 @@ class TransformComponent extends Component {
         if (this._is_trs_matrix_updated) {
             return this._matrix;
         }
-        // scale
-        const scaleMatrix = Matrix44.scale(this.scale);
-        // rotate
-        const rotationMatrix = new Matrix44(this.quaternion);
-        this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
-        // translate
-        const translate = this.translate;
-        this._matrix.m03 = translate.x;
-        this._matrix.m13 = translate.y;
-        this._matrix.m23 = translate.z;
+        // Clear and set Scale
+        const scale = this.scaleInner;
+        const n00 = scale.v[0];
+        const n11 = scale.v[1];
+        const n22 = scale.v[2];
+        const q = this.quaternionInner;
+        const sx = q.v[0] * q.v[0];
+        const sy = q.v[1] * q.v[1];
+        const sz = q.v[2] * q.v[2];
+        const cx = q.v[1] * q.v[2];
+        const cy = q.v[0] * q.v[2];
+        const cz = q.v[0] * q.v[1];
+        const wx = q.v[3] * q.v[0];
+        const wy = q.v[3] * q.v[1];
+        const wz = q.v[3] * q.v[2];
+        const m00 = 1.0 - 2.0 * (sy + sz);
+        const m01 = 2.0 * (cz - wz);
+        const m02 = 2.0 * (cy + wy);
+        const m10 = 2.0 * (cz + wz);
+        const m11 = 1.0 - 2.0 * (sx + sz);
+        const m12 = 2.0 * (cx - wx);
+        const m20 = 2.0 * (cy - wy);
+        const m21 = 2.0 * (cx + wx);
+        const m22 = 1.0 - 2.0 * (sx + sy);
+        const translate = this.translateInner;
+        // TranslateMatrix * RotateMatrix * ScaleMatrix
+        this._matrix.m00 = m00 * n00;
+        this._matrix.m01 = m01 * n11;
+        this._matrix.m02 = m02 * n22;
+        this._matrix.m03 = translate.v[0];
+        this._matrix.m10 = m10 * n00;
+        this._matrix.m11 = m11 * n11;
+        this._matrix.m12 = m12 * n22;
+        this._matrix.m13 = translate.v[1];
+        this._matrix.m20 = m20 * n00;
+        this._matrix.m21 = m21 * n11;
+        this._matrix.m22 = m22 * n22;
+        this._matrix.m23 = translate.v[2];
+        this._matrix.m30 = 0;
+        this._matrix.m31 = 0;
+        this._matrix.m32 = 0;
+        this._matrix.m33 = 1;
         this._is_trs_matrix_updated = true;
         return this._matrix;
     }
@@ -3230,7 +3362,8 @@ class TransformComponent extends Component {
     }
     __updateRotation() {
         if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-            this._quaternion = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+            TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+            this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
             this._is_quaternion_updated = true;
         }
         else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
@@ -3239,7 +3372,7 @@ class TransformComponent extends Component {
         }
         else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
             const m = this._matrix;
-            this._quaternion = Quaternion.fromMatrix(m);
+            this._quaternion.fromMatrix(m);
             this._is_quaternion_updated = true;
             this._rotate = m.toEulerAngles();
             this._is_euler_angles_updated = true;
@@ -3319,12 +3452,14 @@ class TransformComponent extends Component {
         this.quaternion = Quaternion.axisAngle(rotationDir, theta);
     }
     set rotateMatrix44(rotateMatrix) {
-        this.quaternion = Quaternion.fromMatrix(rotateMatrix);
+        this.quaternion.fromMatrix(rotateMatrix);
     }
     get rotateMatrix44() {
         return new Matrix44(this.quaternion);
     }
 }
+TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
+TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
 TransformComponent.setupBufferView();
 
@@ -3550,8 +3685,67 @@ class RowMajarMatrix44 {
         var sin = Math.sin(radian);
         return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
-    static rotateXYZ(x, y, z) {
-        return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
+    rotateXYZ(x, y, z) {
+        var cosX = Math.cos(x);
+        var sinX = Math.sin(x);
+        var cosY = Math.cos(y);
+        var sinY = Math.sin(y);
+        var cosZ = Math.cos(z);
+        var sinZ = Math.sin(z);
+        const xm00 = 1;
+        //const xm01 = 0;
+        //const xm02 = 0;
+        //const xm10 = 0;
+        const xm11 = cosX;
+        const xm12 = -sinX;
+        //const xm20 = 0;
+        const xm21 = sinX;
+        const xm22 = cosX;
+        const ym00 = cosY;
+        //const ym01 = 0;
+        const ym02 = sinY;
+        //const ym10 = 0;
+        const ym11 = 1;
+        //const ym12 = 0;
+        const ym20 = -sinY;
+        //const ym21 = 0;
+        const ym22 = cosY;
+        const zm00 = cosZ;
+        const zm01 = -sinZ;
+        //const zm02 = 0;
+        const zm10 = sinZ;
+        const zm11 = cosZ;
+        //const zm12 = 0;
+        //const zm20 = 0;
+        //const zm21 = 0;
+        const zm22 = 1;
+        const yxm00 = ym00 * xm00;
+        const yxm01 = ym02 * xm21;
+        const yxm02 = ym02 * xm22;
+        //const yxm10 = 0;
+        const yxm11 = ym11 * xm11;
+        const yxm12 = ym11 * xm12;
+        const yxm20 = ym20 * xm00;
+        const yxm21 = ym22 * xm21;
+        const yxm22 = ym22 * xm22;
+        this.m[0] = zm00 * yxm00;
+        this.m[1] = zm00 * yxm01 + zm01 * yxm11;
+        this.m[2] = zm00 * yxm02 + zm01 * yxm12;
+        this.m[3] = 0;
+        this.m[4] = zm10 * yxm00;
+        this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+        this.m[6] = zm10 * yxm02 + zm11 * yxm12;
+        this.m[7] = 0;
+        this.m[8] = zm22 * yxm20;
+        this.m[9] = zm22 * yxm21;
+        this.m[10] = zm22 * yxm22;
+        this.m[11] = 0;
+        this.m[12] = 0;
+        this.m[13] = 0;
+        this.m[14] = 0;
+        this.m[15] = 1;
+        return this;
+        //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -3883,9 +4077,6 @@ class SceneGraphComponent extends Component {
         this.__worldMatrix.identity();
         //this.__updatedProperly = false;
     }
-    static get maxCount() {
-        return 1000000;
-    }
     static get componentTID() {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
@@ -3936,7 +4127,7 @@ class SceneGraphComponent extends Component {
             // if there is not parent
             if (transform._dirty) {
                 transform._dirty = false;
-                this.__worldMatrix.copyComponents(transform.matrix);
+                this.__worldMatrix.copyComponents(transform.matrixInner);
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
@@ -3954,9 +4145,6 @@ class MeshComponent extends Component {
         super(entityUid, componentSid);
         this.__primitives = [];
     }
-    static get maxCount() {
-        return 1000000;
-    }
     static get componentTID() {
         return 3;
     }
@@ -3972,146 +4160,18 @@ class MeshComponent extends Component {
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
-class GLSLShader {
-    static get vertexShaderWebGL1() {
-        return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
-    }
-    static get vertexShaderWebGL2() {
-        return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
-    }
-    static get fragmentShaderWebGL1() {
-        return GLSLShader.fragmentShader_webgl1;
-    }
-    static get fragmentShaderWebGL2() {
-        return GLSLShader.fragmentShader_webgl2;
-    }
-}
-GLSLShader.vertexShaderDefinitions_webgl1 = `
-precision highp float;
-attribute vec3 a_position;
-attribute vec3 a_color;
-attribute float a_instanceID;
-
-varying vec3 v_color;
-uniform sampler2D u_dataTexture;
-
-
-/*
- * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
- * arg = vec2(1. / size.x, 1. / size.x / size.y);
- */
-// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
-// {
-//   return texture2D( tex, arg * (index + 0.5) );
-// }
-
-vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
-{
-  float t = (index + 0.5) * invSize.x;
-  float x = fract(t);
-  float y = (floor(t) + 0.5) * invSize.y;
-  return texture2D( tex, vec2(x, y) );
-}
-
-mat4 getMatrix(float instanceId)
-{
-  float index = instanceId - 1.0;
-  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
-
-  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
- vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
- vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-
-  mat4 matrix = mat4(
-    col0.x, col1.x, col2.x, 0.0,
-    col0.y, col1.y, col2.y, 0.0,
-    col0.z, col1.z, col2.z, 0.0,
-    col0.w, col1.w, col2.w, 1.0
-    );
-
-    // mat4 matrix = mat4(
-    //   1.0/100.0, 0.0, 0.0, 0.0,
-    //   0.0, 1.0/100.0, 0.0, 0.0,
-    //   0.0, 0.0, 1.0/100.0, 0.0,
-    //   0.0, 0.0, 0.0, 1.0
-    //   );
-  
-  return matrix;
-}
-
-    `;
-GLSLShader.vertexShaderDefinitions_webgl2 = `#version 300 es
-precision highp float;
-in vec3 a_position;
-in vec3 a_color;
-in float a_instanceID;
-
-out vec3 v_color;
-layout (std140) uniform matrix {
-  mat4 world[1024];
-} u_matrix;
-
-mat4 getMatrix(float instanceId) {
-  float index = instanceId - 1.0;
-  return transpose(u_matrix.world[int(index)]);
-}
-  `;
-GLSLShader.vertexShaderBody = `
-
-
-void main ()
-{
-  mat4 matrix = getMatrix(a_instanceID);
-  //mat4 matrix = getMatrix(gl_InstanceID);
-
-  gl_Position = matrix * vec4(a_position, 1.0);
-  // gl_Position = vec4(a_position, 1.0);
-  // gl_Position.xyz /= 10.0;
-  // gl_Position.x += a_instanceID / 20.0;
-//  gl_Position.x += col0.x / 5.0;
-
-  v_color = a_color;
-}
-  `;
-GLSLShader.fragmentShader_webgl1 = `
-precision highp float;
-varying vec3 v_color;
-void main ()
-{
-  gl_FragColor = vec4(v_color, 1.0);
-}
-`;
-GLSLShader.fragmentShader_webgl2 = `#version 300 es
-precision highp float;
-in vec3 v_color;
-layout(location = 0) out vec4 rt0;
-void main ()
-{
-  rt0 = vec4(v_color, 1.0);
-}
-`;
-GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
-GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
-
 class MeshRendererComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        //  __vertexShaderProgramHandles: Array<CGAPIResourceHandle> = [];
-        //private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
-        this.__vertexVaoHandles = [];
+        this.__vertexHandles = [];
         this.__isVAOSet = false;
-    }
-    static get maxCount() {
-        return 1000000;
     }
     static get componentTID() {
         return 4;
     }
     __isLoaded(index) {
-        if (this.__vertexVaoHandles[index] != null) {
+        if (this.__vertexHandles[index] != null) {
             return true;
         }
         else {
@@ -4119,51 +4179,56 @@ class MeshRendererComponent extends Component {
         }
     }
     $create() {
+        if (this.__meshComponent != null) {
+            return;
+        }
         this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
     }
     $load() {
+        if (this.__isLoaded(0)) {
+            return;
+        }
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
-            if (this.__isLoaded(i)) {
-                continue;
-            }
             const primitive = this.__meshComponent.getPrimitiveAt(i);
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexVaoHandles[i] = vertexHandles;
-            MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            let vertexShader = GLSLShader.vertexShaderWebGL1;
-            let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                vertexShader = GLSLShader.vertexShaderWebGL2;
-                fragmentShader = GLSLShader.fragmentShaderWebGL2;
-            }
-            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
-            //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-            MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+            this.__vertexHandles[i] = vertexHandles;
+            MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+            // let vertexShader = GLSLShader.vertexShaderWebGL1;
+            // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+            // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+            //   vertexShader = GLSLShader.vertexShaderWebGL2;
+            //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
+            // }
+            // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
+            //   vertexShader,
+            //   fragmentShader,
+            //   GLSLShader.attributeNanes,
+            //   GLSLShader.attributeSemantics
+            // );
+            // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
         }
     }
-    $prerender(instanceIDBufferUid) {
+    $prerender(args) {
+        if (this.__isVAOSet) {
+            return;
+        }
+        const instanceIDBufferUid = args[0];
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
-            if (this.__isLoaded(i) && this.__isVAOSet) {
-                this.__vertexVaoHandles[i] = MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                continue;
-            }
-            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexVaoHandles[i], primitive, instanceIDBufferUid);
-            this.__isVAOSet = true;
+            // if (this.__isLoaded(i) && this.__isVAOSet) {
+            this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+            //  continue;
+            // }
+            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
         }
-    }
-    $render() {
-        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-        //   for(let i=0; i<primitiveNum; i++) {
-        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        //   this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-        // }
+        this.__isVAOSet = true;
     }
 }
-MeshRendererComponent.__vertexVaoHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
 MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
@@ -4259,6 +4324,173 @@ function from$4({ index }) {
     return _from({ typeList: typeList$4, index });
 }
 const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
+
+class GLSLShader {
+    static get glsl_vertex_in() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'in';
+        }
+        else {
+            return 'attribute';
+        }
+    }
+    static get glsl_fragment_in() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'in';
+        }
+        else {
+            return 'varying';
+        }
+    }
+    static get glsl_vertex_out() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'out';
+        }
+        else {
+            return 'varying';
+        }
+    }
+    static get glsl_texture() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'texture';
+        }
+        else {
+            return 'texture2D';
+        }
+    }
+    static get glsl_versionText() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return '#version 300 es\n';
+        }
+        else {
+            return '';
+        }
+    }
+    static get vertexShaderVariableDefinitions() {
+        const _version = this.glsl_versionText;
+        const _in = this.glsl_vertex_in;
+        const _out = this.glsl_vertex_out;
+        return `${_version}
+precision highp float;
+${_in} vec3 a_position;
+${_in} vec3 a_color;
+${_in} float a_instanceID;
+${_out} vec3 v_color;`;
+    }
+    ;
+    static get vertexShaderMethodDefinitions_dataTexture() {
+        const _texture = this.glsl_texture;
+        return `
+uniform sampler2D u_dataTexture;
+/*
+ * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+ * arg = vec2(1. / size.x, 1. / size.x / size.y);
+ */
+// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+// {
+//   return ${_texture}( tex, arg * (index + 0.5) );
+// }
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+{
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return ${_texture}( tex, vec2(x, y) );
+}
+
+mat4 getMatrix(float instanceId)
+{
+  float index = instanceId - 1.0;
+  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
+  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+
+  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+ vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+ vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+
+  mat4 matrix = mat4(
+    col0.x, col1.x, col2.x, 0.0,
+    col0.y, col1.y, col2.y, 0.0,
+    col0.z, col1.z, col2.z, 0.0,
+    col0.w, col1.w, col2.w, 1.0
+    );
+
+  return matrix;
+}
+`;
+    }
+    static get glsl_rt0() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'layout(location = 0) out vec4 rt0;\n';
+        }
+        else {
+            return 'vec4 rt0;\n';
+        }
+    }
+    static get glsl_fragColor() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return '';
+        }
+        else {
+            return 'gl_FragColor = rt0;\n';
+        }
+    }
+    static get fragmentShaderSimple() {
+        const _version = this.glsl_versionText;
+        const _in = this.glsl_fragment_in;
+        const _def_rt0 = this.glsl_rt0;
+        const _def_fragColor = this.glsl_fragColor;
+        return `${_version}
+precision highp float;
+${_in} vec3 v_color;
+${_def_rt0}
+void main ()
+{
+  rt0 = vec4(v_color, 1.0);
+  ${_def_fragColor}
+}
+`;
+    }
+    static get vertexShaderDataTexture() {
+        return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
+    }
+    static get vertexShaderUBO() {
+        return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
+    }
+    static get fragmentShader() {
+        return GLSLShader.fragmentShaderSimple;
+    }
+}
+GLSLShader.vertexShaderMethodDefinitions_UBO = `layout (std140) uniform matrix {
+  mat4 world[1024];
+} u_matrix;
+
+mat4 getMatrix(float instanceId) {
+  float index = instanceId - 1.0;
+  return transpose(u_matrix.world[int(index)]);
+}
+  `;
+GLSLShader.vertexShaderBody = `
+
+
+void main ()
+{
+  mat4 matrix = getMatrix(a_instanceID);
+  //mat4 matrix = getMatrix(gl_InstanceID);
+
+  gl_Position = matrix * vec4(a_position, 1.0);
+  // gl_Position = vec4(a_position, 1.0);
+  // gl_Position.xyz /= 10.0;
+  // gl_Position.x += a_instanceID / 20.0;
+//  gl_Position.x += col0.x / 5.0;
+
+  v_color = a_color;
+}
+  `;
+GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 
 class ProcessStageClass extends EnumClass {
     constructor({ index, str, methodName }) {
@@ -4377,6 +4609,18 @@ const toHalfFloat = (function () {
 }());
 const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
 
+class ProcessApproachClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2 });
+
 const WebGLRenderingPipeline = new class {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -4384,22 +4628,29 @@ const WebGLRenderingPipeline = new class {
         this.__dataTextureUid = 0;
         this.__instanceIDBufferUid = 0;
         this.__uboUid = 0;
+        this.__shaderProgramUid = 0;
     }
-    common_prerender() {
+    common_$load() {
+        if (this.__shaderProgramUid !== 0) {
+            return;
+        }
+        let vertexShader = GLSLShader.vertexShaderDataTexture;
+        let fragmentShader = GLSLShader.fragmentShader;
+        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+            vertexShader = GLSLShader.vertexShaderUBO;
+        }
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+    }
+    common_$prerender() {
         const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
-        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-            this.__createUBO();
-        }
-        else {
-            this.__createDataTexture();
-        }
+        this.__setupGeometryData();
         if (this.__isReady()) {
             return 0;
         }
-        this.__createInstanceIDBuffer();
+        this.__setupInstanceIDBuffer();
         return this.__instanceIDBufferUid;
     }
     __isReady() {
@@ -4410,7 +4661,15 @@ const WebGLRenderingPipeline = new class {
             return false;
         }
     }
-    __createInstanceIDBuffer() {
+    __setupGeometryData() {
+        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+            this.__setupUBO();
+        }
+        else {
+            this.__setupDataTexture();
+        }
+    }
+    __setupInstanceIDBuffer() {
         const buffer = MemoryManager.getInstance().getBufferForCPU();
         const count = EntityRepository.getMaxEntityNumber();
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
@@ -4421,14 +4680,12 @@ const WebGLRenderingPipeline = new class {
         }
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
-    __createUBO() {
+    __setupUBO() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
             if (this.__uboUid !== 0) {
-                //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-                //this.__uboUid = 0;
                 this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
                 return;
             }
@@ -4436,15 +4693,41 @@ const WebGLRenderingPipeline = new class {
         }
         this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
-    __createDataTexture() {
+    __setupDataTexture() {
+        let isHalfFloatMode = false;
+        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
+            this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+            isHalfFloatMode = true;
+        }
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        let halfFloatDataTextureBuffer;
+        if (isHalfFloatMode) {
+            halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+            let convertLength = buffer.byteSizeInUse / 4; //components
+            convertLength /= 2; // bytes
+            for (let i = 0; i < convertLength; i++) {
+                halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+            }
+        }
         // if already
         if (this.__dataTextureUid !== 0) {
-            //      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-            //      this.__dataTextureUid = 0;
-            {
+            if (isHalfFloatMode) {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.Float
+                    });
+                }
+                else {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.HalfFloat
+                    });
+                }
+            }
+            else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
                         level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -4460,7 +4743,23 @@ const WebGLRenderingPipeline = new class {
             }
             return;
         }
-        {
+        if (isHalfFloatMode) {
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+            else {
+                this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+        }
+        else {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                     level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -4477,28 +4776,29 @@ const WebGLRenderingPipeline = new class {
             }
         }
     }
-    common_render(meshRendererComponent, instanceIDBufferUid) {
-        // vaoHandle: CGAPIResourceHandle, shaderProgramHandle: CGAPIResourceHandle, primitive: Primitive) {
-        const meshComponent = meshRendererComponent.__meshComponent;
+    common_$render() {
+        const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
+        const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+        const meshRendererComponent = meshRendererComponents[0];
+        const meshComponent = meshComponents[0];
         const primitiveNum = meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = meshComponent.getPrimitiveAt(i);
-            //this.__renderingPipeline.render(this.__vertexVaoHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-            const shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
+            const shaderProgramUid = this.__shaderProgramUid;
             const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
             const gl = glw.getRawContext();
-            const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+            const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
             gl.useProgram(shaderProgram);
-            const vaoHandles = meshRendererComponent.__vertexVaoHandles[i];
+            const vaoHandles = meshRendererComponent.__vertexHandles[i];
             const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
             if (vao != null) {
                 glw.bindVertexArray(vao);
             }
             else {
-                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
             }
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__setUniformBuffer(gl, shaderProgramHandle);
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                this.__setUniformBuffer(gl, shaderProgramUid);
             }
             else {
                 this.__setDataTexture(gl, shaderProgram);
@@ -4507,7 +4807,6 @@ const WebGLRenderingPipeline = new class {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
             const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
-            //      gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
         }
     }
     __setUniformBuffer(gl, shaderProgramUid) {
@@ -4535,31 +4834,49 @@ class System {
         ];
         this.__componentRepository = ComponentRepository.getInstance();
         this.__renderingPipeline = WebGLRenderingPipeline;
+        this.__processApproach = ProcessApproach.None;
     }
     process() {
+        if (this.__processApproach === ProcessApproach.None) {
+            throw new Error('Choose a process approach first.');
+        }
         this.__processStages.forEach(stage => {
             const methodName = stage.getMethodName();
             const args = [];
             let instanceIDBufferUid = 0;
             const componentTids = this.__componentRepository.getComponentTIDs();
-            if (methodName === '$prerender') {
-                instanceIDBufferUid = this.__renderingPipeline.common_prerender();
-                args.push(instanceIDBufferUid);
+            const commonMethod = this.__renderingPipeline['common_' + methodName];
+            if (commonMethod != null) {
+                instanceIDBufferUid = commonMethod.apply(this.__renderingPipeline);
             }
+            args.push(instanceIDBufferUid);
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
-                components.forEach((component, i) => {
-                    if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-                        this.__renderingPipeline.common_render(component, instanceIDBufferUid);
-                        args.push(instanceIDBufferUid);
-                    }
+                components.forEach((component) => {
                     const method = component[methodName];
                     if (method != null) {
-                        method.apply(component, args);
+                        //method.apply(component, args);
+                        component[methodName](args);
                     }
                 });
             });
         });
+    }
+    setProcessApproachAndCanvas(approach, canvas) {
+        const repo = WebGLResourceRepository.getInstance();
+        let gl;
+        if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+            gl = canvas.getContext('webgl2');
+        }
+        else {
+            gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        }
+        repo.addWebGLContext(gl, true);
+        this.__processApproach = approach;
+        return gl;
+    }
+    get processApproach() {
+        return this.__processApproach;
     }
     static getInstance() {
         if (!this.__instance) {
@@ -4587,6 +4904,7 @@ const Rn = Object.freeze({
     Vector4,
     Matrix33,
     Matrix44,
+    ProcessApproach
 });
 window['Rn'] = Rn;
 

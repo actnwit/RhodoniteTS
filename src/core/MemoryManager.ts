@@ -14,7 +14,7 @@ export default class MemoryManager {
   private __buffers: Map<ObjectUID, Buffer> = new Map();
   private __bufferForGPU: Buffer;
   private __bufferForCPU: Buffer;
-  private static __bufferLengthOfOneSide: Size = Math.pow(2,9);
+  private static __bufferLengthOfOneSide: Size = Math.pow(2,10);
 
   private constructor() {
 

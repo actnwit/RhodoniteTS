@@ -35,10 +35,6 @@ export default class SceneGraphComponent extends Component {
     //this.__updatedProperly = false;
   }
 
-  static get maxCount() {
-    return 1000000;
-  }
-
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
@@ -96,7 +92,7 @@ export default class SceneGraphComponent extends Component {
       // if there is not parent
       if (transform._dirty) {
         transform._dirty = false;
-        this.__worldMatrix.copyComponents(transform.matrix);
+        this.__worldMatrix.copyComponents(transform.matrixInner);
 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
       } else {
 //        console.log('Skip!', this.__worldMatrix.toString(), this.__entityUid);

@@ -3,6 +3,8 @@ import ComponentRepository from "../core/ComponentRepository";
 import RenderingPipeline from "../renderer/RenderingPipeline";
 import { WebGLRenderingPipeline } from "../renderer/webgl/WebGLRenderingPipeline";
 import MeshRendererComponent from "../components/MeshRendererComponent";
+import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
+import WebGLResourceRepository from "../renderer/webgl/WebGLResourceRepository";
 
 export default class System {
   private static __instance: System;
@@ -18,34 +20,58 @@ export default class System {
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __renderingPipeline: RenderingPipeline = WebGLRenderingPipeline;
+  private __processApproach: ProcessApproachEnum = ProcessApproach.None;
 
   private constructor() {
   }
 
   process() {
+    if (this.__processApproach === ProcessApproach.None) {
+      throw new Error('Choose a process approach first.');
+    }
+
     this.__processStages.forEach(stage=>{
       const methodName = stage.getMethodName();
       const args:Array<any> = [];
       let instanceIDBufferUid: CGAPIResourceHandle = 0;
       const componentTids = this.__componentRepository.getComponentTIDs();
-      if (methodName === '$prerender') {
-        instanceIDBufferUid = this.__renderingPipeline.common_prerender();
-        args.push(instanceIDBufferUid);
+      const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
+      if (commonMethod != null) {
+        instanceIDBufferUid = commonMethod.apply(this.__renderingPipeline);
       }
+      args.push(instanceIDBufferUid);
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-        components.forEach((component, i)=>{
-          if (methodName === '$render' && componentTid === MeshRendererComponent.componentTID && i === 0) {
-            this.__renderingPipeline.common_render(component as MeshRendererComponent, instanceIDBufferUid);
-            args.push(instanceIDBufferUid);
-          }
+        components.forEach((component)=>{
           const method = (component as any)[methodName];
           if (method != null) {
-            method.apply(component, args);
+            //method.apply(component, args);
+            (component as any)[methodName](args);
           }
         });
       });
     });
+  }
+
+  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement) {
+
+    const repo = WebGLResourceRepository.getInstance();
+
+    let gl;
+    if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+      gl = canvas.getContext('webgl2');
+    } else {
+      gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    }
+
+    repo.addWebGLContext(gl!, true);
+    this.__processApproach = approach;
+
+    return gl;
+  }
+
+  get processApproach() {
+    return this.__processApproach;
   }
 
   static getInstance() {

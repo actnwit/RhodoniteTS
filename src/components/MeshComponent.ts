@@ -13,9 +13,6 @@ export default class MeshComponent extends Component {
     super(entityUid, componentSid);
 
   }
-  static get maxCount() {
-    return 1000000;
-  }
 
   static get componentTID(): ComponentTID {
     return 3;
