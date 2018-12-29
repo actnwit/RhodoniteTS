@@ -31,11 +31,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       return;
     }
 
-    let vertexShader = GLSLShader.vertexShaderWebGL1;
-    let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+    let vertexShader = GLSLShader.vertexShaderDataTexture;
+    let fragmentShader = GLSLShader.fragmentShader;
     if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-      vertexShader = GLSLShader.vertexShaderWebGL2;
-      fragmentShader = GLSLShader.fragmentShaderWebGL2;
+      vertexShader = GLSLShader.vertexShaderUBO;
     }
 
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(

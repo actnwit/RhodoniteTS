@@ -421,9 +421,9 @@
             gl.shaderSource(vertexShader, vertexShaderStr);
             gl.shaderSource(fragmentShader, fragmentShaderStr);
             gl.compileShader(vertexShader);
-            this.__checkShaderCompileStatus(vertexShader);
+            this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
             gl.compileShader(fragmentShader);
-            this.__checkShaderCompileStatus(fragmentShader);
+            this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
             var shaderProgram = gl.createProgram();
             gl.attachShader(shaderProgram, vertexShader);
             gl.attachShader(shaderProgram, fragmentShader);
@@ -438,9 +438,26 @@
             gl.deleteShader(fragmentShader);
             return resourceHandle;
         };
-        WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader) {
+        WebGLResourceRepository.prototype.__addLineNumber = function (shaderString) {
+            var shaderTextLines = shaderString.split(/\r\n|\r|\n/);
+            var shaderTextWithLineNumber = '';
+            for (var i = 0; i < shaderTextLines.length; i++) {
+                var lineIndex = i + 1;
+                var splitter = ' : ';
+                if (lineIndex < 10) {
+                    splitter = '  : ';
+                }
+                else if (lineIndex >= 100) {
+                    splitter = ': ';
+                }
+                shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
+            }
+            return shaderTextWithLineNumber;
+        };
+        WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader, shaderText) {
             var gl = this.__glw.getRawContext();
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.log(this.__addLineNumber(shaderText));
                 throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
             }
         };
@@ -5007,39 +5024,142 @@
     var GLSLShader = /** @class */ (function () {
         function GLSLShader() {
         }
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL1", {
+        Object.defineProperty(GLSLShader, "glsl_vertex_in", {
             get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'in';
+                }
+                else {
+                    return 'attribute';
+                }
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL2", {
+        Object.defineProperty(GLSLShader, "glsl_fragment_in", {
             get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'in';
+                }
+                else {
+                    return 'varying';
+                }
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL1", {
+        Object.defineProperty(GLSLShader, "glsl_vertex_out", {
             get: function () {
-                return GLSLShader.fragmentShader_webgl1;
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'out';
+                }
+                else {
+                    return 'varying';
+                }
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL2", {
+        Object.defineProperty(GLSLShader, "glsl_texture", {
             get: function () {
-                return GLSLShader.fragmentShader_webgl2;
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'texture';
+                }
+                else {
+                    return 'texture2D';
+                }
             },
             enumerable: true,
             configurable: true
         });
-        GLSLShader.vertexShaderDefinitions_webgl1 = "\nprecision highp float;\nattribute vec3 a_position;\nattribute vec3 a_color;\nattribute float a_instanceID;\n\nvarying vec3 v_color;\nuniform sampler2D u_dataTexture;\n\n\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return texture2D( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return texture2D( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n    // mat4 matrix = mat4(\n    //   1.0/100.0, 0.0, 0.0, 0.0,\n    //   0.0, 1.0/100.0, 0.0, 0.0,\n    //   0.0, 0.0, 1.0/100.0, 0.0,\n    //   0.0, 0.0, 0.0, 1.0\n    //   );\n  \n  return matrix;\n}\n\n    ";
-        GLSLShader.vertexShaderDefinitions_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 a_position;\nin vec3 a_color;\nin float a_instanceID;\n\nout vec3 v_color;\nlayout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
+        Object.defineProperty(GLSLShader, "glsl_versionText", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return '#version 300 es\n';
+                }
+                else {
+                    return '';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderVariableDefinitions", {
+            get: function () {
+                var _version = this.glsl_versionText;
+                var _in = this.glsl_vertex_in;
+                var _out = this.glsl_vertex_out;
+                return _version + "\nprecision highp float;\n" + _in + " vec3 a_position;\n" + _in + " vec3 a_color;\n" + _in + " float a_instanceID;\n" + _out + " vec3 v_color;";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderMethodDefinitions_dataTexture", {
+            get: function () {
+                var _texture = this.glsl_texture;
+                return "\nuniform sampler2D u_dataTexture;\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return " + _texture + "( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return " + _texture + "( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n  return matrix;\n}\n";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_rt0", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'layout(location = 0) out vec4 rt0;\n';
+                }
+                else {
+                    return 'vec4 rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_fragColor", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return '';
+                }
+                else {
+                    return 'gl_FragColor = rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShaderSimple", {
+            get: function () {
+                var _version = this.glsl_versionText;
+                var _in = this.glsl_fragment_in;
+                var _def_rt0 = this.glsl_rt0;
+                var _def_fragColor = this.glsl_fragColor;
+                return _version + "\nprecision highp float;\n" + _in + " vec3 v_color;\n" + _def_rt0 + "\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n  " + _def_fragColor + "\n}\n";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderDataTexture", {
+            get: function () {
+                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderUBO", {
+            get: function () {
+                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShader", {
+            get: function () {
+                return GLSLShader.fragmentShaderSimple;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GLSLShader.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
         GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
-        GLSLShader.fragmentShader_webgl1 = "\nprecision highp float;\nvarying vec3 v_color;\nvoid main ()\n{\n  gl_FragColor = vec4(v_color, 1.0);\n}\n";
-        GLSLShader.fragmentShader_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 v_color;\nlayout(location = 0) out vec4 rt0;\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n}\n";
         GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
         GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
         return GLSLShader;
@@ -5201,11 +5321,10 @@
             if (this.__shaderProgramUid !== 0) {
                 return;
             }
-            var vertexShader = GLSLShader.vertexShaderWebGL1;
-            var fragmentShader = GLSLShader.fragmentShaderWebGL1;
+            var vertexShader = GLSLShader.vertexShaderDataTexture;
+            var fragmentShader = GLSLShader.fragmentShader;
             if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-                vertexShader = GLSLShader.vertexShaderWebGL2;
-                fragmentShader = GLSLShader.fragmentShaderWebGL2;
+                vertexShader = GLSLShader.vertexShaderUBO;
             }
             this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
         };

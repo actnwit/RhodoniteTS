@@ -146,10 +146,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.shaderSource(fragmentShader, fragmentShaderStr);
 
     gl.compileShader(vertexShader);
-    this.__checkShaderCompileStatus(vertexShader);
+    this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
 
     gl.compileShader(fragmentShader);
-    this.__checkShaderCompileStatus(fragmentShader);
+    this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
 
     const shaderProgram = gl.createProgram()!;
     gl.attachShader(shaderProgram, vertexShader);
@@ -173,10 +173,28 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  private __checkShaderCompileStatus(shader: WebGLShader) {
+  private __addLineNumber(shaderString: string) {
+    let shaderTextLines = shaderString.split(/\r\n|\r|\n/);
+    let shaderTextWithLineNumber = '';
+    for (let i=0; i<shaderTextLines.length; i++) {
+      let lineIndex = i+1;
+      let splitter = ' : ';
+      if (lineIndex<10) {
+        splitter = '  : ';
+      } else if (lineIndex>=100) {
+        splitter = ': ';
+      }
+      shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
+    }
+
+    return shaderTextWithLineNumber;
+  }
+
+  private __checkShaderCompileStatus(shader: WebGLShader, shaderText: string) {
     const gl = this.__glw!.getRawContext();;
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.log(this.__addLineNumber(shaderText));
       throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
     }
   }
