@@ -38,6 +38,9 @@ export default class TransformComponent extends Component {
   private _is_inverse_trs_matrix_updated: boolean;
   private _is_normal_trs_matrix_updated: boolean;
 
+  private static __tmpMat_updateRotation: Matrix44 = Matrix44.identity();
+  private static __tmpMat_quaternionInner: Matrix44 = Matrix44.identity();
+
   _updateCount: number;
   _dirty: boolean;
 
@@ -222,15 +225,14 @@ export default class TransformComponent extends Component {
       return this._quaternion;
     } else if (!this._is_quaternion_updated) {
       if (this._is_trs_matrix_updated) {
-        const value = Quaternion.fromMatrix(this._matrix);
         this._is_quaternion_updated = true;
-        this._quaternion = value;
-        return value;
+        this._quaternion.fromMatrix(this._matrix);
+        return this._quaternion;
       } else if (this._is_euler_angles_updated) {
-        const value = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
         this._is_quaternion_updated = true;
-        this._quaternion = value;
-        return value;
+        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
+        return this._quaternion;
       }
     }
     return this._quaternion;
@@ -434,14 +436,15 @@ export default class TransformComponent extends Component {
 
   __updateRotation() {
     if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-      this._quaternion = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+      TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+      this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
       this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
       this._is_euler_angles_updated = true;
     } else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
       const m = this._matrix;
-      this._quaternion = Quaternion.fromMatrix(m);
+      this._quaternion.fromMatrix(m);
       this._is_quaternion_updated = true;
       this._rotate = m.toEulerAngles();
       this._is_euler_angles_updated = true;
@@ -535,7 +538,7 @@ export default class TransformComponent extends Component {
   }
 
   set rotateMatrix44(rotateMatrix: Matrix44) {
-    this.quaternion = Quaternion.fromMatrix(rotateMatrix);
+    this.quaternion.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {

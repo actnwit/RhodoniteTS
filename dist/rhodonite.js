@@ -1352,6 +1352,38 @@
             }
             return q;
         };
+        Quaternion.prototype.fromMatrix = function (m) {
+            var tr = m.m00 + m.m11 + m.m22;
+            if (tr > 0) {
+                var S = 0.5 / Math.sqrt(tr + 1.0);
+                this.v[0] = (m.m21 - m.m12) * S;
+                this.v[1] = (m.m02 - m.m20) * S;
+                this.v[2] = (m.m10 - m.m01) * S;
+                this.v[3] = 0.25 / S;
+            }
+            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+                this.v[0] = 0.25 * S;
+                this.v[1] = (m.m01 + m.m10) / S;
+                this.v[2] = (m.m02 + m.m20) / S;
+                this.v[3] = (m.m21 - m.m12) / S;
+            }
+            else if (m.m11 > m.m22) {
+                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+                this.v[0] = (m.m01 + m.m10) / S;
+                this.v[1] = 0.25 * S;
+                this.v[2] = (m.m12 + m.m21) / S;
+                this.v[3] = (m.m02 - m.m20) / S;
+            }
+            else {
+                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+                this.v[0] = (m.m02 + m.m20) / S;
+                this.v[1] = (m.m12 + m.m21) / S;
+                this.v[2] = 0.25 * S;
+                this.v[3] = (m.m10 - m.m01) / S;
+            }
+            return this;
+        };
         /*
           static fromMatrix(m) {
             let fTrace = m.m[0] + m.m[4] + m.m[8];
@@ -2370,8 +2402,66 @@
             var sin = Math.sin(radian);
             return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
-        Matrix44.rotateXYZ = function (x, y, z) {
-            return new Matrix44(Matrix33.rotateXYZ(x, y, z));
+        Matrix44.prototype.rotateXYZ = function (x, y, z) {
+            var cosX = Math.cos(x);
+            var sinX = Math.sin(x);
+            var cosY = Math.cos(y);
+            var sinY = Math.sin(y);
+            var cosZ = Math.cos(z);
+            var sinZ = Math.sin(z);
+            var xm00 = 1;
+            //const xm01 = 0;
+            //const xm02 = 0;
+            //const xm10 = 0;
+            var xm11 = cosX;
+            var xm12 = -sinX;
+            //const xm20 = 0;
+            var xm21 = sinX;
+            var xm22 = cosX;
+            var ym00 = cosY;
+            //const ym01 = 0;
+            var ym02 = sinY;
+            //const ym10 = 0;
+            var ym11 = 1;
+            //const ym12 = 0;
+            var ym20 = -sinY;
+            //const ym21 = 0;
+            var ym22 = cosY;
+            var zm00 = cosZ;
+            var zm01 = -sinZ;
+            //const zm02 = 0;
+            var zm10 = sinZ;
+            var zm11 = cosZ;
+            //const zm12 = 0;
+            //const zm20 = 0;
+            //const zm21 = 0;
+            var zm22 = 1;
+            var yxm00 = ym00 * xm00;
+            var yxm01 = ym02 * xm21;
+            var yxm02 = ym02 * xm22;
+            //const yxm10 = 0;
+            var yxm11 = ym11 * xm11;
+            var yxm12 = ym11 * xm12;
+            var yxm20 = ym20 * xm00;
+            var yxm21 = ym22 * xm21;
+            var yxm22 = ym22 * xm22;
+            this.m[0] = zm00 * yxm00;
+            this.m[4] = zm00 * yxm01 + zm01 * yxm11;
+            this.m[8] = zm00 * yxm02 + zm01 * yxm12;
+            this.m[12] = 0;
+            this.m[1] = zm10 * yxm00;
+            this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+            this.m[9] = zm10 * yxm02 + zm11 * yxm12;
+            this.m[13] = 0;
+            this.m[2] = zm22 * yxm20;
+            this.m[6] = zm22 * yxm21;
+            this.m[10] = zm22 * yxm22;
+            this.m[14] = 0;
+            this.m[3] = 0;
+            this.m[7] = 0;
+            this.m[11] = 0;
+            this.m[15] = 1;
+            return this;
         };
         /**
          * @return Euler Angles Rotation (x, y, z)
@@ -3611,16 +3701,15 @@
                 }
                 else if (!this._is_quaternion_updated) {
                     if (this._is_trs_matrix_updated) {
-                        var value = Quaternion.fromMatrix(this._matrix);
                         this._is_quaternion_updated = true;
-                        this._quaternion = value;
-                        return value;
+                        this._quaternion.fromMatrix(this._matrix);
+                        return this._quaternion;
                     }
                     else if (this._is_euler_angles_updated) {
-                        var value = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+                        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
                         this._is_quaternion_updated = true;
-                        this._quaternion = value;
-                        return value;
+                        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
+                        return this._quaternion;
                     }
                 }
                 return this._quaternion;
@@ -3803,7 +3892,8 @@
         };
         TransformComponent.prototype.__updateRotation = function () {
             if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-                this._quaternion = Quaternion.fromMatrix(Matrix44.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z));
+                TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+                this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
                 this._is_quaternion_updated = true;
             }
             else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
@@ -3812,7 +3902,7 @@
             }
             else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
                 var m = this._matrix;
-                this._quaternion = Quaternion.fromMatrix(m);
+                this._quaternion.fromMatrix(m);
                 this._is_quaternion_updated = true;
                 this._rotate = m.toEulerAngles();
                 this._is_euler_angles_updated = true;
@@ -3896,11 +3986,13 @@
                 return new Matrix44(this.quaternion);
             },
             set: function (rotateMatrix) {
-                this.quaternion = Quaternion.fromMatrix(rotateMatrix);
+                this.quaternion.fromMatrix(rotateMatrix);
             },
             enumerable: true,
             configurable: true
         });
+        TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
+        TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
         return TransformComponent;
     }(Component));
     ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
