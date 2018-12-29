@@ -59,7 +59,7 @@ export default class Primitive extends RnObject {
     })
   {
 
-    const buffer = MemoryManager.getInstance().getBufferForCPU();
+    const buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
 
     let indicesComponentType;
     let indicesBufferView;

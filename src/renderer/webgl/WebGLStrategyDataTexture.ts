@@ -39,7 +39,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       isHalfFloatMode = true;
     }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPU();
+    const buffer: Buffer = memoryManager.getBufferForGPUInstanceData();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
     let halfFloatDataTextureBuffer: Uint16Array;
     if (isHalfFloatMode) {

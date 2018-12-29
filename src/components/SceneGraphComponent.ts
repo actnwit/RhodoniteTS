@@ -45,7 +45,7 @@ export default class SceneGraphComponent extends Component {
 
   static setupBufferView() {
     const thisClass = SceneGraphComponent;
-    const buffer = MemoryManager.getInstance().getBufferForGPU();
+    const buffer = MemoryManager.getInstance().getBufferForGPUInstanceData();
     const count = EntityRepository.getMaxEntityNumber();
     thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
     thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count});

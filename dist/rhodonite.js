@@ -2287,7 +2287,7 @@
         };
         Matrix44.prototype.copyComponents = function (mat4) {
             //this.m.set(mat4.m);
-            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
             var m = mat4.m;
             this.m[0] = m[0];
             this.m[1] = m[1];
@@ -2508,7 +2508,7 @@
             return rotate;
         };
         /**
-         * ゼロ行列
+         * zero matrix
          */
         Matrix44.prototype.zero = function () {
             this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -3441,16 +3441,27 @@
         function MemoryManager() {
             //__entityMaxCount: number;
             this.__buffers = new Map();
-            // BufferForGPU
+            // BufferForGPUInstanceData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
-                    name: 'BufferForGPU'
+                    name: 'BufferForGPUInstanceData'
                 });
                 this.__buffers.set(buffer.objectUid, buffer);
-                this.__bufferForGPU = buffer;
+                this.__bufferForGPUInstanceData = buffer;
+            }
+            // BufferForGPUVertexData
+            {
+                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var buffer = new Buffer({
+                    byteLength: arrayBuffer.byteLength,
+                    arrayBuffer: arrayBuffer,
+                    name: 'BufferForGPUVertexData'
+                });
+                this.__buffers.set(buffer.objectUid, buffer);
+                this.__bufferForGPUVertexData = buffer;
             }
             // BufferForCPU
             {
@@ -3470,8 +3481,11 @@
             }
             return this.__instance;
         };
-        MemoryManager.prototype.getBufferForGPU = function () {
-            return this.__bufferForGPU;
+        MemoryManager.prototype.getBufferForGPUInstanceData = function () {
+            return this.__bufferForGPUInstanceData;
+        };
+        MemoryManager.prototype.getBufferForGPUVertexData = function () {
+            return this.__bufferForGPUVertexData;
         };
         MemoryManager.prototype.getBufferForCPU = function () {
             return this.__bufferForCPU;
@@ -4726,7 +4740,7 @@
         });
         SceneGraphComponent.setupBufferView = function () {
             var thisClass = SceneGraphComponent;
-            var buffer = MemoryManager.getInstance().getBufferForGPU();
+            var buffer = MemoryManager.getInstance().getBufferForGPUInstanceData();
             var count = EntityRepository.getMaxEntityNumber();
             thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
             thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
@@ -4914,7 +4928,7 @@
         }
         Primitive.createPrimitive = function (_a) {
             var indices = _a.indices, attributeCompositionTypes = _a.attributeCompositionTypes, attributeSemantics = _a.attributeSemantics, attributes = _a.attributes, material = _a.material, primitiveMode = _a.primitiveMode;
-            var buffer = MemoryManager.getInstance().getBufferForCPU();
+            var buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
             var indicesComponentType;
             var indicesBufferView;
             var indicesAccessor;
@@ -5276,7 +5290,7 @@
         };
         WebGLStrategyUBO.prototype.setupGPUData = function () {
             var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBufferForGPU();
+            var buffer = memoryManager.getBufferForGPUInstanceData();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
                 if (this.__uboUid !== 0) {
@@ -5377,7 +5391,7 @@
                 isHalfFloatMode = true;
             }
             var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBufferForGPU();
+            var buffer = memoryManager.getBufferForGPUInstanceData();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             var halfFloatDataTextureBuffer;
             if (isHalfFloatMode) {

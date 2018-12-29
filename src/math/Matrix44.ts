@@ -69,7 +69,7 @@ export default class Matrix44 {
             m[3], m[7], m[11], m[15]);
         } else {
           this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-        }  
+        }
       }
     } else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
       if (_notCopyFloatArray) {
@@ -84,7 +84,7 @@ export default class Matrix44 {
             0, 0, 0, 1);
         } else {
           this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
-        }  
+        }
       }
     } else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
       this.m = new FloatArray(16);
@@ -98,7 +98,7 @@ export default class Matrix44 {
       const wx = m.w * m.x;
       const wy = m.w * m.y;
       const wz = m.w * m.z;
-  
+
       this.setComponents(
         1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 0.0,
         2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 0.0,
@@ -127,7 +127,7 @@ export default class Matrix44 {
 
   copyComponents(mat4: Matrix44) {
     //this.m.set(mat4.m);
-    //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+    //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
     const m = mat4.m;
     this.m[0] = m[0];
     this.m[1] = m[1];
@@ -293,7 +293,6 @@ export default class Matrix44 {
    * Create Y oriented Rotation Matrix
    */
   rotateY(radian:number) {
-    
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
     return this.setComponents(
@@ -433,7 +432,7 @@ export default class Matrix44 {
   }
 
   /**
-   * ゼロ行列
+   * zero matrix
    */
   zero() {
     this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);

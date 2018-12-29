@@ -2024,7 +2024,7 @@ class Matrix44 {
     }
     copyComponents(mat4) {
         //this.m.set(mat4.m);
-        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
+        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
         const m = mat4.m;
         this.m[0] = m[0];
         this.m[1] = m[1];
@@ -2240,7 +2240,7 @@ class Matrix44 {
         return rotate;
     }
     /**
-     * ゼロ行列
+     * zero matrix
      */
     zero() {
         this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -2978,16 +2978,27 @@ class MemoryManager {
     constructor() {
         //__entityMaxCount: number;
         this.__buffers = new Map();
-        // BufferForGPU
+        // BufferForGPUInstanceData
         {
             const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
-                name: 'BufferForGPU'
+                name: 'BufferForGPUInstanceData'
             });
             this.__buffers.set(buffer.objectUid, buffer);
-            this.__bufferForGPU = buffer;
+            this.__bufferForGPUInstanceData = buffer;
+        }
+        // BufferForGPUVertexData
+        {
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const buffer = new Buffer({
+                byteLength: arrayBuffer.byteLength,
+                arrayBuffer: arrayBuffer,
+                name: 'BufferForGPUVertexData'
+            });
+            this.__buffers.set(buffer.objectUid, buffer);
+            this.__bufferForGPUVertexData = buffer;
         }
         // BufferForCPU
         {
@@ -3007,8 +3018,11 @@ class MemoryManager {
         }
         return this.__instance;
     }
-    getBufferForGPU() {
-        return this.__bufferForGPU;
+    getBufferForGPUInstanceData() {
+        return this.__bufferForGPUInstanceData;
+    }
+    getBufferForGPUVertexData() {
+        return this.__bufferForGPUVertexData;
     }
     getBufferForCPU() {
         return this.__bufferForCPU;
@@ -4085,7 +4099,7 @@ class SceneGraphComponent extends Component {
     }
     static setupBufferView() {
         const thisClass = SceneGraphComponent;
-        const buffer = MemoryManager.getInstance().getBufferForGPU();
+        const buffer = MemoryManager.getInstance().getBufferForGPUInstanceData();
         const count = EntityRepository.getMaxEntityNumber();
         thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
@@ -4247,7 +4261,7 @@ class Primitive extends RnObject {
         this.__indicesComponentType = indicesComponentType;
     }
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
-        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
         let indicesComponentType;
         let indicesBufferView;
         let indicesAccessor;
@@ -4595,7 +4609,7 @@ class WebGLStrategyUBO {
     }
     setupGPUData() {
         const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForGPU();
+        const buffer = memoryManager.getBufferForGPUInstanceData();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
             if (this.__uboUid !== 0) {
@@ -4691,7 +4705,7 @@ class WebGLStrategyDataTexture {
             isHalfFloatMode = true;
         }
         const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForGPU();
+        const buffer = memoryManager.getBufferForGPUInstanceData();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         let halfFloatDataTextureBuffer;
         if (isHalfFloatMode) {
