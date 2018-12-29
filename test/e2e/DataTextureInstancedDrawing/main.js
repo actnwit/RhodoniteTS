@@ -118,7 +118,7 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 100;
+    const entityNumber = 100000;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
@@ -132,6 +132,7 @@
     const system = Rn.System.getInstance();
     const startTime = Date.now();
     let p = null;
+    const rotationVec3 = Rn.Vector3.zero();
     const draw = function(time){
 
       if (p == null ) {
@@ -143,8 +144,12 @@
       const date = new Date();
 
       if (window.isAnimating) {
+        const rotation = 0.001 * (date.getTime() - startTime);
         entities.forEach(function(entity){
-          entity.getTransform().rotate = new Rn.Vector3(0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime), 0.001 * (date.getTime() - startTime));
+        rotationVec3.v[0] = rotation;
+        rotationVec3.v[1] = rotation;
+        rotationVec3.v[2] = rotation;
+        entity.getTransform().rotate = rotationVec3;
         });
       }
 

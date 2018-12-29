@@ -686,7 +686,7 @@ class EntityRepository {
         return component;
     }
     static getMaxEntityNumber() {
-        return 5000;
+        return 100000;
     }
     _getEntities() {
         return this.__entities.concat();
@@ -2902,7 +2902,7 @@ class MemoryManager {
         return MemoryManager.__bufferLengthOfOneSide;
     }
 }
-MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 9);
+MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
 
 class Component {
     constructor(entityUid, componentSid) {
@@ -2927,25 +2927,6 @@ class Component {
     static setupBufferView() {
     }
     registerDependency(component, isMust) {
-    }
-    $create() {
-        // Define process dependencies with other components.
-        // If circular depenencies are detected, the error will be repoated.
-        // this.registerDependency(TransformComponent);
-    }
-    $load() {
-    }
-    $mount() {
-    }
-    $logic() {
-    }
-    $prerender(instanceIDBufferUid) {
-    }
-    $render() {
-    }
-    $unmount() {
-    }
-    $discard() {
     }
 }
 
@@ -3005,7 +2986,9 @@ class TransformComponent extends Component {
         this._dirty = true;
     }
     set translate(vec) {
-        this._translate = vec.clone();
+        this._translate.v[0] = vec.v[0];
+        this._translate.v[1] = vec.v[1];
+        this._translate.v[2] = vec.v[2];
         this._is_translate_updated = true;
         this._is_trs_matrix_updated = false;
         this._is_inverse_trs_matrix_updated = false;
@@ -3028,7 +3011,9 @@ class TransformComponent extends Component {
         return this._translate;
     }
     set rotate(vec) {
-        this._rotate = vec.clone();
+        this._rotate.v[0] = vec.v[0];
+        this._rotate.v[1] = vec.v[1];
+        this._rotate.v[2] = vec.v[2];
         this._is_euler_angles_updated = true;
         this._is_quaternion_updated = false;
         this._is_trs_matrix_updated = false;
@@ -3053,7 +3038,9 @@ class TransformComponent extends Component {
         return this._rotate;
     }
     set scale(vec) {
-        this._scale = vec.clone();
+        this._scale.v[0] = vec.v[0];
+        this._scale.v[1] = vec.v[1];
+        this._scale.v[2] = vec.v[2];
         this._is_scale_updated = true;
         this._is_trs_matrix_updated = false;
         this._is_inverse_trs_matrix_updated = false;
@@ -3077,7 +3064,9 @@ class TransformComponent extends Component {
         return this._scale;
     }
     set quaternion(quat) {
-        this._quaternion = quat.clone();
+        this._quaternion.v[0] = quat.v[0];
+        this._quaternion.v[1] = quat.v[1];
+        this._quaternion.v[2] = quat.v[2];
         this._is_quaternion_updated = true;
         this._is_euler_angles_updated = false;
         this._is_trs_matrix_updated = false;
@@ -3086,9 +3075,9 @@ class TransformComponent extends Component {
         this.__updateTransform();
     }
     get quaternion() {
-        return this.guaternionInner.clone();
+        return this.quaternionInner.clone();
     }
-    get guaternionInner() {
+    get quaternionInner() {
         if (this._is_quaternion_updated) {
             return this._quaternion;
         }
@@ -3126,16 +3115,48 @@ class TransformComponent extends Component {
         if (this._is_trs_matrix_updated) {
             return this._matrix;
         }
-        // scale
-        const scaleMatrix = Matrix44.scale(this.scale);
-        // rotate
-        const rotationMatrix = new Matrix44(this.quaternion);
-        this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
-        // translate
-        const translate = this.translate;
-        this._matrix.m03 = translate.x;
-        this._matrix.m13 = translate.y;
-        this._matrix.m23 = translate.z;
+        // Clear and set Scale
+        const scale = this.scaleInner;
+        const n00 = scale.v[0];
+        const n11 = scale.v[1];
+        const n22 = scale.v[2];
+        const q = this.quaternionInner;
+        const sx = q.v[0] * q.v[0];
+        const sy = q.v[1] * q.v[1];
+        const sz = q.v[2] * q.v[2];
+        const cx = q.v[1] * q.v[2];
+        const cy = q.v[0] * q.v[2];
+        const cz = q.v[0] * q.v[1];
+        const wx = q.v[3] * q.v[0];
+        const wy = q.v[3] * q.v[1];
+        const wz = q.v[3] * q.v[2];
+        const m00 = 1.0 - 2.0 * (sy + sz);
+        const m01 = 2.0 * (cz - wz);
+        const m02 = 2.0 * (cy + wy);
+        const m10 = 2.0 * (cz + wz);
+        const m11 = 1.0 - 2.0 * (sx + sz);
+        const m12 = 2.0 * (cx - wx);
+        const m20 = 2.0 * (cy - wy);
+        const m21 = 2.0 * (cx + wx);
+        const m22 = 1.0 - 2.0 * (sx + sy);
+        const translate = this.translateInner;
+        // TranslateMatrix * RotateMatrix * ScaleMatrix
+        this._matrix.m00 = m00 * n00;
+        this._matrix.m01 = m01 * n11;
+        this._matrix.m02 = m02 * n22;
+        this._matrix.m03 = translate.v[0];
+        this._matrix.m10 = m10 * n00;
+        this._matrix.m11 = m11 * n11;
+        this._matrix.m12 = m12 * n22;
+        this._matrix.m13 = translate.v[1];
+        this._matrix.m20 = m20 * n00;
+        this._matrix.m21 = m21 * n11;
+        this._matrix.m22 = m22 * n22;
+        this._matrix.m23 = translate.v[2];
+        this._matrix.m30 = 0;
+        this._matrix.m31 = 0;
+        this._matrix.m32 = 0;
+        this._matrix.m33 = 1;
         this._is_trs_matrix_updated = true;
         return this._matrix;
     }
@@ -3930,7 +3951,7 @@ class SceneGraphComponent extends Component {
             // if there is not parent
             if (transform._dirty) {
                 transform._dirty = false;
-                this.__worldMatrix.copyComponents(transform.matrix);
+                this.__worldMatrix.copyComponents(transform.matrixInner);
                 //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
             }
             return this.__worldMatrix;
@@ -3962,6 +3983,171 @@ class MeshComponent extends Component {
     }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
+
+class MeshRendererComponent extends Component {
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__vertexHandles = [];
+        this.__isVAOSet = false;
+    }
+    static get componentTID() {
+        return 4;
+    }
+    __isLoaded(index) {
+        if (this.__vertexHandles[index] != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $create() {
+        if (this.__meshComponent != null) {
+            return;
+        }
+        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
+    }
+    $load() {
+        if (this.__isLoaded(0)) {
+            return;
+        }
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexHandles[i] = vertexHandles;
+            MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+            // let vertexShader = GLSLShader.vertexShaderWebGL1;
+            // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+            // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+            //   vertexShader = GLSLShader.vertexShaderWebGL2;
+            //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
+            // }
+            // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
+            //   vertexShader,
+            //   fragmentShader,
+            //   GLSLShader.attributeNanes,
+            //   GLSLShader.attributeSemantics
+            // );
+            // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+            // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+        }
+    }
+    $prerender(args) {
+        if (this.__isVAOSet) {
+            return;
+        }
+        const instanceIDBufferUid = args[0];
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            // if (this.__isLoaded(i) && this.__isVAOSet) {
+            this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+            //  continue;
+            // }
+            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+        }
+        this.__isVAOSet = true;
+    }
+}
+MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
+ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
+
+class Primitive extends RnObject {
+    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
+        super();
+        this.__indices = indicesAccessor;
+        this.__attributeCompositionTypes = attributeCompositionTypes;
+        this.__attributeComponentTypes = attributeComponentTypes;
+        this.__attributes = attributeAccessors;
+        this.__attributeSemantics = attributeSemantics;
+        this.__material = material;
+        this.__mode = mode;
+        this.__indicesBufferView = indicesBufferView;
+        this.__attributesBufferView = attributesBufferView;
+        this.__indicesComponentType = indicesComponentType;
+    }
+    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
+        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        let indicesComponentType;
+        let indicesBufferView;
+        let indicesAccessor;
+        if (indices != null) {
+            indicesComponentType = ComponentType.fromTypedArray(indices);
+            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
+            indicesAccessor = indicesBufferView.takeAccessor({
+                compositionType: CompositionType.Scalar,
+                componentType: indicesComponentType,
+                count: indices.byteLength / indicesComponentType.getSizeInBytes()
+            });
+            // copy indices
+            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
+                indicesAccessor.setScalar(i, indices[i]);
+            }
+        }
+        let sumOfAttributesByteSize = 0;
+        attributes.forEach(attribute => {
+            sumOfAttributesByteSize += attribute.byteLength;
+        });
+        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
+        const attributeAccessors = [];
+        const attributeComponentTypes = [];
+        attributes.forEach((attribute, i) => {
+            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
+            const accessor = attributesBufferView.takeAccessor({
+                compositionType: attributeCompositionTypes[i],
+                componentType: ComponentType.fromTypedArray(attributes[i]),
+                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+            });
+            accessor.copyFromTypedArray(attribute);
+            attributeAccessors.push(accessor);
+        });
+        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
+    }
+    get indicesAccessor() {
+        return this.__indices;
+    }
+    hasIndices() {
+        return this.__indices != null;
+    }
+    get attributeAccessors() {
+        return this.__attributes.concat();
+    }
+    get attributeSemantics() {
+        return this.__attributeSemantics.concat();
+    }
+    get attributeCompositionTypes() {
+        return this.__attributeCompositionTypes;
+    }
+    get attributeComponentTypes() {
+        return this.__attributeComponentTypes;
+    }
+    get primitiveMode() {
+        return this.__mode;
+    }
+}
+
+class PrimitiveModeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
+const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
+const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
+const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
+const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
+const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
+const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
+const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$4({ index }) {
+    return _from({ typeList: typeList$4, index });
+}
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
 class GLSLShader {
     static get vertexShaderWebGL1() {
@@ -4085,166 +4271,6 @@ void main ()
 `;
 GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
 GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
-
-class MeshRendererComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
-        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__vertexHandles = [];
-        this.__isVAOSet = false;
-    }
-    static get componentTID() {
-        return 4;
-    }
-    __isLoaded(index) {
-        if (this.__vertexHandles[index] != null) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    $create() {
-        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-    }
-    $load() {
-        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
-        for (let i = 0; i < primitiveNum; i++) {
-            if (this.__isLoaded(i)) {
-                continue;
-            }
-            const primitive = this.__meshComponent.getPrimitiveAt(i);
-            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexHandles[i] = vertexHandles;
-            MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            let vertexShader = GLSLShader.vertexShaderWebGL1;
-            let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                vertexShader = GLSLShader.vertexShaderWebGL2;
-                fragmentShader = GLSLShader.fragmentShaderWebGL2;
-            }
-            const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
-            //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-            MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
-        }
-    }
-    $prerender(instanceIDBufferUid) {
-        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
-        for (let i = 0; i < primitiveNum; i++) {
-            const primitive = this.__meshComponent.getPrimitiveAt(i);
-            if (this.__isLoaded(i) && this.__isVAOSet) {
-                this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                continue;
-            }
-            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-            this.__isVAOSet = true;
-        }
-    }
-    $render() {
-        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-        //   for(let i=0; i<primitiveNum; i++) {
-        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-        // }
-    }
-}
-MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
-MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
-ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-class Primitive extends RnObject {
-    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
-        super();
-        this.__indices = indicesAccessor;
-        this.__attributeCompositionTypes = attributeCompositionTypes;
-        this.__attributeComponentTypes = attributeComponentTypes;
-        this.__attributes = attributeAccessors;
-        this.__attributeSemantics = attributeSemantics;
-        this.__material = material;
-        this.__mode = mode;
-        this.__indicesBufferView = indicesBufferView;
-        this.__attributesBufferView = attributesBufferView;
-        this.__indicesComponentType = indicesComponentType;
-    }
-    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
-        const buffer = MemoryManager.getInstance().getBufferForCPU();
-        let indicesComponentType;
-        let indicesBufferView;
-        let indicesAccessor;
-        if (indices != null) {
-            indicesComponentType = ComponentType.fromTypedArray(indices);
-            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
-            indicesAccessor = indicesBufferView.takeAccessor({
-                compositionType: CompositionType.Scalar,
-                componentType: indicesComponentType,
-                count: indices.byteLength / indicesComponentType.getSizeInBytes()
-            });
-            // copy indices
-            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
-                indicesAccessor.setScalar(i, indices[i]);
-            }
-        }
-        let sumOfAttributesByteSize = 0;
-        attributes.forEach(attribute => {
-            sumOfAttributesByteSize += attribute.byteLength;
-        });
-        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
-        const attributeAccessors = [];
-        const attributeComponentTypes = [];
-        attributes.forEach((attribute, i) => {
-            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-            const accessor = attributesBufferView.takeAccessor({
-                compositionType: attributeCompositionTypes[i],
-                componentType: ComponentType.fromTypedArray(attributes[i]),
-                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-            });
-            accessor.copyFromTypedArray(attribute);
-            attributeAccessors.push(accessor);
-        });
-        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
-    }
-    get indicesAccessor() {
-        return this.__indices;
-    }
-    hasIndices() {
-        return this.__indices != null;
-    }
-    get attributeAccessors() {
-        return this.__attributes.concat();
-    }
-    get attributeSemantics() {
-        return this.__attributeSemantics.concat();
-    }
-    get attributeCompositionTypes() {
-        return this.__attributeCompositionTypes;
-    }
-    get attributeComponentTypes() {
-        return this.__attributeComponentTypes;
-    }
-    get primitiveMode() {
-        return this.__mode;
-    }
-}
-
-class PrimitiveModeClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
-const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
-const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
-const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
-const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
-const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
-const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
-const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$4({ index }) {
-    return _from({ typeList: typeList$4, index });
-}
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
 class ProcessStageClass extends EnumClass {
     constructor({ index, str, methodName }) {
@@ -4370,8 +4396,21 @@ const WebGLRenderingPipeline = new class {
         this.__dataTextureUid = 0;
         this.__instanceIDBufferUid = 0;
         this.__uboUid = 0;
+        this.__shaderProgramUid = 0;
     }
-    common_prerender() {
+    common_$load() {
+        if (this.__shaderProgramUid !== 0) {
+            return;
+        }
+        let vertexShader = GLSLShader.vertexShaderWebGL1;
+        let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+            vertexShader = GLSLShader.vertexShaderWebGL2;
+            fragmentShader = GLSLShader.fragmentShaderWebGL2;
+        }
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+    }
+    common_$prerender() {
         const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
@@ -4413,8 +4452,6 @@ const WebGLRenderingPipeline = new class {
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
             if (this.__uboUid !== 0) {
-                //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-                //this.__uboUid = 0;
                 this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
                 return;
             }
@@ -4426,10 +4463,19 @@ const WebGLRenderingPipeline = new class {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+        let halfFloatDataTextureBuffer;
+        {
+            if (!this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                let convertLength = buffer.byteSizeInUse / 4; //components
+                convertLength /= 2; // bytes
+                for (let i = 0; i < convertLength; i++) {
+                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+                }
+            }
+        }
         // if already
         if (this.__dataTextureUid !== 0) {
-            //      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-            //      this.__dataTextureUid = 0;
             {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -4438,9 +4484,9 @@ const WebGLRenderingPipeline = new class {
                     });
                 }
                 else {
-                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
                         level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-                        format: PixelFormat.RGBA, type: ComponentType.Float
+                        format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                     });
                 }
             }
@@ -4449,21 +4495,21 @@ const WebGLRenderingPipeline = new class {
         {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
-                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
                     level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
         }
     }
-    common_render() {
+    common_$render() {
         const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
         const meshRendererComponent = meshRendererComponents[0];
@@ -4471,10 +4517,10 @@ const WebGLRenderingPipeline = new class {
         const primitiveNum = meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = meshComponent.getPrimitiveAt(i);
-            const shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
+            const shaderProgramUid = this.__shaderProgramUid;
             const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
             const gl = glw.getRawContext();
-            const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+            const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
             gl.useProgram(shaderProgram);
             const vaoHandles = meshRendererComponent.__vertexHandles[i];
             const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
@@ -4485,7 +4531,7 @@ const WebGLRenderingPipeline = new class {
                 this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
             }
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__setUniformBuffer(gl, shaderProgramHandle);
+                this.__setUniformBuffer(gl, shaderProgramUid);
             }
             else {
                 this.__setDataTexture(gl, shaderProgram);
@@ -4528,19 +4574,18 @@ class System {
             const args = [];
             let instanceIDBufferUid = 0;
             const componentTids = this.__componentRepository.getComponentTIDs();
-            if (methodName === '$prerender') {
-                instanceIDBufferUid = this.__renderingPipeline.common_prerender();
-                args.push(instanceIDBufferUid);
+            const commonMethod = this.__renderingPipeline['common_' + methodName];
+            if (commonMethod != null) {
+                instanceIDBufferUid = commonMethod.apply(this.__renderingPipeline);
             }
-            if (methodName === '$render') {
-                this.__renderingPipeline.common_render();
-            }
+            args.push(instanceIDBufferUid);
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
-                components.forEach((component, i) => {
+                components.forEach((component) => {
                     const method = component[methodName];
                     if (method != null) {
-                        method.apply(component, args);
+                        //method.apply(component, args);
+                        component[methodName](args);
                     }
                 });
             });

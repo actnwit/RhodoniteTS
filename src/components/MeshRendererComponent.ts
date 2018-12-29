@@ -31,62 +31,67 @@ export default class MeshRendererComponent extends Component {
   }
 
   $create() {
+    if (this.__meshComponent != null) {
+      return;
+    }
     this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID) as MeshComponent;
   }
 
   $load() {
+    if (this.__isLoaded(0)) {
+      return;
+    }
 
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      if (this.__isLoaded(i)) {
-        continue;
-      }
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       this.__vertexHandles[i] = vertexHandles;
       MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
 
-      let vertexShader = GLSLShader.vertexShaderWebGL1;
-      let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        vertexShader = GLSLShader.vertexShaderWebGL2;
-        fragmentShader = GLSLShader.fragmentShaderWebGL2;
-      }
+      // let vertexShader = GLSLShader.vertexShaderWebGL1;
+      // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+      // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      //   vertexShader = GLSLShader.vertexShaderWebGL2;
+      //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
+      // }
 
-      const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
-        vertexShader,
-        fragmentShader,
-        GLSLShader.attributeNanes,
-        GLSLShader.attributeSemantics
-      );
-      //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-      MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+      // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
+      //   vertexShader,
+      //   fragmentShader,
+      //   GLSLShader.attributeNanes,
+      //   GLSLShader.attributeSemantics
+      // );
+      // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+      // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
     }
   }
 
-  $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
-  
+  $prerender(args: Array<any>) {
+    if (this.__isVAOSet) {
+      return;
+    }
+    const instanceIDBufferUid = args[0];
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      if (this.__isLoaded(i) && this.__isVAOSet) {
-        this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+     // if (this.__isLoaded(i) && this.__isVAOSet) {
+      this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
         //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        continue;
-      }
+      //  continue;
+     // }
       this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-        this.__isVAOSet = true;
     }
-    
+    this.__isVAOSet = true;
   }
 
-  $render() {
-    // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-    //   for(let i=0; i<primitiveNum; i++) {
-    //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-    //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-    // }
-  }
+  // $render() {
+  //   // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
+  //   //   for(let i=0; i<primitiveNum; i++) {
+  //   //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
+  //   //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
+  //   // }
+  // }
 
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);

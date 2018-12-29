@@ -830,7 +830,7 @@
             return component;
         };
         EntityRepository.getMaxEntityNumber = function () {
-            return 5000;
+            return 100000;
         };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();
@@ -3368,7 +3368,7 @@
             enumerable: true,
             configurable: true
         });
-        MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 9);
+        MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
         return MemoryManager;
     }());
 
@@ -3411,25 +3411,6 @@
         Component.setupBufferView = function () {
         };
         Component.prototype.registerDependency = function (component, isMust) {
-        };
-        Component.prototype.$create = function () {
-            // Define process dependencies with other components.
-            // If circular depenencies are detected, the error will be repoated.
-            // this.registerDependency(TransformComponent);
-        };
-        Component.prototype.$load = function () {
-        };
-        Component.prototype.$mount = function () {
-        };
-        Component.prototype.$logic = function () {
-        };
-        Component.prototype.$prerender = function (instanceIDBufferUid) {
-        };
-        Component.prototype.$render = function () {
-        };
-        Component.prototype.$unmount = function () {
-        };
-        Component.prototype.$discard = function () {
         };
         return Component;
     }());
@@ -3508,7 +3489,9 @@
                 return this.translateInner.clone();
             },
             set: function (vec) {
-                this._translate = vec.clone();
+                this._translate.v[0] = vec.v[0];
+                this._translate.v[1] = vec.v[1];
+                this._translate.v[2] = vec.v[2];
                 this._is_translate_updated = true;
                 this._is_trs_matrix_updated = false;
                 this._is_inverse_trs_matrix_updated = false;
@@ -3539,7 +3522,9 @@
                 return this.rotateInner.clone();
             },
             set: function (vec) {
-                this._rotate = vec.clone();
+                this._rotate.v[0] = vec.v[0];
+                this._rotate.v[1] = vec.v[1];
+                this._rotate.v[2] = vec.v[2];
                 this._is_euler_angles_updated = true;
                 this._is_quaternion_updated = false;
                 this._is_trs_matrix_updated = false;
@@ -3572,7 +3557,9 @@
                 return this.scaleInner.clone();
             },
             set: function (vec) {
-                this._scale = vec.clone();
+                this._scale.v[0] = vec.v[0];
+                this._scale.v[1] = vec.v[1];
+                this._scale.v[2] = vec.v[2];
                 this._is_scale_updated = true;
                 this._is_trs_matrix_updated = false;
                 this._is_inverse_trs_matrix_updated = false;
@@ -3601,10 +3588,12 @@
         });
         Object.defineProperty(TransformComponent.prototype, "quaternion", {
             get: function () {
-                return this.guaternionInner.clone();
+                return this.quaternionInner.clone();
             },
             set: function (quat) {
-                this._quaternion = quat.clone();
+                this._quaternion.v[0] = quat.v[0];
+                this._quaternion.v[1] = quat.v[1];
+                this._quaternion.v[2] = quat.v[2];
                 this._is_quaternion_updated = true;
                 this._is_euler_angles_updated = false;
                 this._is_trs_matrix_updated = false;
@@ -3615,7 +3604,7 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TransformComponent.prototype, "guaternionInner", {
+        Object.defineProperty(TransformComponent.prototype, "quaternionInner", {
             get: function () {
                 if (this._is_quaternion_updated) {
                     return this._quaternion;
@@ -3662,16 +3651,48 @@
                 if (this._is_trs_matrix_updated) {
                     return this._matrix;
                 }
-                // scale
-                var scaleMatrix = Matrix44.scale(this.scale);
-                // rotate
-                var rotationMatrix = new Matrix44(this.quaternion);
-                this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
-                // translate
-                var translate = this.translate;
-                this._matrix.m03 = translate.x;
-                this._matrix.m13 = translate.y;
-                this._matrix.m23 = translate.z;
+                // Clear and set Scale
+                var scale = this.scaleInner;
+                var n00 = scale.v[0];
+                var n11 = scale.v[1];
+                var n22 = scale.v[2];
+                var q = this.quaternionInner;
+                var sx = q.v[0] * q.v[0];
+                var sy = q.v[1] * q.v[1];
+                var sz = q.v[2] * q.v[2];
+                var cx = q.v[1] * q.v[2];
+                var cy = q.v[0] * q.v[2];
+                var cz = q.v[0] * q.v[1];
+                var wx = q.v[3] * q.v[0];
+                var wy = q.v[3] * q.v[1];
+                var wz = q.v[3] * q.v[2];
+                var m00 = 1.0 - 2.0 * (sy + sz);
+                var m01 = 2.0 * (cz - wz);
+                var m02 = 2.0 * (cy + wy);
+                var m10 = 2.0 * (cz + wz);
+                var m11 = 1.0 - 2.0 * (sx + sz);
+                var m12 = 2.0 * (cx - wx);
+                var m20 = 2.0 * (cy - wy);
+                var m21 = 2.0 * (cx + wx);
+                var m22 = 1.0 - 2.0 * (sx + sy);
+                var translate = this.translateInner;
+                // TranslateMatrix * RotateMatrix * ScaleMatrix
+                this._matrix.m00 = m00 * n00;
+                this._matrix.m01 = m01 * n11;
+                this._matrix.m02 = m02 * n22;
+                this._matrix.m03 = translate.v[0];
+                this._matrix.m10 = m10 * n00;
+                this._matrix.m11 = m11 * n11;
+                this._matrix.m12 = m12 * n22;
+                this._matrix.m13 = translate.v[1];
+                this._matrix.m20 = m20 * n00;
+                this._matrix.m21 = m21 * n11;
+                this._matrix.m22 = m22 * n22;
+                this._matrix.m23 = translate.v[2];
+                this._matrix.m30 = 0;
+                this._matrix.m31 = 0;
+                this._matrix.m32 = 0;
+                this._matrix.m33 = 1;
                 this._is_trs_matrix_updated = true;
                 return this._matrix;
             },
@@ -4579,7 +4600,7 @@
                 // if there is not parent
                 if (transform._dirty) {
                     transform._dirty = false;
-                    this.__worldMatrix.copyComponents(transform.matrix);
+                    this.__worldMatrix.copyComponents(transform.matrixInner);
                     //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
                 }
                 return this.__worldMatrix;
@@ -4620,47 +4641,6 @@
     }(Component));
     ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
-    var GLSLShader = /** @class */ (function () {
-        function GLSLShader() {
-        }
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL1", {
-            get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "vertexShaderWebGL2", {
-            get: function () {
-                return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL1", {
-            get: function () {
-                return GLSLShader.fragmentShader_webgl1;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShaderWebGL2", {
-            get: function () {
-                return GLSLShader.fragmentShader_webgl2;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        GLSLShader.vertexShaderDefinitions_webgl1 = "\nprecision highp float;\nattribute vec3 a_position;\nattribute vec3 a_color;\nattribute float a_instanceID;\n\nvarying vec3 v_color;\nuniform sampler2D u_dataTexture;\n\n\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return texture2D( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return texture2D( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n    // mat4 matrix = mat4(\n    //   1.0/100.0, 0.0, 0.0, 0.0,\n    //   0.0, 1.0/100.0, 0.0, 0.0,\n    //   0.0, 0.0, 1.0/100.0, 0.0,\n    //   0.0, 0.0, 0.0, 1.0\n    //   );\n  \n  return matrix;\n}\n\n    ";
-        GLSLShader.vertexShaderDefinitions_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 a_position;\nin vec3 a_color;\nin float a_instanceID;\n\nout vec3 v_color;\nlayout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
-        GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
-        GLSLShader.fragmentShader_webgl1 = "\nprecision highp float;\nvarying vec3 v_color;\nvoid main ()\n{\n  gl_FragColor = vec4(v_color, 1.0);\n}\n";
-        GLSLShader.fragmentShader_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 v_color;\nlayout(location = 0) out vec4 rt0;\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n}\n";
-        GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
-        GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
-        return GLSLShader;
-    }());
-
     var MeshRendererComponent = /** @class */ (function (_super) {
         __extends(MeshRendererComponent, _super);
         function MeshRendererComponent(entityUid, componentSid) {
@@ -4686,48 +4666,53 @@
             }
         };
         MeshRendererComponent.prototype.$create = function () {
+            if (this.__meshComponent != null) {
+                return;
+            }
             this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
         };
         MeshRendererComponent.prototype.$load = function () {
+            if (this.__isLoaded(0)) {
+                return;
+            }
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
-                if (this.__isLoaded(i)) {
-                    continue;
-                }
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
                 var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
                 this.__vertexHandles[i] = vertexHandles;
                 MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-                var vertexShader = GLSLShader.vertexShaderWebGL1;
-                var fragmentShader = GLSLShader.fragmentShaderWebGL1;
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    vertexShader = GLSLShader.vertexShaderWebGL2;
-                    fragmentShader = GLSLShader.fragmentShaderWebGL2;
-                }
-                var shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
-                //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-                MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
+                // let vertexShader = GLSLShader.vertexShaderWebGL1;
+                // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+                // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+                //   vertexShader = GLSLShader.vertexShaderWebGL2;
+                //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
+                // }
+                // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
+                //   vertexShader,
+                //   fragmentShader,
+                //   GLSLShader.attributeNanes,
+                //   GLSLShader.attributeSemantics
+                // );
+                // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
+                // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
             }
         };
-        MeshRendererComponent.prototype.$prerender = function (instanceIDBufferUid) {
+        MeshRendererComponent.prototype.$prerender = function (args) {
+            if (this.__isVAOSet) {
+                return;
+            }
+            var instanceIDBufferUid = args[0];
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
-                if (this.__isLoaded(i) && this.__isVAOSet) {
-                    this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                    //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                    continue;
-                }
+                // if (this.__isLoaded(i) && this.__isVAOSet) {
+                this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+                //  continue;
+                // }
                 this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-                this.__isVAOSet = true;
             }
-        };
-        MeshRendererComponent.prototype.$render = function () {
-            // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-            //   for(let i=0; i<primitiveNum; i++) {
-            //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-            //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-            // }
+            this.__isVAOSet = true;
         };
         MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
         MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
@@ -4859,6 +4844,47 @@
         return _from({ typeList: typeList$4, index: index });
     }
     var PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$4 });
+
+    var GLSLShader = /** @class */ (function () {
+        function GLSLShader() {
+        }
+        Object.defineProperty(GLSLShader, "vertexShaderWebGL1", {
+            get: function () {
+                return GLSLShader.vertexShaderDefinitions_webgl1 + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "vertexShaderWebGL2", {
+            get: function () {
+                return GLSLShader.vertexShaderDefinitions_webgl2 + GLSLShader.vertexShaderBody;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShaderWebGL1", {
+            get: function () {
+                return GLSLShader.fragmentShader_webgl1;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "fragmentShaderWebGL2", {
+            get: function () {
+                return GLSLShader.fragmentShader_webgl2;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GLSLShader.vertexShaderDefinitions_webgl1 = "\nprecision highp float;\nattribute vec3 a_position;\nattribute vec3 a_color;\nattribute float a_instanceID;\n\nvarying vec3 v_color;\nuniform sampler2D u_dataTexture;\n\n\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return texture2D( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return texture2D( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n    // mat4 matrix = mat4(\n    //   1.0/100.0, 0.0, 0.0, 0.0,\n    //   0.0, 1.0/100.0, 0.0, 0.0,\n    //   0.0, 0.0, 1.0/100.0, 0.0,\n    //   0.0, 0.0, 0.0, 1.0\n    //   );\n  \n  return matrix;\n}\n\n    ";
+        GLSLShader.vertexShaderDefinitions_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 a_position;\nin vec3 a_color;\nin float a_instanceID;\n\nout vec3 v_color;\nlayout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
+        GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
+        GLSLShader.fragmentShader_webgl1 = "\nprecision highp float;\nvarying vec3 v_color;\nvoid main ()\n{\n  gl_FragColor = vec4(v_color, 1.0);\n}\n";
+        GLSLShader.fragmentShader_webgl2 = "#version 300 es\nprecision highp float;\nin vec3 v_color;\nlayout(location = 0) out vec4 rt0;\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n}\n";
+        GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+        GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
+        return GLSLShader;
+    }());
 
     var ProcessStageClass = /** @class */ (function (_super) {
         __extends(ProcessStageClass, _super);
@@ -4995,8 +5021,21 @@
             this.__dataTextureUid = 0;
             this.__instanceIDBufferUid = 0;
             this.__uboUid = 0;
+            this.__shaderProgramUid = 0;
         }
-        class_1.prototype.common_prerender = function () {
+        class_1.prototype.common_$load = function () {
+            if (this.__shaderProgramUid !== 0) {
+                return;
+            }
+            var vertexShader = GLSLShader.vertexShaderWebGL1;
+            var fragmentShader = GLSLShader.fragmentShaderWebGL1;
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                vertexShader = GLSLShader.vertexShaderWebGL2;
+                fragmentShader = GLSLShader.fragmentShaderWebGL2;
+            }
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+        };
+        class_1.prototype.common_$prerender = function () {
             var gl = this.__webglResourceRepository.currentWebGLContextWrapper;
             if (gl == null) {
                 throw new Error('No WebGLRenderingContext!');
@@ -5038,8 +5077,6 @@
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
                 if (this.__uboUid !== 0) {
-                    //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-                    //this.__uboUid = 0;
                     this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
                     return;
                 }
@@ -5051,10 +5088,19 @@
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            var halfFloatDataTextureBuffer;
+            {
+                if (!this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                    var convertLength = buffer.byteSizeInUse / 4; //components
+                    convertLength /= 2; // bytes
+                    for (var i = 0; i < convertLength; i++) {
+                        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+                    }
+                }
+            }
             // if already
             if (this.__dataTextureUid !== 0) {
-                //      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-                //      this.__dataTextureUid = 0;
                 {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -5063,9 +5109,9 @@
                         });
                     }
                     else {
-                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
                             level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
+                            format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                         });
                     }
                 }
@@ -5074,21 +5120,21 @@
             {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
                 else {
-                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
                         level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
             }
         };
-        class_1.prototype.common_render = function () {
+        class_1.prototype.common_$render = function () {
             var meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             var meshRendererComponent = meshRendererComponents[0];
@@ -5096,10 +5142,10 @@
             var primitiveNum = meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = meshComponent.getPrimitiveAt(i);
-                var shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid); //meshRendererComponent.__vertexShaderProgramHandles[i];
+                var shaderProgramUid = this.__shaderProgramUid;
                 var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
                 var gl = glw.getRawContext();
-                var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle);
+                var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
                 gl.useProgram(shaderProgram);
                 var vaoHandles = meshRendererComponent.__vertexHandles[i];
                 var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
@@ -5110,7 +5156,7 @@
                     this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
                 }
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__setUniformBuffer(gl, shaderProgramHandle);
+                    this.__setUniformBuffer(gl, shaderProgramUid);
                 }
                 else {
                     this.__setDataTexture(gl, shaderProgram);
@@ -5155,19 +5201,18 @@
                 var args = [];
                 var instanceIDBufferUid = 0;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
-                if (methodName === '$prerender') {
-                    instanceIDBufferUid = _this.__renderingPipeline.common_prerender();
-                    args.push(instanceIDBufferUid);
+                var commonMethod = _this.__renderingPipeline['common_' + methodName];
+                if (commonMethod != null) {
+                    instanceIDBufferUid = commonMethod.apply(_this.__renderingPipeline);
                 }
-                if (methodName === '$render') {
-                    _this.__renderingPipeline.common_render();
-                }
+                args.push(instanceIDBufferUid);
                 componentTids.forEach(function (componentTid) {
                     var components = _this.__componentRepository.getComponentsWithType(componentTid);
-                    components.forEach(function (component, i) {
+                    components.forEach(function (component) {
                         var method = component[methodName];
                         if (method != null) {
-                            method.apply(component, args);
+                            //method.apply(component, args);
+                            component[methodName](args);
                         }
                     });
                 });

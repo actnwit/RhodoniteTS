@@ -28,19 +28,18 @@ export default class System {
       const args:Array<any> = [];
       let instanceIDBufferUid: CGAPIResourceHandle = 0;
       const componentTids = this.__componentRepository.getComponentTIDs();
-      if (methodName === '$prerender') {
-        instanceIDBufferUid = this.__renderingPipeline.common_prerender();
-        args.push(instanceIDBufferUid);
+      const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
+      if (commonMethod != null) {
+        instanceIDBufferUid = commonMethod.apply(this.__renderingPipeline);
       }
-      if (methodName === '$render') {
-        this.__renderingPipeline.common_render();
-      }
+      args.push(instanceIDBufferUid);
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-        components.forEach((component, i)=>{
+        components.forEach((component)=>{
           const method = (component as any)[methodName];
           if (method != null) {
-            method.apply(component, args);
+            //method.apply(component, args);
+            (component as any)[methodName](args);
           }
         });
       });

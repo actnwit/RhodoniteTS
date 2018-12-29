@@ -40,40 +40,26 @@ export default class Component {
 
   }
 
-  $create() {
-    // Define process dependencies with other components.
-    // If circular depenencies are detected, the error will be repoated.
+  // $create() {
+  //   // Define process dependencies with other components.
+  //   // If circular depenencies are detected, the error will be repoated.
 
-    // this.registerDependency(TransformComponent);
-  }
+  //   // this.registerDependency(TransformComponent);
+  // }
 
-  $load() {
-    
-  }
+  // $load() {}
 
-  $mount() {
+  // $mount() {}
 
-  }
+  // $logic() {}
 
-  $logic() {
+  // $prerender(instanceIDBufferUid: CGAPIResourceHandle) {}
 
-  }
+  // $render() {}
 
-  $prerender(instanceIDBufferUid: CGAPIResourceHandle) {
+  // $unmount() {}
 
-  }
-
-  $render() {
-
-  }
-
-  $unmount() {
-    
-  }
-
-  $discard() {
-    
-  }
+  // $discard() {}
 }
 
 export interface ComponentConstructor {

@@ -14,6 +14,7 @@ import MeshComponent from "../../components/MeshComponent";
 import { MathUtil } from "../../math/MathUtil";
 import SceneGraphComponent from "../../components/SceneGraphComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
+import GLSLShader from "./GLSLShader";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -21,8 +22,29 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __dataTextureUid: CGAPIResourceHandle = 0;
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
   private __uboUid: CGAPIResourceHandle = 0;
+  private __shaderProgramUid: CGAPIResourceHandle = 0;
 
-  common_prerender(): CGAPIResourceHandle {
+  common_$load() {
+    if (this.__shaderProgramUid !== 0) {
+      return;
+    }
+
+    let vertexShader = GLSLShader.vertexShaderWebGL1;
+    let fragmentShader = GLSLShader.fragmentShaderWebGL1;
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      vertexShader = GLSLShader.vertexShaderWebGL2;
+      fragmentShader = GLSLShader.fragmentShaderWebGL2;
+    }
+
+    this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
+      vertexShader,
+      fragmentShader,
+      GLSLShader.attributeNanes,
+      GLSLShader.attributeSemantics
+    );
+  }
+
+  common_$prerender(): CGAPIResourceHandle {
     const gl = this.__webglResourceRepository.currentWebGLContextWrapper;
 
     if (gl == null) {
@@ -82,8 +104,6 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
         }
       }
       if (this.__uboUid !== 0) {
-        //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-        //this.__uboUid = 0;
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, halfFloatDataTextureBuffer!);
         return;
       }
@@ -92,8 +112,6 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
     } else {
       if (this.__uboUid !== 0) {
-        //this.__webglResourceRepository.deleteUniformBuffer(this.__uboUid);
-        //this.__uboUid = 0;
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
         return;
       }
@@ -106,7 +124,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __createDataTexture() {
-    const isHalfFloatMode = false;
+    const isHalfFloatMode = true;
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -124,8 +142,6 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
     // if already
     if (this.__dataTextureUid !== 0) {
-//      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
-//      this.__dataTextureUid = 0;
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -188,7 +204,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-  common_render(){
+  common_$render(){
     const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID)!;
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
 
@@ -198,10 +214,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
-      const shaderProgramHandle = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;//meshRendererComponent.__vertexShaderProgramHandles[i];
+      const shaderProgramUid = this.__shaderProgramUid;
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramHandle)! as WebGLProgram;
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
       gl.useProgram(shaderProgram);
 
       const vaoHandles = meshRendererComponent.__vertexHandles[i];
@@ -213,7 +229,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       }
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__setUniformBuffer(gl, shaderProgramHandle)
+        this.__setUniformBuffer(gl, shaderProgramUid)
       } else {
         this.__setDataTexture(gl, shaderProgram);
       }
