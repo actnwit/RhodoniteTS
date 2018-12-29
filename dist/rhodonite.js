@@ -5541,11 +5541,11 @@
                 }
                 else {
                     this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
+                    var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
                 }
                 this.__webGLStrategy.attatchShaderProgram();
                 this.__webGLStrategy.attachGPUData();
-                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
                 var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
                 glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
             }
