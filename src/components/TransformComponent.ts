@@ -112,7 +112,9 @@ export default class TransformComponent extends Component {
   }
 
   set translate(vec: Vector3) {
-    this._translate = vec.clone();
+    this._translate.v[0] = vec.v[0];
+    this._translate.v[1] = vec.v[1];
+    this._translate.v[2] = vec.v[2];
     this._is_translate_updated = true;
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -139,7 +141,9 @@ export default class TransformComponent extends Component {
 
   set rotate(vec: Vector3) {
 
-    this._rotate = vec.clone();
+    this._rotate.v[0] = vec.v[0];
+    this._rotate.v[1] = vec.v[1];
+    this._rotate.v[2] = vec.v[2];
     this._is_euler_angles_updated = true;
     this._is_quaternion_updated = false;
     this._is_trs_matrix_updated = false;
@@ -167,7 +171,9 @@ export default class TransformComponent extends Component {
   }
 
   set scale(vec: Vector3) {
-    this._scale = vec.clone();
+    this._scale.v[0] = vec.v[0];
+    this._scale.v[1] = vec.v[1];
+    this._scale.v[2] = vec.v[2];
     this._is_scale_updated = true;
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -195,7 +201,9 @@ export default class TransformComponent extends Component {
   }
 
   set quaternion(quat: Quaternion) {
-    this._quaternion = quat.clone();
+    this._quaternion.v[0] = quat.v[0];
+    this._quaternion.v[1] = quat.v[1];
+    this._quaternion.v[2] = quat.v[2];
     this._is_quaternion_updated = true;
     this._is_euler_angles_updated = false;
     this._is_trs_matrix_updated = false;
@@ -206,10 +214,10 @@ export default class TransformComponent extends Component {
   }
 
   get quaternion() {
-    return this.guaternionInner.clone();
+    return this.quaternionInner.clone();
   }
 
-  get guaternionInner(): Quaternion {
+  get quaternionInner(): Quaternion {
     if (this._is_quaternion_updated) {
       return this._quaternion;
     } else if (!this._is_quaternion_updated) {
@@ -252,18 +260,75 @@ export default class TransformComponent extends Component {
       return this._matrix;
     }
 
-    // scale
-    const scaleMatrix = Matrix44.scale(this.scale);
+    // Clear and set Scale
+    const scale = this.scaleInner;
+    const n00 = scale.v[0];
+    const n01 = 0;
+    const n02 = 0;
+    const n03 = 0;
+    const n10 = 0;
+    const n11 = scale.v[1];
+    const n12 = 0;
+    const n13 = 0;
+    const n20 = 0;
+    const n21 = 0;
+    const n22 = scale.v[2];
+    const n23 = 0;
+    const n30 = 0;
+    const n31 = 0;
+    const n32 = 0;
+    const n33 = 1;
 
-    // rotate
-    const rotationMatrix = new Matrix44(this.quaternion);
-    this._matrix.copyComponents(Matrix44.multiply(rotationMatrix, scaleMatrix));
+    const q = this.quaternionInner;
+    const sx = q.v[0] * q.v[0];
+    const sy = q.v[1] * q.v[1];
+    const sz = q.v[2] * q.v[2];
+    const cx = q.v[1] * q.v[2];
+    const cy = q.v[0] * q.v[2];
+    const cz = q.v[0] * q.v[1];
+    const wx = q.v[3] * q.v[0];
+    const wy = q.v[3] * q.v[1];
+    const wz = q.v[3] * q.v[2];
 
-    // translate
-    const translate = this.translate;
-    this._matrix.m03 = translate.x;
-    this._matrix.m13 = translate.y;
-    this._matrix.m23 = translate.z;
+    const m00 = 1.0 - 2.0 * (sy + sz);
+    const m01 = 2.0 * (cz - wz);
+    const m02 = 2.0 * (cy + wy);
+    const m03 = 0.0;
+    const m10 = 2.0 * (cz + wz);
+    const m11 = 1.0 - 2.0 * (sx + sz);
+    const m12 = 2.0 * (cx - wx);
+    const m13 = 0.0;
+    const m20 = 2.0 * (cy - wy);
+    const m21 = 2.0 * (cx + wx);
+    const m22 = 1.0 - 2.0 * (sx + sy);
+    const m23 = 0.0;
+    const m30 = 0.0;
+    const m31 = 0.0;
+    const m32 = 0.0;
+    const m33 = 1.0;
+
+    const translate = this.translateInner;
+
+    // TranslateMatrix * RotateMatrix * ScaleMatrix
+    this._matrix.m00 = m00*n00;
+    this._matrix.m01 = m01*n11;
+    this._matrix.m02 = m02*n22;
+    this._matrix.m03 = translate.v[0];
+
+    this._matrix.m10 = m10*n00;
+    this._matrix.m11 = m11*n11;
+    this._matrix.m12 = m12*n22;
+    this._matrix.m13 = translate.v[1];
+
+    this._matrix.m20 = m20*n00;
+    this._matrix.m21 = m21*n11;
+    this._matrix.m22 = m22*n22;
+    this._matrix.m23 = translate.v[2];
+
+    this._matrix.m30 = 0;
+    this._matrix.m31 = 0;
+    this._matrix.m32 = 0;
+    this._matrix.m33 = 1;
 
     this._is_trs_matrix_updated = true;
 
