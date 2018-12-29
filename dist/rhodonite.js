@@ -5482,9 +5482,9 @@
             this.__componentRepository = ComponentRepository.getInstance();
             this.__instanceIDBufferUid = 0;
         }
-        class_1.prototype.common_$load = function () {
+        class_1.prototype.common_$load = function (processApproach) {
             // Strategy
-            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+            if (processApproach === ProcessApproach.UBOWebGL2) {
                 this.__webGLStrategy = WebGLStrategyUBO.getInstance();
             }
             else {
@@ -5530,24 +5530,27 @@
             var meshRendererComponent = meshRendererComponents[0];
             var meshComponent = meshComponents[0];
             var primitiveNum = meshComponent.getPrimitiveNumber();
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = meshComponent.getPrimitiveAt(i);
-                var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-                var gl = glw.getRawContext();
-                var vaoHandles = meshRendererComponent.__vertexHandles[i];
-                var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-                if (vao != null) {
-                    glw.bindVertexArray(vao);
-                }
-                else {
-                    this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
-                    var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                }
+                this.__attachVertexData(meshRendererComponent, i, primitive, glw);
                 this.__webGLStrategy.attatchShaderProgram();
                 this.__webGLStrategy.attachGPUData();
                 var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
                 glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
+            }
+        };
+        class_1.prototype.__attachVertexData = function (meshRendererComponent, i, primitive, glw) {
+            var vaoHandles = meshRendererComponent.__vertexHandles[i];
+            var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+            var gl = glw.getRawContext();
+            if (vao != null) {
+                glw.bindVertexArray(vao);
+            }
+            else {
+                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
+                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
             }
         };
         return class_1;
@@ -5581,7 +5584,7 @@
                 var componentTids = _this.__componentRepository.getComponentTIDs();
                 var commonMethod = _this.__renderingPipeline['common_' + methodName];
                 if (commonMethod != null) {
-                    instanceIDBufferUid = commonMethod.apply(_this.__renderingPipeline);
+                    instanceIDBufferUid = commonMethod.call(_this.__renderingPipeline, _this.__processApproach);
                 }
                 args.push(instanceIDBufferUid);
                 componentTids.forEach(function (componentTid) {

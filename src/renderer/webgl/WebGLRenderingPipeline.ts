@@ -1,34 +1,27 @@
 import RenderingPipeline from "../RenderingPipeline";
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import Primitive from "../../geometry/Primitive";
-import { WebGLExtension } from "../../definitions/WebGLExtension";
 import MemoryManager from "../../core/MemoryManager";
-import Buffer from "../../memory/Buffer";
-import { TextureParameter } from "../../definitions/TextureParameter";
-import { PixelFormat } from "../../definitions/PixelFormat";
 import { ComponentType } from "../../definitions/ComponentType";
 import EntityRepository from "../../core/EntityRepository";
 import { CompositionType } from "../../definitions/CompositionType";
 import ComponentRepository from "../../core/ComponentRepository";
 import MeshComponent from "../../components/MeshComponent";
-import { MathUtil } from "../../math/MathUtil";
-import SceneGraphComponent from "../../components/SceneGraphComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
-import GLSLShader from "./GLSLShader";
-import System from "../../system/System";
-import { ProcessApproach } from "../../definitions/ProcessApproach";
+import { ProcessApproach, ProcessApproachEnum } from "../../definitions/ProcessApproach";
 import WebGLStrategyUBO from "./WebGLStrategyUBO";
 import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
+import WebGLContextWrapper from "./WebGLContextWrapper";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
   private __webGLStrategy?: WebGLStrategy;
-  common_$load() {
+  common_$load(processApproach: ProcessApproachEnum) {
 
     // Strategy
-    if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+    if (processApproach === ProcessApproach.UBOWebGL2) {
       this.__webGLStrategy = WebGLStrategyUBO.getInstance();
     } else {
       this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
@@ -86,22 +79,11 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const meshRendererComponent = meshRendererComponents[0] as MeshRendererComponent;
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-
-      const vaoHandles = meshRendererComponent.__vertexHandles[i];
-      const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-      if (vao != null) {
-        glw.bindVertexArray(vao);
-      } else {
-        this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
-        const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-      }
-
+      this.__attachVertexData(meshRendererComponent, i, primitive, glw);
       this.__webGLStrategy!.attatchShaderProgram();
       this.__webGLStrategy!.attachGPUData();
 
@@ -112,4 +94,20 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
+
+
+  private __attachVertexData(meshRendererComponent: MeshRendererComponent, i: number, primitive: Primitive, glw: WebGLContextWrapper) {
+    const vaoHandles = meshRendererComponent.__vertexHandles[i];
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+    const gl = glw.getRawContext();
+
+    if (vao != null) {
+      glw.bindVertexArray(vao);
+    }
+    else {
+      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    }
+  }
 }
