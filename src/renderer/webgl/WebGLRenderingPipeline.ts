@@ -124,7 +124,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __createDataTexture() {
-    const isHalfFloatMode = true;
+    let isHalfFloatMode = false;
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+      isHalfFloatMode = true;
+    }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());

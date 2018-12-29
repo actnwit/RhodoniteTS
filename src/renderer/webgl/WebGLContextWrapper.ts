@@ -30,6 +30,14 @@ export default class WebGLContextWrapper {
     return this.__gl;
   }
 
+  isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
+    if (this.__getExtension(webGLExtension)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
