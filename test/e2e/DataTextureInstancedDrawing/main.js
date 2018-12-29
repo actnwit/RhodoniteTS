@@ -100,11 +100,8 @@
       return primitive;
     }
 
-    const repo = Rn.WebGLResourceRepository.getInstance();
-
-    const gl = document.getElementById('world').getContext('webgl') || document.getElementById('world').getContext('experimental-webgl');
-
-    repo.addWebGLContext(gl, true);
+    const system = Rn.System.getInstance();
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.DataTextureWebGL1, document.getElementById('world'));
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -118,7 +115,7 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 100000;
+    const entityNumber = 100;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
@@ -129,13 +126,13 @@
       entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
     }
 
-    const system = Rn.System.getInstance();
     const startTime = Date.now();
     let p = null;
     const rotationVec3 = Rn.Vector3.zero();
+    let count = 0
     const draw = function(time){
 
-      if (p == null ) {
+      if (p == null) {
         p = document.createElement('p');
         p.setAttribute("id", "rendered");
         p.innerText = 'Rendered.';
@@ -153,9 +150,10 @@
         });
       }
 
-//      console.log(date.getTime());
+  //      console.log(date.getTime());
       system.process();
       requestAnimationFrame(draw);
     }
 
-    draw();
+    document.body.onload = draw;
+

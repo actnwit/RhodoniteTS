@@ -246,6 +246,14 @@
         WebGLContextWrapper.prototype.getRawContext = function () {
             return this.__gl;
         };
+        WebGLContextWrapper.prototype.isSupportWebGL1Extension = function (webGLExtension) {
+            if (this.__getExtension(webGLExtension)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
         Object.defineProperty(WebGLContextWrapper.prototype, "isWebGL2", {
             get: function () {
                 if (this.__webglVersion === 2) {
@@ -4226,8 +4234,67 @@
             var sin = Math.sin(radian);
             return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
-        RowMajarMatrix44.rotateXYZ = function (x, y, z) {
-            return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
+        RowMajarMatrix44.prototype.rotateXYZ = function (x, y, z) {
+            var cosX = Math.cos(x);
+            var sinX = Math.sin(x);
+            var cosY = Math.cos(y);
+            var sinY = Math.sin(y);
+            var cosZ = Math.cos(z);
+            var sinZ = Math.sin(z);
+            var xm00 = 1;
+            //const xm01 = 0;
+            //const xm02 = 0;
+            //const xm10 = 0;
+            var xm11 = cosX;
+            var xm12 = -sinX;
+            //const xm20 = 0;
+            var xm21 = sinX;
+            var xm22 = cosX;
+            var ym00 = cosY;
+            //const ym01 = 0;
+            var ym02 = sinY;
+            //const ym10 = 0;
+            var ym11 = 1;
+            //const ym12 = 0;
+            var ym20 = -sinY;
+            //const ym21 = 0;
+            var ym22 = cosY;
+            var zm00 = cosZ;
+            var zm01 = -sinZ;
+            //const zm02 = 0;
+            var zm10 = sinZ;
+            var zm11 = cosZ;
+            //const zm12 = 0;
+            //const zm20 = 0;
+            //const zm21 = 0;
+            var zm22 = 1;
+            var yxm00 = ym00 * xm00;
+            var yxm01 = ym02 * xm21;
+            var yxm02 = ym02 * xm22;
+            //const yxm10 = 0;
+            var yxm11 = ym11 * xm11;
+            var yxm12 = ym11 * xm12;
+            var yxm20 = ym20 * xm00;
+            var yxm21 = ym22 * xm21;
+            var yxm22 = ym22 * xm22;
+            this.m[0] = zm00 * yxm00;
+            this.m[1] = zm00 * yxm01 + zm01 * yxm11;
+            this.m[2] = zm00 * yxm02 + zm01 * yxm12;
+            this.m[3] = 0;
+            this.m[4] = zm10 * yxm00;
+            this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+            this.m[6] = zm10 * yxm02 + zm11 * yxm12;
+            this.m[7] = 0;
+            this.m[8] = zm22 * yxm20;
+            this.m[9] = zm22 * yxm21;
+            this.m[10] = zm22 * yxm22;
+            this.m[11] = 0;
+            this.m[12] = 0;
+            this.m[13] = 0;
+            this.m[14] = 0;
+            this.m[15] = 1;
+            return this;
+            //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
         };
         /**
          * @return Euler Angles Rotation (x, y, z)
@@ -5106,6 +5173,21 @@
     }());
     var MathUtil = Object.freeze({ radianToDegree: radianToDegree, degreeToRadian: degreeToRadian, toHalfFloat: toHalfFloat });
 
+    var ProcessApproachClass = /** @class */ (function (_super) {
+        __extends(ProcessApproachClass, _super);
+        function ProcessApproachClass(_a) {
+            var index = _a.index, str = _a.str;
+            return _super.call(this, { index: index, str: str }) || this;
+        }
+        return ProcessApproachClass;
+    }(EnumClass));
+    var None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+    var UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+    var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+    var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+    var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2 });
+
     var WebGLRenderingPipeline = new /** @class */ (function () {
         function class_1() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -5121,7 +5203,7 @@
             }
             var vertexShader = GLSLShader.vertexShaderWebGL1;
             var fragmentShader = GLSLShader.fragmentShaderWebGL1;
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
                 vertexShader = GLSLShader.vertexShaderWebGL2;
                 fragmentShader = GLSLShader.fragmentShaderWebGL2;
             }
@@ -5132,16 +5214,11 @@
             if (gl == null) {
                 throw new Error('No WebGLRenderingContext!');
             }
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__createUBO();
-            }
-            else {
-                this.__createDataTexture();
-            }
+            this.__setupGeometryData();
             if (this.__isReady()) {
                 return 0;
             }
-            this.__createInstanceIDBuffer();
+            this.__setupInstanceIDBuffer();
             return this.__instanceIDBufferUid;
         };
         class_1.prototype.__isReady = function () {
@@ -5152,7 +5229,15 @@
                 return false;
             }
         };
-        class_1.prototype.__createInstanceIDBuffer = function () {
+        class_1.prototype.__setupGeometryData = function () {
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+                this.__setupUBO();
+            }
+            else {
+                this.__setupDataTexture();
+            }
+        };
+        class_1.prototype.__setupInstanceIDBuffer = function () {
             var buffer = MemoryManager.getInstance().getBufferForCPU();
             var count = EntityRepository.getMaxEntityNumber();
             var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
@@ -5163,7 +5248,7 @@
             }
             this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
         };
-        class_1.prototype.__createUBO = function () {
+        class_1.prototype.__setupUBO = function () {
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -5176,24 +5261,27 @@
             }
             this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
         };
-        class_1.prototype.__createDataTexture = function () {
+        class_1.prototype.__setupDataTexture = function () {
+            var isHalfFloatMode = false;
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
+                this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+                isHalfFloatMode = true;
+            }
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBufferForGPU();
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             var halfFloatDataTextureBuffer;
-            {
-                if (!this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-                    var convertLength = buffer.byteSizeInUse / 4; //components
-                    convertLength /= 2; // bytes
-                    for (var i = 0; i < convertLength; i++) {
-                        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-                    }
+            if (isHalfFloatMode) {
+                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                var convertLength = buffer.byteSizeInUse / 4; //components
+                convertLength /= 2; // bytes
+                for (var i = 0; i < convertLength; i++) {
+                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
                 }
             }
             // if already
             if (this.__dataTextureUid !== 0) {
-                {
+                if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
                             level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -5207,9 +5295,23 @@
                         });
                     }
                 }
+                else {
+                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                    else {
+                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                }
                 return;
             }
-            {
+            if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                         level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -5221,6 +5323,22 @@
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
                         level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+            }
+            else {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+                else {
+                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
@@ -5247,7 +5365,7 @@
                 else {
                     this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
                 }
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
                     this.__setUniformBuffer(gl, shaderProgramUid);
                 }
                 else {
@@ -5285,9 +5403,13 @@
             ];
             this.__componentRepository = ComponentRepository.getInstance();
             this.__renderingPipeline = WebGLRenderingPipeline;
+            this.__processApproach = ProcessApproach.None;
         }
         System.prototype.process = function () {
             var _this = this;
+            if (this.__processApproach === ProcessApproach.None) {
+                throw new Error('Choose a process approach first.');
+            }
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
                 var args = [];
@@ -5310,6 +5432,26 @@
                 });
             });
         };
+        System.prototype.setProcessApproachAndCanvas = function (approach, canvas) {
+            var repo = WebGLResourceRepository.getInstance();
+            var gl;
+            if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+                gl = canvas.getContext('webgl2');
+            }
+            else {
+                gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            }
+            repo.addWebGLContext(gl, true);
+            this.__processApproach = approach;
+            return gl;
+        };
+        Object.defineProperty(System.prototype, "processApproach", {
+            get: function () {
+                return this.__processApproach;
+            },
+            enumerable: true,
+            configurable: true
+        });
         System.getInstance = function () {
             if (!this.__instance) {
                 this.__instance = new System();
@@ -5337,6 +5479,7 @@
         Vector4: Vector4,
         Matrix33: Matrix33,
         Matrix44: Matrix44,
+        ProcessApproach: ProcessApproach
     });
     window['Rn'] = Rn;
 

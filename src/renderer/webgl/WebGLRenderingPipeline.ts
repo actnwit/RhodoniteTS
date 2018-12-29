@@ -15,6 +15,8 @@ import { MathUtil } from "../../math/MathUtil";
 import SceneGraphComponent from "../../components/SceneGraphComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
 import GLSLShader from "./GLSLShader";
+import System from "../../system/System";
+import { ProcessApproach } from "../../definitions/ProcessApproach";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -31,7 +33,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
     let vertexShader = GLSLShader.vertexShaderWebGL1;
     let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+    if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
       vertexShader = GLSLShader.vertexShaderWebGL2;
       fragmentShader = GLSLShader.fragmentShaderWebGL2;
     }
@@ -51,17 +53,13 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       throw new Error('No WebGLRenderingContext!');
     }
 
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-      this.__createUBO();
-    } else {
-      this.__createDataTexture();
-    }
+    this.__setupGeometryData();
 
     if (this.__isReady()) {
       return 0;
     }
 
-    this.__createInstanceIDBuffer();
+    this.__setupInstanceIDBuffer();
 
     return this.__instanceIDBufferUid;
   }
@@ -74,7 +72,15 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     }
   }
 
-  private __createInstanceIDBuffer() {
+  private __setupGeometryData() {
+    if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+      this.__setupUBO();
+    } else {
+      this.__setupDataTexture();
+    }
+  }
+
+  private __setupInstanceIDBuffer() {
     const buffer = MemoryManager.getInstance().getBufferForCPU();
     const count = EntityRepository.getMaxEntityNumber();
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
@@ -88,7 +94,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
-  private __createUBO() {
+  private __setupUBO() {
     const isHalfFloatMode = false;
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBufferForGPU();
@@ -123,9 +129,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-  private __createDataTexture() {
+  private __setupDataTexture() {
     let isHalfFloatMode = false;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
+      this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
       isHalfFloatMode = true;
     }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
@@ -133,13 +140,11 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
     let halfFloatDataTextureBuffer: Uint16Array;
     if (isHalfFloatMode) {
-      if (!this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-        let convertLength = buffer.byteSizeInUse / 4; //components
-        convertLength /= 2; // bytes
-        for (let i=0; i<convertLength; i++) {
-          halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-        }
+      halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+      let convertLength = buffer.byteSizeInUse / 4; //components
+      convertLength /= 2; // bytes
+      for (let i=0; i<convertLength; i++) {
+        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
       }
     }
 
@@ -231,7 +236,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
         this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
       }
 
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
         this.__setUniformBuffer(gl, shaderProgramUid)
       } else {
         this.__setDataTexture(gl, shaderProgram);

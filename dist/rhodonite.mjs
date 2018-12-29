@@ -154,6 +154,14 @@ class WebGLContextWrapper {
     getRawContext() {
         return this.__gl;
     }
+    isSupportWebGL1Extension(webGLExtension) {
+        if (this.__getExtension(webGLExtension)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     get isWebGL2() {
         if (this.__webglVersion === 2) {
             return true;
@@ -3660,8 +3668,67 @@ class RowMajarMatrix44 {
         var sin = Math.sin(radian);
         return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
-    static rotateXYZ(x, y, z) {
-        return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
+    rotateXYZ(x, y, z) {
+        var cosX = Math.cos(x);
+        var sinX = Math.sin(x);
+        var cosY = Math.cos(y);
+        var sinY = Math.sin(y);
+        var cosZ = Math.cos(z);
+        var sinZ = Math.sin(z);
+        const xm00 = 1;
+        //const xm01 = 0;
+        //const xm02 = 0;
+        //const xm10 = 0;
+        const xm11 = cosX;
+        const xm12 = -sinX;
+        //const xm20 = 0;
+        const xm21 = sinX;
+        const xm22 = cosX;
+        const ym00 = cosY;
+        //const ym01 = 0;
+        const ym02 = sinY;
+        //const ym10 = 0;
+        const ym11 = 1;
+        //const ym12 = 0;
+        const ym20 = -sinY;
+        //const ym21 = 0;
+        const ym22 = cosY;
+        const zm00 = cosZ;
+        const zm01 = -sinZ;
+        //const zm02 = 0;
+        const zm10 = sinZ;
+        const zm11 = cosZ;
+        //const zm12 = 0;
+        //const zm20 = 0;
+        //const zm21 = 0;
+        const zm22 = 1;
+        const yxm00 = ym00 * xm00;
+        const yxm01 = ym02 * xm21;
+        const yxm02 = ym02 * xm22;
+        //const yxm10 = 0;
+        const yxm11 = ym11 * xm11;
+        const yxm12 = ym11 * xm12;
+        const yxm20 = ym20 * xm00;
+        const yxm21 = ym22 * xm21;
+        const yxm22 = ym22 * xm22;
+        this.m[0] = zm00 * yxm00;
+        this.m[1] = zm00 * yxm01 + zm01 * yxm11;
+        this.m[2] = zm00 * yxm02 + zm01 * yxm12;
+        this.m[3] = 0;
+        this.m[4] = zm10 * yxm00;
+        this.m[5] = zm10 * yxm01 + zm11 * yxm11;
+        this.m[6] = zm10 * yxm02 + zm11 * yxm12;
+        this.m[7] = 0;
+        this.m[8] = zm22 * yxm20;
+        this.m[9] = zm22 * yxm21;
+        this.m[10] = zm22 * yxm22;
+        this.m[11] = 0;
+        this.m[12] = 0;
+        this.m[13] = 0;
+        this.m[14] = 0;
+        this.m[15] = 1;
+        return this;
+        //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -4481,6 +4548,18 @@ const toHalfFloat = (function () {
 }());
 const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
 
+class ProcessApproachClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2 });
+
 const WebGLRenderingPipeline = new class {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -4496,7 +4575,7 @@ const WebGLRenderingPipeline = new class {
         }
         let vertexShader = GLSLShader.vertexShaderWebGL1;
         let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
             vertexShader = GLSLShader.vertexShaderWebGL2;
             fragmentShader = GLSLShader.fragmentShaderWebGL2;
         }
@@ -4507,16 +4586,11 @@ const WebGLRenderingPipeline = new class {
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
-        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-            this.__createUBO();
-        }
-        else {
-            this.__createDataTexture();
-        }
+        this.__setupGeometryData();
         if (this.__isReady()) {
             return 0;
         }
-        this.__createInstanceIDBuffer();
+        this.__setupInstanceIDBuffer();
         return this.__instanceIDBufferUid;
     }
     __isReady() {
@@ -4527,7 +4601,15 @@ const WebGLRenderingPipeline = new class {
             return false;
         }
     }
-    __createInstanceIDBuffer() {
+    __setupGeometryData() {
+        if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
+            this.__setupUBO();
+        }
+        else {
+            this.__setupDataTexture();
+        }
+    }
+    __setupInstanceIDBuffer() {
         const buffer = MemoryManager.getInstance().getBufferForCPU();
         const count = EntityRepository.getMaxEntityNumber();
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
@@ -4538,7 +4620,7 @@ const WebGLRenderingPipeline = new class {
         }
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
-    __createUBO() {
+    __setupUBO() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -4551,24 +4633,27 @@ const WebGLRenderingPipeline = new class {
         }
         this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
-    __createDataTexture() {
+    __setupDataTexture() {
+        let isHalfFloatMode = false;
+        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
+            this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+            isHalfFloatMode = true;
+        }
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBufferForGPU();
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         let halfFloatDataTextureBuffer;
-        {
-            if (!this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-                let convertLength = buffer.byteSizeInUse / 4; //components
-                convertLength /= 2; // bytes
-                for (let i = 0; i < convertLength; i++) {
-                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-                }
+        if (isHalfFloatMode) {
+            halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+            let convertLength = buffer.byteSizeInUse / 4; //components
+            convertLength /= 2; // bytes
+            for (let i = 0; i < convertLength; i++) {
+                halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
             }
         }
         // if already
         if (this.__dataTextureUid !== 0) {
-            {
+            if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
                         level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -4582,9 +4667,23 @@ const WebGLRenderingPipeline = new class {
                     });
                 }
             }
+            else {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.Float
+                    });
+                }
+                else {
+                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        format: PixelFormat.RGBA, type: ComponentType.Float
+                    });
+                }
+            }
             return;
         }
-        {
+        if (isHalfFloatMode) {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                     level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
@@ -4596,6 +4695,22 @@ const WebGLRenderingPipeline = new class {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
                     level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+        }
+        else {
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+            else {
+                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
@@ -4622,7 +4737,7 @@ const WebGLRenderingPipeline = new class {
             else {
                 this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
             }
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+            if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
                 this.__setUniformBuffer(gl, shaderProgramUid);
             }
             else {
@@ -4659,8 +4774,12 @@ class System {
         ];
         this.__componentRepository = ComponentRepository.getInstance();
         this.__renderingPipeline = WebGLRenderingPipeline;
+        this.__processApproach = ProcessApproach.None;
     }
     process() {
+        if (this.__processApproach === ProcessApproach.None) {
+            throw new Error('Choose a process approach first.');
+        }
         this.__processStages.forEach(stage => {
             const methodName = stage.getMethodName();
             const args = [];
@@ -4682,6 +4801,22 @@ class System {
                 });
             });
         });
+    }
+    setProcessApproachAndCanvas(approach, canvas) {
+        const repo = WebGLResourceRepository.getInstance();
+        let gl;
+        if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+            gl = canvas.getContext('webgl2');
+        }
+        else {
+            gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        }
+        repo.addWebGLContext(gl, true);
+        this.__processApproach = approach;
+        return gl;
+    }
+    get processApproach() {
+        return this.__processApproach;
     }
     static getInstance() {
         if (!this.__instance) {
@@ -4709,6 +4844,7 @@ const Rn = Object.freeze({
     Vector4,
     Matrix33,
     Matrix44,
+    ProcessApproach
 });
 window['Rn'] = Rn;
 
