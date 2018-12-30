@@ -8,6 +8,7 @@ import { ComponentType } from "../../definitions/ComponentType";
 import { TextureParameter } from "../../definitions/TextureParameter";
 import SceneGraphComponent from "../../components/SceneGraphComponent";
 import GLSLShader from "./GLSLShader";
+import { BufferUse } from "../../definitions/BufferUse";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -49,7 +50,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   setupGPUData(): void {
     const isHalfFloatMode = false;
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPUInstanceData();
+    const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
     let halfFloatDataTextureBuffer: Uint16Array;
     if (isHalfFloatMode) {

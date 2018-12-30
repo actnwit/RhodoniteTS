@@ -2985,6 +2985,16 @@ class Buffer extends RnObject {
     }
 }
 
+class BufferUseClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
+const GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
+const CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
+const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, CPUGeneric });
+
 /**
  * Usage
  * const mm = MemoryManager.getInstance();
@@ -2995,16 +3005,16 @@ class Buffer extends RnObject {
 class MemoryManager {
     constructor() {
         //__entityMaxCount: number;
-        this.__buffers = new Map();
+        this.__buffers = {};
         // BufferForGPUInstanceData
         {
             const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
-                name: 'BufferForGPUInstanceData'
+                name: BufferUse.GPUInstanceData.toString()
             });
-            this.__buffers.set(buffer.objectUid, buffer);
+            this.__buffers[buffer.name] = buffer;
             this.__bufferForGPUInstanceData = buffer;
         }
         // BufferForGPUVertexData
@@ -3013,9 +3023,9 @@ class MemoryManager {
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
-                name: 'BufferForGPUVertexData'
+                name: BufferUse.GPUVertexData.toString()
             });
-            this.__buffers.set(buffer.objectUid, buffer);
+            this.__buffers[buffer.name] = buffer;
             this.__bufferForGPUVertexData = buffer;
         }
         // BufferForCPU
@@ -3024,9 +3034,9 @@ class MemoryManager {
             const buffer = new Buffer({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
-                name: 'BufferForCPU'
+                name: BufferUse.CPUGeneric.toString()
             });
-            this.__buffers.set(buffer.objectUid, buffer);
+            this.__buffers[buffer.name] = buffer;
             this.__bufferForCPU = buffer;
         }
     }
@@ -3036,14 +3046,8 @@ class MemoryManager {
         }
         return this.__instance;
     }
-    getBufferForGPUInstanceData() {
-        return this.__bufferForGPUInstanceData;
-    }
-    getBufferForGPUVertexData() {
-        return this.__bufferForGPUVertexData;
-    }
-    getBufferForCPU() {
-        return this.__bufferForCPU;
+    getBuffer(bufferUse) {
+        return this.__buffers[bufferUse.toString()];
     }
     static get bufferLengthOfOneSide() {
         return MemoryManager.__bufferLengthOfOneSide;
@@ -3114,7 +3118,7 @@ class TransformComponent extends Component {
     }
     static setupBufferView() {
         const thisClass = TransformComponent;
-        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
         const count = EntityRepository.getMaxEntityNumber();
         thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         // accessors
@@ -4134,7 +4138,7 @@ class SceneGraphComponent extends Component {
     }
     static setupBufferView() {
         const thisClass = SceneGraphComponent;
-        const buffer = MemoryManager.getInstance().getBufferForGPUInstanceData();
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
         const count = EntityRepository.getMaxEntityNumber();
         thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
@@ -4296,7 +4300,7 @@ class Primitive extends RnObject {
         this.__indicesComponentType = indicesComponentType;
     }
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
-        const buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
         let indicesComponentType;
         let indicesBufferView;
         let indicesAccessor;
@@ -4368,11 +4372,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$4({ index }) {
-    return _from({ typeList: typeList$4, index });
+const typeList$5 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$5({ index }) {
+    return _from({ typeList: typeList$5, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$5 });
 
 class GLSLShader {
     static get glsl_rt0() {
@@ -4500,11 +4504,11 @@ const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodNam
 const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
 const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
 const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-const typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$5({ index }) {
-    return _from({ typeList: typeList$5, index });
+const typeList$6 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$6({ index }) {
+    return _from({ typeList: typeList$6, index });
 }
-const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$6 });
 
 class ProcessApproachClass extends EnumClass {
     constructor({ index, str }) {
@@ -4596,7 +4600,7 @@ class WebGLStrategyUBO {
     }
     setupGPUData() {
         const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForGPUInstanceData();
+        const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
             if (this.__uboUid !== 0) {
@@ -4737,7 +4741,7 @@ class WebGLStrategyDataTexture {
             isHalfFloatMode = true;
         }
         const memoryManager = MemoryManager.getInstance();
-        const buffer = memoryManager.getBufferForGPUInstanceData();
+        const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         let halfFloatDataTextureBuffer;
         if (isHalfFloatMode) {
@@ -4875,7 +4879,7 @@ const WebGLRenderingPipeline = new class {
         }
     }
     __setupInstanceIDBuffer() {
-        const buffer = MemoryManager.getInstance().getBufferForCPU();
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
         const count = EntityRepository.getMaxEntityNumber();
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
         const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });

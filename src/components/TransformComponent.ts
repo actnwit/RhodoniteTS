@@ -16,6 +16,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
+import { BufferUse } from '../definitions/BufferUse';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -90,7 +91,7 @@ export default class TransformComponent extends Component {
 
   static setupBufferView() {
     const thisClass = TransformComponent;
-    const buffer = MemoryManager.getInstance().getBufferForCPU();
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
     const count = EntityRepository.getMaxEntityNumber();
     thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 

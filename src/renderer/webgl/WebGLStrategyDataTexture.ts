@@ -7,6 +7,7 @@ import { PixelFormat } from "../../definitions/PixelFormat";
 import { ComponentType } from "../../definitions/ComponentType";
 import { TextureParameter } from "../../definitions/TextureParameter";
 import GLSLShader from "./GLSLShader";
+import { BufferUse } from "../../definitions/BufferUse";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -85,7 +86,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       isHalfFloatMode = true;
     }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPUInstanceData();
+    const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
     let halfFloatDataTextureBuffer: Uint16Array;
     if (isHalfFloatMode) {

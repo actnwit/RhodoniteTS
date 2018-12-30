@@ -3472,6 +3472,19 @@
         return Buffer;
     }(RnObject));
 
+    var BufferUseClass = /** @class */ (function (_super) {
+        __extends(BufferUseClass, _super);
+        function BufferUseClass(_a) {
+            var index = _a.index, str = _a.str;
+            return _super.call(this, { index: index, str: str }) || this;
+        }
+        return BufferUseClass;
+    }(EnumClass));
+    var GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
+    var GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
+    var CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
+    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, CPUGeneric: CPUGeneric });
+
     /**
      * Usage
      * const mm = MemoryManager.getInstance();
@@ -3482,16 +3495,16 @@
     var MemoryManager = /** @class */ (function () {
         function MemoryManager() {
             //__entityMaxCount: number;
-            this.__buffers = new Map();
+            this.__buffers = {};
             // BufferForGPUInstanceData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
-                    name: 'BufferForGPUInstanceData'
+                    name: BufferUse.GPUInstanceData.toString()
                 });
-                this.__buffers.set(buffer.objectUid, buffer);
+                this.__buffers[buffer.name] = buffer;
                 this.__bufferForGPUInstanceData = buffer;
             }
             // BufferForGPUVertexData
@@ -3500,9 +3513,9 @@
                 var buffer = new Buffer({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
-                    name: 'BufferForGPUVertexData'
+                    name: BufferUse.GPUVertexData.toString()
                 });
-                this.__buffers.set(buffer.objectUid, buffer);
+                this.__buffers[buffer.name] = buffer;
                 this.__bufferForGPUVertexData = buffer;
             }
             // BufferForCPU
@@ -3511,9 +3524,9 @@
                 var buffer = new Buffer({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
-                    name: 'BufferForCPU'
+                    name: BufferUse.CPUGeneric.toString()
                 });
-                this.__buffers.set(buffer.objectUid, buffer);
+                this.__buffers[buffer.name] = buffer;
                 this.__bufferForCPU = buffer;
             }
         }
@@ -3523,14 +3536,8 @@
             }
             return this.__instance;
         };
-        MemoryManager.prototype.getBufferForGPUInstanceData = function () {
-            return this.__bufferForGPUInstanceData;
-        };
-        MemoryManager.prototype.getBufferForGPUVertexData = function () {
-            return this.__bufferForGPUVertexData;
-        };
-        MemoryManager.prototype.getBufferForCPU = function () {
-            return this.__bufferForCPU;
+        MemoryManager.prototype.getBuffer = function (bufferUse) {
+            return this.__buffers[bufferUse.toString()];
         };
         Object.defineProperty(MemoryManager, "bufferLengthOfOneSide", {
             get: function () {
@@ -3637,7 +3644,7 @@
         });
         TransformComponent.setupBufferView = function () {
             var thisClass = TransformComponent;
-            var buffer = MemoryManager.getInstance().getBufferForCPU();
+            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
             var count = EntityRepository.getMaxEntityNumber();
             thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
             // accessors
@@ -4803,7 +4810,7 @@
         });
         SceneGraphComponent.setupBufferView = function () {
             var thisClass = SceneGraphComponent;
-            var buffer = MemoryManager.getInstance().getBufferForGPUInstanceData();
+            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
             var count = EntityRepository.getMaxEntityNumber();
             thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
             thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
@@ -4991,7 +4998,7 @@
         }
         Primitive.createPrimitive = function (_a) {
             var indices = _a.indices, attributeCompositionTypes = _a.attributeCompositionTypes, attributeSemantics = _a.attributeSemantics, attributes = _a.attributes, material = _a.material, primitiveMode = _a.primitiveMode;
-            var buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
+            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
             var indicesComponentType;
             var indicesBufferView;
             var indicesAccessor;
@@ -5091,12 +5098,12 @@
     var Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
     var TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
     var TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-    var typeList$4 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-    function from$4(_a) {
+    var typeList$5 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+    function from$5(_a) {
         var index = _a.index;
-        return _from({ typeList: typeList$4, index: index });
+        return _from({ typeList: typeList$5, index: index });
     }
-    var PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$4 });
+    var PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$5 });
 
     var GLSLShader = /** @class */ (function () {
         function GLSLShader() {
@@ -5241,12 +5248,12 @@
     var Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
     var Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
     var Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-    var typeList$5 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-    function from$5(_a) {
+    var typeList$6 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+    function from$6(_a) {
         var index = _a.index;
-        return _from({ typeList: typeList$5, index: index });
+        return _from({ typeList: typeList$6, index: index });
     }
-    var ProcessStage = Object.freeze({ Unknown: Unknown$4, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
+    var ProcessStage = Object.freeze({ Unknown: Unknown$4, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$6 });
 
     var ProcessApproachClass = /** @class */ (function (_super) {
         __extends(ProcessApproachClass, _super);
@@ -5333,7 +5340,7 @@
         };
         WebGLStrategyUBO.prototype.setupGPUData = function () {
             var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBufferForGPUInstanceData();
+            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
                 if (this.__uboUid !== 0) {
@@ -5444,7 +5451,7 @@
                 isHalfFloatMode = true;
             }
             var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBufferForGPUInstanceData();
+            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             var halfFloatDataTextureBuffer;
             if (isHalfFloatMode) {
@@ -5581,7 +5588,7 @@
             }
         };
         class_1.prototype.__setupInstanceIDBuffer = function () {
-            var buffer = MemoryManager.getInstance().getBufferForCPU();
+            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
             var count = EntityRepository.getMaxEntityNumber();
             var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
             var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });

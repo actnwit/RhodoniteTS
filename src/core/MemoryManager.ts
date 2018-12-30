@@ -1,4 +1,5 @@
 import Buffer from '../memory/Buffer';
+import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 
 /**
  * Usage
@@ -11,7 +12,7 @@ import Buffer from '../memory/Buffer';
 export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
-  private __buffers: Map<ObjectUID, Buffer> = new Map();
+  private __buffers: {[s: string]: Buffer} = {};
   private __bufferForGPUInstanceData: Buffer;
   private __bufferForGPUVertexData: Buffer;
   private __bufferForCPU: Buffer;
@@ -25,8 +26,8 @@ export default class MemoryManager {
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: 'BufferForGPUInstanceData'});
-      this.__buffers.set(buffer.objectUid, buffer);
+        name: BufferUse.GPUInstanceData.toString()});
+      this.__buffers[buffer.name] = buffer;
       this.__bufferForGPUInstanceData = buffer;
     }
 
@@ -36,8 +37,8 @@ export default class MemoryManager {
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: 'BufferForGPUVertexData'});
-      this.__buffers.set(buffer.objectUid, buffer);
+        name: BufferUse.GPUVertexData.toString()});
+      this.__buffers[buffer.name] = buffer;
       this.__bufferForGPUVertexData = buffer;
     }
 
@@ -47,8 +48,8 @@ export default class MemoryManager {
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: 'BufferForCPU'});
-      this.__buffers.set(buffer.objectUid, buffer);
+        name: BufferUse.CPUGeneric.toString()});
+      this.__buffers[buffer.name] = buffer;
       this.__bufferForCPU = buffer;
     }
 
@@ -61,16 +62,8 @@ export default class MemoryManager {
     return this.__instance;
   }
 
-  getBufferForGPUInstanceData(): Buffer {
-    return this.__bufferForGPUInstanceData;
-  }
-
-  getBufferForGPUVertexData(): Buffer {
-    return this.__bufferForGPUVertexData;
-  }
-
-  getBufferForCPU(): Buffer {
-    return this.__bufferForCPU;
+  getBuffer(bufferUse: BufferUseEnum): Buffer {
+    return this.__buffers[bufferUse.toString()];
   }
 
   static get bufferLengthOfOneSide(): Size {

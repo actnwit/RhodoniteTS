@@ -12,6 +12,7 @@ import { ProcessApproach, ProcessApproachEnum } from "../../definitions/ProcessA
 import WebGLStrategyUBO from "./WebGLStrategyUBO";
 import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
 import WebGLContextWrapper from "./WebGLContextWrapper";
+import { BufferUse } from "../../definitions/BufferUse";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -59,7 +60,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __setupInstanceIDBuffer() {
-    const buffer = MemoryManager.getInstance().getBufferForCPU();
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
     const count = EntityRepository.getMaxEntityNumber();
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
     const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});

@@ -7,6 +7,7 @@ import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
+import { BufferUse } from '../definitions/BufferUse';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
@@ -59,7 +60,7 @@ export default class Primitive extends RnObject {
     })
   {
 
-    const buffer = MemoryManager.getInstance().getBufferForGPUVertexData();
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
 
     let indicesComponentType;
     let indicesBufferView;
