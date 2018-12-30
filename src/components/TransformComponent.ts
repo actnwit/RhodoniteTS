@@ -16,12 +16,13 @@ import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
-import { BufferUse } from '../definitions/BufferUse';
+import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  private static __bufferViewOfBufferForCPU: BufferView;
+  //private static __bufferViewOfBufferForCPU: BufferView;
+  private static __bufferViews: {[s:string]: BufferView} = {};
   private static __accessors: { [s: string]: Accessor } = {};
   private _translate: Vector3;
   private _rotate: Vector3;
@@ -93,7 +94,8 @@ export default class TransformComponent extends Component {
     const thisClass = TransformComponent;
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
     const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
+    thisClass.__bufferViews[BufferUse.CPUGeneric.toString()] =
+      buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 
     // accessors
     this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
@@ -106,11 +108,11 @@ export default class TransformComponent extends Component {
 
   static takeAccessor(memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const count = EntityRepository.getMaxEntityNumber();
-    this.__accessors[memberName] = this.__bufferViewOfBufferForCPU.takeAccessor({compositionType: compositionType, componentType, count: count});
+    this.__accessors[memberName] = this.__bufferViews[BufferUse.CPUGeneric.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});
   }
 
-  static get byteOffsetOfThisComponentTypeInBufferForCPU(): Byte {
-    return this.__bufferViewOfBufferForCPU.byteOffset;
+  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum): Byte {
+    return this.__bufferViews[bufferUse.toString()]!.byteOffset;
   }
 
   static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {

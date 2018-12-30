@@ -3120,7 +3120,8 @@ class TransformComponent extends Component {
         const thisClass = TransformComponent;
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
         const count = EntityRepository.getMaxEntityNumber();
-        thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+        thisClass.__bufferViews[BufferUse.CPUGeneric.toString()] =
+            buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         // accessors
         this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
         this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
@@ -3130,10 +3131,10 @@ class TransformComponent extends Component {
     }
     static takeAccessor(memberName, compositionType, componentType) {
         const count = EntityRepository.getMaxEntityNumber();
-        this.__accessors[memberName] = this.__bufferViewOfBufferForCPU.takeAccessor({ compositionType: compositionType, componentType, count: count });
+        this.__accessors[memberName] = this.__bufferViews[BufferUse.CPUGeneric.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count });
     }
-    static get byteOffsetOfThisComponentTypeInBufferForCPU() {
-        return this.__bufferViewOfBufferForCPU.byteOffset;
+    static getByteOffsetOfThisComponentTypeInBuffer(bufferUse) {
+        return this.__bufferViews[bufferUse.toString()].byteOffset;
     }
     static getByteOffsetOfFirstOfThisMemberInBuffer(memberName) {
         return this.__accessors[memberName].byteOffsetInBuffer;
@@ -3510,6 +3511,8 @@ class TransformComponent extends Component {
         return new Matrix44(this.quaternion);
     }
 }
+//private static __bufferViewOfBufferForCPU: BufferView;
+TransformComponent.__bufferViews = {};
 TransformComponent.__accessors = {};
 TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
 TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();

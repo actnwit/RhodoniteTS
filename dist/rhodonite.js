@@ -3646,7 +3646,8 @@
             var thisClass = TransformComponent;
             var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
             var count = EntityRepository.getMaxEntityNumber();
-            thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+            thisClass.__bufferViews[BufferUse.CPUGeneric.toString()] =
+                buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
             // accessors
             this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
             this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
@@ -3656,15 +3657,11 @@
         };
         TransformComponent.takeAccessor = function (memberName, compositionType, componentType) {
             var count = EntityRepository.getMaxEntityNumber();
-            this.__accessors[memberName] = this.__bufferViewOfBufferForCPU.takeAccessor({ compositionType: compositionType, componentType: componentType, count: count });
+            this.__accessors[memberName] = this.__bufferViews[BufferUse.CPUGeneric.toString()].takeAccessor({ compositionType: compositionType, componentType: componentType, count: count });
         };
-        Object.defineProperty(TransformComponent, "byteOffsetOfThisComponentTypeInBufferForCPU", {
-            get: function () {
-                return this.__bufferViewOfBufferForCPU.byteOffset;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        TransformComponent.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse) {
+            return this.__bufferViews[bufferUse.toString()].byteOffset;
+        };
         TransformComponent.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName) {
             return this.__accessors[memberName].byteOffsetInBuffer;
         };
@@ -4099,6 +4096,8 @@
             enumerable: true,
             configurable: true
         });
+        //private static __bufferViewOfBufferForCPU: BufferView;
+        TransformComponent.__bufferViews = {};
         TransformComponent.__accessors = {};
         TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
         TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
