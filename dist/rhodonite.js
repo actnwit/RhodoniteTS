@@ -3650,6 +3650,28 @@
         Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName) {
             return this.__accessors[memberName].byteOffsetInBufferView;
         };
+        Component.getCompositionTypeOfMember = function (memberName) {
+            var info = this.__memberInfoArray.find(function (info) {
+                return info.memberName === memberName;
+            });
+            if (info != null) {
+                return info.compositionType;
+            }
+            else {
+                return null;
+            }
+        };
+        Component.getComponentTypeOfMember = function (memberName) {
+            var info = this.__memberInfoArray.find(function (info) {
+                return info.memberName === memberName;
+            });
+            if (info != null) {
+                return info.componentType;
+            }
+            else {
+                return null;
+            }
+        };
         Component.registerMember = function (bufferUse, memberName, compositionType, componentType) {
             this.__memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
         };

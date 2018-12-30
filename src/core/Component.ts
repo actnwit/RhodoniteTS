@@ -80,6 +80,27 @@ export default class Component {
     return this.__accessors[memberName].byteOffsetInBufferView;
   }
 
+  static getCompositionTypeOfMember(memberName: string): CompositionTypeEnum | null {
+    const info = this.__memberInfoArray.find(info=>{
+      return info.memberName === memberName;
+    });
+    if (info != null) {
+      return info.compositionType;
+    } else {
+      return null;
+    }
+  }
+
+  static getComponentTypeOfMember(memberName: string): ComponentTypeEnum | null {
+    const info = this.__memberInfoArray.find(info=>{
+      return info.memberName === memberName;
+    });
+    if (info != null) {
+      return info.componentType;
+    } else {
+      return null;
+    }
+  }
   static registerMember(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     this.__memberInfoArray.push({bufferUse, memberName, compositionType, componentType})
   }

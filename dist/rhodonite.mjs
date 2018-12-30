@@ -3140,6 +3140,28 @@ class Component {
     static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
         return this.__accessors[memberName].byteOffsetInBufferView;
     }
+    static getCompositionTypeOfMember(memberName) {
+        const info = this.__memberInfoArray.find(info => {
+            return info.memberName === memberName;
+        });
+        if (info != null) {
+            return info.compositionType;
+        }
+        else {
+            return null;
+        }
+    }
+    static getComponentTypeOfMember(memberName) {
+        const info = this.__memberInfoArray.find(info => {
+            return info.memberName === memberName;
+        });
+        if (info != null) {
+            return info.componentType;
+        }
+        else {
+            return null;
+        }
+    }
     static registerMember(bufferUse, memberName, compositionType, componentType) {
         this.__memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
     }
