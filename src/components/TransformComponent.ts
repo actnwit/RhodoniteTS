@@ -15,11 +15,13 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  private static __bufferView: BufferView;
+  private static __bufferViewOfBufferForCPU: BufferView;
+  private static __accessors: { [s: string]: Accessor } = {};
   private _translate: Vector3;
   private _rotate: Vector3;
   private _scale: Vector3;
@@ -55,9 +57,9 @@ export default class TransformComponent extends Component {
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
-    this._quaternion = new Quaternion(thisClass.__accesseor_quaternion.takeOne());
+    this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float32Array, false, true);
+    this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -90,11 +92,32 @@ export default class TransformComponent extends Component {
     const thisClass = TransformComponent;
     const buffer = MemoryManager.getInstance().getBufferForCPU();
     const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
+    thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 
     // accessors
-    thisClass.__accesseor_matrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
-    thisClass.__accesseor_quaternion = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Double, count: count});
+    this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
+    this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
+  }
+
+  static takeOne(memberName: string): any {
+    return this.__accessors['matrix'].takeOne();
+  }
+
+  static takeAccessor(memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+    const count = EntityRepository.getMaxEntityNumber();
+    this.__accessors[memberName] = this.__bufferViewOfBufferForCPU.takeAccessor({compositionType: compositionType, componentType, count: count});
+  }
+
+  static get byteOffsetOfThisComponentTypeInBufferForCPU(): Byte {
+    return this.__bufferViewOfBufferForCPU.byteOffset;
+  }
+
+  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {
+    return this.__accessors[memberName].byteOffsetInBuffer;
+  }
+
+  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string): Byte {
+    return this.__accessors[memberName].byteOffsetInBufferView;
   }
 
   $create() {

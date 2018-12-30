@@ -3087,9 +3087,9 @@ class TransformComponent extends Component {
         this._translate = Vector3.zero();
         this._rotate = Vector3.zero();
         this._scale = new Vector3(1, 1, 1);
-        this._quaternion = new Quaternion(thisClass.__accesseor_quaternion.takeOne());
+        this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
         this._quaternion.identity();
-        this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne(), false, true);
+        this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
         this._matrix.identity();
         this._invMatrix = Matrix44.identity();
         this._normalMatrix = Matrix33.identity();
@@ -3116,10 +3116,26 @@ class TransformComponent extends Component {
         const thisClass = TransformComponent;
         const buffer = MemoryManager.getInstance().getBufferForCPU();
         const count = EntityRepository.getMaxEntityNumber();
-        thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+        thisClass.__bufferViewOfBufferForCPU = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
         // accessors
-        thisClass.__accesseor_matrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count });
-        thisClass.__accesseor_quaternion = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Double, count: count });
+        this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
+        this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
+    }
+    static takeOne(memberName) {
+        return this.__accessors['matrix'].takeOne();
+    }
+    static takeAccessor(memberName, compositionType, componentType) {
+        const count = EntityRepository.getMaxEntityNumber();
+        this.__accessors[memberName] = this.__bufferViewOfBufferForCPU.takeAccessor({ compositionType: compositionType, componentType, count: count });
+    }
+    static get byteOffsetOfThisComponentTypeInBufferForCPU() {
+        return this.__bufferViewOfBufferForCPU.byteOffset;
+    }
+    static getByteOffsetOfFirstOfThisMemberInBuffer(memberName) {
+        return this.__accessors[memberName].byteOffsetInBuffer;
+    }
+    static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
+        return this.__accessors[memberName].byteOffsetInBufferView;
     }
     $create() {
         // Define process dependencies with other components.
@@ -3490,6 +3506,7 @@ class TransformComponent extends Component {
         return new Matrix44(this.quaternion);
     }
 }
+TransformComponent.__accessors = {};
 TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
 TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
