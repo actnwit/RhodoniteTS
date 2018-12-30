@@ -41,8 +41,8 @@ export default class Component {
     return this.__entityUid;
   }
 
-  static get byteSizeOfThisComponent() {
-    return 0;
+  static getByteLengthSumOfMembers(bufferUse: BufferUseEnum) {
+    return this.__byteLengthSumOfMembers[bufferUse.toString()];
   }
 
   static setupBufferView() {

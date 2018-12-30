@@ -3111,8 +3111,8 @@ class Component {
     get entityUID() {
         return this.__entityUid;
     }
-    static get byteSizeOfThisComponent() {
-        return 0;
+    static getByteLengthSumOfMembers(bufferUse) {
+        return this.__byteLengthSumOfMembers[bufferUse.toString()];
     }
     static setupBufferView() {
     }
@@ -3207,15 +3207,10 @@ class TransformComponent extends Component {
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
-    static get byteSizeOfThisComponent() {
-        return 160;
-    }
     static setupBufferView() {
-        // bufferView
-        this.takeBufferViewer(BufferUse.CPUGeneric);
-        // accessors
-        this.takeAccessor(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-        this.takeAccessor(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+        this.submitToAllocation();
     }
     $create() {
         // Define process dependencies with other components.
@@ -4208,14 +4203,9 @@ class SceneGraphComponent extends Component {
     static get componentTID() {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
-    static get byteSizeOfThisComponent() {
-        return 128;
-    }
     static setupBufferView() {
-        // bufferView
-        this.takeBufferViewer(BufferUse.GPUInstanceData);
-        // accessors
-        this.takeAccessor(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation();
     }
     static getWorldMatrixAccessor() {
         return SceneGraphComponent.__accesseor_worldMatrix;

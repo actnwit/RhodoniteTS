@@ -40,17 +40,12 @@ export default class SceneGraphComponent extends Component {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
-  static get byteSizeOfThisComponent() {
-    return 128;
-  }
-
   static setupBufferView() {
 
-    // bufferView
-    this.takeBufferViewer(BufferUse.GPUInstanceData);
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
 
-    // accessors
-    this.takeAccessor(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+    this.submitToAllocation();
+
   }
 
   static getWorldMatrixAccessor() {

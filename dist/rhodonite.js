@@ -3621,13 +3621,9 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Component, "byteSizeOfThisComponent", {
-            get: function () {
-                return 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        Component.getByteLengthSumOfMembers = function (bufferUse) {
+            return this.__byteLengthSumOfMembers[bufferUse.toString()];
+        };
         Component.setupBufferView = function () {
         };
         Component.prototype.registerDependency = function (component, isMust) {
@@ -3737,19 +3733,10 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TransformComponent, "byteSizeOfThisComponent", {
-            get: function () {
-                return 160;
-            },
-            enumerable: true,
-            configurable: true
-        });
         TransformComponent.setupBufferView = function () {
-            // bufferView
-            this.takeBufferViewer(BufferUse.CPUGeneric);
-            // accessors
-            this.takeAccessor(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-            this.takeAccessor(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+            this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+            this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+            this.submitToAllocation();
         };
         TransformComponent.prototype.$create = function () {
             // Define process dependencies with other components.
@@ -4880,18 +4867,9 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(SceneGraphComponent, "byteSizeOfThisComponent", {
-            get: function () {
-                return 128;
-            },
-            enumerable: true,
-            configurable: true
-        });
         SceneGraphComponent.setupBufferView = function () {
-            // bufferView
-            this.takeBufferViewer(BufferUse.GPUInstanceData);
-            // accessors
-            this.takeAccessor(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+            this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+            this.submitToAllocation();
         };
         SceneGraphComponent.getWorldMatrixAccessor = function () {
             return SceneGraphComponent.__accesseor_worldMatrix;

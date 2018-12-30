@@ -81,18 +81,12 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  static get byteSizeOfThisComponent() {
-    return 160;
-  }
-
   static setupBufferView() {
 
-    // bufferView
-    this.takeBufferViewer(BufferUse.CPUGeneric);
+    this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
 
-    // accessors
-    this.takeAccessor(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-    this.takeAccessor(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+    this.submitToAllocation();
   }
 
 
