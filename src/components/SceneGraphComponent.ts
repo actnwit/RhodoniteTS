@@ -25,12 +25,12 @@ export default class SceneGraphComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
-    
+
     const thisClass = SceneGraphComponent;
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float32Array, true);
+    this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
     this.__worldMatrix.identity();
 
     //this.__updatedProperly = false;
@@ -45,11 +45,12 @@ export default class SceneGraphComponent extends Component {
   }
 
   static setupBufferView() {
-    const thisClass = SceneGraphComponent;
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
-    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
-    thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count});
+
+    // bufferView
+    this.takeBufferViewer(BufferUse.GPUInstanceData);
+
+    // accessors
+    this.takeAccessor(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
   }
 
   static getWorldMatrixAccessor() {

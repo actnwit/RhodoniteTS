@@ -4790,7 +4790,7 @@
             var thisClass = SceneGraphComponent;
             _this.__isAbleToBeParent = false;
             _this.beAbleToBeParent(true);
-            _this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne(), true);
+            _this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
             _this.__worldMatrix.identity();
             return _this;
             //this.__updatedProperly = false;
@@ -4810,11 +4810,10 @@
             configurable: true
         });
         SceneGraphComponent.setupBufferView = function () {
-            var thisClass = SceneGraphComponent;
-            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
-            var count = EntityRepository.getMaxEntityNumber();
-            thisClass.__bufferView = buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
-            thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({ compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count });
+            // bufferView
+            this.takeBufferViewer(BufferUse.GPUInstanceData);
+            // accessors
+            this.takeAccessor(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
         };
         SceneGraphComponent.getWorldMatrixAccessor = function () {
             return SceneGraphComponent.__accesseor_worldMatrix;
