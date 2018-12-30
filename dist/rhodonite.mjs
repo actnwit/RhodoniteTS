@@ -4,8 +4,22 @@ class CGAPIResourceRepository {
 // This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
 class EnumClass {
     constructor({ index, str }) {
+        if (EnumClass.__indices.get(this.constructor) == null) {
+            EnumClass.__indices.set(this.constructor, []);
+        }
+        if (EnumClass.__strings.get(this.constructor) == null) {
+            EnumClass.__strings.set(this.constructor, []);
+        }
+        if (EnumClass.__indices.get(this.constructor).indexOf(index) !== -1) {
+            throw new Error('Dont use duplicate index.');
+        }
+        if (EnumClass.__strings.get(this.constructor).indexOf(str) !== -1) {
+            throw new Error('Dont use duplicate str.');
+        }
         this.index = index;
         this.str = str;
+        EnumClass.__indices.get(this.constructor).push(index);
+        EnumClass.__strings.get(this.constructor).push(str);
     }
     toString() {
         return this.str;
@@ -14,6 +28,8 @@ class EnumClass {
         return this.index;
     }
 }
+EnumClass.__indices = new Map();
+EnumClass.__strings = new Map();
 function _from({ typeList, index }) {
     const match = typeList.find(type => type.index === index);
     if (!match) {
@@ -21,22 +37,33 @@ function _from({ typeList, index }) {
     }
     return match;
 }
+function _fromString({ typeList, str }) {
+    const match = typeList.find(type => type.str === str);
+    if (!match) {
+        throw new Error(`Invalid PrimitiveMode index: [${str}]`);
+    }
+    return match;
+}
 
 class VertexAttributeClass extends EnumClass {
-    constructor({ index, str }) {
+    constructor({ index, str, attributeSlot }) {
         super({ index, str });
+        this.__attributeSlot = attributeSlot;
+    }
+    getAttributeSlot() {
+        return this.__attributeSlot;
     }
 }
-const Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-const Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-const Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
+const Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN', attributeSlot: -1 });
+const Position = new VertexAttributeClass({ index: 0, str: 'POSITION', attributeSlot: 0 });
+const Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL', attributeSlot: 1 });
+const Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT', attributeSlot: 2 });
+const Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0', attributeSlot: 3 });
+const Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1', attributeSlot: 4 });
+const Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0', attributeSlot: 5 });
+const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeSlot: 6 });
+const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
+const Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
 const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
 function from({ index }) {
     return _from({ typeList, index });
@@ -324,7 +351,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
         attributeNames.forEach((attributeName, i) => {
-            gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
+            gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);
         });
         gl.linkProgram(shaderProgram);
         const resourceHandle = this.getResourceNumber();
@@ -388,8 +415,8 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             else {
                 throw new Error('Nothing Element Array Buffer at index ' + i);
             }
-            gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-            gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
+            gl.enableVertexAttribArray(primitive.attributeSemantics[i].getAttributeSlot());
+            gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         /// for InstanceIDBuffer
         if (instanceIDBufferUid !== 0) {
@@ -400,9 +427,9 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             else {
                 throw new Error('Nothing Element Array Buffer at index');
             }
-            gl.enableVertexAttribArray(VertexAttribute.Instance.index);
-            gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
-            this.__glw.vertexAttribDivisor(VertexAttribute.Instance.index, 1);
+            gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
+            gl.vertexAttribPointer(VertexAttribute.Instance.getAttributeSlot(), CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
+            this.__glw.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         this.__glw.bindVertexArray(null);
@@ -2993,7 +3020,19 @@ class BufferUseClass extends EnumClass {
 const GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
 const GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
 const CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
-const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, CPUGeneric });
+const typeList$4 = [GPUInstanceData, GPUVertexData, CPUGeneric];
+function from$4({ index, str }) {
+    if (index != null) {
+        return _from({ typeList: typeList$4, index });
+    }
+    else if (str != null) {
+        return _fromString({ typeList: typeList$4, str });
+    }
+    else {
+        throw new Error('Not currect query supplied.');
+    }
+}
+const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, CPUGeneric, from: from$4 });
 
 /**
  * Usage
@@ -3079,11 +3118,11 @@ class Component {
     }
     registerDependency(component, isMust) {
     }
-    static takeBufferViewer(bufferUse) {
+    static takeBufferViewer(bufferUse, byteLengthSumOfMembers) {
         const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
         const count = EntityRepository.getMaxEntityNumber();
         this.__bufferViews[bufferUse.toString()] =
-            buffer.takeBufferView({ byteLengthToNeed: this.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+            buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
     }
     static takeOne(memberName) {
         return this.__accessors[memberName].takeOne();
@@ -3101,9 +3140,40 @@ class Component {
     static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
         return this.__accessors[memberName].byteOffsetInBufferView;
     }
+    static registerMember(bufferUse, memberName, compositionType, componentType) {
+        this.__memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
+    }
+    static submitToAllocation() {
+        const members = {};
+        this.__memberInfoArray.forEach(info => {
+            members[info.bufferUse.toString()] = [];
+        });
+        this.__memberInfoArray.forEach(info => {
+            members[info.bufferUse.toString()].push(info);
+        });
+        for (let bufferUseName in members) {
+            const infoArray = members[bufferUseName];
+            this.__byteLengthSumOfMembers[bufferUseName] = 0;
+            infoArray.forEach(info => {
+                this.__byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+            });
+            if (infoArray.length > 0) {
+                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), this.__byteLengthSumOfMembers[bufferUseName]);
+            }
+        }
+        for (let bufferUseName in members) {
+            const infoArray = members[bufferUseName];
+            this.__byteLengthSumOfMembers[bufferUseName] = 0;
+            infoArray.forEach(info => {
+                this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+            });
+        }
+    }
 }
 Component.__bufferViews = {};
 Component.__accessors = {};
+Component.__byteLengthSumOfMembers = {};
+Component.__memberInfoArray = [];
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
@@ -4251,20 +4321,6 @@ class MeshRendererComponent extends Component {
             const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
             this.__vertexHandles[i] = vertexHandles;
             MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            // let vertexShader = GLSLShader.vertexShaderWebGL1;
-            // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-            // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-            //   vertexShader = GLSLShader.vertexShaderWebGL2;
-            //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
-            // }
-            // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
-            //   vertexShader,
-            //   fragmentShader,
-            //   GLSLShader.attributeNanes,
-            //   GLSLShader.attributeSemantics
-            // );
-            // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-            // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
         }
     }
     $prerender(args) {
@@ -4666,8 +4722,6 @@ const Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
 const ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
 const Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
 const ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
-const RGB$1 = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
-const RGBA$1 = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
 const RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
 const RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
 const RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
@@ -4676,7 +4730,7 @@ const RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
 const RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
 const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
 const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
-    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB: RGB$1, RGBA: RGBA$1, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
+    Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
 
 class WebGLStrategyDataTexture {
     constructor() {

@@ -77,8 +77,22 @@
     var EnumClass = /** @class */ (function () {
         function EnumClass(_a) {
             var index = _a.index, str = _a.str;
+            if (EnumClass.__indices.get(this.constructor) == null) {
+                EnumClass.__indices.set(this.constructor, []);
+            }
+            if (EnumClass.__strings.get(this.constructor) == null) {
+                EnumClass.__strings.set(this.constructor, []);
+            }
+            if (EnumClass.__indices.get(this.constructor).indexOf(index) !== -1) {
+                throw new Error('Dont use duplicate index.');
+            }
+            if (EnumClass.__strings.get(this.constructor).indexOf(str) !== -1) {
+                throw new Error('Dont use duplicate str.');
+            }
             this.index = index;
             this.str = str;
+            EnumClass.__indices.get(this.constructor).push(index);
+            EnumClass.__strings.get(this.constructor).push(str);
         }
         EnumClass.prototype.toString = function () {
             return this.str;
@@ -86,6 +100,8 @@
         EnumClass.prototype.toJSON = function () {
             return this.index;
         };
+        EnumClass.__indices = new Map();
+        EnumClass.__strings = new Map();
         return EnumClass;
     }());
     function _from(_a) {
@@ -96,25 +112,38 @@
         }
         return match;
     }
+    function _fromString(_a) {
+        var typeList = _a.typeList, str = _a.str;
+        var match = typeList.find(function (type) { return type.str === str; });
+        if (!match) {
+            throw new Error("Invalid PrimitiveMode index: [" + str + "]");
+        }
+        return match;
+    }
 
     var VertexAttributeClass = /** @class */ (function (_super) {
         __extends(VertexAttributeClass, _super);
         function VertexAttributeClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
+            var index = _a.index, str = _a.str, attributeSlot = _a.attributeSlot;
+            var _this = _super.call(this, { index: index, str: str }) || this;
+            _this.__attributeSlot = attributeSlot;
+            return _this;
         }
+        VertexAttributeClass.prototype.getAttributeSlot = function () {
+            return this.__attributeSlot;
+        };
         return VertexAttributeClass;
     }(EnumClass));
-    var Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN' });
-    var Position = new VertexAttributeClass({ index: 0, str: 'POSITION' });
-    var Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL' });
-    var Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT' });
-    var Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0' });
-    var Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1' });
-    var Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0' });
-    var Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0' });
-    var Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0' });
-    var Instance = new VertexAttributeClass({ index: 4, str: 'INSTANCE' });
+    var Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN', attributeSlot: -1 });
+    var Position = new VertexAttributeClass({ index: 0, str: 'POSITION', attributeSlot: 0 });
+    var Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL', attributeSlot: 1 });
+    var Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT', attributeSlot: 2 });
+    var Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0', attributeSlot: 3 });
+    var Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1', attributeSlot: 4 });
+    var Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0', attributeSlot: 5 });
+    var Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeSlot: 6 });
+    var Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
+    var Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
     var typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
     function from(_a) {
         var index = _a.index;
@@ -428,7 +457,7 @@
             gl.attachShader(shaderProgram, vertexShader);
             gl.attachShader(shaderProgram, fragmentShader);
             attributeNames.forEach(function (attributeName, i) {
-                gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName);
+                gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);
             });
             gl.linkProgram(shaderProgram);
             var resourceHandle = this.getResourceNumber();
@@ -495,8 +524,8 @@
                 else {
                     throw new Error('Nothing Element Array Buffer at index ' + i);
                 }
-                gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
-                gl.vertexAttribPointer(primitive.attributeSemantics[i].index, primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
+                gl.enableVertexAttribArray(primitive.attributeSemantics[i].getAttributeSlot());
+                gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
             });
             /// for InstanceIDBuffer
             if (instanceIDBufferUid !== 0) {
@@ -507,9 +536,9 @@
                 else {
                     throw new Error('Nothing Element Array Buffer at index');
                 }
-                gl.enableVertexAttribArray(VertexAttribute.Instance.index);
-                gl.vertexAttribPointer(VertexAttribute.Instance.index, CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
-                this.__glw.vertexAttribDivisor(VertexAttribute.Instance.index, 1);
+                gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
+                gl.vertexAttribPointer(VertexAttribute.Instance.getAttributeSlot(), CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
+                this.__glw.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
             }
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
             this.__glw.bindVertexArray(null);
@@ -3483,7 +3512,20 @@
     var GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
     var GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
     var CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
-    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, CPUGeneric: CPUGeneric });
+    var typeList$4 = [GPUInstanceData, GPUVertexData, CPUGeneric];
+    function from$4(_a) {
+        var index = _a.index, str = _a.str;
+        if (index != null) {
+            return _from({ typeList: typeList$4, index: index });
+        }
+        else if (str != null) {
+            return _fromString({ typeList: typeList$4, str: str });
+        }
+        else {
+            throw new Error('Not currect query supplied.');
+        }
+    }
+    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, CPUGeneric: CPUGeneric, from: from$4 });
 
     /**
      * Usage
@@ -3590,11 +3632,11 @@
         };
         Component.prototype.registerDependency = function (component, isMust) {
         };
-        Component.takeBufferViewer = function (bufferUse) {
+        Component.takeBufferViewer = function (bufferUse, byteLengthSumOfMembers) {
             var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
             var count = EntityRepository.getMaxEntityNumber();
             this.__bufferViews[bufferUse.toString()] =
-                buffer.takeBufferView({ byteLengthToNeed: this.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+                buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
         };
         Component.takeOne = function (memberName) {
             return this.__accessors[memberName].takeOne();
@@ -3612,8 +3654,44 @@
         Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName) {
             return this.__accessors[memberName].byteOffsetInBufferView;
         };
+        Component.registerMember = function (bufferUse, memberName, compositionType, componentType) {
+            this.__memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
+        };
+        Component.submitToAllocation = function () {
+            var _this = this;
+            var members = {};
+            this.__memberInfoArray.forEach(function (info) {
+                members[info.bufferUse.toString()] = [];
+            });
+            this.__memberInfoArray.forEach(function (info) {
+                members[info.bufferUse.toString()].push(info);
+            });
+            var _loop_1 = function (bufferUseName) {
+                var infoArray = members[bufferUseName];
+                this_1.__byteLengthSumOfMembers[bufferUseName] = 0;
+                infoArray.forEach(function (info) {
+                    _this.__byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                });
+                if (infoArray.length > 0) {
+                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), this_1.__byteLengthSumOfMembers[bufferUseName]);
+                }
+            };
+            var this_1 = this;
+            for (var bufferUseName in members) {
+                _loop_1(bufferUseName);
+            }
+            for (var bufferUseName in members) {
+                var infoArray = members[bufferUseName];
+                this.__byteLengthSumOfMembers[bufferUseName] = 0;
+                infoArray.forEach(function (info) {
+                    _this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+                });
+            }
+        };
         Component.__bufferViews = {};
         Component.__accessors = {};
+        Component.__byteLengthSumOfMembers = {};
+        Component.__memberInfoArray = [];
         return Component;
     }());
 
@@ -4941,20 +5019,6 @@
                 var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
                 this.__vertexHandles[i] = vertexHandles;
                 MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-                // let vertexShader = GLSLShader.vertexShaderWebGL1;
-                // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-                // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-                //   vertexShader = GLSLShader.vertexShaderWebGL2;
-                //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
-                // }
-                // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
-                //   vertexShader,
-                //   fragmentShader,
-                //   GLSLShader.attributeNanes,
-                //   GLSLShader.attributeSemantics
-                // );
-                // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-                // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
             }
         };
         MeshRendererComponent.prototype.$prerender = function (args) {
@@ -5407,8 +5471,6 @@
     var ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
     var Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
     var ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
-    var RGB$1 = new TextureParameterClass({ index: 0x8051, str: 'RGB' });
-    var RGBA$1 = new TextureParameterClass({ index: 0x8058, str: 'RGBA' });
     var RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
     var RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
     var RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
@@ -5417,7 +5479,7 @@
     var RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
     var RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
     var TextureParameter = Object.freeze({ Nearest: Nearest, Linear: Linear, TextureMagFilter: TextureMagFilter, TextureMinFilter: TextureMinFilter, TextureWrapS: TextureWrapS, TextureWrapT: TextureWrapT, Texture2D: Texture2D, Texture: Texture,
-        Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB: RGB$1, RGBA: RGBA$1, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });
+        Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });
 
     var WebGLStrategyDataTexture = /** @class */ (function () {
         function WebGLStrategyDataTexture() {
