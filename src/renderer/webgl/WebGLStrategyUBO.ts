@@ -15,6 +15,17 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   private __uboUid: CGAPIResourceHandle = 0;
   private __shaderProgramUid: CGAPIResourceHandle = 0;
 
+  private vertexShaderMethodDefinitions_UBO:string =
+  `layout (std140) uniform matrix {
+    mat4 world[1024];
+  } u_matrix;
+
+  mat4 getMatrix(float instanceId) {
+    float index = instanceId - 1.0;
+    return transpose(u_matrix.world[int(index)]);
+  }
+  `;
+
   private constructor(){}
 
   setupShaderProgram(): void {
@@ -23,7 +34,9 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     }
 
     // Shader Setup
-    let vertexShader = GLSLShader.vertexShaderUBO;
+    let vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+      this.vertexShaderMethodDefinitions_UBO +
+      GLSLShader.vertexShaderBody
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
       vertexShader,

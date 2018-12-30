@@ -5,6 +5,22 @@ import WebGLResourceRepository from "./WebGLResourceRepository";
 export type AttributeNames = Array<string>;
 
 export default class GLSLShader {
+  static get glsl_rt0() {
+    if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2) {
+      return 'layout(location = 0) out vec4 rt0;\n';
+    } else {
+      return 'vec4 rt0;\n';
+    }
+  }
+
+  static get glsl_fragColor() {
+    if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2) {
+      return '';
+    } else {
+      return 'gl_FragColor = rt0;\n';
+    }
+  }
+
   static get glsl_vertex_in() {
     if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2) {
       return 'in';
@@ -59,63 +75,7 @@ ${_out} vec3 v_color;`;
 
   };
 
-static get vertexShaderMethodDefinitions_dataTexture() {
-  const _texture = this.glsl_texture;
-
-  return `
-uniform sampler2D u_dataTexture;
-/*
- * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
- * arg = vec2(1. / size.x, 1. / size.x / size.y);
- */
-// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
-// {
-//   return ${_texture}( tex, arg * (index + 0.5) );
-// }
-
-vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
-{
-  float t = (index + 0.5) * invSize.x;
-  float x = fract(t);
-  float y = (floor(t) + 0.5) * invSize.y;
-  return ${_texture}( tex, vec2(x, y) );
-}
-
-mat4 getMatrix(float instanceId)
-{
-  float index = instanceId - 1.0;
-  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
-
-  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
- vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
- vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-
-  mat4 matrix = mat4(
-    col0.x, col1.x, col2.x, 0.0,
-    col0.y, col1.y, col2.y, 0.0,
-    col0.z, col1.z, col2.z, 0.0,
-    col0.w, col1.w, col2.w, 1.0
-    );
-
-  return matrix;
-}
-`;
-  }
-
-  static vertexShaderMethodDefinitions_UBO:string =
-`layout (std140) uniform matrix {
-  mat4 world[1024];
-} u_matrix;
-
-mat4 getMatrix(float instanceId) {
-  float index = instanceId - 1.0;
-  return transpose(u_matrix.world[int(index)]);
-}
-  `
   static vertexShaderBody:string = `
-
 
 void main ()
 {
@@ -131,22 +91,6 @@ void main ()
   v_color = a_color;
 }
   `;
-
-  static get glsl_rt0() {
-    if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2) {
-      return 'layout(location = 0) out vec4 rt0;\n';
-    } else {
-      return 'vec4 rt0;\n';
-    }
-  }
-
-  static get glsl_fragColor() {
-    if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.isWebGL2) {
-      return '';
-    } else {
-      return 'gl_FragColor = rt0;\n';
-    }
-  }
 
   static get fragmentShaderSimple() {
     const _version = this.glsl_versionText;
@@ -166,13 +110,6 @@ void main ()
 `;
   }
 
-  static get vertexShaderDataTexture() {
-    return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
-  }
-
-  static get vertexShaderUBO() {
-    return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
-  }
 
   static get fragmentShader() {
     return GLSLShader.fragmentShaderSimple;

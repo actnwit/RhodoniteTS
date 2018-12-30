@@ -2982,15 +2982,15 @@
     var AccessorBase = /** @class */ (function (_super) {
         __extends(AccessorBase, _super);
         function AccessorBase(_a) {
-            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, byteOffsetFromBuffer = _a.byteOffsetFromBuffer, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
-            var _this = _super.call(this) || this;
+            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
+            var _this = _super.call(this, true) || this;
             _this.__compositionType = CompositionType.Unknown;
             _this.__componentType = ComponentType.Unknown;
             _this.__count = 0;
             _this.__takenCount = 0;
             _this.__byteStride = 0;
             _this.__bufferView = bufferView;
-            _this.__byteOffset = byteOffsetFromBuffer + byteOffset;
+            _this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;
             _this.__compositionType = compositionType;
             _this.__componentType = componentType;
             _this.__count = count;
@@ -3006,18 +3006,18 @@
             var typedArrayClass = this.getTypedArrayClass(this.__componentType);
             this.__typedArrayClass = typedArrayClass;
             if (this.__componentType.getSizeInBytes() === 8) {
-                if (this.__byteOffset % 8 !== 0) {
+                if (this.__byteOffsetInBuffer % 8 !== 0) {
                     console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
-                    this.__byteOffset += 8 - this.__byteOffset % 8;
+                    this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;
                 }
             }
             if (this.__bufferView.isSoA) {
-                this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+                this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
             }
             else {
-                this.__dataView = new DataView(this.__raw, this.__byteOffset);
+                this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);
             }
-            this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
+            this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
             this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
             this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
         };
@@ -3063,11 +3063,11 @@
         };
         AccessorBase.prototype.takeOne = function () {
             var arrayBufferOfBufferView = this.__raw;
-            var stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
-            if (this.__bufferView.isAoS) {
-                stride = this.__bufferView.byteStride;
-            }
-            var subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffset + stride * this.__takenCount, this.__compositionType.getNumberOfComponents());
+            // let stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+            // if (this.__bufferView.isAoS) {
+            //   stride = this.__bufferView.byteStride;
+            // }
+            var subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents());
             this.__takenCount += 1;
             return subTypedArray;
         };
@@ -3095,6 +3095,13 @@
         Object.defineProperty(AccessorBase.prototype, "elementCount", {
             get: function () {
                 return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccessorBase.prototype, "byteLength", {
+            get: function () {
+                return this.__byteStride * this.__count;
             },
             enumerable: true,
             configurable: true
@@ -3263,14 +3270,35 @@
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(AccessorBase.prototype, "byteOffsetInBufferView", {
+            get: function () {
+                return this.__byteOffsetInBuffer - this.__bufferView.byteOffset;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccessorBase.prototype, "byteOffsetInBuffer", {
+            get: function () {
+                return this.__byteOffsetInBuffer;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccessorBase.prototype, "bufferView", {
+            get: function () {
+                return this.__bufferView;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return AccessorBase;
     }(RnObject));
 
     var FlexibleAccessor = /** @class */ (function (_super) {
         __extends(FlexibleAccessor, _super);
         function FlexibleAccessor(_a) {
-            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, byteOffsetFromBuffer = _a.byteOffsetFromBuffer, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
-            return _super.call(this, { bufferView: bufferView, byteOffset: byteOffset, byteOffsetFromBuffer: byteOffsetFromBuffer, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: raw }) || this;
+            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
+            return _super.call(this, { bufferView: bufferView, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: raw }) || this;
         }
         return FlexibleAccessor;
     }(AccessorBase));
@@ -3279,7 +3307,7 @@
         __extends(BufferView, _super);
         function BufferView(_a) {
             var buffer = _a.buffer, byteOffset = _a.byteOffset, byteLength = _a.byteLength, raw = _a.raw, isAoS = _a.isAoS;
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, true) || this;
             _this.__byteStride = 0;
             _this.__target = 0;
             _this.__takenByteIndex = 0;
@@ -3305,6 +3333,20 @@
         Object.defineProperty(BufferView.prototype, "byteLength", {
             get: function () {
                 return this.__byteLength;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BufferView.prototype, "byteOffset", {
+            get: function () {
+                return this.__byteOffset;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BufferView.prototype, "buffer", {
+            get: function () {
+                return this.__buffer;
             },
             enumerable: true,
             configurable: true
@@ -3370,7 +3412,7 @@
                 this.__byteOffset += 4 - this.__byteOffset % 4;
             }
             var accessor = new accessorClass({
-                bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+                bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
             });
             this.__accessors.push(accessor);
             return accessor;
@@ -3382,7 +3424,7 @@
         __extends(Buffer, _super);
         function Buffer(_a) {
             var byteLength = _a.byteLength, arrayBuffer = _a.arrayBuffer, name = _a.name;
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, true) || this;
             _this.__byteLength = 0;
             _this.__name = '';
             _this.__takenBytesIndex = 0;
@@ -5038,6 +5080,30 @@
     var GLSLShader = /** @class */ (function () {
         function GLSLShader() {
         }
+        Object.defineProperty(GLSLShader, "glsl_rt0", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return 'layout(location = 0) out vec4 rt0;\n';
+                }
+                else {
+                    return 'vec4 rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GLSLShader, "glsl_fragColor", {
+            get: function () {
+                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+                    return '';
+                }
+                else {
+                    return 'gl_FragColor = rt0;\n';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(GLSLShader, "glsl_vertex_in", {
             get: function () {
                 if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
@@ -5108,38 +5174,6 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(GLSLShader, "vertexShaderMethodDefinitions_dataTexture", {
-            get: function () {
-                var _texture = this.glsl_texture;
-                return "\nuniform sampler2D u_dataTexture;\n/*\n * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n * arg = vec2(1. / size.x, 1. / size.x / size.y);\n */\n// vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n// {\n//   return " + _texture + "( tex, arg * (index + 0.5) );\n// }\n\nvec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n{\n  float t = (index + 0.5) * invSize.x;\n  float x = fract(t);\n  float y = (floor(t) + 0.5) * invSize.y;\n  return " + _texture + "( tex, vec2(x, y) );\n}\n\nmat4 getMatrix(float instanceId)\n{\n  float index = instanceId - 1.0;\n  float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n  vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n  mat4 matrix = mat4(\n    col0.x, col1.x, col2.x, 0.0,\n    col0.y, col1.y, col2.y, 0.0,\n    col0.z, col1.z, col2.z, 0.0,\n    col0.w, col1.w, col2.w, 1.0\n    );\n\n  return matrix;\n}\n";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_rt0", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'layout(location = 0) out vec4 rt0;\n';
-                }
-                else {
-                    return 'vec4 rt0;\n';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_fragColor", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return '';
-                }
-                else {
-                    return 'gl_FragColor = rt0;\n';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(GLSLShader, "fragmentShaderSimple", {
             get: function () {
                 var _version = this.glsl_versionText;
@@ -5151,20 +5185,6 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(GLSLShader, "vertexShaderDataTexture", {
-            get: function () {
-                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "vertexShaderUBO", {
-            get: function () {
-                return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(GLSLShader, "fragmentShader", {
             get: function () {
                 return GLSLShader.fragmentShaderSimple;
@@ -5172,8 +5192,7 @@
             enumerable: true,
             configurable: true
         });
-        GLSLShader.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n  mat4 world[1024];\n} u_matrix;\n\nmat4 getMatrix(float instanceId) {\n  float index = instanceId - 1.0;\n  return transpose(u_matrix.world[int(index)]);\n}\n  ";
-        GLSLShader.vertexShaderBody = "\n\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
+        GLSLShader.vertexShaderBody = "\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
         GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
         GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
         return GLSLShader;
@@ -5278,13 +5297,16 @@
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             this.__uboUid = 0;
             this.__shaderProgramUid = 0;
+            this.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n    mat4 world[1024];\n  } u_matrix;\n\n  mat4 getMatrix(float instanceId) {\n    float index = instanceId - 1.0;\n    return transpose(u_matrix.world[int(index)]);\n  }\n  ";
         }
         WebGLStrategyUBO.prototype.setupShaderProgram = function () {
             if (this.__shaderProgramUid !== 0) {
                 return;
             }
             // Shader Setup
-            var vertexShader = GLSLShader.vertexShaderUBO;
+            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+                this.vertexShaderMethodDefinitions_UBO +
+                GLSLShader.vertexShaderBody;
             var fragmentShader = GLSLShader.fragmentShader;
             this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
         };
@@ -5375,12 +5397,22 @@
             this.__dataTextureUid = 0;
             this.__shaderProgramUid = 0;
         }
+        Object.defineProperty(WebGLStrategyDataTexture.prototype, "vertexShaderMethodDefinitions_dataTexture", {
+            get: function () {
+                var _texture = GLSLShader.glsl_texture;
+                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId - 1.0;\n    float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n    vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
+            },
+            enumerable: true,
+            configurable: true
+        });
         WebGLStrategyDataTexture.prototype.setupShaderProgram = function () {
             if (this.__shaderProgramUid !== 0) {
                 return;
             }
             // Shader Setup
-            var vertexShader = GLSLShader.vertexShaderDataTexture;
+            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+                this.vertexShaderMethodDefinitions_dataTexture +
+                GLSLShader.vertexShaderBody;
             var fragmentShader = GLSLShader.fragmentShader;
             this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
         };

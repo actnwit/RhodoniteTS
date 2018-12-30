@@ -2621,15 +2621,15 @@ class Vector2_F64 extends _Vector2 {
 }
 
 class AccessorBase extends RnObject {
-    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
-        super();
+    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
+        super(true);
         this.__compositionType = CompositionType.Unknown;
         this.__componentType = ComponentType.Unknown;
         this.__count = 0;
         this.__takenCount = 0;
         this.__byteStride = 0;
         this.__bufferView = bufferView;
-        this.__byteOffset = byteOffsetFromBuffer + byteOffset;
+        this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;
         this.__compositionType = compositionType;
         this.__componentType = componentType;
         this.__count = count;
@@ -2644,18 +2644,18 @@ class AccessorBase extends RnObject {
         const typedArrayClass = this.getTypedArrayClass(this.__componentType);
         this.__typedArrayClass = typedArrayClass;
         if (this.__componentType.getSizeInBytes() === 8) {
-            if (this.__byteOffset % 8 !== 0) {
+            if (this.__byteOffsetInBuffer % 8 !== 0) {
                 console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
-                this.__byteOffset += 8 - this.__byteOffset % 8;
+                this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;
             }
         }
         if (this.__bufferView.isSoA) {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+            this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
         }
         else {
-            this.__dataView = new DataView(this.__raw, this.__byteOffset);
+            this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);
         }
-        this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffset, this.__compositionType.getNumberOfComponents() * this.__count);
+        this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
         this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
         this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
     }
@@ -2701,11 +2701,11 @@ class AccessorBase extends RnObject {
     }
     takeOne() {
         const arrayBufferOfBufferView = this.__raw;
-        let stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
-        if (this.__bufferView.isAoS) {
-            stride = this.__bufferView.byteStride;
-        }
-        const subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffset + stride * this.__takenCount, this.__compositionType.getNumberOfComponents());
+        // let stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+        // if (this.__bufferView.isAoS) {
+        //   stride = this.__bufferView.byteStride;
+        // }
+        const subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents());
         this.__takenCount += 1;
         return subTypedArray;
     }
@@ -2720,6 +2720,9 @@ class AccessorBase extends RnObject {
     }
     get elementCount() {
         return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
+    }
+    get byteLength() {
+        return this.__byteStride * this.__count;
     }
     get componentType() {
         return this.__componentType;
@@ -2840,17 +2843,26 @@ class AccessorBase extends RnObject {
     get dataViewOfBufferView() {
         return this.__dataView;
     }
+    get byteOffsetInBufferView() {
+        return this.__byteOffsetInBuffer - this.__bufferView.byteOffset;
+    }
+    get byteOffsetInBuffer() {
+        return this.__byteOffsetInBuffer;
+    }
+    get bufferView() {
+        return this.__bufferView;
+    }
 }
 
 class FlexibleAccessor extends AccessorBase {
-    constructor({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw }) {
-        super({ bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw });
+    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
+        super({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw });
     }
 }
 
 class BufferView extends RnObject {
     constructor({ buffer, byteOffset, byteLength, raw, isAoS }) {
-        super();
+        super(true);
         this.__byteStride = 0;
         this.__target = 0;
         this.__takenByteIndex = 0;
@@ -2870,6 +2882,12 @@ class BufferView extends RnObject {
     }
     get byteLength() {
         return this.__byteLength;
+    }
+    get byteOffset() {
+        return this.__byteOffset;
+    }
+    get buffer() {
+        return this.__buffer;
     }
     get isSoA() {
         return !this.__isAoS;
@@ -2921,7 +2939,7 @@ class BufferView extends RnObject {
             this.__byteOffset += 4 - this.__byteOffset % 4;
         }
         const accessor = new accessorClass({
-            bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer: this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
         });
         this.__accessors.push(accessor);
         return accessor;
@@ -2930,7 +2948,7 @@ class BufferView extends RnObject {
 
 class Buffer extends RnObject {
     constructor({ byteLength, arrayBuffer, name }) {
-        super();
+        super(true);
         this.__byteLength = 0;
         this.__name = '';
         this.__takenBytesIndex = 0;
@@ -4340,6 +4358,22 @@ function from$4({ index }) {
 const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$4 });
 
 class GLSLShader {
+    static get glsl_rt0() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return 'layout(location = 0) out vec4 rt0;\n';
+        }
+        else {
+            return 'vec4 rt0;\n';
+        }
+    }
+    static get glsl_fragColor() {
+        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
+            return '';
+        }
+        else {
+            return 'gl_FragColor = rt0;\n';
+        }
+    }
     static get glsl_vertex_in() {
         if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
             return 'in';
@@ -4392,65 +4426,6 @@ ${_in} float a_instanceID;
 ${_out} vec3 v_color;`;
     }
     ;
-    static get vertexShaderMethodDefinitions_dataTexture() {
-        const _texture = this.glsl_texture;
-        return `
-uniform sampler2D u_dataTexture;
-/*
- * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
- * arg = vec2(1. / size.x, 1. / size.x / size.y);
- */
-// vec4 fetchElement(sampler2D tex, float index, vec2 arg)
-// {
-//   return ${_texture}( tex, arg * (index + 0.5) );
-// }
-
-vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
-{
-  float t = (index + 0.5) * invSize.x;
-  float x = fract(t);
-  float y = (floor(t) + 0.5) * invSize.y;
-  return ${_texture}( tex, vec2(x, y) );
-}
-
-mat4 getMatrix(float instanceId)
-{
-  float index = instanceId - 1.0;
-  float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-  vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-//  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
-
-  vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
- vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
- vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
-
-  mat4 matrix = mat4(
-    col0.x, col1.x, col2.x, 0.0,
-    col0.y, col1.y, col2.y, 0.0,
-    col0.z, col1.z, col2.z, 0.0,
-    col0.w, col1.w, col2.w, 1.0
-    );
-
-  return matrix;
-}
-`;
-    }
-    static get glsl_rt0() {
-        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-            return 'layout(location = 0) out vec4 rt0;\n';
-        }
-        else {
-            return 'vec4 rt0;\n';
-        }
-    }
-    static get glsl_fragColor() {
-        if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-            return '';
-        }
-        else {
-            return 'gl_FragColor = rt0;\n';
-        }
-    }
     static get fragmentShaderSimple() {
         const _version = this.glsl_versionText;
         const _in = this.glsl_fragment_in;
@@ -4467,27 +4442,11 @@ void main ()
 }
 `;
     }
-    static get vertexShaderDataTexture() {
-        return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_dataTexture + GLSLShader.vertexShaderBody;
-    }
-    static get vertexShaderUBO() {
-        return GLSLShader.vertexShaderVariableDefinitions + GLSLShader.vertexShaderMethodDefinitions_UBO + GLSLShader.vertexShaderBody;
-    }
     static get fragmentShader() {
         return GLSLShader.fragmentShaderSimple;
     }
 }
-GLSLShader.vertexShaderMethodDefinitions_UBO = `layout (std140) uniform matrix {
-  mat4 world[1024];
-} u_matrix;
-
-mat4 getMatrix(float instanceId) {
-  float index = instanceId - 1.0;
-  return transpose(u_matrix.world[int(index)]);
-}
-  `;
 GLSLShader.vertexShaderBody = `
-
 
 void main ()
 {
@@ -4597,13 +4556,24 @@ class WebGLStrategyUBO {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__uboUid = 0;
         this.__shaderProgramUid = 0;
+        this.vertexShaderMethodDefinitions_UBO = `layout (std140) uniform matrix {
+    mat4 world[1024];
+  } u_matrix;
+
+  mat4 getMatrix(float instanceId) {
+    float index = instanceId - 1.0;
+    return transpose(u_matrix.world[int(index)]);
+  }
+  `;
     }
     setupShaderProgram() {
         if (this.__shaderProgramUid !== 0) {
             return;
         }
         // Shader Setup
-        let vertexShader = GLSLShader.vertexShaderUBO;
+        let vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+            this.vertexShaderMethodDefinitions_UBO +
+            GLSLShader.vertexShaderBody;
         let fragmentShader = GLSLShader.fragmentShader;
         this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
     }
@@ -4689,12 +4659,57 @@ class WebGLStrategyDataTexture {
         this.__dataTextureUid = 0;
         this.__shaderProgramUid = 0;
     }
+    get vertexShaderMethodDefinitions_dataTexture() {
+        const _texture = GLSLShader.glsl_texture;
+        return `
+  uniform sampler2D u_dataTexture;
+  /*
+   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+   * arg = vec2(1. / size.x, 1. / size.x / size.y);
+   */
+  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+  // {
+  //   return ${_texture}( tex, arg * (index + 0.5) );
+  // }
+
+  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+  {
+    float t = (index + 0.5) * invSize.x;
+    float x = fract(t);
+    float y = (floor(t) + 0.5) * invSize.y;
+    return ${_texture}( tex, vec2(x, y) );
+  }
+
+  mat4 getMatrix(float instanceId)
+  {
+    float index = instanceId - 1.0;
+    float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
+    vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+
+    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+
+    mat4 matrix = mat4(
+      col0.x, col1.x, col2.x, 0.0,
+      col0.y, col1.y, col2.y, 0.0,
+      col0.z, col1.z, col2.z, 0.0,
+      col0.w, col1.w, col2.w, 1.0
+      );
+
+    return matrix;
+  }
+  `;
+    }
     setupShaderProgram() {
         if (this.__shaderProgramUid !== 0) {
             return;
         }
         // Shader Setup
-        let vertexShader = GLSLShader.vertexShaderDataTexture;
+        let vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+            this.vertexShaderMethodDefinitions_dataTexture +
+            GLSLShader.vertexShaderBody;
         let fragmentShader = GLSLShader.fragmentShader;
         this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
     }

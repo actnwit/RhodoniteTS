@@ -15,14 +15,60 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private __shaderProgramUid: CGAPIResourceHandle = 0;
   private constructor(){}
 
+  get vertexShaderMethodDefinitions_dataTexture() {
+    const _texture = GLSLShader.glsl_texture;
+
+    return `
+  uniform sampler2D u_dataTexture;
+  /*
+   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+   * arg = vec2(1. / size.x, 1. / size.x / size.y);
+   */
+  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+  // {
+  //   return ${_texture}( tex, arg * (index + 0.5) );
+  // }
+
+  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+  {
+    float t = (index + 0.5) * invSize.x;
+    float x = fract(t);
+    float y = (floor(t) + 0.5) * invSize.y;
+    return ${_texture}( tex, vec2(x, y) );
+  }
+
+  mat4 getMatrix(float instanceId)
+  {
+    float index = instanceId - 1.0;
+    float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
+    vec2 arg = vec2(1.0/powVal, 1.0/powVal);
+  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+
+    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
+   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
+   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+
+    mat4 matrix = mat4(
+      col0.x, col1.x, col2.x, 0.0,
+      col0.y, col1.y, col2.y, 0.0,
+      col0.z, col1.z, col2.z, 0.0,
+      col0.w, col1.w, col2.w, 1.0
+      );
+
+    return matrix;
+  }
+  `;
+    }
 
   setupShaderProgram(): void {
     if (this.__shaderProgramUid !== 0) {
       return;
     }
-    
+
     // Shader Setup
-    let vertexShader = GLSLShader.vertexShaderDataTexture;
+    let vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+      this.vertexShaderMethodDefinitions_dataTexture +
+      GLSLShader.vertexShaderBody
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
       vertexShader,
