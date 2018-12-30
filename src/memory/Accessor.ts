@@ -5,9 +5,9 @@ import { CompositionType, CompositionTypeEnum } from "../definitions/Composition
 
 
 export default class Accessor extends AccessorBase {
-  constructor({bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw} :
+  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw} :
     {bufferView: BufferView, byteOffset: Byte, byteOffsetFromBuffer: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array}) {
-      super({bufferView, byteOffset, byteOffsetFromBuffer, compositionType, componentType, byteStride, count, raw});
+      super({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw});
 
   }
 }

@@ -1,48 +1,36 @@
 import RenderingPipeline from "../RenderingPipeline";
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import Primitive from "../../geometry/Primitive";
-import { WebGLExtension } from "../../definitions/WebGLExtension";
 import MemoryManager from "../../core/MemoryManager";
-import Buffer from "../../memory/Buffer";
-import { TextureParameter } from "../../definitions/TextureParameter";
-import { PixelFormat } from "../../definitions/PixelFormat";
 import { ComponentType } from "../../definitions/ComponentType";
 import EntityRepository from "../../core/EntityRepository";
 import { CompositionType } from "../../definitions/CompositionType";
 import ComponentRepository from "../../core/ComponentRepository";
 import MeshComponent from "../../components/MeshComponent";
-import { MathUtil } from "../../math/MathUtil";
-import SceneGraphComponent from "../../components/SceneGraphComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
-import GLSLShader from "./GLSLShader";
-import System from "../../system/System";
-import { ProcessApproach } from "../../definitions/ProcessApproach";
+import { ProcessApproach, ProcessApproachEnum } from "../../definitions/ProcessApproach";
+import WebGLStrategyUBO from "./WebGLStrategyUBO";
+import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
+import WebGLContextWrapper from "./WebGLContextWrapper";
+import { BufferUse } from "../../definitions/BufferUse";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
-  private __dataTextureUid: CGAPIResourceHandle = 0;
   private __instanceIDBufferUid: CGAPIResourceHandle = 0;
-  private __uboUid: CGAPIResourceHandle = 0;
-  private __shaderProgramUid: CGAPIResourceHandle = 0;
+  private __webGLStrategy?: WebGLStrategy;
+  common_$load(processApproach: ProcessApproachEnum) {
 
-  common_$load() {
-    if (this.__shaderProgramUid !== 0) {
-      return;
+    // Strategy
+    if (processApproach === ProcessApproach.UBOWebGL2) {
+      this.__webGLStrategy = WebGLStrategyUBO.getInstance();
+    } else {
+      this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
     }
 
-    let vertexShader = GLSLShader.vertexShaderDataTexture;
-    let fragmentShader = GLSLShader.fragmentShader;
-    if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-      vertexShader = GLSLShader.vertexShaderUBO;
-    }
+    // Shader setup
+    this.__webGLStrategy!.setupShaderProgram();
 
-    this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      vertexShader,
-      fragmentShader,
-      GLSLShader.attributeNanes,
-      GLSLShader.attributeSemantics
-    );
   }
 
   common_$prerender(): CGAPIResourceHandle {
@@ -52,7 +40,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       throw new Error('No WebGLRenderingContext!');
     }
 
-    this.__setupGeometryData();
+    this.__webGLStrategy!.setupGPUData();
 
     if (this.__isReady()) {
       return 0;
@@ -71,16 +59,8 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     }
   }
 
-  private __setupGeometryData() {
-    if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-      this.__setupUBO();
-    } else {
-      this.__setupDataTexture();
-    }
-  }
-
   private __setupInstanceIDBuffer() {
-    const buffer = MemoryManager.getInstance().getBufferForCPU();
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
     const count = EntityRepository.getMaxEntityNumber();
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
     const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
@@ -93,124 +73,6 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
-  private __setupUBO() {
-    const isHalfFloatMode = false;
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPU();
-    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-    let halfFloatDataTextureBuffer: Uint16Array;
-    if (isHalfFloatMode) {
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-        let convertLength = buffer.byteSizeInUse / 4; //components
-        convertLength /= 2; // bytes
-        for (let i=0; i<convertLength; i++) {
-          halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-        }
-      }
-      if (this.__uboUid !== 0) {
-        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, halfFloatDataTextureBuffer!);
-        return;
-      }
-
-      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(halfFloatDataTextureBuffer!);
-
-    } else {
-      if (this.__uboUid !== 0) {
-        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
-        return;
-      }
-
-      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
-
-    }
-    this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
-
-  }
-
-  private __setupDataTexture() {
-    let isHalfFloatMode = false;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-      this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-      isHalfFloatMode = true;
-    }
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBufferForGPU();
-    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-    let halfFloatDataTextureBuffer: Uint16Array;
-    if (isHalfFloatMode) {
-      halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-      let convertLength = buffer.byteSizeInUse / 4; //components
-      convertLength /= 2; // bytes
-      for (let i=0; i<convertLength; i++) {
-        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-      }
-    }
-
-    // if already
-    if (this.__dataTextureUid !== 0) {
-      if (isHalfFloatMode) {
-        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        } else {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-              format: PixelFormat.RGBA, type: ComponentType.HalfFloat
-            });
-        }
-      } else {
-        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level:0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        } else {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        }
-      }
-      return;
-    }
-
-    if (isHalfFloatMode) {
-
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-          });
-      } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer!, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-          });
-      }
-
-    } else {
-      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-          });
-      } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-          });
-      }
-    }
-
-  }
-
   common_$render(){
     const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID)!;
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
@@ -218,31 +80,14 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
     const meshRendererComponent = meshRendererComponents[0] as MeshRendererComponent;
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
-      const shaderProgramUid = this.__shaderProgramUid;
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
-      gl.useProgram(shaderProgram);
+      this.__attachVertexData(meshRendererComponent, i, primitive, glw);
+      this.__webGLStrategy!.attatchShaderProgram();
+      this.__webGLStrategy!.attachGPUData();
 
-      const vaoHandles = meshRendererComponent.__vertexHandles[i];
-      const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-      if (vao != null) {
-        glw.bindVertexArray(vao);
-      } else {
-        this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
-      }
-
-      if (System.getInstance().processApproach === ProcessApproach.UBOWebGL2) {
-        this.__setUniformBuffer(gl, shaderProgramUid)
-      } else {
-        this.__setDataTexture(gl, shaderProgram);
-      }
-
-      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
       const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
       glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
 
@@ -250,14 +95,20 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-  private __setUniformBuffer(gl: WebGLRenderingContext, shaderProgramUid: number) {
-    this.__webglResourceRepository.bindUniformBlock(shaderProgramUid, 'matrix', 0);
-  }
 
-  private __setDataTexture(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {
-    const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)! as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-    gl.uniform1i(uniform_dataTexture, 0);
+
+  private __attachVertexData(meshRendererComponent: MeshRendererComponent, i: number, primitive: Primitive, glw: WebGLContextWrapper) {
+    const vaoHandles = meshRendererComponent.__vertexHandles[i];
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+    const gl = glw.getRawContext();
+
+    if (vao != null) {
+      glw.bindVertexArray(vao);
+    }
+    else {
+      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    }
   }
 }

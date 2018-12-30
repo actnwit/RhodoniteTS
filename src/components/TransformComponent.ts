@@ -15,18 +15,17 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
+import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  private static __bufferView: BufferView;
   private _translate: Vector3;
   private _rotate: Vector3;
   private _scale: Vector3;
   private _quaternion: Quaternion;
-  private static __accesseor_quaternion: Accessor;
   private _matrix: Matrix44;
-  private static __accesseor_matrix: Accessor;
   private _invMatrix: Matrix44;
   private _normalMatrix: Matrix33;
 
@@ -55,9 +54,9 @@ export default class TransformComponent extends Component {
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
-    this._quaternion = new Quaternion(thisClass.__accesseor_quaternion.takeOne());
+    this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.__accesseor_matrix.takeOne() as Float32Array, false, true);
+    this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -82,20 +81,15 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  static get byteSizeOfThisComponent() {
-    return 160;
-  }
-
   static setupBufferView() {
-    const thisClass = TransformComponent;
-    const buffer = MemoryManager.getInstance().getBufferForCPU();
-    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
 
-    // accessors
-    thisClass.__accesseor_matrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Double, count: count});
-    thisClass.__accesseor_quaternion = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Double, count: count});
+    this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
+
+    this.submitToAllocation();
   }
+
+
 
   $create() {
     // Define process dependencies with other components.

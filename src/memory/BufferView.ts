@@ -23,7 +23,7 @@ export default class BufferView extends RnObject {
   constructor({buffer, byteOffset, byteLength, raw, isAoS} :
     {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: Uint8Array, isAoS: boolean})
   {
-    super();
+    super(true);
     this.__buffer = buffer;
     this.__byteOffset = byteOffset;
     this.__byteLength = byteLength;
@@ -41,6 +41,14 @@ export default class BufferView extends RnObject {
 
   get byteLength() {
     return this.__byteLength;
+  }
+
+  get byteOffset() {
+    return this.__byteOffset;
+  }
+
+  get buffer() {
+    return this.__buffer;
   }
 
   get isSoA() {
@@ -107,7 +115,7 @@ export default class BufferView extends RnObject {
     }
 
     const accessor = new accessorClass({
-      bufferView: this, byteOffset: byteOffset, byteOffsetFromBuffer:this.__byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
     });
 
     this.__accessors.push(accessor);

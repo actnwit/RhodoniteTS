@@ -8,7 +8,7 @@ export default class Buffer extends RnObject {
   private __takenBytesIndex: Byte = 0;
 
   constructor({byteLength, arrayBuffer, name} : {byteLength: Size, arrayBuffer: ArrayBuffer, name: string}) {
-    super();
+    super(true);
     this.__name = name;
     this.__byteLength = byteLength;
     this.__raw = arrayBuffer;
@@ -48,4 +48,5 @@ export default class Buffer extends RnObject {
   get byteSizeInUse() {
     return this.__byteLength;
   }
+
 }

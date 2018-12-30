@@ -49,21 +49,6 @@ export default class MeshRendererComponent extends Component {
       this.__vertexHandles[i] = vertexHandles;
       MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
 
-      // let vertexShader = GLSLShader.vertexShaderWebGL1;
-      // let fragmentShader = GLSLShader.fragmentShaderWebGL1;
-      // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-      //   vertexShader = GLSLShader.vertexShaderWebGL2;
-      //   fragmentShader = GLSLShader.fragmentShaderWebGL2;
-      // }
-
-      // const shaderProgramHandle = this.__webglResourceRepository.createShaderProgram(
-      //   vertexShader,
-      //   fragmentShader,
-      //   GLSLShader.attributeNanes,
-      //   GLSLShader.attributeSemantics
-      // );
-      // //this.__vertexShaderProgramHandles[i] = shaderProgramHandle;
-      // MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.set(primitive.objectUid, shaderProgramHandle);
     }
   }
 

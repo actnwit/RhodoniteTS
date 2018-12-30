@@ -37,7 +37,7 @@ export default class System {
       const componentTids = this.__componentRepository.getComponentTIDs();
       const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
       if (commonMethod != null) {
-        instanceIDBufferUid = commonMethod.apply(this.__renderingPipeline);
+        instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
       }
       args.push(instanceIDBufferUid);
       componentTids.forEach(componentTid=>{

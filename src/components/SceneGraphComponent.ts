@@ -11,6 +11,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
+import { BufferUse } from '../definitions/BufferUse';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -24,12 +25,12 @@ export default class SceneGraphComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
-    
+
     const thisClass = SceneGraphComponent;
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new RowMajarMatrix44(thisClass.__accesseor_worldMatrix.takeOne() as Float32Array, true);
+    this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
     this.__worldMatrix.identity();
 
     //this.__updatedProperly = false;
@@ -39,16 +40,12 @@ export default class SceneGraphComponent extends Component {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
-  static get byteSizeOfThisComponent() {
-    return 128;
-  }
-
   static setupBufferView() {
-    const thisClass = SceneGraphComponent;
-    const buffer = MemoryManager.getInstance().getBufferForGPU();
-    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferView = buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
-    thisClass.__accesseor_worldMatrix = thisClass.__bufferView.takeAccessor({compositionType: CompositionType.Mat4, componentType: ComponentType.Float, count: count});
+
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+
+    this.submitToAllocation();
+
   }
 
   static getWorldMatrixAccessor() {

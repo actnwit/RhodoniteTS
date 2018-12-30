@@ -25,8 +25,6 @@ const Texture1: TextureParameterEnum = new TextureParameterClass({index:0x84C1, 
 const ActiveTexture: TextureParameterEnum = new TextureParameterClass({index:0x84E0, str:'ACTIVE_TEXTURE'});
 const Repeat: TextureParameterEnum = new TextureParameterClass({index:0x2901, str:'REPEAT'});
 const ClampToEdge: TextureParameterEnum = new TextureParameterClass({index:0x812F, str:'CLAMP_TO_EDGE'});
-const RGB: TextureParameterEnum = new TextureParameterClass({index:0x8051, str:'RGB'});
-const RGBA: TextureParameterEnum = new TextureParameterClass({index:0x8058, str:'RGBA'});
 const RGB8: TextureParameterEnum = new TextureParameterClass({index:0x8051, str:'RGB8'});
 const RGBA8: TextureParameterEnum = new TextureParameterClass({index:0x8058, str:'RGBA8'});
 const RGB10_A2: TextureParameterEnum = new TextureParameterClass({index:0x8059, str:'RGB10_A2'});
@@ -37,11 +35,11 @@ const RGBA32F: TextureParameterEnum = new TextureParameterClass({index:0x8814, s
 
 
 const typeList = [ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
-  Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F ];
+  Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F ];
 
 function from({ index }: { index: number }): TextureParameterEnum {
   return _from({typeList, index}) as TextureParameterEnum;
 }
 
 export const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
-  Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB, RGBA, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
+  Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });

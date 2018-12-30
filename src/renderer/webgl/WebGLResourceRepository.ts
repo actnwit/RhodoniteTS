@@ -156,7 +156,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.attachShader(shaderProgram, fragmentShader);
 
     attributeNames.forEach((attributeName, i)=>{
-      gl.bindAttribLocation(shaderProgram, attributeSemantics[i].index, attributeName)
+      gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName)
     });
 
     gl.linkProgram(shaderProgram);
@@ -237,9 +237,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       } else {
         throw new Error('Nothing Element Array Buffer at index '+ i);
       }
-      gl.enableVertexAttribArray(primitive.attributeSemantics[i].index);
+      gl.enableVertexAttribArray(primitive.attributeSemantics[i].getAttributeSlot());
       gl.vertexAttribPointer(
-        primitive.attributeSemantics[i].index,
+        primitive.attributeSemantics[i].getAttributeSlot(),
         primitive.attributeCompositionTypes[i].getNumberOfComponents(),
         primitive.attributeComponentTypes[i].index,
         false,
@@ -256,16 +256,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       } else {
         throw new Error('Nothing Element Array Buffer at index');
       }
-      gl.enableVertexAttribArray(VertexAttribute.Instance.index);
+      gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
       gl.vertexAttribPointer(
-        VertexAttribute.Instance.index,
+        VertexAttribute.Instance.getAttributeSlot(),
         CompositionType.Scalar.getNumberOfComponents(),
         ComponentType.Float.index,
         false,
         0,
         0
         );
-      this.__glw!.vertexAttribDivisor(VertexAttribute.Instance.index, 1);
+      this.__glw!.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);

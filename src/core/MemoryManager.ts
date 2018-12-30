@@ -1,4 +1,5 @@
 import Buffer from '../memory/Buffer';
+import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 
 /**
  * Usage
@@ -11,22 +12,34 @@ import Buffer from '../memory/Buffer';
 export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
-  private __buffers: Map<ObjectUID, Buffer> = new Map();
-  private __bufferForGPU: Buffer;
+  private __buffers: {[s: string]: Buffer} = {};
+  private __bufferForGPUInstanceData: Buffer;
+  private __bufferForGPUVertexData: Buffer;
   private __bufferForCPU: Buffer;
   private static __bufferLengthOfOneSide: Size = Math.pow(2,10);
 
   private constructor() {
 
-    // BufferForGPU
+    // BufferForGPUInstanceData
     {
       const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide*MemoryManager.bufferLengthOfOneSide/*width*height*/*4/*rgba*/*8/*byte*/);
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: 'BufferForGPU'});
-      this.__buffers.set(buffer.objectUid, buffer);
-      this.__bufferForGPU = buffer;
+        name: BufferUse.GPUInstanceData.toString()});
+      this.__buffers[buffer.name] = buffer;
+      this.__bufferForGPUInstanceData = buffer;
+    }
+
+    // BufferForGPUVertexData
+    {
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide*MemoryManager.bufferLengthOfOneSide/*width*height*/*4/*rgba*/*8/*byte*/);
+      const buffer = new Buffer({
+        byteLength:arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: BufferUse.GPUVertexData.toString()});
+      this.__buffers[buffer.name] = buffer;
+      this.__bufferForGPUVertexData = buffer;
     }
 
     // BufferForCPU
@@ -35,8 +48,8 @@ export default class MemoryManager {
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: 'BufferForCPU'});
-      this.__buffers.set(buffer.objectUid, buffer);
+        name: BufferUse.CPUGeneric.toString()});
+      this.__buffers[buffer.name] = buffer;
       this.__bufferForCPU = buffer;
     }
 
@@ -49,11 +62,8 @@ export default class MemoryManager {
     return this.__instance;
   }
 
-  getBufferForGPU(): Buffer {
-    return this.__bufferForGPU;
-  }
-  getBufferForCPU(): Buffer {
-    return this.__bufferForCPU;
+  getBuffer(bufferUse: BufferUseEnum): Buffer {
+    return this.__buffers[bufferUse.toString()];
   }
 
   static get bufferLengthOfOneSide(): Size {
