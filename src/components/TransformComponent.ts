@@ -21,16 +21,11 @@ import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  //private static __bufferViewOfBufferForCPU: BufferView;
-  private static __bufferViews: {[s:string]: BufferView} = {};
-  private static __accessors: { [s: string]: Accessor } = {};
   private _translate: Vector3;
   private _rotate: Vector3;
   private _scale: Vector3;
   private _quaternion: Quaternion;
-  private static __accesseor_quaternion: Accessor;
   private _matrix: Matrix44;
-  private static __accesseor_matrix: Accessor;
   private _invMatrix: Matrix44;
   private _normalMatrix: Matrix33;
 
@@ -91,37 +86,16 @@ export default class TransformComponent extends Component {
   }
 
   static setupBufferView() {
-    const thisClass = TransformComponent;
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-    const count = EntityRepository.getMaxEntityNumber();
-    thisClass.__bufferViews[BufferUse.CPUGeneric.toString()] =
-      buffer.takeBufferView({byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
+
+    // bufferView
+    this.takeBufferViewer(BufferUse.CPUGeneric);
 
     // accessors
-    this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
-    this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
+    this.takeAccessor(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+    this.takeAccessor(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
   }
 
-  static takeOne(memberName: string): any {
-    return this.__accessors['matrix'].takeOne();
-  }
 
-  static takeAccessor(memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    const count = EntityRepository.getMaxEntityNumber();
-    this.__accessors[memberName] = this.__bufferViews[BufferUse.CPUGeneric.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});
-  }
-
-  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum): Byte {
-    return this.__bufferViews[bufferUse.toString()]!.byteOffset;
-  }
-
-  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBuffer;
-  }
-
-  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBufferView;
-  }
 
   $create() {
     // Define process dependencies with other components.

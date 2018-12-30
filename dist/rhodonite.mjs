@@ -3079,7 +3079,31 @@ class Component {
     }
     registerDependency(component, isMust) {
     }
+    static takeBufferViewer(bufferUse) {
+        const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
+        const count = EntityRepository.getMaxEntityNumber();
+        this.__bufferViews[bufferUse.toString()] =
+            buffer.takeBufferView({ byteLengthToNeed: this.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+    }
+    static takeOne(memberName) {
+        return this.__accessors[memberName].takeOne();
+    }
+    static takeAccessor(bufferUse, memberName, compositionType, componentType) {
+        const count = EntityRepository.getMaxEntityNumber();
+        this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count });
+    }
+    static getByteOffsetOfThisComponentTypeInBuffer(bufferUse) {
+        return this.__bufferViews[bufferUse.toString()].byteOffset;
+    }
+    static getByteOffsetOfFirstOfThisMemberInBuffer(memberName) {
+        return this.__accessors[memberName].byteOffsetInBuffer;
+    }
+    static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
+        return this.__accessors[memberName].byteOffsetInBufferView;
+    }
 }
+Component.__bufferViews = {};
+Component.__accessors = {};
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
@@ -3117,30 +3141,11 @@ class TransformComponent extends Component {
         return 160;
     }
     static setupBufferView() {
-        const thisClass = TransformComponent;
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-        const count = EntityRepository.getMaxEntityNumber();
-        thisClass.__bufferViews[BufferUse.CPUGeneric.toString()] =
-            buffer.takeBufferView({ byteLengthToNeed: thisClass.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false });
+        // bufferView
+        this.takeBufferViewer(BufferUse.CPUGeneric);
         // accessors
-        this.takeAccessor('matrix', CompositionType.Mat4, ComponentType.Float);
-        this.takeAccessor('quaternion', CompositionType.Vec4, ComponentType.Float);
-    }
-    static takeOne(memberName) {
-        return this.__accessors['matrix'].takeOne();
-    }
-    static takeAccessor(memberName, compositionType, componentType) {
-        const count = EntityRepository.getMaxEntityNumber();
-        this.__accessors[memberName] = this.__bufferViews[BufferUse.CPUGeneric.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count });
-    }
-    static getByteOffsetOfThisComponentTypeInBuffer(bufferUse) {
-        return this.__bufferViews[bufferUse.toString()].byteOffset;
-    }
-    static getByteOffsetOfFirstOfThisMemberInBuffer(memberName) {
-        return this.__accessors[memberName].byteOffsetInBuffer;
-    }
-    static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
-        return this.__accessors[memberName].byteOffsetInBufferView;
+        this.takeAccessor(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
+        this.takeAccessor(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
     }
     $create() {
         // Define process dependencies with other components.
@@ -3511,9 +3516,6 @@ class TransformComponent extends Component {
         return new Matrix44(this.quaternion);
     }
 }
-//private static __bufferViewOfBufferForCPU: BufferView;
-TransformComponent.__bufferViews = {};
-TransformComponent.__accessors = {};
 TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
 TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);

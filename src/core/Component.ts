@@ -1,8 +1,15 @@
 import MemoryManager from '../core/MemoryManager';
 import EntityRepository from './EntityRepository';
+import BufferView from '../memory/BufferView';
+import Accessor from '../memory/Accessor';
+import { BufferUseEnum } from '../definitions/BufferUse';
+import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 
 export default class Component {
   private _component_sid: number;
+  private static __bufferViews: {[s: string]: BufferView} = {};
+  private static __accessors: { [s: string]: Accessor } = {};
+
   private __isAlive: Boolean;
   protected __entityUid: EntityUID;
   protected __memoryManager: MemoryManager;
@@ -38,6 +45,34 @@ export default class Component {
 
   registerDependency(component: Component, isMust: boolean) {
 
+  }
+
+  static takeBufferViewer(bufferUse: BufferUseEnum) {
+    const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
+    const count = EntityRepository.getMaxEntityNumber();
+    this.__bufferViews[bufferUse.toString()] =
+    buffer.takeBufferView({byteLengthToNeed: this.byteSizeOfThisComponent * count, byteStride: 0, isAoS: false});
+  }
+
+  static takeOne(memberName: string): any {
+    return this.__accessors[memberName].takeOne();
+  }
+
+  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+    const count = EntityRepository.getMaxEntityNumber();
+    this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});
+  }
+
+  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum): Byte {
+    return this.__bufferViews[bufferUse.toString()]!.byteOffset;
+  }
+
+  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {
+    return this.__accessors[memberName].byteOffsetInBuffer;
+  }
+
+  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string): Byte {
+    return this.__accessors[memberName].byteOffsetInBufferView;
   }
 
   // $create() {
