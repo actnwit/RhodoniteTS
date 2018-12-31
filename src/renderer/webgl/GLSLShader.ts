@@ -115,6 +115,6 @@ void main ()
     return GLSLShader.fragmentShaderSimple;
   }
 
-  static attributeNanes: AttributeNames = ['a_position', 'a_color', 'a_instanceID'];
+  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_instanceID'];
   static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 }

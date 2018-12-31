@@ -28,7 +28,7 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     const _in = GLSLShader.glsl_vertex_in;
     const _texture = GLSLShader.glsl_texture;
 
-    return `
+    return `#version 300 es
 
     layout (std140) uniform indexCountsToSubtract {
       int counts[1024];
@@ -43,8 +43,8 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
       vec4 data[1024];
     } u_primitiveHeader;
 
-    out vec3 positions;
-    out vec3 colors;
+    out vec4 position;
+    //out vec3 colors;
 
     uniform sampler2D u_instanceDataTexture;
     uniform sampler2D u_vertexDataTexture;
@@ -55,17 +55,36 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
       int entityUidMinusOne = 0;
       int primitiveUid = 0;
       for (int i=0; i<=indexOfVertices; i++) {
-        for (let j=0; j<1024; j++) {
-          int result = step(indexOfVertices[j], i);
-          if (fesult > 0) {
-            entityUidMinusOne = result * entityIds[j];
-            primitiveUid = result * primitiveUids[j];
+        for (int j=0; j<1024; j++) {
+          int result = int(step(float(u_indexCountsToSubtract.counts[j]), float(i)));
+          if (result > 0) {
+            entityUidMinusOne = result * int(u_entityData.ids[j]) - 1;
+            primitiveUid = result * u_primitiveData.ids[j];
           } else {
             break;
           }
         }
       }
 
+      vec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];
+      int primIndicesByteOffset = int(indicesMeta.x);
+      int primIndicesComponentSizeInByte = int(indicesMeta.y);
+      int primIndicesLength = int(indicesMeta.z);
+
+      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;
+
+      // get Indices
+      int texelLength = ${MemoryManager.bufferLengthOfOneSide};
+      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
+      int index = int(indexVec4[idx%4]);
+
+      // get Positions
+      vec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];
+      int primPositionsByteOffset = int(indicesData.x);
+      idx = primPositionsByteOffset/4 + index;
+      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
+      
+      position = posVec4;
     }
 `
   }
@@ -76,12 +95,12 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     }
 
     // Shader Setup
-    let vertexShader = GLSLShader.vertexShaderVariableDefinitions;
+    let vertexShader = this.__transformFeedbackShaderText;
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
       vertexShader,
       fragmentShader,
-      GLSLShader.attributeNanes,
+      GLSLShader.attributeNames,
       GLSLShader.attributeSemantics
     );
   }
@@ -244,12 +263,25 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   };
 
   attachGPUData(): void {
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
-    const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid)! as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
-    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-    gl.uniform1i(uniform_dataTexture, 0);
+    {
+      const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+      const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid)! as WebGLTexture;
+      gl.activeTexture(gl.TEXTURE0)
+      gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+      var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');
+      gl.uniform1i(uniform_instanceDataTexture, 0);
+    }
+
+    {
+      const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+      const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid)! as WebGLTexture;
+      gl.activeTexture(gl.TEXTURE1)
+      gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+      var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');
+      gl.uniform1i(uniform_vertexDataTexture, 1);
+    }
 
     this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'indexCountsToSubtract', 0);
     this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'entityUids', 1);

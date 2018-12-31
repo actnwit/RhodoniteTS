@@ -5348,7 +5348,7 @@
             configurable: true
         });
         GLSLShader.vertexShaderBody = "\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
-        GLSLShader.attributeNanes = ['a_position', 'a_color', 'a_instanceID'];
+        GLSLShader.attributeNames = ['a_position', 'a_color', 'a_instanceID'];
         GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
         return GLSLShader;
     }());
@@ -5395,7 +5395,8 @@
     var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
     var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
     var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
-    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2 });
+    var TransformFeedbackWebGL2 = new ProcessApproachClass({ index: 5, str: 'TRNASFORM_FEEDBACK_WEBGL2' });
+    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2, TransformFeedbackWebGL2: TransformFeedbackWebGL2 });
 
     //import GLBoost from '../../globals';
     function radianToDegree(rad) {
@@ -5463,7 +5464,7 @@
                 this.vertexShaderMethodDefinitions_UBO +
                 GLSLShader.vertexShaderBody;
             var fragmentShader = GLSLShader.fragmentShader;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
         };
         WebGLStrategyUBO.prototype.setupGPUData = function () {
             var memoryManager = MemoryManager.getInstance();
@@ -5567,7 +5568,7 @@
                 this.vertexShaderMethodDefinitions_dataTexture +
                 GLSLShader.vertexShaderBody;
             var fragmentShader = GLSLShader.fragmentShader;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNanes, GLSLShader.attributeSemantics);
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
         };
         WebGLStrategyDataTexture.prototype.setupGPUData = function () {
             var isHalfFloatMode = false;
@@ -5675,6 +5676,218 @@
         return WebGLStrategyDataTexture;
     }());
 
+    var WebGLStrategyTransformFeedback = /** @class */ (function () {
+        function WebGLStrategyTransformFeedback() {
+            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+            this.__instanceDataTextureUid = 0;
+            this.__vertexDataTextureUid = 0;
+            this.__shaderProgramUid = 0;
+            this.__primitiveHeaderUboUid = 0;
+            this.__indexCountToSubtractUboUid = 0;
+            this.__entitiesUidUboUid = 0;
+            this.__primitiveUidUboUid = 0;
+        }
+        Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackShaderText", {
+            get: function () {
+                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      int counts[1024];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      int ids[1024];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      int ids[1024];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      vec4 data[1024];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int result = int(step(float(u_indexCountsToSubtract.counts[j]), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j];\n          } else {\n            break;\n          }\n        }\n      }\n\n      vec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = int(indicesMeta.x);\n      int primIndicesComponentSizeInByte = int(indicesMeta.y);\n      int primIndicesLength = int(indicesMeta.z);\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferLengthOfOneSide + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      vec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = int(indicesData.x);\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      \n      position = posVec4;\n    }\n";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        WebGLStrategyTransformFeedback.prototype.setupShaderProgram = function () {
+            if (this.__shaderProgramUid !== 0) {
+                return;
+            }
+            // Shader Setup
+            var vertexShader = this.__transformFeedbackShaderText;
+            var fragmentShader = GLSLShader.fragmentShader;
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
+        };
+        WebGLStrategyTransformFeedback.prototype.__setupUBOPrimitiveHeaderData = function () {
+            var memoryManager = MemoryManager.getInstance();
+            var buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
+            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            if (this.__primitiveHeaderUboUid !== 0) {
+                //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
+                return;
+            }
+            this.__primitiveHeaderUboUid = this.__webglResourceRepository.createUniformBuffer(floatDataTextureBuffer);
+            this.__webglResourceRepository.bindUniformBufferBase(3, this.__primitiveHeaderUboUid);
+        };
+        WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceMetaData = function () {
+            if (this.__primitiveUidUboUid !== 0) {
+                return;
+            }
+            var entities = EntityRepository.getInstance()._getEntities();
+            var entityIds = new Float32Array(entities.length);
+            var primitiveIds = new Float32Array(entities.length);
+            var indexCountToSubtract = new Float32Array(entities.length);
+            var tmpSumIndexCount = 0;
+            entities.forEach(function (entity, i) {
+                var meshComponent = entity.getComponent(MeshComponent.componentTID);
+                if (meshComponent) {
+                    primitiveIds[i] = meshComponent.getPrimitiveAt(0).primitiveUid;
+                    entityIds[i] = entity.entityUID;
+                    var indexCountOfPrimitive = meshComponent.getPrimitiveAt(0).indicesAccessor.elementCount;
+                    indexCountToSubtract[i] = tmpSumIndexCount + indexCountOfPrimitive;
+                    tmpSumIndexCount += indexCountOfPrimitive;
+                }
+            });
+            this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
+            this.__webglResourceRepository.bindUniformBufferBase(0, this.__indexCountToSubtractUboUid);
+            this.__entitiesUidUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
+            this.__webglResourceRepository.bindUniformBufferBase(1, this.__entitiesUidUboUid);
+            this.__primitiveUidUboUid = this.__webglResourceRepository.createUniformBuffer(primitiveIds);
+            this.__webglResourceRepository.bindUniformBufferBase(2, this.__primitiveUidUboUid);
+        };
+        WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceData = function () {
+            var isHalfFloatMode = false;
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
+                this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+                isHalfFloatMode = true;
+            }
+            var memoryManager = MemoryManager.getInstance();
+            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            var halfFloatDataTextureBuffer;
+            if (isHalfFloatMode) {
+                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+                var convertLength = buffer.byteSizeInUse / 4; //components
+                convertLength /= 2; // bytes
+                for (var i = 0; i < convertLength; i++) {
+                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+                }
+            }
+            if (this.__instanceDataTextureUid !== 0) {
+                if (isHalfFloatMode) {
+                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                    else {
+                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, halfFloatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.HalfFloat
+                        });
+                    }
+                }
+                else {
+                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                    else {
+                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
+                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            format: PixelFormat.RGBA, type: ComponentType.Float
+                        });
+                    }
+                }
+                return;
+            }
+            if (isHalfFloatMode) {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+                else {
+                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+            }
+            else {
+                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+                else {
+                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                    });
+                }
+            }
+        };
+        WebGLStrategyTransformFeedback.prototype.__setupGPUVertexData = function () {
+            if (this.__vertexDataTextureUid !== 0) {
+                return;
+            }
+            var memoryManager = MemoryManager.getInstance();
+            var buffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
+                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+            else {
+                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
+                });
+            }
+        };
+        WebGLStrategyTransformFeedback.prototype.setupGPUData = function () {
+            this.__setupGPUInstanceData();
+            this.__setupGPUVertexData();
+        };
+        WebGLStrategyTransformFeedback.prototype.attachGPUData = function () {
+            {
+                var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
+                var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+                var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+                var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');
+                gl.uniform1i(uniform_instanceDataTexture, 0);
+            }
+            {
+                var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
+                var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid);
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+                var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+                var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');
+                gl.uniform1i(uniform_vertexDataTexture, 1);
+            }
+            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'indexCountsToSubtract', 0);
+            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'entityUids', 1);
+            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveUids', 2);
+            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveHeader', 3);
+        };
+        WebGLStrategyTransformFeedback.prototype.attatchShaderProgram = function () {
+            var shaderProgramUid = this.__shaderProgramUid;
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            var gl = glw.getRawContext();
+            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
+            gl.useProgram(shaderProgram);
+        };
+        WebGLStrategyTransformFeedback.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new WebGLStrategyTransformFeedback();
+            }
+            return this.__instance;
+        };
+        return WebGLStrategyTransformFeedback;
+    }());
+
     var WebGLRenderingPipeline = new /** @class */ (function () {
         function class_1() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -5685,6 +5898,9 @@
             // Strategy
             if (processApproach === ProcessApproach.UBOWebGL2) {
                 this.__webGLStrategy = WebGLStrategyUBO.getInstance();
+            }
+            else if (processApproach === ProcessApproach.TransformFeedbackWebGL2) {
+                this.__webGLStrategy = WebGLStrategyTransformFeedback.getInstance();
             }
             else {
                 this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
@@ -5801,7 +6017,9 @@
         System.prototype.setProcessApproachAndCanvas = function (approach, canvas) {
             var repo = WebGLResourceRepository.getInstance();
             var gl;
-            if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+            if (approach === ProcessApproach.DataTextureWebGL2 ||
+                approach === ProcessApproach.UBOWebGL2 ||
+                approach === ProcessApproach.TransformFeedbackWebGL2) {
                 gl = canvas.getContext('webgl2');
             }
             else {
