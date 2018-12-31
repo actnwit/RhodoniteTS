@@ -31,16 +31,16 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     return `#version 300 es
 
     layout (std140) uniform indexCountsToSubtract {
-      int counts[1024];
+      ivec4 counts[256];
     } u_indexCountsToSubtract;
     layout (std140) uniform entityUids {
-      int ids[1024];
+      ivec4 ids[256];
     } u_entityData;
     layout (std140) uniform primitiveUids {
-      int ids[1024];
+      ivec4 ids[256];
     } u_primitiveData;
     layout (std140) uniform primitiveHeader {
-      vec4 data[1024];
+      ivec4 data[256];
     } u_primitiveHeader;
 
     out vec4 position;
@@ -56,20 +56,21 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
       int primitiveUid = 0;
       for (int i=0; i<=indexOfVertices; i++) {
         for (int j=0; j<1024; j++) {
-          int result = int(step(float(u_indexCountsToSubtract.counts[j]), float(i)));
+          int value = u_indexCountsToSubtract.counts[j/4][j%4];
+          int result = int(step(float(value), float(i)));
           if (result > 0) {
-            entityUidMinusOne = result * int(u_entityData.ids[j]) - 1;
-            primitiveUid = result * u_primitiveData.ids[j];
+            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;
+            primitiveUid = result * u_primitiveData.ids[j/4][j%4];
           } else {
             break;
           }
         }
       }
 
-      vec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];
-      int primIndicesByteOffset = int(indicesMeta.x);
-      int primIndicesComponentSizeInByte = int(indicesMeta.y);
-      int primIndicesLength = int(indicesMeta.z);
+      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];
+      int primIndicesByteOffset = indicesMeta.x;
+      int primIndicesComponentSizeInByte = indicesMeta.y;
+      int primIndicesLength = indicesMeta.z;
 
       int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;
 
@@ -79,11 +80,11 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
       int index = int(indexVec4[idx%4]);
 
       // get Positions
-      vec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];
-      int primPositionsByteOffset = int(indicesData.x);
+      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];
+      int primPositionsByteOffset = indicesData.x;
       idx = primPositionsByteOffset/4 + index;
       vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
-      
+
       position = posVec4;
     }
 `
@@ -122,7 +123,7 @@ void main(){
   private __setupUBOPrimitiveHeaderData() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
-    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+    const floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
 
     if (this.__primitiveHeaderUboUid !== 0) {
 //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
@@ -138,11 +139,10 @@ void main(){
       return;
     }
 
-
     const entities = EntityRepository.getInstance()._getEntities();
-    const entityIds = new Float32Array(entities.length);
-    const primitiveIds = new Float32Array(entities.length);
-    const indexCountToSubtract = new Float32Array(entities.length);
+    const entityIds = new Int32Array(entities.length);
+    const primitiveIds = new Int32Array(entities.length);
+    const indexCountToSubtract = new Int32Array(entities.length);
     let tmpSumIndexCount = 0;
     entities.forEach((entity:Entity, i)=>{
       const meshComponent = entity.getComponent(MeshComponent.componentTID) as MeshComponent;
@@ -151,11 +151,11 @@ void main(){
         entityIds[i] = entity.entityUID;
         const indexCountOfPrimitive = meshComponent.getPrimitiveAt(0)!.indicesAccessor!.elementCount;
         indexCountToSubtract[i] = tmpSumIndexCount + indexCountOfPrimitive;
-        tmpSumIndexCount += indexCountOfPrimitive
+        tmpSumIndexCount += indexCountOfPrimitive;
       }
     });
 
-    this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
+    this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(indexCountToSubtract);
     this.__webglResourceRepository.bindUniformBufferBase(0, this.__indexCountToSubtractUboUid);
 
     this.__entitiesUidUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
@@ -257,13 +257,13 @@ void main(){
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
 
     if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-      this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+      this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
         level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
         });
     } else {
-      this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+      this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
         level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
@@ -272,6 +272,8 @@ void main(){
   }
 
   setupGPUData(): void {
+    this.__setupUBOPrimitiveHeaderData();
+    this.__setupGPUInstanceMetaData();
     this.__setupGPUInstanceData();
     this.__setupGPUVertexData();
   };

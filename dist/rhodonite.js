@@ -623,6 +623,19 @@
             var ubo = this.getWebGLResource(uboUid);
             gl.deleteBuffer(ubo);
         };
+        WebGLResourceRepository.prototype.createTransformFeedback = function () {
+            var gl = this.__glw.getRawContext();
+            var transformFeedback = gl.createTransformFeedback();
+            var resourceHandle = this.getResourceNumber();
+            this.__webglResources.set(resourceHandle, transformFeedback);
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
+            return resourceHandle;
+        };
+        WebGLResourceRepository.prototype.deleteTransformFeedback = function (transformFeedbackUid) {
+            var gl = this.__glw.getRawContext();
+            var transformFeedback = this.getWebGLResource(transformFeedbackUid);
+            gl.deleteTransformFeedback(transformFeedback);
+        };
         return WebGLResourceRepository;
     }(CGAPIResourceRepository));
 
@@ -5705,7 +5718,7 @@
         }
         Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackShaderText", {
             get: function () {
-                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      int counts[1024];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      int ids[1024];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      int ids[1024];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      vec4 data[1024];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int result = int(step(float(u_indexCountsToSubtract.counts[j]), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j];\n          } else {\n            break;\n          }\n        }\n      }\n\n      vec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = int(indicesMeta.x);\n      int primIndicesComponentSizeInByte = int(indicesMeta.y);\n      int primIndicesLength = int(indicesMeta.z);\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferLengthOfOneSide + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      vec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = int(indicesData.x);\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      \n      position = posVec4;\n    }\n";
+                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      ivec4 counts[256];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      ivec4 ids[256];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      ivec4 ids[256];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      ivec4 data[256];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int value = u_indexCountsToSubtract.counts[j/4][j%4];\n          int result = int(step(float(value), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j/4][j%4];\n          } else {\n            break;\n          }\n        }\n      }\n\n      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = indicesMeta.x;\n      int primIndicesComponentSizeInByte = indicesMeta.y;\n      int primIndicesLength = indicesMeta.z;\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferLengthOfOneSide + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = indicesData.x;\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n\n      position = posVec4;\n    }\n";
             },
             enumerable: true,
             configurable: true
@@ -5734,7 +5747,7 @@
         WebGLStrategyTransformFeedback.prototype.__setupUBOPrimitiveHeaderData = function () {
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
-            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+            var floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
             if (this.__primitiveHeaderUboUid !== 0) {
                 //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
                 return;
@@ -5747,9 +5760,9 @@
                 return;
             }
             var entities = EntityRepository.getInstance()._getEntities();
-            var entityIds = new Float32Array(entities.length);
-            var primitiveIds = new Float32Array(entities.length);
-            var indexCountToSubtract = new Float32Array(entities.length);
+            var entityIds = new Int32Array(entities.length);
+            var primitiveIds = new Int32Array(entities.length);
+            var indexCountToSubtract = new Int32Array(entities.length);
             var tmpSumIndexCount = 0;
             entities.forEach(function (entity, i) {
                 var meshComponent = entity.getComponent(MeshComponent.componentTID);
@@ -5761,7 +5774,7 @@
                     tmpSumIndexCount += indexCountOfPrimitive;
                 }
             });
-            this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
+            this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(indexCountToSubtract);
             this.__webglResourceRepository.bindUniformBufferBase(0, this.__indexCountToSubtractUboUid);
             this.__entitiesUidUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
             this.__webglResourceRepository.bindUniformBufferBase(1, this.__entitiesUidUboUid);
@@ -5858,14 +5871,14 @@
             var buffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                     level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
-                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+                this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
                     level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
@@ -5873,6 +5886,8 @@
             }
         };
         WebGLStrategyTransformFeedback.prototype.setupGPUData = function () {
+            this.__setupUBOPrimitiveHeaderData();
+            this.__setupGPUInstanceMetaData();
             this.__setupGPUInstanceData();
             this.__setupGPUVertexData();
         };

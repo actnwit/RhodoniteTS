@@ -389,4 +389,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.deleteBuffer(ubo);
   }
+
+  createTransformFeedback() {
+    const gl = this.__glw!.getRawContext();
+    var transformFeedback = gl.createTransformFeedback();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, transformFeedback!);
+
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
+
+    return resourceHandle;
+  }
+
+  deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+
+    const transformFeedback = this.getWebGLResource(transformFeedbackUid)!; 
+    gl.deleteTransformFeedback(transformFeedback);
+
+  }
 }
