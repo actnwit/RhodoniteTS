@@ -5074,13 +5074,13 @@
             _this.__primitiveUid = Primitive.__primitiveCount++;
             if (Primitive.__headerAccessor == null) {
                 // primitive 0
-                // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, null, null
+                // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
                 //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
                 //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
                 //   ...
                 //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
                 // primitive 1
-                // prim1.indices.byteOffset, prim1.indices.componentSizeInByte,
+                // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
                 //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
                 //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
                 //   ...
@@ -5089,20 +5089,28 @@
                 var bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
                 Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
             }
+            var attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
             if (_this.indicesAccessor != null) {
-                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + 0 /* 0 means indices */, _this.indicesAccessor.byteOffsetInBuffer, _this.indicesAccessor.componentSizeInBytes, -1, -1);
+                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, _this.indicesAccessor.byteOffsetInBuffer, _this.indicesAccessor.componentSizeInBytes, _this.indicesAccessor.byteLength / _this.indicesAccessor.componentSizeInBytes, -1);
             }
             else {
-                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
+                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
             }
             _this.attributeAccessors.forEach(function (attributeAccessor, i) {
-                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
+                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
             });
             return _this;
         }
         Object.defineProperty(Primitive, "maxPrimitiveCount", {
             get: function () {
                 return 100;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Primitive, "headerAccessor", {
+            get: function () {
+                return this.__headerAccessor;
             },
             enumerable: true,
             configurable: true
@@ -5186,6 +5194,13 @@
         Object.defineProperty(Primitive.prototype, "primitiveMode", {
             get: function () {
                 return this.__mode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Primitive.prototype, "primitiveUid", {
+            get: function () {
+                return this.__primitiveUid;
             },
             enumerable: true,
             configurable: true
