@@ -3019,8 +3019,9 @@ class BufferUseClass extends EnumClass {
 }
 const GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
 const GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
-const CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
-const typeList$4 = [GPUInstanceData, GPUVertexData, CPUGeneric];
+const UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });
+const CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });
+const typeList$4 = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
 function from$4({ index, str }) {
     if (index != null) {
         return _from({ typeList: typeList$4, index });
@@ -3032,7 +3033,7 @@ function from$4({ index, str }) {
         throw new Error('Not currect query supplied.');
     }
 }
-const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, CPUGeneric, from: from$4 });
+const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from: from$4 });
 
 /**
  * Usage
@@ -3054,7 +3055,6 @@ class MemoryManager {
                 name: BufferUse.GPUInstanceData.toString()
             });
             this.__buffers[buffer.name] = buffer;
-            this.__bufferForGPUInstanceData = buffer;
         }
         // BufferForGPUVertexData
         {
@@ -3065,7 +3065,16 @@ class MemoryManager {
                 name: BufferUse.GPUVertexData.toString()
             });
             this.__buffers[buffer.name] = buffer;
-            this.__bufferForGPUVertexData = buffer;
+        }
+        // BufferForUBO
+        {
+            const arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const buffer = new Buffer({
+                byteLength: arrayBuffer.byteLength,
+                arrayBuffer: arrayBuffer,
+                name: BufferUse.UBOGeneric.toString()
+            });
+            this.__buffers[buffer.name] = buffer;
         }
         // BufferForCPU
         {
@@ -3076,7 +3085,6 @@ class MemoryManager {
                 name: BufferUse.CPUGeneric.toString()
             });
             this.__buffers[buffer.name] = buffer;
-            this.__bufferForCPU = buffer;
         }
     }
     static getInstance() {
@@ -4296,6 +4304,10 @@ class MeshComponent extends Component {
     getPrimitiveNumber() {
         return this.__primitives.length;
     }
+    static setupBufferView() {
+        //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation();
+    }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
@@ -4360,6 +4372,7 @@ ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, M
 class Primitive extends RnObject {
     constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
         super();
+        this.__primitiveUid = -1; // start ID from zero
         this.__indices = indicesAccessor;
         this.__attributeCompositionTypes = attributeCompositionTypes;
         this.__attributeComponentTypes = attributeComponentTypes;
@@ -4370,6 +4383,36 @@ class Primitive extends RnObject {
         this.__indicesBufferView = indicesBufferView;
         this.__attributesBufferView = attributesBufferView;
         this.__indicesComponentType = indicesComponentType;
+        this.__primitiveUid = Primitive.__primitiveCount++;
+        if (Primitive.__headerAccessor == null) {
+            // primitive 0
+            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, null, null
+            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
+            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
+            //   ...
+            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
+            // primitive 1
+            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte,
+            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
+            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
+            //   ...
+            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
+            const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+            const bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
+            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
+        }
+        if (this.indicesAccessor != null) {
+            Primitive.__headerAccessor.setVec4(9 * this.__primitiveUid + 0 /* 0 means indices */, this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, -1, -1);
+        }
+        else {
+            Primitive.__headerAccessor.setVec4(9 * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
+        }
+        this.attributeAccessors.forEach((attributeAccessor, i) => {
+            Primitive.__headerAccessor.setVec4(9 * this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
+        });
+    }
+    static get maxPrimitiveCount() {
+        return 100;
     }
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
@@ -4430,6 +4473,7 @@ class Primitive extends RnObject {
         return this.__mode;
     }
 }
+Primitive.__primitiveCount = 0;
 
 class PrimitiveModeClass extends EnumClass {
     constructor({ index, str }) {

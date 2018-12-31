@@ -13,9 +13,6 @@ export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: {[s: string]: Buffer} = {};
-  private __bufferForGPUInstanceData: Buffer;
-  private __bufferForGPUVertexData: Buffer;
-  private __bufferForCPU: Buffer;
   private static __bufferLengthOfOneSide: Size = Math.pow(2,10);
 
   private constructor() {
@@ -28,7 +25,6 @@ export default class MemoryManager {
         arrayBuffer: arrayBuffer,
         name: BufferUse.GPUInstanceData.toString()});
       this.__buffers[buffer.name] = buffer;
-      this.__bufferForGPUInstanceData = buffer;
     }
 
     // BufferForGPUVertexData
@@ -39,7 +35,16 @@ export default class MemoryManager {
         arrayBuffer: arrayBuffer,
         name: BufferUse.GPUVertexData.toString()});
       this.__buffers[buffer.name] = buffer;
-      this.__bufferForGPUVertexData = buffer;
+    }
+
+    // BufferForUBO
+    {
+      const arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide-1)*(MemoryManager.bufferLengthOfOneSide-1)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const buffer = new Buffer({
+        byteLength:arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: BufferUse.UBOGeneric.toString()});
+      this.__buffers[buffer.name] = buffer;
     }
 
     // BufferForCPU
@@ -50,7 +55,6 @@ export default class MemoryManager {
         arrayBuffer: arrayBuffer,
         name: BufferUse.CPUGeneric.toString()});
       this.__buffers[buffer.name] = buffer;
-      this.__bufferForCPU = buffer;
     }
 
   }

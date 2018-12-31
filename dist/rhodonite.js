@@ -3511,8 +3511,9 @@
     }(EnumClass));
     var GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
     var GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
-    var CPUGeneric = new BufferUseClass({ index: 2, str: 'CPUGeneric' });
-    var typeList$4 = [GPUInstanceData, GPUVertexData, CPUGeneric];
+    var UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });
+    var CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });
+    var typeList$4 = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
     function from$4(_a) {
         var index = _a.index, str = _a.str;
         if (index != null) {
@@ -3525,7 +3526,7 @@
             throw new Error('Not currect query supplied.');
         }
     }
-    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, CPUGeneric: CPUGeneric, from: from$4 });
+    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, UBOGeneric: UBOGeneric, CPUGeneric: CPUGeneric, from: from$4 });
 
     /**
      * Usage
@@ -3547,7 +3548,6 @@
                     name: BufferUse.GPUInstanceData.toString()
                 });
                 this.__buffers[buffer.name] = buffer;
-                this.__bufferForGPUInstanceData = buffer;
             }
             // BufferForGPUVertexData
             {
@@ -3558,7 +3558,16 @@
                     name: BufferUse.GPUVertexData.toString()
                 });
                 this.__buffers[buffer.name] = buffer;
-                this.__bufferForGPUVertexData = buffer;
+            }
+            // BufferForUBO
+            {
+                var arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var buffer = new Buffer({
+                    byteLength: arrayBuffer.byteLength,
+                    arrayBuffer: arrayBuffer,
+                    name: BufferUse.UBOGeneric.toString()
+                });
+                this.__buffers[buffer.name] = buffer;
             }
             // BufferForCPU
             {
@@ -3569,7 +3578,6 @@
                     name: BufferUse.CPUGeneric.toString()
                 });
                 this.__buffers[buffer.name] = buffer;
-                this.__bufferForCPU = buffer;
             }
         }
         MemoryManager.getInstance = function () {
@@ -4975,6 +4983,10 @@
         MeshComponent.prototype.getPrimitiveNumber = function () {
             return this.__primitives.length;
         };
+        MeshComponent.setupBufferView = function () {
+            //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
+            this.submitToAllocation();
+        };
         return MeshComponent;
     }(Component));
     ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
@@ -5048,6 +5060,7 @@
         __extends(Primitive, _super);
         function Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
             var _this = _super.call(this) || this;
+            _this.__primitiveUid = -1; // start ID from zero
             _this.__indices = indicesAccessor;
             _this.__attributeCompositionTypes = attributeCompositionTypes;
             _this.__attributeComponentTypes = attributeComponentTypes;
@@ -5058,8 +5071,42 @@
             _this.__indicesBufferView = indicesBufferView;
             _this.__attributesBufferView = attributesBufferView;
             _this.__indicesComponentType = indicesComponentType;
+            _this.__primitiveUid = Primitive.__primitiveCount++;
+            if (Primitive.__headerAccessor == null) {
+                // primitive 0
+                // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, null, null
+                //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
+                //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
+                //   ...
+                //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
+                // primitive 1
+                // prim1.indices.byteOffset, prim1.indices.componentSizeInByte,
+                //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
+                //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
+                //   ...
+                //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
+                var buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+                var bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
+                Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
+            }
+            if (_this.indicesAccessor != null) {
+                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + 0 /* 0 means indices */, _this.indicesAccessor.byteOffsetInBuffer, _this.indicesAccessor.componentSizeInBytes, -1, -1);
+            }
+            else {
+                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
+            }
+            _this.attributeAccessors.forEach(function (attributeAccessor, i) {
+                Primitive.__headerAccessor.setVec4(9 * _this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
+            });
             return _this;
         }
+        Object.defineProperty(Primitive, "maxPrimitiveCount", {
+            get: function () {
+                return 100;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Primitive.createPrimitive = function (_a) {
             var indices = _a.indices, attributeCompositionTypes = _a.attributeCompositionTypes, attributeSemantics = _a.attributeSemantics, attributes = _a.attributes, material = _a.material, primitiveMode = _a.primitiveMode;
             var buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
@@ -5143,6 +5190,7 @@
             enumerable: true,
             configurable: true
         });
+        Primitive.__primitiveCount = 0;
         return Primitive;
     }(RnObject));
 
