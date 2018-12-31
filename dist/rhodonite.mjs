@@ -334,22 +334,25 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         return { vaoHandle, iboHandle, vboHandles };
     }
-    createShaderProgram(vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics) {
+    createShaderProgram({ vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }) {
         const gl = this.__glw.getRawContext();
         if (gl == null) {
             throw new Error("No WebGLRenderingContext set as Default.");
         }
         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(vertexShader, vertexShaderStr);
-        gl.shaderSource(fragmentShader, fragmentShaderStr);
         gl.compileShader(vertexShader);
         this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
-        gl.compileShader(fragmentShader);
-        this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
         const shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
-        gl.attachShader(shaderProgram, fragmentShader);
+        let fragmentShader;
+        if (fragmentShaderStr != null) {
+            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader, fragmentShaderStr);
+            gl.compileShader(fragmentShader);
+            this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
+            gl.attachShader(shaderProgram, fragmentShader);
+        }
         attributeNames.forEach((attributeName, i) => {
             gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);
         });
@@ -358,7 +361,9 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
         this.__webglResources.set(resourceHandle, shaderProgram);
         this.__checkShaderProgramLinkStatus(shaderProgram);
         gl.deleteShader(vertexShader);
-        gl.deleteShader(fragmentShader);
+        if (fragmentShaderStr != null) {
+            gl.deleteShader(fragmentShader);
+        }
         return resourceHandle;
     }
     __addLineNumber(shaderString) {
@@ -4720,7 +4725,12 @@ class WebGLStrategyUBO {
             this.vertexShaderMethodDefinitions_UBO +
             GLSLShader.vertexShaderBody;
         let fragmentShader = GLSLShader.fragmentShader;
-        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
+            vertexShaderStr: vertexShader,
+            fragmentShaderStr: fragmentShader,
+            attributeNames: GLSLShader.attributeNames,
+            attributeSemantics: GLSLShader.attributeSemantics
+        });
     }
     setupGPUData() {
         const memoryManager = MemoryManager.getInstance();
@@ -4854,7 +4864,12 @@ class WebGLStrategyDataTexture {
             this.vertexShaderMethodDefinitions_dataTexture +
             GLSLShader.vertexShaderBody;
         let fragmentShader = GLSLShader.fragmentShader;
-        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
+            vertexShaderStr: vertexShader,
+            fragmentShaderStr: fragmentShader,
+            attributeNames: GLSLShader.attributeNames,
+            attributeSemantics: GLSLShader.attributeSemantics
+        });
     }
     setupGPUData() {
         let isHalfFloatMode = false;
@@ -5035,14 +5050,30 @@ class WebGLStrategyTransformFeedback {
     }
 `;
     }
+    get __transformFeedbackFragmentShaderText() {
+        return `#version 300 es
+precision highp float;
+
+out vec4 outColor;
+
+void main(){
+    outColor = vec4(1.0);
+}
+    `;
+    }
     setupShaderProgram() {
         if (this.__shaderProgramUid !== 0) {
             return;
         }
         // Shader Setup
         let vertexShader = this.__transformFeedbackShaderText;
-        let fragmentShader = GLSLShader.fragmentShader;
-        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(vertexShader, fragmentShader, GLSLShader.attributeNames, GLSLShader.attributeSemantics);
+        let fragmentShader = this.__transformFeedbackFragmentShaderText;
+        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
+            vertexShaderStr: vertexShader,
+            fragmentShaderStr: fragmentShader,
+            attributeNames: GLSLShader.attributeNames,
+            attributeSemantics: GLSLShader.attributeSemantics
+        });
     }
     __setupUBOPrimitiveHeaderData() {
         const memoryManager = MemoryManager.getInstance();

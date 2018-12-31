@@ -58,7 +58,10 @@ export default class System {
     const repo = WebGLResourceRepository.getInstance();
 
     let gl;
-    if (approach === ProcessApproach.DataTextureWebGL2 || approach === ProcessApproach.UBOWebGL2) {
+    if (approach === ProcessApproach.DataTextureWebGL2 ||
+       approach === ProcessApproach.UBOWebGL2 ||
+       approach === ProcessApproach.TransformFeedbackWebGL2
+       ) {
       gl = canvas.getContext('webgl2');
     } else {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');

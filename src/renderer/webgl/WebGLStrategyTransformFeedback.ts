@@ -89,6 +89,18 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
 `
   }
 
+  private get __transformFeedbackFragmentShaderText() {
+    return `#version 300 es
+precision highp float;
+
+out vec4 outColor;
+
+void main(){
+    outColor = vec4(1.0);
+}
+    `
+  }
+
   setupShaderProgram(): void {
     if (this.__shaderProgramUid !== 0) {
       return;
@@ -96,12 +108,14 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
 
     // Shader Setup
     let vertexShader = this.__transformFeedbackShaderText;
-    let fragmentShader = GLSLShader.fragmentShader;
+    let fragmentShader = this.__transformFeedbackFragmentShaderText;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      vertexShader,
-      fragmentShader,
-      GLSLShader.attributeNames,
-      GLSLShader.attributeSemantics
+      {
+        vertexShaderStr: vertexShader,
+        fragmentShaderStr: fragmentShader,
+        attributeNames: GLSLShader.attributeNames,
+        attributeSemantics: GLSLShader.attributeSemantics
+      }
     );
   }
 

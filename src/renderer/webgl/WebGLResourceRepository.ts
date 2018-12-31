@@ -132,7 +132,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return {vaoHandle, iboHandle, vboHandles};
   }
 
-  createShaderProgram(vertexShaderStr:string, fragmentShaderStr:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>) {
+  createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
+    {vertexShaderStr:string, fragmentShaderStr?:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>}) {
+
     const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
@@ -140,20 +142,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
 
     gl.shaderSource(vertexShader, vertexShaderStr);
-    gl.shaderSource(fragmentShader, fragmentShaderStr);
 
     gl.compileShader(vertexShader);
     this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
 
-    gl.compileShader(fragmentShader);
-    this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
-
     const shaderProgram = gl.createProgram()!;
     gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
+
+    let fragmentShader;
+    if (fragmentShaderStr != null) {
+      fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+      gl.shaderSource(fragmentShader, fragmentShaderStr);
+      gl.compileShader(fragmentShader);
+      this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
+      gl.attachShader(shaderProgram, fragmentShader);
+    }
+
 
     attributeNames.forEach((attributeName, i)=>{
       gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName)
@@ -168,7 +174,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__checkShaderProgramLinkStatus(shaderProgram);
 
     gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
+
+    if (fragmentShaderStr != null) {
+      gl.deleteShader(fragmentShader);
+    }
 
     return resourceHandle;
   }

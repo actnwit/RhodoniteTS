@@ -72,10 +72,12 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       GLSLShader.vertexShaderBody
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      vertexShader,
-      fragmentShader,
-      GLSLShader.attributeNames,
-      GLSLShader.attributeSemantics
+      {
+        vertexShaderStr: vertexShader,
+        fragmentShaderStr: fragmentShader,
+        attributeNames: GLSLShader.attributeNames,
+        attributeSemantics: GLSLShader.attributeSemantics
+      }
     );
   }
 
