@@ -5,6 +5,9 @@ import WebGLResourceRepository, { VertexHandles } from '../renderer/webgl/WebGLR
 import GLSLShader from '../renderer/webgl/GLSLShader';
 import RenderingPipeline from '../renderer/RenderingPipeline';
 import Primitive from '../geometry/Primitive';
+import WebGLStrategy from '../renderer/webgl/WebGLStrategy';
+import getRenderingStrategy from '../renderer/webgl/getRenderingStrategy';
+import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -13,6 +16,7 @@ export default class MeshRendererComponent extends Component {
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
   private __isVAOSet = false;
+  private __webglRenderingStrategy?: WebGLStrategy;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
@@ -52,11 +56,10 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  $prerender(args: Array<any>) {
+  $prerender(processApproech: ProcessApproachEnum, instanceIDBufferUid: WebGLResourceHandle) {
     if (this.__isVAOSet) {
       return;
     }
-    const instanceIDBufferUid = args[0];
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
