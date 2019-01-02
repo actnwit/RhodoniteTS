@@ -63,6 +63,10 @@ export default class Component {
     return this.__accessors[memberName].takeOne();
   }
 
+  static getAccessor(memberName: string): Accessor {
+    return this.__accessors[memberName];
+  }
+
   static takeAccessor(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const count = EntityRepository.getMaxEntityNumber();
     this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});

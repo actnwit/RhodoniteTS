@@ -404,7 +404,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle) {
     const gl = this.__glw!.getRawContext();
 
-    const transformFeedback = this.getWebGLResource(transformFeedbackUid)!; 
+    const transformFeedback = this.getWebGLResource(transformFeedbackUid)!;
     gl.deleteTransformFeedback(transformFeedback);
 
   }

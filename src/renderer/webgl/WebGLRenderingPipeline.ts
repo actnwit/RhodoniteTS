@@ -14,6 +14,8 @@ import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { BufferUse } from "../../definitions/BufferUse";
 import WebGLStrategyTransformFeedback from "./WebGLStrategyTransformFeedback";
+import getRenderingStrategy from "./getRenderingStrategy";
+import WebGLStrategy from "./WebGLStrategy";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -23,13 +25,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   common_$load(processApproach: ProcessApproachEnum) {
 
     // Strategy
-    if (processApproach === ProcessApproach.UBOWebGL2) {
-      this.__webGLStrategy = WebGLStrategyUBO.getInstance();
-    } else if (processApproach === ProcessApproach.TransformFeedbackWebGL2) {
-      this.__webGLStrategy = WebGLStrategyTransformFeedback.getInstance();
-    } else {
-      this.__webGLStrategy = WebGLStrategyDataTexture.getInstance();
-    }
+    this.__webGLStrategy = getRenderingStrategy(processApproach);
 
     // Shader setup
     this.__webGLStrategy!.setupShaderProgram();

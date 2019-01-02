@@ -9,6 +9,7 @@ import { TextureParameter } from "../../definitions/TextureParameter";
 import SceneGraphComponent from "../../components/SceneGraphComponent";
 import GLSLShader from "./GLSLShader";
 import { BufferUse } from "../../definitions/BufferUse";
+import WebGLStrategy from "./WebGLStrategy";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -73,11 +74,11 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
     } else {
       if (this.__uboUid !== 0) {
-        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
+        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
         return;
       }
 
-      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
+      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
 
     }
     this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);

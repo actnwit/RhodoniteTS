@@ -8,6 +8,7 @@ import { ComponentType } from "../../definitions/ComponentType";
 import { TextureParameter } from "../../definitions/TextureParameter";
 import GLSLShader from "./GLSLShader";
 import { BufferUse } from "../../definitions/BufferUse";
+import WebGLStrategy from "./WebGLStrategy";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;

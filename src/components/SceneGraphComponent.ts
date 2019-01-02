@@ -21,7 +21,6 @@ export default class SceneGraphComponent extends Component {
   //private __updatedProperly: boolean;
 
   private static __bufferView: BufferView;
-  private static __accesseor_worldMatrix: Accessor;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
@@ -46,10 +45,6 @@ export default class SceneGraphComponent extends Component {
 
     this.submitToAllocation();
 
-  }
-
-  static getWorldMatrixAccessor() {
-    return SceneGraphComponent.__accesseor_worldMatrix;
   }
 
   beAbleToBeParent(flag: boolean) {

@@ -11,6 +11,7 @@ import Entity from "../../core/Entity";
 import EntityRepository from "../../core/EntityRepository";
 import { BufferUse } from "../../definitions/BufferUse";
 import MeshComponent from "../../components/MeshComponent";
+import WebGLStrategy from "./WebGLStrategy";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
