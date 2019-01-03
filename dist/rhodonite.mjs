@@ -3158,11 +3158,16 @@ class Component {
     }
     registerDependency(component, isMust) {
     }
-    static takeBufferViewer(bufferUse, byteLengthSumOfMembers) {
+    static takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers) {
         const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
         const count = EntityRepository.getMaxEntityNumber();
-        this.__bufferViews[bufferUse.toString()] =
-            buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
+        if (!this.__bufferViews.has(componentClass)) {
+            this.__bufferViews.set(componentClass, new Map());
+        }
+        const bufferViews = this.__bufferViews.get(componentClass);
+        if (!bufferViews.has(bufferUse)) {
+            bufferViews.set(bufferUse, buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false }));
+        }
     }
     static takeOne(memberName, componentClass) {
         return this.__accessors.get(componentClass).get(memberName).takeOne();
@@ -3177,11 +3182,12 @@ class Component {
         }
         const accessors = this.__accessors.get(componentClass);
         if (!accessors.has(memberName)) {
-            accessors.set(memberName, this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count }));
+            const bufferViews = this.__bufferViews.get(componentClass);
+            accessors.set(memberName, bufferViews.get(bufferUse).takeAccessor({ compositionType: compositionType, componentType, count: count }));
         }
     }
-    static getByteOffsetOfThisComponentTypeInBuffer(bufferUse) {
-        return this.__bufferViews[bufferUse.toString()].byteOffset;
+    static getByteOffsetOfThisComponentTypeInBuffer(bufferUse, componentClass) {
+        return this.__bufferViews.get(componentClass).get(bufferUse).byteOffset;
     }
     static getByteOffsetOfFirstOfThisMemberInBuffer(memberName, componentClass) {
         return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
@@ -3238,7 +3244,7 @@ class Component {
                 byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
             });
             if (infoArray.length > 0) {
-                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), byteLengthSumOfMembers[bufferUseName]);
+                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), componentClass, byteLengthSumOfMembers[bufferUseName]);
             }
         }
         for (let bufferUse of members.keys()) {
@@ -3249,7 +3255,7 @@ class Component {
         }
     }
 }
-Component.__bufferViews = {};
+Component.__bufferViews = new Map();
 Component.__accessors = new Map();
 Component.__byteLengthSumOfMembers = new Map();
 Component.__memberInfo = new Map();
