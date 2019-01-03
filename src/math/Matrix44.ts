@@ -121,6 +121,14 @@ export default class Matrix44 {
     return new Matrix44(null);
   }
 
+  isDummy() {
+    if (this.m.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   setComponents(
     m00:number, m01:number, m02:number, m03:number,
     m10:number, m11:number, m12:number, m13:number,

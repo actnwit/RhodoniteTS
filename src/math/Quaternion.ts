@@ -69,6 +69,14 @@ export default class Quaternion {
     return new Quaternion(null);
   }
 
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   get className() {
     return this.constructor.name;
   }
