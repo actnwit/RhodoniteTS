@@ -3675,24 +3675,30 @@
             this.__bufferViews[bufferUse.toString()] =
                 buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
         };
-        Component.takeOne = function (memberName) {
-            return this.__accessors[memberName].takeOne();
+        Component.takeOne = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName).takeOne();
         };
-        Component.getAccessor = function (memberName) {
-            return this.__accessors[memberName];
+        Component.getAccessor = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName);
         };
-        Component.takeAccessor = function (bufferUse, memberName, compositionType, componentType) {
+        Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
             var count = EntityRepository.getMaxEntityNumber();
-            this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType: componentType, count: count });
+            if (!this.__accessors.has(componentClass)) {
+                this.__accessors.set(componentClass, new Map());
+            }
+            var accessors = this.__accessors.get(componentClass);
+            if (!accessors.has(memberName)) {
+                accessors.set(memberName, this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType: componentType, count: count }));
+            }
         };
         Component.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse) {
             return this.__bufferViews[bufferUse.toString()].byteOffset;
         };
-        Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName) {
-            return this.__accessors[memberName].byteOffsetInBuffer;
+        Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
         };
-        Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName) {
-            return this.__accessors[memberName].byteOffsetInBufferView;
+        Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;
         };
         Component.getCompositionTypeOfMember = function (memberName, componentClass) {
             var memberInfoArray = this.__memberInfo.get(componentClass);
@@ -3767,7 +3773,7 @@
                     var bufferUse = _f.value;
                     var infoArray = members.get(bufferUse);
                     infoArray.forEach(function (info) {
-                        _this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+                        _this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
                     });
                 }
             }
@@ -3780,7 +3786,7 @@
             }
         };
         Component.__bufferViews = {};
-        Component.__accessors = {};
+        Component.__accessors = new Map();
         Component.__byteLengthSumOfMembers = new Map();
         Component.__memberInfo = new Map();
         return Component;
@@ -3797,9 +3803,9 @@
             _this._translate = Vector3.zero();
             _this._rotate = Vector3.zero();
             _this._scale = new Vector3(1, 1, 1);
-            _this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
+            _this._quaternion = new Quaternion(thisClass.takeOne('quaternion', thisClass));
             _this._quaternion.identity();
-            _this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
+            _this._matrix = new Matrix44(thisClass.takeOne('matrix', thisClass), false, true);
             _this._matrix.identity();
             _this._invMatrix = Matrix44.identity();
             _this._normalMatrix = Matrix33.identity();
@@ -4957,7 +4963,7 @@
             var thisClass = SceneGraphComponent;
             _this.__isAbleToBeParent = false;
             _this.beAbleToBeParent(true);
-            _this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
+            _this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix', thisClass), true);
             _this.__worldMatrix.identity();
             return _this;
             //this.__updatedProperly = false;
@@ -5545,10 +5551,10 @@
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
                 if (this.__uboUid !== 0) {
-                    this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+                    this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
                     return;
                 }
-                this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+                this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
             }
             this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
         };

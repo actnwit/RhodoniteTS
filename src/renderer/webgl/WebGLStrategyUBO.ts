@@ -74,11 +74,11 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
     } else {
       if (this.__uboUid !== 0) {
-        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
         return;
       }
 
-      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
 
     }
     this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);

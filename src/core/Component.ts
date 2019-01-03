@@ -9,8 +9,8 @@ type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, compositionType
 
 export default class Component {
   private _component_sid: number;
-  private static __bufferViews: {[s: string]: BufferView} = {};
-  private static __accessors: { [s: string]: Accessor } = {};
+  private static __bufferViews:{[s: string]: BufferView} = {};
+  private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, { [s: string]: Byte }> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
@@ -60,29 +60,40 @@ export default class Component {
     buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false});
   }
 
-  static takeOne(memberName: string): any {
-    return this.__accessors[memberName].takeOne();
+  static takeOne(memberName: string, componentClass:Function): any {
+    return this.__accessors.get(componentClass)!.get(memberName)!.takeOne();
   }
 
-  static getAccessor(memberName: string): Accessor {
-    return this.__accessors[memberName];
+  static getAccessor(memberName: string, componentClass:Function): Accessor {
+    return this.__accessors.get(componentClass)!.get(memberName)!;
   }
 
-  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const count = EntityRepository.getMaxEntityNumber();
-    this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});
+    if (!this.__accessors.has(componentClass)) {
+      this.__accessors.set(componentClass, new Map());
+    }
+
+    const accessors = this.__accessors.get(componentClass)!;
+
+    if (!accessors.has(memberName)) {
+      accessors.set(memberName,
+        this.__bufferViews[bufferUse.toString()].takeAccessor(
+          {compositionType: compositionType, componentType, count: count})
+      );
+    }
   }
 
   static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum): Byte {
     return this.__bufferViews[bufferUse.toString()]!.byteOffset;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBuffer;
+  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass:Function): Byte {
+    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBuffer;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBufferView;
+  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass:Function): Byte {
+    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBufferView;
   }
 
   static getCompositionTypeOfMember(memberName: string, componentClass:Function): CompositionTypeEnum | null {
@@ -146,7 +157,7 @@ export default class Component {
     for (let bufferUse of members.keys()) {
       const infoArray = members.get(bufferUse)!;
       infoArray.forEach(info=>{
-        this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+        this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
       });
     }
 

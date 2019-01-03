@@ -3164,24 +3164,30 @@ class Component {
         this.__bufferViews[bufferUse.toString()] =
             buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false });
     }
-    static takeOne(memberName) {
-        return this.__accessors[memberName].takeOne();
+    static takeOne(memberName, componentClass) {
+        return this.__accessors.get(componentClass).get(memberName).takeOne();
     }
-    static getAccessor(memberName) {
-        return this.__accessors[memberName];
+    static getAccessor(memberName, componentClass) {
+        return this.__accessors.get(componentClass).get(memberName);
     }
-    static takeAccessor(bufferUse, memberName, compositionType, componentType) {
+    static takeAccessor(bufferUse, memberName, componentClass, compositionType, componentType) {
         const count = EntityRepository.getMaxEntityNumber();
-        this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count });
+        if (!this.__accessors.has(componentClass)) {
+            this.__accessors.set(componentClass, new Map());
+        }
+        const accessors = this.__accessors.get(componentClass);
+        if (!accessors.has(memberName)) {
+            accessors.set(memberName, this.__bufferViews[bufferUse.toString()].takeAccessor({ compositionType: compositionType, componentType, count: count }));
+        }
     }
     static getByteOffsetOfThisComponentTypeInBuffer(bufferUse) {
         return this.__bufferViews[bufferUse.toString()].byteOffset;
     }
-    static getByteOffsetOfFirstOfThisMemberInBuffer(memberName) {
-        return this.__accessors[memberName].byteOffsetInBuffer;
+    static getByteOffsetOfFirstOfThisMemberInBuffer(memberName, componentClass) {
+        return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
     }
-    static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
-        return this.__accessors[memberName].byteOffsetInBufferView;
+    static getByteOffsetOfFirstOfThisMemberInBufferView(memberName, componentClass) {
+        return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;
     }
     static getCompositionTypeOfMember(memberName, componentClass) {
         const memberInfoArray = this.__memberInfo.get(componentClass);
@@ -3238,13 +3244,13 @@ class Component {
         for (let bufferUse of members.keys()) {
             const infoArray = members.get(bufferUse);
             infoArray.forEach(info => {
-                this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+                this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
             });
         }
     }
 }
 Component.__bufferViews = {};
-Component.__accessors = {};
+Component.__accessors = new Map();
 Component.__byteLengthSumOfMembers = new Map();
 Component.__memberInfo = new Map();
 
@@ -3258,9 +3264,9 @@ class TransformComponent extends Component {
         this._translate = Vector3.zero();
         this._rotate = Vector3.zero();
         this._scale = new Vector3(1, 1, 1);
-        this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
+        this._quaternion = new Quaternion(thisClass.takeOne('quaternion', thisClass));
         this._quaternion.identity();
-        this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
+        this._matrix = new Matrix44(thisClass.takeOne('matrix', thisClass), false, true);
         this._matrix.identity();
         this._invMatrix = Matrix44.identity();
         this._normalMatrix = Matrix33.identity();
@@ -4276,7 +4282,7 @@ class SceneGraphComponent extends Component {
         const thisClass = SceneGraphComponent;
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
-        this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
+        this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix', thisClass), true);
         this.__worldMatrix.identity();
         //this.__updatedProperly = false;
     }
@@ -4779,10 +4785,10 @@ class WebGLStrategyUBO {
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
             if (this.__uboUid !== 0) {
-                this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+                this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
                 return;
             }
-            this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix').dataViewOfBufferView);
+            this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
         }
         this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
     }
