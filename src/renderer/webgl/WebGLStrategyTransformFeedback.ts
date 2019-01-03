@@ -12,6 +12,9 @@ import EntityRepository from "../../core/EntityRepository";
 import { BufferUse } from "../../definitions/BufferUse";
 import MeshComponent from "../../components/MeshComponent";
 import WebGLStrategy from "./WebGLStrategy";
+import MeshRendererComponent from "../../components/MeshRendererComponent";
+import Primitive from "../../geometry/Primitive";
+import WebGLContextWrapper from "./WebGLContextWrapper";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -119,6 +122,14 @@ void main(){
         attributeSemantics: GLSLShader.attributeSemantics
       }
     );
+  }
+
+
+  load(meshComponent: MeshComponent) {
+
+  }
+
+  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   private __setupUBOPrimitiveHeaderData() {
@@ -312,6 +323,9 @@ void main(){
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
+  }
+
+  attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   static getInstance() {

@@ -3965,11 +3965,6 @@ class TransformComponent extends Component {
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
-    static setupBufferView() {
-        //    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
-        //    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
-        //    this.submitToAllocation(this);
-    }
     $create() {
         // Define process dependencies with other components.
         // If circular depenencies are detected, the error will be repoated.
@@ -4342,7 +4337,6 @@ class TransformComponent extends Component {
 TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
 TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-TransformComponent.setupBufferView();
 
 class SceneGraphComponent extends Component {
     constructor(entityUid, componentSid) {
@@ -4357,10 +4351,6 @@ class SceneGraphComponent extends Component {
     }
     static get componentTID() {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
-    }
-    static setupBufferView() {
-        //    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
-        //    this.submitToAllocation(this);
     }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
@@ -4407,7 +4397,6 @@ class SceneGraphComponent extends Component {
     }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
-SceneGraphComponent.setupBufferView();
 
 class MeshComponent extends Component {
     constructor(entityUid, componentSid) {
@@ -4426,201 +4415,71 @@ class MeshComponent extends Component {
     getPrimitiveNumber() {
         return this.__primitives.length;
     }
-    static setupBufferView() {
-        //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
-        //    this.submitToAllocation(this);
-    }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
 
-class MeshRendererComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
-        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__vertexHandles = [];
-        this.__isVAOSet = false;
-    }
-    static get componentTID() {
-        return 4;
-    }
-    __isLoaded(index) {
-        if (this.__vertexHandles[index] != null) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    $create() {
-        if (this.__meshComponent != null) {
-            return;
-        }
-        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-    }
-    $load() {
-        if (this.__isLoaded(0)) {
-            return;
-        }
-        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
-        for (let i = 0; i < primitiveNum; i++) {
-            const primitive = this.__meshComponent.getPrimitiveAt(i);
-            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__vertexHandles[i] = vertexHandles;
-            MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-        }
-    }
-    $prerender(processApproech, instanceIDBufferUid) {
-        if (this.__isVAOSet) {
-            return;
-        }
-        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
-        for (let i = 0; i < primitiveNum; i++) {
-            const primitive = this.__meshComponent.getPrimitiveAt(i);
-            // if (this.__isLoaded(i) && this.__isVAOSet) {
-            this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-            //  continue;
-            // }
-            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-        }
-        this.__isVAOSet = true;
-    }
-}
-MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
-MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
-ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-class Primitive extends RnObject {
-    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
-        super();
-        this.__primitiveUid = -1; // start ID from zero
-        this.__indices = indicesAccessor;
-        this.__attributeCompositionTypes = attributeCompositionTypes;
-        this.__attributeComponentTypes = attributeComponentTypes;
-        this.__attributes = attributeAccessors;
-        this.__attributeSemantics = attributeSemantics;
-        this.__material = material;
-        this.__mode = mode;
-        this.__indicesBufferView = indicesBufferView;
-        this.__attributesBufferView = attributesBufferView;
-        this.__indicesComponentType = indicesComponentType;
-        this.__primitiveUid = Primitive.__primitiveCount++;
-        if (Primitive.__headerAccessor == null) {
-            // primitive 0
-            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
-            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
-            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
-            //   ...
-            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
-            // primitive 1
-            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
-            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
-            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
-            //   ...
-            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
-            const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
-            const bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
-            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
-        }
-        const attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
-        if (this.indicesAccessor != null) {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, this.indicesAccessor.byteLength / this.indicesAccessor.componentSizeInBytes, -1);
-        }
-        else {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
-        }
-        this.attributeAccessors.forEach((attributeAccessor, i) => {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
-        });
-    }
-    static get maxPrimitiveCount() {
-        return 100;
-    }
-    static get headerAccessor() {
-        return this.__headerAccessor;
-    }
-    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
-        let indicesComponentType;
-        let indicesBufferView;
-        let indicesAccessor;
-        if (indices != null) {
-            indicesComponentType = ComponentType.fromTypedArray(indices);
-            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
-            indicesAccessor = indicesBufferView.takeAccessor({
-                compositionType: CompositionType.Scalar,
-                componentType: indicesComponentType,
-                count: indices.byteLength / indicesComponentType.getSizeInBytes()
-            });
-            // copy indices
-            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
-                indicesAccessor.setScalar(i, indices[i]);
-            }
-        }
-        let sumOfAttributesByteSize = 0;
-        attributes.forEach(attribute => {
-            sumOfAttributesByteSize += attribute.byteLength;
-        });
-        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
-        const attributeAccessors = [];
-        const attributeComponentTypes = [];
-        attributes.forEach((attribute, i) => {
-            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-            const accessor = attributesBufferView.takeAccessor({
-                compositionType: attributeCompositionTypes[i],
-                componentType: ComponentType.fromTypedArray(attributes[i]),
-                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-            });
-            accessor.copyFromTypedArray(attribute);
-            attributeAccessors.push(accessor);
-        });
-        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
-    }
-    get indicesAccessor() {
-        return this.__indices;
-    }
-    hasIndices() {
-        return this.__indices != null;
-    }
-    get attributeAccessors() {
-        return this.__attributes.concat();
-    }
-    get attributeSemantics() {
-        return this.__attributeSemantics.concat();
-    }
-    get attributeCompositionTypes() {
-        return this.__attributeCompositionTypes;
-    }
-    get attributeComponentTypes() {
-        return this.__attributeComponentTypes;
-    }
-    get primitiveMode() {
-        return this.__mode;
-    }
-    get primitiveUid() {
-        return this.__primitiveUid;
-    }
-}
-Primitive.__primitiveCount = 0;
-
-class PrimitiveModeClass extends EnumClass {
+class ProcessApproachClass extends EnumClass {
     constructor({ index, str }) {
         super({ index, str });
     }
 }
-const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
-const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
-const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
-const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
-const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
-const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
-const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
-const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$5 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$5({ index }) {
-    return _from({ typeList: typeList$5, index });
+const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
+const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
+const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
+const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
+const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
+const TransformFeedbackWebGL2 = new ProcessApproachClass({ index: 5, str: 'TRNASFORM_FEEDBACK_WEBGL2' });
+const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2 });
+
+//import GLBoost from '../../globals';
+function radianToDegree(rad) {
+    return rad * 180 / Math.PI;
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$5 });
+function degreeToRadian(deg) {
+    return deg * Math.PI / 180;
+}
+// https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
+const toHalfFloat = (function () {
+    var floatView = new Float32Array(1);
+    var int32View = new Int32Array(floatView.buffer);
+    /* This method is faster than the OpenEXR implementation (very often
+      * used, eg. in Ogre), with the additional benefit of rounding, inspired
+      * by James Tursa?s half-precision code. */
+    return function toHalf(val) {
+        floatView[0] = val;
+        var x = int32View[0];
+        var bits = (x >> 16) & 0x8000; /* Get the sign */
+        var m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */
+        var e = (x >> 23) & 0xff; /* Using int is faster here */
+        /* If zero, or denormal, or exponent underflows too much for a denormal
+          * half, return signed zero. */
+        if (e < 103) {
+            return bits;
+        }
+        /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */
+        if (e > 142) {
+            bits |= 0x7c00;
+            /* If exponent was 0xff and one mantissa bit was set, it means NaN,
+                  * not Inf, so make sure we set one mantissa bit too. */
+            bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);
+            return bits;
+        }
+        /* If exponent underflows but not too much, return a denormal */
+        if (e < 113) {
+            m |= 0x0800;
+            /* Extra rounding may overflow and set mantissa to 0 and exponent
+              * to 1, which is OK. */
+            bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
+            return bits;
+        }
+        bits |= ((e - 112) << 10) | (m >> 1);
+        /* Extra rounding. An overflow will set mantissa to 0 and increment
+          * the exponent, which is OK. */
+        bits += m & 1;
+        return bits;
+    };
+}());
+const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
 
 class GLSLShader {
     static get glsl_rt0() {
@@ -4730,98 +4589,13 @@ void main ()
 GLSLShader.attributeNames = ['a_position', 'a_color', 'a_instanceID'];
 GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
 
-class ProcessStageClass extends EnumClass {
-    constructor({ index, str, methodName }) {
-        super({ index, str });
-        this.__methodName = methodName;
-    }
-    getMethodName() {
-        return this.__methodName;
-    }
-}
-const Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
-const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
-const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
-const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
-const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
-const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
-const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
-const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
-const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-const typeList$6 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$6({ index }) {
-    return _from({ typeList: typeList$6, index });
-}
-const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$6 });
-
-class ProcessApproachClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const None = new ProcessApproachClass({ index: 0, str: 'NONE' });
-const UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
-const DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
-const DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
-const UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
-const TransformFeedbackWebGL2 = new ProcessApproachClass({ index: 5, str: 'TRNASFORM_FEEDBACK_WEBGL2' });
-const ProcessApproach = Object.freeze({ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2 });
-
-//import GLBoost from '../../globals';
-function radianToDegree(rad) {
-    return rad * 180 / Math.PI;
-}
-function degreeToRadian(deg) {
-    return deg * Math.PI / 180;
-}
-// https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
-const toHalfFloat = (function () {
-    var floatView = new Float32Array(1);
-    var int32View = new Int32Array(floatView.buffer);
-    /* This method is faster than the OpenEXR implementation (very often
-      * used, eg. in Ogre), with the additional benefit of rounding, inspired
-      * by James Tursa?s half-precision code. */
-    return function toHalf(val) {
-        floatView[0] = val;
-        var x = int32View[0];
-        var bits = (x >> 16) & 0x8000; /* Get the sign */
-        var m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */
-        var e = (x >> 23) & 0xff; /* Using int is faster here */
-        /* If zero, or denormal, or exponent underflows too much for a denormal
-          * half, return signed zero. */
-        if (e < 103) {
-            return bits;
-        }
-        /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */
-        if (e > 142) {
-            bits |= 0x7c00;
-            /* If exponent was 0xff and one mantissa bit was set, it means NaN,
-                  * not Inf, so make sure we set one mantissa bit too. */
-            bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);
-            return bits;
-        }
-        /* If exponent underflows but not too much, return a denormal */
-        if (e < 113) {
-            m |= 0x0800;
-            /* Extra rounding may overflow and set mantissa to 0 and exponent
-              * to 1, which is OK. */
-            bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
-            return bits;
-        }
-        bits |= ((e - 112) << 10) | (m >> 1);
-        /* Extra rounding. An overflow will set mantissa to 0 and increment
-          * the exponent, which is OK. */
-        bits += m & 1;
-        return bits;
-    };
-}());
-const MathUtil = Object.freeze({ radianToDegree, degreeToRadian, toHalfFloat });
-
 class WebGLStrategyUBO {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__uboUid = 0;
         this.__shaderProgramUid = 0;
+        this.__vertexHandles = [];
+        this.__isVAOSet = false;
         this.vertexShaderMethodDefinitions_UBO = `layout (std140) uniform matrix {
     mat4 world[1024];
   } u_matrix;
@@ -4848,6 +4622,42 @@ class WebGLStrategyUBO {
             attributeSemantics: GLSLShader.attributeSemantics
         });
     }
+    __isLoaded(index) {
+        if (this.__vertexHandles[index] != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    load(meshComponent) {
+        if (this.__isLoaded(0)) {
+            return;
+        }
+        const primitiveNum = meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = meshComponent.getPrimitiveAt(i);
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexHandles[i] = vertexHandles;
+            WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+        }
+    }
+    prerender(meshComponent, instanceIDBufferUid) {
+        if (this.__isVAOSet) {
+            return;
+        }
+        const primitiveNum = meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = meshComponent.getPrimitiveAt(i);
+            // if (this.__isLoaded(i) && this.__isVAOSet) {
+            this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+            //  continue;
+            // }
+            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+        }
+        this.__isVAOSet = true;
+    }
     setupGPUData() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
@@ -4873,6 +4683,19 @@ class WebGLStrategyUBO {
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
         gl.useProgram(shaderProgram);
     }
+    attachVertexData(i, primitive, glw, instanceIDBufferUid) {
+        const vaoHandles = this.__vertexHandles[i];
+        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+        const gl = glw.getRawContext();
+        if (vao != null) {
+            glw.bindVertexArray(vao);
+        }
+        else {
+            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+            const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        }
+    }
     static getInstance() {
         if (!this.__instance) {
             this.__instance = new WebGLStrategyUBO();
@@ -4880,6 +4703,7 @@ class WebGLStrategyUBO {
         return this.__instance;
     }
 }
+WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids = new Map();
 
 class PixelFormatClass extends EnumClass {
     constructor({ index, str }) {
@@ -5019,6 +4843,10 @@ void main(){
             attributeNames: GLSLShader.attributeNames,
             attributeSemantics: GLSLShader.attributeSemantics
         });
+    }
+    load(meshComponent) {
+    }
+    prerender(meshComponent, instanceIDBufferUid) {
     }
     __setupUBOPrimitiveHeaderData() {
         const memoryManager = MemoryManager.getInstance();
@@ -5200,6 +5028,8 @@ void main(){
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
         gl.useProgram(shaderProgram);
     }
+    attachVertexData(i, primitive, glw, instanceIDBufferUid) {
+    }
     static getInstance() {
         if (!this.__instance) {
             this.__instance = new WebGLStrategyTransformFeedback();
@@ -5213,6 +5043,8 @@ class WebGLStrategyDataTexture {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__dataTextureUid = 0;
         this.__shaderProgramUid = 0;
+        this.__vertexHandles = [];
+        this.__isVAOSet = false;
     }
     get vertexShaderMethodDefinitions_dataTexture() {
         const _texture = GLSLShader.glsl_texture;
@@ -5272,6 +5104,42 @@ class WebGLStrategyDataTexture {
             attributeNames: GLSLShader.attributeNames,
             attributeSemantics: GLSLShader.attributeSemantics
         });
+    }
+    __isLoaded(index) {
+        if (this.__vertexHandles[index] != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    load(meshComponent) {
+        if (this.__isLoaded(0)) {
+            return;
+        }
+        const primitiveNum = meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = meshComponent.getPrimitiveAt(i);
+            const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+            this.__vertexHandles[i] = vertexHandles;
+            WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+        }
+    }
+    prerender(meshComponent, instanceIDBufferUid) {
+        if (this.__isVAOSet) {
+            return;
+        }
+        const primitiveNum = meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = meshComponent.getPrimitiveAt(i);
+            // if (this.__isLoaded(i) && this.__isVAOSet) {
+            this.__vertexHandles[i] = WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+            //  continue;
+            // }
+            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+        }
+        this.__isVAOSet = true;
     }
     setupGPUData() {
         let isHalfFloatMode = false;
@@ -5372,6 +5240,19 @@ class WebGLStrategyDataTexture {
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
         gl.useProgram(shaderProgram);
     }
+    attachVertexData(i, primitive, glw, instanceIDBufferUid) {
+        const vaoHandles = this.__vertexHandles[i];
+        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+        const gl = glw.getRawContext();
+        if (vao != null) {
+            glw.bindVertexArray(vao);
+        }
+        else {
+            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+            const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        }
+    }
     static getInstance() {
         if (!this.__instance) {
             this.__instance = new WebGLStrategyDataTexture();
@@ -5379,6 +5260,7 @@ class WebGLStrategyDataTexture {
         return this.__instance;
     }
 }
+WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids = new Map();
 
 const getRenderingStrategy = function (processApproach) {
     // Strategy
@@ -5392,6 +5274,222 @@ const getRenderingStrategy = function (processApproach) {
         return WebGLStrategyDataTexture.getInstance();
     }
 };
+
+class MeshRendererComponent extends Component {
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
+        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+        this.__vertexHandles = [];
+        this.__isVAOSet = false;
+    }
+    static get componentTID() {
+        return 4;
+    }
+    __isLoaded(index) {
+        if (this.__vertexHandles[index] != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $create(processApproech) {
+        if (this.__meshComponent != null) {
+            return;
+        }
+        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
+        this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+    }
+    $load() {
+        // if (this.__isLoaded(0)) {
+        //   return;
+        // }
+        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
+        // for(let i=0; i<primitiveNum; i++) {
+        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
+        //   const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+        //   this.__vertexHandles[i] = vertexHandles;
+        //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+        // }
+        this.__webglRenderingStrategy.load(this.__meshComponent);
+    }
+    $prerender(processApproech, instanceIDBufferUid) {
+        // if (this.__isVAOSet) {
+        //   return;
+        // }
+        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
+        // for(let i=0; i<primitiveNum; i++) {
+        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
+        //  // if (this.__isLoaded(i) && this.__isVAOSet) {
+        //   this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        //     //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        //   //  continue;
+        //  // }
+        //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+        // }
+        // this.__isVAOSet = true;
+        this.__webglRenderingStrategy.prerender(this.__meshComponent, instanceIDBufferUid);
+    }
+}
+MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
+MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
+ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
+
+class Primitive extends RnObject {
+    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
+        super();
+        this.__primitiveUid = -1; // start ID from zero
+        this.__indices = indicesAccessor;
+        this.__attributeCompositionTypes = attributeCompositionTypes;
+        this.__attributeComponentTypes = attributeComponentTypes;
+        this.__attributes = attributeAccessors;
+        this.__attributeSemantics = attributeSemantics;
+        this.__material = material;
+        this.__mode = mode;
+        this.__indicesBufferView = indicesBufferView;
+        this.__attributesBufferView = attributesBufferView;
+        this.__indicesComponentType = indicesComponentType;
+        this.__primitiveUid = Primitive.__primitiveCount++;
+        if (Primitive.__headerAccessor == null) {
+            // primitive 0
+            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
+            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
+            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
+            //   ...
+            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
+            // primitive 1
+            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
+            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
+            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
+            //   ...
+            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
+            const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+            const bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
+            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
+        }
+        const attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
+        if (this.indicesAccessor != null) {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, this.indicesAccessor.byteLength / this.indicesAccessor.componentSizeInBytes, -1);
+        }
+        else {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
+        }
+        this.attributeAccessors.forEach((attributeAccessor, i) => {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
+        });
+    }
+    static get maxPrimitiveCount() {
+        return 100;
+    }
+    static get headerAccessor() {
+        return this.__headerAccessor;
+    }
+    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+        let indicesComponentType;
+        let indicesBufferView;
+        let indicesAccessor;
+        if (indices != null) {
+            indicesComponentType = ComponentType.fromTypedArray(indices);
+            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
+            indicesAccessor = indicesBufferView.takeAccessor({
+                compositionType: CompositionType.Scalar,
+                componentType: indicesComponentType,
+                count: indices.byteLength / indicesComponentType.getSizeInBytes()
+            });
+            // copy indices
+            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
+                indicesAccessor.setScalar(i, indices[i]);
+            }
+        }
+        let sumOfAttributesByteSize = 0;
+        attributes.forEach(attribute => {
+            sumOfAttributesByteSize += attribute.byteLength;
+        });
+        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
+        const attributeAccessors = [];
+        const attributeComponentTypes = [];
+        attributes.forEach((attribute, i) => {
+            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
+            const accessor = attributesBufferView.takeAccessor({
+                compositionType: attributeCompositionTypes[i],
+                componentType: ComponentType.fromTypedArray(attributes[i]),
+                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+            });
+            accessor.copyFromTypedArray(attribute);
+            attributeAccessors.push(accessor);
+        });
+        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
+    }
+    get indicesAccessor() {
+        return this.__indices;
+    }
+    hasIndices() {
+        return this.__indices != null;
+    }
+    get attributeAccessors() {
+        return this.__attributes.concat();
+    }
+    get attributeSemantics() {
+        return this.__attributeSemantics.concat();
+    }
+    get attributeCompositionTypes() {
+        return this.__attributeCompositionTypes;
+    }
+    get attributeComponentTypes() {
+        return this.__attributeComponentTypes;
+    }
+    get primitiveMode() {
+        return this.__mode;
+    }
+    get primitiveUid() {
+        return this.__primitiveUid;
+    }
+}
+Primitive.__primitiveCount = 0;
+
+class PrimitiveModeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
+const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
+const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
+const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
+const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
+const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
+const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
+const typeList$8 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$8({ index }) {
+    return _from({ typeList: typeList$8, index });
+}
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$8 });
+
+class ProcessStageClass extends EnumClass {
+    constructor({ index, str, methodName }) {
+        super({ index, str });
+        this.__methodName = methodName;
+    }
+    getMethodName() {
+        return this.__methodName;
+    }
+}
+const Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
+const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
+const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
+const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
+const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
+const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
+const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
+const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
+const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
+const typeList$9 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$9({ index }) {
+    return _from({ typeList: typeList$9, index });
+}
+const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$9 });
 
 const WebGLRenderingPipeline = new class {
     constructor() {
@@ -5437,32 +5535,17 @@ const WebGLRenderingPipeline = new class {
         this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
     common_$render() {
-        const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID);
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-        const meshRendererComponent = meshRendererComponents[0];
         const meshComponent = meshComponents[0];
         const primitiveNum = meshComponent.getPrimitiveNumber();
         const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = meshComponent.getPrimitiveAt(i);
-            this.__attachVertexData(meshRendererComponent, i, primitive, glw);
+            this.__webGLStrategy.attachVertexData(i, primitive, glw, this.__instanceIDBufferUid);
             this.__webGLStrategy.attatchShaderProgram();
             this.__webGLStrategy.attachGPUData();
             const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents.length);
-        }
-    }
-    __attachVertexData(meshRendererComponent, i, primitive, glw) {
-        const vaoHandles = meshRendererComponent.__vertexHandles[i];
-        const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-        const gl = glw.getRawContext();
-        if (vao != null) {
-            glw.bindVertexArray(vao);
-        }
-        else {
-            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
-            const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
         }
     }
 };
