@@ -83,15 +83,6 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  static setupBufferView() {
-//    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
-//    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
-
-//    this.submitToAllocation(this);
-  }
-
-
-
   $create() {
     // Define process dependencies with other components.
     // If circular depenencies are detected, the error will be repoated.
@@ -542,4 +533,3 @@ export default class TransformComponent extends Component {
 }
 
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-TransformComponent.setupBufferView();
