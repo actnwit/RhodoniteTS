@@ -3661,8 +3661,9 @@
             enumerable: true,
             configurable: true
         });
-        Component.getByteLengthSumOfMembers = function (bufferUse) {
-            return this.__byteLengthSumOfMembers[bufferUse.toString()];
+        Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
+            var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
+            return byteLengthSumOfMembers[bufferUse.toString()];
         };
         Component.setupBufferView = function () {
         };
@@ -3726,39 +3727,61 @@
         };
         Component.submitToAllocation = function (componentClass) {
             var _this = this;
-            var members = {};
+            var e_1, _a, e_2, _b;
+            var members = new Map();
             var memberInfoArray = this.__memberInfo.get(componentClass);
             memberInfoArray.forEach(function (info) {
-                members[info.bufferUse.toString()] = [];
+                members.set(info.bufferUse, []);
             });
             memberInfoArray.forEach(function (info) {
-                members[info.bufferUse.toString()].push(info);
+                members.get(info.bufferUse).push(info);
             });
-            var _loop_1 = function (bufferUseName) {
-                var infoArray = members[bufferUseName];
-                this_1.__byteLengthSumOfMembers[bufferUseName] = 0;
+            var _loop_1 = function (bufferUse) {
+                var infoArray = members.get(bufferUse);
+                var bufferUseName = bufferUse.toString();
+                this_1.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
+                var byteLengthSumOfMembers = this_1.__byteLengthSumOfMembers.get(componentClass);
                 infoArray.forEach(function (info) {
-                    _this.__byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                    byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
                 });
                 if (infoArray.length > 0) {
-                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), this_1.__byteLengthSumOfMembers[bufferUseName]);
+                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), byteLengthSumOfMembers[bufferUseName]);
                 }
             };
             var this_1 = this;
-            for (var bufferUseName in members) {
-                _loop_1(bufferUseName);
+            try {
+                for (var _c = __values(members.keys()), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var bufferUse = _d.value;
+                    _loop_1(bufferUse);
+                }
             }
-            for (var bufferUseName in members) {
-                var infoArray = members[bufferUseName];
-                this.__byteLengthSumOfMembers[bufferUseName] = 0;
-                infoArray.forEach(function (info) {
-                    _this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
-                });
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            try {
+                for (var _e = __values(members.keys()), _f = _e.next(); !_f.done; _f = _e.next()) {
+                    var bufferUse = _f.value;
+                    var infoArray = members.get(bufferUse);
+                    infoArray.forEach(function (info) {
+                        _this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+                    });
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                }
+                finally { if (e_2) throw e_2.error; }
             }
         };
         Component.__bufferViews = {};
         Component.__accessors = {};
-        Component.__byteLengthSumOfMembers = {};
+        Component.__byteLengthSumOfMembers = new Map();
         Component.__memberInfo = new Map();
         return Component;
     }());
@@ -5031,7 +5054,7 @@
         };
         MeshComponent.setupBufferView = function () {
             //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
-            this.submitToAllocation();
+            this.submitToAllocation(this);
         };
         return MeshComponent;
     }(Component));

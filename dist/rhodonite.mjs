@@ -3150,8 +3150,9 @@ class Component {
     get entityUID() {
         return this.__entityUid;
     }
-    static getByteLengthSumOfMembers(bufferUse) {
-        return this.__byteLengthSumOfMembers[bufferUse.toString()];
+    static getByteLengthSumOfMembers(bufferUse, componentClass) {
+        const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
+        return byteLengthSumOfMembers[bufferUse.toString()];
     }
     static setupBufferView() {
     }
@@ -3214,27 +3215,28 @@ class Component {
         memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
     }
     static submitToAllocation(componentClass) {
-        const members = {};
+        const members = new Map();
         const memberInfoArray = this.__memberInfo.get(componentClass);
         memberInfoArray.forEach(info => {
-            members[info.bufferUse.toString()] = [];
+            members.set(info.bufferUse, []);
         });
         memberInfoArray.forEach(info => {
-            members[info.bufferUse.toString()].push(info);
+            members.get(info.bufferUse).push(info);
         });
-        for (let bufferUseName in members) {
-            const infoArray = members[bufferUseName];
-            this.__byteLengthSumOfMembers[bufferUseName] = 0;
+        for (let bufferUse of members.keys()) {
+            const infoArray = members.get(bufferUse);
+            const bufferUseName = bufferUse.toString();
+            this.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
+            let byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
             infoArray.forEach(info => {
-                this.__byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
             });
             if (infoArray.length > 0) {
-                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), this.__byteLengthSumOfMembers[bufferUseName]);
+                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), byteLengthSumOfMembers[bufferUseName]);
             }
         }
-        for (let bufferUseName in members) {
-            const infoArray = members[bufferUseName];
-            this.__byteLengthSumOfMembers[bufferUseName] = 0;
+        for (let bufferUse of members.keys()) {
+            const infoArray = members.get(bufferUse);
             infoArray.forEach(info => {
                 this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
             });
@@ -3243,7 +3245,7 @@ class Component {
 }
 Component.__bufferViews = {};
 Component.__accessors = {};
-Component.__byteLengthSumOfMembers = {};
+Component.__byteLengthSumOfMembers = new Map();
 Component.__memberInfo = new Map();
 
 // import AnimationComponent from './AnimationComponent';
@@ -4351,7 +4353,7 @@ class MeshComponent extends Component {
     }
     static setupBufferView() {
         //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
-        this.submitToAllocation();
+        this.submitToAllocation(this);
     }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
