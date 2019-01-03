@@ -82,11 +82,10 @@ export default class TransformComponent extends Component {
   }
 
   static setupBufferView() {
+    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
 
-    this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-    this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
-
-    this.submitToAllocation();
+    this.submitToAllocation(this);
   }
 
 

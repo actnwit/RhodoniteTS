@@ -33,7 +33,7 @@ export default class MeshComponent extends Component {
 
 //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
 
-    this.submitToAllocation();
+    this.submitToAllocation(this);
   }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);

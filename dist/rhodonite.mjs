@@ -1070,6 +1070,9 @@ class Quaternion {
             this.v = x;
             return;
         }
+        else if (x == null) {
+            this.v = new Float32Array(0);
+        }
         else {
             this.v = new Float32Array(4);
         }
@@ -1123,6 +1126,9 @@ class Quaternion {
         else {
             return false;
         }
+    }
+    static dummy() {
+        return new Quaternion(null);
     }
     get className() {
         return this.constructor.name;
@@ -1983,6 +1989,10 @@ class Matrix44 {
         const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
         const m = m0;
+        if (m == null) {
+            this.m = new FloatArray(0);
+            return;
+        }
         if (arguments.length >= 16) {
             this.m = new FloatArray(16); // Data order is column major
             if (_isColumnMajor === true) {
@@ -2047,6 +2057,9 @@ class Matrix44 {
             this.m = new FloatArray(16);
             this.identity();
         }
+    }
+    static dummy() {
+        return new Matrix44(null);
     }
     setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         this.m[0] = m00;
@@ -3169,8 +3182,9 @@ class Component {
     static getByteOffsetOfFirstOfThisMemberInBufferView(memberName) {
         return this.__accessors[memberName].byteOffsetInBufferView;
     }
-    static getCompositionTypeOfMember(memberName) {
-        const info = this.__memberInfoArray.find(info => {
+    static getCompositionTypeOfMember(memberName, componentClass) {
+        const memberInfoArray = this.__memberInfo.get(componentClass);
+        const info = memberInfoArray.find(info => {
             return info.memberName === memberName;
         });
         if (info != null) {
@@ -3180,8 +3194,9 @@ class Component {
             return null;
         }
     }
-    static getComponentTypeOfMember(memberName) {
-        const info = this.__memberInfoArray.find(info => {
+    static getComponentTypeOfMember(memberName, componentClass) {
+        const memberInfoArray = this.__memberInfo.get(componentClass);
+        const info = memberInfoArray.find(info => {
             return info.memberName === memberName;
         });
         if (info != null) {
@@ -3191,15 +3206,20 @@ class Component {
             return null;
         }
     }
-    static registerMember(bufferUse, memberName, compositionType, componentType) {
-        this.__memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
+    static registerMember(bufferUse, memberName, componentClass, compositionType, componentType) {
+        if (!this.__memberInfo.has(componentClass)) {
+            this.__memberInfo.set(componentClass, []);
+        }
+        const memberInfoArray = this.__memberInfo.get(componentClass);
+        memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
     }
-    static submitToAllocation() {
+    static submitToAllocation(componentClass) {
         const members = {};
-        this.__memberInfoArray.forEach(info => {
+        const memberInfoArray = this.__memberInfo.get(componentClass);
+        memberInfoArray.forEach(info => {
             members[info.bufferUse.toString()] = [];
         });
-        this.__memberInfoArray.forEach(info => {
+        memberInfoArray.forEach(info => {
             members[info.bufferUse.toString()].push(info);
         });
         for (let bufferUseName in members) {
@@ -3224,7 +3244,7 @@ class Component {
 Component.__bufferViews = {};
 Component.__accessors = {};
 Component.__byteLengthSumOfMembers = {};
-Component.__memberInfoArray = [];
+Component.__memberInfo = new Map();
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
@@ -3259,9 +3279,9 @@ class TransformComponent extends Component {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
     static setupBufferView() {
-        this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-        this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
-        this.submitToAllocation();
+        this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
+        this.submitToAllocation(this);
     }
     $create() {
         // Define process dependencies with other components.
@@ -3643,6 +3663,10 @@ class RowMajarMatrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
         const m = m0;
+        if (m == null) {
+            this.m = new FloatArray$1(0);
+            return;
+        }
         if (arguments.length >= 16) {
             this.m = new FloatArray$1(16); // Data order is row major
             this.setComponents.apply(this, arguments);
@@ -3686,6 +3710,9 @@ class RowMajarMatrix44 {
             this.m = new FloatArray$1(16);
             this.identity();
         }
+    }
+    static dummy() {
+        return new RowMajarMatrix44(null);
     }
     setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         this.m[0] = m00;
@@ -4255,8 +4282,8 @@ class SceneGraphComponent extends Component {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
     static setupBufferView() {
-        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
-        this.submitToAllocation();
+        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation(this);
     }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
@@ -4365,11 +4392,10 @@ class MeshRendererComponent extends Component {
             MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
         }
     }
-    $prerender(args) {
+    $prerender(processApproech, instanceIDBufferUid) {
         if (this.__isVAOSet) {
             return;
         }
-        const instanceIDBufferUid = args[0];
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
@@ -5386,21 +5412,21 @@ class System {
         }
         this.__processStages.forEach(stage => {
             const methodName = stage.getMethodName();
-            const args = [];
+            //      const args:Array<any> = [];
             let instanceIDBufferUid = 0;
             const componentTids = this.__componentRepository.getComponentTIDs();
             const commonMethod = this.__renderingPipeline['common_' + methodName];
             if (commonMethod != null) {
                 instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
             }
-            args.push(instanceIDBufferUid);
+            //      args.push(instanceIDBufferUid);
             componentTids.forEach(componentTid => {
                 const components = this.__componentRepository.getComponentsWithType(componentTid);
                 components.forEach((component) => {
                     const method = component[methodName];
                     if (method != null) {
                         //method.apply(component, args);
-                        component[methodName](args);
+                        component[methodName](this.__processApproach, instanceIDBufferUid);
                     }
                 });
             });

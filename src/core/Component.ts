@@ -13,7 +13,7 @@ export default class Component {
   private static __accessors: { [s: string]: Accessor } = {};
   private static __byteLengthSumOfMembers:{[s:string]: Byte} = {};
 
-  private static __memberInfoArray: MemberInfo[] = [];
+  private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
 
   private __isAlive: Boolean;
   protected __entityUid: EntityUID;
@@ -84,8 +84,9 @@ export default class Component {
     return this.__accessors[memberName].byteOffsetInBufferView;
   }
 
-  static getCompositionTypeOfMember(memberName: string): CompositionTypeEnum | null {
-    const info = this.__memberInfoArray.find(info=>{
+  static getCompositionTypeOfMember(memberName: string, componentClass:Function): CompositionTypeEnum | null {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info=>{
       return info.memberName === memberName;
     });
     if (info != null) {
@@ -95,8 +96,9 @@ export default class Component {
     }
   }
 
-  static getComponentTypeOfMember(memberName: string): ComponentTypeEnum | null {
-    const info = this.__memberInfoArray.find(info=>{
+  static getComponentTypeOfMember(memberName: string, componentClass:Function): ComponentTypeEnum | null {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info=>{
       return info.memberName === memberName;
     });
     if (info != null) {
@@ -105,18 +107,25 @@ export default class Component {
       return null;
     }
   }
-  static registerMember(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    this.__memberInfoArray.push({bufferUse, memberName, compositionType, componentType})
+
+  static registerMember(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+    if (!this.__memberInfo.has(componentClass)) {
+      this.__memberInfo.set(componentClass, []);
+    }
+    const memberInfoArray = this.__memberInfo.get(componentClass);
+    memberInfoArray!.push({bufferUse, memberName, compositionType, componentType})
   }
 
-  static submitToAllocation() {
+  static submitToAllocation(componentClass:Function) {
     const members:{[s:string]: Array<MemberInfo>} = {};
 
-    this.__memberInfoArray.forEach(info=>{
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+
+    memberInfoArray.forEach(info=>{
       members[info.bufferUse.toString()] = [];
     });
 
-    this.__memberInfoArray.forEach(info=>{
+    memberInfoArray.forEach(info=>{
       members[info.bufferUse.toString()].push(info);
     });
 

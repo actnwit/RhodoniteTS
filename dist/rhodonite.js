@@ -1240,6 +1240,9 @@
                 this.v = x;
                 return;
             }
+            else if (x == null) {
+                this.v = new Float32Array(0);
+            }
             else {
                 this.v = new Float32Array(4);
             }
@@ -1293,6 +1296,9 @@
             else {
                 return false;
             }
+        };
+        Quaternion.dummy = function () {
+            return new Quaternion(null);
         };
         Object.defineProperty(Quaternion.prototype, "className", {
             get: function () {
@@ -2249,6 +2255,10 @@
             var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
             var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
             var m = m0;
+            if (m == null) {
+                this.m = new FloatArray(0);
+                return;
+            }
             if (arguments.length >= 16) {
                 this.m = new FloatArray(16); // Data order is column major
                 if (_isColumnMajor === true) {
@@ -2314,6 +2324,9 @@
                 this.identity();
             }
         }
+        Matrix44.dummy = function () {
+            return new Matrix44(null);
+        };
         Matrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
             this.m[0] = m00;
             this.m[4] = m01;
@@ -3680,8 +3693,9 @@
         Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName) {
             return this.__accessors[memberName].byteOffsetInBufferView;
         };
-        Component.getCompositionTypeOfMember = function (memberName) {
-            var info = this.__memberInfoArray.find(function (info) {
+        Component.getCompositionTypeOfMember = function (memberName, componentClass) {
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            var info = memberInfoArray.find(function (info) {
                 return info.memberName === memberName;
             });
             if (info != null) {
@@ -3691,8 +3705,9 @@
                 return null;
             }
         };
-        Component.getComponentTypeOfMember = function (memberName) {
-            var info = this.__memberInfoArray.find(function (info) {
+        Component.getComponentTypeOfMember = function (memberName, componentClass) {
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            var info = memberInfoArray.find(function (info) {
                 return info.memberName === memberName;
             });
             if (info != null) {
@@ -3702,16 +3717,21 @@
                 return null;
             }
         };
-        Component.registerMember = function (bufferUse, memberName, compositionType, componentType) {
-            this.__memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
+        Component.registerMember = function (bufferUse, memberName, componentClass, compositionType, componentType) {
+            if (!this.__memberInfo.has(componentClass)) {
+                this.__memberInfo.set(componentClass, []);
+            }
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
         };
-        Component.submitToAllocation = function () {
+        Component.submitToAllocation = function (componentClass) {
             var _this = this;
             var members = {};
-            this.__memberInfoArray.forEach(function (info) {
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            memberInfoArray.forEach(function (info) {
                 members[info.bufferUse.toString()] = [];
             });
-            this.__memberInfoArray.forEach(function (info) {
+            memberInfoArray.forEach(function (info) {
                 members[info.bufferUse.toString()].push(info);
             });
             var _loop_1 = function (bufferUseName) {
@@ -3739,7 +3759,7 @@
         Component.__bufferViews = {};
         Component.__accessors = {};
         Component.__byteLengthSumOfMembers = {};
-        Component.__memberInfoArray = [];
+        Component.__memberInfo = new Map();
         return Component;
     }());
 
@@ -3786,9 +3806,9 @@
             configurable: true
         });
         TransformComponent.setupBufferView = function () {
-            this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-            this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
-            this.submitToAllocation();
+            this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+            this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
+            this.submitToAllocation(this);
         };
         TransformComponent.prototype.$create = function () {
             // Define process dependencies with other components.
@@ -4232,6 +4252,10 @@
             if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
             var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
             var m = m0;
+            if (m == null) {
+                this.m = new FloatArray$1(0);
+                return;
+            }
             if (arguments.length >= 16) {
                 this.m = new FloatArray$1(16); // Data order is row major
                 this.setComponents.apply(this, arguments);
@@ -4276,6 +4300,9 @@
                 this.identity();
             }
         }
+        RowMajarMatrix44.dummy = function () {
+            return new RowMajarMatrix44(null);
+        };
         RowMajarMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
             this.m[0] = m00;
             this.m[4] = m10;
@@ -4920,8 +4947,8 @@
             configurable: true
         });
         SceneGraphComponent.setupBufferView = function () {
-            this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
-            this.submitToAllocation();
+            this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
+            this.submitToAllocation(this);
         };
         SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
             this.__isAbleToBeParent = flag;
@@ -5052,11 +5079,10 @@
                 MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             }
         };
-        MeshRendererComponent.prototype.$prerender = function (args) {
+        MeshRendererComponent.prototype.$prerender = function (processApproech, instanceIDBufferUid) {
             if (this.__isVAOSet) {
                 return;
             }
-            var instanceIDBufferUid = args[0];
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
@@ -6042,21 +6068,21 @@
             }
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
-                var args = [];
+                //      const args:Array<any> = [];
                 var instanceIDBufferUid = 0;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
                 var commonMethod = _this.__renderingPipeline['common_' + methodName];
                 if (commonMethod != null) {
                     instanceIDBufferUid = commonMethod.call(_this.__renderingPipeline, _this.__processApproach);
                 }
-                args.push(instanceIDBufferUid);
+                //      args.push(instanceIDBufferUid);
                 componentTids.forEach(function (componentTid) {
                     var components = _this.__componentRepository.getComponentsWithType(componentTid);
                     components.forEach(function (component) {
                         var method = component[methodName];
                         if (method != null) {
                             //method.apply(component, args);
-                            component[methodName](args);
+                            component[methodName](_this.__processApproach, instanceIDBufferUid);
                         }
                     });
                 });

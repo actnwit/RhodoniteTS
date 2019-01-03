@@ -40,10 +40,9 @@ export default class SceneGraphComponent extends Component {
   }
 
   static setupBufferView() {
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
 
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
-
-    this.submitToAllocation();
+    this.submitToAllocation(this);
 
   }
 
