@@ -1130,6 +1130,14 @@ class Quaternion {
     static dummy() {
         return new Quaternion(null);
     }
+    isDummy() {
+        if (this.v.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     get className() {
         return this.constructor.name;
     }
@@ -2060,6 +2068,14 @@ class Matrix44 {
     }
     static dummy() {
         return new Matrix44(null);
+    }
+    isDummy() {
+        if (this.m.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         this.m[0] = m00;
@@ -3010,6 +3026,7 @@ class Buffer extends RnObject {
         this.__byteLength = 0;
         this.__name = '';
         this.__takenBytesIndex = 0;
+        this.__bufferViews = [];
         this.__name = name;
         this.__byteLength = byteLength;
         this.__raw = arrayBuffer;
@@ -3036,6 +3053,7 @@ class Buffer extends RnObject {
         const bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
         bufferView.byteStride = byteStride;
         this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+        this.__bufferViews.push(bufferView);
         return bufferView;
     }
     get byteSizeInUse() {
@@ -3189,6 +3207,14 @@ class RowMajarMatrix44 {
     }
     static dummy() {
         return new RowMajarMatrix44(null);
+    }
+    isDummy() {
+        if (this.m.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         this.m[0] = m00;
@@ -3763,7 +3789,7 @@ class Component {
     }
     static getByteLengthSumOfMembers(bufferUse, componentClass) {
         const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
-        return byteLengthSumOfMembers[bufferUse.toString()];
+        return byteLengthSumOfMembers.get(bufferUse);
     }
     static setupBufferView() {
     }
@@ -3781,15 +3807,18 @@ class Component {
         }
     }
     takeOne(memberName, dataClassType) {
+        if (!this['_' + memberName].isDummy()) {
+            return;
+        }
         let taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
         if (dataClassType === Matrix44) {
-            return new dataClassType(taken, false, true);
+            this['_' + memberName] = new dataClassType(taken, false, true);
         }
         else if (dataClassType === RowMajarMatrix44) {
-            return new dataClassType(taken, true);
+            this['_' + memberName] = new dataClassType(taken, true);
         }
         else {
-            return new dataClassType(taken);
+            this['_' + memberName] = new dataClassType(taken);
         }
         return null;
     }
@@ -3840,16 +3869,17 @@ class Component {
             return null;
         }
     }
-    static registerMember(bufferUse, memberName, componentClass, compositionType, componentType) {
-        if (!this.__memberInfo.has(componentClass)) {
-            this.__memberInfo.set(componentClass, []);
+    registerMember(bufferUse, memberName, dataClassType, compositionType, componentType) {
+        if (!Component.__memberInfo.has(this.constructor)) {
+            Component.__memberInfo.set(this.constructor, []);
         }
-        const memberInfoArray = this.__memberInfo.get(componentClass);
-        memberInfoArray.push({ bufferUse, memberName, compositionType, componentType });
+        const memberInfoArray = Component.__memberInfo.get(this.constructor);
+        memberInfoArray.push({ bufferUse, memberName, dataClassType, compositionType, componentType });
     }
-    static submitToAllocation(componentClass) {
+    submitToAllocation() {
         const members = new Map();
-        const memberInfoArray = this.__memberInfo.get(componentClass);
+        const componentClass = this.constructor;
+        const memberInfoArray = Component.__memberInfo.get(componentClass);
         memberInfoArray.forEach(info => {
             members.set(info.bufferUse, []);
         });
@@ -3859,19 +3889,32 @@ class Component {
         for (let bufferUse of members.keys()) {
             const infoArray = members.get(bufferUse);
             const bufferUseName = bufferUse.toString();
-            this.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
-            let byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
+            if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
+                Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+            }
+            let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);
+            if (!byteLengthSumOfMembers.has(bufferUse)) {
+                byteLengthSumOfMembers.set(bufferUse, 0);
+            }
             infoArray.forEach(info => {
-                byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +
+                    info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());
             });
             if (infoArray.length > 0) {
-                this.takeBufferViewer(BufferUse.from({ str: bufferUseName }), componentClass, byteLengthSumOfMembers[bufferUseName]);
+                Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));
             }
         }
         for (let bufferUse of members.keys()) {
             const infoArray = members.get(bufferUse);
             infoArray.forEach(info => {
-                this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+                Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+            });
+        }
+        // takeOne
+        for (let bufferUse of members.keys()) {
+            const infoArray = members.get(bufferUse);
+            infoArray.forEach(info => {
+                this.takeOne(info.memberName, info.dataClassType);
             });
         }
     }
@@ -3885,14 +3928,19 @@ Component.__memberInfo = new Map();
 class TransformComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
+        this._quaternion = Quaternion.dummy();
+        this._matrix = Matrix44.dummy();
         // dependencies
         this._dependentAnimationComponentId = 0;
         this._translate = Vector3.zero();
         this._rotate = Vector3.zero();
         this._scale = new Vector3(1, 1, 1);
-        this._quaternion = this.takeOne('quaternion', Quaternion);
+        this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation();
+        //    this._quaternion = this.takeOne('quaternion', Quaternion);
         this._quaternion.identity();
-        this._matrix = this.takeOne('matrix', Matrix44);
+        //    this._matrix = this.takeOne('matrix', Matrix44);
         this._matrix.identity();
         this._invMatrix = Matrix44.identity();
         this._normalMatrix = Matrix33.identity();
@@ -3913,9 +3961,9 @@ class TransformComponent extends Component {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
     static setupBufferView() {
-        this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
-        this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
-        this.submitToAllocation(this);
+        //    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+        //    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
+        //    this.submitToAllocation(this);
     }
     $create() {
         // Define process dependencies with other components.
@@ -4294,18 +4342,21 @@ TransformComponent.setupBufferView();
 class SceneGraphComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
+        this._worldMatrix = RowMajarMatrix44.dummy();
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
-        this.__worldMatrix = this.takeOne('worldMatrix', RowMajarMatrix44);
-        this.__worldMatrix.identity();
+        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation();
+        //    this._worldMatrix = this.takeOne('worldMatrix', RowMajarMatrix44);
+        this._worldMatrix.identity();
         //this.__updatedProperly = false;
     }
     static get componentTID() {
         return WellKnownComponentTIDs.SceneGraphComponentTID;
     }
     static setupBufferView() {
-        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
-        this.submitToAllocation(this);
+        //    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
+        //    this.submitToAllocation(this);
     }
     beAbleToBeParent(flag) {
         this.__isAbleToBeParent = flag;
@@ -4341,14 +4392,14 @@ class SceneGraphComponent extends Component {
             // if there is not parent
             if (transform._dirty) {
                 transform._dirty = false;
-                this.__worldMatrix.copyComponents(transform.matrixInner);
-                //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
+                this._worldMatrix.copyComponents(transform.matrixInner);
+                //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
             }
-            return this.__worldMatrix;
+            return this._worldMatrix;
         }
         const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-        this.__worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-        return this.__worldMatrix;
+        this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
+        return this._worldMatrix;
     }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
@@ -4373,7 +4424,7 @@ class MeshComponent extends Component {
     }
     static setupBufferView() {
         //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
-        this.submitToAllocation(this);
+        //    this.submitToAllocation(this);
     }
 }
 ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);

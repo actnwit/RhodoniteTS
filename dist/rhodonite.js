@@ -1300,6 +1300,14 @@
         Quaternion.dummy = function () {
             return new Quaternion(null);
         };
+        Quaternion.prototype.isDummy = function () {
+            if (this.v.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
         Object.defineProperty(Quaternion.prototype, "className", {
             get: function () {
                 return this.constructor.name;
@@ -2326,6 +2334,14 @@
         }
         Matrix44.dummy = function () {
             return new Matrix44(null);
+        };
+        Matrix44.prototype.isDummy = function () {
+            if (this.m.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
         };
         Matrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
             this.m[0] = m00;
@@ -3489,6 +3505,7 @@
             _this.__byteLength = 0;
             _this.__name = '';
             _this.__takenBytesIndex = 0;
+            _this.__bufferViews = [];
             _this.__name = name;
             _this.__byteLength = byteLength;
             _this.__raw = arrayBuffer;
@@ -3521,6 +3538,7 @@
             var bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
             bufferView.byteStride = byteStride;
             this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+            this.__bufferViews.push(bufferView);
             return bufferView;
         };
         Object.defineProperty(Buffer.prototype, "byteSizeInUse", {
@@ -3689,6 +3707,14 @@
         }
         RowMajarMatrix44.dummy = function () {
             return new RowMajarMatrix44(null);
+        };
+        RowMajarMatrix44.prototype.isDummy = function () {
+            if (this.m.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
         };
         RowMajarMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
             this.m[0] = m00;
@@ -4345,7 +4371,7 @@
         });
         Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
             var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
-            return byteLengthSumOfMembers[bufferUse.toString()];
+            return byteLengthSumOfMembers.get(bufferUse);
         };
         Component.setupBufferView = function () {
         };
@@ -4363,15 +4389,18 @@
             }
         };
         Component.prototype.takeOne = function (memberName, dataClassType) {
+            if (!this['_' + memberName].isDummy()) {
+                return;
+            }
             var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
             if (dataClassType === Matrix44) {
-                return new dataClassType(taken, false, true);
+                this['_' + memberName] = new dataClassType(taken, false, true);
             }
             else if (dataClassType === RowMajarMatrix44) {
-                return new dataClassType(taken, true);
+                this['_' + memberName] = new dataClassType(taken, true);
             }
             else {
-                return new dataClassType(taken);
+                this['_' + memberName] = new dataClassType(taken);
             }
             return null;
         };
@@ -4422,18 +4451,19 @@
                 return null;
             }
         };
-        Component.registerMember = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            if (!this.__memberInfo.has(componentClass)) {
-                this.__memberInfo.set(componentClass, []);
+        Component.prototype.registerMember = function (bufferUse, memberName, dataClassType, compositionType, componentType) {
+            if (!Component.__memberInfo.has(this.constructor)) {
+                Component.__memberInfo.set(this.constructor, []);
             }
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
+            var memberInfoArray = Component.__memberInfo.get(this.constructor);
+            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType, compositionType: compositionType, componentType: componentType });
         };
-        Component.submitToAllocation = function (componentClass) {
+        Component.prototype.submitToAllocation = function () {
             var _this = this;
-            var e_1, _a, e_2, _b;
+            var e_1, _a, e_2, _b, e_3, _c;
             var members = new Map();
-            var memberInfoArray = this.__memberInfo.get(componentClass);
+            var componentClass = this.constructor;
+            var memberInfoArray = Component.__memberInfo.get(componentClass);
             memberInfoArray.forEach(function (info) {
                 members.set(info.bufferUse, []);
             });
@@ -4443,44 +4473,66 @@
             var _loop_1 = function (bufferUse) {
                 var infoArray = members.get(bufferUse);
                 var bufferUseName = bufferUse.toString();
-                this_1.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
-                var byteLengthSumOfMembers = this_1.__byteLengthSumOfMembers.get(componentClass);
+                if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
+                    Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+                }
+                var byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);
+                if (!byteLengthSumOfMembers.has(bufferUse)) {
+                    byteLengthSumOfMembers.set(bufferUse, 0);
+                }
                 infoArray.forEach(function (info) {
-                    byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                    byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +
+                        info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());
                 });
                 if (infoArray.length > 0) {
-                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), componentClass, byteLengthSumOfMembers[bufferUseName]);
+                    Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));
                 }
             };
-            var this_1 = this;
             try {
-                for (var _c = __values(members.keys()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var bufferUse = _d.value;
+                for (var _d = __values(members.keys()), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var bufferUse = _e.value;
                     _loop_1(bufferUse);
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
                 }
                 finally { if (e_1) throw e_1.error; }
             }
             try {
-                for (var _e = __values(members.keys()), _f = _e.next(); !_f.done; _f = _e.next()) {
-                    var bufferUse = _f.value;
+                for (var _f = __values(members.keys()), _g = _f.next(); !_g.done; _g = _f.next()) {
+                    var bufferUse = _g.value;
                     var infoArray = members.get(bufferUse);
                     infoArray.forEach(function (info) {
-                        _this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+                        Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
                     });
                 }
             }
             catch (e_2_1) { e_2 = { error: e_2_1 }; }
             finally {
                 try {
-                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
                 }
                 finally { if (e_2) throw e_2.error; }
+            }
+            try {
+                // takeOne
+                for (var _h = __values(members.keys()), _j = _h.next(); !_j.done; _j = _h.next()) {
+                    var bufferUse = _j.value;
+                    var infoArray = members.get(bufferUse);
+                    infoArray.forEach(function (info) {
+                        _this.takeOne(info.memberName, info.dataClassType);
+                    });
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
+                }
+                finally { if (e_3) throw e_3.error; }
             }
         };
         Component.__bufferViews = new Map();
@@ -4495,14 +4547,19 @@
         __extends(TransformComponent, _super);
         function TransformComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
+            _this._quaternion = Quaternion.dummy();
+            _this._matrix = Matrix44.dummy();
             // dependencies
             _this._dependentAnimationComponentId = 0;
             _this._translate = Vector3.zero();
             _this._rotate = Vector3.zero();
             _this._scale = new Vector3(1, 1, 1);
-            _this._quaternion = _this.takeOne('quaternion', Quaternion);
+            _this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
+            _this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.submitToAllocation();
+            //    this._quaternion = this.takeOne('quaternion', Quaternion);
             _this._quaternion.identity();
-            _this._matrix = _this.takeOne('matrix', Matrix44);
+            //    this._matrix = this.takeOne('matrix', Matrix44);
             _this._matrix.identity();
             _this._invMatrix = Matrix44.identity();
             _this._normalMatrix = Matrix33.identity();
@@ -4532,9 +4589,9 @@
             configurable: true
         });
         TransformComponent.setupBufferView = function () {
-            this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
-            this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
-            this.submitToAllocation(this);
+            //    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+            //    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
+            //    this.submitToAllocation(this);
         };
         TransformComponent.prototype.$create = function () {
             // Define process dependencies with other components.
@@ -4975,10 +5032,13 @@
         __extends(SceneGraphComponent, _super);
         function SceneGraphComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
+            _this._worldMatrix = RowMajarMatrix44.dummy();
             _this.__isAbleToBeParent = false;
             _this.beAbleToBeParent(true);
-            _this.__worldMatrix = _this.takeOne('worldMatrix', RowMajarMatrix44);
-            _this.__worldMatrix.identity();
+            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.submitToAllocation();
+            //    this._worldMatrix = this.takeOne('worldMatrix', RowMajarMatrix44);
+            _this._worldMatrix.identity();
             return _this;
             //this.__updatedProperly = false;
         }
@@ -4990,8 +5050,8 @@
             configurable: true
         });
         SceneGraphComponent.setupBufferView = function () {
-            this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
-            this.submitToAllocation(this);
+            //    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
+            //    this.submitToAllocation(this);
         };
         SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
             this.__isAbleToBeParent = flag;
@@ -5035,14 +5095,14 @@
                 // if there is not parent
                 if (transform._dirty) {
                     transform._dirty = false;
-                    this.__worldMatrix.copyComponents(transform.matrixInner);
-                    //        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
+                    this._worldMatrix.copyComponents(transform.matrixInner);
+                    //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
                 }
-                return this.__worldMatrix;
+                return this._worldMatrix;
             }
             var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-            this.__worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-            return this.__worldMatrix;
+            this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
+            return this._worldMatrix;
         };
         return SceneGraphComponent;
     }(Component));
@@ -5074,7 +5134,7 @@
         };
         MeshComponent.setupBufferView = function () {
             //    this.registerMember(BufferUse.UBOGeneric, 'memoryInfoOfVertexDataTexture', CompositionType.Mat4, ComponentType.Float);
-            this.submitToAllocation(this);
+            //    this.submitToAllocation(this);
         };
         return MeshComponent;
     }(Component));
