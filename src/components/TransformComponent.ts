@@ -24,8 +24,8 @@ export default class TransformComponent extends Component {
   private _translate: Vector3;
   private _rotate: Vector3;
   private _scale: Vector3;
-  private _quaternion: Quaternion;
-  private _matrix: Matrix44;
+  private _quaternion: Quaternion = Quaternion.dummy();
+  private _matrix: Matrix44 = Matrix44.dummy();
   private _invMatrix: Matrix44;
   private _normalMatrix: Matrix33;
 
@@ -54,9 +54,11 @@ export default class TransformComponent extends Component {
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
-    this._quaternion = new Quaternion(thisClass.takeOne('quaternion'));
+
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+    this.submitToAllocation();
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.takeOne('matrix'), false, true);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
@@ -82,11 +84,10 @@ export default class TransformComponent extends Component {
   }
 
   static setupBufferView() {
+//    this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+//    this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
 
-    this.registerMember(BufferUse.CPUGeneric, 'matrix', CompositionType.Mat4, ComponentType.Float);
-    this.registerMember(BufferUse.CPUGeneric, 'quaternion', CompositionType.Vec4, ComponentType.Float);
-
-    this.submitToAllocation();
+//    this.submitToAllocation(this);
   }
 
 

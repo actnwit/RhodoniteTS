@@ -17,11 +17,10 @@ export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
-  private __worldMatrix: RowMajarMatrix44;
+  private _worldMatrix: RowMajarMatrix44 = RowMajarMatrix44.dummy();
   //private __updatedProperly: boolean;
 
   private static __bufferView: BufferView;
-  private static __accesseor_worldMatrix: Accessor;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
@@ -30,8 +29,9 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix'), true);
-    this.__worldMatrix.identity();
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+    this.submitToAllocation();
+    this._worldMatrix.identity();
 
     //this.__updatedProperly = false;
   }
@@ -41,15 +41,10 @@ export default class SceneGraphComponent extends Component {
   }
 
   static setupBufferView() {
+//    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
 
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', CompositionType.Mat4, ComponentType.Float);
+//    this.submitToAllocation(this);
 
-    this.submitToAllocation();
-
-  }
-
-  static getWorldMatrixAccessor() {
-    return SceneGraphComponent.__accesseor_worldMatrix;
   }
 
   beAbleToBeParent(flag: boolean) {
@@ -89,16 +84,16 @@ export default class SceneGraphComponent extends Component {
       // if there is not parent
       if (transform._dirty) {
         transform._dirty = false;
-        this.__worldMatrix.copyComponents(transform.matrixInner);
-//        console.log('No Skip!', this.__worldMatrix.toString(), this.__entityUid);
+        this._worldMatrix.copyComponents(transform.matrixInner);
+//        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
       } else {
-//        console.log('Skip!', this.__worldMatrix.toString(), this.__entityUid);
+//        console.log('Skip!', this._worldMatrix.toString(), this.__entityUid);
       }
-      return this.__worldMatrix;
+      return this._worldMatrix;
     }
     const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-    this.__worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-    return this.__worldMatrix;
+    this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
+    return this._worldMatrix;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);

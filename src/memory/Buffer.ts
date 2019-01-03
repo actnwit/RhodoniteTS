@@ -6,6 +6,7 @@ export default class Buffer extends RnObject {
   private __raw: ArrayBuffer;
   private __name: string = '';
   private __takenBytesIndex: Byte = 0;
+  private __bufferViews: Array<BufferView> = [];
 
   constructor({byteLength, arrayBuffer, name} : {byteLength: Size, arrayBuffer: ArrayBuffer, name: string}) {
     super(true);
@@ -41,6 +42,8 @@ export default class Buffer extends RnObject {
     const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS});
     bufferView.byteStride = byteStride;
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+
+    this.__bufferViews.push(bufferView);
 
     return bufferView;
   }

@@ -14,9 +14,10 @@ class BufferUseClass extends EnumClass implements BufferUseEnum {
 
 const GPUInstanceData: BufferUseEnum = new BufferUseClass({index:0, str:'GPUInstanceData'});
 const GPUVertexData: BufferUseEnum = new BufferUseClass({index:1, str:'GPUVertexData'});
-const CPUGeneric: BufferUseEnum = new BufferUseClass({index:2, str:'CPUGeneric'});
+const UBOGeneric: BufferUseEnum = new BufferUseClass({index:2, str:'UBOGeneric'});
+const CPUGeneric: BufferUseEnum = new BufferUseClass({index:3, str:'CPUGeneric'});
 
-const typeList = [ GPUInstanceData, GPUVertexData, CPUGeneric ];
+const typeList = [ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric ];
 
 function from({ index, str }: { index?: number, str?: string }): BufferUseEnum {
   if (index != null) {
@@ -29,4 +30,4 @@ function from({ index, str }: { index?: number, str?: string }): BufferUseEnum {
 
 }
 
-export const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, CPUGeneric, from });
+export const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from });

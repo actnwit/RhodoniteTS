@@ -7,10 +7,12 @@ import Matrix44 from './Matrix44';
 export default class Quaternion {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector3|Vector4|Array<number>, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|Vector4|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
+    } else if (x == null) {
+      this.v = new Float32Array(0);
     } else {
       this.v = new Float32Array(4);
     }
@@ -57,6 +59,18 @@ export default class Quaternion {
 
   isEqual(quat: Quaternion) {
     if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static dummy() {
+    return new Quaternion(null);
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
       return true;
     } else {
       return false;

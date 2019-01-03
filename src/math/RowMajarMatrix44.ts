@@ -3,6 +3,7 @@ import Vector4 from './Vector4';
 import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
+import Matrix44 from './Matrix44';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -15,6 +16,7 @@ export default class RowMajarMatrix44 {
   constructor(m: Matrix33, notCopyFloatArray?:Boolean);
   constructor(m: RowMajarMatrix44, notCopyFloatArray?:Boolean);
   constructor(m: Quaternion, notCopyFloatArray?:Boolean);
+  constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
     m4: number, m5: number, m6: number, m7: number,
@@ -22,15 +24,20 @@ export default class RowMajarMatrix44 {
     m12: number, m13: number, m14: number, m15: number,
     notCopyFloatArray?:Boolean);
   constructor(
-    m0: any, m1: any, m2?: any, m3?: any,
+    m0: any, m1?: any, m2?: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
     notCopyFloatArray:Boolean = false) {
-  
+
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
-     
+
     const m = m0;
+
+    if (m == null) {
+      this.m = new FloatArray(0);
+      return;
+    }
 
     if (arguments.length >= 16) {
       this.m = new FloatArray(16); // Data order is row major
@@ -74,6 +81,18 @@ export default class RowMajarMatrix44 {
     } else {
       this.m = new FloatArray(16);
       this.identity();
+    }
+  }
+
+  static dummy() {
+    return new RowMajarMatrix44(null);
+  }
+
+  isDummy() {
+    if (this.m.length === 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 

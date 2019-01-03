@@ -10,6 +10,7 @@ type Count = number;
 type Byte = number;
 
 type ObjectUID = number;
+type PrimitiveUID = number;
 type EntityUID = number;
 type ComponentTID = number;
 type ComponentSID = number;

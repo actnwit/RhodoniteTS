@@ -9,6 +9,7 @@ import { TextureParameter } from "../../definitions/TextureParameter";
 import SceneGraphComponent from "../../components/SceneGraphComponent";
 import GLSLShader from "./GLSLShader";
 import { BufferUse } from "../../definitions/BufferUse";
+import WebGLStrategy from "./WebGLStrategy";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -40,10 +41,12 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
       GLSLShader.vertexShaderBody
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      vertexShader,
-      fragmentShader,
-      GLSLShader.attributeNanes,
-      GLSLShader.attributeSemantics
+      {
+        vertexShaderStr: vertexShader,
+        fragmentShaderStr: fragmentShader,
+        attributeNames: GLSLShader.attributeNames,
+        attributeSemantics: GLSLShader.attributeSemantics
+      }
     );
   }
 
@@ -71,11 +74,11 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
     } else {
       if (this.__uboUid !== 0) {
-        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
+        this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
         return;
       }
 
-      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getWorldMatrixAccessor().dataViewOfBufferView);
+      this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
 
     }
     this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);

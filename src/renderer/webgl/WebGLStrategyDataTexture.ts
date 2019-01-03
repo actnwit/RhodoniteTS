@@ -8,6 +8,7 @@ import { ComponentType } from "../../definitions/ComponentType";
 import { TextureParameter } from "../../definitions/TextureParameter";
 import GLSLShader from "./GLSLShader";
 import { BufferUse } from "../../definitions/BufferUse";
+import WebGLStrategy from "./WebGLStrategy";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -72,10 +73,12 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       GLSLShader.vertexShaderBody
     let fragmentShader = GLSLShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      vertexShader,
-      fragmentShader,
-      GLSLShader.attributeNanes,
-      GLSLShader.attributeSemantics
+      {
+        vertexShaderStr: vertexShader,
+        fragmentShaderStr: fragmentShader,
+        attributeNames: GLSLShader.attributeNames,
+        attributeSemantics: GLSLShader.attributeSemantics
+      }
     );
   }
 

@@ -15,6 +15,7 @@ export default class Matrix44 {
   constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
   constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
   constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
     m4: number, m5: number, m6: number, m7: number,
@@ -22,16 +23,21 @@ export default class Matrix44 {
     m12: number, m13: number, m14: number, m15: number,
     isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
   constructor(
-    m0: any, m1: any, m2: any, m3?: any,
+    m0: any, m1?: any, m2?: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
     isColumnMajor:Boolean = false, notCopyFloatArray:Boolean = false) {
-  
+
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-     
+
     const m = m0;
+
+    if (m == null) {
+      this.m = new FloatArray(0);
+      return;
+    }
 
     if (arguments.length >= 16) {
       this.m = new FloatArray(16); // Data order is column major
@@ -108,6 +114,18 @@ export default class Matrix44 {
     } else {
       this.m = new FloatArray(16);
       this.identity();
+    }
+  }
+
+  static dummy() {
+    return new Matrix44(null);
+  }
+
+  isDummy() {
+    if (this.m.length === 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 

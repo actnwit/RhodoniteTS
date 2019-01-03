@@ -4,16 +4,20 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
+import Quaternion from '../math/Quaternion';
+import Matrix44 from '../math/Matrix44';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
-type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
+type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
 
 export default class Component {
   private _component_sid: number;
-  private static __bufferViews: {[s: string]: BufferView} = {};
-  private static __accessors: { [s: string]: Accessor } = {};
-  private static __byteLengthSumOfMembers:{[s:string]: Byte} = {};
+  private static __bufferViews:Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
+  private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
+  private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();
 
-  private static __memberInfoArray: MemberInfo[] = [];
+  private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
+  private static __members:Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
 
   private __isAlive: Boolean;
   protected __entityUid: EntityUID;
@@ -41,8 +45,9 @@ export default class Component {
     return this.__entityUid;
   }
 
-  static getByteLengthSumOfMembers(bufferUse: BufferUseEnum) {
-    return this.__byteLengthSumOfMembers[bufferUse.toString()];
+  static getByteLengthSumOfMembers(bufferUse: BufferUseEnum, componentClass: Function) {
+    const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass)!
+    return byteLengthSumOfMembers.get(bufferUse)!;
   }
 
   static setupBufferView() {
@@ -52,65 +57,157 @@ export default class Component {
 
   }
 
-  static takeBufferViewer(bufferUse: BufferUseEnum, byteLengthSumOfMembers: Byte) {
+  static takeBufferViewer(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
     const count = EntityRepository.getMaxEntityNumber();
-    this.__bufferViews[bufferUse.toString()] =
-    buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false});
+
+    if (!this.__bufferViews.has(componentClass)) {
+      this.__bufferViews.set(componentClass, new Map())
+    }
+
+    const bufferViews = this.__bufferViews.get(componentClass)!;
+
+    if (!bufferViews.has(bufferUse)) {
+      bufferViews.set(bufferUse,
+        buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false})
+        );
+    }
   }
 
-  static takeOne(memberName: string): any {
-    return this.__accessors[memberName].takeOne();
+  takeOne(memberName: string, dataClassType: any): any {
+    if (!(this as any)['_'+memberName].isDummy()) {
+      return;
+    }
+    let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
+    if (dataClassType === Matrix44) {
+      (this as any)['_'+memberName] = new dataClassType(taken, false, true);
+    } else if (dataClassType === RowMajarMatrix44) {
+      (this as any)['_'+memberName] = new dataClassType(taken, true);
+    } else {
+      (this as any)['_'+memberName] = new dataClassType(taken);
+    }
+    return null;
   }
 
-  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+  static getAccessor(memberName: string, componentClass:Function): Accessor {
+    return this.__accessors.get(componentClass)!.get(memberName)!;
+  }
+
+  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const count = EntityRepository.getMaxEntityNumber();
-    this.__accessors[memberName] = this.__bufferViews[bufferUse.toString()].takeAccessor({compositionType: compositionType, componentType, count: count});
+    if (!this.__accessors.has(componentClass)) {
+      this.__accessors.set(componentClass, new Map());
+    }
+
+    const accessors = this.__accessors.get(componentClass)!;
+
+    if (!accessors.has(memberName)) {
+      const bufferViews = this.__bufferViews.get(componentClass)!
+      accessors.set(memberName,
+        bufferViews.get(bufferUse)!.takeAccessor(
+          {compositionType: compositionType, componentType, count: count})
+      );
+    }
   }
 
-  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum): Byte {
-    return this.__bufferViews[bufferUse.toString()]!.byteOffset;
+  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass:Function): Byte {
+    return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffset;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBuffer;
+  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass:Function): Byte {
+    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBuffer;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string): Byte {
-    return this.__accessors[memberName].byteOffsetInBufferView;
+  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass:Function): Byte {
+    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBufferView;
   }
 
-  static registerMember(bufferUse: BufferUseEnum, memberName: string, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    this.__memberInfoArray.push({bufferUse, memberName, compositionType, componentType})
-  }
-
-  static submitToAllocation() {
-    const members:{[s:string]: Array<MemberInfo>} = {};
-
-    this.__memberInfoArray.forEach(info=>{
-      members[info.bufferUse.toString()] = [];
+  static getCompositionTypeOfMember(memberName: string, componentClass:Function): CompositionTypeEnum | null {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info=>{
+      return info.memberName === memberName;
     });
+    if (info != null) {
+      return info.compositionType;
+    } else {
+      return null;
+    }
+  }
 
-    this.__memberInfoArray.forEach(info=>{
-      members[info.bufferUse.toString()].push(info);
+  static getComponentTypeOfMember(memberName: string, componentClass:Function): ComponentTypeEnum | null {
+    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const info = memberInfoArray.find(info=>{
+      return info.memberName === memberName;
     });
+    if (info != null) {
+      return info.componentType;
+    } else {
+      return null;
+    }
+  }
 
-    for (let bufferUseName in members) {
-      const infoArray = members[bufferUseName];
-      this.__byteLengthSumOfMembers[bufferUseName] = 0;
-      infoArray.forEach(info=>{
-        this.__byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
+  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+    if (!Component.__memberInfo.has(this.constructor)) {
+      Component.__memberInfo.set(this.constructor, []);
+    }
+    const memberInfoArray = Component.__memberInfo.get(this.constructor);
+    memberInfoArray!.push({bufferUse, memberName, dataClassType, compositionType, componentType})
+  }
+
+  submitToAllocation() {
+    const componentClass = this.constructor;
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
+
+
+    if (this._component_sid <= 1) {
+      if (!Component.__members.has(componentClass)) {
+        Component.__members.set(componentClass, new Map());
+      }
+      const member = Component.__members.get(componentClass)!;
+      memberInfoArray.forEach(info=>{
+        member.set(info.bufferUse, []);
       });
-      if (infoArray.length > 0) {
-        this.takeBufferViewer(BufferUse.from({str: bufferUseName}), this.__byteLengthSumOfMembers[bufferUseName]);
+      memberInfoArray.forEach(info=>{
+        member.get(info.bufferUse)!.push(info);
+      });
+
+      for (let bufferUse of member.keys()) {
+        const infoArray = member.get(bufferUse)!;
+        const bufferUseName = bufferUse.toString();
+        if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
+          Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+        }
+        let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
+        if (!byteLengthSumOfMembers.has(bufferUse)) {
+          byteLengthSumOfMembers.set(bufferUse, 0);
+        }
+        infoArray.forEach(info=>{
+          byteLengthSumOfMembers.set(bufferUse,
+            byteLengthSumOfMembers.get(bufferUse)! +
+            info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
+          );
+        });
+        if (infoArray.length > 0) {
+          Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!);
+        }
+      }
+
+      for (let bufferUse of member.keys()) {
+        const infoArray = member.get(bufferUse)!;
+        infoArray.forEach(info=>{
+          Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+        });
       }
     }
 
-    for (let bufferUseName in members) {
-      const infoArray = members[bufferUseName];
-      this.__byteLengthSumOfMembers[bufferUseName] = 0;
+    const member = Component.__members.get(componentClass)!;
+
+
+    // takeOne
+    for (let bufferUse of member.keys()) {
+      const infoArray = member.get(bufferUse)!;
       infoArray.forEach(info=>{
-        this.takeAccessor(info.bufferUse, info.memberName, info.compositionType, info.componentType);
+        this.takeOne(info.memberName, info.dataClassType);
       });
     }
 
