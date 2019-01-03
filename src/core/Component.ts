@@ -17,6 +17,7 @@ export default class Component {
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
+  private static __members:Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
 
   private __isAlive: Boolean;
   protected __entityUid: EntityUID;
@@ -154,51 +155,57 @@ export default class Component {
   }
 
   submitToAllocation() {
-    const members:Map<BufferUseEnum, Array<MemberInfo>> = new Map();
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
-    memberInfoArray.forEach(info=>{
-      members.set(info.bufferUse, []);
-    });
 
-    memberInfoArray.forEach(info=>{
-      members.get(info.bufferUse)!.push(info);
-    });
-
-    for (let bufferUse of members.keys()) {
-      const infoArray = members.get(bufferUse)!;
-      const bufferUseName = bufferUse.toString();
-      if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
-        Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+    if (this._component_sid <= 1) {
+      if (!Component.__members.has(componentClass)) {
+        Component.__members.set(componentClass, new Map());
       }
-      let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
-      if (!byteLengthSumOfMembers.has(bufferUse)) {
-        byteLengthSumOfMembers.set(bufferUse, 0);
-      }
-      infoArray.forEach(info=>{
-        byteLengthSumOfMembers.set(bufferUse,
-          byteLengthSumOfMembers.get(bufferUse)! +
-          info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
-        );
+      const member = Component.__members.get(componentClass)!;
+      memberInfoArray.forEach(info=>{
+        member.set(info.bufferUse, []);
       });
-      if (infoArray.length > 0) {
-        Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!);
+      memberInfoArray.forEach(info=>{
+        member.get(info.bufferUse)!.push(info);
+      });
+
+      for (let bufferUse of member.keys()) {
+        const infoArray = member.get(bufferUse)!;
+        const bufferUseName = bufferUse.toString();
+        if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
+          Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+        }
+        let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
+        if (!byteLengthSumOfMembers.has(bufferUse)) {
+          byteLengthSumOfMembers.set(bufferUse, 0);
+        }
+        infoArray.forEach(info=>{
+          byteLengthSumOfMembers.set(bufferUse,
+            byteLengthSumOfMembers.get(bufferUse)! +
+            info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
+          );
+        });
+        if (infoArray.length > 0) {
+          Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!);
+        }
+      }
+
+      for (let bufferUse of member.keys()) {
+        const infoArray = member.get(bufferUse)!;
+        infoArray.forEach(info=>{
+          Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+        });
       }
     }
 
-    for (let bufferUse of members.keys()) {
-      const infoArray = members.get(bufferUse)!;
-      infoArray.forEach(info=>{
-        Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
-      });
-    }
-
+    const member = Component.__members.get(componentClass)!;
 
 
     // takeOne
-    for (let bufferUse of members.keys()) {
-      const infoArray = members.get(bufferUse)!;
+    for (let bufferUse of member.keys()) {
+      const infoArray = member.get(bufferUse)!;
       infoArray.forEach(info=>{
         this.takeOne(info.memberName, info.dataClassType);
       });

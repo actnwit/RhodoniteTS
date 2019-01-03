@@ -3877,42 +3877,48 @@ class Component {
         memberInfoArray.push({ bufferUse, memberName, dataClassType, compositionType, componentType });
     }
     submitToAllocation() {
-        const members = new Map();
         const componentClass = this.constructor;
         const memberInfoArray = Component.__memberInfo.get(componentClass);
-        memberInfoArray.forEach(info => {
-            members.set(info.bufferUse, []);
-        });
-        memberInfoArray.forEach(info => {
-            members.get(info.bufferUse).push(info);
-        });
-        for (let bufferUse of members.keys()) {
-            const infoArray = members.get(bufferUse);
-            const bufferUseName = bufferUse.toString();
-            if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
-                Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+        if (this._component_sid <= 1) {
+            if (!Component.__members.has(componentClass)) {
+                Component.__members.set(componentClass, new Map());
             }
-            let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);
-            if (!byteLengthSumOfMembers.has(bufferUse)) {
-                byteLengthSumOfMembers.set(bufferUse, 0);
-            }
-            infoArray.forEach(info => {
-                byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +
-                    info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());
+            const member = Component.__members.get(componentClass);
+            memberInfoArray.forEach(info => {
+                member.set(info.bufferUse, []);
             });
-            if (infoArray.length > 0) {
-                Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));
+            memberInfoArray.forEach(info => {
+                member.get(info.bufferUse).push(info);
+            });
+            for (let bufferUse of member.keys()) {
+                const infoArray = member.get(bufferUse);
+                const bufferUseName = bufferUse.toString();
+                if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
+                    Component.__byteLengthSumOfMembers.set(componentClass, new Map());
+                }
+                let byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);
+                if (!byteLengthSumOfMembers.has(bufferUse)) {
+                    byteLengthSumOfMembers.set(bufferUse, 0);
+                }
+                infoArray.forEach(info => {
+                    byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +
+                        info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());
+                });
+                if (infoArray.length > 0) {
+                    Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));
+                }
+            }
+            for (let bufferUse of member.keys()) {
+                const infoArray = member.get(bufferUse);
+                infoArray.forEach(info => {
+                    Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+                });
             }
         }
-        for (let bufferUse of members.keys()) {
-            const infoArray = members.get(bufferUse);
-            infoArray.forEach(info => {
-                Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
-            });
-        }
+        const member = Component.__members.get(componentClass);
         // takeOne
-        for (let bufferUse of members.keys()) {
-            const infoArray = members.get(bufferUse);
+        for (let bufferUse of member.keys()) {
+            const infoArray = member.get(bufferUse);
             infoArray.forEach(info => {
                 this.takeOne(info.memberName, info.dataClassType);
             });
@@ -3923,6 +3929,7 @@ Component.__bufferViews = new Map();
 Component.__accessors = new Map();
 Component.__byteLengthSumOfMembers = new Map();
 Component.__memberInfo = new Map();
+Component.__members = new Map();
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
@@ -3938,9 +3945,7 @@ class TransformComponent extends Component {
         this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
         this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
         this.submitToAllocation();
-        //    this._quaternion = this.takeOne('quaternion', Quaternion);
         this._quaternion.identity();
-        //    this._matrix = this.takeOne('matrix', Matrix44);
         this._matrix.identity();
         this._invMatrix = Matrix44.identity();
         this._normalMatrix = Matrix33.identity();
@@ -4347,7 +4352,6 @@ class SceneGraphComponent extends Component {
         this.beAbleToBeParent(true);
         this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
         this.submitToAllocation();
-        //    this._worldMatrix = this.takeOne('worldMatrix', RowMajarMatrix44);
         this._worldMatrix.identity();
         //this.__updatedProperly = false;
     }

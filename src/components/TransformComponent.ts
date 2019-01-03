@@ -58,9 +58,7 @@ export default class TransformComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
     this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
     this.submitToAllocation();
-//    this._quaternion = this.takeOne('quaternion', Quaternion);
     this._quaternion.identity();
-//    this._matrix = this.takeOne('matrix', Matrix44);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();
