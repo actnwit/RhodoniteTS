@@ -4746,6 +4746,138 @@ const RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
 const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
     Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
 
+class Primitive extends RnObject {
+    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
+        super();
+        this.__primitiveUid = -1; // start ID from zero
+        this.__indices = indicesAccessor;
+        this.__attributeCompositionTypes = attributeCompositionTypes;
+        this.__attributeComponentTypes = attributeComponentTypes;
+        this.__attributes = attributeAccessors;
+        this.__attributeSemantics = attributeSemantics;
+        this.__material = material;
+        this.__mode = mode;
+        this.__indicesBufferView = indicesBufferView;
+        this.__attributesBufferView = attributesBufferView;
+        this.__indicesComponentType = indicesComponentType;
+        this.__primitiveUid = Primitive.__primitiveCount++;
+        if (Primitive.__headerAccessor == null) {
+            // primitive 0
+            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
+            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
+            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
+            //   ...
+            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
+            // primitive 1
+            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
+            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
+            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
+            //   ...
+            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
+            const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+            const bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
+            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
+        }
+        const attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
+        if (this.indicesAccessor != null) {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, this.indicesAccessor.byteLength / this.indicesAccessor.componentSizeInBytes, -1);
+        }
+        else {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
+        }
+        this.attributeAccessors.forEach((attributeAccessor, i) => {
+            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
+        });
+    }
+    static get maxPrimitiveCount() {
+        return 100;
+    }
+    static get headerAccessor() {
+        return this.__headerAccessor;
+    }
+    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+        let indicesComponentType;
+        let indicesBufferView;
+        let indicesAccessor;
+        if (indices != null) {
+            indicesComponentType = ComponentType.fromTypedArray(indices);
+            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
+            indicesAccessor = indicesBufferView.takeAccessor({
+                compositionType: CompositionType.Scalar,
+                componentType: indicesComponentType,
+                count: indices.byteLength / indicesComponentType.getSizeInBytes()
+            });
+            // copy indices
+            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
+                indicesAccessor.setScalar(i, indices[i]);
+            }
+        }
+        let sumOfAttributesByteSize = 0;
+        attributes.forEach(attribute => {
+            sumOfAttributesByteSize += attribute.byteLength;
+        });
+        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
+        const attributeAccessors = [];
+        const attributeComponentTypes = [];
+        attributes.forEach((attribute, i) => {
+            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
+            const accessor = attributesBufferView.takeAccessor({
+                compositionType: attributeCompositionTypes[i],
+                componentType: ComponentType.fromTypedArray(attributes[i]),
+                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
+            });
+            accessor.copyFromTypedArray(attribute);
+            attributeAccessors.push(accessor);
+        });
+        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
+    }
+    get indicesAccessor() {
+        return this.__indices;
+    }
+    hasIndices() {
+        return this.__indices != null;
+    }
+    get attributeAccessors() {
+        return this.__attributes.concat();
+    }
+    get attributeSemantics() {
+        return this.__attributeSemantics.concat();
+    }
+    get attributeCompositionTypes() {
+        return this.__attributeCompositionTypes;
+    }
+    get attributeComponentTypes() {
+        return this.__attributeComponentTypes;
+    }
+    get primitiveMode() {
+        return this.__mode;
+    }
+    get primitiveUid() {
+        return this.__primitiveUid;
+    }
+}
+Primitive.__primitiveCount = 0;
+
+class PrimitiveModeClass extends EnumClass {
+    constructor({ index, str }) {
+        super({ index, str });
+    }
+}
+const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
+const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
+const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
+const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
+const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
+const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
+const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
+const typeList$8 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$8({ index }) {
+    return _from({ typeList: typeList$8, index });
+}
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$8 });
+
 class WebGLStrategyTransformFeedback {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -4756,6 +4888,7 @@ class WebGLStrategyTransformFeedback {
         this.__indexCountToSubtractUboUid = 0;
         this.__entitiesUidUboUid = 0;
         this.__primitiveUidUboUid = 0;
+        this.__isVertexReady = false;
     }
     get __transformFeedbackShaderText() {
         return `#version 300 es
@@ -4845,6 +4978,28 @@ void main(){
         });
     }
     load(meshComponent) {
+        if (this.__isVertexReady) {
+            return;
+        }
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+        const indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: 4 * 3, byteStride: 4, isAoS: false });
+        const indicesAccessor = indicesBufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.UnsingedInt, count: 3 });
+        const attributeBufferView = buffer.takeBufferView({ byteLengthToNeed: 16 * 3, byteStride: 16, isAoS: false });
+        const attributeAccessor = attributeBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 3 });
+        const indicesUint16Array = indicesAccessor.getTypedArray();
+        indicesUint16Array[0] = 0;
+        indicesUint16Array[1] = 1;
+        indicesUint16Array[2] = 2;
+        const primitive = Primitive.createPrimitive({
+            indices: indicesUint16Array,
+            attributeCompositionTypes: [attributeAccessor.compositionType],
+            attributeSemantics: [VertexAttribute.Position],
+            attributes: [attributeAccessor.getTypedArray()],
+            primitiveMode: PrimitiveMode.Triangles,
+            material: 0
+        });
+        this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);
+        this.__isVertexReady = true;
     }
     prerender(meshComponent, instanceIDBufferUid) {
     }
@@ -5334,138 +5489,6 @@ class MeshRendererComponent extends Component {
 MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
 MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-class Primitive extends RnObject {
-    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
-        super();
-        this.__primitiveUid = -1; // start ID from zero
-        this.__indices = indicesAccessor;
-        this.__attributeCompositionTypes = attributeCompositionTypes;
-        this.__attributeComponentTypes = attributeComponentTypes;
-        this.__attributes = attributeAccessors;
-        this.__attributeSemantics = attributeSemantics;
-        this.__material = material;
-        this.__mode = mode;
-        this.__indicesBufferView = indicesBufferView;
-        this.__attributesBufferView = attributesBufferView;
-        this.__indicesComponentType = indicesComponentType;
-        this.__primitiveUid = Primitive.__primitiveCount++;
-        if (Primitive.__headerAccessor == null) {
-            // primitive 0
-            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
-            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
-            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
-            //   ...
-            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
-            // primitive 1
-            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
-            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
-            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
-            //   ...
-            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
-            const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
-            const bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
-            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
-        }
-        const attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
-        if (this.indicesAccessor != null) {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, this.indicesAccessor.byteOffsetInBuffer, this.indicesAccessor.componentSizeInBytes, this.indicesAccessor.byteLength / this.indicesAccessor.componentSizeInBytes, -1);
-        }
-        else {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
-        }
-        this.attributeAccessors.forEach((attributeAccessor, i) => {
-            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
-        });
-    }
-    static get maxPrimitiveCount() {
-        return 100;
-    }
-    static get headerAccessor() {
-        return this.__headerAccessor;
-    }
-    static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }) {
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
-        let indicesComponentType;
-        let indicesBufferView;
-        let indicesAccessor;
-        if (indices != null) {
-            indicesComponentType = ComponentType.fromTypedArray(indices);
-            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
-            indicesAccessor = indicesBufferView.takeAccessor({
-                compositionType: CompositionType.Scalar,
-                componentType: indicesComponentType,
-                count: indices.byteLength / indicesComponentType.getSizeInBytes()
-            });
-            // copy indices
-            for (let i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
-                indicesAccessor.setScalar(i, indices[i]);
-            }
-        }
-        let sumOfAttributesByteSize = 0;
-        attributes.forEach(attribute => {
-            sumOfAttributesByteSize += attribute.byteLength;
-        });
-        const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
-        const attributeAccessors = [];
-        const attributeComponentTypes = [];
-        attributes.forEach((attribute, i) => {
-            attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-            const accessor = attributesBufferView.takeAccessor({
-                compositionType: attributeCompositionTypes[i],
-                componentType: ComponentType.fromTypedArray(attributes[i]),
-                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-            });
-            accessor.copyFromTypedArray(attribute);
-            attributeAccessors.push(accessor);
-        });
-        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
-    }
-    get indicesAccessor() {
-        return this.__indices;
-    }
-    hasIndices() {
-        return this.__indices != null;
-    }
-    get attributeAccessors() {
-        return this.__attributes.concat();
-    }
-    get attributeSemantics() {
-        return this.__attributeSemantics.concat();
-    }
-    get attributeCompositionTypes() {
-        return this.__attributeCompositionTypes;
-    }
-    get attributeComponentTypes() {
-        return this.__attributeComponentTypes;
-    }
-    get primitiveMode() {
-        return this.__mode;
-    }
-    get primitiveUid() {
-        return this.__primitiveUid;
-    }
-}
-Primitive.__primitiveCount = 0;
-
-class PrimitiveModeClass extends EnumClass {
-    constructor({ index, str }) {
-        super({ index, str });
-    }
-}
-const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
-const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
-const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
-const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
-const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
-const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
-const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
-const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$8 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$8({ index }) {
-    return _from({ typeList: typeList$8, index });
-}
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$8 });
 
 class ProcessStageClass extends EnumClass {
     constructor({ index, str, methodName }) {
