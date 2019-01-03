@@ -3632,654 +3632,6 @@
         return MemoryManager;
     }());
 
-    var Component = /** @class */ (function () {
-        function Component(entityUid, componentSid) {
-            this.__entityUid = entityUid;
-            this._component_sid = componentSid;
-            this.__isAlive = true;
-            this.__memoryManager = MemoryManager.getInstance();
-            this.__entityRepository = EntityRepository.getInstance();
-        }
-        Object.defineProperty(Component, "componentTID", {
-            get: function () {
-                return 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Component.prototype, "componentSID", {
-            get: function () {
-                return this._component_sid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Component.prototype, "entityUID", {
-            get: function () {
-                return this.__entityUid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
-            var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
-            return byteLengthSumOfMembers[bufferUse.toString()];
-        };
-        Component.setupBufferView = function () {
-        };
-        Component.prototype.registerDependency = function (component, isMust) {
-        };
-        Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {
-            var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-            var count = EntityRepository.getMaxEntityNumber();
-            if (!this.__bufferViews.has(componentClass)) {
-                this.__bufferViews.set(componentClass, new Map());
-            }
-            var bufferViews = this.__bufferViews.get(componentClass);
-            if (!bufferViews.has(bufferUse)) {
-                bufferViews.set(bufferUse, buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false }));
-            }
-        };
-        Component.takeOne = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName).takeOne();
-        };
-        Component.getAccessor = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName);
-        };
-        Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            var count = EntityRepository.getMaxEntityNumber();
-            if (!this.__accessors.has(componentClass)) {
-                this.__accessors.set(componentClass, new Map());
-            }
-            var accessors = this.__accessors.get(componentClass);
-            if (!accessors.has(memberName)) {
-                var bufferViews = this.__bufferViews.get(componentClass);
-                accessors.set(memberName, bufferViews.get(bufferUse).takeAccessor({ compositionType: compositionType, componentType: componentType, count: count }));
-            }
-        };
-        Component.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse, componentClass) {
-            return this.__bufferViews.get(componentClass).get(bufferUse).byteOffset;
-        };
-        Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
-        };
-        Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;
-        };
-        Component.getCompositionTypeOfMember = function (memberName, componentClass) {
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            var info = memberInfoArray.find(function (info) {
-                return info.memberName === memberName;
-            });
-            if (info != null) {
-                return info.compositionType;
-            }
-            else {
-                return null;
-            }
-        };
-        Component.getComponentTypeOfMember = function (memberName, componentClass) {
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            var info = memberInfoArray.find(function (info) {
-                return info.memberName === memberName;
-            });
-            if (info != null) {
-                return info.componentType;
-            }
-            else {
-                return null;
-            }
-        };
-        Component.registerMember = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            if (!this.__memberInfo.has(componentClass)) {
-                this.__memberInfo.set(componentClass, []);
-            }
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
-        };
-        Component.submitToAllocation = function (componentClass) {
-            var _this = this;
-            var e_1, _a, e_2, _b;
-            var members = new Map();
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            memberInfoArray.forEach(function (info) {
-                members.set(info.bufferUse, []);
-            });
-            memberInfoArray.forEach(function (info) {
-                members.get(info.bufferUse).push(info);
-            });
-            var _loop_1 = function (bufferUse) {
-                var infoArray = members.get(bufferUse);
-                var bufferUseName = bufferUse.toString();
-                this_1.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
-                var byteLengthSumOfMembers = this_1.__byteLengthSumOfMembers.get(componentClass);
-                infoArray.forEach(function (info) {
-                    byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
-                });
-                if (infoArray.length > 0) {
-                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), componentClass, byteLengthSumOfMembers[bufferUseName]);
-                }
-            };
-            var this_1 = this;
-            try {
-                for (var _c = __values(members.keys()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var bufferUse = _d.value;
-                    _loop_1(bufferUse);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            try {
-                for (var _e = __values(members.keys()), _f = _e.next(); !_f.done; _f = _e.next()) {
-                    var bufferUse = _f.value;
-                    var infoArray = members.get(bufferUse);
-                    infoArray.forEach(function (info) {
-                        _this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
-                    });
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-        };
-        Component.__bufferViews = new Map();
-        Component.__accessors = new Map();
-        Component.__byteLengthSumOfMembers = new Map();
-        Component.__memberInfo = new Map();
-        return Component;
-    }());
-
-    // import AnimationComponent from './AnimationComponent';
-    var TransformComponent = /** @class */ (function (_super) {
-        __extends(TransformComponent, _super);
-        function TransformComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
-            // dependencies
-            _this._dependentAnimationComponentId = 0;
-            var thisClass = TransformComponent;
-            _this._translate = Vector3.zero();
-            _this._rotate = Vector3.zero();
-            _this._scale = new Vector3(1, 1, 1);
-            _this._quaternion = new Quaternion(thisClass.takeOne('quaternion', thisClass));
-            _this._quaternion.identity();
-            _this._matrix = new Matrix44(thisClass.takeOne('matrix', thisClass), false, true);
-            _this._matrix.identity();
-            _this._invMatrix = Matrix44.identity();
-            _this._normalMatrix = Matrix33.identity();
-            _this._is_translate_updated = true;
-            _this._is_euler_angles_updated = true;
-            _this._is_scale_updated = true;
-            _this._is_quaternion_updated = true;
-            _this._is_trs_matrix_updated = true;
-            _this._is_inverse_trs_matrix_updated = true;
-            _this._is_normal_trs_matrix_updated = true;
-            _this._updateCount = 0;
-            _this._dirty = true;
-            return _this;
-        }
-        Object.defineProperty(TransformComponent, "renderedPropertyCount", {
-            get: function () {
-                return null;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent, "componentTID", {
-            get: function () {
-                return WellKnownComponentTIDs.TransformComponentTID;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TransformComponent.setupBufferView = function () {
-            this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
-            this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
-            this.submitToAllocation(this);
-        };
-        TransformComponent.prototype.$create = function () {
-            // Define process dependencies with other components.
-            // If circular depenencies are detected, the error will be repoated.
-            //this.registerDependency(AnimationComponent.componentTID, false);
-        };
-        TransformComponent.prototype.$updateLogic = function () {
-        };
-        TransformComponent.prototype._needUpdate = function () {
-            this._updateCount++;
-            this._dirty = true;
-        };
-        Object.defineProperty(TransformComponent.prototype, "translate", {
-            get: function () {
-                return this.translateInner.clone();
-            },
-            set: function (vec) {
-                this._translate.v[0] = vec.v[0];
-                this._translate.v[1] = vec.v[1];
-                this._translate.v[2] = vec.v[2];
-                this._is_translate_updated = true;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "translateInner", {
-            get: function () {
-                if (this._is_translate_updated) {
-                    return this._translate;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    this._translate.x = this._matrix.m03;
-                    this._translate.y = this._matrix.m13;
-                    this._translate.z = this._matrix.m23;
-                    this._is_translate_updated = true;
-                }
-                return this._translate;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "rotate", {
-            get: function () {
-                return this.rotateInner.clone();
-            },
-            set: function (vec) {
-                this._rotate.v[0] = vec.v[0];
-                this._rotate.v[1] = vec.v[1];
-                this._rotate.v[2] = vec.v[2];
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = false;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "rotateInner", {
-            get: function () {
-                if (this._is_euler_angles_updated) {
-                    return this._rotate;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    this._rotate = this._matrix.toEulerAngles();
-                }
-                else if (this._is_quaternion_updated) {
-                    this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
-                }
-                this._is_euler_angles_updated = true;
-                return this._rotate;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "scale", {
-            get: function () {
-                return this.scaleInner.clone();
-            },
-            set: function (vec) {
-                this._scale.v[0] = vec.v[0];
-                this._scale.v[1] = vec.v[1];
-                this._scale.v[2] = vec.v[2];
-                this._is_scale_updated = true;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "scaleInner", {
-            get: function () {
-                if (this._is_scale_updated) {
-                    return this._scale;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    var m = this._matrix;
-                    this._scale.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-                    this._scale.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-                    this._scale.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
-                    this._is_scale_updated = true;
-                }
-                return this._scale;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "quaternion", {
-            get: function () {
-                return this.quaternionInner.clone();
-            },
-            set: function (quat) {
-                this._quaternion.v[0] = quat.v[0];
-                this._quaternion.v[1] = quat.v[1];
-                this._quaternion.v[2] = quat.v[2];
-                this._is_quaternion_updated = true;
-                this._is_euler_angles_updated = false;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "quaternionInner", {
-            get: function () {
-                if (this._is_quaternion_updated) {
-                    return this._quaternion;
-                }
-                else if (!this._is_quaternion_updated) {
-                    if (this._is_trs_matrix_updated) {
-                        this._is_quaternion_updated = true;
-                        this._quaternion.fromMatrix(this._matrix);
-                        return this._quaternion;
-                    }
-                    else if (this._is_euler_angles_updated) {
-                        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
-                        this._is_quaternion_updated = true;
-                        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
-                        return this._quaternion;
-                    }
-                }
-                return this._quaternion;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "matrix", {
-            get: function () {
-                return this.matrixInner.clone();
-            },
-            set: function (mat) {
-                this._matrix = mat.clone();
-                this._is_trs_matrix_updated = true;
-                this._is_translate_updated = false;
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = false;
-                this._is_scale_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "matrixInner", {
-            get: function () {
-                if (this._is_trs_matrix_updated) {
-                    return this._matrix;
-                }
-                // Clear and set Scale
-                var scale = this.scaleInner;
-                var n00 = scale.v[0];
-                var n11 = scale.v[1];
-                var n22 = scale.v[2];
-                var q = this.quaternionInner;
-                var sx = q.v[0] * q.v[0];
-                var sy = q.v[1] * q.v[1];
-                var sz = q.v[2] * q.v[2];
-                var cx = q.v[1] * q.v[2];
-                var cy = q.v[0] * q.v[2];
-                var cz = q.v[0] * q.v[1];
-                var wx = q.v[3] * q.v[0];
-                var wy = q.v[3] * q.v[1];
-                var wz = q.v[3] * q.v[2];
-                var m00 = 1.0 - 2.0 * (sy + sz);
-                var m01 = 2.0 * (cz - wz);
-                var m02 = 2.0 * (cy + wy);
-                var m10 = 2.0 * (cz + wz);
-                var m11 = 1.0 - 2.0 * (sx + sz);
-                var m12 = 2.0 * (cx - wx);
-                var m20 = 2.0 * (cy - wy);
-                var m21 = 2.0 * (cx + wx);
-                var m22 = 1.0 - 2.0 * (sx + sy);
-                var translate = this.translateInner;
-                // TranslateMatrix * RotateMatrix * ScaleMatrix
-                this._matrix.m00 = m00 * n00;
-                this._matrix.m01 = m01 * n11;
-                this._matrix.m02 = m02 * n22;
-                this._matrix.m03 = translate.v[0];
-                this._matrix.m10 = m10 * n00;
-                this._matrix.m11 = m11 * n11;
-                this._matrix.m12 = m12 * n22;
-                this._matrix.m13 = translate.v[1];
-                this._matrix.m20 = m20 * n00;
-                this._matrix.m21 = m21 * n11;
-                this._matrix.m22 = m22 * n22;
-                this._matrix.m23 = translate.v[2];
-                this._matrix.m30 = 0;
-                this._matrix.m31 = 0;
-                this._matrix.m32 = 0;
-                this._matrix.m33 = 1;
-                this._is_trs_matrix_updated = true;
-                return this._matrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "inverseMatrix", {
-            get: function () {
-                return this.inverseMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "inverseMatrixInner", {
-            get: function () {
-                if (!this._is_inverse_trs_matrix_updated) {
-                    this._invMatrix = this.matrix.invert();
-                    this._is_inverse_trs_matrix_updated = true;
-                }
-                return this._invMatrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "normalMatrix", {
-            get: function () {
-                return this.normalMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
-            get: function () {
-                if (!this._is_normal_trs_matrix_updated) {
-                    this._normalMatrix = new Matrix33(Matrix44.invert(this.matrix).transpose());
-                    this._is_normal_trs_matrix_updated = true;
-                }
-                return this._normalMatrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Set multiple transform information at once. By using this method,
-         * we reduce the cost of automatically updating other transform components inside this class.
-         * This method may be useful for animation processing and so on.
-         *
-         * The transform components of these arguments must not be mutually discrepant.
-         * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
-         * must be equal to translate, rotate, scale, quaternion arguments.
-         * And both rotate and quaternion arguments must be same rotation.
-         * If there is an argument passed with null or undefined, it is interpreted as unchanged.
-         *
-         * @param {*} translate
-         * @param {*} rotate
-         * @param {*} scale
-         * @param {*} quaternion
-         * @param {*} matrix
-         */
-        TransformComponent.prototype.setTransform = function (translate, rotate, scale, quaternion, matrix) {
-            this._is_trs_matrix_updated = false;
-            this._is_inverse_trs_matrix_updated = false;
-            this._is_normal_trs_matrix_updated = false;
-            // Matrix
-            if (matrix != null) {
-                this._matrix = matrix.clone();
-                this._is_trs_matrix_updated = true;
-                this._is_translate_updated = false;
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = false;
-                this._is_scale_updated = false;
-            }
-            // Translate
-            if (translate != null) {
-                this._translate = translate.clone();
-                this._is_translate_updated = true;
-            }
-            // Roatation
-            if (rotate != null && quaternion != null) {
-                this._rotate = rotate.clone();
-                this._quaternion = quaternion.clone();
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = true;
-            }
-            else if (rotate != null) {
-                this._rotate = rotate.clone();
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = false;
-            }
-            else if (quaternion != null) {
-                this._quaternion = quaternion.clone();
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = true;
-            }
-            // Scale
-            if (scale != null) {
-                this._scale = scale.clone();
-                this._is_scale_updated = true;
-            }
-            this.__updateTransform();
-        };
-        TransformComponent.prototype.__updateTransform = function () {
-            this.__updateRotation();
-            this.__updateTranslate();
-            this.__updateScale();
-            //this.__updateMatrix();
-            this._needUpdate();
-        };
-        TransformComponent.prototype.__updateRotation = function () {
-            if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-                TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
-                this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
-                this._is_quaternion_updated = true;
-            }
-            else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-                this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
-                this._is_euler_angles_updated = true;
-            }
-            else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._quaternion.fromMatrix(m);
-                this._is_quaternion_updated = true;
-                this._rotate = m.toEulerAngles();
-                this._is_euler_angles_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateTranslate = function () {
-            if (!this._is_translate_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._translate.x = m.m03;
-                this._translate.y = m.m13;
-                this._translate.z = m.m23;
-                this._is_translate_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateScale = function () {
-            if (!this._is_scale_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._scale.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-                this._scale.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-                this._scale.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
-                this._is_scale_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateMatrix = function () {
-            if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-                var rotationMatrix = new Matrix44(this._quaternion);
-                var scale = this._scale;
-                this._matrix = Matrix44.multiply(rotationMatrix, Matrix44.scale(scale));
-                var translateVec = this._translate;
-                this._matrix.m03 = translateVec.x;
-                this._matrix.m13 = translateVec.y;
-                this._matrix.m23 = translateVec.z;
-                this._is_trs_matrix_updated = true;
-            }
-        };
-        TransformComponent.prototype.setPropertiesFromJson = function (arg) {
-            var json = arg;
-            if (typeof arg === "string") {
-                json = JSON.parse(arg);
-            }
-            for (var key in json) {
-                if (json.hasOwnProperty(key) && key in this) {
-                    if (key === "quaternion") {
-                        this[key] = new Quaternion(json[key]);
-                    }
-                    else if (key === 'matrix') {
-                        this[key] = new Matrix44(json[key]);
-                    }
-                    else {
-                        this[key] = new Vector3(json[key]);
-                    }
-                }
-            }
-        };
-        TransformComponent.prototype.setRotationFromNewUpAndFront = function (UpVec, FrontVec) {
-            var yDir = UpVec;
-            var xDir = Vector3.cross(yDir, FrontVec);
-            var zDir = Vector3.cross(xDir, yDir);
-            var rotateMatrix = Matrix44.identity();
-            rotateMatrix.m00 = xDir.x;
-            rotateMatrix.m10 = xDir.y;
-            rotateMatrix.m20 = xDir.z;
-            rotateMatrix.m01 = yDir.x;
-            rotateMatrix.m11 = yDir.y;
-            rotateMatrix.m21 = yDir.z;
-            rotateMatrix.m02 = zDir.x;
-            rotateMatrix.m12 = zDir.y;
-            rotateMatrix.m22 = zDir.z;
-            this.rotateMatrix44 = rotateMatrix;
-        };
-        TransformComponent.prototype.headToDirection = function (fromVec, toVec) {
-            var fromDir = Vector3.normalize(fromVec);
-            var toDir = Vector3.normalize(toVec);
-            var rotationDir = Vector3.cross(fromDir, toDir);
-            var cosTheta = Vector3.dotProduct(fromDir, toDir);
-            var theta = Math.acos(cosTheta);
-            this.quaternion = Quaternion.axisAngle(rotationDir, theta);
-        };
-        Object.defineProperty(TransformComponent.prototype, "rotateMatrix44", {
-            get: function () {
-                return new Matrix44(this.quaternion);
-            },
-            set: function (rotateMatrix) {
-                this.quaternion.fromMatrix(rotateMatrix);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
-        TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
-        return TransformComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-    TransformComponent.setupBufferView();
-
     //import GLBoost from '../../globals';
     var FloatArray$1 = Float32Array;
     var RowMajarMatrix44 = /** @class */ (function () {
@@ -4962,14 +4314,670 @@
         return RowMajarMatrix44;
     }());
 
+    var Component = /** @class */ (function () {
+        function Component(entityUid, componentSid) {
+            this.__entityUid = entityUid;
+            this._component_sid = componentSid;
+            this.__isAlive = true;
+            this.__memoryManager = MemoryManager.getInstance();
+            this.__entityRepository = EntityRepository.getInstance();
+        }
+        Object.defineProperty(Component, "componentTID", {
+            get: function () {
+                return 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Component.prototype, "componentSID", {
+            get: function () {
+                return this._component_sid;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Component.prototype, "entityUID", {
+            get: function () {
+                return this.__entityUid;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
+            var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
+            return byteLengthSumOfMembers[bufferUse.toString()];
+        };
+        Component.setupBufferView = function () {
+        };
+        Component.prototype.registerDependency = function (component, isMust) {
+        };
+        Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {
+            var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
+            var count = EntityRepository.getMaxEntityNumber();
+            if (!this.__bufferViews.has(componentClass)) {
+                this.__bufferViews.set(componentClass, new Map());
+            }
+            var bufferViews = this.__bufferViews.get(componentClass);
+            if (!bufferViews.has(bufferUse)) {
+                bufferViews.set(bufferUse, buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false }));
+            }
+        };
+        Component.prototype.takeOne = function (memberName, dataClassType) {
+            var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
+            if (dataClassType === Matrix44) {
+                return new dataClassType(taken, false, true);
+            }
+            else if (dataClassType === RowMajarMatrix44) {
+                return new dataClassType(taken, true);
+            }
+            else {
+                return new dataClassType(taken);
+            }
+            return null;
+        };
+        Component.getAccessor = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName);
+        };
+        Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
+            var count = EntityRepository.getMaxEntityNumber();
+            if (!this.__accessors.has(componentClass)) {
+                this.__accessors.set(componentClass, new Map());
+            }
+            var accessors = this.__accessors.get(componentClass);
+            if (!accessors.has(memberName)) {
+                var bufferViews = this.__bufferViews.get(componentClass);
+                accessors.set(memberName, bufferViews.get(bufferUse).takeAccessor({ compositionType: compositionType, componentType: componentType, count: count }));
+            }
+        };
+        Component.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse, componentClass) {
+            return this.__bufferViews.get(componentClass).get(bufferUse).byteOffset;
+        };
+        Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
+        };
+        Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName, componentClass) {
+            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;
+        };
+        Component.getCompositionTypeOfMember = function (memberName, componentClass) {
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            var info = memberInfoArray.find(function (info) {
+                return info.memberName === memberName;
+            });
+            if (info != null) {
+                return info.compositionType;
+            }
+            else {
+                return null;
+            }
+        };
+        Component.getComponentTypeOfMember = function (memberName, componentClass) {
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            var info = memberInfoArray.find(function (info) {
+                return info.memberName === memberName;
+            });
+            if (info != null) {
+                return info.componentType;
+            }
+            else {
+                return null;
+            }
+        };
+        Component.registerMember = function (bufferUse, memberName, componentClass, compositionType, componentType) {
+            if (!this.__memberInfo.has(componentClass)) {
+                this.__memberInfo.set(componentClass, []);
+            }
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, compositionType: compositionType, componentType: componentType });
+        };
+        Component.submitToAllocation = function (componentClass) {
+            var _this = this;
+            var e_1, _a, e_2, _b;
+            var members = new Map();
+            var memberInfoArray = this.__memberInfo.get(componentClass);
+            memberInfoArray.forEach(function (info) {
+                members.set(info.bufferUse, []);
+            });
+            memberInfoArray.forEach(function (info) {
+                members.get(info.bufferUse).push(info);
+            });
+            var _loop_1 = function (bufferUse) {
+                var infoArray = members.get(bufferUse);
+                var bufferUseName = bufferUse.toString();
+                this_1.__byteLengthSumOfMembers.set(componentClass, { bufferUseName: 0 });
+                var byteLengthSumOfMembers = this_1.__byteLengthSumOfMembers.get(componentClass);
+                infoArray.forEach(function (info) {
+                    byteLengthSumOfMembers[bufferUseName] += info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes();
+                });
+                if (infoArray.length > 0) {
+                    this_1.takeBufferViewer(BufferUse.from({ str: bufferUseName }), componentClass, byteLengthSumOfMembers[bufferUseName]);
+                }
+            };
+            var this_1 = this;
+            try {
+                for (var _c = __values(members.keys()), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var bufferUse = _d.value;
+                    _loop_1(bufferUse);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            try {
+                for (var _e = __values(members.keys()), _f = _e.next(); !_f.done; _f = _e.next()) {
+                    var bufferUse = _f.value;
+                    var infoArray = members.get(bufferUse);
+                    infoArray.forEach(function (info) {
+                        _this.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+                    });
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        };
+        Component.__bufferViews = new Map();
+        Component.__accessors = new Map();
+        Component.__byteLengthSumOfMembers = new Map();
+        Component.__memberInfo = new Map();
+        return Component;
+    }());
+
+    // import AnimationComponent from './AnimationComponent';
+    var TransformComponent = /** @class */ (function (_super) {
+        __extends(TransformComponent, _super);
+        function TransformComponent(entityUid, componentSid) {
+            var _this = _super.call(this, entityUid, componentSid) || this;
+            // dependencies
+            _this._dependentAnimationComponentId = 0;
+            _this._translate = Vector3.zero();
+            _this._rotate = Vector3.zero();
+            _this._scale = new Vector3(1, 1, 1);
+            _this._quaternion = _this.takeOne('quaternion', Quaternion);
+            _this._quaternion.identity();
+            _this._matrix = _this.takeOne('matrix', Matrix44);
+            _this._matrix.identity();
+            _this._invMatrix = Matrix44.identity();
+            _this._normalMatrix = Matrix33.identity();
+            _this._is_translate_updated = true;
+            _this._is_euler_angles_updated = true;
+            _this._is_scale_updated = true;
+            _this._is_quaternion_updated = true;
+            _this._is_trs_matrix_updated = true;
+            _this._is_inverse_trs_matrix_updated = true;
+            _this._is_normal_trs_matrix_updated = true;
+            _this._updateCount = 0;
+            _this._dirty = true;
+            return _this;
+        }
+        Object.defineProperty(TransformComponent, "renderedPropertyCount", {
+            get: function () {
+                return null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent, "componentTID", {
+            get: function () {
+                return WellKnownComponentTIDs.TransformComponentTID;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TransformComponent.setupBufferView = function () {
+            this.registerMember(BufferUse.CPUGeneric, 'matrix', this, CompositionType.Mat4, ComponentType.Float);
+            this.registerMember(BufferUse.CPUGeneric, 'quaternion', this, CompositionType.Vec4, ComponentType.Float);
+            this.submitToAllocation(this);
+        };
+        TransformComponent.prototype.$create = function () {
+            // Define process dependencies with other components.
+            // If circular depenencies are detected, the error will be repoated.
+            //this.registerDependency(AnimationComponent.componentTID, false);
+        };
+        TransformComponent.prototype.$updateLogic = function () {
+        };
+        TransformComponent.prototype._needUpdate = function () {
+            this._updateCount++;
+            this._dirty = true;
+        };
+        Object.defineProperty(TransformComponent.prototype, "translate", {
+            get: function () {
+                return this.translateInner.clone();
+            },
+            set: function (vec) {
+                this._translate.v[0] = vec.v[0];
+                this._translate.v[1] = vec.v[1];
+                this._translate.v[2] = vec.v[2];
+                this._is_translate_updated = true;
+                this._is_trs_matrix_updated = false;
+                this._is_inverse_trs_matrix_updated = false;
+                this._is_normal_trs_matrix_updated = false;
+                this.__updateTransform();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "translateInner", {
+            get: function () {
+                if (this._is_translate_updated) {
+                    return this._translate;
+                }
+                else if (this._is_trs_matrix_updated) {
+                    this._translate.x = this._matrix.m03;
+                    this._translate.y = this._matrix.m13;
+                    this._translate.z = this._matrix.m23;
+                    this._is_translate_updated = true;
+                }
+                return this._translate;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "rotate", {
+            get: function () {
+                return this.rotateInner.clone();
+            },
+            set: function (vec) {
+                this._rotate.v[0] = vec.v[0];
+                this._rotate.v[1] = vec.v[1];
+                this._rotate.v[2] = vec.v[2];
+                this._is_euler_angles_updated = true;
+                this._is_quaternion_updated = false;
+                this._is_trs_matrix_updated = false;
+                this._is_inverse_trs_matrix_updated = false;
+                this._is_normal_trs_matrix_updated = false;
+                this.__updateTransform();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "rotateInner", {
+            get: function () {
+                if (this._is_euler_angles_updated) {
+                    return this._rotate;
+                }
+                else if (this._is_trs_matrix_updated) {
+                    this._rotate = this._matrix.toEulerAngles();
+                }
+                else if (this._is_quaternion_updated) {
+                    this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
+                }
+                this._is_euler_angles_updated = true;
+                return this._rotate;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "scale", {
+            get: function () {
+                return this.scaleInner.clone();
+            },
+            set: function (vec) {
+                this._scale.v[0] = vec.v[0];
+                this._scale.v[1] = vec.v[1];
+                this._scale.v[2] = vec.v[2];
+                this._is_scale_updated = true;
+                this._is_trs_matrix_updated = false;
+                this._is_inverse_trs_matrix_updated = false;
+                this._is_normal_trs_matrix_updated = false;
+                this.__updateTransform();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "scaleInner", {
+            get: function () {
+                if (this._is_scale_updated) {
+                    return this._scale;
+                }
+                else if (this._is_trs_matrix_updated) {
+                    var m = this._matrix;
+                    this._scale.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+                    this._scale.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+                    this._scale.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+                    this._is_scale_updated = true;
+                }
+                return this._scale;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "quaternion", {
+            get: function () {
+                return this.quaternionInner.clone();
+            },
+            set: function (quat) {
+                this._quaternion.v[0] = quat.v[0];
+                this._quaternion.v[1] = quat.v[1];
+                this._quaternion.v[2] = quat.v[2];
+                this._is_quaternion_updated = true;
+                this._is_euler_angles_updated = false;
+                this._is_trs_matrix_updated = false;
+                this._is_inverse_trs_matrix_updated = false;
+                this._is_normal_trs_matrix_updated = false;
+                this.__updateTransform();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "quaternionInner", {
+            get: function () {
+                if (this._is_quaternion_updated) {
+                    return this._quaternion;
+                }
+                else if (!this._is_quaternion_updated) {
+                    if (this._is_trs_matrix_updated) {
+                        this._is_quaternion_updated = true;
+                        this._quaternion.fromMatrix(this._matrix);
+                        return this._quaternion;
+                    }
+                    else if (this._is_euler_angles_updated) {
+                        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+                        this._is_quaternion_updated = true;
+                        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
+                        return this._quaternion;
+                    }
+                }
+                return this._quaternion;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "matrix", {
+            get: function () {
+                return this.matrixInner.clone();
+            },
+            set: function (mat) {
+                this._matrix = mat.clone();
+                this._is_trs_matrix_updated = true;
+                this._is_translate_updated = false;
+                this._is_euler_angles_updated = false;
+                this._is_quaternion_updated = false;
+                this._is_scale_updated = false;
+                this._is_inverse_trs_matrix_updated = false;
+                this._is_normal_trs_matrix_updated = false;
+                this.__updateTransform();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "matrixInner", {
+            get: function () {
+                if (this._is_trs_matrix_updated) {
+                    return this._matrix;
+                }
+                // Clear and set Scale
+                var scale = this.scaleInner;
+                var n00 = scale.v[0];
+                var n11 = scale.v[1];
+                var n22 = scale.v[2];
+                var q = this.quaternionInner;
+                var sx = q.v[0] * q.v[0];
+                var sy = q.v[1] * q.v[1];
+                var sz = q.v[2] * q.v[2];
+                var cx = q.v[1] * q.v[2];
+                var cy = q.v[0] * q.v[2];
+                var cz = q.v[0] * q.v[1];
+                var wx = q.v[3] * q.v[0];
+                var wy = q.v[3] * q.v[1];
+                var wz = q.v[3] * q.v[2];
+                var m00 = 1.0 - 2.0 * (sy + sz);
+                var m01 = 2.0 * (cz - wz);
+                var m02 = 2.0 * (cy + wy);
+                var m10 = 2.0 * (cz + wz);
+                var m11 = 1.0 - 2.0 * (sx + sz);
+                var m12 = 2.0 * (cx - wx);
+                var m20 = 2.0 * (cy - wy);
+                var m21 = 2.0 * (cx + wx);
+                var m22 = 1.0 - 2.0 * (sx + sy);
+                var translate = this.translateInner;
+                // TranslateMatrix * RotateMatrix * ScaleMatrix
+                this._matrix.m00 = m00 * n00;
+                this._matrix.m01 = m01 * n11;
+                this._matrix.m02 = m02 * n22;
+                this._matrix.m03 = translate.v[0];
+                this._matrix.m10 = m10 * n00;
+                this._matrix.m11 = m11 * n11;
+                this._matrix.m12 = m12 * n22;
+                this._matrix.m13 = translate.v[1];
+                this._matrix.m20 = m20 * n00;
+                this._matrix.m21 = m21 * n11;
+                this._matrix.m22 = m22 * n22;
+                this._matrix.m23 = translate.v[2];
+                this._matrix.m30 = 0;
+                this._matrix.m31 = 0;
+                this._matrix.m32 = 0;
+                this._matrix.m33 = 1;
+                this._is_trs_matrix_updated = true;
+                return this._matrix;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "inverseMatrix", {
+            get: function () {
+                return this.inverseMatrixInner.clone();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "inverseMatrixInner", {
+            get: function () {
+                if (!this._is_inverse_trs_matrix_updated) {
+                    this._invMatrix = this.matrix.invert();
+                    this._is_inverse_trs_matrix_updated = true;
+                }
+                return this._invMatrix;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "normalMatrix", {
+            get: function () {
+                return this.normalMatrixInner.clone();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
+            get: function () {
+                if (!this._is_normal_trs_matrix_updated) {
+                    this._normalMatrix = new Matrix33(Matrix44.invert(this.matrix).transpose());
+                    this._is_normal_trs_matrix_updated = true;
+                }
+                return this._normalMatrix;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * Set multiple transform information at once. By using this method,
+         * we reduce the cost of automatically updating other transform components inside this class.
+         * This method may be useful for animation processing and so on.
+         *
+         * The transform components of these arguments must not be mutually discrepant.
+         * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
+         * must be equal to translate, rotate, scale, quaternion arguments.
+         * And both rotate and quaternion arguments must be same rotation.
+         * If there is an argument passed with null or undefined, it is interpreted as unchanged.
+         *
+         * @param {*} translate
+         * @param {*} rotate
+         * @param {*} scale
+         * @param {*} quaternion
+         * @param {*} matrix
+         */
+        TransformComponent.prototype.setTransform = function (translate, rotate, scale, quaternion, matrix) {
+            this._is_trs_matrix_updated = false;
+            this._is_inverse_trs_matrix_updated = false;
+            this._is_normal_trs_matrix_updated = false;
+            // Matrix
+            if (matrix != null) {
+                this._matrix = matrix.clone();
+                this._is_trs_matrix_updated = true;
+                this._is_translate_updated = false;
+                this._is_euler_angles_updated = false;
+                this._is_quaternion_updated = false;
+                this._is_scale_updated = false;
+            }
+            // Translate
+            if (translate != null) {
+                this._translate = translate.clone();
+                this._is_translate_updated = true;
+            }
+            // Roatation
+            if (rotate != null && quaternion != null) {
+                this._rotate = rotate.clone();
+                this._quaternion = quaternion.clone();
+                this._is_euler_angles_updated = true;
+                this._is_quaternion_updated = true;
+            }
+            else if (rotate != null) {
+                this._rotate = rotate.clone();
+                this._is_euler_angles_updated = true;
+                this._is_quaternion_updated = false;
+            }
+            else if (quaternion != null) {
+                this._quaternion = quaternion.clone();
+                this._is_euler_angles_updated = false;
+                this._is_quaternion_updated = true;
+            }
+            // Scale
+            if (scale != null) {
+                this._scale = scale.clone();
+                this._is_scale_updated = true;
+            }
+            this.__updateTransform();
+        };
+        TransformComponent.prototype.__updateTransform = function () {
+            this.__updateRotation();
+            this.__updateTranslate();
+            this.__updateScale();
+            //this.__updateMatrix();
+            this._needUpdate();
+        };
+        TransformComponent.prototype.__updateRotation = function () {
+            if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
+                TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
+                this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
+                this._is_quaternion_updated = true;
+            }
+            else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
+                this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
+                this._is_euler_angles_updated = true;
+            }
+            else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
+                var m = this._matrix;
+                this._quaternion.fromMatrix(m);
+                this._is_quaternion_updated = true;
+                this._rotate = m.toEulerAngles();
+                this._is_euler_angles_updated = true;
+            }
+        };
+        TransformComponent.prototype.__updateTranslate = function () {
+            if (!this._is_translate_updated && this._is_trs_matrix_updated) {
+                var m = this._matrix;
+                this._translate.x = m.m03;
+                this._translate.y = m.m13;
+                this._translate.z = m.m23;
+                this._is_translate_updated = true;
+            }
+        };
+        TransformComponent.prototype.__updateScale = function () {
+            if (!this._is_scale_updated && this._is_trs_matrix_updated) {
+                var m = this._matrix;
+                this._scale.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+                this._scale.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+                this._scale.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+                this._is_scale_updated = true;
+            }
+        };
+        TransformComponent.prototype.__updateMatrix = function () {
+            if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
+                var rotationMatrix = new Matrix44(this._quaternion);
+                var scale = this._scale;
+                this._matrix = Matrix44.multiply(rotationMatrix, Matrix44.scale(scale));
+                var translateVec = this._translate;
+                this._matrix.m03 = translateVec.x;
+                this._matrix.m13 = translateVec.y;
+                this._matrix.m23 = translateVec.z;
+                this._is_trs_matrix_updated = true;
+            }
+        };
+        TransformComponent.prototype.setPropertiesFromJson = function (arg) {
+            var json = arg;
+            if (typeof arg === "string") {
+                json = JSON.parse(arg);
+            }
+            for (var key in json) {
+                if (json.hasOwnProperty(key) && key in this) {
+                    if (key === "quaternion") {
+                        this[key] = new Quaternion(json[key]);
+                    }
+                    else if (key === 'matrix') {
+                        this[key] = new Matrix44(json[key]);
+                    }
+                    else {
+                        this[key] = new Vector3(json[key]);
+                    }
+                }
+            }
+        };
+        TransformComponent.prototype.setRotationFromNewUpAndFront = function (UpVec, FrontVec) {
+            var yDir = UpVec;
+            var xDir = Vector3.cross(yDir, FrontVec);
+            var zDir = Vector3.cross(xDir, yDir);
+            var rotateMatrix = Matrix44.identity();
+            rotateMatrix.m00 = xDir.x;
+            rotateMatrix.m10 = xDir.y;
+            rotateMatrix.m20 = xDir.z;
+            rotateMatrix.m01 = yDir.x;
+            rotateMatrix.m11 = yDir.y;
+            rotateMatrix.m21 = yDir.z;
+            rotateMatrix.m02 = zDir.x;
+            rotateMatrix.m12 = zDir.y;
+            rotateMatrix.m22 = zDir.z;
+            this.rotateMatrix44 = rotateMatrix;
+        };
+        TransformComponent.prototype.headToDirection = function (fromVec, toVec) {
+            var fromDir = Vector3.normalize(fromVec);
+            var toDir = Vector3.normalize(toVec);
+            var rotationDir = Vector3.cross(fromDir, toDir);
+            var cosTheta = Vector3.dotProduct(fromDir, toDir);
+            var theta = Math.acos(cosTheta);
+            this.quaternion = Quaternion.axisAngle(rotationDir, theta);
+        };
+        Object.defineProperty(TransformComponent.prototype, "rotateMatrix44", {
+            get: function () {
+                return new Matrix44(this.quaternion);
+            },
+            set: function (rotateMatrix) {
+                this.quaternion.fromMatrix(rotateMatrix);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
+        TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
+        return TransformComponent;
+    }(Component));
+    ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
+    TransformComponent.setupBufferView();
+
     var SceneGraphComponent = /** @class */ (function (_super) {
         __extends(SceneGraphComponent, _super);
         function SceneGraphComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
-            var thisClass = SceneGraphComponent;
             _this.__isAbleToBeParent = false;
             _this.beAbleToBeParent(true);
-            _this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix', thisClass), true);
+            _this.__worldMatrix = _this.takeOne('worldMatrix', RowMajarMatrix44);
             _this.__worldMatrix.identity();
             return _this;
             //this.__updatedProperly = false;

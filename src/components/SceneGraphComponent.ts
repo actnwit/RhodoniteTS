@@ -29,7 +29,7 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.__worldMatrix = new RowMajarMatrix44(thisClass.takeOne('worldMatrix', thisClass), true);
+    this.__worldMatrix = this.takeOne('worldMatrix', RowMajarMatrix44);
     this.__worldMatrix.identity();
 
     //this.__updatedProperly = false;

@@ -54,9 +54,9 @@ export default class TransformComponent extends Component {
     this._translate = Vector3.zero();
     this._rotate = Vector3.zero();
     this._scale = new Vector3(1, 1, 1);
-    this._quaternion = new Quaternion(thisClass.takeOne('quaternion', thisClass));
+    this._quaternion = this.takeOne('quaternion', Quaternion);
     this._quaternion.identity();
-    this._matrix = new Matrix44(thisClass.takeOne('matrix', thisClass), false, true);
+    this._matrix = this.takeOne('matrix', Matrix44);
     this._matrix.identity();
     this._invMatrix = Matrix44.identity();
     this._normalMatrix = Matrix33.identity();

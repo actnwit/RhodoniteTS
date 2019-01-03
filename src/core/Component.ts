@@ -4,6 +4,9 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
+import Quaternion from '../math/Quaternion';
+import Matrix44 from '../math/Matrix44';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
 
@@ -70,8 +73,16 @@ export default class Component {
     }
   }
 
-  static takeOne(memberName: string, componentClass:Function): any {
-    return this.__accessors.get(componentClass)!.get(memberName)!.takeOne();
+  takeOne(memberName: string, dataClassType: any): any {
+    let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
+    if (dataClassType === Matrix44) {
+      return new dataClassType(taken, false, true);
+    } else if (dataClassType === RowMajarMatrix44) {
+      return new dataClassType(taken, true);
+    } else {
+      return new dataClassType(taken);
+    }
+    return null;
   }
 
   static getAccessor(memberName: string, componentClass:Function): Accessor {
