@@ -21,13 +21,13 @@ import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 // import AnimationComponent from './AnimationComponent';
 
 export default class TransformComponent extends Component {
-  private _translate: Vector3;
-  private _rotate: Vector3;
-  private _scale: Vector3;
+  private _translate: Vector3 = Vector3.dummy();
+  private _rotate: Vector3 = Vector3.dummy();
+  private _scale: Vector3 = Vector3.dummy();
   private _quaternion: Quaternion = Quaternion.dummy();
   private _matrix: Matrix44 = Matrix44.dummy();
-  private _invMatrix: Matrix44;
-  private _normalMatrix: Matrix33;
+  private _invMatrix: Matrix44 = Matrix44.dummy();
+  private _normalMatrix: Matrix33 = Matrix33.dummy();
 
   private _is_translate_updated: boolean;
   private _is_euler_angles_updated: boolean;
@@ -51,17 +51,24 @@ export default class TransformComponent extends Component {
 
     const thisClass = TransformComponent;
 
-    this._translate = Vector3.zero();
-    this._rotate = Vector3.zero();
-    this._scale = new Vector3(1, 1, 1);
-
+    this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'rotate', Vector3, CompositionType.Vec3, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, CompositionType.Vec3, ComponentType.Float);
     this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
     this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'invMatrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float);
+
     this.submitToAllocation();
+
     this._quaternion.identity();
     this._matrix.identity();
-    this._invMatrix = Matrix44.identity();
-    this._normalMatrix = Matrix33.identity();
+    this._translate.zero();
+    this._rotate.zero();
+    this._scale.one();
+
+    this._invMatrix.identity();
+    this._normalMatrix.identity();
 
     this._is_translate_updated = true;
     this._is_euler_angles_updated = true;

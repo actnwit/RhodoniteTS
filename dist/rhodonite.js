@@ -917,6 +917,9 @@
                 this.v = x;
                 return;
             }
+            else if (x == null) {
+                this.v = new Float32Array(0);
+            }
             else {
                 this.v = new Float32Array(3);
             }
@@ -988,6 +991,26 @@
          */
         Vector3.zero = function () {
             return new Vector3(0, 0, 0);
+        };
+        Vector3.prototype.one = function () {
+            this.x = 1;
+            this.y = 1;
+            this.z = 1;
+            return this;
+        };
+        Vector3.one = function () {
+            return new Vector3(1, 1, 1);
+        };
+        Vector3.dummy = function () {
+            return new Vector3(null);
+        };
+        Vector3.prototype.isDummy = function () {
+            if (this.v.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
         };
         Vector3.prototype.clone = function () {
             return new Vector3(this.x, this.y, this.z);
@@ -1606,12 +1629,18 @@
 
     // import GLBoost from '../../globals';
     var Matrix33 = /** @class */ (function () {
-        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor) {
+        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
             if (isColumnMajor === void 0) { isColumnMajor = false; }
-            this.m = new Float32Array(9); // Data order is column major
+            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
             var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
+            var _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
             var m = m0;
+            if (m == null) {
+                this.m = new Float32Array(0);
+                return;
+            }
             if (arguments.length === 9) {
+                this.m = new Float32Array(9);
                 if (_isColumnMajor === true) {
                     var m_1 = arguments;
                     this.setComponents(m_1[0], m_1[3], m_1[6], m_1[1], m_1[4], m_1[7], m_1[2], m_1[5], m_1[8]);
@@ -1621,6 +1650,7 @@
                 }
             }
             else if (Array.isArray(m)) {
+                this.m = new Float32Array(9);
                 if (_isColumnMajor === true) {
                     this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
                 }
@@ -1629,24 +1659,37 @@
                 }
             }
             else if (m instanceof Float32Array) {
-                if (_isColumnMajor === true) {
-                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                if (_notCopyFloatArray) {
+                    this.m = m;
                 }
                 else {
-                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                    this.m = new Float32Array(9);
+                    if (_isColumnMajor === true) {
+                        this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                    }
+                    else {
+                        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                    }
                 }
             }
             else if (!!m && typeof m.m22 !== 'undefined') {
-                if (_isColumnMajor === true) {
-                    var _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                if (_notCopyFloatArray) {
+                    this.m = m.m;
                 }
                 else {
-                    var _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                    this.m = new Float32Array(9);
+                    if (_isColumnMajor === true) {
+                        var _m = m;
+                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                    }
+                    else {
+                        var _m = m;
+                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                    }
                 }
             }
             else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+                this.m = new Float32Array(9);
                 var q = m;
                 var sx = q.x * q.x;
                 var sy = q.y * q.y;
@@ -1660,6 +1703,7 @@
                 this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
             }
             else {
+                this.m = new Float32Array(9);
                 this.identity();
             }
         }
@@ -1691,6 +1735,17 @@
          */
         Matrix33.identity = function () {
             return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        };
+        Matrix33.dummy = function () {
+            return new Matrix33(null);
+        };
+        Matrix33.prototype.isDummy = function () {
+            if (this.m.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
         };
         Matrix33.prototype.clone = function () {
             return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
@@ -4554,20 +4609,30 @@
         __extends(TransformComponent, _super);
         function TransformComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
+            _this._translate = Vector3.dummy();
+            _this._rotate = Vector3.dummy();
+            _this._scale = Vector3.dummy();
             _this._quaternion = Quaternion.dummy();
             _this._matrix = Matrix44.dummy();
+            _this._invMatrix = Matrix44.dummy();
+            _this._normalMatrix = Matrix33.dummy();
             // dependencies
             _this._dependentAnimationComponentId = 0;
-            _this._translate = Vector3.zero();
-            _this._rotate = Vector3.zero();
-            _this._scale = new Vector3(1, 1, 1);
+            _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
+            _this.registerMember(BufferUse.CPUGeneric, 'rotate', Vector3, CompositionType.Vec3, ComponentType.Float);
+            _this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, CompositionType.Vec3, ComponentType.Float);
             _this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
             _this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float);
             _this.submitToAllocation();
             _this._quaternion.identity();
             _this._matrix.identity();
-            _this._invMatrix = Matrix44.identity();
-            _this._normalMatrix = Matrix33.identity();
+            _this._translate.zero();
+            _this._rotate.zero();
+            _this._scale.one();
+            _this._invMatrix.identity();
+            _this._normalMatrix.identity();
             _this._is_translate_updated = true;
             _this._is_euler_angles_updated = true;
             _this._is_scale_updated = true;

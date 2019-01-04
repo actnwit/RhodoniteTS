@@ -10,24 +10,24 @@ type FloatArray = Float32Array;
 export default class Matrix44 {
   m: TypedArray;
 
-  constructor(m: FloatArray, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Array<number>, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Matrix33, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Matrix44, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
-  constructor(m: Quaternion, isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+  constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
     m4: number, m5: number, m6: number, m7: number,
     m8: number, m9: number, m10: number, m11: number,
     m12: number, m13: number, m14: number, m15: number,
-    isColumnMajor?:Boolean, notCopyFloatArray?:Boolean);
+    isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(
     m0: any, m1?: any, m2?: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
     m8?: number, m9?: number, m10?: number, m11?: number,
     m12?: number, m13?: number, m14?: number, m15?: number,
-    isColumnMajor:Boolean = false, notCopyFloatArray:Boolean = false) {
+    isColumnMajor:boolean = false, notCopyFloatArray:boolean = false) {
 
     const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
     const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;

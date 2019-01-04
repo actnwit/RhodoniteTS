@@ -769,6 +769,9 @@ class Vector3 {
             this.v = x;
             return;
         }
+        else if (x == null) {
+            this.v = new Float32Array(0);
+        }
         else {
             this.v = new Float32Array(3);
         }
@@ -835,6 +838,26 @@ class Vector3 {
      */
     static zero() {
         return new Vector3(0, 0, 0);
+    }
+    one() {
+        this.x = 1;
+        this.y = 1;
+        this.z = 1;
+        return this;
+    }
+    static one() {
+        return new Vector3(1, 1, 1);
+    }
+    static dummy() {
+        return new Vector3(null);
+    }
+    isDummy() {
+        if (this.v.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     clone() {
         return new Vector3(this.x, this.y, this.z);
@@ -1411,11 +1434,16 @@ class Quaternion {
 
 // import GLBoost from '../../globals';
 class Matrix33 {
-    constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false) {
-        this.m = new Float32Array(9); // Data order is column major
+    constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
+        const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
         const m = m0;
+        if (m == null) {
+            this.m = new Float32Array(0);
+            return;
+        }
         if (arguments.length === 9) {
+            this.m = new Float32Array(9);
             if (_isColumnMajor === true) {
                 let m = arguments;
                 this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
@@ -1425,6 +1453,7 @@ class Matrix33 {
             }
         }
         else if (Array.isArray(m)) {
+            this.m = new Float32Array(9);
             if (_isColumnMajor === true) {
                 this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
             }
@@ -1433,24 +1462,37 @@ class Matrix33 {
             }
         }
         else if (m instanceof Float32Array) {
-            if (_isColumnMajor === true) {
-                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+            if (_notCopyFloatArray) {
+                this.m = m;
             }
             else {
-                this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                }
+                else {
+                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                }
             }
         }
         else if (!!m && typeof m.m22 !== 'undefined') {
-            if (_isColumnMajor === true) {
-                const _m = m;
-                this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+            if (_notCopyFloatArray) {
+                this.m = m.m;
             }
             else {
-                const _m = m;
-                this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    const _m = m;
+                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                }
+                else {
+                    const _m = m;
+                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                }
             }
         }
         else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+            this.m = new Float32Array(9);
             const q = m;
             const sx = q.x * q.x;
             const sy = q.y * q.y;
@@ -1464,6 +1506,7 @@ class Matrix33 {
             this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
         }
         else {
+            this.m = new Float32Array(9);
             this.identity();
         }
     }
@@ -1491,6 +1534,17 @@ class Matrix33 {
      */
     static identity() {
         return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    }
+    static dummy() {
+        return new Matrix33(null);
+    }
+    isDummy() {
+        if (this.m.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     clone() {
         return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
@@ -3935,20 +3989,30 @@ Component.__members = new Map();
 class TransformComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
+        this._translate = Vector3.dummy();
+        this._rotate = Vector3.dummy();
+        this._scale = Vector3.dummy();
         this._quaternion = Quaternion.dummy();
         this._matrix = Matrix44.dummy();
+        this._invMatrix = Matrix44.dummy();
+        this._normalMatrix = Matrix33.dummy();
         // dependencies
         this._dependentAnimationComponentId = 0;
-        this._translate = Vector3.zero();
-        this._rotate = Vector3.zero();
-        this._scale = new Vector3(1, 1, 1);
+        this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'rotate', Vector3, CompositionType.Vec3, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, CompositionType.Vec3, ComponentType.Float);
         this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float);
         this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'invMatrix', Matrix44, CompositionType.Mat4, ComponentType.Float);
+        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float);
         this.submitToAllocation();
         this._quaternion.identity();
         this._matrix.identity();
-        this._invMatrix = Matrix44.identity();
-        this._normalMatrix = Matrix33.identity();
+        this._translate.zero();
+        this._rotate.zero();
+        this._scale.one();
+        this._invMatrix.identity();
+        this._normalMatrix.identity();
         this._is_translate_updated = true;
         this._is_euler_angles_updated = true;
         this._is_scale_updated = true;
