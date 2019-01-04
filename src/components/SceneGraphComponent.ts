@@ -40,13 +40,6 @@ export default class SceneGraphComponent extends Component {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
-  static setupBufferView() {
-//    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', this, CompositionType.Mat4, ComponentType.Float);
-
-//    this.submitToAllocation(this);
-
-  }
-
   beAbleToBeParent(flag: boolean) {
     this.__isAbleToBeParent = flag;
     if (this.__isAbleToBeParent) {
@@ -97,4 +90,3 @@ export default class SceneGraphComponent extends Component {
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
-SceneGraphComponent.setupBufferView();

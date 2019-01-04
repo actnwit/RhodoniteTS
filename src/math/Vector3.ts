@@ -6,10 +6,12 @@ import is from '../misc/IsUtil';
 export default class Vector3 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|Vector4|Array<number>, y?:number, z?:number) {
+  constructor(x?:number|TypedArray|Vector2|Vector3|Vector4|Array<number>|null, y?:number, z?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
+    } else if (x == null) {
+      this.v = new Float32Array(0);
     } else {
       this.v = new Float32Array(3);
     }
@@ -78,7 +80,29 @@ export default class Vector3 {
     return new Vector3(0, 0, 0);
   }
 
+  one() {
+    this.x = 1;
+    this.y = 1;
+    this.z = 1;
 
+    return this;
+  }
+
+  static one() {
+    return new Vector3(1, 1, 1);
+  }
+
+  static dummy() {
+    return new Vector3(null);
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   clone() {
     return new Vector3(this.x, this.y, this.z);

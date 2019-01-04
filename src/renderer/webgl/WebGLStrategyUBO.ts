@@ -1,4 +1,4 @@
-import WebGLResourceRepository from "./WebGLResourceRepository";
+import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
 import { WebGLExtension } from "../../definitions/WebGLExtension";
 import MemoryManager from "../../core/MemoryManager";
 import Buffer from "../../memory/Buffer";
@@ -10,12 +10,20 @@ import SceneGraphComponent from "../../components/SceneGraphComponent";
 import GLSLShader from "./GLSLShader";
 import { BufferUse } from "../../definitions/BufferUse";
 import WebGLStrategy from "./WebGLStrategy";
+import MeshComponent from "../../components/MeshComponent";
+import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
+import MeshRendererComponent from "../../components/MeshRendererComponent";
+import WebGLContextWrapper from "./WebGLContextWrapper";
+import Primitive from "../../geometry/Primitive";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __uboUid: CGAPIResourceHandle = 0;
   private __shaderProgramUid: CGAPIResourceHandle = 0;
+  private __vertexHandles: Array<VertexHandles> = [];
+  private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
+  private __isVAOSet = false;
 
   private vertexShaderMethodDefinitions_UBO:string =
   `layout (std140) uniform matrix {
@@ -48,6 +56,46 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
         attributeSemantics: GLSLShader.attributeSemantics
       }
     );
+  }
+
+  private __isLoaded(index: Index) {
+    if (this.__vertexHandles[index] != null) {
+      return true;
+    } else {
+      return false
+    }
+  }
+
+  load(meshComponent: MeshComponent) {
+    if (this.__isLoaded(0)) {
+      return;
+    }
+
+    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent!.getPrimitiveAt(i);
+      const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+      this.__vertexHandles[i] = vertexHandles;
+      WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+
+    }
+  }
+
+  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+    if (this.__isVAOSet) {
+      return;
+    }
+    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent!.getPrimitiveAt(i);
+     // if (this.__isLoaded(i) && this.__isVAOSet) {
+      this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+        //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+      //  continue;
+     // }
+      this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+    }
+    this.__isVAOSet = true;
   }
 
   setupGPUData(): void {
@@ -95,6 +143,21 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
+  }
+
+  attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+    const vaoHandles = this.__vertexHandles[i];
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+    const gl = glw.getRawContext();
+
+    if (vao != null) {
+      glw.bindVertexArray(vao);
+    }
+    else {
+      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    }
   }
 
   static getInstance() {

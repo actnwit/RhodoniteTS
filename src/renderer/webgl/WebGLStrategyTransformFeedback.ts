@@ -1,4 +1,4 @@
-import WebGLResourceRepository from "./WebGLResourceRepository";
+import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
 import { WebGLExtension } from "../../definitions/WebGLExtension";
 import MemoryManager from "../../core/MemoryManager";
 import Buffer from "../../memory/Buffer";
@@ -12,6 +12,12 @@ import EntityRepository from "../../core/EntityRepository";
 import { BufferUse } from "../../definitions/BufferUse";
 import MeshComponent from "../../components/MeshComponent";
 import WebGLStrategy from "./WebGLStrategy";
+import MeshRendererComponent from "../../components/MeshRendererComponent";
+import Primitive from "../../geometry/Primitive";
+import WebGLContextWrapper from "./WebGLContextWrapper";
+import { CompositionType } from "../../definitions/CompositionType";
+import { VertexAttribute } from "../../definitions/VertexAttribute";
+import { PrimitiveMode } from "../../definitions/PrimitiveMode";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -23,6 +29,9 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private __indexCountToSubtractUboUid: CGAPIResourceHandle = 0;
   private __entitiesUidUboUid: CGAPIResourceHandle = 0;
   private __primitiveUidUboUid: CGAPIResourceHandle = 0;
+  private __isVertexReady: boolean = false;
+  private __vertexHandle?: VertexHandles;
+
   private constructor(){}
 
   private get __transformFeedbackShaderText() {
@@ -119,6 +128,40 @@ void main(){
         attributeSemantics: GLSLShader.attributeSemantics
       }
     );
+  }
+
+
+  load(meshComponent: MeshComponent) {
+    if (this.__isVertexReady) {
+      return;
+    }
+
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: 4*3, byteStride: 4, isAoS:false});
+    const indicesAccessor = indicesBufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.UnsingedInt, count: 3});
+    const attributeBufferView = buffer.takeBufferView({byteLengthToNeed: 16*3, byteStride: 16, isAoS:false});
+    const attributeAccessor = attributeBufferView.takeAccessor({compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 3});
+
+    const indicesUint16Array = indicesAccessor.getTypedArray() as Uint16Array;
+    indicesUint16Array[0] = 0;
+    indicesUint16Array[1] = 1;
+    indicesUint16Array[2] = 2;
+
+    const primitive = Primitive.createPrimitive({
+      indices: indicesUint16Array,
+      attributeCompositionTypes: [attributeAccessor.compositionType],
+      attributeSemantics: [VertexAttribute.Position],
+      attributes: [attributeAccessor.getTypedArray()],
+      primitiveMode: PrimitiveMode.Triangles,
+      material: 0
+    });
+
+    this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);
+
+    this.__isVertexReady = true;
+  }
+
+  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   private __setupUBOPrimitiveHeaderData() {
@@ -312,6 +355,9 @@ void main(){
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
+  }
+
+  attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   static getInstance() {

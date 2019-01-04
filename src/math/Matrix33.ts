@@ -5,8 +5,9 @@ import Quaternion from './Quaternion';
 
 export default class Matrix33 {
   m: TypedArray;
-  
-  constructor(m: Float32Array, isColumnMajor?:boolean);
+
+  constructor(m: null);
+  constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean);
@@ -15,19 +16,25 @@ export default class Matrix33 {
     m0: number, m1:number, m2:number,
     m3:number, m4:number, m5:number,
     m6:number, m7:number, m8:number,
-    isColumnMajor?:boolean);
+    isColumnMajor?:boolean,);
   constructor(
-    m0: any, m1:any, m2?:number,
+    m0: any, m1?:any, m2?:any,
     m3?:number, m4?:number, m5?:number,
     m6?:number, m7?:number, m8?:number,
-    isColumnMajor:boolean = false)
+    isColumnMajor:boolean = false, notCopyFloatArray:boolean = false)
  {
-    this.m = new Float32Array(9); // Data order is column major
 
     const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-    const m = m0; 
+    const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
+    const m = m0;
+
+    if (m == null) {
+      this.m = new Float32Array(0);
+      return;
+    }
 
     if (arguments.length === 9) {
+      this.m = new Float32Array(9);
       if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
@@ -35,9 +42,10 @@ export default class Matrix33 {
           m[1], m[4], m[7],
           m[2], m[5], m[8]);
       } else {
-        this.setComponents.apply(this, arguments);  // arguments[0-8] must be row major values if isColumnMajor is false
+        this.setComponents.apply(this, arguments as any);  // arguments[0-8] must be row major values if isColumnMajor is false
       }
     } else if (Array.isArray(m as Array<Number>)) {
+      this.m = new Float32Array(9);
       if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[3], m[6],
@@ -47,26 +55,37 @@ export default class Matrix33 {
         this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
       }
     } else if (m instanceof Float32Array) {
-      if (_isColumnMajor === true) {
-        this.setComponents(
-          m[0], m[3], m[6],
-          m[1], m[4], m[7],
-          m[2], m[5], m[8]);
+      if (_notCopyFloatArray) {
+        this.m = m;
       } else {
-        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+        this.m = new Float32Array(9);
+        if (_isColumnMajor === true) {
+          this.setComponents(
+            m[0], m[3], m[6],
+            m[1], m[4], m[7],
+            m[2], m[5], m[8]);
+        } else {
+          this.setComponents.apply(this, m as any); // 'm' must be row major array if isColumnMajor is false
+        }
       }
     } else if (!!m && typeof m.m22 !== 'undefined') {
-      if (_isColumnMajor === true) {
-        const _m = m as Matrix33|Matrix44; 
-        this.setComponents(
-          _m.m00, _m.m01, _m.m02,
-          _m.m10, _m.m11, _m.m12,
-          _m.m20, _m.m21, _m.m22);
+      if (_notCopyFloatArray) {
+        this.m = m.m;
       } else {
-        const _m = m as Matrix33|Matrix44; 
-        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+        this.m = new Float32Array(9);
+        if (_isColumnMajor === true) {
+          const _m = m as Matrix33|Matrix44;
+          this.setComponents(
+            _m.m00, _m.m01, _m.m02,
+            _m.m10, _m.m11, _m.m12,
+            _m.m20, _m.m21, _m.m22);
+        } else {
+          const _m = m as Matrix33|Matrix44;
+          this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+        }
       }
     } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
+      this.m = new Float32Array(9);
       const q = m as Quaternion;
       const sx = q.x * q.x;
       const sy = q.y * q.y;
@@ -77,13 +96,14 @@ export default class Matrix33 {
       const wx = q.w * q.x;
       const wy = q.w * q.y;
       const wz = q.w * q.z;
-  
+
       this.setComponents(
         1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy),
         2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx),
         2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy)
       );
     } else {
+      this.m = new Float32Array(9);
       this.identity();
     }
   }
@@ -122,6 +142,18 @@ export default class Matrix33 {
       0, 1, 0,
       0, 0, 1
     );
+  }
+
+  static dummy() {
+    return new Matrix33(null);
+  }
+
+  isDummy() {
+    if (this.m.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   clone() {

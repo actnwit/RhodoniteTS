@@ -73,17 +73,15 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   common_$render(){
-    const meshRendererComponents = this.__componentRepository.getComponentsWithType(MeshRendererComponent.componentTID)!;
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
 
-    const meshRendererComponent = meshRendererComponents[0] as MeshRendererComponent;
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
-      this.__attachVertexData(meshRendererComponent, i, primitive, glw);
+      this.__webGLStrategy!.attachVertexData(i, primitive, glw, this.__instanceIDBufferUid);
       this.__webGLStrategy!.attatchShaderProgram();
       this.__webGLStrategy!.attachGPUData();
 
@@ -94,20 +92,4 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   }
 
-
-
-  private __attachVertexData(meshRendererComponent: MeshRendererComponent, i: number, primitive: Primitive, glw: WebGLContextWrapper) {
-    const vaoHandles = meshRendererComponent.__vertexHandles[i];
-    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-    const gl = glw.getRawContext();
-
-    if (vao != null) {
-      glw.bindVertexArray(vao);
-    }
-    else {
-      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, this.__instanceIDBufferUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    }
-  }
 }
