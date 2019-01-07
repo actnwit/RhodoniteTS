@@ -33,6 +33,43 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
 
+    function __awaiter(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
     function __values(o) {
         var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
         if (m) return m.call(o);
@@ -3552,7 +3589,7 @@
         return BufferView;
     }(RnObject));
 
-    var Buffer = /** @class */ (function (_super) {
+    var Buffer$1 = /** @class */ (function (_super) {
         __extends(Buffer, _super);
         function Buffer(_a) {
             var byteLength = _a.byteLength, arrayBuffer = _a.arrayBuffer, name = _a.name;
@@ -3647,7 +3684,7 @@
             // BufferForGPUInstanceData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.GPUInstanceData.toString()
@@ -3657,7 +3694,7 @@
             // BufferForGPUVertexData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.GPUVertexData.toString()
@@ -3667,7 +3704,7 @@
             // BufferForUBO
             {
                 var arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.UBOGeneric.toString()
@@ -3677,7 +3714,7 @@
             // BufferForCPU
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.CPUGeneric.toString()
@@ -6397,6 +6434,830 @@
         return System;
     }());
 
+    var DataUtil = /** @class */ (function () {
+        function DataUtil() {
+        }
+        DataUtil.isNode = function () {
+            var isNode = (window === void 0 && typeof process !== "undefined" && typeof require !== "undefined");
+            return isNode;
+        };
+        DataUtil.btoa = function (str) {
+            var isNode = DataUtil.isNode();
+            if (isNode) {
+                var buffer = void 0;
+                if (Buffer.isBuffer(str)) {
+                    buffer = str;
+                }
+                else {
+                    buffer = new Buffer(str.toString(), 'binary');
+                }
+                return buffer.toString('base64');
+            }
+            else {
+                return btoa(str);
+            }
+        };
+        DataUtil.atob = function (str) {
+            var isNode = DataUtil.isNode();
+            if (isNode) {
+                return new Buffer(str, 'base64').toString('binary');
+            }
+            else {
+                return atob(str);
+            }
+        };
+        DataUtil.base64ToArrayBuffer = function (dataUri) {
+            var splittedDataUri = dataUri.split(',');
+            var type = splittedDataUri[0].split(':')[1].split(';')[0];
+            var byteString = DataUtil.atob(splittedDataUri[1]);
+            var byteStringLength = byteString.length;
+            var arrayBuffer = new ArrayBuffer(byteStringLength);
+            var uint8Array = new Uint8Array(arrayBuffer);
+            for (var i = 0; i < byteStringLength; i++) {
+                uint8Array[i] = byteString.charCodeAt(i);
+            }
+            return arrayBuffer;
+        };
+        DataUtil.arrayBufferToString = function (arrayBuffer) {
+            if (typeof TextDecoder !== 'undefined') {
+                var textDecoder = new TextDecoder();
+                return textDecoder.decode(arrayBuffer);
+            }
+            else {
+                var bytes = new Uint8Array(arrayBuffer);
+                var result = "";
+                var length_1 = bytes.length;
+                for (var i = 0; i < length_1; i++) {
+                    result += String.fromCharCode(bytes[i]);
+                }
+                return result;
+            }
+        };
+        DataUtil.stringToBase64 = function (str) {
+            var b64 = null;
+            b64 = DataUtil.btoa(str);
+            return b64;
+        };
+        DataUtil.UInt8ArrayToDataURL = function (uint8array, width, height) {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext("2d");
+            var imageData = ctx.createImageData(width, height);
+            for (var i = 0; i < imageData.data.length; i += 4) {
+                imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 0];
+                imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 1];
+                imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 2];
+                imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 3];
+            }
+            ctx.putImageData(imageData, 0, 0);
+            canvas.remove();
+            return canvas.toDataURL("image/png");
+        };
+        DataUtil.loadResourceAsync = function (resourceUri, isBinary, resolveCallback, rejectCallback) {
+            return new Promise(function (resolve, reject) {
+                var isNode = DataUtil.isNode();
+                if (isNode) {
+                    var fs = require('fs');
+                    var args = [resourceUri];
+                    var func = function (err, response) {
+                        if (err) {
+                            if (rejectCallback) {
+                                rejectCallback(reject, err);
+                            }
+                            return;
+                        }
+                        if (isBinary) {
+                            var buffer = new Buffer(response, 'binary');
+                            var uint8Buffer = new Uint8Array(buffer);
+                            response = uint8Buffer.buffer;
+                        }
+                        resolveCallback(resolve, response);
+                    };
+                    if (isBinary) {
+                        args.push(func);
+                    }
+                    else {
+                        args.push('utf8');
+                        args.push(func);
+                    }
+                    fs.readFile.apply(fs, args);
+                }
+                else {
+                    var xmlHttp_1 = new XMLHttpRequest();
+                    if (isBinary) {
+                        xmlHttp_1.responseType = "arraybuffer";
+                        xmlHttp_1.onload = function (oEvent) {
+                            var response = null;
+                            if (isBinary) {
+                                response = xmlHttp_1.response;
+                            }
+                            else {
+                                response = xmlHttp_1.responseText;
+                            }
+                            resolveCallback(resolve, response);
+                        };
+                    }
+                    else {
+                        xmlHttp_1.onreadystatechange = function () {
+                            if (xmlHttp_1.readyState === 4 && (Math.floor(xmlHttp_1.status / 100) === 2 || xmlHttp_1.status === 0)) {
+                                var response = null;
+                                if (isBinary) {
+                                    response = xmlHttp_1.response;
+                                }
+                                else {
+                                    response = xmlHttp_1.responseText;
+                                }
+                                resolveCallback(resolve, response);
+                            }
+                            else {
+                                if (rejectCallback) {
+                                    rejectCallback(reject, xmlHttp_1.status);
+                                }
+                            }
+                        };
+                    }
+                    xmlHttp_1.open("GET", resourceUri, true);
+                    xmlHttp_1.send(null);
+                }
+            });
+        };
+        return DataUtil;
+    }());
+
+    var Gltf2Importer = /** @class */ (function () {
+        function Gltf2Importer() {
+        }
+        Gltf2Importer.prototype.import = function (uri, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(this, void 0, void 0, function () {
+                var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, json;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            defaultOptions = {
+                                files: {
+                                //        "foo.gltf": content of file as ArrayBuffer,
+                                //        "foo.bin": content of file as ArrayBuffer,
+                                //        "boo.png": content of file as ArrayBuffer
+                                },
+                                loaderExtension: null,
+                                defaultShaderClass: null,
+                                statesOfElements: [
+                                    {
+                                        targets: [],
+                                        states: {
+                                            enable: [
+                                            // 3042,  // BLEND
+                                            ],
+                                            functions: {
+                                            //"blendFuncSeparate": [1, 0, 1, 0],
+                                            }
+                                        },
+                                        isTransparent: true,
+                                        opacity: 1.0,
+                                        isTextureImageToLoadPreMultipliedAlpha: false,
+                                    }
+                                ],
+                                extendedJson: null //   URI string / JSON Object / ArrayBuffer
+                            };
+                            return [4 /*yield*/, fetch(uri)];
+                        case 1:
+                            response = _a.sent();
+                            return [4 /*yield*/, response.arrayBuffer()];
+                        case 2:
+                            arrayBuffer = _a.sent();
+                            dataView = new DataView(arrayBuffer, 0, 20);
+                            isLittleEndian = true;
+                            magic = dataView.getUint32(0, isLittleEndian);
+                            return [2 /*return*/, response];
+                        case 3:
+                            json = _a.sent();
+                            this._loadAsTextJson(json, uri, options, defaultOptions);
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        Gltf2Importer.prototype._getOptions = function (defaultOptions, json, options) {
+            if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
+                for (var optionName in json.asset.extras.loadOptions) {
+                    defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
+                }
+            }
+            for (var optionName in options) {
+                defaultOptions[optionName] = options[optionName];
+            }
+            return defaultOptions;
+        };
+        Gltf2Importer.prototype._loadAsTextJson = function (gltfJson, uri, options, defaultOptions) {
+            return __awaiter(this, void 0, void 0, function () {
+                var basePath, result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (uri) {
+                                //Set the location of gltf file as basePath
+                                basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
+                            }
+                            if (gltfJson.asset.extras === undefined) {
+                                gltfJson.asset.extras = {};
+                            }
+                            options = this._getOptions(defaultOptions, gltfJson, options);
+                            this._mergeExtendedJson(gltfJson, options.extendedJson);
+                            gltfJson.asset.extras.basePath = basePath;
+                            return [4 /*yield*/, this._loadInner(undefined, basePath, gltfJson, options)];
+                        case 1:
+                            result = _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        Gltf2Importer.prototype._loadInner = function (arrayBufferBinary, basePath, gltfJson, options) {
+            var _this = this;
+            var promises = [];
+            var resources = {
+                shaders: [],
+                buffers: [],
+                images: []
+            };
+            promises.push(this._loadResources(arrayBufferBinary, basePath, gltfJson, options, resources));
+            promises.push(new Promise((function (resolve, reject) {
+                _this._loadJsonContent(gltfJson, options);
+                resolve();
+            })));
+            return Promise.all(promises);
+        };
+        Gltf2Importer.prototype._loadJsonContent = function (gltfJson, options) {
+            // Scene
+            this._loadDependenciesOfScenes(gltfJson);
+            // Node
+            this._loadDependenciesOfNodes(gltfJson);
+            // Node Transformation
+            //    this._loadTransformationsOfNodes(gltfJson);
+            // Mesh
+            this._loadDependenciesOfMeshes(gltfJson);
+            // Material
+            this._loadDependenciesOfMaterials(gltfJson);
+            // Texture
+            this._loadDependenciesOfTextures(gltfJson);
+            // Joint
+            this._loadDependenciesOfJoints(gltfJson);
+            // Animation
+            this._loadDependenciesOfAnimations(gltfJson);
+            // Accessor
+            this._loadDependenciesOfAccessors(gltfJson);
+            // BufferView
+            this._loadDependenciesOfBufferViews(gltfJson);
+            if (gltfJson.asset === void 0) {
+                gltfJson.asset = {};
+            }
+            if (gltfJson.asset.extras === void 0) {
+                gltfJson.asset.extras = {};
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfScenes = function (gltfJson) {
+            var e_1, _a;
+            try {
+                for (var _b = __values(gltfJson.scenes), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var scene = _c.value;
+                    scene.nodesIndices = scene.nodes.concat();
+                    for (var i in scene.nodesIndices) {
+                        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfNodes = function (gltfJson) {
+            var e_2, _a;
+            try {
+                for (var _b = __values(gltfJson.nodes), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var node = _c.value;
+                    // Hierarchy
+                    if (node.children) {
+                        node.childrenIndices = node.children.concat();
+                        node.children = [];
+                        for (var i in node.childrenIndices) {
+                            node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
+                        }
+                    }
+                    // Mesh
+                    if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
+                        node.meshIndex = node.mesh;
+                        node.mesh = gltfJson.meshes[node.meshIndex];
+                    }
+                    // Skin
+                    if (node.skin !== void 0 && gltfJson.skins !== void 0) {
+                        node.skinIndex = node.skin;
+                        node.skin = gltfJson.skins[node.skinIndex];
+                        if (node.mesh.extras === void 0) {
+                            node.mesh.extras = {};
+                        }
+                        node.mesh.extras._skin = node.skin;
+                    }
+                    // Camera
+                    if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
+                        node.cameraIndex = node.camera;
+                        node.camera = gltfJson.cameras[node.cameraIndex];
+                    }
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfMeshes = function (gltfJson) {
+            var e_3, _a, e_4, _b;
+            try {
+                // Mesh
+                for (var _c = __values(gltfJson.meshes), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var mesh = _d.value;
+                    try {
+                        for (var _e = __values(mesh.primitives), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            var primitive = _f.value;
+                            if (primitive.material !== void 0) {
+                                primitive.materialIndex = primitive.material;
+                                primitive.material = gltfJson.materials[primitive.materialIndex];
+                            }
+                            primitive.attributesindex = Object.assign({}, primitive.attributes);
+                            for (var attributeName in primitive.attributesindex) {
+                                if (primitive.attributesindex[attributeName] >= 0) {
+                                    var accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
+                                    accessor.extras = {
+                                        toGetAsTypedArray: true
+                                    };
+                                    primitive.attributes[attributeName] = accessor;
+                                }
+                                else {
+                                    primitive.attributes[attributeName] = void 0;
+                                }
+                            }
+                            if (primitive.indices !== void 0) {
+                                primitive.indicesIndex = primitive.indices;
+                                primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+                            }
+                        }
+                    }
+                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                    finally {
+                        try {
+                            if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                        }
+                        finally { if (e_4) throw e_4.error; }
+                    }
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfMaterials = function (gltfJson) {
+            var e_5, _a;
+            // Material
+            if (gltfJson.materials) {
+                try {
+                    for (var _b = __values(gltfJson.materials), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var material = _c.value;
+                        if (material.pbrMetallicRoughness) {
+                            var baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
+                            if (baseColorTexture !== void 0) {
+                                baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
+                            }
+                            var metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
+                            if (metallicRoughnessTexture !== void 0) {
+                                metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
+                            }
+                        }
+                        var normalTexture = material.normalTexture;
+                        if (normalTexture !== void 0) {
+                            normalTexture.texture = gltfJson.textures[normalTexture.index];
+                        }
+                        var occlusionTexture = material.occlusionTexture;
+                        if (occlusionTexture !== void 0) {
+                            occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
+                        }
+                        var emissiveTexture = material.emissiveTexture;
+                        if (emissiveTexture !== void 0) {
+                            emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
+                        }
+                    }
+                }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_5) throw e_5.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfTextures = function (gltfJson) {
+            var e_6, _a;
+            // Texture
+            if (gltfJson.textures) {
+                try {
+                    for (var _b = __values(gltfJson.textures), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var texture = _c.value;
+                        if (texture.sampler !== void 0) {
+                            texture.samplerIndex = texture.sampler;
+                            texture.sampler = gltfJson.samplers[texture.samplerIndex];
+                        }
+                        if (texture.source !== void 0) {
+                            texture.sourceIndex = texture.source;
+                            texture.image = gltfJson.images[texture.sourceIndex];
+                        }
+                    }
+                }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_6) throw e_6.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfJoints = function (gltfJson) {
+            var e_7, _a, e_8, _b;
+            if (gltfJson.skins) {
+                try {
+                    for (var _c = __values(gltfJson.skins), _d = _c.next(); !_d.done; _d = _c.next()) {
+                        var skin = _d.value;
+                        skin.skeletonIndex = skin.skeleton;
+                        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+                        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
+                        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
+                        skin.jointsIndices = skin.joints;
+                        skin.joints = [];
+                        try {
+                            for (var _e = __values(skin.jointsIndices), _f = _e.next(); !_f.done; _f = _e.next()) {
+                                var jointIndex = _f.value;
+                                skin.joints.push(gltfJson.nodes[jointIndex]);
+                            }
+                        }
+                        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+                        finally {
+                            try {
+                                if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                            }
+                            finally { if (e_8) throw e_8.error; }
+                        }
+                    }
+                }
+                catch (e_7_1) { e_7 = { error: e_7_1 }; }
+                finally {
+                    try {
+                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                    }
+                    finally { if (e_7) throw e_7.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfAnimations = function (gltfJson) {
+            var e_9, _a, e_10, _b, e_11, _c;
+            if (gltfJson.animations) {
+                try {
+                    for (var _d = __values(gltfJson.animations), _e = _d.next(); !_e.done; _e = _d.next()) {
+                        var animation = _e.value;
+                        try {
+                            for (var _f = __values(animation.channels), _g = _f.next(); !_g.done; _g = _f.next()) {
+                                var channel = _g.value;
+                                channel.samplerIndex = channel.sampler;
+                                channel.sampler = animation.samplers[channel.samplerIndex];
+                                channel.target.nodeIndex = channel.target.node;
+                                channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
+                            }
+                        }
+                        catch (e_10_1) { e_10 = { error: e_10_1 }; }
+                        finally {
+                            try {
+                                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+                            }
+                            finally { if (e_10) throw e_10.error; }
+                        }
+                        try {
+                            for (var _h = __values(animation.channels), _j = _h.next(); !_j.done; _j = _h.next()) {
+                                var channel = _j.value;
+                                channel.sampler.inputIndex = channel.sampler.input;
+                                channel.sampler.outputIndex = channel.sampler.output;
+                                channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
+                                channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+                                if (channel.target.path === 'rotation') {
+                                    if (channel.sampler.output.extras === void 0) {
+                                        channel.sampler.output.extras = {};
+                                    }
+                                    channel.sampler.output.extras.quaternionIfVec4 = true;
+                                }
+                            }
+                        }
+                        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+                        finally {
+                            try {
+                                if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
+                            }
+                            finally { if (e_11) throw e_11.error; }
+                        }
+                    }
+                }
+                catch (e_9_1) { e_9 = { error: e_9_1 }; }
+                finally {
+                    try {
+                        if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                    }
+                    finally { if (e_9) throw e_9.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfAccessors = function (gltfJson) {
+            var e_12, _a;
+            try {
+                // Accessor
+                for (var _b = __values(gltfJson.accessors), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var accessor = _c.value;
+                    if (accessor.bufferView !== void 0) {
+                        accessor.bufferViewIndex = accessor.bufferView;
+                        accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+                    }
+                }
+            }
+            catch (e_12_1) { e_12 = { error: e_12_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_12) throw e_12.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfBufferViews = function (gltfJson) {
+            var e_13, _a;
+            try {
+                // BufferView
+                for (var _b = __values(gltfJson.bufferViews), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var bufferView = _c.value;
+                    if (bufferView.buffer !== void 0) {
+                        bufferView.bufferIndex = bufferView.buffer;
+                        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
+                    }
+                }
+            }
+            catch (e_13_1) { e_13 = { error: e_13_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_13) throw e_13.error; }
+            }
+        };
+        Gltf2Importer.prototype._mergeExtendedJson = function (gltfJson, extendedData) {
+            var extendedJson = null;
+            if (extendedData instanceof ArrayBuffer) {
+                var extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
+                extendedJson = JSON.parse(extendedJsonStr);
+            }
+            else if (typeof extendedData === 'string') {
+                extendedJson = JSON.parse(extendedData);
+                extendedJson = extendedJson;
+            }
+            else if (typeof extendedData === 'object') {
+                extendedJson = extendedData;
+            }
+            Object.assign(gltfJson, extendedJson);
+        };
+        Gltf2Importer.prototype._loadResources = function (arrayBufferBinary, basePath, gltfJson, options, resources) {
+            var _this = this;
+            var promisesToLoadResources = [];
+            var _loop_1 = function (i) {
+                var bufferInfo = gltfJson.buffers[i];
+                var splitted = void 0;
+                var filename;
+                if (bufferInfo.uri) {
+                    splitted = bufferInfo.uri.split('/');
+                    filename = splitted[splitted.length - 1];
+                }
+                if (typeof bufferInfo.uri === 'undefined') {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        resources.buffers[i] = arrayBufferBinary;
+                        bufferInfo.buffer = arrayBufferBinary;
+                        resolve(gltfJson);
+                    }));
+                }
+                else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        var arrayBuffer = DataUtil.base64ToArrayBuffer(bufferInfo.uri);
+                        resources.buffers[i] = arrayBuffer;
+                        bufferInfo.buffer = arrayBuffer;
+                        resolve(gltfJson);
+                    }));
+                }
+                else if (options.files && options.files[filename]) {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        var arrayBuffer = options.files[filename];
+                        resources.buffers[i] = arrayBuffer;
+                        bufferInfo.buffer = arrayBuffer;
+                        resolve(gltfJson);
+                    }));
+                }
+                else {
+                    promisesToLoadResources.push(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true, function (resolve, response) {
+                        resources.buffers[i] = response;
+                        bufferInfo.buffer = response;
+                        resolve(gltfJson);
+                    }, function (reject, error) {
+                    }));
+                }
+            };
+            // Shaders Async load
+            // for (let _i in gltfJson.shaders) {
+            //   const i = _i as any as number;
+            //   resources.shaders[i] = {};
+            //   let shaderJson = gltfJson.shaders[i];
+            //   let shaderType = shaderJson.type;
+            //   if (typeof shaderJson.extensions !== 'undefined' && typeof shaderJson.extensions.KHR_binary_glTF !== 'undefined') {
+            //     resources.shaders[i].shaderText = this._accessBinaryAsShader(shaderJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary);
+            //     resources.shaders[i].shaderType = shaderType;
+            //     continue;
+            //   }
+            //   let shaderUri = shaderJson.uri;
+            //   if (options.files) {
+            //     const splitted = shaderUri.split('/');
+            //     const filename = splitted[splitted.length - 1];
+            //     if (options.files[filename]) {
+            //       const arrayBuffer = options.files[filename];
+            //       resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
+            //       resources.shaders[i].shaderType = shaderType;
+            //       continue;
+            //     }
+            //   }
+            //   if (shaderUri.match(/^data:/)) {
+            //     promisesToLoadResources.push(
+            //       new Promise((resolve, rejected) => {
+            //         let arrayBuffer = DataUtil.base64ToArrayBuffer(shaderUri);
+            //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
+            //         resources.shaders[i].shaderType = shaderType;
+            //         resolve();
+            //       })
+            //     );
+            //   } else {
+            //     shaderUri = basePath + shaderUri;
+            //     promisesToLoadResources.push(
+            //       DataUtil.loadResourceAsync(shaderUri, false,
+            //         (resolve:Function, response:any)=>{
+            //           resources.shaders[i].shaderText = response;
+            //           resources.shaders[i].shaderType = shaderType;
+            //           resolve(gltfJson);
+            //         },
+            //         (reject:Function, error:any)=>{
+            //         }
+            //       )
+            //     );
+            //   }
+            // }
+            // Buffers Async load
+            for (var i in gltfJson.buffers) {
+                _loop_1(i);
+            }
+            var _loop_2 = function (_i) {
+                var i = _i;
+                var imageJson = gltfJson.images[i];
+                //let imageJson = gltfJson.images[textureJson.source];
+                //let samplerJson = gltfJson.samplers[textureJson.sampler];
+                var imageUri;
+                if (typeof imageJson.uri === 'undefined') {
+                    imageUri = this_1._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+                }
+                else {
+                    var imageFileStr = imageJson.uri;
+                    var splitted = imageFileStr.split('/');
+                    var filename = splitted[splitted.length - 1];
+                    if (options.files && options.files[filename]) {
+                        var arrayBuffer = options.files[filename];
+                        var splitted_1 = filename.split('.');
+                        var fileExtension = splitted_1[splitted_1.length - 1];
+                        imageUri = this_1._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+                    }
+                    else if (imageFileStr.match(/^data:/)) {
+                        imageUri = imageFileStr;
+                    }
+                    else {
+                        imageUri = basePath + imageFileStr;
+                    }
+                }
+                // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
+                //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
+                // }
+                promisesToLoadResources.push(new Promise(function (resolve, reject) {
+                    var img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.src = imageUri;
+                    imageJson.image = img;
+                    if (imageUri.match(/^data:/)) {
+                        resolve(gltfJson);
+                    }
+                    else {
+                        var load_1 = function (img, response) {
+                            var bytes = new Uint8Array(response);
+                            var binaryData = "";
+                            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+                                binaryData += String.fromCharCode(bytes[i]);
+                            }
+                            var split = imageUri.split('.');
+                            var ext = split[split.length - 1];
+                            img.src = _this._getImageType(ext) + window.btoa(binaryData);
+                            img.onload = function () {
+                                resolve(gltfJson);
+                            };
+                        };
+                        var loadBinaryImage = function () {
+                            var xhr = new XMLHttpRequest();
+                            xhr.onreadystatechange = (function (_img) {
+                                return function () {
+                                    if (xhr.readyState == 4 && xhr.status == 200) {
+                                        load_1(_img, xhr.response);
+                                    }
+                                };
+                            })(img);
+                            xhr.open('GET', imageUri);
+                            xhr.responseType = 'arraybuffer';
+                            xhr.send();
+                        };
+                        loadBinaryImage();
+                    }
+                    resources.images[i] = img;
+                }));
+            };
+            var this_1 = this;
+            // Textures Async load
+            for (var _i in gltfJson.images) {
+                _loop_2(_i);
+            }
+            return Promise.all(promisesToLoadResources);
+        };
+        Gltf2Importer.prototype._accessBinaryAsImage = function (bufferViewStr, json, arrayBuffer, mimeType) {
+            var arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
+            return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
+        };
+        Gltf2Importer.prototype._sliceBufferViewToArrayBuffer = function (json, bufferViewStr, arrayBuffer) {
+            var bufferViewJson = json.bufferViews[bufferViewStr];
+            var byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+            var byteLength = bufferViewJson.byteLength;
+            var arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
+            return arrayBufferSliced;
+        };
+        Gltf2Importer.prototype._accessArrayBufferAsImage = function (arrayBuffer, imageType) {
+            var bytes = new Uint8Array(arrayBuffer);
+            var binaryData = '';
+            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+                binaryData += String.fromCharCode(bytes[i]);
+            }
+            var imgSrc = this._getImageType(imageType);
+            var dataUrl = imgSrc + DataUtil.btoa(binaryData);
+            return dataUrl;
+        };
+        Gltf2Importer.prototype._getImageType = function (imageType) {
+            var imgSrc = null;
+            if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
+                imgSrc = "data:image/jpeg;base64,";
+            }
+            else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
+                imgSrc = "data:image/png;base64,";
+            }
+            else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
+                imgSrc = "data:image/gif;base64,";
+            }
+            else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
+                imgSrc = "data:image/bmp;base64,";
+            }
+            else {
+                imgSrc = "data:image/unknown;base64,";
+            }
+            return imgSrc;
+        };
+        Gltf2Importer.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new Gltf2Importer();
+            }
+            return this.__instance;
+        };
+        return Gltf2Importer;
+    }());
+
     var Rn = Object.freeze({
         EntityRepository: EntityRepository,
         TransformComponent: TransformComponent,
@@ -6415,7 +7276,8 @@
         Vector4: Vector4,
         Matrix33: Matrix33,
         Matrix44: Matrix44,
-        ProcessApproach: ProcessApproach
+        ProcessApproach: ProcessApproach,
+        Gltf2Importer: Gltf2Importer
     });
     window['Rn'] = Rn;
 
