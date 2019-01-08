@@ -1,0 +1,8 @@
+{
+  "e2e": [
+    "DataTextureInstancedDrawingWebGL1",
+    "DataTextureInstancedDrawingWebGL2",
+    "Gltf2Importer",
+    "UBOInstancedDrawing"
+  ]
+}
