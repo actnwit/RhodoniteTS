@@ -1,6 +1,7 @@
 export default class RnObject {
-  private readonly __objectUid: ObjectUID = 0;
-  static currentMaxObjectCount = 0;
+  private readonly __objectUid: ObjectUID = -1;
+  static currentMaxObjectCount = -1;
+  static readonly InvalidObjectUID = -1;
 
   constructor(needToManage = false) {
     if (needToManage) {

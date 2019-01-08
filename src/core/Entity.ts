@@ -7,6 +7,7 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 
 export default class Entity {
   private __entity_uid: number;
+  static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
   private static __instance: Entity;
   private __entityRepository: EntityRepository;

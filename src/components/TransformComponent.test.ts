@@ -11,11 +11,6 @@ function generateEntity() {
   return entity;
 }
 
-test('The EntityRepository creates a entity whose uid is 1', () => {
-  const firstEntity = generateEntity();
-  expect(firstEntity.entityUID).toBe(1);
-});
-
 test('Use translate simply', () => {
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();

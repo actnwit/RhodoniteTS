@@ -13,12 +13,13 @@ import MeshComponent from "../../components/MeshComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
 import Primitive from "../../geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
+import CGAPIResourceRepository from "../CGAPIResourceRepository";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  private __dataTextureUid: CGAPIResourceHandle = 0;
-  private __shaderProgramUid: CGAPIResourceHandle = 0;
+  private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
@@ -49,7 +50,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
   mat4 getMatrix(float instanceId)
   {
-    float index = instanceId - 1.0;
+    float index = instanceId;
     float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
     vec2 arg = vec2(1.0/powVal, 1.0/powVal);
   //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
@@ -71,7 +72,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
   setupShaderProgram(): void {
-    if (this.__shaderProgramUid !== 0) {
+    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
 
@@ -150,7 +151,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       }
     }
 
-    if (this.__dataTextureUid !== 0) {
+    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {

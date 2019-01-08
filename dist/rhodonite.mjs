@@ -1,5 +1,6 @@
 class CGAPIResourceRepository {
 }
+CGAPIResourceRepository.InvalidCGAPIResourceUid = -1;
 
 // This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
 class EnumClass {
@@ -257,7 +258,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
     constructor() {
         super();
         this.__webglContexts = new Map();
-        this.__resourceCounter = 0;
+        this.__resourceCounter = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         this.__webglResources = new Map();
         this.__extensions = new Map();
     }
@@ -396,7 +397,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
         }
     }
-    setVertexDataToPipeline({ vaoHandle, iboHandle, vboHandles }, primitive, instanceIDBufferUid = 0) {
+    setVertexDataToPipeline({ vaoHandle, iboHandle, vboHandles }, primitive, instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const gl = this.__glw.getRawContext();
         const vao = this.getWebGLResource(vaoHandle);
         // VAO bind
@@ -424,7 +425,7 @@ class WebGLResourceRepository extends CGAPIResourceRepository {
             gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
         });
         /// for InstanceIDBuffer
-        if (instanceIDBufferUid !== 0) {
+        if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
             if (instanceIDBuffer != null) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -538,6 +539,8 @@ class Entity {
         this.__entity_uid = entityUID;
         this.__isAlive = isAlive;
         this.__entityRepository = entityComponent;
+        this.__uniqueName = 'entity_of_uid_' + entityUID;
+        Entity.__uniqueNames[entityUID] = this.__uniqueName;
     }
     get entityUID() {
         return this.__entity_uid;
@@ -566,6 +569,88 @@ class Entity {
             this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID);
         }
         return this.__sceneGraphComponent;
+    }
+}
+Entity.invalidEntityUID = -1;
+Entity.__uniqueNames = [];
+
+class RnObject {
+    constructor(needToManage = false) {
+        this.__objectUid = -1;
+        if (needToManage) {
+            this.__objectUid = ++RnObject.currentMaxObjectCount;
+        }
+    }
+    get objectUid() {
+        return this.__objectUid;
+    }
+}
+RnObject.currentMaxObjectCount = -1;
+RnObject.InvalidObjectUID = -1;
+
+class _Vector2 {
+    constructor(typedArray, x, y) {
+        this.__typedArray = typedArray;
+        if (ArrayBuffer.isView(x)) {
+            this.v = x;
+            return;
+        }
+        else {
+            this.v = new typedArray(2);
+        }
+        this.x = x;
+        this.y = y;
+    }
+    get className() {
+        return this.constructor.name;
+    }
+    clone() {
+        return new _Vector2(this.__typedArray, this.x, this.y);
+    }
+    multiply(val) {
+        this.x *= val;
+        this.y *= val;
+        return this;
+    }
+    isStrictEqual(vec) {
+        if (this.x === vec.x && this.y === vec.y) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    isEqual(vec, delta = Number.EPSILON) {
+        if (Math.abs(vec.x - this.x) < delta &&
+            Math.abs(vec.y - this.y) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    static multiply(typedArray, vec2, val) {
+        return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
+    }
+    get x() {
+        return this.v[0];
+    }
+    set x(x) {
+        this.v[0] = x;
+    }
+    get y() {
+        return this.v[1];
+    }
+    set y(y) {
+        this.v[1] = y;
+    }
+    get raw() {
+        return this.v;
+    }
+}
+class Vector2_F64 extends _Vector2 {
+    constructor(x, y) {
+        super(Float64Array, x, y);
     }
 }
 
@@ -620,146 +705,6 @@ for (let fn in IsUtil) {
                 IsUtil[itf][fn] = IsUtil[op](IsUtil[fn]);
             });
         }
-    }
-}
-
-class InitialSetting {
-}
-InitialSetting.maxEntityNumber = 10000;
-
-class ComponentRepository {
-    constructor() {
-        this.__component_sid_count_map = new Map();
-        this.__components = new Map();
-    }
-    static registerComponentClass(componentTID, componentClass) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.set(componentTID, componentClass);
-    }
-    static unregisterComponentClass(componentTID) {
-        const thisClass = ComponentRepository;
-        thisClass.__componentClasses.delete(componentTID);
-    }
-    static getInstance() {
-        if (!this.__instance) {
-            this.__instance = new ComponentRepository();
-        }
-        return this.__instance;
-    }
-    createComponent(componentTid, entityUid) {
-        const thisClass = ComponentRepository;
-        const componentClass = thisClass.__componentClasses.get(componentTid);
-        if (componentClass != null) {
-            let component_sid_count = this.__component_sid_count_map.get(componentTid);
-            if (!IsUtil.exist(component_sid_count)) {
-                this.__component_sid_count_map.set(componentTid, 0);
-                component_sid_count = 0;
-            }
-            this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-            const component = new componentClass(entityUid, component_sid_count);
-            if (!this.__components.has(componentTid)) {
-                this.__components.set(componentTid, []);
-            }
-            const array = this.__components.get(componentTid);
-            if (array != null) {
-                array[component.componentSID - 1] = component;
-                return component;
-            }
-        }
-        return null;
-    }
-    getComponent(componentTid, componentSid) {
-        const map = this.__components.get(componentTid);
-        if (map != null) {
-            const component = map[componentSid];
-            if (component != null) {
-                return map[componentSid];
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
-    static getMemoryBeginIndex(componentTid) {
-        let memoryBeginIndex = 0;
-        for (let i = 0; i < componentTid; i++) {
-            const componentClass = ComponentRepository.__componentClasses.get(i);
-            if (componentClass != null) {
-                const sizeOfComponent = componentClass.sizeOfThisComponent;
-                const maxEntityNumber = InitialSetting.maxEntityNumber;
-                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-            }
-        }
-        return memoryBeginIndex;
-    }
-    getComponentsWithType(componentTid) {
-        const components = this.__components.get(componentTid);
-        const copyArray = components; //.concat();
-        //copyArray.shift();
-        return copyArray;
-    }
-    getComponentTIDs() {
-        const indices = [];
-        for (let type of this.__components.keys()) {
-            indices.push(type);
-        }
-        return indices;
-    }
-}
-ComponentRepository.__componentClasses = new Map();
-
-class EntityRepository {
-    constructor() {
-        this.__entity_uid_count = 0;
-        this.__entities = [];
-        this._components = [];
-        this.__componentRepository = ComponentRepository.getInstance();
-    }
-    static getInstance() {
-        if (!this.__instance) {
-            this.__instance = new EntityRepository();
-        }
-        return this.__instance;
-    }
-    createEntity(componentTidArray) {
-        const entity = new Entity(++this.__entity_uid_count, true, this);
-        this.__entities[this.__entity_uid_count] = entity;
-        for (let componentTid of componentTidArray) {
-            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
-            let map = this._components[entity.entityUID];
-            if (map == null) {
-                map = new Map();
-                this._components[entity.entityUID] = map;
-            }
-            if (component != null) {
-                map.set(componentTid, component);
-            }
-        }
-        return entity;
-    }
-    getEntity(entityUid) {
-        return this.__entities[entityUid];
-    }
-    getComponentOfEntity(entityUid, componentTid) {
-        const entity = this._components[entityUid];
-        let component = null;
-        if (entity != null) {
-            component = entity.get(componentTid);
-            if (component != null) {
-                return component;
-            }
-            else {
-                return null;
-            }
-        }
-        return component;
-    }
-    static getMaxEntityNumber() {
-        return 100000;
-    }
-    _getEntities() {
-        return this.__entities.concat();
     }
 }
 
@@ -1085,6 +1030,226 @@ class Vector3 {
     }
 }
 //GLBoost['Vector3'] = Vector3;
+
+class Vector4 {
+    constructor(x, y, z, w) {
+        if (ArrayBuffer.isView(x)) {
+            this.v = x;
+            return;
+        }
+        else {
+            this.v = new Float32Array(4);
+        }
+        if (!(x != null)) {
+            this.x = 0;
+            this.y = 0;
+            this.z = 0;
+            this.w = 1;
+        }
+        else if (Array.isArray(x)) {
+            this.x = x[0];
+            this.y = x[1];
+            this.z = x[2];
+            this.w = x[3];
+        }
+        else if (typeof x.w !== 'undefined') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        }
+        else if (typeof x.z !== 'undefined') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = 1;
+        }
+        else if (typeof x.y !== 'undefined') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = 0;
+            this.w = 1;
+        }
+        else {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
+    }
+    get className() {
+        return this.constructor.name;
+    }
+    isStrictEqual(vec) {
+        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    isEqual(vec, delta = Number.EPSILON) {
+        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+            Math.abs(vec.v[1] - this.v[1]) < delta &&
+            Math.abs(vec.v[2] - this.v[2]) < delta &&
+            Math.abs(vec.v[3] - this.v[3]) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    clone() {
+        return new Vector4(this.x, this.y, this.z, this.w);
+    }
+    /**
+     * Zero Vector
+     */
+    static zero() {
+        return new Vector4(0, 0, 0, 1);
+    }
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    }
+    normalize() {
+        var length = this.length();
+        this.divide(length);
+        return this;
+    }
+    static normalize(vec4) {
+        var length = vec4.length();
+        var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
+        newVec.divide(length);
+        return newVec;
+    }
+    /**
+     * add value
+     */
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        this.w += v.w;
+        return this;
+    }
+    /**
+     * add value（static version）
+     */
+    static add(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+    }
+    /**
+     * add value except w component
+     */
+    addWithOutW(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        return this;
+    }
+    subtract(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+        this.w -= v.w;
+        return this;
+    }
+    static subtract(lv, rv) {
+        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+    }
+    /**
+     * add value except w component（static version）
+     */
+    static addWithOutW(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+    }
+    multiply(val) {
+        this.x *= val;
+        this.y *= val;
+        this.z *= val;
+        this.w *= val;
+        return this;
+    }
+    multiplyVector(vec) {
+        this.x *= vec.x;
+        this.y *= vec.y;
+        this.z *= vec.z;
+        this.w *= vec.w;
+        return this;
+    }
+    static multiply(vec4, val) {
+        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+    }
+    static multiplyVector(vec4, vec) {
+        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+    }
+    divide(val) {
+        if (val !== 0) {
+            this.x /= val;
+            this.y /= val;
+            this.z /= val;
+            this.w /= val;
+        }
+        else {
+            console.warn("0 division occured!");
+            this.x = Infinity;
+            this.y = Infinity;
+            this.z = Infinity;
+            this.w = Infinity;
+        }
+        return this;
+    }
+    static divide(vec4, val) {
+        if (val !== 0) {
+            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+        }
+        else {
+            console.warn("0 division occured!");
+            return new Vector4(Infinity, Infinity, Infinity, Infinity);
+        }
+    }
+    divideVector(vec4) {
+        this.x /= vec4.x;
+        this.y /= vec4.y;
+        this.z /= vec4.z;
+        this.w /= vec4.w;
+        return this;
+    }
+    static divideVector(lvec4, rvec4) {
+        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+    }
+    toString() {
+        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+    }
+    get x() {
+        return this.v[0];
+    }
+    set x(x) {
+        this.v[0] = x;
+    }
+    get y() {
+        return this.v[1];
+    }
+    set y(y) {
+        this.v[1] = y;
+    }
+    get z() {
+        return this.v[2];
+    }
+    set z(z) {
+        this.v[2] = z;
+    }
+    get w() {
+        return this.v[3];
+    }
+    set w(w) {
+        this.v[3] = w;
+    }
+    get raw() {
+        return this.v;
+    }
+}
+// GLBoost["Vector4"] = Vector4;
 
 //import GLBoost from '../../globals';
 class Quaternion {
@@ -1431,618 +1596,6 @@ class Quaternion {
     }
 }
 //GLBoost["Quaternion"] = Quaternion;
-
-// import GLBoost from '../../globals';
-class Matrix33 {
-    constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
-        const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-        const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
-        const m = m0;
-        if (m == null) {
-            this.m = new Float32Array(0);
-            return;
-        }
-        if (arguments.length === 9) {
-            this.m = new Float32Array(9);
-            if (_isColumnMajor === true) {
-                let m = arguments;
-                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-            }
-            else {
-                this.setComponents.apply(this, arguments); // arguments[0-8] must be row major values if isColumnMajor is false
-            }
-        }
-        else if (Array.isArray(m)) {
-            this.m = new Float32Array(9);
-            if (_isColumnMajor === true) {
-                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-            }
-            else {
-                this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-            }
-        }
-        else if (m instanceof Float32Array) {
-            if (_notCopyFloatArray) {
-                this.m = m;
-            }
-            else {
-                this.m = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-                }
-                else {
-                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-                }
-            }
-        }
-        else if (!!m && typeof m.m22 !== 'undefined') {
-            if (_notCopyFloatArray) {
-                this.m = m.m;
-            }
-            else {
-                this.m = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    const _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
-                }
-                else {
-                    const _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
-                }
-            }
-        }
-        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-            this.m = new Float32Array(9);
-            const q = m;
-            const sx = q.x * q.x;
-            const sy = q.y * q.y;
-            const sz = q.z * q.z;
-            const cx = q.y * q.z;
-            const cy = q.x * q.z;
-            const cz = q.x * q.y;
-            const wx = q.w * q.x;
-            const wy = q.w * q.y;
-            const wz = q.w * q.z;
-            this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
-        }
-        else {
-            this.m = new Float32Array(9);
-            this.identity();
-        }
-    }
-    setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22) {
-        this.m[0] = m00;
-        this.m[3] = m01;
-        this.m[6] = m02;
-        this.m[1] = m10;
-        this.m[4] = m11;
-        this.m[7] = m12;
-        this.m[2] = m20;
-        this.m[5] = m21;
-        this.m[8] = m22;
-        return this;
-    }
-    get className() {
-        return this.constructor.name;
-    }
-    identity() {
-        this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
-        return this;
-    }
-    /**
-     * Make this identity matrix（static method version）
-     */
-    static identity() {
-        return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
-    }
-    static dummy() {
-        return new Matrix33(null);
-    }
-    isDummy() {
-        if (this.m.length === 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    clone() {
-        return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
-    }
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    rotateX(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-    }
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    static rotateX(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-    }
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    rotateY(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-        return this;
-    }
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    static rotateY(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-    }
-    /**
-     * Create Z oriented Rotation Matrix
-     */
-    rotateZ(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
-    }
-    /**
-     * Create Z oriented Rotation Matrix
-     */
-    static rotateZ(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
-    }
-    static rotateXYZ(x, y, z) {
-        return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
-    }
-    static rotate(vec3) {
-        return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
-    }
-    scale(vec) {
-        return this.setComponents(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-    }
-    static scale(vec) {
-        return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-    }
-    /**
-     * zero matrix
-     */
-    zero() {
-        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        return this;
-    }
-    /**
-     * zero matrix(static version)
-     */
-    static zero() {
-        return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    }
-    flatten() {
-        return this.m;
-    }
-    flattenAsArray() {
-        return [this.m[0], this.m[1], this.m[2],
-            this.m[3], this.m[4], this.m[5],
-            this.m[6], this.m[7], this.m[8]];
-    }
-    _swap(l, r) {
-        this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
-    }
-    /**
-     * transpose
-     */
-    transpose() {
-        this._swap(1, 3);
-        this._swap(2, 6);
-        this._swap(5, 8);
-        return this;
-    }
-    /**
-     * transpose(static version)
-     */
-    static transpose(mat) {
-        var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
-        return mat_t;
-    }
-    multiplyVector(vec) {
-        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z;
-        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z;
-        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z;
-        return new Vector3(x, y, z);
-    }
-    /**
-     * multiply zero matrix and zero matrix
-     */
-    multiply(mat) {
-        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
-        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
-        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
-        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
-        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
-        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
-        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
-        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
-        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
-        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    /**
-     * multiply zero matrix and zero matrix(static version)
-     */
-    static multiply(l_m, r_m) {
-        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
-        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
-        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
-        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;
-        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;
-        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;
-        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
-        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
-        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    determinant() {
-        return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
-            - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
-    }
-    static determinant(mat) {
-        return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-            - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-    }
-    invert() {
-        var det = this.determinant();
-        var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
-        var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
-        var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
-        var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
-        var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
-        var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
-        var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
-        var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
-        var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
-        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    static invert(mat) {
-        var det = mat.determinant();
-        var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-        var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-        var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-        var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-        var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-        var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-        var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-        var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-        var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    set m00(val) {
-        this.m[0] = val;
-    }
-    get m00() {
-        return this.m[0];
-    }
-    set m10(val) {
-        this.m[1] = val;
-    }
-    get m10() {
-        return this.m[1];
-    }
-    set m20(val) {
-        this.m[2] = val;
-    }
-    get m20() {
-        return this.m[2];
-    }
-    set m01(val) {
-        this.m[3] = val;
-    }
-    get m01() {
-        return this.m[3];
-    }
-    set m11(val) {
-        this.m[4] = val;
-    }
-    get m11() {
-        return this.m[4];
-    }
-    set m21(val) {
-        this.m[5] = val;
-    }
-    get m21() {
-        return this.m[5];
-    }
-    set m02(val) {
-        this.m[6] = val;
-    }
-    get m02() {
-        return this.m[6];
-    }
-    set m12(val) {
-        this.m[7] = val;
-    }
-    get m12() {
-        return this.m[7];
-    }
-    set m22(val) {
-        this.m[8] = val;
-    }
-    get m22() {
-        return this.m[8];
-    }
-    toString() {
-        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
-            this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
-            this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
-    }
-    nearZeroToZero(value) {
-        if (Math.abs(value) < 0.00001) {
-            value = 0;
-        }
-        else if (0.99999 < value && value < 1.00001) {
-            value = 1;
-        }
-        else if (-1.00001 < value && value < -0.99999) {
-            value = -1;
-        }
-        return value;
-    }
-    toStringApproximately() {
-        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
-            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
-            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
-    }
-    getScale() {
-        return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-    }
-    addScale(vec) {
-        this.m00 *= vec.x;
-        this.m11 *= vec.y;
-        this.m22 *= vec.z;
-        return this;
-    }
-    isEqual(mat, delta = Number.EPSILON) {
-        if (Math.abs(mat.m[0] - this.m[0]) < delta &&
-            Math.abs(mat.m[1] - this.m[1]) < delta &&
-            Math.abs(mat.m[2] - this.m[2]) < delta &&
-            Math.abs(mat.m[3] - this.m[3]) < delta &&
-            Math.abs(mat.m[4] - this.m[4]) < delta &&
-            Math.abs(mat.m[5] - this.m[5]) < delta &&
-            Math.abs(mat.m[6] - this.m[6]) < delta &&
-            Math.abs(mat.m[7] - this.m[7]) < delta &&
-            Math.abs(mat.m[8] - this.m[8]) < delta) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-}
-// GLBoost['Matrix33'] = Matrix33;
-
-class Vector4 {
-    constructor(x, y, z, w) {
-        if (ArrayBuffer.isView(x)) {
-            this.v = x;
-            return;
-        }
-        else {
-            this.v = new Float32Array(4);
-        }
-        if (!(x != null)) {
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-            this.w = 1;
-        }
-        else if (Array.isArray(x)) {
-            this.x = x[0];
-            this.y = x[1];
-            this.z = x[2];
-            this.w = x[3];
-        }
-        else if (typeof x.w !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = x.w;
-        }
-        else if (typeof x.z !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = 1;
-        }
-        else if (typeof x.y !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = 0;
-            this.w = 1;
-        }
-        else {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.w = w;
-        }
-    }
-    get className() {
-        return this.constructor.name;
-    }
-    isStrictEqual(vec) {
-        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    isEqual(vec, delta = Number.EPSILON) {
-        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-            Math.abs(vec.v[1] - this.v[1]) < delta &&
-            Math.abs(vec.v[2] - this.v[2]) < delta &&
-            Math.abs(vec.v[3] - this.v[3]) < delta) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    clone() {
-        return new Vector4(this.x, this.y, this.z, this.w);
-    }
-    /**
-     * Zero Vector
-     */
-    static zero() {
-        return new Vector4(0, 0, 0, 1);
-    }
-    length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-    }
-    normalize() {
-        var length = this.length();
-        this.divide(length);
-        return this;
-    }
-    static normalize(vec4) {
-        var length = vec4.length();
-        var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-        newVec.divide(length);
-        return newVec;
-    }
-    /**
-     * add value
-     */
-    add(v) {
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
-        this.w += v.w;
-        return this;
-    }
-    /**
-     * add value（static version）
-     */
-    static add(lv, rv) {
-        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-    }
-    /**
-     * add value except w component
-     */
-    addWithOutW(v) {
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
-        return this;
-    }
-    subtract(v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        this.z -= v.z;
-        this.w -= v.w;
-        return this;
-    }
-    static subtract(lv, rv) {
-        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-    }
-    /**
-     * add value except w component（static version）
-     */
-    static addWithOutW(lv, rv) {
-        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-    }
-    multiply(val) {
-        this.x *= val;
-        this.y *= val;
-        this.z *= val;
-        this.w *= val;
-        return this;
-    }
-    multiplyVector(vec) {
-        this.x *= vec.x;
-        this.y *= vec.y;
-        this.z *= vec.z;
-        this.w *= vec.w;
-        return this;
-    }
-    static multiply(vec4, val) {
-        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-    }
-    static multiplyVector(vec4, vec) {
-        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-    }
-    divide(val) {
-        if (val !== 0) {
-            this.x /= val;
-            this.y /= val;
-            this.z /= val;
-            this.w /= val;
-        }
-        else {
-            console.warn("0 division occured!");
-            this.x = Infinity;
-            this.y = Infinity;
-            this.z = Infinity;
-            this.w = Infinity;
-        }
-        return this;
-    }
-    static divide(vec4, val) {
-        if (val !== 0) {
-            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-        }
-        else {
-            console.warn("0 division occured!");
-            return new Vector4(Infinity, Infinity, Infinity, Infinity);
-        }
-    }
-    divideVector(vec4) {
-        this.x /= vec4.x;
-        this.y /= vec4.y;
-        this.z /= vec4.z;
-        this.w /= vec4.w;
-        return this;
-    }
-    static divideVector(lvec4, rvec4) {
-        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-    }
-    toString() {
-        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-    }
-    get x() {
-        return this.v[0];
-    }
-    set x(x) {
-        this.v[0] = x;
-    }
-    get y() {
-        return this.v[1];
-    }
-    set y(y) {
-        this.v[1] = y;
-    }
-    get z() {
-        return this.v[2];
-    }
-    set z(z) {
-        this.v[2] = z;
-    }
-    get w() {
-        return this.v[3];
-    }
-    set w(w) {
-        this.v[3] = w;
-    }
-    get raw() {
-        return this.v;
-    }
-}
-// GLBoost["Vector4"] = Vector4;
 
 //import GLBoost from '../../globals';
 const FloatArray = Float32Array;
@@ -2669,84 +2222,397 @@ class Matrix44 {
 }
 //GLBoost["Matrix44"] = Matrix44;
 
-class RnObject {
-    constructor(needToManage = false) {
-        this.__objectUid = 0;
-        if (needToManage) {
-            this.__objectUid = ++RnObject.currentMaxObjectCount;
-        }
-    }
-    get objectUid() {
-        return this.__objectUid;
-    }
-}
-RnObject.currentMaxObjectCount = 0;
-
-class _Vector2 {
-    constructor(typedArray, x, y) {
-        this.__typedArray = typedArray;
-        if (ArrayBuffer.isView(x)) {
-            this.v = x;
+// import GLBoost from '../../globals';
+class Matrix33 {
+    constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
+        const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
+        const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
+        const m = m0;
+        if (m == null) {
+            this.m = new Float32Array(0);
             return;
         }
-        else {
-            this.v = new typedArray(2);
+        if (arguments.length === 9) {
+            this.m = new Float32Array(9);
+            if (_isColumnMajor === true) {
+                let m = arguments;
+                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+            }
+            else {
+                this.setComponents.apply(this, arguments); // arguments[0-8] must be row major values if isColumnMajor is false
+            }
         }
-        this.x = x;
-        this.y = y;
+        else if (Array.isArray(m)) {
+            this.m = new Float32Array(9);
+            if (_isColumnMajor === true) {
+                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+            }
+            else {
+                this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+            }
+        }
+        else if (m instanceof Float32Array) {
+            if (_notCopyFloatArray) {
+                this.m = m;
+            }
+            else {
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                }
+                else {
+                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                }
+            }
+        }
+        else if (!!m && typeof m.m22 !== 'undefined') {
+            if (_notCopyFloatArray) {
+                this.m = m.m;
+            }
+            else {
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    const _m = m;
+                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                }
+                else {
+                    const _m = m;
+                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                }
+            }
+        }
+        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+            this.m = new Float32Array(9);
+            const q = m;
+            const sx = q.x * q.x;
+            const sy = q.y * q.y;
+            const sz = q.z * q.z;
+            const cx = q.y * q.z;
+            const cy = q.x * q.z;
+            const cz = q.x * q.y;
+            const wx = q.w * q.x;
+            const wy = q.w * q.y;
+            const wz = q.w * q.z;
+            this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
+        }
+        else {
+            this.m = new Float32Array(9);
+            this.identity();
+        }
+    }
+    setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22) {
+        this.m[0] = m00;
+        this.m[3] = m01;
+        this.m[6] = m02;
+        this.m[1] = m10;
+        this.m[4] = m11;
+        this.m[7] = m12;
+        this.m[2] = m20;
+        this.m[5] = m21;
+        this.m[8] = m22;
+        return this;
     }
     get className() {
         return this.constructor.name;
     }
-    clone() {
-        return new _Vector2(this.__typedArray, this.x, this.y);
-    }
-    multiply(val) {
-        this.x *= val;
-        this.y *= val;
+    identity() {
+        this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
         return this;
     }
-    isStrictEqual(vec) {
-        if (this.x === vec.x && this.y === vec.y) {
+    /**
+     * Make this identity matrix（static method version）
+     */
+    static identity() {
+        return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    }
+    static dummy() {
+        return new Matrix33(null);
+    }
+    isDummy() {
+        if (this.m.length === 0) {
             return true;
         }
         else {
             return false;
         }
     }
-    isEqual(vec, delta = Number.EPSILON) {
-        if (Math.abs(vec.x - this.x) < delta &&
-            Math.abs(vec.y - this.y) < delta) {
+    clone() {
+        return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
+    }
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    rotateX(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+    }
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    static rotateX(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+    }
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    rotateY(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+        return this;
+    }
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    static rotateY(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+    }
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    rotateZ(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+    }
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    static rotateZ(radian) {
+        var cos = Math.cos(radian);
+        var sin = Math.sin(radian);
+        return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+    }
+    static rotateXYZ(x, y, z) {
+        return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+    }
+    static rotate(vec3) {
+        return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
+    }
+    scale(vec) {
+        return this.setComponents(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+    }
+    static scale(vec) {
+        return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+    }
+    /**
+     * zero matrix
+     */
+    zero() {
+        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return this;
+    }
+    /**
+     * zero matrix(static version)
+     */
+    static zero() {
+        return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+    flatten() {
+        return this.m;
+    }
+    flattenAsArray() {
+        return [this.m[0], this.m[1], this.m[2],
+            this.m[3], this.m[4], this.m[5],
+            this.m[6], this.m[7], this.m[8]];
+    }
+    _swap(l, r) {
+        this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
+    }
+    /**
+     * transpose
+     */
+    transpose() {
+        this._swap(1, 3);
+        this._swap(2, 6);
+        this._swap(5, 8);
+        return this;
+    }
+    /**
+     * transpose(static version)
+     */
+    static transpose(mat) {
+        var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
+        return mat_t;
+    }
+    multiplyVector(vec) {
+        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z;
+        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z;
+        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z;
+        return new Vector3(x, y, z);
+    }
+    /**
+     * multiply zero matrix and zero matrix
+     */
+    multiply(mat) {
+        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
+        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
+        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
+        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
+        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
+        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
+        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
+        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
+        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
+        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    }
+    /**
+     * multiply zero matrix and zero matrix(static version)
+     */
+    static multiply(l_m, r_m) {
+        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
+        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
+        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
+        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;
+        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;
+        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;
+        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
+        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
+        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
+        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    }
+    determinant() {
+        return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
+            - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
+    }
+    static determinant(mat) {
+        return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
+            - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
+    }
+    invert() {
+        var det = this.determinant();
+        var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
+        var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
+        var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
+        var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
+        var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
+        var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
+        var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
+        var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
+        var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
+        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    }
+    static invert(mat) {
+        var det = mat.determinant();
+        var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
+        var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
+        var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
+        var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
+        var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
+        var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
+        var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
+        var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
+        var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    }
+    set m00(val) {
+        this.m[0] = val;
+    }
+    get m00() {
+        return this.m[0];
+    }
+    set m10(val) {
+        this.m[1] = val;
+    }
+    get m10() {
+        return this.m[1];
+    }
+    set m20(val) {
+        this.m[2] = val;
+    }
+    get m20() {
+        return this.m[2];
+    }
+    set m01(val) {
+        this.m[3] = val;
+    }
+    get m01() {
+        return this.m[3];
+    }
+    set m11(val) {
+        this.m[4] = val;
+    }
+    get m11() {
+        return this.m[4];
+    }
+    set m21(val) {
+        this.m[5] = val;
+    }
+    get m21() {
+        return this.m[5];
+    }
+    set m02(val) {
+        this.m[6] = val;
+    }
+    get m02() {
+        return this.m[6];
+    }
+    set m12(val) {
+        this.m[7] = val;
+    }
+    get m12() {
+        return this.m[7];
+    }
+    set m22(val) {
+        this.m[8] = val;
+    }
+    get m22() {
+        return this.m[8];
+    }
+    toString() {
+        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
+            this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
+            this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
+    }
+    nearZeroToZero(value) {
+        if (Math.abs(value) < 0.00001) {
+            value = 0;
+        }
+        else if (0.99999 < value && value < 1.00001) {
+            value = 1;
+        }
+        else if (-1.00001 < value && value < -0.99999) {
+            value = -1;
+        }
+        return value;
+    }
+    toStringApproximately() {
+        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
+            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
+            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
+    }
+    getScale() {
+        return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+    }
+    addScale(vec) {
+        this.m00 *= vec.x;
+        this.m11 *= vec.y;
+        this.m22 *= vec.z;
+        return this;
+    }
+    isEqual(mat, delta = Number.EPSILON) {
+        if (Math.abs(mat.m[0] - this.m[0]) < delta &&
+            Math.abs(mat.m[1] - this.m[1]) < delta &&
+            Math.abs(mat.m[2] - this.m[2]) < delta &&
+            Math.abs(mat.m[3] - this.m[3]) < delta &&
+            Math.abs(mat.m[4] - this.m[4]) < delta &&
+            Math.abs(mat.m[5] - this.m[5]) < delta &&
+            Math.abs(mat.m[6] - this.m[6]) < delta &&
+            Math.abs(mat.m[7] - this.m[7]) < delta &&
+            Math.abs(mat.m[8] - this.m[8]) < delta) {
             return true;
         }
         else {
             return false;
         }
     }
-    static multiply(typedArray, vec2, val) {
-        return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
-    }
-    get x() {
-        return this.v[0];
-    }
-    set x(x) {
-        this.v[0] = x;
-    }
-    get y() {
-        return this.v[1];
-    }
-    set y(y) {
-        this.v[1] = y;
-    }
-    get raw() {
-        return this.v;
-    }
 }
-class Vector2_F64 extends _Vector2 {
-    constructor(x, y) {
-        super(Float64Array, x, y);
-    }
-}
+// GLBoost['Matrix33'] = Matrix33;
 
 class AccessorBase extends RnObject {
     constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }) {
@@ -3979,11 +3845,152 @@ class Component {
         }
     }
 }
+Component.invalidComponentSID = -1;
 Component.__bufferViews = new Map();
 Component.__accessors = new Map();
 Component.__byteLengthSumOfMembers = new Map();
 Component.__memberInfo = new Map();
 Component.__members = new Map();
+
+class InitialSetting {
+}
+InitialSetting.maxEntityNumber = 10000;
+
+class ComponentRepository {
+    constructor() {
+        this.__component_sid_count_map = new Map();
+        this.__components = new Map();
+    }
+    static registerComponentClass(componentTID, componentClass) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.set(componentTID, componentClass);
+    }
+    static unregisterComponentClass(componentTID) {
+        const thisClass = ComponentRepository;
+        thisClass.__componentClasses.delete(componentTID);
+    }
+    static getInstance() {
+        if (!this.__instance) {
+            this.__instance = new ComponentRepository();
+        }
+        return this.__instance;
+    }
+    createComponent(componentTid, entityUid) {
+        const thisClass = ComponentRepository;
+        const componentClass = thisClass.__componentClasses.get(componentTid);
+        if (componentClass != null) {
+            let component_sid_count = this.__component_sid_count_map.get(componentTid);
+            if (!IsUtil.exist(component_sid_count)) {
+                this.__component_sid_count_map.set(componentTid, 0);
+                component_sid_count = Component.invalidComponentSID;
+            }
+            this.__component_sid_count_map.set(componentTid, ++component_sid_count);
+            const component = new componentClass(entityUid, component_sid_count);
+            if (!this.__components.has(componentTid)) {
+                this.__components.set(componentTid, []);
+            }
+            const array = this.__components.get(componentTid);
+            if (array != null) {
+                array[component.componentSID] = component;
+                return component;
+            }
+        }
+        return null;
+    }
+    getComponent(componentTid, componentSid) {
+        const map = this.__components.get(componentTid);
+        if (map != null) {
+            const component = map[componentSid];
+            if (component != null) {
+                return map[componentSid];
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
+    static getMemoryBeginIndex(componentTid) {
+        let memoryBeginIndex = 0;
+        for (let i = 0; i < componentTid; i++) {
+            const componentClass = ComponentRepository.__componentClasses.get(i);
+            if (componentClass != null) {
+                const sizeOfComponent = componentClass.sizeOfThisComponent;
+                const maxEntityNumber = InitialSetting.maxEntityNumber;
+                memoryBeginIndex += sizeOfComponent * maxEntityNumber;
+            }
+        }
+        return memoryBeginIndex;
+    }
+    getComponentsWithType(componentTid) {
+        const components = this.__components.get(componentTid);
+        const copyArray = components; //.concat();
+        //copyArray.shift();
+        return copyArray;
+    }
+    getComponentTIDs() {
+        const indices = [];
+        for (let type of this.__components.keys()) {
+            indices.push(type);
+        }
+        return indices;
+    }
+}
+ComponentRepository.__componentClasses = new Map();
+
+class EntityRepository {
+    constructor() {
+        this.__entity_uid_count = Entity.invalidEntityUID;
+        this.__entities = [];
+        this._components = [];
+        this.__componentRepository = ComponentRepository.getInstance();
+    }
+    static getInstance() {
+        if (!this.__instance) {
+            this.__instance = new EntityRepository();
+        }
+        return this.__instance;
+    }
+    createEntity(componentTidArray) {
+        const entity = new Entity(++this.__entity_uid_count, true, this);
+        this.__entities[this.__entity_uid_count] = entity;
+        for (let componentTid of componentTidArray) {
+            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+            let map = this._components[entity.entityUID];
+            if (map == null) {
+                map = new Map();
+                this._components[entity.entityUID] = map;
+            }
+            if (component != null) {
+                map.set(componentTid, component);
+            }
+        }
+        return entity;
+    }
+    getEntity(entityUid) {
+        return this.__entities[entityUid];
+    }
+    getComponentOfEntity(entityUid, componentTid) {
+        const entity = this._components[entityUid];
+        let component = null;
+        if (entity != null) {
+            component = entity.get(componentTid);
+            if (component != null) {
+                return component;
+            }
+            else {
+                return null;
+            }
+        }
+        return component;
+    }
+    static getMaxEntityNumber() {
+        return 100000;
+    }
+    _getEntities() {
+        return this.__entities.concat();
+    }
+}
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
@@ -4656,8 +4663,8 @@ GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color
 class WebGLStrategyUBO {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__uboUid = 0;
-        this.__shaderProgramUid = 0;
+        this.__uboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         this.__vertexHandles = [];
         this.__isVAOSet = false;
         this.vertexShaderMethodDefinitions_UBO = `layout (std140) uniform matrix {
@@ -4665,13 +4672,13 @@ class WebGLStrategyUBO {
   } u_matrix;
 
   mat4 getMatrix(float instanceId) {
-    float index = instanceId - 1.0;
+    float index = instanceId;
     return transpose(u_matrix.world[int(index)]);
   }
   `;
     }
     setupShaderProgram() {
-        if (this.__shaderProgramUid !== 0) {
+        if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return;
         }
         // Shader Setup
@@ -4727,7 +4734,7 @@ class WebGLStrategyUBO {
         const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         {
-            if (this.__uboUid !== 0) {
+            if (this.__uboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
                 return;
             }
@@ -4945,13 +4952,13 @@ const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoo
 class WebGLStrategyTransformFeedback {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__instanceDataTextureUid = 0;
-        this.__vertexDataTextureUid = 0;
-        this.__shaderProgramUid = 0;
-        this.__primitiveHeaderUboUid = 0;
-        this.__indexCountToSubtractUboUid = 0;
-        this.__entitiesUidUboUid = 0;
-        this.__primitiveUidUboUid = 0;
+        this.__instanceDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__vertexDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__primitiveHeaderUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__indexCountToSubtractUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__entitiesUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__primitiveUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         this.__isVertexReady = false;
     }
     get __transformFeedbackShaderText() {
@@ -5028,7 +5035,7 @@ void main(){
     `;
     }
     setupShaderProgram() {
-        if (this.__shaderProgramUid !== 0) {
+        if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return;
         }
         // Shader Setup
@@ -5071,7 +5078,7 @@ void main(){
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
         const floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
-        if (this.__primitiveHeaderUboUid !== 0) {
+        if (this.__primitiveHeaderUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
             return;
         }
@@ -5079,7 +5086,7 @@ void main(){
         this.__webglResourceRepository.bindUniformBufferBase(3, this.__primitiveHeaderUboUid);
     }
     __setupGPUInstanceMetaData() {
-        if (this.__primitiveUidUboUid !== 0) {
+        if (this.__primitiveUidUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return;
         }
         const entities = EntityRepository.getInstance()._getEntities();
@@ -5122,7 +5129,7 @@ void main(){
                 halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
             }
         }
-        if (this.__instanceDataTextureUid !== 0) {
+        if (this.__instanceDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
@@ -5187,7 +5194,7 @@ void main(){
         }
     }
     __setupGPUVertexData() {
-        if (this.__vertexDataTextureUid !== 0) {
+        if (this.__vertexDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return;
         }
         const memoryManager = MemoryManager.getInstance();
@@ -5260,8 +5267,8 @@ void main(){
 class WebGLStrategyDataTexture {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-        this.__dataTextureUid = 0;
-        this.__shaderProgramUid = 0;
+        this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         this.__vertexHandles = [];
         this.__isVAOSet = false;
     }
@@ -5288,7 +5295,7 @@ class WebGLStrategyDataTexture {
 
   mat4 getMatrix(float instanceId)
   {
-    float index = instanceId - 1.0;
+    float index = instanceId;
     float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
     vec2 arg = vec2(1.0/powVal, 1.0/powVal);
   //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
@@ -5309,7 +5316,7 @@ class WebGLStrategyDataTexture {
   `;
     }
     setupShaderProgram() {
-        if (this.__shaderProgramUid !== 0) {
+        if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return;
         }
         // Shader Setup
@@ -5378,7 +5385,7 @@ class WebGLStrategyDataTexture {
                 halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
             }
         }
-        if (this.__dataTextureUid !== 0) {
+        if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -5582,7 +5589,7 @@ const WebGLRenderingPipeline = new class {
     constructor() {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__componentRepository = ComponentRepository.getInstance();
-        this.__instanceIDBufferUid = 0;
+        this.__instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
     common_$load(processApproach) {
         // Strategy
@@ -5603,7 +5610,7 @@ const WebGLRenderingPipeline = new class {
         return this.__instanceIDBufferUid;
     }
     __isReady() {
-        if (this.__instanceIDBufferUid !== 0) {
+        if (this.__instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
             return true;
         }
         else {
@@ -5660,7 +5667,7 @@ class System {
         this.__processStages.forEach(stage => {
             const methodName = stage.getMethodName();
             //      const args:Array<any> = [];
-            let instanceIDBufferUid = 0;
+            let instanceIDBufferUid = -CGAPIResourceRepository.InvalidCGAPIResourceUid;
             const componentTids = this.__componentRepository.getComponentTIDs();
             const commonMethod = this.__renderingPipeline['common_' + methodName];
             if (commonMethod != null) {

@@ -18,17 +18,18 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import { CompositionType } from "../../definitions/CompositionType";
 import { VertexAttribute } from "../../definitions/VertexAttribute";
 import { PrimitiveMode } from "../../definitions/PrimitiveMode";
+import CGAPIResourceRepository from "../CGAPIResourceRepository";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  private __instanceDataTextureUid: CGAPIResourceHandle = 0;
-  private __vertexDataTextureUid: CGAPIResourceHandle = 0;
-  private __shaderProgramUid: CGAPIResourceHandle = 0;
-  private __primitiveHeaderUboUid: CGAPIResourceHandle = 0;
-  private __indexCountToSubtractUboUid: CGAPIResourceHandle = 0;
-  private __entitiesUidUboUid: CGAPIResourceHandle = 0;
-  private __primitiveUidUboUid: CGAPIResourceHandle = 0;
+  private __instanceDataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __vertexDataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __primitiveHeaderUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __indexCountToSubtractUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __entitiesUidUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __primitiveUidUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __isVertexReady: boolean = false;
   private __vertexHandle?: VertexHandles;
 
@@ -113,7 +114,7 @@ void main(){
   }
 
   setupShaderProgram(): void {
-    if (this.__shaderProgramUid !== 0) {
+    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
 
@@ -169,7 +170,7 @@ void main(){
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
     const floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
 
-    if (this.__primitiveHeaderUboUid !== 0) {
+    if (this.__primitiveHeaderUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
 //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
       return;
     }
@@ -179,7 +180,7 @@ void main(){
   }
 
   private __setupGPUInstanceMetaData() {
-    if (this.__primitiveUidUboUid !== 0) {
+    if (this.__primitiveUidUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
 
@@ -229,7 +230,7 @@ void main(){
       }
     }
 
-    if (this.__instanceDataTextureUid !== 0) {
+    if (this.__instanceDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
@@ -292,7 +293,7 @@ void main(){
   }
 
   private __setupGPUVertexData() {
-    if (this.__vertexDataTextureUid !== 0) {
+    if (this.__vertexDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
 

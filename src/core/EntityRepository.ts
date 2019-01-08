@@ -12,7 +12,7 @@ export default class EntityRepository {
 
   private constructor() {
 
-    this.__entity_uid_count = 0;
+    this.__entity_uid_count = Entity.invalidEntityUID;
 
     this.__entities = [];
     this._components = [];

@@ -12,12 +12,6 @@ function generateEntity() {
   return entity;
 }
 
-test('The EntityRepository creates a entity whose uid is 1', () => {
-  const firstEntity = generateEntity();
-  expect(firstEntity.entityUID).toBe(1);
-});
-
-
 test('create Parents and children.', () => {
   // generate entities
   const sceneEntity = generateEntity();
