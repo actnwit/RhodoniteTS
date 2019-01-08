@@ -33,20 +33,17 @@ export default class System {
 
     this.__processStages.forEach(stage=>{
       const methodName = stage.getMethodName();
-//      const args:Array<any> = [];
       let instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       const componentTids = this.__componentRepository.getComponentTIDs();
       const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
       if (commonMethod != null) {
         instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
       }
-//      args.push(instanceIDBufferUid);
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
         components.forEach((component)=>{
           const method = (component as any)[methodName];
           if (method != null) {
-            //method.apply(component, args);
             (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
           }
         });
