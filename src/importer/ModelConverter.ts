@@ -1,3 +1,8 @@
+import EntityRepository from "../core/EntityRepository";
+import TransformComponent from "../components/TransformComponent";
+import SceneGraphComponent from "../components/SceneGraphComponent";
+import MeshComponent from "../components/MeshComponent";
+
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -32,6 +37,18 @@ export default class ModelConverter {
     return defaultShader;
   }
 
+  private __generateGroupEntity() {
+    const repo = EntityRepository.getInstance();
+    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+    return entity;
+  }
+
+  private __generateMeshEntity() {
+    const repo = EntityRepository.getInstance();
+    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID, MeshComponent.componentTID]);
+    return entity;
+  }
+
   convertToRhodoniteObject(gltfModel: glTF2) {
 
     // load binary data
@@ -62,12 +79,12 @@ export default class ModelConverter {
     this._setupAnimation(gltfModel, groups);
 
     // Root Group
-    let rootGroup = glBoostContext.createGroup();
-    rootGroup.userFlavorName = 'FileRoot';
+    const rootGroup = this.__generateGroupEntity();
+    rootGroup.tryToSetUniqueName('FileRoot', true);
     if (gltfModel.scenes[0].nodesIndices) {
       for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
-        rootGroup.addChild(groups[nodesIndex], true);
-      } 
+        rootGroup.getSceneGraph().addChild(groups[nodesIndex], true);
+      }
     }
 
     // Post Skeletal Proccess
