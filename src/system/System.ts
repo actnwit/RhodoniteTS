@@ -6,6 +6,7 @@ import MeshRendererComponent from "../components/MeshRendererComponent";
 import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
 import WebGLResourceRepository from "../renderer/webgl/WebGLResourceRepository";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import Component, { ComponentConstructor } from "../core/Component";
 
 export default class System {
   private static __instance: System;
@@ -40,6 +41,10 @@ export default class System {
         instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
       }
       componentTids.forEach(componentTid=>{
+        const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
+        componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+        componentClass.process(componentTid, stage, instanceIDBufferUid);
+        /*
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
         for (let k=0; k<components.length; ++k) {
           const component = components[k];
@@ -50,6 +55,7 @@ export default class System {
             break;
           }
         }
+        */
       });
     });
   }

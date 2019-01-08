@@ -3712,13 +3712,60 @@ class RowMajarMatrix44 {
     }
 }
 
+class ProcessStageClass extends EnumClass {
+    constructor({ index, str, methodName }) {
+        super({ index, str });
+        this.__methodName = methodName;
+    }
+    getMethodName() {
+        return this.__methodName;
+    }
+}
+const Unknown$3 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
+const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
+const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
+const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
+const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
+const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
+const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
+const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
+const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
+const typeList$5 = [Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+function from$5({ index }) {
+    return _from({ typeList: typeList$5, index });
+}
+const ProcessStage = Object.freeze({ Unknown: Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
+
 class Component {
     constructor(entityUid, componentSid) {
+        this.__currentProcessStage = ProcessStage.Create;
         this.__entityUid = entityUid;
         this._component_sid = componentSid;
         this.__isAlive = true;
+        const stages = [
+            ProcessStage.Create,
+            ProcessStage.Load,
+            ProcessStage.Mount,
+            ProcessStage.Logic,
+            ProcessStage.PreRender,
+            ProcessStage.Render,
+            ProcessStage.Unmount,
+            ProcessStage.Discard
+        ];
+        stages.forEach(stage => {
+            if (this.isExistProcessStageMethod(stage)) {
+                Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                Component.__dirtyOfArrayOfProcessStages.set(stage, false);
+                Component.__lengthOfArrayOfProcessStages.set(stage, 0);
+            }
+        });
         this.__memoryManager = MemoryManager.getInstance();
         this.__entityRepository = EntityRepository.getInstance();
+    }
+    moveStageTo(processStage) {
+        Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
+        Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
+        this.__currentProcessStage = processStage;
     }
     static get componentTID() {
         return 0;
@@ -3728,6 +3775,58 @@ class Component {
     }
     get entityUID() {
         return this.__entityUid;
+    }
+    static isExistProcessStageMethod(componentTid, processStage) {
+        const componentRepository = ComponentRepository.getInstance();
+        const component = componentRepository.getComponent(componentTid, 0);
+        if (component == null) {
+            return false;
+        }
+        if (component[processStage.getMethodName()] == null) {
+            return false;
+        }
+        return true;
+    }
+    isExistProcessStageMethod(processStage) {
+        if (this[processStage.getMethodName()] == null) {
+            return false;
+        }
+        return true;
+    }
+    static process(componentTid, processStage, instanceIDBufferUid) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+            return;
+        }
+        const componentRepository = ComponentRepository.getInstance();
+        const array = this.__componentsOfProcessStages.get(processStage);
+        for (let i = 0; i < array.length; ++i) {
+            if (array[i] === Component.invalidComponentSID) {
+                break;
+            }
+            const componentSid = array[i];
+            const component = componentRepository.getComponent(componentTid, componentSid);
+            component[processStage.getMethodName()](processStage, instanceIDBufferUid);
+        }
+    }
+    static updateComponentsOfEachProcessStage(componentTid, processStage) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+            return;
+        }
+        const componentRepository = ComponentRepository.getInstance();
+        const component = componentRepository.getComponent(this.componentTID, 0);
+        const dirty = Component.__componentsOfProcessStages.get(processStage);
+        if (dirty) {
+            const components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+            const array = Component.__componentsOfProcessStages.get(processStage);
+            let count = 0;
+            for (let i = 0; i < components.length; ++i) {
+                const component = components[i];
+                if (processStage === component.__currentProcessStage) {
+                    array[count++] = component.componentSID;
+                }
+            }
+            array[count] = Component.invalidComponentSID;
+        }
     }
     static getByteLengthSumOfMembers(bufferUse, componentClass) {
         const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
@@ -3868,6 +3967,9 @@ class Component {
     }
 }
 Component.invalidComponentSID = -1;
+Component.__componentsOfProcessStages = new Map();
+Component.__lengthOfArrayOfProcessStages = new Map();
+Component.__dirtyOfArrayOfProcessStages = new Map();
 Component.__bufferViews = new Map();
 Component.__accessors = new Map();
 Component.__byteLengthSumOfMembers = new Map();
@@ -3896,6 +3998,9 @@ class ComponentRepository {
             this.__instance = new ComponentRepository();
         }
         return this.__instance;
+    }
+    static getComponentClass(componentTid) {
+        return this.__componentClasses.get(componentTid);
     }
     createComponent(componentTid, entityUid) {
         const thisClass = ComponentRepository;
@@ -4058,11 +4163,11 @@ class TransformComponent extends Component {
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
-    $create() {
-        // Define process dependencies with other components.
-        // If circular depenencies are detected, the error will be repoated.
-        //this.registerDependency(AnimationComponent.componentTID, false);
-    }
+    //$create() {
+    // Define process dependencies with other components.
+    // If circular depenencies are detected, the error will be repoated.
+    //this.registerDependency(AnimationComponent.componentTID, false);
+    //}
     $updateLogic() {
     }
     _needUpdate() {
@@ -4435,6 +4540,12 @@ class SceneGraphComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this._worldMatrix = RowMajarMatrix44.dummy();
+        this.__currentProcessStage = ProcessStage.Logic;
+        let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
+        const array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
+        array[count++] = this.componentSID;
+        array[count] = Component.invalidComponentSID;
+        Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
         this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
@@ -4957,7 +5068,7 @@ class PrimitiveModeClass extends EnumClass {
         super({ index, str });
     }
 }
-const Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+const Unknown$4 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
 const Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
 const Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
 const LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
@@ -4965,11 +5076,11 @@ const LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
 const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-const typeList$8 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$8({ index }) {
-    return _from({ typeList: typeList$8, index });
+const typeList$9 = [Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+function from$9({ index }) {
+    return _from({ typeList: typeList$9, index });
 }
-const PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$8 });
+const PrimitiveMode = Object.freeze({ Unknown: Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$9 });
 
 class WebGLStrategyTransformFeedback {
     constructor() {
@@ -5529,6 +5640,12 @@ class MeshRendererComponent extends Component {
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexHandles = [];
         this.__isVAOSet = false;
+        this.__currentProcessStage = ProcessStage.Create;
+        let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create);
+        const array = Component.__componentsOfProcessStages.get(ProcessStage.Create);
+        array[count++] = this.componentSID;
+        array[count] = Component.invalidComponentSID;
+        Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count);
     }
     static get componentTID() {
         return 4;
@@ -5547,6 +5664,7 @@ class MeshRendererComponent extends Component {
         }
         this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
         this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+        this.moveStageTo(ProcessStage.Load);
     }
     $load() {
         // if (this.__isLoaded(0)) {
@@ -5560,6 +5678,7 @@ class MeshRendererComponent extends Component {
         //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
         // }
         this.__webglRenderingStrategy.load(this.__meshComponent);
+        this.moveStageTo(ProcessStage.PreRender);
     }
     $prerender(processApproech, instanceIDBufferUid) {
         // if (this.__isVAOSet) {
@@ -5582,30 +5701,6 @@ class MeshRendererComponent extends Component {
 MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
 MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-class ProcessStageClass extends EnumClass {
-    constructor({ index, str, methodName }) {
-        super({ index, str });
-        this.__methodName = methodName;
-    }
-    getMethodName() {
-        return this.__methodName;
-    }
-}
-const Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
-const Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
-const Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
-const Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
-const Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
-const PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
-const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
-const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
-const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-const typeList$9 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$9({ index }) {
-    return _from({ typeList: typeList$9, index });
-}
-const ProcessStage = Object.freeze({ Unknown: Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$9 });
 
 const WebGLRenderingPipeline = new class {
     constructor() {
@@ -5688,23 +5783,28 @@ class System {
         }
         this.__processStages.forEach(stage => {
             const methodName = stage.getMethodName();
-            //      const args:Array<any> = [];
             let instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
             const componentTids = this.__componentRepository.getComponentTIDs();
             const commonMethod = this.__renderingPipeline['common_' + methodName];
             if (commonMethod != null) {
                 instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
             }
-            //      args.push(instanceIDBufferUid);
             componentTids.forEach(componentTid => {
-                const components = this.__componentRepository.getComponentsWithType(componentTid);
-                components.forEach((component) => {
-                    const method = component[methodName];
-                    if (method != null) {
-                        //method.apply(component, args);
-                        component[methodName](this.__processApproach, instanceIDBufferUid);
-                    }
-                });
+                const componentClass = ComponentRepository.getComponentClass(componentTid);
+                componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                componentClass.process(componentTid, stage, instanceIDBufferUid);
+                /*
+                const components = this.__componentRepository.getComponentsWithType(componentTid)!;
+                for (let k=0; k<components.length; ++k) {
+                  const component = components[k];
+                  const method = (component as any)[methodName];
+                  if (method != null) {
+                    (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
+                  } else {
+                    break;
+                  }
+                }
+                */
             });
         });
     }

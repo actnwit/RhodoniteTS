@@ -7,12 +7,18 @@ import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
+import ComponentRepository from './ComponentRepository';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
 
 export default class Component {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
+  protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
+  protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array> = new Map();
+  protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number> = new Map();
+  protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
   private static __bufferViews:Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();
@@ -30,8 +36,32 @@ export default class Component {
     this._component_sid = componentSid;
     this.__isAlive = true;
 
+    const stages = [
+      ProcessStage.Create,
+      ProcessStage.Load,
+      ProcessStage.Mount,
+      ProcessStage.Logic,
+      ProcessStage.PreRender,
+      ProcessStage.Render,
+      ProcessStage.Unmount,
+      ProcessStage.Discard
+    ];
+
+    stages.forEach(stage=>{
+      if (this.isExistProcessStageMethod(stage)) {
+        Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+        Component.__dirtyOfArrayOfProcessStages.set(stage, false);
+        Component.__lengthOfArrayOfProcessStages.set(stage, 0);
+      }
+    });
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = EntityRepository.getInstance();
+  }
+
+  moveStageTo(processStage: ProcessStageEnum) {
+    Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
+    Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
+    this.__currentProcessStage = processStage;
   }
 
   static get componentTID() {
@@ -44,6 +74,66 @@ export default class Component {
 
   get entityUID() {
     return this.__entityUid;
+  }
+
+  static isExistProcessStageMethod(componentTid: ComponentTID, processStage: ProcessStageEnum) {
+    const componentRepository = ComponentRepository.getInstance();
+    const component = componentRepository.getComponent(componentTid, 0)!;
+    if (component == null) {
+      return false;
+    }
+    if ((component as any)[processStage.getMethodName()] == null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  isExistProcessStageMethod(processStage: ProcessStageEnum) {
+    if ((this as any)[processStage.getMethodName()] == null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static process(componentTid: ComponentTID, processStage: ProcessStageEnum, instanceIDBufferUid: CGAPIResourceHandle) {
+    if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+      return;
+    }
+
+    const componentRepository = ComponentRepository.getInstance();
+    const array = this.__componentsOfProcessStages.get(processStage)!;
+    for (let i=0; i<array.length; ++i) {
+      if (array[i] === Component.invalidComponentSID) {
+        break;
+      }
+      const componentSid = array[i];
+      const component = componentRepository.getComponent(componentTid, componentSid)!;
+      (component as any)[processStage.getMethodName()](processStage, instanceIDBufferUid);
+    }
+  }
+
+  static updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum) {
+    if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+      return;
+    }
+
+    const componentRepository = ComponentRepository.getInstance();
+    const component = componentRepository.getComponent(this.componentTID, 0)!;
+    const dirty = Component.__componentsOfProcessStages.get(processStage)!
+    if (dirty) {
+      const components = ComponentRepository.getInstance().getComponentsWithType(componentTid)!;
+      const array = Component.__componentsOfProcessStages.get(processStage)!;
+      let count = 0;
+      for (let i=0; i<components.length; ++i) {
+        const component = components[i];
+        if (processStage === component.__currentProcessStage) {
+          array[count++] = component.componentSID;
+        }
+      }
+      array[count] = Component.invalidComponentSID;
+    }
   }
 
   static getByteLengthSumOfMembers(bufferUse: BufferUseEnum, componentClass: Function) {
@@ -238,5 +328,6 @@ export default class Component {
 
 export interface ComponentConstructor {
   new(entityUid: EntityUID, componentSid: ComponentSID): Component;
-  setupBufferView(): void;
+  process(componentTid: ComponentTID, processStage: ProcessStageEnum, instanceIDBufferUid: CGAPIResourceHandle): void;
+  updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum): void;
 }

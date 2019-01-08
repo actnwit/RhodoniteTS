@@ -12,6 +12,7 @@ import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import { BufferUse } from '../definitions/BufferUse';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -26,6 +27,14 @@ export default class SceneGraphComponent extends Component {
     super(entityUid, componentSid);
 
     const thisClass = SceneGraphComponent;
+
+    this.__currentProcessStage = ProcessStage.Logic;
+    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic)!;
+    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Logic)!;
+    array[count++] = this.componentSID;
+    array[count] = Component.invalidComponentSID;
+     
+    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
