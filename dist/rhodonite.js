@@ -6417,7 +6417,7 @@
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
                 //      const args:Array<any> = [];
-                var instanceIDBufferUid = -CGAPIResourceRepository.InvalidCGAPIResourceUid;
+                var instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
                 var commonMethod = _this.__renderingPipeline['common_' + methodName];
                 if (commonMethod != null) {

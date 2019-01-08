@@ -34,7 +34,7 @@ export default class System {
     this.__processStages.forEach(stage=>{
       const methodName = stage.getMethodName();
 //      const args:Array<any> = [];
-      let instanceIDBufferUid: CGAPIResourceHandle = -CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      let instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       const componentTids = this.__componentRepository.getComponentTIDs();
       const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
       if (commonMethod != null) {
