@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>GLBoost / examples</title>
+    <title>RhodoniteTS / test examples</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
       .clearfix:after {
@@ -262,7 +262,7 @@
           // "http://localhost:8086/examples" + "/" + "standalone/custom_shader_2" + "index.html"
           // -> http://localhost:8086/examples/standalone/custom_shader_2/index.html
           //window.open( 'view-source:' + array.join( '/' ) + '/' + selected + '/index.html' );
-          window.open( 'https://github.com/emadurandal/GLBoost/tree/master/examples' + '/' + selected + '/index.html' );
+          //window.open( 'https://github.com/emadurandal/GLBoost/tree/master/examples' + '/' + selected + '/index.html' );
 
         }, false );
         button.style.display = 'none';
@@ -325,6 +325,7 @@
 
           if ( selected !== null ) divs[ selected ].className = 'link';
 
+          file = file.replace(new RegExp('\/$'), '');
           divs[ file ].className = 'link selected';
 
           window.location.hash = file;
