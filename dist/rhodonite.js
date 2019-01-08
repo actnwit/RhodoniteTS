@@ -6591,7 +6591,7 @@
         Gltf2Importer.prototype.import = function (uri, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(this, void 0, void 0, function () {
-                var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, json;
+                var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, result, gotText, json;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -6630,12 +6630,14 @@
                             dataView = new DataView(arrayBuffer, 0, 20);
                             isLittleEndian = true;
                             magic = dataView.getUint32(0, isLittleEndian);
-                            return [2 /*return*/, response];
+                            if (!(magic !== 0x46546C67)) return [3 /*break*/, 4];
+                            gotText = DataUtil.arrayBufferToString(arrayBuffer);
+                            json = JSON.parse(gotText);
+                            return [4 /*yield*/, this._loadAsTextJson(json, uri, options, defaultOptions)];
                         case 3:
-                            json = _a.sent();
-                            this._loadAsTextJson(json, uri, options, defaultOptions);
+                            result = _a.sent();
                             return [3 /*break*/, 4];
-                        case 4: return [2 /*return*/];
+                        case 4: return [2 /*return*/, result];
                     }
                 });
             });
@@ -6670,7 +6672,7 @@
                             return [4 /*yield*/, this._loadInner(undefined, basePath, gltfJson, options)];
                         case 1:
                             result = _a.sent();
-                            return [2 /*return*/];
+                            return [2 /*return*/, result[0][0]];
                     }
                 });
             });
@@ -6684,10 +6686,10 @@
                 images: []
             };
             promises.push(this._loadResources(arrayBufferBinary, basePath, gltfJson, options, resources));
-            promises.push(new Promise((function (resolve, reject) {
+            promises.push(new Promise(function (resolve, reject) {
                 _this._loadJsonContent(gltfJson, options);
                 resolve();
-            })));
+            }));
             return Promise.all(promises);
         };
         Gltf2Importer.prototype._loadJsonContent = function (gltfJson, options) {

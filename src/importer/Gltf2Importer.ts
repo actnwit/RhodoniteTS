@@ -52,16 +52,19 @@ export default class Gltf2Importer {
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
 
-    return response;
 
-
+    let result;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546C67) {
-      const json = await response.json();
-      this._loadAsTextJson(json, uri, options as Gltf2ImporterOpition, defaultOptions);
+      //const json = await response.json();
+      const gotText = DataUtil.arrayBufferToString(arrayBuffer);
+      const json = JSON.parse(gotText);
+      result = await this._loadAsTextJson(json, uri, options as Gltf2ImporterOpition, defaultOptions);
     } else {
       //this._loadAsBinaryJson(dataView, uri, isLittleEndian, arrayBuffer, options, defaultOptions);
     }
+
+    return result;
 
   }
 
@@ -95,6 +98,8 @@ export default class Gltf2Importer {
     gltfJson.asset.extras.basePath = basePath!;
 
     const result = await this._loadInner(undefined, basePath!, gltfJson, options);
+
+    return (result[0] as any)[0];
   }
 
   _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: Gltf2ImporterOpition) {
@@ -106,10 +111,10 @@ export default class Gltf2Importer {
       images: []
     };
     promises.push(this._loadResources(arrayBufferBinary!, basePath, gltfJson, options, resources));
-    promises.push(new Promise(((resolve, reject) => {
+    promises.push(new Promise((resolve, reject) => {
       this._loadJsonContent(gltfJson, options);
       resolve();
-    })));
+    }));
 
     return Promise.all(promises);
   }
