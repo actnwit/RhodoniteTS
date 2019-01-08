@@ -1,3 +1,5 @@
+import Rn from "../../../dist/rhodonite.mjs";
+
 let p = null;
 
 const load = async function(time){
