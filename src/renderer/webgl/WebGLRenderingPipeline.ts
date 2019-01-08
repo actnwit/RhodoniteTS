@@ -16,11 +16,12 @@ import { BufferUse } from "../../definitions/BufferUse";
 import WebGLStrategyTransformFeedback from "./WebGLStrategyTransformFeedback";
 import getRenderingStrategy from "./getRenderingStrategy";
 import WebGLStrategy from "./WebGLStrategy";
+import CGAPIResourceRepository from "../CGAPIResourceRepository";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
-  private __instanceIDBufferUid: CGAPIResourceHandle = 0;
+  private __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGLStrategy?: WebGLStrategy;
   common_$load(processApproach: ProcessApproachEnum) {
 
@@ -51,7 +52,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __isReady() {
-    if (this.__instanceIDBufferUid !== 0) {
+    if (this.__instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return true;
     } else {
       return false;

@@ -21,7 +21,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance:WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
-  private __resourceCounter: number = 0;
+  private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResources: Map<WebGLResourceHandle, WebGLObject> = new Map();
 
   private __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
@@ -219,7 +219,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   setVertexDataToPipeline(
     {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
-    primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = 0)
+    primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid)
   {
     const gl = this.__glw!.getRawContext();;
 
@@ -258,7 +258,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     /// for InstanceIDBuffer
-    if (instanceIDBufferUid !== 0) {
+    if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
       if (instanceIDBuffer != null) {
         gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);

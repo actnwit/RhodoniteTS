@@ -5,5 +5,5 @@ app.use(express.static('./'));
 
 let port = 8082;
 app.listen(port, ()=> {
-  console.log('Express server is running');
+  console.log('Express server is running at http://localhost:' + port);
 });

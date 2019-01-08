@@ -12,6 +12,7 @@ type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: 
 
 export default class Component {
   private _component_sid: number;
+  static readonly invalidComponentSID = -1;
   private static __bufferViews:Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();

@@ -33,6 +33,43 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
 
+    function __awaiter(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
     function __values(o) {
         var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
         if (m) return m.call(o);
@@ -70,6 +107,7 @@
     var CGAPIResourceRepository = /** @class */ (function () {
         function CGAPIResourceRepository() {
         }
+        CGAPIResourceRepository.InvalidCGAPIResourceUid = -1;
         return CGAPIResourceRepository;
     }());
 
@@ -357,7 +395,7 @@
         function WebGLResourceRepository() {
             var _this = _super.call(this) || this;
             _this.__webglContexts = new Map();
-            _this.__resourceCounter = 0;
+            _this.__resourceCounter = CGAPIResourceRepository.InvalidCGAPIResourceUid;
             _this.__webglResources = new Map();
             _this.__extensions = new Map();
             return _this;
@@ -506,7 +544,7 @@
         WebGLResourceRepository.prototype.setVertexDataToPipeline = function (_a, primitive, instanceIDBufferUid) {
             var _this = this;
             var vaoHandle = _a.vaoHandle, iboHandle = _a.iboHandle, vboHandles = _a.vboHandles;
-            if (instanceIDBufferUid === void 0) { instanceIDBufferUid = 0; }
+            if (instanceIDBufferUid === void 0) { instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid; }
             var gl = this.__glw.getRawContext();
             var vao = this.getWebGLResource(vaoHandle);
             // VAO bind
@@ -534,7 +572,7 @@
                 gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
             });
             /// for InstanceIDBuffer
-            if (instanceIDBufferUid !== 0) {
+            if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 var instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
                 if (instanceIDBuffer != null) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
@@ -651,6 +689,8 @@
             this.__entity_uid = entityUID;
             this.__isAlive = isAlive;
             this.__entityRepository = entityComponent;
+            this.__uniqueName = 'entity_of_uid_' + entityUID;
+            Entity.__uniqueNames[entityUID] = this.__uniqueName;
         }
         Object.defineProperty(Entity.prototype, "entityUID", {
             get: function () {
@@ -684,8 +724,142 @@
             }
             return this.__sceneGraphComponent;
         };
+        Entity.prototype.tryToSetUniqueName = function (name, toAddNameIfConflict) {
+            if (Entity.__uniqueNames.indexOf(name) !== -1) {
+                // Conflict
+                if (toAddNameIfConflict) {
+                    var newName = name + '_(' + this.__uniqueName + ')';
+                    if (Entity.__uniqueNames.indexOf(newName) === -1) {
+                        this.__uniqueName = newName;
+                        Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else {
+                this.__uniqueName = name;
+                Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+                return true;
+            }
+        };
+        Object.defineProperty(Entity.prototype, "uniqueName", {
+            get: function () {
+                return this.__uniqueName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Entity.invalidEntityUID = -1;
+        Entity.__uniqueNames = [];
         return Entity;
     }());
+
+    var RnObject = /** @class */ (function () {
+        function RnObject(needToManage) {
+            if (needToManage === void 0) { needToManage = false; }
+            this.__objectUid = -1;
+            if (needToManage) {
+                this.__objectUid = ++RnObject.currentMaxObjectCount;
+            }
+        }
+        Object.defineProperty(RnObject.prototype, "objectUid", {
+            get: function () {
+                return this.__objectUid;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RnObject.currentMaxObjectCount = -1;
+        RnObject.InvalidObjectUID = -1;
+        return RnObject;
+    }());
+
+    var _Vector2 = /** @class */ (function () {
+        function _Vector2(typedArray, x, y) {
+            this.__typedArray = typedArray;
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+                return;
+            }
+            else {
+                this.v = new typedArray(2);
+            }
+            this.x = x;
+            this.y = y;
+        }
+        Object.defineProperty(_Vector2.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        _Vector2.prototype.clone = function () {
+            return new _Vector2(this.__typedArray, this.x, this.y);
+        };
+        _Vector2.prototype.multiply = function (val) {
+            this.x *= val;
+            this.y *= val;
+            return this;
+        };
+        _Vector2.prototype.isStrictEqual = function (vec) {
+            if (this.x === vec.x && this.y === vec.y) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        _Vector2.prototype.isEqual = function (vec, delta) {
+            if (delta === void 0) { delta = Number.EPSILON; }
+            if (Math.abs(vec.x - this.x) < delta &&
+                Math.abs(vec.y - this.y) < delta) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        _Vector2.multiply = function (typedArray, vec2, val) {
+            return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
+        };
+        Object.defineProperty(_Vector2.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            set: function (x) {
+                this.v[0] = x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(_Vector2.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            set: function (y) {
+                this.v[1] = y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(_Vector2.prototype, "raw", {
+            get: function () {
+                return this.v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return _Vector2;
+    }());
+    var Vector2_F64 = /** @class */ (function (_super) {
+        __extends(Vector2_F64, _super);
+        function Vector2_F64(x, y) {
+            return _super.call(this, Float64Array, x, y) || this;
+        }
+        return Vector2_F64;
+    }(_Vector2));
 
     var IsUtil = {
         not: {},
@@ -743,173 +917,6 @@
     for (var fn in IsUtil) {
         _loop_1(fn);
     }
-
-    var InitialSetting = /** @class */ (function () {
-        function InitialSetting() {
-        }
-        InitialSetting.maxEntityNumber = 10000;
-        return InitialSetting;
-    }());
-
-    var ComponentRepository = /** @class */ (function () {
-        function ComponentRepository() {
-            this.__component_sid_count_map = new Map();
-            this.__components = new Map();
-        }
-        ComponentRepository.registerComponentClass = function (componentTID, componentClass) {
-            var thisClass = ComponentRepository;
-            thisClass.__componentClasses.set(componentTID, componentClass);
-        };
-        ComponentRepository.unregisterComponentClass = function (componentTID) {
-            var thisClass = ComponentRepository;
-            thisClass.__componentClasses.delete(componentTID);
-        };
-        ComponentRepository.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new ComponentRepository();
-            }
-            return this.__instance;
-        };
-        ComponentRepository.prototype.createComponent = function (componentTid, entityUid) {
-            var thisClass = ComponentRepository;
-            var componentClass = thisClass.__componentClasses.get(componentTid);
-            if (componentClass != null) {
-                var component_sid_count = this.__component_sid_count_map.get(componentTid);
-                if (!IsUtil.exist(component_sid_count)) {
-                    this.__component_sid_count_map.set(componentTid, 0);
-                    component_sid_count = 0;
-                }
-                this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-                var component = new componentClass(entityUid, component_sid_count);
-                if (!this.__components.has(componentTid)) {
-                    this.__components.set(componentTid, []);
-                }
-                var array = this.__components.get(componentTid);
-                if (array != null) {
-                    array[component.componentSID - 1] = component;
-                    return component;
-                }
-            }
-            return null;
-        };
-        ComponentRepository.prototype.getComponent = function (componentTid, componentSid) {
-            var map = this.__components.get(componentTid);
-            if (map != null) {
-                var component = map[componentSid];
-                if (component != null) {
-                    return map[componentSid];
-                }
-                else {
-                    return null;
-                }
-            }
-            return null;
-        };
-        ComponentRepository.getMemoryBeginIndex = function (componentTid) {
-            var memoryBeginIndex = 0;
-            for (var i = 0; i < componentTid; i++) {
-                var componentClass = ComponentRepository.__componentClasses.get(i);
-                if (componentClass != null) {
-                    var sizeOfComponent = componentClass.sizeOfThisComponent;
-                    var maxEntityNumber = InitialSetting.maxEntityNumber;
-                    memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-                }
-            }
-            return memoryBeginIndex;
-        };
-        ComponentRepository.prototype.getComponentsWithType = function (componentTid) {
-            var components = this.__components.get(componentTid);
-            var copyArray = components; //.concat();
-            //copyArray.shift();
-            return copyArray;
-        };
-        ComponentRepository.prototype.getComponentTIDs = function () {
-            var e_1, _a;
-            var indices = [];
-            try {
-                for (var _b = __values(this.__components.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var type = _c.value;
-                    indices.push(type);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return indices;
-        };
-        ComponentRepository.__componentClasses = new Map();
-        return ComponentRepository;
-    }());
-
-    var EntityRepository = /** @class */ (function () {
-        function EntityRepository() {
-            this.__entity_uid_count = 0;
-            this.__entities = [];
-            this._components = [];
-            this.__componentRepository = ComponentRepository.getInstance();
-        }
-        EntityRepository.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new EntityRepository();
-            }
-            return this.__instance;
-        };
-        EntityRepository.prototype.createEntity = function (componentTidArray) {
-            var e_1, _a;
-            var entity = new Entity(++this.__entity_uid_count, true, this);
-            this.__entities[this.__entity_uid_count] = entity;
-            try {
-                for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {
-                    var componentTid = componentTidArray_1_1.value;
-                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
-                    var map = this._components[entity.entityUID];
-                    if (map == null) {
-                        map = new Map();
-                        this._components[entity.entityUID] = map;
-                    }
-                    if (component != null) {
-                        map.set(componentTid, component);
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (componentTidArray_1_1 && !componentTidArray_1_1.done && (_a = componentTidArray_1.return)) _a.call(componentTidArray_1);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return entity;
-        };
-        EntityRepository.prototype.getEntity = function (entityUid) {
-            return this.__entities[entityUid];
-        };
-        EntityRepository.prototype.getComponentOfEntity = function (entityUid, componentTid) {
-            var entity = this._components[entityUid];
-            var component = null;
-            if (entity != null) {
-                component = entity.get(componentTid);
-                if (component != null) {
-                    return component;
-                }
-                else {
-                    return null;
-                }
-            }
-            return component;
-        };
-        EntityRepository.getMaxEntityNumber = function () {
-            return 100000;
-        };
-        EntityRepository.prototype._getEntities = function () {
-            return this.__entities.concat();
-        };
-        return EntityRepository;
-    }());
 
     var Vector3 = /** @class */ (function () {
         function Vector3(x, y, z) {
@@ -1255,6 +1262,252 @@
         return Vector3;
     }());
     //GLBoost['Vector3'] = Vector3;
+
+    var Vector4 = /** @class */ (function () {
+        function Vector4(x, y, z, w) {
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+                return;
+            }
+            else {
+                this.v = new Float32Array(4);
+            }
+            if (!(x != null)) {
+                this.x = 0;
+                this.y = 0;
+                this.z = 0;
+                this.w = 1;
+            }
+            else if (Array.isArray(x)) {
+                this.x = x[0];
+                this.y = x[1];
+                this.z = x[2];
+                this.w = x[3];
+            }
+            else if (typeof x.w !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = x.z;
+                this.w = x.w;
+            }
+            else if (typeof x.z !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = x.z;
+                this.w = 1;
+            }
+            else if (typeof x.y !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = 0;
+                this.w = 1;
+            }
+            else {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.w = w;
+            }
+        }
+        Object.defineProperty(Vector4.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Vector4.prototype.isStrictEqual = function (vec) {
+            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        Vector4.prototype.isEqual = function (vec, delta) {
+            if (delta === void 0) { delta = Number.EPSILON; }
+            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+                Math.abs(vec.v[1] - this.v[1]) < delta &&
+                Math.abs(vec.v[2] - this.v[2]) < delta &&
+                Math.abs(vec.v[3] - this.v[3]) < delta) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        Vector4.prototype.clone = function () {
+            return new Vector4(this.x, this.y, this.z, this.w);
+        };
+        /**
+         * Zero Vector
+         */
+        Vector4.zero = function () {
+            return new Vector4(0, 0, 0, 1);
+        };
+        Vector4.prototype.length = function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        };
+        Vector4.prototype.normalize = function () {
+            var length = this.length();
+            this.divide(length);
+            return this;
+        };
+        Vector4.normalize = function (vec4) {
+            var length = vec4.length();
+            var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
+            newVec.divide(length);
+            return newVec;
+        };
+        /**
+         * add value
+         */
+        Vector4.prototype.add = function (v) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+            this.w += v.w;
+            return this;
+        };
+        /**
+         * add value（static version）
+         */
+        Vector4.add = function (lv, rv) {
+            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+        };
+        /**
+         * add value except w component
+         */
+        Vector4.prototype.addWithOutW = function (v) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+            return this;
+        };
+        Vector4.prototype.subtract = function (v) {
+            this.x -= v.x;
+            this.y -= v.y;
+            this.z -= v.z;
+            this.w -= v.w;
+            return this;
+        };
+        Vector4.subtract = function (lv, rv) {
+            return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+        };
+        /**
+         * add value except w component（static version）
+         */
+        Vector4.addWithOutW = function (lv, rv) {
+            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+        };
+        Vector4.prototype.multiply = function (val) {
+            this.x *= val;
+            this.y *= val;
+            this.z *= val;
+            this.w *= val;
+            return this;
+        };
+        Vector4.prototype.multiplyVector = function (vec) {
+            this.x *= vec.x;
+            this.y *= vec.y;
+            this.z *= vec.z;
+            this.w *= vec.w;
+            return this;
+        };
+        Vector4.multiply = function (vec4, val) {
+            return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+        };
+        Vector4.multiplyVector = function (vec4, vec) {
+            return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+        };
+        Vector4.prototype.divide = function (val) {
+            if (val !== 0) {
+                this.x /= val;
+                this.y /= val;
+                this.z /= val;
+                this.w /= val;
+            }
+            else {
+                console.warn("0 division occured!");
+                this.x = Infinity;
+                this.y = Infinity;
+                this.z = Infinity;
+                this.w = Infinity;
+            }
+            return this;
+        };
+        Vector4.divide = function (vec4, val) {
+            if (val !== 0) {
+                return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+            }
+            else {
+                console.warn("0 division occured!");
+                return new Vector4(Infinity, Infinity, Infinity, Infinity);
+            }
+        };
+        Vector4.prototype.divideVector = function (vec4) {
+            this.x /= vec4.x;
+            this.y /= vec4.y;
+            this.z /= vec4.z;
+            this.w /= vec4.w;
+            return this;
+        };
+        Vector4.divideVector = function (lvec4, rvec4) {
+            return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+        };
+        Vector4.prototype.toString = function () {
+            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+        };
+        Object.defineProperty(Vector4.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            set: function (x) {
+                this.v[0] = x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Vector4.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            set: function (y) {
+                this.v[1] = y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Vector4.prototype, "z", {
+            get: function () {
+                return this.v[2];
+            },
+            set: function (z) {
+                this.v[2] = z;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Vector4.prototype, "w", {
+            get: function () {
+                return this.v[3];
+            },
+            set: function (w) {
+                this.v[3] = w;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Vector4.prototype, "raw", {
+            get: function () {
+                return this.v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Vector4;
+    }());
+    // GLBoost["Vector4"] = Vector4;
 
     //import GLBoost from '../../globals';
     var Quaternion = /** @class */ (function () {
@@ -1626,688 +1879,6 @@
         return Quaternion;
     }());
     //GLBoost["Quaternion"] = Quaternion;
-
-    // import GLBoost from '../../globals';
-    var Matrix33 = /** @class */ (function () {
-        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
-            if (isColumnMajor === void 0) { isColumnMajor = false; }
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-            var _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
-            var m = m0;
-            if (m == null) {
-                this.m = new Float32Array(0);
-                return;
-            }
-            if (arguments.length === 9) {
-                this.m = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    var m_1 = arguments;
-                    this.setComponents(m_1[0], m_1[3], m_1[6], m_1[1], m_1[4], m_1[7], m_1[2], m_1[5], m_1[8]);
-                }
-                else {
-                    this.setComponents.apply(this, arguments); // arguments[0-8] must be row major values if isColumnMajor is false
-                }
-            }
-            else if (Array.isArray(m)) {
-                this.m = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-                }
-                else {
-                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-                }
-            }
-            else if (m instanceof Float32Array) {
-                if (_notCopyFloatArray) {
-                    this.m = m;
-                }
-                else {
-                    this.m = new Float32Array(9);
-                    if (_isColumnMajor === true) {
-                        this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-                    }
-                    else {
-                        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-                    }
-                }
-            }
-            else if (!!m && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.m = m.m;
-                }
-                else {
-                    this.m = new Float32Array(9);
-                    if (_isColumnMajor === true) {
-                        var _m = m;
-                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
-                    }
-                    else {
-                        var _m = m;
-                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
-                    }
-                }
-            }
-            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-                this.m = new Float32Array(9);
-                var q = m;
-                var sx = q.x * q.x;
-                var sy = q.y * q.y;
-                var sz = q.z * q.z;
-                var cx = q.y * q.z;
-                var cy = q.x * q.z;
-                var cz = q.x * q.y;
-                var wx = q.w * q.x;
-                var wy = q.w * q.y;
-                var wz = q.w * q.z;
-                this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
-            }
-            else {
-                this.m = new Float32Array(9);
-                this.identity();
-            }
-        }
-        Matrix33.prototype.setComponents = function (m00, m01, m02, m10, m11, m12, m20, m21, m22) {
-            this.m[0] = m00;
-            this.m[3] = m01;
-            this.m[6] = m02;
-            this.m[1] = m10;
-            this.m[4] = m11;
-            this.m[7] = m12;
-            this.m[2] = m20;
-            this.m[5] = m21;
-            this.m[8] = m22;
-            return this;
-        };
-        Object.defineProperty(Matrix33.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix33.prototype.identity = function () {
-            this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
-            return this;
-        };
-        /**
-         * Make this identity matrix（static method version）
-         */
-        Matrix33.identity = function () {
-            return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
-        };
-        Matrix33.dummy = function () {
-            return new Matrix33(null);
-        };
-        Matrix33.prototype.isDummy = function () {
-            if (this.m.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Matrix33.prototype.clone = function () {
-            return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        Matrix33.prototype.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        Matrix33.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix33.prototype.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-            return this;
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix33.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix33.prototype.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix33.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
-        };
-        Matrix33.rotateXYZ = function (x, y, z) {
-            return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
-        };
-        Matrix33.rotate = function (vec3) {
-            return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
-        };
-        Matrix33.prototype.scale = function (vec) {
-            return this.setComponents(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-        };
-        Matrix33.scale = function (vec) {
-            return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-        };
-        /**
-         * zero matrix
-         */
-        Matrix33.prototype.zero = function () {
-            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
-        };
-        /**
-         * zero matrix(static version)
-         */
-        Matrix33.zero = function () {
-            return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        };
-        Matrix33.prototype.flatten = function () {
-            return this.m;
-        };
-        Matrix33.prototype.flattenAsArray = function () {
-            return [this.m[0], this.m[1], this.m[2],
-                this.m[3], this.m[4], this.m[5],
-                this.m[6], this.m[7], this.m[8]];
-        };
-        Matrix33.prototype._swap = function (l, r) {
-            this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
-        };
-        /**
-         * transpose
-         */
-        Matrix33.prototype.transpose = function () {
-            this._swap(1, 3);
-            this._swap(2, 6);
-            this._swap(5, 8);
-            return this;
-        };
-        /**
-         * transpose(static version)
-         */
-        Matrix33.transpose = function (mat) {
-            var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
-            return mat_t;
-        };
-        Matrix33.prototype.multiplyVector = function (vec) {
-            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z;
-            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z;
-            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z;
-            return new Vector3(x, y, z);
-        };
-        /**
-         * multiply zero matrix and zero matrix
-         */
-        Matrix33.prototype.multiply = function (mat) {
-            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
-            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
-            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
-            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
-            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
-            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
-            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
-            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
-            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
-            return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        /**
-         * multiply zero matrix and zero matrix(static version)
-         */
-        Matrix33.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        Matrix33.prototype.determinant = function () {
-            return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
-                - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
-        };
-        Matrix33.determinant = function (mat) {
-            return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-                - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-        };
-        Matrix33.prototype.invert = function () {
-            var det = this.determinant();
-            var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
-            var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
-            var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
-            var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
-            var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
-            var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
-            var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
-            var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
-            var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
-            return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        Matrix33.invert = function (mat) {
-            var det = mat.determinant();
-            var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-            var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-            var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-            var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-            var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-            var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-            var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-            var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-            var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        Object.defineProperty(Matrix33.prototype, "m00", {
-            get: function () {
-                return this.m[0];
-            },
-            set: function (val) {
-                this.m[0] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m10", {
-            get: function () {
-                return this.m[1];
-            },
-            set: function (val) {
-                this.m[1] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m20", {
-            get: function () {
-                return this.m[2];
-            },
-            set: function (val) {
-                this.m[2] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m01", {
-            get: function () {
-                return this.m[3];
-            },
-            set: function (val) {
-                this.m[3] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m11", {
-            get: function () {
-                return this.m[4];
-            },
-            set: function (val) {
-                this.m[4] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m21", {
-            get: function () {
-                return this.m[5];
-            },
-            set: function (val) {
-                this.m[5] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m02", {
-            get: function () {
-                return this.m[6];
-            },
-            set: function (val) {
-                this.m[6] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m12", {
-            get: function () {
-                return this.m[7];
-            },
-            set: function (val) {
-                this.m[7] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m22", {
-            get: function () {
-                return this.m[8];
-            },
-            set: function (val) {
-                this.m[8] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix33.prototype.toString = function () {
-            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
-                this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
-                this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
-        };
-        Matrix33.prototype.nearZeroToZero = function (value) {
-            if (Math.abs(value) < 0.00001) {
-                value = 0;
-            }
-            else if (0.99999 < value && value < 1.00001) {
-                value = 1;
-            }
-            else if (-1.00001 < value && value < -0.99999) {
-                value = -1;
-            }
-            return value;
-        };
-        Matrix33.prototype.toStringApproximately = function () {
-            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
-                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
-                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
-        };
-        Matrix33.prototype.getScale = function () {
-            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-        };
-        Matrix33.prototype.addScale = function (vec) {
-            this.m00 *= vec.x;
-            this.m11 *= vec.y;
-            this.m22 *= vec.z;
-            return this;
-        };
-        Matrix33.prototype.isEqual = function (mat, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(mat.m[0] - this.m[0]) < delta &&
-                Math.abs(mat.m[1] - this.m[1]) < delta &&
-                Math.abs(mat.m[2] - this.m[2]) < delta &&
-                Math.abs(mat.m[3] - this.m[3]) < delta &&
-                Math.abs(mat.m[4] - this.m[4]) < delta &&
-                Math.abs(mat.m[5] - this.m[5]) < delta &&
-                Math.abs(mat.m[6] - this.m[6]) < delta &&
-                Math.abs(mat.m[7] - this.m[7]) < delta &&
-                Math.abs(mat.m[8] - this.m[8]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        return Matrix33;
-    }());
-    // GLBoost['Matrix33'] = Matrix33;
-
-    var Vector4 = /** @class */ (function () {
-        function Vector4(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.x = 0;
-                this.y = 0;
-                this.z = 0;
-                this.w = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.x = x[0];
-                this.y = x[1];
-                this.z = x[2];
-                this.w = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = 0;
-                this.w = 1;
-            }
-            else {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                this.w = w;
-            }
-        }
-        Object.defineProperty(Vector4.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.prototype.isStrictEqual = function (vec) {
-            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-                Math.abs(vec.v[1] - this.v[1]) < delta &&
-                Math.abs(vec.v[2] - this.v[2]) < delta &&
-                Math.abs(vec.v[3] - this.v[3]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.clone = function () {
-            return new Vector4(this.x, this.y, this.z, this.w);
-        };
-        /**
-         * Zero Vector
-         */
-        Vector4.zero = function () {
-            return new Vector4(0, 0, 0, 1);
-        };
-        Vector4.prototype.length = function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        };
-        Vector4.prototype.normalize = function () {
-            var length = this.length();
-            this.divide(length);
-            return this;
-        };
-        Vector4.normalize = function (vec4) {
-            var length = vec4.length();
-            var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-            newVec.divide(length);
-            return newVec;
-        };
-        /**
-         * add value
-         */
-        Vector4.prototype.add = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            this.w += v.w;
-            return this;
-        };
-        /**
-         * add value（static version）
-         */
-        Vector4.add = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-        };
-        /**
-         * add value except w component
-         */
-        Vector4.prototype.addWithOutW = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            return this;
-        };
-        Vector4.prototype.subtract = function (v) {
-            this.x -= v.x;
-            this.y -= v.y;
-            this.z -= v.z;
-            this.w -= v.w;
-            return this;
-        };
-        Vector4.subtract = function (lv, rv) {
-            return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-        };
-        /**
-         * add value except w component（static version）
-         */
-        Vector4.addWithOutW = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-        };
-        Vector4.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
-            this.z *= val;
-            this.w *= val;
-            return this;
-        };
-        Vector4.prototype.multiplyVector = function (vec) {
-            this.x *= vec.x;
-            this.y *= vec.y;
-            this.z *= vec.z;
-            this.w *= vec.w;
-            return this;
-        };
-        Vector4.multiply = function (vec4, val) {
-            return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-        };
-        Vector4.multiplyVector = function (vec4, vec) {
-            return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-        };
-        Vector4.prototype.divide = function (val) {
-            if (val !== 0) {
-                this.x /= val;
-                this.y /= val;
-                this.z /= val;
-                this.w /= val;
-            }
-            else {
-                console.warn("0 division occured!");
-                this.x = Infinity;
-                this.y = Infinity;
-                this.z = Infinity;
-                this.w = Infinity;
-            }
-            return this;
-        };
-        Vector4.divide = function (vec4, val) {
-            if (val !== 0) {
-                return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-            }
-            else {
-                console.warn("0 division occured!");
-                return new Vector4(Infinity, Infinity, Infinity, Infinity);
-            }
-        };
-        Vector4.prototype.divideVector = function (vec4) {
-            this.x /= vec4.x;
-            this.y /= vec4.y;
-            this.z /= vec4.z;
-            this.w /= vec4.w;
-            return this;
-        };
-        Vector4.divideVector = function (lvec4, rvec4) {
-            return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-        };
-        Vector4.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(Vector4.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (w) {
-                this.v[3] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Vector4;
-    }());
-    // GLBoost["Vector4"] = Vector4;
 
     //import GLBoost from '../../globals';
     var FloatArray = Float32Array;
@@ -3006,110 +2577,441 @@
     }());
     //GLBoost["Matrix44"] = Matrix44;
 
-    var RnObject = /** @class */ (function () {
-        function RnObject(needToManage) {
-            if (needToManage === void 0) { needToManage = false; }
-            this.__objectUid = 0;
-            if (needToManage) {
-                this.__objectUid = ++RnObject.currentMaxObjectCount;
-            }
-        }
-        Object.defineProperty(RnObject.prototype, "objectUid", {
-            get: function () {
-                return this.__objectUid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RnObject.currentMaxObjectCount = 0;
-        return RnObject;
-    }());
-
-    var _Vector2 = /** @class */ (function () {
-        function _Vector2(typedArray, x, y) {
-            this.__typedArray = typedArray;
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
+    // import GLBoost from '../../globals';
+    var Matrix33 = /** @class */ (function () {
+        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
+            if (isColumnMajor === void 0) { isColumnMajor = false; }
+            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
+            var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
+            var _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
+            var m = m0;
+            if (m == null) {
+                this.m = new Float32Array(0);
                 return;
             }
-            else {
-                this.v = new typedArray(2);
+            if (arguments.length === 9) {
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    var m_1 = arguments;
+                    this.setComponents(m_1[0], m_1[3], m_1[6], m_1[1], m_1[4], m_1[7], m_1[2], m_1[5], m_1[8]);
+                }
+                else {
+                    this.setComponents.apply(this, arguments); // arguments[0-8] must be row major values if isColumnMajor is false
+                }
             }
-            this.x = x;
-            this.y = y;
+            else if (Array.isArray(m)) {
+                this.m = new Float32Array(9);
+                if (_isColumnMajor === true) {
+                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                }
+                else {
+                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                }
+            }
+            else if (m instanceof Float32Array) {
+                if (_notCopyFloatArray) {
+                    this.m = m;
+                }
+                else {
+                    this.m = new Float32Array(9);
+                    if (_isColumnMajor === true) {
+                        this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                    }
+                    else {
+                        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                    }
+                }
+            }
+            else if (!!m && typeof m.m22 !== 'undefined') {
+                if (_notCopyFloatArray) {
+                    this.m = m.m;
+                }
+                else {
+                    this.m = new Float32Array(9);
+                    if (_isColumnMajor === true) {
+                        var _m = m;
+                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                    }
+                    else {
+                        var _m = m;
+                        this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                    }
+                }
+            }
+            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+                this.m = new Float32Array(9);
+                var q = m;
+                var sx = q.x * q.x;
+                var sy = q.y * q.y;
+                var sz = q.z * q.z;
+                var cx = q.y * q.z;
+                var cy = q.x * q.z;
+                var cz = q.x * q.y;
+                var wx = q.w * q.x;
+                var wy = q.w * q.y;
+                var wz = q.w * q.z;
+                this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
+            }
+            else {
+                this.m = new Float32Array(9);
+                this.identity();
+            }
         }
-        Object.defineProperty(_Vector2.prototype, "className", {
+        Matrix33.prototype.setComponents = function (m00, m01, m02, m10, m11, m12, m20, m21, m22) {
+            this.m[0] = m00;
+            this.m[3] = m01;
+            this.m[6] = m02;
+            this.m[1] = m10;
+            this.m[4] = m11;
+            this.m[7] = m12;
+            this.m[2] = m20;
+            this.m[5] = m21;
+            this.m[8] = m22;
+            return this;
+        };
+        Object.defineProperty(Matrix33.prototype, "className", {
             get: function () {
                 return this.constructor.name;
             },
             enumerable: true,
             configurable: true
         });
-        _Vector2.prototype.clone = function () {
-            return new _Vector2(this.__typedArray, this.x, this.y);
-        };
-        _Vector2.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
+        Matrix33.prototype.identity = function () {
+            this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
             return this;
         };
-        _Vector2.prototype.isStrictEqual = function (vec) {
-            if (this.x === vec.x && this.y === vec.y) {
+        /**
+         * Make this identity matrix（static method version）
+         */
+        Matrix33.identity = function () {
+            return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        };
+        Matrix33.dummy = function () {
+            return new Matrix33(null);
+        };
+        Matrix33.prototype.isDummy = function () {
+            if (this.m.length === 0) {
                 return true;
             }
             else {
                 return false;
             }
         };
-        _Vector2.prototype.isEqual = function (vec, delta) {
+        Matrix33.prototype.clone = function () {
+            return new Matrix33(this.m[0], this.m[3], this.m[6], this.m[1], this.m[4], this.m[7], this.m[2], this.m[5], this.m[8]);
+        };
+        /**
+         * Create X oriented Rotation Matrix
+         */
+        Matrix33.prototype.rotateX = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+        };
+        /**
+         * Create X oriented Rotation Matrix
+         */
+        Matrix33.rotateX = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+        };
+        /**
+         * Create Y oriented Rotation Matrix
+         */
+        Matrix33.prototype.rotateY = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+            return this;
+        };
+        /**
+         * Create Y oriented Rotation Matrix
+         */
+        Matrix33.rotateY = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+        };
+        /**
+         * Create Z oriented Rotation Matrix
+         */
+        Matrix33.prototype.rotateZ = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+        };
+        /**
+         * Create Z oriented Rotation Matrix
+         */
+        Matrix33.rotateZ = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+        };
+        Matrix33.rotateXYZ = function (x, y, z) {
+            return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+        };
+        Matrix33.rotate = function (vec3) {
+            return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
+        };
+        Matrix33.prototype.scale = function (vec) {
+            return this.setComponents(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+        };
+        Matrix33.scale = function (vec) {
+            return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+        };
+        /**
+         * zero matrix
+         */
+        Matrix33.prototype.zero = function () {
+            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            return this;
+        };
+        /**
+         * zero matrix(static version)
+         */
+        Matrix33.zero = function () {
+            return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        };
+        Matrix33.prototype.flatten = function () {
+            return this.m;
+        };
+        Matrix33.prototype.flattenAsArray = function () {
+            return [this.m[0], this.m[1], this.m[2],
+                this.m[3], this.m[4], this.m[5],
+                this.m[6], this.m[7], this.m[8]];
+        };
+        Matrix33.prototype._swap = function (l, r) {
+            this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
+        };
+        /**
+         * transpose
+         */
+        Matrix33.prototype.transpose = function () {
+            this._swap(1, 3);
+            this._swap(2, 6);
+            this._swap(5, 8);
+            return this;
+        };
+        /**
+         * transpose(static version)
+         */
+        Matrix33.transpose = function (mat) {
+            var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
+            return mat_t;
+        };
+        Matrix33.prototype.multiplyVector = function (vec) {
+            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z;
+            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z;
+            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z;
+            return new Vector3(x, y, z);
+        };
+        /**
+         * multiply zero matrix and zero matrix
+         */
+        Matrix33.prototype.multiply = function (mat) {
+            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
+            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
+            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
+            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
+            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
+            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
+            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
+            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
+            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
+            return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        };
+        /**
+         * multiply zero matrix and zero matrix(static version)
+         */
+        Matrix33.multiply = function (l_m, r_m) {
+            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
+            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
+            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
+            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;
+            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;
+            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;
+            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
+            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
+            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
+            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        };
+        Matrix33.prototype.determinant = function () {
+            return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
+                - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
+        };
+        Matrix33.determinant = function (mat) {
+            return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
+                - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
+        };
+        Matrix33.prototype.invert = function () {
+            var det = this.determinant();
+            var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
+            var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
+            var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
+            var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
+            var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
+            var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
+            var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
+            var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
+            var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
+            return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        };
+        Matrix33.invert = function (mat) {
+            var det = mat.determinant();
+            var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
+            var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
+            var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
+            var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
+            var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
+            var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
+            var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
+            var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
+            var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
+            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        };
+        Object.defineProperty(Matrix33.prototype, "m00", {
+            get: function () {
+                return this.m[0];
+            },
+            set: function (val) {
+                this.m[0] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m10", {
+            get: function () {
+                return this.m[1];
+            },
+            set: function (val) {
+                this.m[1] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m20", {
+            get: function () {
+                return this.m[2];
+            },
+            set: function (val) {
+                this.m[2] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m01", {
+            get: function () {
+                return this.m[3];
+            },
+            set: function (val) {
+                this.m[3] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m11", {
+            get: function () {
+                return this.m[4];
+            },
+            set: function (val) {
+                this.m[4] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m21", {
+            get: function () {
+                return this.m[5];
+            },
+            set: function (val) {
+                this.m[5] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m02", {
+            get: function () {
+                return this.m[6];
+            },
+            set: function (val) {
+                this.m[6] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m12", {
+            get: function () {
+                return this.m[7];
+            },
+            set: function (val) {
+                this.m[7] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Matrix33.prototype, "m22", {
+            get: function () {
+                return this.m[8];
+            },
+            set: function (val) {
+                this.m[8] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Matrix33.prototype.toString = function () {
+            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
+                this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
+                this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
+        };
+        Matrix33.prototype.nearZeroToZero = function (value) {
+            if (Math.abs(value) < 0.00001) {
+                value = 0;
+            }
+            else if (0.99999 < value && value < 1.00001) {
+                value = 1;
+            }
+            else if (-1.00001 < value && value < -0.99999) {
+                value = -1;
+            }
+            return value;
+        };
+        Matrix33.prototype.toStringApproximately = function () {
+            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
+                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
+                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
+        };
+        Matrix33.prototype.getScale = function () {
+            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+        };
+        Matrix33.prototype.addScale = function (vec) {
+            this.m00 *= vec.x;
+            this.m11 *= vec.y;
+            this.m22 *= vec.z;
+            return this;
+        };
+        Matrix33.prototype.isEqual = function (mat, delta) {
             if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.x - this.x) < delta &&
-                Math.abs(vec.y - this.y) < delta) {
+            if (Math.abs(mat.m[0] - this.m[0]) < delta &&
+                Math.abs(mat.m[1] - this.m[1]) < delta &&
+                Math.abs(mat.m[2] - this.m[2]) < delta &&
+                Math.abs(mat.m[3] - this.m[3]) < delta &&
+                Math.abs(mat.m[4] - this.m[4]) < delta &&
+                Math.abs(mat.m[5] - this.m[5]) < delta &&
+                Math.abs(mat.m[6] - this.m[6]) < delta &&
+                Math.abs(mat.m[7] - this.m[7]) < delta &&
+                Math.abs(mat.m[8] - this.m[8]) < delta) {
                 return true;
             }
             else {
                 return false;
             }
         };
-        _Vector2.multiply = function (typedArray, vec2, val) {
-            return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
-        };
-        Object.defineProperty(_Vector2.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_Vector2.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_Vector2.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return _Vector2;
+        return Matrix33;
     }());
-    var Vector2_F64 = /** @class */ (function (_super) {
-        __extends(Vector2_F64, _super);
-        function Vector2_F64(x, y) {
-            return _super.call(this, Float64Array, x, y) || this;
-        }
-        return Vector2_F64;
-    }(_Vector2));
+    // GLBoost['Matrix33'] = Matrix33;
 
     var AccessorBase = /** @class */ (function (_super) {
         __extends(AccessorBase, _super);
@@ -3552,7 +3454,7 @@
         return BufferView;
     }(RnObject));
 
-    var Buffer = /** @class */ (function (_super) {
+    var Buffer$1 = /** @class */ (function (_super) {
         __extends(Buffer, _super);
         function Buffer(_a) {
             var byteLength = _a.byteLength, arrayBuffer = _a.arrayBuffer, name = _a.name;
@@ -3647,7 +3549,7 @@
             // BufferForGPUInstanceData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.GPUInstanceData.toString()
@@ -3657,7 +3559,7 @@
             // BufferForGPUVertexData
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.GPUVertexData.toString()
@@ -3667,7 +3569,7 @@
             // BufferForUBO
             {
                 var arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.UBOGeneric.toString()
@@ -3677,7 +3579,7 @@
             // BufferForCPU
             {
                 var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer({
+                var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
                     name: BufferUse.CPUGeneric.toString()
@@ -4596,12 +4498,180 @@
                 finally { if (e_3) throw e_3.error; }
             }
         };
+        Component.invalidComponentSID = -1;
         Component.__bufferViews = new Map();
         Component.__accessors = new Map();
         Component.__byteLengthSumOfMembers = new Map();
         Component.__memberInfo = new Map();
         Component.__members = new Map();
         return Component;
+    }());
+
+    var InitialSetting = /** @class */ (function () {
+        function InitialSetting() {
+        }
+        InitialSetting.maxEntityNumber = 10000;
+        return InitialSetting;
+    }());
+
+    var ComponentRepository = /** @class */ (function () {
+        function ComponentRepository() {
+            this.__component_sid_count_map = new Map();
+            this.__components = new Map();
+        }
+        ComponentRepository.registerComponentClass = function (componentTID, componentClass) {
+            var thisClass = ComponentRepository;
+            thisClass.__componentClasses.set(componentTID, componentClass);
+        };
+        ComponentRepository.unregisterComponentClass = function (componentTID) {
+            var thisClass = ComponentRepository;
+            thisClass.__componentClasses.delete(componentTID);
+        };
+        ComponentRepository.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new ComponentRepository();
+            }
+            return this.__instance;
+        };
+        ComponentRepository.prototype.createComponent = function (componentTid, entityUid) {
+            var thisClass = ComponentRepository;
+            var componentClass = thisClass.__componentClasses.get(componentTid);
+            if (componentClass != null) {
+                var component_sid_count = this.__component_sid_count_map.get(componentTid);
+                if (!IsUtil.exist(component_sid_count)) {
+                    this.__component_sid_count_map.set(componentTid, 0);
+                    component_sid_count = Component.invalidComponentSID;
+                }
+                this.__component_sid_count_map.set(componentTid, ++component_sid_count);
+                var component = new componentClass(entityUid, component_sid_count);
+                if (!this.__components.has(componentTid)) {
+                    this.__components.set(componentTid, []);
+                }
+                var array = this.__components.get(componentTid);
+                if (array != null) {
+                    array[component.componentSID] = component;
+                    return component;
+                }
+            }
+            return null;
+        };
+        ComponentRepository.prototype.getComponent = function (componentTid, componentSid) {
+            var map = this.__components.get(componentTid);
+            if (map != null) {
+                var component = map[componentSid];
+                if (component != null) {
+                    return map[componentSid];
+                }
+                else {
+                    return null;
+                }
+            }
+            return null;
+        };
+        ComponentRepository.getMemoryBeginIndex = function (componentTid) {
+            var memoryBeginIndex = 0;
+            for (var i = 0; i < componentTid; i++) {
+                var componentClass = ComponentRepository.__componentClasses.get(i);
+                if (componentClass != null) {
+                    var sizeOfComponent = componentClass.sizeOfThisComponent;
+                    var maxEntityNumber = InitialSetting.maxEntityNumber;
+                    memoryBeginIndex += sizeOfComponent * maxEntityNumber;
+                }
+            }
+            return memoryBeginIndex;
+        };
+        ComponentRepository.prototype.getComponentsWithType = function (componentTid) {
+            var components = this.__components.get(componentTid);
+            var copyArray = components; //.concat();
+            //copyArray.shift();
+            return copyArray;
+        };
+        ComponentRepository.prototype.getComponentTIDs = function () {
+            var e_1, _a;
+            var indices = [];
+            try {
+                for (var _b = __values(this.__components.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var type = _c.value;
+                    indices.push(type);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return indices;
+        };
+        ComponentRepository.__componentClasses = new Map();
+        return ComponentRepository;
+    }());
+
+    var EntityRepository = /** @class */ (function () {
+        function EntityRepository() {
+            this.__entity_uid_count = Entity.invalidEntityUID;
+            this.__entities = [];
+            this._components = [];
+            this.__componentRepository = ComponentRepository.getInstance();
+        }
+        EntityRepository.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new EntityRepository();
+            }
+            return this.__instance;
+        };
+        EntityRepository.prototype.createEntity = function (componentTidArray) {
+            var e_1, _a;
+            var entity = new Entity(++this.__entity_uid_count, true, this);
+            this.__entities[this.__entity_uid_count] = entity;
+            try {
+                for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {
+                    var componentTid = componentTidArray_1_1.value;
+                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+                    var map = this._components[entity.entityUID];
+                    if (map == null) {
+                        map = new Map();
+                        this._components[entity.entityUID] = map;
+                    }
+                    if (component != null) {
+                        map.set(componentTid, component);
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (componentTidArray_1_1 && !componentTidArray_1_1.done && (_a = componentTidArray_1.return)) _a.call(componentTidArray_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return entity;
+        };
+        EntityRepository.prototype.getEntity = function (entityUid) {
+            return this.__entities[entityUid];
+        };
+        EntityRepository.prototype.getComponentOfEntity = function (entityUid, componentTid) {
+            var entity = this._components[entityUid];
+            var component = null;
+            if (entity != null) {
+                component = entity.get(componentTid);
+                if (component != null) {
+                    return component;
+                }
+                else {
+                    return null;
+                }
+            }
+            return component;
+        };
+        EntityRepository.getMaxEntityNumber = function () {
+            return 100000;
+        };
+        EntityRepository.prototype._getEntities = function () {
+            return this.__entities.concat();
+        };
+        return EntityRepository;
     }());
 
     // import AnimationComponent from './AnimationComponent';
@@ -5384,14 +5454,14 @@
     var WebGLStrategyUBO = /** @class */ (function () {
         function WebGLStrategyUBO() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__uboUid = 0;
-            this.__shaderProgramUid = 0;
+            this.__uboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
             this.__vertexHandles = [];
             this.__isVAOSet = false;
-            this.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n    mat4 world[1024];\n  } u_matrix;\n\n  mat4 getMatrix(float instanceId) {\n    float index = instanceId - 1.0;\n    return transpose(u_matrix.world[int(index)]);\n  }\n  ";
+            this.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n    mat4 world[1024];\n  } u_matrix;\n\n  mat4 getMatrix(float instanceId) {\n    float index = instanceId;\n    return transpose(u_matrix.world[int(index)]);\n  }\n  ";
         }
         WebGLStrategyUBO.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== 0) {
+            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return;
             }
             // Shader Setup
@@ -5447,7 +5517,7 @@
             var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             {
-                if (this.__uboUid !== 0) {
+                if (this.__uboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                     this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
                     return;
                 }
@@ -5714,13 +5784,13 @@
     var WebGLStrategyTransformFeedback = /** @class */ (function () {
         function WebGLStrategyTransformFeedback() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__instanceDataTextureUid = 0;
-            this.__vertexDataTextureUid = 0;
-            this.__shaderProgramUid = 0;
-            this.__primitiveHeaderUboUid = 0;
-            this.__indexCountToSubtractUboUid = 0;
-            this.__entitiesUidUboUid = 0;
-            this.__primitiveUidUboUid = 0;
+            this.__instanceDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__vertexDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__primitiveHeaderUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__indexCountToSubtractUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__entitiesUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__primitiveUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
             this.__isVertexReady = false;
         }
         Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackShaderText", {
@@ -5738,7 +5808,7 @@
             configurable: true
         });
         WebGLStrategyTransformFeedback.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== 0) {
+            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return;
             }
             // Shader Setup
@@ -5781,7 +5851,7 @@
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
             var floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
-            if (this.__primitiveHeaderUboUid !== 0) {
+            if (this.__primitiveHeaderUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
                 return;
             }
@@ -5789,7 +5859,7 @@
             this.__webglResourceRepository.bindUniformBufferBase(3, this.__primitiveHeaderUboUid);
         };
         WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceMetaData = function () {
-            if (this.__primitiveUidUboUid !== 0) {
+            if (this.__primitiveUidUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return;
             }
             var entities = EntityRepository.getInstance()._getEntities();
@@ -5832,7 +5902,7 @@
                     halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
                 }
             }
-            if (this.__instanceDataTextureUid !== 0) {
+            if (this.__instanceDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
@@ -5897,7 +5967,7 @@
             }
         };
         WebGLStrategyTransformFeedback.prototype.__setupGPUVertexData = function () {
-            if (this.__vertexDataTextureUid !== 0) {
+            if (this.__vertexDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return;
             }
             var memoryManager = MemoryManager.getInstance();
@@ -5969,21 +6039,21 @@
     var WebGLStrategyDataTexture = /** @class */ (function () {
         function WebGLStrategyDataTexture() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__dataTextureUid = 0;
-            this.__shaderProgramUid = 0;
+            this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
             this.__vertexHandles = [];
             this.__isVAOSet = false;
         }
         Object.defineProperty(WebGLStrategyDataTexture.prototype, "vertexShaderMethodDefinitions_dataTexture", {
             get: function () {
                 var _texture = GLSLShader.glsl_texture;
-                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId - 1.0;\n    float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n    vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
+                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId;\n    float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n    vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
             },
             enumerable: true,
             configurable: true
         });
         WebGLStrategyDataTexture.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== 0) {
+            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return;
             }
             // Shader Setup
@@ -6052,7 +6122,7 @@
                     halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
                 }
             }
-            if (this.__dataTextureUid !== 0) {
+            if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -6267,7 +6337,7 @@
         function class_1() {
             this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             this.__componentRepository = ComponentRepository.getInstance();
-            this.__instanceIDBufferUid = 0;
+            this.__instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         }
         class_1.prototype.common_$load = function (processApproach) {
             // Strategy
@@ -6288,7 +6358,7 @@
             return this.__instanceIDBufferUid;
         };
         class_1.prototype.__isReady = function () {
-            if (this.__instanceIDBufferUid !== 0) {
+            if (this.__instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
                 return true;
             }
             else {
@@ -6347,7 +6417,7 @@
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
                 //      const args:Array<any> = [];
-                var instanceIDBufferUid = 0;
+                var instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
                 var commonMethod = _this.__renderingPipeline['common_' + methodName];
                 if (commonMethod != null) {
@@ -6397,6 +6467,832 @@
         return System;
     }());
 
+    var DataUtil = /** @class */ (function () {
+        function DataUtil() {
+        }
+        DataUtil.isNode = function () {
+            var isNode = (window === void 0 && typeof process !== "undefined" && typeof require !== "undefined");
+            return isNode;
+        };
+        DataUtil.btoa = function (str) {
+            var isNode = DataUtil.isNode();
+            if (isNode) {
+                var buffer = void 0;
+                if (Buffer.isBuffer(str)) {
+                    buffer = str;
+                }
+                else {
+                    buffer = new Buffer(str.toString(), 'binary');
+                }
+                return buffer.toString('base64');
+            }
+            else {
+                return btoa(str);
+            }
+        };
+        DataUtil.atob = function (str) {
+            var isNode = DataUtil.isNode();
+            if (isNode) {
+                return new Buffer(str, 'base64').toString('binary');
+            }
+            else {
+                return atob(str);
+            }
+        };
+        DataUtil.base64ToArrayBuffer = function (dataUri) {
+            var splittedDataUri = dataUri.split(',');
+            var type = splittedDataUri[0].split(':')[1].split(';')[0];
+            var byteString = DataUtil.atob(splittedDataUri[1]);
+            var byteStringLength = byteString.length;
+            var arrayBuffer = new ArrayBuffer(byteStringLength);
+            var uint8Array = new Uint8Array(arrayBuffer);
+            for (var i = 0; i < byteStringLength; i++) {
+                uint8Array[i] = byteString.charCodeAt(i);
+            }
+            return arrayBuffer;
+        };
+        DataUtil.arrayBufferToString = function (arrayBuffer) {
+            if (typeof TextDecoder !== 'undefined') {
+                var textDecoder = new TextDecoder();
+                return textDecoder.decode(arrayBuffer);
+            }
+            else {
+                var bytes = new Uint8Array(arrayBuffer);
+                var result = "";
+                var length_1 = bytes.length;
+                for (var i = 0; i < length_1; i++) {
+                    result += String.fromCharCode(bytes[i]);
+                }
+                return result;
+            }
+        };
+        DataUtil.stringToBase64 = function (str) {
+            var b64 = null;
+            b64 = DataUtil.btoa(str);
+            return b64;
+        };
+        DataUtil.UInt8ArrayToDataURL = function (uint8array, width, height) {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext("2d");
+            var imageData = ctx.createImageData(width, height);
+            for (var i = 0; i < imageData.data.length; i += 4) {
+                imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 0];
+                imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 1];
+                imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 2];
+                imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 3];
+            }
+            ctx.putImageData(imageData, 0, 0);
+            canvas.remove();
+            return canvas.toDataURL("image/png");
+        };
+        DataUtil.loadResourceAsync = function (resourceUri, isBinary, resolveCallback, rejectCallback) {
+            return new Promise(function (resolve, reject) {
+                var isNode = DataUtil.isNode();
+                if (isNode) {
+                    var fs = require('fs');
+                    var args = [resourceUri];
+                    var func = function (err, response) {
+                        if (err) {
+                            if (rejectCallback) {
+                                rejectCallback(reject, err);
+                            }
+                            return;
+                        }
+                        if (isBinary) {
+                            var buffer = new Buffer(response, 'binary');
+                            var uint8Buffer = new Uint8Array(buffer);
+                            response = uint8Buffer.buffer;
+                        }
+                        resolveCallback(resolve, response);
+                    };
+                    if (isBinary) {
+                        args.push(func);
+                    }
+                    else {
+                        args.push('utf8');
+                        args.push(func);
+                    }
+                    fs.readFile.apply(fs, args);
+                }
+                else {
+                    var xmlHttp_1 = new XMLHttpRequest();
+                    if (isBinary) {
+                        xmlHttp_1.responseType = "arraybuffer";
+                        xmlHttp_1.onload = function (oEvent) {
+                            var response = null;
+                            if (isBinary) {
+                                response = xmlHttp_1.response;
+                            }
+                            else {
+                                response = xmlHttp_1.responseText;
+                            }
+                            resolveCallback(resolve, response);
+                        };
+                    }
+                    else {
+                        xmlHttp_1.onreadystatechange = function () {
+                            if (xmlHttp_1.readyState === 4 && (Math.floor(xmlHttp_1.status / 100) === 2 || xmlHttp_1.status === 0)) {
+                                var response = null;
+                                if (isBinary) {
+                                    response = xmlHttp_1.response;
+                                }
+                                else {
+                                    response = xmlHttp_1.responseText;
+                                }
+                                resolveCallback(resolve, response);
+                            }
+                            else {
+                                if (rejectCallback) {
+                                    rejectCallback(reject, xmlHttp_1.status);
+                                }
+                            }
+                        };
+                    }
+                    xmlHttp_1.open("GET", resourceUri, true);
+                    xmlHttp_1.send(null);
+                }
+            });
+        };
+        return DataUtil;
+    }());
+
+    var Gltf2Importer = /** @class */ (function () {
+        function Gltf2Importer() {
+        }
+        Gltf2Importer.prototype.import = function (uri, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(this, void 0, void 0, function () {
+                var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, result, gotText, json;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            defaultOptions = {
+                                files: {
+                                //        "foo.gltf": content of file as ArrayBuffer,
+                                //        "foo.bin": content of file as ArrayBuffer,
+                                //        "boo.png": content of file as ArrayBuffer
+                                },
+                                loaderExtension: null,
+                                defaultShaderClass: null,
+                                statesOfElements: [
+                                    {
+                                        targets: [],
+                                        states: {
+                                            enable: [
+                                            // 3042,  // BLEND
+                                            ],
+                                            functions: {
+                                            //"blendFuncSeparate": [1, 0, 1, 0],
+                                            }
+                                        },
+                                        isTransparent: true,
+                                        opacity: 1.0,
+                                        isTextureImageToLoadPreMultipliedAlpha: false,
+                                    }
+                                ],
+                                extendedJson: null //   URI string / JSON Object / ArrayBuffer
+                            };
+                            return [4 /*yield*/, fetch(uri)];
+                        case 1:
+                            response = _a.sent();
+                            return [4 /*yield*/, response.arrayBuffer()];
+                        case 2:
+                            arrayBuffer = _a.sent();
+                            dataView = new DataView(arrayBuffer, 0, 20);
+                            isLittleEndian = true;
+                            magic = dataView.getUint32(0, isLittleEndian);
+                            if (!(magic !== 0x46546C67)) return [3 /*break*/, 4];
+                            gotText = DataUtil.arrayBufferToString(arrayBuffer);
+                            json = JSON.parse(gotText);
+                            return [4 /*yield*/, this._loadAsTextJson(json, uri, options, defaultOptions)];
+                        case 3:
+                            result = _a.sent();
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/, result];
+                    }
+                });
+            });
+        };
+        Gltf2Importer.prototype._getOptions = function (defaultOptions, json, options) {
+            if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
+                for (var optionName in json.asset.extras.loadOptions) {
+                    defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
+                }
+            }
+            for (var optionName in options) {
+                defaultOptions[optionName] = options[optionName];
+            }
+            return defaultOptions;
+        };
+        Gltf2Importer.prototype._loadAsTextJson = function (gltfJson, uri, options, defaultOptions) {
+            return __awaiter(this, void 0, void 0, function () {
+                var basePath, result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (uri) {
+                                //Set the location of gltf file as basePath
+                                basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
+                            }
+                            if (gltfJson.asset.extras === undefined) {
+                                gltfJson.asset.extras = {};
+                            }
+                            options = this._getOptions(defaultOptions, gltfJson, options);
+                            this._mergeExtendedJson(gltfJson, options.extendedJson);
+                            gltfJson.asset.extras.basePath = basePath;
+                            return [4 /*yield*/, this._loadInner(undefined, basePath, gltfJson, options)];
+                        case 1:
+                            result = _a.sent();
+                            return [2 /*return*/, result[0][0]];
+                    }
+                });
+            });
+        };
+        Gltf2Importer.prototype._loadInner = function (arrayBufferBinary, basePath, gltfJson, options) {
+            var _this = this;
+            var promises = [];
+            var resources = {
+                shaders: [],
+                buffers: [],
+                images: []
+            };
+            promises.push(this._loadResources(arrayBufferBinary, basePath, gltfJson, options, resources));
+            promises.push(new Promise(function (resolve, reject) {
+                _this._loadJsonContent(gltfJson, options);
+                resolve();
+            }));
+            return Promise.all(promises);
+        };
+        Gltf2Importer.prototype._loadJsonContent = function (gltfJson, options) {
+            // Scene
+            this._loadDependenciesOfScenes(gltfJson);
+            // Node
+            this._loadDependenciesOfNodes(gltfJson);
+            // Node Transformation
+            //    this._loadTransformationsOfNodes(gltfJson);
+            // Mesh
+            this._loadDependenciesOfMeshes(gltfJson);
+            // Material
+            this._loadDependenciesOfMaterials(gltfJson);
+            // Texture
+            this._loadDependenciesOfTextures(gltfJson);
+            // Joint
+            this._loadDependenciesOfJoints(gltfJson);
+            // Animation
+            this._loadDependenciesOfAnimations(gltfJson);
+            // Accessor
+            this._loadDependenciesOfAccessors(gltfJson);
+            // BufferView
+            this._loadDependenciesOfBufferViews(gltfJson);
+            if (gltfJson.asset === void 0) {
+                gltfJson.asset = {};
+            }
+            if (gltfJson.asset.extras === void 0) {
+                gltfJson.asset.extras = {};
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfScenes = function (gltfJson) {
+            var e_1, _a;
+            try {
+                for (var _b = __values(gltfJson.scenes), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var scene = _c.value;
+                    scene.nodesIndices = scene.nodes.concat();
+                    for (var i in scene.nodesIndices) {
+                        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfNodes = function (gltfJson) {
+            var e_2, _a;
+            try {
+                for (var _b = __values(gltfJson.nodes), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var node = _c.value;
+                    // Hierarchy
+                    if (node.children) {
+                        node.childrenIndices = node.children.concat();
+                        node.children = [];
+                        for (var i in node.childrenIndices) {
+                            node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
+                        }
+                    }
+                    // Mesh
+                    if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
+                        node.meshIndex = node.mesh;
+                        node.mesh = gltfJson.meshes[node.meshIndex];
+                    }
+                    // Skin
+                    if (node.skin !== void 0 && gltfJson.skins !== void 0) {
+                        node.skinIndex = node.skin;
+                        node.skin = gltfJson.skins[node.skinIndex];
+                        if (node.mesh.extras === void 0) {
+                            node.mesh.extras = {};
+                        }
+                        node.mesh.extras._skin = node.skin;
+                    }
+                    // Camera
+                    if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
+                        node.cameraIndex = node.camera;
+                        node.camera = gltfJson.cameras[node.cameraIndex];
+                    }
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfMeshes = function (gltfJson) {
+            var e_3, _a, e_4, _b;
+            try {
+                // Mesh
+                for (var _c = __values(gltfJson.meshes), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var mesh = _d.value;
+                    try {
+                        for (var _e = __values(mesh.primitives), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            var primitive = _f.value;
+                            if (primitive.material !== void 0) {
+                                primitive.materialIndex = primitive.material;
+                                primitive.material = gltfJson.materials[primitive.materialIndex];
+                            }
+                            primitive.attributesindex = Object.assign({}, primitive.attributes);
+                            for (var attributeName in primitive.attributesindex) {
+                                if (primitive.attributesindex[attributeName] >= 0) {
+                                    var accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
+                                    accessor.extras = {
+                                        toGetAsTypedArray: true
+                                    };
+                                    primitive.attributes[attributeName] = accessor;
+                                }
+                                else {
+                                    primitive.attributes[attributeName] = void 0;
+                                }
+                            }
+                            if (primitive.indices !== void 0) {
+                                primitive.indicesIndex = primitive.indices;
+                                primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+                            }
+                        }
+                    }
+                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                    finally {
+                        try {
+                            if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                        }
+                        finally { if (e_4) throw e_4.error; }
+                    }
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfMaterials = function (gltfJson) {
+            var e_5, _a;
+            // Material
+            if (gltfJson.materials) {
+                try {
+                    for (var _b = __values(gltfJson.materials), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var material = _c.value;
+                        if (material.pbrMetallicRoughness) {
+                            var baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
+                            if (baseColorTexture !== void 0) {
+                                baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
+                            }
+                            var metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
+                            if (metallicRoughnessTexture !== void 0) {
+                                metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
+                            }
+                        }
+                        var normalTexture = material.normalTexture;
+                        if (normalTexture !== void 0) {
+                            normalTexture.texture = gltfJson.textures[normalTexture.index];
+                        }
+                        var occlusionTexture = material.occlusionTexture;
+                        if (occlusionTexture !== void 0) {
+                            occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
+                        }
+                        var emissiveTexture = material.emissiveTexture;
+                        if (emissiveTexture !== void 0) {
+                            emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
+                        }
+                    }
+                }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_5) throw e_5.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfTextures = function (gltfJson) {
+            var e_6, _a;
+            // Texture
+            if (gltfJson.textures) {
+                try {
+                    for (var _b = __values(gltfJson.textures), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var texture = _c.value;
+                        if (texture.sampler !== void 0) {
+                            texture.samplerIndex = texture.sampler;
+                            texture.sampler = gltfJson.samplers[texture.samplerIndex];
+                        }
+                        if (texture.source !== void 0) {
+                            texture.sourceIndex = texture.source;
+                            texture.image = gltfJson.images[texture.sourceIndex];
+                        }
+                    }
+                }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_6) throw e_6.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfJoints = function (gltfJson) {
+            var e_7, _a, e_8, _b;
+            if (gltfJson.skins) {
+                try {
+                    for (var _c = __values(gltfJson.skins), _d = _c.next(); !_d.done; _d = _c.next()) {
+                        var skin = _d.value;
+                        skin.skeletonIndex = skin.skeleton;
+                        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+                        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
+                        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
+                        skin.jointsIndices = skin.joints;
+                        skin.joints = [];
+                        try {
+                            for (var _e = __values(skin.jointsIndices), _f = _e.next(); !_f.done; _f = _e.next()) {
+                                var jointIndex = _f.value;
+                                skin.joints.push(gltfJson.nodes[jointIndex]);
+                            }
+                        }
+                        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+                        finally {
+                            try {
+                                if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                            }
+                            finally { if (e_8) throw e_8.error; }
+                        }
+                    }
+                }
+                catch (e_7_1) { e_7 = { error: e_7_1 }; }
+                finally {
+                    try {
+                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                    }
+                    finally { if (e_7) throw e_7.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfAnimations = function (gltfJson) {
+            var e_9, _a, e_10, _b, e_11, _c;
+            if (gltfJson.animations) {
+                try {
+                    for (var _d = __values(gltfJson.animations), _e = _d.next(); !_e.done; _e = _d.next()) {
+                        var animation = _e.value;
+                        try {
+                            for (var _f = __values(animation.channels), _g = _f.next(); !_g.done; _g = _f.next()) {
+                                var channel = _g.value;
+                                channel.samplerIndex = channel.sampler;
+                                channel.sampler = animation.samplers[channel.samplerIndex];
+                                channel.target.nodeIndex = channel.target.node;
+                                channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
+                            }
+                        }
+                        catch (e_10_1) { e_10 = { error: e_10_1 }; }
+                        finally {
+                            try {
+                                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+                            }
+                            finally { if (e_10) throw e_10.error; }
+                        }
+                        try {
+                            for (var _h = __values(animation.channels), _j = _h.next(); !_j.done; _j = _h.next()) {
+                                var channel = _j.value;
+                                channel.sampler.inputIndex = channel.sampler.input;
+                                channel.sampler.outputIndex = channel.sampler.output;
+                                channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
+                                channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+                                if (channel.target.path === 'rotation') {
+                                    if (channel.sampler.output.extras === void 0) {
+                                        channel.sampler.output.extras = {};
+                                    }
+                                    channel.sampler.output.extras.quaternionIfVec4 = true;
+                                }
+                            }
+                        }
+                        catch (e_11_1) { e_11 = { error: e_11_1 }; }
+                        finally {
+                            try {
+                                if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
+                            }
+                            finally { if (e_11) throw e_11.error; }
+                        }
+                    }
+                }
+                catch (e_9_1) { e_9 = { error: e_9_1 }; }
+                finally {
+                    try {
+                        if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                    }
+                    finally { if (e_9) throw e_9.error; }
+                }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfAccessors = function (gltfJson) {
+            var e_12, _a;
+            try {
+                // Accessor
+                for (var _b = __values(gltfJson.accessors), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var accessor = _c.value;
+                    if (accessor.bufferView !== void 0) {
+                        accessor.bufferViewIndex = accessor.bufferView;
+                        accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+                    }
+                }
+            }
+            catch (e_12_1) { e_12 = { error: e_12_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_12) throw e_12.error; }
+            }
+        };
+        Gltf2Importer.prototype._loadDependenciesOfBufferViews = function (gltfJson) {
+            var e_13, _a;
+            try {
+                // BufferView
+                for (var _b = __values(gltfJson.bufferViews), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var bufferView = _c.value;
+                    if (bufferView.buffer !== void 0) {
+                        bufferView.bufferIndex = bufferView.buffer;
+                        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
+                    }
+                }
+            }
+            catch (e_13_1) { e_13 = { error: e_13_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_13) throw e_13.error; }
+            }
+        };
+        Gltf2Importer.prototype._mergeExtendedJson = function (gltfJson, extendedData) {
+            var extendedJson = null;
+            if (extendedData instanceof ArrayBuffer) {
+                var extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
+                extendedJson = JSON.parse(extendedJsonStr);
+            }
+            else if (typeof extendedData === 'string') {
+                extendedJson = JSON.parse(extendedData);
+                extendedJson = extendedJson;
+            }
+            else if (typeof extendedData === 'object') {
+                extendedJson = extendedData;
+            }
+            Object.assign(gltfJson, extendedJson);
+        };
+        Gltf2Importer.prototype._loadResources = function (arrayBufferBinary, basePath, gltfJson, options, resources) {
+            var _this = this;
+            var promisesToLoadResources = [];
+            var _loop_1 = function (i) {
+                var bufferInfo = gltfJson.buffers[i];
+                var splitted = void 0;
+                var filename;
+                if (bufferInfo.uri) {
+                    splitted = bufferInfo.uri.split('/');
+                    filename = splitted[splitted.length - 1];
+                }
+                if (typeof bufferInfo.uri === 'undefined') {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        resources.buffers[i] = arrayBufferBinary;
+                        bufferInfo.buffer = arrayBufferBinary;
+                        resolve(gltfJson);
+                    }));
+                }
+                else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        var arrayBuffer = DataUtil.base64ToArrayBuffer(bufferInfo.uri);
+                        resources.buffers[i] = arrayBuffer;
+                        bufferInfo.buffer = arrayBuffer;
+                        resolve(gltfJson);
+                    }));
+                }
+                else if (options.files && options.files[filename]) {
+                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
+                        var arrayBuffer = options.files[filename];
+                        resources.buffers[i] = arrayBuffer;
+                        bufferInfo.buffer = arrayBuffer;
+                        resolve(gltfJson);
+                    }));
+                }
+                else {
+                    promisesToLoadResources.push(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true, function (resolve, response) {
+                        resources.buffers[i] = response;
+                        bufferInfo.buffer = response;
+                        resolve(gltfJson);
+                    }, function (reject, error) {
+                    }));
+                }
+            };
+            // Shaders Async load
+            // for (let _i in gltfJson.shaders) {
+            //   const i = _i as any as number;
+            //   resources.shaders[i] = {};
+            //   let shaderJson = gltfJson.shaders[i];
+            //   let shaderType = shaderJson.type;
+            //   if (typeof shaderJson.extensions !== 'undefined' && typeof shaderJson.extensions.KHR_binary_glTF !== 'undefined') {
+            //     resources.shaders[i].shaderText = this._accessBinaryAsShader(shaderJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary);
+            //     resources.shaders[i].shaderType = shaderType;
+            //     continue;
+            //   }
+            //   let shaderUri = shaderJson.uri;
+            //   if (options.files) {
+            //     const splitted = shaderUri.split('/');
+            //     const filename = splitted[splitted.length - 1];
+            //     if (options.files[filename]) {
+            //       const arrayBuffer = options.files[filename];
+            //       resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
+            //       resources.shaders[i].shaderType = shaderType;
+            //       continue;
+            //     }
+            //   }
+            //   if (shaderUri.match(/^data:/)) {
+            //     promisesToLoadResources.push(
+            //       new Promise((resolve, rejected) => {
+            //         let arrayBuffer = DataUtil.base64ToArrayBuffer(shaderUri);
+            //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
+            //         resources.shaders[i].shaderType = shaderType;
+            //         resolve();
+            //       })
+            //     );
+            //   } else {
+            //     shaderUri = basePath + shaderUri;
+            //     promisesToLoadResources.push(
+            //       DataUtil.loadResourceAsync(shaderUri, false,
+            //         (resolve:Function, response:any)=>{
+            //           resources.shaders[i].shaderText = response;
+            //           resources.shaders[i].shaderType = shaderType;
+            //           resolve(gltfJson);
+            //         },
+            //         (reject:Function, error:any)=>{
+            //         }
+            //       )
+            //     );
+            //   }
+            // }
+            // Buffers Async load
+            for (var i in gltfJson.buffers) {
+                _loop_1(i);
+            }
+            var _loop_2 = function (_i) {
+                var i = _i;
+                var imageJson = gltfJson.images[i];
+                //let imageJson = gltfJson.images[textureJson.source];
+                //let samplerJson = gltfJson.samplers[textureJson.sampler];
+                var imageUri;
+                if (typeof imageJson.uri === 'undefined') {
+                    imageUri = this_1._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+                }
+                else {
+                    var imageFileStr = imageJson.uri;
+                    var splitted = imageFileStr.split('/');
+                    var filename = splitted[splitted.length - 1];
+                    if (options.files && options.files[filename]) {
+                        var arrayBuffer = options.files[filename];
+                        var splitted_1 = filename.split('.');
+                        var fileExtension = splitted_1[splitted_1.length - 1];
+                        imageUri = this_1._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+                    }
+                    else if (imageFileStr.match(/^data:/)) {
+                        imageUri = imageFileStr;
+                    }
+                    else {
+                        imageUri = basePath + imageFileStr;
+                    }
+                }
+                // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
+                //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
+                // }
+                promisesToLoadResources.push(new Promise(function (resolve, reject) {
+                    var img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.src = imageUri;
+                    imageJson.image = img;
+                    if (imageUri.match(/^data:/)) {
+                        resolve(gltfJson);
+                    }
+                    else {
+                        var load_1 = function (img, response) {
+                            var bytes = new Uint8Array(response);
+                            var binaryData = "";
+                            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+                                binaryData += String.fromCharCode(bytes[i]);
+                            }
+                            var split = imageUri.split('.');
+                            var ext = split[split.length - 1];
+                            img.src = _this._getImageType(ext) + window.btoa(binaryData);
+                            img.onload = function () {
+                                resolve(gltfJson);
+                            };
+                        };
+                        var loadBinaryImage = function () {
+                            var xhr = new XMLHttpRequest();
+                            xhr.onreadystatechange = (function (_img) {
+                                return function () {
+                                    if (xhr.readyState == 4 && xhr.status == 200) {
+                                        load_1(_img, xhr.response);
+                                    }
+                                };
+                            })(img);
+                            xhr.open('GET', imageUri);
+                            xhr.responseType = 'arraybuffer';
+                            xhr.send();
+                        };
+                        loadBinaryImage();
+                    }
+                    resources.images[i] = img;
+                }));
+            };
+            var this_1 = this;
+            // Textures Async load
+            for (var _i in gltfJson.images) {
+                _loop_2(_i);
+            }
+            return Promise.all(promisesToLoadResources);
+        };
+        Gltf2Importer.prototype._accessBinaryAsImage = function (bufferViewStr, json, arrayBuffer, mimeType) {
+            var arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
+            return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
+        };
+        Gltf2Importer.prototype._sliceBufferViewToArrayBuffer = function (json, bufferViewStr, arrayBuffer) {
+            var bufferViewJson = json.bufferViews[bufferViewStr];
+            var byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+            var byteLength = bufferViewJson.byteLength;
+            var arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
+            return arrayBufferSliced;
+        };
+        Gltf2Importer.prototype._accessArrayBufferAsImage = function (arrayBuffer, imageType) {
+            var bytes = new Uint8Array(arrayBuffer);
+            var binaryData = '';
+            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+                binaryData += String.fromCharCode(bytes[i]);
+            }
+            var imgSrc = this._getImageType(imageType);
+            var dataUrl = imgSrc + DataUtil.btoa(binaryData);
+            return dataUrl;
+        };
+        Gltf2Importer.prototype._getImageType = function (imageType) {
+            var imgSrc = null;
+            if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
+                imgSrc = "data:image/jpeg;base64,";
+            }
+            else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
+                imgSrc = "data:image/png;base64,";
+            }
+            else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
+                imgSrc = "data:image/gif;base64,";
+            }
+            else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
+                imgSrc = "data:image/bmp;base64,";
+            }
+            else {
+                imgSrc = "data:image/unknown;base64,";
+            }
+            return imgSrc;
+        };
+        Gltf2Importer.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new Gltf2Importer();
+            }
+            return this.__instance;
+        };
+        return Gltf2Importer;
+    }());
+
     var Rn = Object.freeze({
         EntityRepository: EntityRepository,
         TransformComponent: TransformComponent,
@@ -6415,7 +7311,8 @@
         Vector4: Vector4,
         Matrix33: Matrix33,
         Matrix44: Matrix44,
-        ProcessApproach: ProcessApproach
+        ProcessApproach: ProcessApproach,
+        Gltf2Importer: Gltf2Importer
     });
     window['Rn'] = Rn;
 

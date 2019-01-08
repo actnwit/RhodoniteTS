@@ -15,12 +15,13 @@ import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
 import MeshRendererComponent from "../../components/MeshRendererComponent";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../../geometry/Primitive";
+import CGAPIResourceRepository from "../CGAPIResourceRepository";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  private __uboUid: CGAPIResourceHandle = 0;
-  private __shaderProgramUid: CGAPIResourceHandle = 0;
+  private __uboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
@@ -31,7 +32,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   } u_matrix;
 
   mat4 getMatrix(float instanceId) {
-    float index = instanceId - 1.0;
+    float index = instanceId;
     return transpose(u_matrix.world[int(index)]);
   }
   `;
@@ -39,7 +40,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   private constructor(){}
 
   setupShaderProgram(): void {
-    if (this.__shaderProgramUid !== 0) {
+    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
 
@@ -113,7 +114,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
           halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
         }
       }
-      if (this.__uboUid !== 0) {
+      if (this.__uboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, halfFloatDataTextureBuffer!);
         return;
       }
@@ -121,7 +122,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
       this.__uboUid = this.__webglResourceRepository.createUniformBuffer(halfFloatDataTextureBuffer!);
 
     } else {
-      if (this.__uboUid !== 0) {
+      if (this.__uboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
         return;
       }

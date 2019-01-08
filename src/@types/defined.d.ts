@@ -19,3 +19,11 @@ type WebGLResourceHandle = number;
 
 type CGAPIResourceHandle = WebGLResourceHandle;
 
+type ImporterOpition = {
+  files: {[s:string]: ArrayBuffer},
+  loaderExtension?: Function,
+  defaultShaderClass?: Function,
+  statesOfElements: [],
+  extendedJson: {},
+  extensionLoader: Function
+}

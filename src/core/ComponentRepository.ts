@@ -40,7 +40,7 @@ export default class ComponentRepository {
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
       if (!is.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
-        component_sid_count = 0;
+        component_sid_count = Component.invalidComponentSID;
       }
       this.__component_sid_count_map.set(
         componentTid,
@@ -54,7 +54,7 @@ export default class ComponentRepository {
       }
       const array = this.__components.get(componentTid);
       if (array != null) {
-        array[component.componentSID-1] = component;
+        array[component.componentSID] = component;
         return component;
       }
     }
