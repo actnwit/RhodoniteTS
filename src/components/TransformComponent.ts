@@ -90,13 +90,13 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  $create() {
+  //$create() {
     // Define process dependencies with other components.
     // If circular depenencies are detected, the error will be repoated.
 
     //this.registerDependency(AnimationComponent.componentTID, false);
 
-  }
+  //}
 
   $updateLogic() {
 
