@@ -724,6 +724,32 @@
             }
             return this.__sceneGraphComponent;
         };
+        Entity.prototype.tryToSetUniqueName = function (name, toAddNameIfConflict) {
+            if (Entity.__uniqueNames.indexOf(name) !== -1) {
+                // Conflict
+                if (toAddNameIfConflict) {
+                    var newName = name + '_(' + this.__uniqueName + ')';
+                    if (Entity.__uniqueNames.indexOf(newName) === -1) {
+                        this.__uniqueName = newName;
+                        Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else {
+                this.__uniqueName = name;
+                Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+                return true;
+            }
+        };
+        Object.defineProperty(Entity.prototype, "uniqueName", {
+            get: function () {
+                return this.__uniqueName;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Entity.invalidEntityUID = -1;
         Entity.__uniqueNames = [];
         return Entity;

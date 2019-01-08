@@ -570,6 +570,28 @@ class Entity {
         }
         return this.__sceneGraphComponent;
     }
+    tryToSetUniqueName(name, toAddNameIfConflict) {
+        if (Entity.__uniqueNames.indexOf(name) !== -1) {
+            // Conflict
+            if (toAddNameIfConflict) {
+                const newName = name + '_(' + this.__uniqueName + ')';
+                if (Entity.__uniqueNames.indexOf(newName) === -1) {
+                    this.__uniqueName = newName;
+                    Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            this.__uniqueName = name;
+            Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
+            return true;
+        }
+    }
+    get uniqueName() {
+        return this.__uniqueName;
+    }
 }
 Entity.invalidEntityUID = -1;
 Entity.__uniqueNames = [];
