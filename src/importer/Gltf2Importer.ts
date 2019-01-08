@@ -1,13 +1,5 @@
 import DataUtil from "../misc/DataUtil";
 
-type Gltf2ImporterOpition = {
-  files: {[s:string]: ArrayBuffer},
-  loaderExtension?: Function,
-  defaultShaderClass?: Function,
-  statesOfElements: [],
-  extendedJson: {},
-  extensionLoader: Function
-}
 
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
@@ -59,7 +51,7 @@ export default class Gltf2Importer {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, uri, options as Gltf2ImporterOpition, defaultOptions);
+      result = await this._loadAsTextJson(json, uri, options as ImporterOpition, defaultOptions);
     } else {
       //this._loadAsBinaryJson(dataView, uri, isLittleEndian, arrayBuffer, options, defaultOptions);
     }
@@ -68,7 +60,7 @@ export default class Gltf2Importer {
 
   }
 
-  _getOptions(defaultOptions: any, json: glTF2, options: any): Gltf2ImporterOpition {
+  _getOptions(defaultOptions: any, json: glTF2, options: any): ImporterOpition {
     if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
       for (let optionName in json.asset.extras.loadOptions) {
         defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
@@ -82,7 +74,7 @@ export default class Gltf2Importer {
     return defaultOptions;
   }
 
-  async _loadAsTextJson(gltfJson: glTF2, uri: string, options: Gltf2ImporterOpition, defaultOptions: {}) {
+  async _loadAsTextJson(gltfJson: glTF2, uri: string, options: ImporterOpition, defaultOptions: {}) {
     let basePath: string;
     if (uri) {
       //Set the location of gltf file as basePath
@@ -102,7 +94,7 @@ export default class Gltf2Importer {
     return (result[0] as any)[0];
   }
 
-  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: Gltf2ImporterOpition) {
+  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: ImporterOpition) {
     let promises = [];
 
     let resources = {
@@ -119,7 +111,7 @@ export default class Gltf2Importer {
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2, options: Gltf2ImporterOpition) {
+  _loadJsonContent(gltfJson: glTF2, options: ImporterOpition) {
 
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
@@ -370,7 +362,7 @@ export default class Gltf2Importer {
     Object.assign(gltfJson, extendedJson);
   }
 
-  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: Gltf2ImporterOpition, resources: {
+  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: ImporterOpition, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]
