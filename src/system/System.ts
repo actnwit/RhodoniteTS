@@ -41,12 +41,15 @@ export default class System {
       }
       componentTids.forEach(componentTid=>{
         const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-        components.forEach((component)=>{
+        for (let k=0; k<components.length; ++k) {
+          const component = components[k];
           const method = (component as any)[methodName];
           if (method != null) {
             (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
+          } else {
+            break;
           }
-        });
+        }
       });
     });
   }
