@@ -3746,6 +3746,7 @@ class Component {
         this.__entityUid = entityUid;
         this._component_sid = componentSid;
         this.__isAlive = true;
+        this.__currentProcessStage = ProcessStage.Logic;
         const stages = [
             ProcessStage.Create,
             ProcessStage.Load,
@@ -4125,6 +4126,87 @@ class EntityRepository {
     }
 }
 
+class SceneGraphComponent extends Component {
+    constructor(entityUid, componentSid) {
+        super(entityUid, componentSid);
+        this._worldMatrix = RowMajarMatrix44.dummy();
+        this.__isWorldMatrixUpToDate = false;
+        this.__tmpMatrix = Matrix44.identity();
+        this.__currentProcessStage = ProcessStage.Logic;
+        let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
+        const array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
+        array[count++] = this.componentSID;
+        array[count] = Component.invalidComponentSID;
+        Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
+        this.__isAbleToBeParent = false;
+        this.beAbleToBeParent(true);
+        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+        this.submitToAllocation();
+        this._worldMatrix.identity();
+        //this.__updatedProperly = false;
+    }
+    static get componentTID() {
+        return WellKnownComponentTIDs.SceneGraphComponentTID;
+    }
+    beAbleToBeParent(flag) {
+        this.__isAbleToBeParent = flag;
+        if (this.__isAbleToBeParent) {
+            this.__children = [];
+        }
+        else {
+            this.__children = void 0;
+        }
+    }
+    setWorldMatrixDirty() {
+        this.__isWorldMatrixUpToDate = false;
+    }
+    addChild(sg) {
+        if (this.__children != null) {
+            sg.__parent = this;
+            this.__children.push(sg);
+        }
+        else {
+            console.error('This is not allowed to have children.');
+        }
+    }
+    get worldMatrixInner() {
+        if (!this.__isWorldMatrixUpToDate) {
+            //this._worldMatrix.identity();
+            this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+            this.__isWorldMatrixUpToDate = true;
+        }
+        return this._worldMatrix;
+    }
+    get worldMatrix() {
+        return this.worldMatrixInner.clone();
+    }
+    $logic() {
+        if (!this.__isWorldMatrixUpToDate) {
+            //this._worldMatrix.identity();
+            this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+            this.__isWorldMatrixUpToDate = true;
+        }
+    }
+    calcWorldMatrixRecursively() {
+        const entity = this.__entityRepository.getEntity(this.__entityUid);
+        const transform = entity.getTransform();
+        if (this.__isWorldMatrixUpToDate) {
+            return this._worldMatrix;
+        }
+        else {
+            const matrix = transform.matrixInner;
+            if (this.__parent == null) {
+                return matrix;
+            }
+            this.__tmpMatrix.copyComponents(matrix);
+            const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+            this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
+        }
+        return this.__tmpMatrix;
+    }
+}
+ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
+
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
     constructor(entityUid, componentSid) {
@@ -4137,7 +4219,8 @@ class TransformComponent extends Component {
         this._invMatrix = Matrix44.dummy();
         this._normalMatrix = Matrix33.dummy();
         this.__toUpdateAllTransform = true;
-        this._updateCount = Math.floor(Math.random() * 10000000001);
+        this._updateCount = 0;
+        this.__updateCountAtLastLogic = 0;
         // dependencies
         this._dependentAnimationComponentId = 0;
         this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
@@ -4162,8 +4245,6 @@ class TransformComponent extends Component {
         this._is_trs_matrix_updated = true;
         this._is_inverse_trs_matrix_updated = true;
         this._is_normal_trs_matrix_updated = true;
-        this._updateCount = 0;
-        this._dirty = true;
     }
     static get renderedPropertyCount() {
         return null;
@@ -4171,11 +4252,13 @@ class TransformComponent extends Component {
     static get componentTID() {
         return WellKnownComponentTIDs.TransformComponentTID;
     }
-    //$create() {
-    // Define process dependencies with other components.
-    // If circular depenencies are detected, the error will be repoated.
-    //this.registerDependency(AnimationComponent.componentTID, false);
-    //}
+    $logic() {
+        if (this.__updateCountAtLastLogic !== this._updateCount) {
+            const sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
+            sceneGraphComponent.setWorldMatrixDirty();
+            this.__updateCountAtLastLogic = this._updateCount;
+        }
+    }
     set toUpdateAllTransform(flag) {
         this.__toUpdateAllTransform = flag;
     }
@@ -4184,7 +4267,6 @@ class TransformComponent extends Component {
     }
     _needUpdate() {
         this._updateCount++;
-        this._dirty = true;
     }
     set translate(vec) {
         this._translate.v[0] = vec.v[0];
@@ -4569,76 +4651,6 @@ class TransformComponent extends Component {
 TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
 TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-
-class SceneGraphComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
-        this._worldMatrix = RowMajarMatrix44.dummy();
-        this.__latestUpdateSum = -1;
-        this.__currentProcessStage = ProcessStage.Logic;
-        let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
-        const array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
-        array[count++] = this.componentSID;
-        array[count] = Component.invalidComponentSID;
-        Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
-        this.__isAbleToBeParent = false;
-        this.beAbleToBeParent(true);
-        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
-        this.submitToAllocation();
-        this._worldMatrix.identity();
-        //this.__updatedProperly = false;
-    }
-    static get componentTID() {
-        return WellKnownComponentTIDs.SceneGraphComponentTID;
-    }
-    beAbleToBeParent(flag) {
-        this.__isAbleToBeParent = flag;
-        if (this.__isAbleToBeParent) {
-            this.__children = [];
-        }
-        else {
-            this.__children = void 0;
-        }
-    }
-    addChild(sg) {
-        if (this.__children != null) {
-            sg.__parent = this;
-            this.__children.push(sg);
-        }
-        else {
-            console.error('This is not allowed to have children.');
-        }
-    }
-    get worldMatrixInner() {
-        return this.calcWorldMatrixRecursively(0);
-    }
-    get worldMatrix() {
-        return this.worldMatrixInner.clone();
-    }
-    $logic() {
-        this.calcWorldMatrixRecursively(0);
-    }
-    calcWorldMatrixRecursively(updateCount) {
-        const entity = this.__entityRepository.getEntity(this.__entityUid);
-        const transform = entity.getTransform();
-        if (this.__parent == null) {
-            // if there is not parent
-            //if (transform._dirty) {
-            const updateSum = updateCount + transform._updateCount;
-            if (this.__latestUpdateSum !== updateSum) {
-                //transform._dirty = false;
-                this._worldMatrix.copyComponents(transform.matrixInner);
-                this.__latestUpdateSum = updateSum;
-                //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
-            }
-            return this._worldMatrix;
-        }
-        const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(transform._updateCount + updateCount);
-        this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-        return this._worldMatrix;
-    }
-}
-ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
 class MeshComponent extends Component {
     constructor(entityUid, componentSid) {

@@ -17,6 +17,7 @@ import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
+import SceneGraphComponent from './SceneGraphComponent';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -41,9 +42,8 @@ export default class TransformComponent extends Component {
   private static __tmpMat_quaternionInner: Matrix44 = Matrix44.identity();
 
   private __toUpdateAllTransform = true;
-
-  _updateCount: number = Math.floor( Math.random() * 10000000001 );
-  _dirty: boolean;
+  private _updateCount = 0;
+  private __updateCountAtLastLogic = 0;
 
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -80,8 +80,6 @@ export default class TransformComponent extends Component {
     this._is_inverse_trs_matrix_updated = true;
     this._is_normal_trs_matrix_updated = true;
 
-    this._updateCount = 0;
-    this._dirty = true;
   }
 
   static get renderedPropertyCount() {
@@ -92,13 +90,13 @@ export default class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
-  //$create() {
-    // Define process dependencies with other components.
-    // If circular depenencies are detected, the error will be repoated.
-
-    //this.registerDependency(AnimationComponent.componentTID, false);
-
-  //}
+  $logic() {
+    if (this.__updateCountAtLastLogic !== this._updateCount) {
+      const sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+      sceneGraphComponent.setWorldMatrixDirty();
+      this.__updateCountAtLastLogic = this._updateCount;
+    }
+  }
 
   set toUpdateAllTransform(flag: boolean) {
     this.__toUpdateAllTransform = flag;
@@ -110,7 +108,6 @@ export default class TransformComponent extends Component {
 
   _needUpdate() {
     this._updateCount++;
-    this._dirty = true;
   }
 
   set translate(vec: Vector3) {
@@ -198,7 +195,7 @@ export default class TransformComponent extends Component {
       this._scale.z = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
       this._is_scale_updated = true;
     }
-    
+
     return this._scale;
   }
 

@@ -4341,6 +4341,7 @@
             this.__entityUid = entityUid;
             this._component_sid = componentSid;
             this.__isAlive = true;
+            this.__currentProcessStage = ProcessStage.Logic;
             var stages = [
                 ProcessStage.Create,
                 ProcessStage.Load,
@@ -4795,6 +4796,102 @@
         return EntityRepository;
     }());
 
+    var SceneGraphComponent = /** @class */ (function (_super) {
+        __extends(SceneGraphComponent, _super);
+        function SceneGraphComponent(entityUid, componentSid) {
+            var _this = _super.call(this, entityUid, componentSid) || this;
+            _this._worldMatrix = RowMajarMatrix44.dummy();
+            _this.__isWorldMatrixUpToDate = false;
+            _this.__tmpMatrix = Matrix44.identity();
+            _this.__currentProcessStage = ProcessStage.Logic;
+            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
+            var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
+            array[count++] = _this.componentSID;
+            array[count] = Component.invalidComponentSID;
+            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
+            _this.__isAbleToBeParent = false;
+            _this.beAbleToBeParent(true);
+            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.submitToAllocation();
+            _this._worldMatrix.identity();
+            return _this;
+            //this.__updatedProperly = false;
+        }
+        Object.defineProperty(SceneGraphComponent, "componentTID", {
+            get: function () {
+                return WellKnownComponentTIDs.SceneGraphComponentTID;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
+            this.__isAbleToBeParent = flag;
+            if (this.__isAbleToBeParent) {
+                this.__children = [];
+            }
+            else {
+                this.__children = void 0;
+            }
+        };
+        SceneGraphComponent.prototype.setWorldMatrixDirty = function () {
+            this.__isWorldMatrixUpToDate = false;
+        };
+        SceneGraphComponent.prototype.addChild = function (sg) {
+            if (this.__children != null) {
+                sg.__parent = this;
+                this.__children.push(sg);
+            }
+            else {
+                console.error('This is not allowed to have children.');
+            }
+        };
+        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
+            get: function () {
+                if (!this.__isWorldMatrixUpToDate) {
+                    //this._worldMatrix.identity();
+                    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+                    this.__isWorldMatrixUpToDate = true;
+                }
+                return this._worldMatrix;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrix", {
+            get: function () {
+                return this.worldMatrixInner.clone();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SceneGraphComponent.prototype.$logic = function () {
+            if (!this.__isWorldMatrixUpToDate) {
+                //this._worldMatrix.identity();
+                this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+                this.__isWorldMatrixUpToDate = true;
+            }
+        };
+        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {
+            var entity = this.__entityRepository.getEntity(this.__entityUid);
+            var transform = entity.getTransform();
+            if (this.__isWorldMatrixUpToDate) {
+                return this._worldMatrix;
+            }
+            else {
+                var matrix = transform.matrixInner;
+                if (this.__parent == null) {
+                    return matrix;
+                }
+                this.__tmpMatrix.copyComponents(matrix);
+                var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+                this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
+            }
+            return this.__tmpMatrix;
+        };
+        return SceneGraphComponent;
+    }(Component));
+    ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
+
     // import AnimationComponent from './AnimationComponent';
     var TransformComponent = /** @class */ (function (_super) {
         __extends(TransformComponent, _super);
@@ -4808,7 +4905,8 @@
             _this._invMatrix = Matrix44.dummy();
             _this._normalMatrix = Matrix33.dummy();
             _this.__toUpdateAllTransform = true;
-            _this._updateCount = Math.floor(Math.random() * 10000000001);
+            _this._updateCount = 0;
+            _this.__updateCountAtLastLogic = 0;
             // dependencies
             _this._dependentAnimationComponentId = 0;
             _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
@@ -4833,8 +4931,6 @@
             _this._is_trs_matrix_updated = true;
             _this._is_inverse_trs_matrix_updated = true;
             _this._is_normal_trs_matrix_updated = true;
-            _this._updateCount = 0;
-            _this._dirty = true;
             return _this;
         }
         Object.defineProperty(TransformComponent, "renderedPropertyCount", {
@@ -4851,15 +4947,17 @@
             enumerable: true,
             configurable: true
         });
+        TransformComponent.prototype.$logic = function () {
+            if (this.__updateCountAtLastLogic !== this._updateCount) {
+                var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
+                sceneGraphComponent.setWorldMatrixDirty();
+                this.__updateCountAtLastLogic = this._updateCount;
+            }
+        };
         Object.defineProperty(TransformComponent.prototype, "toUpdateAllTransform", {
             get: function () {
                 return this.__toUpdateAllTransform;
             },
-            //$create() {
-            // Define process dependencies with other components.
-            // If circular depenencies are detected, the error will be repoated.
-            //this.registerDependency(AnimationComponent.componentTID, false);
-            //}
             set: function (flag) {
                 this.__toUpdateAllTransform = flag;
             },
@@ -4868,7 +4966,6 @@
         });
         TransformComponent.prototype._needUpdate = function () {
             this._updateCount++;
-            this._dirty = true;
         };
         Object.defineProperty(TransformComponent.prototype, "translate", {
             get: function () {
@@ -5314,91 +5411,6 @@
         return TransformComponent;
     }(Component));
     ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-
-    var SceneGraphComponent = /** @class */ (function (_super) {
-        __extends(SceneGraphComponent, _super);
-        function SceneGraphComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
-            _this._worldMatrix = RowMajarMatrix44.dummy();
-            _this.__latestUpdateSum = -1;
-            _this.__currentProcessStage = ProcessStage.Logic;
-            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
-            var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
-            array[count++] = _this.componentSID;
-            array[count] = Component.invalidComponentSID;
-            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
-            _this.__isAbleToBeParent = false;
-            _this.beAbleToBeParent(true);
-            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
-            _this.submitToAllocation();
-            _this._worldMatrix.identity();
-            return _this;
-            //this.__updatedProperly = false;
-        }
-        Object.defineProperty(SceneGraphComponent, "componentTID", {
-            get: function () {
-                return WellKnownComponentTIDs.SceneGraphComponentTID;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
-            this.__isAbleToBeParent = flag;
-            if (this.__isAbleToBeParent) {
-                this.__children = [];
-            }
-            else {
-                this.__children = void 0;
-            }
-        };
-        SceneGraphComponent.prototype.addChild = function (sg) {
-            if (this.__children != null) {
-                sg.__parent = this;
-                this.__children.push(sg);
-            }
-            else {
-                console.error('This is not allowed to have children.');
-            }
-        };
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
-            get: function () {
-                return this.calcWorldMatrixRecursively(0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrix", {
-            get: function () {
-                return this.worldMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.$logic = function () {
-            this.calcWorldMatrixRecursively(0);
-        };
-        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function (updateCount) {
-            var entity = this.__entityRepository.getEntity(this.__entityUid);
-            var transform = entity.getTransform();
-            if (this.__parent == null) {
-                // if there is not parent
-                //if (transform._dirty) {
-                var updateSum = updateCount + transform._updateCount;
-                if (this.__latestUpdateSum !== updateSum) {
-                    //transform._dirty = false;
-                    this._worldMatrix.copyComponents(transform.matrixInner);
-                    this.__latestUpdateSum = updateSum;
-                    //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
-                }
-                return this._worldMatrix;
-            }
-            var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(transform._updateCount + updateCount);
-            this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-            return this._worldMatrix;
-        };
-        return SceneGraphComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
     var MeshComponent = /** @class */ (function (_super) {
         __extends(MeshComponent, _super);
