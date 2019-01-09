@@ -19,6 +19,7 @@ export default class SceneGraphComponent extends Component {
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
   private _worldMatrix: RowMajarMatrix44 = RowMajarMatrix44.dummy();
+  private __latestUpdateSum = -1;
   //private __updatedProperly: boolean;
 
   private static __bufferView: BufferView;
@@ -68,7 +69,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-    return this.calcWorldMatrixRecursively();
+    return this.calcWorldMatrixRecursively(0);
   }
 
   get worldMatrix() {
@@ -76,24 +77,27 @@ export default class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    this.calcWorldMatrixRecursively();
+    this.calcWorldMatrixRecursively(0);
   }
 
-  calcWorldMatrixRecursively(): Matrix44 {
+  calcWorldMatrixRecursively(updateCount: number): Matrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
     if (this.__parent == null) {
       // if there is not parent
-      if (transform._dirty) {
-        transform._dirty = false;
+      //if (transform._dirty) {
+      const updateSum = updateCount + transform._updateCount;
+      if (this.__latestUpdateSum !== updateSum) {
+        //transform._dirty = false;
         this._worldMatrix.copyComponents(transform.matrixInner);
+        this.__latestUpdateSum = updateSum;
 //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
       } else {
 //        console.log('Skip!', this._worldMatrix.toString(), this.__entityUid);
       }
       return this._worldMatrix;
     }
-    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(transform._updateCount + updateCount);
     this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
     return this._worldMatrix;
   }

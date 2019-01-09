@@ -40,8 +40,9 @@ export default class TransformComponent extends Component {
   private static __tmpMat_updateRotation: Matrix44 = Matrix44.identity();
   private static __tmpMat_quaternionInner: Matrix44 = Matrix44.identity();
 
-  _updateCount: number;
   private __toUpdateAllTransform = true;
+
+  _updateCount: number = Math.floor( Math.random() * 10000000001 );
   _dirty: boolean;
 
   // dependencies

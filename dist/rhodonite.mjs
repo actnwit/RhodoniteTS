@@ -4136,6 +4136,8 @@ class TransformComponent extends Component {
         this._matrix = Matrix44.dummy();
         this._invMatrix = Matrix44.dummy();
         this._normalMatrix = Matrix33.dummy();
+        this.__toUpdateAllTransform = true;
+        this._updateCount = Math.floor(Math.random() * 10000000001);
         // dependencies
         this._dependentAnimationComponentId = 0;
         this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
@@ -4174,7 +4176,11 @@ class TransformComponent extends Component {
     // If circular depenencies are detected, the error will be repoated.
     //this.registerDependency(AnimationComponent.componentTID, false);
     //}
-    $updateLogic() {
+    set toUpdateAllTransform(flag) {
+        this.__toUpdateAllTransform = flag;
+    }
+    get toUpdateAllTransform() {
+        return this.__toUpdateAllTransform;
     }
     _needUpdate() {
         this._updateCount++;
@@ -4312,8 +4318,21 @@ class TransformComponent extends Component {
         // Clear and set Scale
         const scale = this.scaleInner;
         const n00 = scale.v[0];
+        // const n01 = 0;
+        // const n02 = 0;
+        // const n03 = 0;
+        // const n10 = 0;
         const n11 = scale.v[1];
+        // const n12 = 0;
+        // const n13 = 0;
+        // const n20 = 0;
+        // const n21 = 0;
         const n22 = scale.v[2];
+        // const n23 = 0;
+        // const n30 = 0;
+        // const n31 = 0;
+        // const n32 = 0;
+        // const n33 = 1;
         const q = this.quaternionInner;
         const sx = q.v[0] * q.v[0];
         const sy = q.v[1] * q.v[1];
@@ -4327,12 +4346,19 @@ class TransformComponent extends Component {
         const m00 = 1.0 - 2.0 * (sy + sz);
         const m01 = 2.0 * (cz - wz);
         const m02 = 2.0 * (cy + wy);
+        // const m03 = 0.0;
         const m10 = 2.0 * (cz + wz);
         const m11 = 1.0 - 2.0 * (sx + sz);
         const m12 = 2.0 * (cx - wx);
+        // const m13 = 0.0;
         const m20 = 2.0 * (cy - wy);
         const m21 = 2.0 * (cx + wx);
         const m22 = 1.0 - 2.0 * (sx + sy);
+        // const m23 = 0.0;
+        // const m30 = 0.0;
+        // const m31 = 0.0;
+        // const m32 = 0.0;
+        // const m33 = 1.0;
         const translate = this.translateInner;
         // TranslateMatrix * RotateMatrix * ScaleMatrix
         this._matrix.m00 = m00 * n00;
@@ -4434,9 +4460,11 @@ class TransformComponent extends Component {
         this.__updateTransform();
     }
     __updateTransform() {
-        this.__updateRotation();
-        this.__updateTranslate();
-        this.__updateScale();
+        if (this.__toUpdateAllTransform) {
+            this.__updateRotation();
+            this.__updateTranslate();
+            this.__updateScale();
+        }
         //this.__updateMatrix();
         this._needUpdate();
     }
@@ -4546,6 +4574,7 @@ class SceneGraphComponent extends Component {
     constructor(entityUid, componentSid) {
         super(entityUid, componentSid);
         this._worldMatrix = RowMajarMatrix44.dummy();
+        this.__latestUpdateSum = -1;
         this.__currentProcessStage = ProcessStage.Logic;
         let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
         const array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
@@ -4581,27 +4610,30 @@ class SceneGraphComponent extends Component {
         }
     }
     get worldMatrixInner() {
-        return this.calcWorldMatrixRecursively();
+        return this.calcWorldMatrixRecursively(0);
     }
     get worldMatrix() {
         return this.worldMatrixInner.clone();
     }
     $logic() {
-        this.calcWorldMatrixRecursively();
+        this.calcWorldMatrixRecursively(0);
     }
-    calcWorldMatrixRecursively() {
+    calcWorldMatrixRecursively(updateCount) {
         const entity = this.__entityRepository.getEntity(this.__entityUid);
         const transform = entity.getTransform();
         if (this.__parent == null) {
             // if there is not parent
-            if (transform._dirty) {
-                transform._dirty = false;
+            //if (transform._dirty) {
+            const updateSum = updateCount + transform._updateCount;
+            if (this.__latestUpdateSum !== updateSum) {
+                //transform._dirty = false;
                 this._worldMatrix.copyComponents(transform.matrixInner);
+                this.__latestUpdateSum = updateSum;
                 //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
             }
             return this._worldMatrix;
         }
-        const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+        const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(transform._updateCount + updateCount);
         this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
         return this._worldMatrix;
     }

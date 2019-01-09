@@ -4807,6 +4807,8 @@
             _this._matrix = Matrix44.dummy();
             _this._invMatrix = Matrix44.dummy();
             _this._normalMatrix = Matrix33.dummy();
+            _this.__toUpdateAllTransform = true;
+            _this._updateCount = Math.floor(Math.random() * 10000000001);
             // dependencies
             _this._dependentAnimationComponentId = 0;
             _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
@@ -4849,13 +4851,21 @@
             enumerable: true,
             configurable: true
         });
-        //$create() {
-        // Define process dependencies with other components.
-        // If circular depenencies are detected, the error will be repoated.
-        //this.registerDependency(AnimationComponent.componentTID, false);
-        //}
-        TransformComponent.prototype.$updateLogic = function () {
-        };
+        Object.defineProperty(TransformComponent.prototype, "toUpdateAllTransform", {
+            get: function () {
+                return this.__toUpdateAllTransform;
+            },
+            //$create() {
+            // Define process dependencies with other components.
+            // If circular depenencies are detected, the error will be repoated.
+            //this.registerDependency(AnimationComponent.componentTID, false);
+            //}
+            set: function (flag) {
+                this.__toUpdateAllTransform = flag;
+            },
+            enumerable: true,
+            configurable: true
+        });
         TransformComponent.prototype._needUpdate = function () {
             this._updateCount++;
             this._dirty = true;
@@ -5029,8 +5039,21 @@
                 // Clear and set Scale
                 var scale = this.scaleInner;
                 var n00 = scale.v[0];
+                // const n01 = 0;
+                // const n02 = 0;
+                // const n03 = 0;
+                // const n10 = 0;
                 var n11 = scale.v[1];
+                // const n12 = 0;
+                // const n13 = 0;
+                // const n20 = 0;
+                // const n21 = 0;
                 var n22 = scale.v[2];
+                // const n23 = 0;
+                // const n30 = 0;
+                // const n31 = 0;
+                // const n32 = 0;
+                // const n33 = 1;
                 var q = this.quaternionInner;
                 var sx = q.v[0] * q.v[0];
                 var sy = q.v[1] * q.v[1];
@@ -5044,12 +5067,19 @@
                 var m00 = 1.0 - 2.0 * (sy + sz);
                 var m01 = 2.0 * (cz - wz);
                 var m02 = 2.0 * (cy + wy);
+                // const m03 = 0.0;
                 var m10 = 2.0 * (cz + wz);
                 var m11 = 1.0 - 2.0 * (sx + sz);
                 var m12 = 2.0 * (cx - wx);
+                // const m13 = 0.0;
                 var m20 = 2.0 * (cy - wy);
                 var m21 = 2.0 * (cx + wx);
                 var m22 = 1.0 - 2.0 * (sx + sy);
+                // const m23 = 0.0;
+                // const m30 = 0.0;
+                // const m31 = 0.0;
+                // const m32 = 0.0;
+                // const m33 = 1.0;
                 var translate = this.translateInner;
                 // TranslateMatrix * RotateMatrix * ScaleMatrix
                 this._matrix.m00 = m00 * n00;
@@ -5170,9 +5200,11 @@
             this.__updateTransform();
         };
         TransformComponent.prototype.__updateTransform = function () {
-            this.__updateRotation();
-            this.__updateTranslate();
-            this.__updateScale();
+            if (this.__toUpdateAllTransform) {
+                this.__updateRotation();
+                this.__updateTranslate();
+                this.__updateScale();
+            }
             //this.__updateMatrix();
             this._needUpdate();
         };
@@ -5288,6 +5320,7 @@
         function SceneGraphComponent(entityUid, componentSid) {
             var _this = _super.call(this, entityUid, componentSid) || this;
             _this._worldMatrix = RowMajarMatrix44.dummy();
+            _this.__latestUpdateSum = -1;
             _this.__currentProcessStage = ProcessStage.Logic;
             var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
             var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
@@ -5329,7 +5362,7 @@
         };
         Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
             get: function () {
-                return this.calcWorldMatrixRecursively();
+                return this.calcWorldMatrixRecursively(0);
             },
             enumerable: true,
             configurable: true
@@ -5342,21 +5375,24 @@
             configurable: true
         });
         SceneGraphComponent.prototype.$logic = function () {
-            this.calcWorldMatrixRecursively();
+            this.calcWorldMatrixRecursively(0);
         };
-        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {
+        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function (updateCount) {
             var entity = this.__entityRepository.getEntity(this.__entityUid);
             var transform = entity.getTransform();
             if (this.__parent == null) {
                 // if there is not parent
-                if (transform._dirty) {
-                    transform._dirty = false;
+                //if (transform._dirty) {
+                var updateSum = updateCount + transform._updateCount;
+                if (this.__latestUpdateSum !== updateSum) {
+                    //transform._dirty = false;
                     this._worldMatrix.copyComponents(transform.matrixInner);
+                    this.__latestUpdateSum = updateSum;
                     //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
                 }
                 return this._worldMatrix;
             }
-            var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+            var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(transform._updateCount + updateCount);
             this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
             return this._worldMatrix;
         };
