@@ -32,6 +32,10 @@ export default class ComponentRepository {
     return this.__instance;
   }
 
+  static getComponentClass(componentTid: ComponentTID) {
+    return this.__componentClasses.get(componentTid);
+  }
+
   createComponent(componentTid: ComponentTID, entityUid: EntityUID) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);

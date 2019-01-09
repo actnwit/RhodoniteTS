@@ -12,13 +12,15 @@ import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import { BufferUse } from '../definitions/BufferUse';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
   private _worldMatrix: RowMajarMatrix44 = RowMajarMatrix44.dummy();
-  //private __updatedProperly: boolean;
+  private __isWorldMatrixUpToDate: boolean = false;
+  private __tmpMatrix = Matrix44.identity();
 
   private static __bufferView: BufferView;
 
@@ -26,6 +28,14 @@ export default class SceneGraphComponent extends Component {
     super(entityUid, componentSid);
 
     const thisClass = SceneGraphComponent;
+
+    this.__currentProcessStage = ProcessStage.Logic;
+    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic)!;
+    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Logic)!;
+    array[count++] = this.componentSID;
+    array[count] = Component.invalidComponentSID;
+
+    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
@@ -49,6 +59,10 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
+  setWorldMatrixDirty() {
+    this.__isWorldMatrixUpToDate = false;
+  }
+
   addChild(sg: SceneGraphComponent) {
     if (this.__children != null) {
       sg.__parent = this;
@@ -59,7 +73,13 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-    return this.calcWorldMatrixRecursively();
+    if (!this.__isWorldMatrixUpToDate) {
+      //this._worldMatrix.identity();
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+      this.__isWorldMatrixUpToDate = true;
+    }
+
+    return this._worldMatrix;
   }
 
   get worldMatrix() {
@@ -67,26 +87,30 @@ export default class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    this.calcWorldMatrixRecursively();
+    if (!this.__isWorldMatrixUpToDate) {
+      //this._worldMatrix.identity();
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+      this.__isWorldMatrixUpToDate = true;
+    }
   }
 
   calcWorldMatrixRecursively(): Matrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
-    if (this.__parent == null) {
-      // if there is not parent
-      if (transform._dirty) {
-        transform._dirty = false;
-        this._worldMatrix.copyComponents(transform.matrixInner);
-//        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
-      } else {
-//        console.log('Skip!', this._worldMatrix.toString(), this.__entityUid);
-      }
+
+    if (this.__isWorldMatrixUpToDate) {
       return this._worldMatrix;
-    }
-    const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-    this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-    return this._worldMatrix;
+    } else {
+      const matrix = transform.matrixInner;
+      if (this.__parent == null) {
+        return matrix;
+      }
+      this.__tmpMatrix.copyComponents(matrix);
+      const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+      this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
+   }
+
+    return this.__tmpMatrix;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);

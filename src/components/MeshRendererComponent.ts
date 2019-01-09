@@ -8,6 +8,7 @@ import Primitive from '../geometry/Primitive';
 import WebGLStrategy from '../renderer/webgl/WebGLStrategy';
 import getRenderingStrategy from '../renderer/webgl/getRenderingStrategy';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -20,6 +21,13 @@ export default class MeshRendererComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID) {
     super(entityUid, componentSid);
+    this.__currentProcessStage = ProcessStage.Create;
+
+    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;
+    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Create)!;
+    array[count++] = this.componentSID;
+    array[count] = Component.invalidComponentSID;
+    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count)!;
   }
 
   static get componentTID(): ComponentTID {
@@ -34,13 +42,17 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  $create(processApproech: ProcessApproachEnum) {
+  $create({processApproach}: {
+    processApproach: ProcessApproachEnum}
+    ) {
     if (this.__meshComponent != null) {
       return;
     }
     this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID) as MeshComponent;
 
-    this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+    this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
+
+    this.moveStageTo(ProcessStage.Load);
   }
 
   $load() {
@@ -56,9 +68,14 @@ export default class MeshRendererComponent extends Component {
     //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
     // }
     this.__webglRenderingStrategy!.load(this.__meshComponent!);
+    this.moveStageTo(ProcessStage.PreRender);
   }
 
-  $prerender(processApproech: ProcessApproachEnum, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(
+    {processApproech, instanceIDBufferUid}:{
+      processApproech: ProcessApproachEnum,
+      instanceIDBufferUid: WebGLResourceHandle
+    }) {
     // if (this.__isVAOSet) {
     //   return;
     // }

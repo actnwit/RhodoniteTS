@@ -3548,7 +3548,7 @@
             this.__buffers = {};
             // BufferForGPUInstanceData
             {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
@@ -3558,7 +3558,7 @@
             }
             // BufferForGPUVertexData
             {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
@@ -3568,7 +3568,7 @@
             }
             // BufferForUBO
             {
-                var arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var arrayBuffer = new ArrayBuffer((MemoryManager.bufferWidthLength - 1) * (MemoryManager.bufferHeightLength - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
@@ -3576,9 +3576,9 @@
                 });
                 this.__buffers[buffer.name] = buffer;
             }
-            // BufferForCPU
+            // BufferForCP
             {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
                 var buffer = new Buffer$1({
                     byteLength: arrayBuffer.byteLength,
                     arrayBuffer: arrayBuffer,
@@ -3596,14 +3596,22 @@
         MemoryManager.prototype.getBuffer = function (bufferUse) {
             return this.__buffers[bufferUse.toString()];
         };
-        Object.defineProperty(MemoryManager, "bufferLengthOfOneSide", {
+        Object.defineProperty(MemoryManager, "bufferWidthLength", {
             get: function () {
-                return MemoryManager.__bufferLengthOfOneSide;
+                return MemoryManager.__bufferWidthLength;
             },
             enumerable: true,
             configurable: true
         });
-        MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
+        Object.defineProperty(MemoryManager, "bufferHeightLength", {
+            get: function () {
+                return MemoryManager.__bufferHeightLength;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        MemoryManager.__bufferWidthLength = Math.pow(2, 10);
+        MemoryManager.__bufferHeightLength = Math.pow(2, 10);
         return MemoryManager;
     }());
 
@@ -4297,14 +4305,70 @@
         return RowMajarMatrix44;
     }());
 
+    var ProcessStageClass = /** @class */ (function (_super) {
+        __extends(ProcessStageClass, _super);
+        function ProcessStageClass(_a) {
+            var index = _a.index, str = _a.str, methodName = _a.methodName;
+            var _this = _super.call(this, { index: index, str: str }) || this;
+            _this.__methodName = methodName;
+            return _this;
+        }
+        ProcessStageClass.prototype.getMethodName = function () {
+            return this.__methodName;
+        };
+        return ProcessStageClass;
+    }(EnumClass));
+    var Unknown$3 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
+    var Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
+    var Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
+    var Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
+    var Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
+    var PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
+    var Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
+    var Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
+    var Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
+    var typeList$5 = [Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
+    function from$5(_a) {
+        var index = _a.index;
+        return _from({ typeList: typeList$5, index: index });
+    }
+    var ProcessStage = Object.freeze({ Unknown: Unknown$3, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
+
     var Component = /** @class */ (function () {
         function Component(entityUid, componentSid) {
+            var _this = this;
+            this.__currentProcessStage = ProcessStage.Create;
             this.__entityUid = entityUid;
             this._component_sid = componentSid;
             this.__isAlive = true;
+            this.__currentProcessStage = ProcessStage.Logic;
+            var stages = [
+                ProcessStage.Create,
+                ProcessStage.Load,
+                ProcessStage.Mount,
+                ProcessStage.Logic,
+                ProcessStage.PreRender,
+                ProcessStage.Render,
+                ProcessStage.Unmount,
+                ProcessStage.Discard
+            ];
+            stages.forEach(function (stage) {
+                if (_this.isExistProcessStageMethod(stage)) {
+                    if (Component.__componentsOfProcessStages.get(stage) == null) {
+                        Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                        Component.__dirtyOfArrayOfProcessStages.set(stage, false);
+                        Component.__lengthOfArrayOfProcessStages.set(stage, 0);
+                    }
+                }
+            });
             this.__memoryManager = MemoryManager.getInstance();
             this.__entityRepository = EntityRepository.getInstance();
         }
+        Component.prototype.moveStageTo = function (processStage) {
+            Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
+            Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
+            this.__currentProcessStage = processStage;
+        };
         Object.defineProperty(Component, "componentTID", {
             get: function () {
                 return 0;
@@ -4326,6 +4390,63 @@
             enumerable: true,
             configurable: true
         });
+        Component.isExistProcessStageMethod = function (componentTid, processStage) {
+            var componentRepository = ComponentRepository.getInstance();
+            var component = componentRepository.getComponent(componentTid, 0);
+            if (component == null) {
+                return false;
+            }
+            if (component[processStage.getMethodName()] == null) {
+                return false;
+            }
+            return true;
+        };
+        Component.prototype.isExistProcessStageMethod = function (processStage) {
+            if (this[processStage.getMethodName()] == null) {
+                return false;
+            }
+            return true;
+        };
+        Component.process = function (_a) {
+            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach;
+            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+                return;
+            }
+            var componentRepository = ComponentRepository.getInstance();
+            var array = this.__componentsOfProcessStages.get(processStage);
+            for (var i = 0; i < array.length; ++i) {
+                if (array[i] === Component.invalidComponentSID) {
+                    break;
+                }
+                var componentSid = array[i];
+                var component = componentRepository.getComponent(componentTid, componentSid);
+                component[processStage.getMethodName()]({
+                    processStage: processStage,
+                    instanceIDBufferUid: instanceIDBufferUid,
+                    processApproach: processApproach
+                });
+            }
+        };
+        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage) {
+            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+                return;
+            }
+            var componentRepository = ComponentRepository.getInstance();
+            var component = componentRepository.getComponent(this.componentTID, 0);
+            var dirty = Component.__componentsOfProcessStages.get(processStage);
+            if (dirty) {
+                var components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+                var array = Component.__componentsOfProcessStages.get(processStage);
+                var count = 0;
+                for (var i = 0; i < components.length; ++i) {
+                    var component_1 = components[i];
+                    if (processStage === component_1.__currentProcessStage) {
+                        array[count++] = component_1.componentSID;
+                    }
+                }
+                array[count] = Component.invalidComponentSID;
+            }
+        };
         Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
             var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
             return byteLengthSumOfMembers.get(bufferUse);
@@ -4499,6 +4620,9 @@
             }
         };
         Component.invalidComponentSID = -1;
+        Component.__componentsOfProcessStages = new Map();
+        Component.__lengthOfArrayOfProcessStages = new Map();
+        Component.__dirtyOfArrayOfProcessStages = new Map();
         Component.__bufferViews = new Map();
         Component.__accessors = new Map();
         Component.__byteLengthSumOfMembers = new Map();
@@ -4532,6 +4656,9 @@
                 this.__instance = new ComponentRepository();
             }
             return this.__instance;
+        };
+        ComponentRepository.getComponentClass = function (componentTid) {
+            return this.__componentClasses.get(componentTid);
         };
         ComponentRepository.prototype.createComponent = function (componentTid, entityUid) {
             var thisClass = ComponentRepository;
@@ -4674,6 +4801,102 @@
         return EntityRepository;
     }());
 
+    var SceneGraphComponent = /** @class */ (function (_super) {
+        __extends(SceneGraphComponent, _super);
+        function SceneGraphComponent(entityUid, componentSid) {
+            var _this = _super.call(this, entityUid, componentSid) || this;
+            _this._worldMatrix = RowMajarMatrix44.dummy();
+            _this.__isWorldMatrixUpToDate = false;
+            _this.__tmpMatrix = Matrix44.identity();
+            _this.__currentProcessStage = ProcessStage.Logic;
+            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
+            var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
+            array[count++] = _this.componentSID;
+            array[count] = Component.invalidComponentSID;
+            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
+            _this.__isAbleToBeParent = false;
+            _this.beAbleToBeParent(true);
+            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+            _this.submitToAllocation();
+            _this._worldMatrix.identity();
+            return _this;
+            //this.__updatedProperly = false;
+        }
+        Object.defineProperty(SceneGraphComponent, "componentTID", {
+            get: function () {
+                return WellKnownComponentTIDs.SceneGraphComponentTID;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
+            this.__isAbleToBeParent = flag;
+            if (this.__isAbleToBeParent) {
+                this.__children = [];
+            }
+            else {
+                this.__children = void 0;
+            }
+        };
+        SceneGraphComponent.prototype.setWorldMatrixDirty = function () {
+            this.__isWorldMatrixUpToDate = false;
+        };
+        SceneGraphComponent.prototype.addChild = function (sg) {
+            if (this.__children != null) {
+                sg.__parent = this;
+                this.__children.push(sg);
+            }
+            else {
+                console.error('This is not allowed to have children.');
+            }
+        };
+        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
+            get: function () {
+                if (!this.__isWorldMatrixUpToDate) {
+                    //this._worldMatrix.identity();
+                    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+                    this.__isWorldMatrixUpToDate = true;
+                }
+                return this._worldMatrix;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrix", {
+            get: function () {
+                return this.worldMatrixInner.clone();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SceneGraphComponent.prototype.$logic = function () {
+            if (!this.__isWorldMatrixUpToDate) {
+                //this._worldMatrix.identity();
+                this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+                this.__isWorldMatrixUpToDate = true;
+            }
+        };
+        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {
+            var entity = this.__entityRepository.getEntity(this.__entityUid);
+            var transform = entity.getTransform();
+            if (this.__isWorldMatrixUpToDate) {
+                return this._worldMatrix;
+            }
+            else {
+                var matrix = transform.matrixInner;
+                if (this.__parent == null) {
+                    return matrix;
+                }
+                this.__tmpMatrix.copyComponents(matrix);
+                var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+                this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
+            }
+            return this.__tmpMatrix;
+        };
+        return SceneGraphComponent;
+    }(Component));
+    ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
+
     // import AnimationComponent from './AnimationComponent';
     var TransformComponent = /** @class */ (function (_super) {
         __extends(TransformComponent, _super);
@@ -4686,6 +4909,9 @@
             _this._matrix = Matrix44.dummy();
             _this._invMatrix = Matrix44.dummy();
             _this._normalMatrix = Matrix33.dummy();
+            _this.__toUpdateAllTransform = true;
+            _this._updateCount = 0;
+            _this.__updateCountAtLastLogic = 0;
             // dependencies
             _this._dependentAnimationComponentId = 0;
             _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, CompositionType.Vec3, ComponentType.Float);
@@ -4710,8 +4936,6 @@
             _this._is_trs_matrix_updated = true;
             _this._is_inverse_trs_matrix_updated = true;
             _this._is_normal_trs_matrix_updated = true;
-            _this._updateCount = 0;
-            _this._dirty = true;
             return _this;
         }
         Object.defineProperty(TransformComponent, "renderedPropertyCount", {
@@ -4728,16 +4952,25 @@
             enumerable: true,
             configurable: true
         });
-        TransformComponent.prototype.$create = function () {
-            // Define process dependencies with other components.
-            // If circular depenencies are detected, the error will be repoated.
-            //this.registerDependency(AnimationComponent.componentTID, false);
+        TransformComponent.prototype.$logic = function () {
+            if (this.__updateCountAtLastLogic !== this._updateCount) {
+                var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
+                sceneGraphComponent.setWorldMatrixDirty();
+                this.__updateCountAtLastLogic = this._updateCount;
+            }
         };
-        TransformComponent.prototype.$updateLogic = function () {
-        };
+        Object.defineProperty(TransformComponent.prototype, "toUpdateAllTransform", {
+            get: function () {
+                return this.__toUpdateAllTransform;
+            },
+            set: function (flag) {
+                this.__toUpdateAllTransform = flag;
+            },
+            enumerable: true,
+            configurable: true
+        });
         TransformComponent.prototype._needUpdate = function () {
             this._updateCount++;
-            this._dirty = true;
         };
         Object.defineProperty(TransformComponent.prototype, "translate", {
             get: function () {
@@ -4908,8 +5141,21 @@
                 // Clear and set Scale
                 var scale = this.scaleInner;
                 var n00 = scale.v[0];
+                // const n01 = 0;
+                // const n02 = 0;
+                // const n03 = 0;
+                // const n10 = 0;
                 var n11 = scale.v[1];
+                // const n12 = 0;
+                // const n13 = 0;
+                // const n20 = 0;
+                // const n21 = 0;
                 var n22 = scale.v[2];
+                // const n23 = 0;
+                // const n30 = 0;
+                // const n31 = 0;
+                // const n32 = 0;
+                // const n33 = 1;
                 var q = this.quaternionInner;
                 var sx = q.v[0] * q.v[0];
                 var sy = q.v[1] * q.v[1];
@@ -4923,12 +5169,19 @@
                 var m00 = 1.0 - 2.0 * (sy + sz);
                 var m01 = 2.0 * (cz - wz);
                 var m02 = 2.0 * (cy + wy);
+                // const m03 = 0.0;
                 var m10 = 2.0 * (cz + wz);
                 var m11 = 1.0 - 2.0 * (sx + sz);
                 var m12 = 2.0 * (cx - wx);
+                // const m13 = 0.0;
                 var m20 = 2.0 * (cy - wy);
                 var m21 = 2.0 * (cx + wx);
                 var m22 = 1.0 - 2.0 * (sx + sy);
+                // const m23 = 0.0;
+                // const m30 = 0.0;
+                // const m31 = 0.0;
+                // const m32 = 0.0;
+                // const m33 = 1.0;
                 var translate = this.translateInner;
                 // TranslateMatrix * RotateMatrix * ScaleMatrix
                 this._matrix.m00 = m00 * n00;
@@ -5049,9 +5302,11 @@
             this.__updateTransform();
         };
         TransformComponent.prototype.__updateTransform = function () {
-            this.__updateRotation();
-            this.__updateTranslate();
-            this.__updateScale();
+            if (this.__toUpdateAllTransform) {
+                this.__updateRotation();
+                this.__updateTranslate();
+                this.__updateScale();
+            }
             //this.__updateMatrix();
             this._needUpdate();
         };
@@ -5161,81 +5416,6 @@
         return TransformComponent;
     }(Component));
     ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-
-    var SceneGraphComponent = /** @class */ (function (_super) {
-        __extends(SceneGraphComponent, _super);
-        function SceneGraphComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
-            _this._worldMatrix = RowMajarMatrix44.dummy();
-            _this.__isAbleToBeParent = false;
-            _this.beAbleToBeParent(true);
-            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
-            _this.submitToAllocation();
-            _this._worldMatrix.identity();
-            return _this;
-            //this.__updatedProperly = false;
-        }
-        Object.defineProperty(SceneGraphComponent, "componentTID", {
-            get: function () {
-                return WellKnownComponentTIDs.SceneGraphComponentTID;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
-            this.__isAbleToBeParent = flag;
-            if (this.__isAbleToBeParent) {
-                this.__children = [];
-            }
-            else {
-                this.__children = void 0;
-            }
-        };
-        SceneGraphComponent.prototype.addChild = function (sg) {
-            if (this.__children != null) {
-                sg.__parent = this;
-                this.__children.push(sg);
-            }
-            else {
-                console.error('This is not allowed to have children.');
-            }
-        };
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
-            get: function () {
-                return this.calcWorldMatrixRecursively();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrix", {
-            get: function () {
-                return this.worldMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.$logic = function () {
-            this.calcWorldMatrixRecursively();
-        };
-        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {
-            var entity = this.__entityRepository.getEntity(this.__entityUid);
-            var transform = entity.getTransform();
-            if (this.__parent == null) {
-                // if there is not parent
-                if (transform._dirty) {
-                    transform._dirty = false;
-                    this._worldMatrix.copyComponents(transform.matrixInner);
-                    //        console.log('No Skip!', this._worldMatrix.toString(), this.__entityUid);
-                }
-                return this._worldMatrix;
-            }
-            var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-            this._worldMatrix.multiplyByLeft(matrixFromAncestorToParent);
-            return this._worldMatrix;
-        };
-        return SceneGraphComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
     var MeshComponent = /** @class */ (function (_super) {
         __extends(MeshComponent, _super);
@@ -5766,7 +5946,7 @@
         }
         return PrimitiveModeClass;
     }(EnumClass));
-    var Unknown$3 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
+    var Unknown$4 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
     var Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
     var Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
     var LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
@@ -5774,12 +5954,12 @@
     var Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
     var TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
     var TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-    var typeList$8 = [Unknown$3, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-    function from$8(_a) {
+    var typeList$9 = [Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
+    function from$9(_a) {
         var index = _a.index;
-        return _from({ typeList: typeList$8, index: index });
+        return _from({ typeList: typeList$9, index: index });
     }
-    var PrimitiveMode = Object.freeze({ Unknown: Unknown$3, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$8 });
+    var PrimitiveMode = Object.freeze({ Unknown: Unknown$4, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$9 });
 
     var WebGLStrategyTransformFeedback = /** @class */ (function () {
         function WebGLStrategyTransformFeedback() {
@@ -5795,7 +5975,7 @@
         }
         Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackShaderText", {
             get: function () {
-                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      ivec4 counts[256];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      ivec4 ids[256];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      ivec4 ids[256];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      ivec4 data[256];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int value = u_indexCountsToSubtract.counts[j/4][j%4];\n          int result = int(step(float(value), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j/4][j%4];\n          } else {\n            break;\n          }\n        }\n      }\n\n      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = indicesMeta.x;\n      int primIndicesComponentSizeInByte = indicesMeta.y;\n      int primIndicesLength = indicesMeta.z;\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferLengthOfOneSide + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = indicesData.x;\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n\n      position = posVec4;\n    }\n";
+                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      ivec4 counts[256];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      ivec4 ids[256];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      ivec4 ids[256];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      ivec4 data[256];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int value = u_indexCountsToSubtract.counts[j/4][j%4];\n          int result = int(step(float(value), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j/4][j%4];\n          } else {\n            break;\n          }\n        }\n      }\n\n      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = indicesMeta.x;\n      int primIndicesComponentSizeInByte = indicesMeta.y;\n      int primIndicesLength = indicesMeta.z;\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferWidthLength + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = indicesData.x;\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n\n      position = posVec4;\n    }\n";
             },
             enumerable: true,
             configurable: true
@@ -5906,13 +6086,13 @@
                 if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
                     else {
                         this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, halfFloatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                         });
                     }
@@ -5920,13 +6100,13 @@
                 else {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
                     else {
                         this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
@@ -5936,14 +6116,14 @@
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
                 else {
                     this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
@@ -5952,14 +6132,14 @@
             else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
                 else {
                     this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
@@ -5975,14 +6155,14 @@
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
                 this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
@@ -6047,7 +6227,7 @@
         Object.defineProperty(WebGLStrategyDataTexture.prototype, "vertexShaderMethodDefinitions_dataTexture", {
             get: function () {
                 var _texture = GLSLShader.glsl_texture;
-                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId;\n    float powVal = " + MemoryManager.bufferLengthOfOneSide + ".0;\n    vec2 arg = vec2(1.0/powVal, 1.0/powVal);\n  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
+                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId;\n    float powWidthVal = " + MemoryManager.bufferWidthLength + ".0;\n    float powHeightVal = " + MemoryManager.bufferHeightLength + ".0;\n    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);\n  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
             },
             enumerable: true,
             configurable: true
@@ -6126,13 +6306,13 @@
                 if (isHalfFloatMode) {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
                     else {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                         });
                     }
@@ -6140,13 +6320,13 @@
                 else {
                     if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
                     else {
                         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                             format: PixelFormat.RGBA, type: ComponentType.Float
                         });
                     }
@@ -6156,14 +6336,14 @@
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
                 else {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
@@ -6172,14 +6352,14 @@
             else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
                 }
                 else {
                     this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                     });
@@ -6244,6 +6424,12 @@
             _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             _this.__vertexHandles = [];
             _this.__isVAOSet = false;
+            _this.__currentProcessStage = ProcessStage.Create;
+            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create);
+            var array = Component.__componentsOfProcessStages.get(ProcessStage.Create);
+            array[count++] = _this.componentSID;
+            array[count] = Component.invalidComponentSID;
+            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count);
             return _this;
         }
         Object.defineProperty(MeshRendererComponent, "componentTID", {
@@ -6261,12 +6447,14 @@
                 return false;
             }
         };
-        MeshRendererComponent.prototype.$create = function (processApproech) {
+        MeshRendererComponent.prototype.$create = function (_a) {
+            var processApproach = _a.processApproach;
             if (this.__meshComponent != null) {
                 return;
             }
             this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-            this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+            this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
+            this.moveStageTo(ProcessStage.Load);
         };
         MeshRendererComponent.prototype.$load = function () {
             // if (this.__isLoaded(0)) {
@@ -6280,8 +6468,9 @@
             //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             // }
             this.__webglRenderingStrategy.load(this.__meshComponent);
+            this.moveStageTo(ProcessStage.PreRender);
         };
-        MeshRendererComponent.prototype.$prerender = function (processApproech, instanceIDBufferUid) {
+        MeshRendererComponent.prototype.$prerender = function (_a) {
             // if (this.__isVAOSet) {
             //   return;
             // }
@@ -6296,6 +6485,7 @@
             //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
             // }
             // this.__isVAOSet = true;
+            var processApproech = _a.processApproech, instanceIDBufferUid = _a.instanceIDBufferUid;
             this.__webglRenderingStrategy.prerender(this.__meshComponent, instanceIDBufferUid);
         };
         MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
@@ -6303,35 +6493,6 @@
         return MeshRendererComponent;
     }(Component));
     ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-    var ProcessStageClass = /** @class */ (function (_super) {
-        __extends(ProcessStageClass, _super);
-        function ProcessStageClass(_a) {
-            var index = _a.index, str = _a.str, methodName = _a.methodName;
-            var _this = _super.call(this, { index: index, str: str }) || this;
-            _this.__methodName = methodName;
-            return _this;
-        }
-        ProcessStageClass.prototype.getMethodName = function () {
-            return this.__methodName;
-        };
-        return ProcessStageClass;
-    }(EnumClass));
-    var Unknown$4 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
-    var Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
-    var Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
-    var Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
-    var Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
-    var PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
-    var Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
-    var Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
-    var Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-    var typeList$9 = [Unknown$4, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-    function from$9(_a) {
-        var index = _a.index;
-        return _from({ typeList: typeList$9, index: index });
-    }
-    var ProcessStage = Object.freeze({ Unknown: Unknown$4, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$9 });
 
     var WebGLRenderingPipeline = new /** @class */ (function () {
         function class_1() {
@@ -6416,22 +6577,20 @@
             }
             this.__processStages.forEach(function (stage) {
                 var methodName = stage.getMethodName();
-                //      const args:Array<any> = [];
                 var instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
                 var componentTids = _this.__componentRepository.getComponentTIDs();
                 var commonMethod = _this.__renderingPipeline['common_' + methodName];
                 if (commonMethod != null) {
                     instanceIDBufferUid = commonMethod.call(_this.__renderingPipeline, _this.__processApproach);
                 }
-                //      args.push(instanceIDBufferUid);
                 componentTids.forEach(function (componentTid) {
-                    var components = _this.__componentRepository.getComponentsWithType(componentTid);
-                    components.forEach(function (component) {
-                        var method = component[methodName];
-                        if (method != null) {
-                            //method.apply(component, args);
-                            component[methodName](_this.__processApproach, instanceIDBufferUid);
-                        }
+                    var componentClass = ComponentRepository.getComponentClass(componentTid);
+                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                    componentClass.process({
+                        componentTid: componentTid,
+                        processStage: stage,
+                        instanceIDBufferUid: instanceIDBufferUid,
+                        processApproach: _this.__processApproach
                     });
                 });
             });

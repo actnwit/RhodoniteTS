@@ -31,12 +31,20 @@ test('create Parents and children.', () => {
   sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
 
   console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
+  console.log(childEntity.getSceneGraph().worldMatrix);
 
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
     new RowMajarMatrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,
       0, 0, 1, 0,
-      0, 0, 0, 1))).toBe(true);
+      0, 0, 0, 1), 0.00001)).toBe(true);
 });
-

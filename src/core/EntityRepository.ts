@@ -63,7 +63,7 @@ export default class EntityRepository {
     return component;
   }
 
-  static getMaxEntityNumber() {
+  static getMaxEntityNumber(): number {
     return 100000;
   }
 
