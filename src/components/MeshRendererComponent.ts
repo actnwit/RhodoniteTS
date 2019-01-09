@@ -42,13 +42,15 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  $create(processApproech: ProcessApproachEnum) {
+  $create({processApproach}: {
+    processApproach: ProcessApproachEnum}
+    ) {
     if (this.__meshComponent != null) {
       return;
     }
     this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID) as MeshComponent;
 
-    this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+    this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
 
     this.moveStageTo(ProcessStage.Load);
   }
@@ -69,7 +71,11 @@ export default class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.PreRender);
   }
 
-  $prerender(processApproech: ProcessApproachEnum, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(
+    {processApproech, instanceIDBufferUid}:{
+      processApproech: ProcessApproachEnum,
+      instanceIDBufferUid: WebGLResourceHandle
+    }) {
     // if (this.__isVAOSet) {
     //   return;
     // }

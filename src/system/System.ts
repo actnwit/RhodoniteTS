@@ -43,19 +43,11 @@ export default class System {
       componentTids.forEach(componentTid=>{
         const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
         componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
-        componentClass.process(componentTid, stage, instanceIDBufferUid);
-        /*
-        const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-        for (let k=0; k<components.length; ++k) {
-          const component = components[k];
-          const method = (component as any)[methodName];
-          if (method != null) {
-            (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
-          } else {
-            break;
-          }
-        }
-        */
+        componentClass.process({
+          componentTid:componentTid,
+          processStage:stage,
+          instanceIDBufferUid:instanceIDBufferUid,
+          processApproach:this.__processApproach});
       });
     });
   }

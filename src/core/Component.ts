@@ -9,6 +9,7 @@ import Matrix44 from '../math/Matrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import ComponentRepository from './ComponentRepository';
+import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
 
@@ -101,7 +102,12 @@ export default class Component {
     return true;
   }
 
-  static process(componentTid: ComponentTID, processStage: ProcessStageEnum, instanceIDBufferUid: CGAPIResourceHandle) {
+  static process({componentTid, processStage, instanceIDBufferUid, processApproach}: {
+    componentTid: ComponentTID,
+    processStage: ProcessStageEnum,
+    instanceIDBufferUid: CGAPIResourceHandle,
+    processApproach: ProcessApproachEnum}
+    ) {
     if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
       return;
     }
@@ -114,7 +120,11 @@ export default class Component {
       }
       const componentSid = array[i];
       const component = componentRepository.getComponent(componentTid, componentSid)!;
-      (component as any)[processStage.getMethodName()](processStage, instanceIDBufferUid);
+      (component as any)[processStage.getMethodName()]({
+        processStage,
+        instanceIDBufferUid,
+        processApproach
+      });
     }
   }
 
@@ -332,6 +342,8 @@ export default class Component {
 
 export interface ComponentConstructor {
   new(entityUid: EntityUID, componentSid: ComponentSID): Component;
-  process(componentTid: ComponentTID, processStage: ProcessStageEnum, instanceIDBufferUid: CGAPIResourceHandle): void;
+  process({componentTid, processStage, instanceIDBufferUid, processApproach}:
+    {componentTid: ComponentTID, processStage: ProcessStageEnum,
+      instanceIDBufferUid: CGAPIResourceHandle, processApproach: ProcessApproachEnum}): void;
   updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum): void;
 }

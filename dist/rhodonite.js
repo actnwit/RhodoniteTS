@@ -4407,7 +4407,8 @@
             }
             return true;
         };
-        Component.process = function (componentTid, processStage, instanceIDBufferUid) {
+        Component.process = function (_a) {
+            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach;
             if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
                 return;
             }
@@ -4419,7 +4420,11 @@
                 }
                 var componentSid = array[i];
                 var component = componentRepository.getComponent(componentTid, componentSid);
-                component[processStage.getMethodName()](processStage, instanceIDBufferUid);
+                component[processStage.getMethodName()]({
+                    processStage: processStage,
+                    instanceIDBufferUid: instanceIDBufferUid,
+                    processApproach: processApproach
+                });
             }
         };
         Component.updateComponentsOfEachProcessStage = function (componentTid, processStage) {
@@ -6442,12 +6447,13 @@
                 return false;
             }
         };
-        MeshRendererComponent.prototype.$create = function (processApproech) {
+        MeshRendererComponent.prototype.$create = function (_a) {
+            var processApproach = _a.processApproach;
             if (this.__meshComponent != null) {
                 return;
             }
             this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-            this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+            this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
             this.moveStageTo(ProcessStage.Load);
         };
         MeshRendererComponent.prototype.$load = function () {
@@ -6464,7 +6470,7 @@
             this.__webglRenderingStrategy.load(this.__meshComponent);
             this.moveStageTo(ProcessStage.PreRender);
         };
-        MeshRendererComponent.prototype.$prerender = function (processApproech, instanceIDBufferUid) {
+        MeshRendererComponent.prototype.$prerender = function (_a) {
             // if (this.__isVAOSet) {
             //   return;
             // }
@@ -6479,6 +6485,7 @@
             //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
             // }
             // this.__isVAOSet = true;
+            var processApproech = _a.processApproech, instanceIDBufferUid = _a.instanceIDBufferUid;
             this.__webglRenderingStrategy.prerender(this.__meshComponent, instanceIDBufferUid);
         };
         MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
@@ -6579,19 +6586,12 @@
                 componentTids.forEach(function (componentTid) {
                     var componentClass = ComponentRepository.getComponentClass(componentTid);
                     componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
-                    componentClass.process(componentTid, stage, instanceIDBufferUid);
-                    /*
-                    const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-                    for (let k=0; k<components.length; ++k) {
-                      const component = components[k];
-                      const method = (component as any)[methodName];
-                      if (method != null) {
-                        (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
-                      } else {
-                        break;
-                      }
-                    }
-                    */
+                    componentClass.process({
+                        componentTid: componentTid,
+                        processStage: stage,
+                        instanceIDBufferUid: instanceIDBufferUid,
+                        processApproach: _this.__processApproach
+                    });
                 });
             });
         };

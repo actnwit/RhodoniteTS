@@ -3800,7 +3800,7 @@ class Component {
         }
         return true;
     }
-    static process(componentTid, processStage, instanceIDBufferUid) {
+    static process({ componentTid, processStage, instanceIDBufferUid, processApproach }) {
         if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
             return;
         }
@@ -3812,7 +3812,11 @@ class Component {
             }
             const componentSid = array[i];
             const component = componentRepository.getComponent(componentTid, componentSid);
-            component[processStage.getMethodName()](processStage, instanceIDBufferUid);
+            component[processStage.getMethodName()]({
+                processStage,
+                instanceIDBufferUid,
+                processApproach
+            });
         }
     }
     static updateComponentsOfEachProcessStage(componentTid, processStage) {
@@ -5709,12 +5713,12 @@ class MeshRendererComponent extends Component {
             return false;
         }
     }
-    $create(processApproech) {
+    $create({ processApproach }) {
         if (this.__meshComponent != null) {
             return;
         }
         this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-        this.__webglRenderingStrategy = getRenderingStrategy(processApproech);
+        this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
         this.moveStageTo(ProcessStage.Load);
     }
     $load() {
@@ -5731,7 +5735,7 @@ class MeshRendererComponent extends Component {
         this.__webglRenderingStrategy.load(this.__meshComponent);
         this.moveStageTo(ProcessStage.PreRender);
     }
-    $prerender(processApproech, instanceIDBufferUid) {
+    $prerender({ processApproech, instanceIDBufferUid }) {
         // if (this.__isVAOSet) {
         //   return;
         // }
@@ -5843,19 +5847,12 @@ class System {
             componentTids.forEach(componentTid => {
                 const componentClass = ComponentRepository.getComponentClass(componentTid);
                 componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
-                componentClass.process(componentTid, stage, instanceIDBufferUid);
-                /*
-                const components = this.__componentRepository.getComponentsWithType(componentTid)!;
-                for (let k=0; k<components.length; ++k) {
-                  const component = components[k];
-                  const method = (component as any)[methodName];
-                  if (method != null) {
-                    (component as any)[methodName](this.__processApproach, instanceIDBufferUid);
-                  } else {
-                    break;
-                  }
-                }
-                */
+                componentClass.process({
+                    componentTid: componentTid,
+                    processStage: stage,
+                    instanceIDBufferUid: instanceIDBufferUid,
+                    processApproach: this.__processApproach
+                });
             });
         });
     }
