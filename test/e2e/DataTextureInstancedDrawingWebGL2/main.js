@@ -115,10 +115,19 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 100;
+    const entityNumber = 100000;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
+      // const entity1 = generateGroupEntity();
+      // const entity2 = generateGroupEntity();
+      // const entity3 = generateGroupEntity();
+      // const entity4 = generateGroupEntity();
+      // entity4.getSceneGraph().addChild(entity3.getSceneGraph());
+      // entity3.getSceneGraph().addChild(entity2.getSceneGraph());
+      // entity2.getSceneGraph().addChild(entity1.getSceneGraph());
+      // entity1.getSceneGraph().addChild(entity.getSceneGraph());
+      // entity1.getTransform().scale = new Rn.Vector3(2, 1, 1);
       entities.push(entity);
       const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
       meshComponent.addPrimitive(primitive);
@@ -129,7 +138,10 @@
     const startTime = Date.now();
     let p = null;
     const rotationVec3 = Rn.Vector3.zero();
-    let count = 0
+    let count = 0;
+    const stats = new Stats();
+    stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild( stats.domElement );
     const draw = function(time){
 
       if (p == null) {
@@ -150,8 +162,12 @@
         });
       }
 
+      stats.begin();
   //      console.log(date.getTime());
       system.process();
+
+      stats.end();
+
       requestAnimationFrame(draw);
     }
 
