@@ -51,9 +51,10 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   mat4 getMatrix(float instanceId)
   {
     float index = instanceId;
-    float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-    vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+    float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+    float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
 
     vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
    vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
@@ -155,24 +156,24 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
               format: PixelFormat.RGBA, type: ComponentType.HalfFloat
             });
         }
       } else {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level:0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            level:0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         }
@@ -184,13 +185,13 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+          level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
           });
       } else {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer!, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
           });
@@ -199,13 +200,13 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     } else {
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
           });
       } else {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
           });

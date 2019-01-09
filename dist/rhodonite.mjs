@@ -3039,7 +3039,7 @@ class MemoryManager {
         this.__buffers = {};
         // BufferForGPUInstanceData
         {
-            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer$1({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -3049,7 +3049,7 @@ class MemoryManager {
         }
         // BufferForGPUVertexData
         {
-            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer$1({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -3059,7 +3059,7 @@ class MemoryManager {
         }
         // BufferForUBO
         {
-            const arrayBuffer = new ArrayBuffer((MemoryManager.bufferLengthOfOneSide - 1) * (MemoryManager.bufferLengthOfOneSide - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer((MemoryManager.bufferWidthLength - 1) * (MemoryManager.bufferHeightLength - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer$1({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -3067,9 +3067,9 @@ class MemoryManager {
             });
             this.__buffers[buffer.name] = buffer;
         }
-        // BufferForCPU
+        // BufferForCP
         {
-            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferLengthOfOneSide * MemoryManager.bufferLengthOfOneSide /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
+            const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
             const buffer = new Buffer$1({
                 byteLength: arrayBuffer.byteLength,
                 arrayBuffer: arrayBuffer,
@@ -3087,11 +3087,15 @@ class MemoryManager {
     getBuffer(bufferUse) {
         return this.__buffers[bufferUse.toString()];
     }
-    static get bufferLengthOfOneSide() {
-        return MemoryManager.__bufferLengthOfOneSide;
+    static get bufferWidthLength() {
+        return MemoryManager.__bufferWidthLength;
+    }
+    static get bufferHeightLength() {
+        return MemoryManager.__bufferHeightLength;
     }
 }
-MemoryManager.__bufferLengthOfOneSide = Math.pow(2, 10);
+MemoryManager.__bufferWidthLength = Math.pow(2, 10);
+MemoryManager.__bufferHeightLength = Math.pow(2, 10);
 
 //import GLBoost from '../../globals';
 const FloatArray$1 = Float32Array;
@@ -5144,7 +5148,7 @@ class WebGLStrategyTransformFeedback {
       int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;
 
       // get Indices
-      int texelLength = ${MemoryManager.bufferLengthOfOneSide};
+      int texelLength = ${MemoryManager.bufferWidthLength};
       vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
       int index = int(indexVec4[idx%4]);
 
@@ -5268,13 +5272,13 @@ void main(){
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
                 else {
                     this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, halfFloatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                     });
                 }
@@ -5282,13 +5286,13 @@ void main(){
             else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
                 else {
                     this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
@@ -5298,14 +5302,14 @@ void main(){
         if (isHalfFloatMode) {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
                 this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
@@ -5314,14 +5318,14 @@ void main(){
         else {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
                 this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
@@ -5337,14 +5341,14 @@ void main(){
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
         if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
             this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                 border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                 wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
             });
         }
         else {
             this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                 border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                 wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
             });
@@ -5431,9 +5435,10 @@ class WebGLStrategyDataTexture {
   mat4 getMatrix(float instanceId)
   {
     float index = instanceId;
-    float powVal = ${MemoryManager.bufferLengthOfOneSide}.0;
-    vec2 arg = vec2(1.0/powVal, 1.0/powVal);
-  //  vec2 arg = vec2(1.0/powVal, 1.0/powVal/powVal);
+    float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+    float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
 
     vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
    vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
@@ -5524,13 +5529,13 @@ class WebGLStrategyDataTexture {
             if (isHalfFloatMode) {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
                 else {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.HalfFloat
                     });
                 }
@@ -5538,13 +5543,13 @@ class WebGLStrategyDataTexture {
             else {
                 if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
                 else {
                     this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                        level: 0, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                        level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                         format: PixelFormat.RGBA, type: ComponentType.Float
                     });
                 }
@@ -5554,14 +5559,14 @@ class WebGLStrategyDataTexture {
         if (isHalfFloatMode) {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
@@ -5570,14 +5575,14 @@ class WebGLStrategyDataTexture {
         else {
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
             }
             else {
                 this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferLengthOfOneSide, height: MemoryManager.bufferLengthOfOneSide,
+                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
                     border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
                     wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
                 });
