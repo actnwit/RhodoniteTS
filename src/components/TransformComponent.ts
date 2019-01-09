@@ -41,6 +41,7 @@ export default class TransformComponent extends Component {
   private static __tmpMat_quaternionInner: Matrix44 = Matrix44.identity();
 
   _updateCount: number;
+  private __toUpdateAllTransform = true;
   _dirty: boolean;
 
   // dependencies
@@ -98,8 +99,12 @@ export default class TransformComponent extends Component {
 
   //}
 
-  $updateLogic() {
+  set toUpdateAllTransform(flag: boolean) {
+    this.__toUpdateAllTransform = flag;
+  }
 
+  get toUpdateAllTransform(): boolean {
+    return this.__toUpdateAllTransform;
   }
 
   _needUpdate() {
@@ -258,21 +263,21 @@ export default class TransformComponent extends Component {
     // Clear and set Scale
     const scale = this.scaleInner;
     const n00 = scale.v[0];
-    const n01 = 0;
-    const n02 = 0;
-    const n03 = 0;
-    const n10 = 0;
+    // const n01 = 0;
+    // const n02 = 0;
+    // const n03 = 0;
+    // const n10 = 0;
     const n11 = scale.v[1];
-    const n12 = 0;
-    const n13 = 0;
-    const n20 = 0;
-    const n21 = 0;
+    // const n12 = 0;
+    // const n13 = 0;
+    // const n20 = 0;
+    // const n21 = 0;
     const n22 = scale.v[2];
-    const n23 = 0;
-    const n30 = 0;
-    const n31 = 0;
-    const n32 = 0;
-    const n33 = 1;
+    // const n23 = 0;
+    // const n30 = 0;
+    // const n31 = 0;
+    // const n32 = 0;
+    // const n33 = 1;
 
     const q = this.quaternionInner;
     const sx = q.v[0] * q.v[0];
@@ -288,19 +293,20 @@ export default class TransformComponent extends Component {
     const m00 = 1.0 - 2.0 * (sy + sz);
     const m01 = 2.0 * (cz - wz);
     const m02 = 2.0 * (cy + wy);
-    const m03 = 0.0;
+    // const m03 = 0.0;
     const m10 = 2.0 * (cz + wz);
     const m11 = 1.0 - 2.0 * (sx + sz);
     const m12 = 2.0 * (cx - wx);
-    const m13 = 0.0;
+    // const m13 = 0.0;
     const m20 = 2.0 * (cy - wy);
     const m21 = 2.0 * (cx + wx);
     const m22 = 1.0 - 2.0 * (sx + sy);
-    const m23 = 0.0;
-    const m30 = 0.0;
-    const m31 = 0.0;
-    const m32 = 0.0;
-    const m33 = 1.0;
+
+    // const m23 = 0.0;
+    // const m30 = 0.0;
+    // const m31 = 0.0;
+    // const m32 = 0.0;
+    // const m33 = 1.0;
 
     const translate = this.translateInner;
 
@@ -420,9 +426,12 @@ export default class TransformComponent extends Component {
   }
 
   __updateTransform() {
-    this.__updateRotation();
-    this.__updateTranslate();
-    this.__updateScale();
+    if (this.__toUpdateAllTransform) {
+      this.__updateRotation();
+      this.__updateTranslate();
+      this.__updateScale();
+    }
+
     //this.__updateMatrix();
     this._needUpdate();
   }
