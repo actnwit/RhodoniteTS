@@ -3754,9 +3754,11 @@ class Component {
         ];
         stages.forEach(stage => {
             if (this.isExistProcessStageMethod(stage)) {
-                Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
-                Component.__dirtyOfArrayOfProcessStages.set(stage, false);
-                Component.__lengthOfArrayOfProcessStages.set(stage, 0);
+                if (Component.__componentsOfProcessStages.get(stage) == null) {
+                    Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                    Component.__dirtyOfArrayOfProcessStages.set(stage, false);
+                    Component.__lengthOfArrayOfProcessStages.set(stage, 0);
+                }
             }
         });
         this.__memoryManager = MemoryManager.getInstance();
