@@ -738,6 +738,7 @@ class Vector3 {
         }
         else if (x == null) {
             this.v = new Float32Array(0);
+            return;
         }
         else {
             this.v = new Float32Array(3);
