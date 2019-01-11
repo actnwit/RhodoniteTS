@@ -115,7 +115,7 @@
     const primitive = readyBasicVerticesData();
 
     const entities = [];
-    const entityNumber = 100000;
+    const entityNumber = 100;
     for (let i=0; i<entityNumber; i++) {
       const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
       const entity = generateEntity();
