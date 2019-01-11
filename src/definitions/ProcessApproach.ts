@@ -19,7 +19,7 @@ const TransformFeedbackWebGL2: ProcessApproachEnum = new ProcessApproachClass({i
 
 const typeList = [ None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2 ];
 
-function from({ index }: { index: number }): ProcessApproachEnum {
+function from(index : number ): ProcessApproachEnum {
   return _from({typeList, index});
 }
 

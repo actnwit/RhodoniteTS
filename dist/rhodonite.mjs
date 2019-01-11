@@ -66,19 +66,14 @@ const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeS
 const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
 const Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
 const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
-function from({ index, str }) {
-    if (index != null) {
-        return _from({ typeList, index });
-    }
-    else if (str != null) {
-        return _fromString({ typeList, str });
-    }
-    else {
-        throw new Error('Not currect query supplied.');
-    }
+function from(index) {
+    return _from({ typeList, index });
+}
+function fromString(str) {
+    return _fromString({ typeList, str });
 }
 const VertexAttribute = Object.freeze({
-    Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
+    Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from, fromString
 });
 
 class CompositionTypeClass extends EnumClass {
@@ -100,18 +95,13 @@ const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponent
 const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
 const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
 const typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$1({ index, str }) {
-    if (index != null) {
-        return _from({ typeList: typeList$1, index });
-    }
-    else if (str != null) {
-        return _fromString({ typeList: typeList$1, str });
-    }
-    else {
-        throw new Error('Not currect query supplied.');
-    }
+function from$1(index) {
+    return _from({ typeList: typeList$1, index });
 }
-const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1 });
+function fromString$1(str) {
+    return _fromString({ typeList: typeList$1, str });
+}
+const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1, fromString: fromString$1 });
 
 class ComponentTypeClass extends EnumClass {
     constructor({ index, str, sizeInBytes }) {
@@ -3069,18 +3059,13 @@ const GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
 const UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });
 const CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });
 const typeList$4 = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
-function from$4({ index, str }) {
-    if (index != null) {
-        return _from({ typeList: typeList$4, index });
-    }
-    else if (str != null) {
-        return _fromString({ typeList: typeList$4, str });
-    }
-    else {
-        throw new Error('Not currect query supplied.');
-    }
+function from$4(index) {
+    return _from({ typeList: typeList$4, index });
 }
-const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from: from$4 });
+function fromString$2(str) {
+    return _fromString({ typeList: typeList$4, str });
+}
+const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from: from$4, fromString: fromString$2 });
 
 /**
  * Usage
@@ -3791,7 +3776,7 @@ const Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$re
 const Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
 const Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
 const typeList$5 = [Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-function from$5({ index }) {
+function from$5(index) {
     return _from({ typeList: typeList$5, index });
 }
 const ProcessStage = Object.freeze({ Unknown: Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
@@ -6806,7 +6791,7 @@ class ModelConverter {
                     let attributeAccessor = primitive.attributes[attributeName];
                     const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
                     attributeRnAccessors.push(attributeRnAccessor);
-                    attributeSemantics.push(VertexAttribute.from({ str: attributeAccessor.extras.attributeName }));
+                    attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                 }
                 const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
             }
@@ -6822,7 +6807,7 @@ class ModelConverter {
             isAoS: false
         });
         const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-            compositionType: CompositionType.from({ str: accessor.type }),
+            compositionType: CompositionType.fromString(accessor.type),
             componentType: ComponentType.from(accessor.componentType),
             count: accessor.count,
             byteOffset: accessor.byteOffset

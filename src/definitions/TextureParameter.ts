@@ -37,7 +37,7 @@ const RGBA32F: TextureParameterEnum = new TextureParameterClass({index:0x8814, s
 const typeList = [ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
   Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F ];
 
-function from({ index }: { index: number }): TextureParameterEnum {
+function from( index : number ): TextureParameterEnum {
   return _from({typeList, index}) as TextureParameterEnum;
 }
 

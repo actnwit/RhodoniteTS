@@ -249,7 +249,7 @@ export default class ModelConverter {
           let attributeAccessor = primitive.attributes[attributeName];
           const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
           attributeRnAccessors.push(attributeRnAccessor);
-          attributeSemantics.push(VertexAttribute.from({str: attributeAccessor.extras.attributeName}));
+          attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
         }
 
         const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
@@ -269,7 +269,7 @@ export default class ModelConverter {
       isAoS: false
     });
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.from({str:accessor.type}),
+      compositionType: CompositionType.fromString(accessor.type),
       componentType: ComponentType.from(accessor.componentType),
       count: accessor.count,
       byteOffset: accessor.byteOffset

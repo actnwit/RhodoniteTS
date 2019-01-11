@@ -183,20 +183,14 @@
     var Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
     var Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
     var typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
-    function from(_a) {
-        var index = _a.index, str = _a.str;
-        if (index != null) {
-            return _from({ typeList: typeList, index: index });
-        }
-        else if (str != null) {
-            return _fromString({ typeList: typeList, str: str });
-        }
-        else {
-            throw new Error('Not currect query supplied.');
-        }
+    function from(index) {
+        return _from({ typeList: typeList, index: index });
+    }
+    function fromString(str) {
+        return _fromString({ typeList: typeList, str: str });
     }
     var VertexAttribute = Object.freeze({
-        Unknown: Unknown, Position: Position, Normal: Normal, Tangent: Tangent, Texcoord0: Texcoord0, Texcoord1: Texcoord1, Color0: Color0, Joints0: Joints0, Weights0: Weights0, Instance: Instance, from: from
+        Unknown: Unknown, Position: Position, Normal: Normal, Tangent: Tangent, Texcoord0: Texcoord0, Texcoord1: Texcoord1, Color0: Color0, Joints0: Joints0, Weights0: Weights0, Instance: Instance, from: from, fromString: fromString
     });
 
     var CompositionTypeClass = /** @class */ (function (_super) {
@@ -222,19 +216,13 @@
     var Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
     var Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
     var typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-    function from$1(_a) {
-        var index = _a.index, str = _a.str;
-        if (index != null) {
-            return _from({ typeList: typeList$1, index: index });
-        }
-        else if (str != null) {
-            return _fromString({ typeList: typeList$1, str: str });
-        }
-        else {
-            throw new Error('Not currect query supplied.');
-        }
+    function from$1(index) {
+        return _from({ typeList: typeList$1, index: index });
     }
-    var CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar: Scalar, Vec2: Vec2, Vec3: Vec3, Vec4: Vec4, Mat2: Mat2, Mat3: Mat3, Mat4: Mat4, from: from$1 });
+    function fromString$1(str) {
+        return _fromString({ typeList: typeList$1, str: str });
+    }
+    var CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar: Scalar, Vec2: Vec2, Vec3: Vec3, Vec4: Vec4, Mat2: Mat2, Mat3: Mat3, Mat4: Mat4, from: from$1, fromString: fromString$1 });
 
     var ComponentTypeClass = /** @class */ (function (_super) {
         __extends(ComponentTypeClass, _super);
@@ -3580,19 +3568,13 @@
     var UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });
     var CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });
     var typeList$4 = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
-    function from$4(_a) {
-        var index = _a.index, str = _a.str;
-        if (index != null) {
-            return _from({ typeList: typeList$4, index: index });
-        }
-        else if (str != null) {
-            return _fromString({ typeList: typeList$4, str: str });
-        }
-        else {
-            throw new Error('Not currect query supplied.');
-        }
+    function from$4(index) {
+        return _from({ typeList: typeList$4, index: index });
     }
-    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, UBOGeneric: UBOGeneric, CPUGeneric: CPUGeneric, from: from$4 });
+    function fromString$2(str) {
+        return _fromString({ typeList: typeList$4, str: str });
+    }
+    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, UBOGeneric: UBOGeneric, CPUGeneric: CPUGeneric, from: from$4, fromString: fromString$2 });
 
     /**
      * Usage
@@ -4387,8 +4369,7 @@
     var Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
     var Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
     var typeList$5 = [Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-    function from$5(_a) {
-        var index = _a.index;
+    function from$5(index) {
         return _from({ typeList: typeList$5, index: index });
     }
     var ProcessStage = Object.freeze({ Unknown: Unknown$3, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
@@ -7720,7 +7701,7 @@
                             var attributeAccessor = primitive.attributes[attributeName];
                             var attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
                             attributeRnAccessors.push(attributeRnAccessor);
-                            attributeSemantics.push(VertexAttribute.from({ str: attributeAccessor.extras.attributeName }));
+                            attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                         }
                         var rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
                     }
@@ -7744,7 +7725,7 @@
                 isAoS: false
             });
             var rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-                compositionType: CompositionType.from({ str: accessor.type }),
+                compositionType: CompositionType.fromString(accessor.type),
                 componentType: ComponentType.from(accessor.componentType),
                 count: accessor.count,
                 byteOffset: accessor.byteOffset

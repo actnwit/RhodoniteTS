@@ -27,15 +27,12 @@ const Mat4: CompositionTypeEnum = new CompositionTypeClass({index:6, str:'MAT4',
 
 const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
 
-function from({ index, str }: { index?: number, str?: string }): CompositionTypeEnum {
-  if (index != null) {
-    return _from({typeList, index}) as CompositionTypeEnum;
-  } else if (str != null) {
-    return _fromString({typeList, str}) as CompositionTypeEnum;
-  } else {
-    throw new Error('Not currect query supplied.');
-  }
+function from( index : number ): CompositionTypeEnum {
+  return _from({typeList, index}) as CompositionTypeEnum;
 }
 
+function fromString( str: string ): CompositionTypeEnum {
+  return _fromString({typeList, str}) as CompositionTypeEnum;
+}
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from });
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from, fromString });
