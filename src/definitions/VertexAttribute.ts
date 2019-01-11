@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
@@ -28,10 +28,14 @@ const Instance: VertexAttributeEnum = new VertexAttributeClass({index:8, str:'IN
 
 const typeList = [ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance ];
 
-function from({ index }: { index: number }): VertexAttributeEnum {
+function from( index : number ): VertexAttributeEnum {
   return _from({typeList, index}) as VertexAttributeEnum;
 }
 
+function fromString( str: string ): VertexAttributeEnum {
+  return _fromString({typeList, str}) as VertexAttributeEnum;
+}
+
 export const VertexAttribute = Object.freeze({
-  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
+  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from, fromString
 });

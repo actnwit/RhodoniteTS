@@ -94,6 +94,23 @@ export default class BufferView extends RnObject {
 
   }
 
+  takeAccessorWithByteOffset({compositionType, componentType, count, byteOffset}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteOffset: Byte}): Accessor {
+    const byteStride = this.byteStride;
+
+    const accessor = this.__takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass: Accessor});
+
+    return accessor;
+  }
+
+  takeFlexibleAccessorWithByteOffset({compositionType, componentType, count, byteStride, byteOffset}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte}): FlexibleAccessor {
+    const accessor = this.__takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass: FlexibleAccessor});
+
+    return accessor;
+
+  }
+
   private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass}: {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any}): AccessorBase {
     let byteOffset = 0;
     if (this.isSoA) {
@@ -103,6 +120,29 @@ export default class BufferView extends RnObject {
       byteOffset = this.__takenByteIndex;
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
     }
+
+    if (byteOffset % 4 !== 0) {
+      console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+      byteOffset += 4 - byteOffset % 4;
+    }
+
+    if (this.__byteOffset % 4 !== 0) {
+      console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+      this.__byteOffset += 4 - this.__byteOffset % 4;
+    }
+
+    const accessor = new accessorClass({
+      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+    });
+
+    this.__accessors.push(accessor);
+
+    return accessor;
+
+  }
+
+  private __takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, accessorClass:any}): AccessorBase {
 
     if (byteOffset % 4 !== 0) {
       console.info('Padding bytes added because byteOffset is not 4byte aligned.');

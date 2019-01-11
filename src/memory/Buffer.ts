@@ -48,6 +48,28 @@ export default class Buffer extends RnObject {
     return bufferView;
   }
 
+  takeBufferViewWithByteOffset({byteLengthToNeed, byteStride, byteOffset, isAoS} :
+    {byteLengthToNeed: Byte, byteStride: Byte, byteOffset: Byte, isAoS: boolean}) {
+    if (byteLengthToNeed % 4 !== 0) {
+      console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
+      byteLengthToNeed += 4 - (byteLengthToNeed % 4);
+    }
+    if (byteStride % 4 !== 0) {
+      console.info('Padding bytes added, byteStride must be a multiple of 4.');
+      byteStride += 4 - (byteStride % 4);
+    }
+
+    const array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);
+
+    const bufferView = new BufferView({buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS});
+    bufferView.byteStride = byteStride;
+
+    this.__bufferViews.push(bufferView);
+
+    return bufferView;
+  }
+
+
   get byteSizeInUse() {
     return this.__byteLength;
   }

@@ -21,7 +21,7 @@ const LuminanceAlpha: PixelFormatEnum = new PixelFormatClass({index:0x190A, str:
 
 const typeList = [ DepthComponent, Alpha, RGB, RGBA, Luminance, LuminanceAlpha ];
 
-function from({ index }: { index: number }): PixelFormatEnum {
+function from( index : number ): PixelFormatEnum {
   return _from({typeList, index}) as PixelFormatEnum;
 }
 

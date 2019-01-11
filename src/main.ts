@@ -17,6 +17,7 @@ import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf2Importer from './importer/Gltf2Importer';
+import ModelConverter from './importer/ModelConverter';
 
 const Rn = Object.freeze({
   EntityRepository,
@@ -37,7 +38,8 @@ const Rn = Object.freeze({
   Matrix33,
   Matrix44,
   ProcessApproach,
-  Gltf2Importer
+  Gltf2Importer,
+  ModelConverter
 });
 export default Rn;
 

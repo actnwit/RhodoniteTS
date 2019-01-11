@@ -13,42 +13,27 @@ export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
   private __attributes: Array<Accessor>;
   private __material: ObjectUID;
-  private __attributesBufferView: BufferView;
-  private __attributeCompositionTypes: Array<CompositionTypeEnum>;
-  private __attributeComponentTypes: Array<ComponentTypeEnum>;
   private __attributeSemantics: Array<VertexAttributeEnum>;
-  private __indicesComponentType?: ComponentTypeEnum;
   private __indices?: Accessor;
-  private __indicesBufferView?: BufferView;
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
   private static __headerAccessor?: Accessor;
 
-  private constructor(
-    attributeCompositionTypes: Array<CompositionTypeEnum>,
-    attributeComponentTypes: Array<ComponentTypeEnum>,
+  constructor(
     attributeAccessors: Array<Accessor>,
     attributeSemantics: Array<VertexAttributeEnum>,
     mode: PrimitiveModeEnum,
     material: ObjectUID,
-    attributesBufferView: BufferView,
-    indicesComponentType?: ComponentTypeEnum,
     indicesAccessor?: Accessor,
-    indicesBufferView?: BufferView,
     )
   {
     super();
 
     this.__indices = indicesAccessor;
-    this.__attributeCompositionTypes = attributeCompositionTypes;
-    this.__attributeComponentTypes = attributeComponentTypes;
     this.__attributes = attributeAccessors;
     this.__attributeSemantics = attributeSemantics;
     this.__material = material;
     this.__mode = mode;
-    this.__indicesBufferView = indicesBufferView;
-    this.__attributesBufferView = attributesBufferView;
-    this.__indicesComponentType = indicesComponentType;
 
     this.__primitiveUid = Primitive.__primitiveCount++;
 
@@ -151,16 +136,11 @@ export default class Primitive extends RnObject {
     });
 
     return new Primitive(
-      attributeCompositionTypes,
-      attributeComponentTypes,
       attributeAccessors,
       attributeSemantics,
       primitiveMode,
       material,
-      attributesBufferView,
-      indicesComponentType,
       indicesAccessor,
-      indicesBufferView
     );
   }
 
@@ -181,11 +161,11 @@ export default class Primitive extends RnObject {
   }
 
   get attributeCompositionTypes(): Array<CompositionTypeEnum> {
-    return this.__attributeCompositionTypes;
+    return this.__attributes.map(attribute=>{return attribute.compositionType});
   }
 
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
-    return this.__attributeComponentTypes;
+    return this.__attributes.map(attribute=>{return attribute.componentType});
   }
 
   get primitiveMode(): PrimitiveModeEnum {

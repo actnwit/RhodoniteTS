@@ -19,15 +19,12 @@ const CPUGeneric: BufferUseEnum = new BufferUseClass({index:3, str:'CPUGeneric'}
 
 const typeList = [ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric ];
 
-function from({ index, str }: { index?: number, str?: string }): BufferUseEnum {
-  if (index != null) {
-    return _from({typeList, index}) as BufferUseEnum;
-  } else if (str != null) {
-    return _fromString({typeList, str}) as BufferUseEnum;
-  } else {
-    throw new Error('Not currect query supplied.');
-  }
-
+function from( index : number ): BufferUseEnum {
+  return _from({typeList, index}) as BufferUseEnum;
 }
 
-export const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from });
+function fromString( str: string ): BufferUseEnum {
+  return _fromString({typeList, str}) as BufferUseEnum;
+}
+
+export const BufferUse = Object.freeze({ GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric, from, fromString });
