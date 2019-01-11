@@ -4833,7 +4833,7 @@
             return component;
         };
         EntityRepository.getMaxEntityNumber = function () {
-            return 1000;
+            return 5000;
         };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();

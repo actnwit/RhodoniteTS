@@ -4164,7 +4164,7 @@ class EntityRepository {
         return component;
     }
     static getMaxEntityNumber() {
-        return 1000;
+        return 5000;
     }
     _getEntities() {
         return this.__entities.concat();
