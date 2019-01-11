@@ -29,7 +29,7 @@ const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({index:0x8D61, str:'
 
 const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
 
-function from({ index }: { index: number }): ComponentTypeEnum {
+function from( index : number ): ComponentTypeEnum {
   return _from({typeList, index}) as ComponentTypeEnum;
 }
 

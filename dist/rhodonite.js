@@ -184,8 +184,16 @@
     var Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
     var typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
     function from(_a) {
-        var index = _a.index;
-        return _from({ typeList: typeList, index: index });
+        var index = _a.index, str = _a.str;
+        if (index != null) {
+            return _from({ typeList: typeList, index: index });
+        }
+        else if (str != null) {
+            return _fromString({ typeList: typeList, str: str });
+        }
+        else {
+            throw new Error('Not currect query supplied.');
+        }
     }
     var VertexAttribute = Object.freeze({
         Unknown: Unknown, Position: Position, Normal: Normal, Tangent: Tangent, Texcoord0: Texcoord0, Texcoord1: Texcoord1, Color0: Color0, Joints0: Joints0, Weights0: Weights0, Instance: Instance, from: from
@@ -215,8 +223,16 @@
     var Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
     var typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
     function from$1(_a) {
-        var index = _a.index;
-        return _from({ typeList: typeList$1, index: index });
+        var index = _a.index, str = _a.str;
+        if (index != null) {
+            return _from({ typeList: typeList$1, index: index });
+        }
+        else if (str != null) {
+            return _fromString({ typeList: typeList$1, str: str });
+        }
+        else {
+            throw new Error('Not currect query supplied.');
+        }
     }
     var CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar: Scalar, Vec2: Vec2, Vec3: Vec3, Vec4: Vec4, Mat2: Mat2, Mat3: Mat3, Mat4: Mat4, from: from$1 });
 
@@ -244,8 +260,7 @@
     var Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
     var HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
     var typeList$2 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
-    function from$2(_a) {
-        var index = _a.index;
+    function from$2(index) {
         return _from({ typeList: typeList$2, index: index });
     }
     function fromTypedArray(typedArray) {
@@ -3427,6 +3442,17 @@
             var accessor = this.__takeAccessorInner({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, accessorClass: FlexibleAccessor });
             return accessor;
         };
+        BufferView.prototype.takeAccessorWithByteOffset = function (_a) {
+            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteOffset = _a.byteOffset;
+            var byteStride = this.byteStride;
+            var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: AccessorBase });
+            return accessor;
+        };
+        BufferView.prototype.takeFlexibleAccessorWithByteOffset = function (_a) {
+            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset;
+            var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: FlexibleAccessor });
+            return accessor;
+        };
         BufferView.prototype.__takeAccessorInner = function (_a) {
             var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, accessorClass = _a.accessorClass;
             var byteOffset = 0;
@@ -3438,6 +3464,22 @@
                 byteOffset = this.__takenByteIndex;
                 this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
             }
+            if (byteOffset % 4 !== 0) {
+                console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+                byteOffset += 4 - byteOffset % 4;
+            }
+            if (this.__byteOffset % 4 !== 0) {
+                console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+                this.__byteOffset += 4 - this.__byteOffset % 4;
+            }
+            var accessor = new accessorClass({
+                bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+            });
+            this.__accessors.push(accessor);
+            return accessor;
+        };
+        BufferView.prototype.__takeAccessorInnerWithByteOffset = function (_a) {
+            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset, accessorClass = _a.accessorClass;
             if (byteOffset % 4 !== 0) {
                 console.info('Padding bytes added because byteOffset is not 4byte aligned.');
                 byteOffset += 4 - byteOffset % 4;
@@ -3496,6 +3538,22 @@
             var bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
             bufferView.byteStride = byteStride;
             this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+            this.__bufferViews.push(bufferView);
+            return bufferView;
+        };
+        Buffer.prototype.takeBufferViewWithByteOffset = function (_a) {
+            var byteLengthToNeed = _a.byteLengthToNeed, byteStride = _a.byteStride, byteOffset = _a.byteOffset, isAoS = _a.isAoS;
+            if (byteLengthToNeed % 4 !== 0) {
+                console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
+                byteLengthToNeed += 4 - (byteLengthToNeed % 4);
+            }
+            if (byteStride % 4 !== 0) {
+                console.info('Padding bytes added, byteStride must be a multiple of 4.');
+                byteStride += 4 - (byteStride % 4);
+            }
+            var array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);
+            var bufferView = new BufferView({ buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
+            bufferView.byteStride = byteStride;
             this.__bufferViews.push(bufferView);
             return bufferView;
         };
@@ -3611,8 +3669,8 @@
             enumerable: true,
             configurable: true
         });
-        MemoryManager.__bufferWidthLength = Math.pow(2, 10);
-        MemoryManager.__bufferHeightLength = Math.pow(2, 10);
+        MemoryManager.__bufferWidthLength = Math.pow(2, 8);
+        MemoryManager.__bufferHeightLength = Math.pow(2, 8);
         return MemoryManager;
     }());
 
@@ -4794,7 +4852,7 @@
             return component;
         };
         EntityRepository.getMaxEntityNumber = function () {
-            return 100000;
+            return 1000;
         };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();
@@ -5788,19 +5846,14 @@
 
     var Primitive = /** @class */ (function (_super) {
         __extends(Primitive, _super);
-        function Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
+        function Primitive(attributeAccessors, attributeSemantics, mode, material, indicesAccessor) {
             var _this = _super.call(this) || this;
             _this.__primitiveUid = -1; // start ID from zero
             _this.__indices = indicesAccessor;
-            _this.__attributeCompositionTypes = attributeCompositionTypes;
-            _this.__attributeComponentTypes = attributeComponentTypes;
             _this.__attributes = attributeAccessors;
             _this.__attributeSemantics = attributeSemantics;
             _this.__material = material;
             _this.__mode = mode;
-            _this.__indicesBufferView = indicesBufferView;
-            _this.__attributesBufferView = attributesBufferView;
-            _this.__indicesComponentType = indicesComponentType;
             _this.__primitiveUid = Primitive.__primitiveCount++;
             if (Primitive.__headerAccessor == null) {
                 // primitive 0
@@ -5881,7 +5934,7 @@
                 accessor.copyFromTypedArray(attribute);
                 attributeAccessors.push(accessor);
             });
-            return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
+            return new Primitive(attributeAccessors, attributeSemantics, primitiveMode, material, indicesAccessor);
         };
         Object.defineProperty(Primitive.prototype, "indicesAccessor", {
             get: function () {
@@ -5909,14 +5962,14 @@
         });
         Object.defineProperty(Primitive.prototype, "attributeCompositionTypes", {
             get: function () {
-                return this.__attributeCompositionTypes;
+                return this.__attributes.map(function (attribute) { return attribute.compositionType; });
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Primitive.prototype, "attributeComponentTypes", {
             get: function () {
-                return this.__attributeComponentTypes;
+                return this.__attributes.map(function (attribute) { return attribute.componentType; });
             },
             enumerable: true,
             configurable: true
@@ -5956,8 +6009,7 @@
     var TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
     var TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
     var typeList$9 = [Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-    function from$9(_a) {
-        var index = _a.index;
+    function from$9(index) {
         return _from({ typeList: typeList$9, index: index });
     }
     var PrimitiveMode = Object.freeze({ Unknown: Unknown$4, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$9 });
@@ -6992,7 +7044,8 @@
                                 if (primitive.attributesindex[attributeName] >= 0) {
                                     var accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
                                     accessor.extras = {
-                                        toGetAsTypedArray: true
+                                        toGetAsTypedArray: true,
+                                        attributeName: attributeName
                                     };
                                     primitive.attributes[attributeName] = accessor;
                                 }
@@ -7453,6 +7506,254 @@
         return Gltf2Importer;
     }());
 
+    /**
+     * A converter class from glTF2 model to Rhodonite Native data
+     */
+    var ModelConverter = /** @class */ (function () {
+        function ModelConverter() {
+        }
+        /**
+         * The static method to get singleton instance of this class.
+         * @return The singleton instance of ModelConverter class
+         */
+        ModelConverter.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new ModelConverter();
+            }
+            return this.__instance;
+        };
+        ModelConverter.prototype._getDefaultShader = function (options) {
+            var defaultShader = null;
+            // if (options && typeof options.defaultShaderClass !== "undefined") {
+            //   if (typeof options.defaultShaderClass === "string") {
+            //     defaultShader = GLBoost[options.defaultShaderClass];
+            //   } else {
+            //     defaultShader = options.defaultShaderClass;
+            //   }
+            // }
+            return defaultShader;
+        };
+        ModelConverter.prototype.__generateGroupEntity = function () {
+            var repo = EntityRepository.getInstance();
+            var entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+            return entity;
+        };
+        ModelConverter.prototype.__generateMeshEntity = function () {
+            var repo = EntityRepository.getInstance();
+            var entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+                MeshComponent.componentTID, MeshRendererComponent.componentTID]);
+            return entity;
+        };
+        ModelConverter.prototype.convertToRhodoniteObject = function (gltfModel) {
+            // load binary data
+            // for (let accessor of gltfModel.accessors) {
+            //   this._accessBinaryWithAccessor(accessor);
+            // }
+            var e_1, _a, e_2, _b;
+            var rnBuffer = this.createRnBuffer(gltfModel);
+            // Mesh data
+            var glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+            var groups = [];
+            try {
+                for (var _c = __values(gltfModel.nodes), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var node = _d.value;
+                    var group = this.__generateGroupEntity();
+                    group.tryToSetUniqueName(node.name, true);
+                    groups.push(group);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            // Transfrom
+            this._setupTransform(gltfModel, groups);
+            // Skeleton
+            //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
+            // Hierarchy
+            //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+            // Animation
+            //    this._setupAnimation(gltfModel, groups);
+            // Root Group
+            var rootGroup = this.__generateGroupEntity();
+            rootGroup.tryToSetUniqueName('FileRoot', true);
+            if (gltfModel.scenes[0].nodesIndices) {
+                try {
+                    for (var _e = __values(gltfModel.scenes[0].nodesIndices), _f = _e.next(); !_f.done; _f = _e.next()) {
+                        var nodesIndex = _f.value;
+                        rootGroup.getSceneGraph().addChild(groups[nodesIndex].getSceneGraph());
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+            }
+            // Post Skeletal Proccess
+            // for (let glboostMesh of glboostMeshes) {
+            //   if (glboostMesh instanceof M_SkeletalMesh) {
+            //     if (!glboostMesh.jointsHierarchy) {
+            //       glboostMesh.jointsHierarchy = rootGroup;
+            //     }
+            //   }
+            // }
+            // let options = gltfModel.asset.extras.glboostOptions;
+            // if (options.loaderExtension && options.loaderExtension.setAssetPropertiesToRootGroup) {
+            //   options.loaderExtension.setAssetPropertiesToRootGroup(rootGroup, gltfModel.asset);
+            // }
+            // if (options && options.loaderExtension && options.loaderExtension.loadExtensionInfoAndSetToRootGroup) {
+            //   options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel, glBoostContext);
+            // }
+            // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
+            return rootGroup;
+        };
+        ModelConverter.prototype.createRnBuffer = function (gltfModel) {
+            var buffer = gltfModel.buffers[0];
+            var rnBuffer = new Buffer$1({
+                byteLength: buffer.byteLength,
+                arrayBuffer: buffer.buffer,
+                name: "gltf2Buffer_0_(" + buffer.uri + ")"
+            });
+            return rnBuffer;
+        };
+        ModelConverter.prototype._setupTransform = function (gltfModel, groups) {
+            for (var node_i in gltfModel.nodes) {
+                var group = groups[node_i];
+                var nodeJson = gltfModel.nodes[node_i];
+                if (nodeJson.translation) {
+                    group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
+                }
+                if (nodeJson.scale) {
+                    group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
+                }
+                if (nodeJson.rotation) {
+                    group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+                }
+                if (nodeJson.matrix) {
+                    group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
+                }
+            }
+        };
+        // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
+        //   for (let node_i in gltfModel.nodes) {
+        //     let node = gltfModel.nodes[parseInt(node_i)];
+        //     let parentGroup = groups[node_i];
+        //     if (node.mesh) {
+        //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
+        //     }
+        //     if (node.childrenIndices) {
+        //       for (let childNode_i of node.childrenIndices) {
+        //         let childGroup = groups[childNode_i];
+        //         parentGroup.addChild(childGroup, true);
+        //       }
+        //     }
+        //   }
+        // }
+        // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
+        //   if (gltfModel.animations) {
+        //     for (let animation of gltfModel.animations) {
+        //       for (let channel of animation.channels) {
+        //         let animInputArray = channel.sampler.input.extras.vertexAttributeArray;
+        //         let animOutputArray = channel.sampler.output.extras.vertexAttributeArray;;
+        //         let animationAttributeName = '';
+        //         if (channel.target.path === 'translation') {
+        //           animationAttributeName = 'translate';
+        //         } else if (channel.target.path === 'rotation') {
+        //           animationAttributeName = 'quaternion';
+        //         } else {
+        //           animationAttributeName = channel.target.path;
+        //         }
+        //         let group = groups[channel.target.nodeIndex];
+        //         if (group) {
+        //           group.setAnimationAtLine('time', animationAttributeName, animInputArray, animOutputArray);
+        //           group.setActiveAnimationLine('time');
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
+        // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
+        //   for (let node_i in gltfModel.nodes) {
+        //     let node = gltfModel.nodes[node_i];
+        //     let group = groups[node_i];
+        //     if (node.skin && node.skin.skeleton) {
+        //       group._isRootJointGroup = true;
+        //       if (node.mesh) {
+        //         let glboostMesh = glboostMeshes[node.meshIndex];
+        //         glboostMesh.jointsHierarchy = groups[node.skin.skeletonIndex];
+        //       }
+        //     }
+        //     if (node.skin && node.skin.joints) {
+        //       for (let joint_i of node.skin.jointsIndices) {
+        //         let joint = node.skin.joints[joint_i];
+        //         let options = gltfModel.asset.extras.glboostOptions;
+        //         let glboostJoint = glBoostContext.createJoint(options.isExistJointGizmo);
+        //         glboostJoint._glTFJointIndex = joint_i;
+        //         let group = groups[joint_i];
+        //         group.addChild(glboostJoint, true);
+        //       }
+        //     }
+        //   }
+        // }
+        ModelConverter.prototype._setupMesh = function (gltfModel, rnBuffer) {
+            var e_3, _a;
+            try {
+                for (var _b = __values(gltfModel.meshes), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var mesh = _c.value;
+                    var meshEntity = this.__generateMeshEntity();
+                    var rnPrimitiveMode = PrimitiveMode.from(4);
+                    for (var i in mesh.primitives) {
+                        var primitive = mesh.primitives[i];
+                        if (primitive.mode != null) {
+                            rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
+                        }
+                        var indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+                        var attributeRnAccessors = [];
+                        var attributeSemantics = [];
+                        for (var attributeName in primitive.attributes) {
+                            var attributeAccessor = primitive.attributes[attributeName];
+                            var attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+                            attributeRnAccessors.push(attributeRnAccessor);
+                            attributeSemantics.push(VertexAttribute.from({ str: attributeAccessor.extras.attributeName }));
+                        }
+                        var rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+                    }
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+            //  return mesh;
+        };
+        ModelConverter.prototype.__getRnAccessor = function (accessor, rnBuffer) {
+            var bufferView = accessor.bufferView;
+            var rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
+                byteLengthToNeed: bufferView.byteLength,
+                byteStride: bufferView.byteStride,
+                byteOffset: bufferView.byteOffset,
+                isAoS: false
+            });
+            var rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+                compositionType: CompositionType.from({ str: accessor.type }),
+                componentType: ComponentType.from(accessor.componentType),
+                count: accessor.count,
+                byteOffset: accessor.byteOffset
+            });
+            return rnAccessor;
+        };
+        return ModelConverter;
+    }());
+
     var Rn = Object.freeze({
         EntityRepository: EntityRepository,
         TransformComponent: TransformComponent,
@@ -7472,7 +7773,8 @@
         Matrix33: Matrix33,
         Matrix44: Matrix44,
         ProcessApproach: ProcessApproach,
-        Gltf2Importer: Gltf2Importer
+        Gltf2Importer: Gltf2Importer,
+        ModelConverter: ModelConverter
     });
     window['Rn'] = Rn;
 

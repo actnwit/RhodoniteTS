@@ -66,8 +66,16 @@ const Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeS
 const Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
 const Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
 const typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
-function from({ index }) {
-    return _from({ typeList, index });
+function from({ index, str }) {
+    if (index != null) {
+        return _from({ typeList, index });
+    }
+    else if (str != null) {
+        return _fromString({ typeList, str });
+    }
+    else {
+        throw new Error('Not currect query supplied.');
+    }
 }
 const VertexAttribute = Object.freeze({
     Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, from
@@ -92,8 +100,16 @@ const Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponent
 const Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
 const Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
 const typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-function from$1({ index }) {
-    return _from({ typeList: typeList$1, index });
+function from$1({ index, str }) {
+    if (index != null) {
+        return _from({ typeList: typeList$1, index });
+    }
+    else if (str != null) {
+        return _fromString({ typeList: typeList$1, str });
+    }
+    else {
+        throw new Error('Not currect query supplied.');
+    }
 }
 const CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from: from$1 });
 
@@ -117,7 +133,7 @@ const Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4
 const Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
 const HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
 const typeList$2 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
-function from$2({ index }) {
+function from$2(index) {
     return _from({ typeList: typeList$2, index });
 }
 function fromTypedArray(typedArray) {
@@ -2937,6 +2953,15 @@ class BufferView extends RnObject {
         const accessor = this.__takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor });
         return accessor;
     }
+    takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffset }) {
+        const byteStride = this.byteStride;
+        const accessor = this.__takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass: AccessorBase });
+        return accessor;
+    }
+    takeFlexibleAccessorWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset }) {
+        const accessor = this.__takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass: FlexibleAccessor });
+        return accessor;
+    }
     __takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass }) {
         let byteOffset = 0;
         if (this.isSoA) {
@@ -2947,6 +2972,21 @@ class BufferView extends RnObject {
             byteOffset = this.__takenByteIndex;
             this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
         }
+        if (byteOffset % 4 !== 0) {
+            console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+            byteOffset += 4 - byteOffset % 4;
+        }
+        if (this.__byteOffset % 4 !== 0) {
+            console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+            this.__byteOffset += 4 - this.__byteOffset % 4;
+        }
+        const accessor = new accessorClass({
+            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
+        });
+        this.__accessors.push(accessor);
+        return accessor;
+    }
+    __takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass }) {
         if (byteOffset % 4 !== 0) {
             console.info('Padding bytes added because byteOffset is not 4byte aligned.');
             byteOffset += 4 - byteOffset % 4;
@@ -2996,6 +3036,21 @@ class Buffer$1 extends RnObject {
         const bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
         bufferView.byteStride = byteStride;
         this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
+        this.__bufferViews.push(bufferView);
+        return bufferView;
+    }
+    takeBufferViewWithByteOffset({ byteLengthToNeed, byteStride, byteOffset, isAoS }) {
+        if (byteLengthToNeed % 4 !== 0) {
+            console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
+            byteLengthToNeed += 4 - (byteLengthToNeed % 4);
+        }
+        if (byteStride % 4 !== 0) {
+            console.info('Padding bytes added, byteStride must be a multiple of 4.');
+            byteStride += 4 - (byteStride % 4);
+        }
+        const array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);
+        const bufferView = new BufferView({ buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
+        bufferView.byteStride = byteStride;
         this.__bufferViews.push(bufferView);
         return bufferView;
     }
@@ -3095,8 +3150,8 @@ class MemoryManager {
         return MemoryManager.__bufferHeightLength;
     }
 }
-MemoryManager.__bufferWidthLength = Math.pow(2, 10);
-MemoryManager.__bufferHeightLength = Math.pow(2, 10);
+MemoryManager.__bufferWidthLength = Math.pow(2, 8);
+MemoryManager.__bufferHeightLength = Math.pow(2, 8);
 
 //import GLBoost from '../../globals';
 const FloatArray$1 = Float32Array;
@@ -4124,7 +4179,7 @@ class EntityRepository {
         return component;
     }
     static getMaxEntityNumber() {
-        return 100000;
+        return 1000;
     }
     _getEntities() {
         return this.__entities.concat();
@@ -5006,19 +5061,14 @@ const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, Text
     Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
 
 class Primitive extends RnObject {
-    constructor(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, mode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView) {
+    constructor(attributeAccessors, attributeSemantics, mode, material, indicesAccessor) {
         super();
         this.__primitiveUid = -1; // start ID from zero
         this.__indices = indicesAccessor;
-        this.__attributeCompositionTypes = attributeCompositionTypes;
-        this.__attributeComponentTypes = attributeComponentTypes;
         this.__attributes = attributeAccessors;
         this.__attributeSemantics = attributeSemantics;
         this.__material = material;
         this.__mode = mode;
-        this.__indicesBufferView = indicesBufferView;
-        this.__attributesBufferView = attributesBufferView;
-        this.__indicesComponentType = indicesComponentType;
         this.__primitiveUid = Primitive.__primitiveCount++;
         if (Primitive.__headerAccessor == null) {
             // primitive 0
@@ -5089,7 +5139,7 @@ class Primitive extends RnObject {
             accessor.copyFromTypedArray(attribute);
             attributeAccessors.push(accessor);
         });
-        return new Primitive(attributeCompositionTypes, attributeComponentTypes, attributeAccessors, attributeSemantics, primitiveMode, material, attributesBufferView, indicesComponentType, indicesAccessor, indicesBufferView);
+        return new Primitive(attributeAccessors, attributeSemantics, primitiveMode, material, indicesAccessor);
     }
     get indicesAccessor() {
         return this.__indices;
@@ -5104,10 +5154,10 @@ class Primitive extends RnObject {
         return this.__attributeSemantics.concat();
     }
     get attributeCompositionTypes() {
-        return this.__attributeCompositionTypes;
+        return this.__attributes.map(attribute => { return attribute.compositionType; });
     }
     get attributeComponentTypes() {
-        return this.__attributeComponentTypes;
+        return this.__attributes.map(attribute => { return attribute.componentType; });
     }
     get primitiveMode() {
         return this.__mode;
@@ -5132,7 +5182,7 @@ const Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
 const TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
 const TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
 const typeList$9 = [Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-function from$9({ index }) {
+function from$9(index) {
     return _from({ typeList: typeList$9, index });
 }
 const PrimitiveMode = Object.freeze({ Unknown: Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan, from: from$9 });
@@ -6225,7 +6275,8 @@ class Gltf2Importer {
                     if (primitive.attributesindex[attributeName] >= 0) {
                         let accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
                         accessor.extras = {
-                            toGetAsTypedArray: true
+                            toGetAsTypedArray: true,
+                            attributeName: attributeName
                         };
                         primitive.attributes[attributeName] = accessor;
                     }
@@ -6565,6 +6616,221 @@ class Gltf2Importer {
     }
 }
 
+/**
+ * A converter class from glTF2 model to Rhodonite Native data
+ */
+class ModelConverter {
+    constructor() {
+    }
+    /**
+     * The static method to get singleton instance of this class.
+     * @return The singleton instance of ModelConverter class
+     */
+    static getInstance() {
+        if (!this.__instance) {
+            this.__instance = new ModelConverter();
+        }
+        return this.__instance;
+    }
+    _getDefaultShader(options) {
+        let defaultShader = null;
+        // if (options && typeof options.defaultShaderClass !== "undefined") {
+        //   if (typeof options.defaultShaderClass === "string") {
+        //     defaultShader = GLBoost[options.defaultShaderClass];
+        //   } else {
+        //     defaultShader = options.defaultShaderClass;
+        //   }
+        // }
+        return defaultShader;
+    }
+    __generateGroupEntity() {
+        const repo = EntityRepository.getInstance();
+        const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+        return entity;
+    }
+    __generateMeshEntity() {
+        const repo = EntityRepository.getInstance();
+        const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+            MeshComponent.componentTID, MeshRendererComponent.componentTID]);
+        return entity;
+    }
+    convertToRhodoniteObject(gltfModel) {
+        // load binary data
+        // for (let accessor of gltfModel.accessors) {
+        //   this._accessBinaryWithAccessor(accessor);
+        // }
+        const rnBuffer = this.createRnBuffer(gltfModel);
+        // Mesh data
+        const glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+        let groups = [];
+        for (let node of gltfModel.nodes) {
+            const group = this.__generateGroupEntity();
+            group.tryToSetUniqueName(node.name, true);
+            groups.push(group);
+        }
+        // Transfrom
+        this._setupTransform(gltfModel, groups);
+        // Skeleton
+        //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
+        // Hierarchy
+        //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+        // Animation
+        //    this._setupAnimation(gltfModel, groups);
+        // Root Group
+        const rootGroup = this.__generateGroupEntity();
+        rootGroup.tryToSetUniqueName('FileRoot', true);
+        if (gltfModel.scenes[0].nodesIndices) {
+            for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
+                rootGroup.getSceneGraph().addChild(groups[nodesIndex].getSceneGraph());
+            }
+        }
+        // Post Skeletal Proccess
+        // for (let glboostMesh of glboostMeshes) {
+        //   if (glboostMesh instanceof M_SkeletalMesh) {
+        //     if (!glboostMesh.jointsHierarchy) {
+        //       glboostMesh.jointsHierarchy = rootGroup;
+        //     }
+        //   }
+        // }
+        // let options = gltfModel.asset.extras.glboostOptions;
+        // if (options.loaderExtension && options.loaderExtension.setAssetPropertiesToRootGroup) {
+        //   options.loaderExtension.setAssetPropertiesToRootGroup(rootGroup, gltfModel.asset);
+        // }
+        // if (options && options.loaderExtension && options.loaderExtension.loadExtensionInfoAndSetToRootGroup) {
+        //   options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel, glBoostContext);
+        // }
+        // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
+        return rootGroup;
+    }
+    createRnBuffer(gltfModel) {
+        const buffer = gltfModel.buffers[0];
+        const rnBuffer = new Buffer$1({
+            byteLength: buffer.byteLength,
+            arrayBuffer: buffer.buffer,
+            name: `gltf2Buffer_0_(${buffer.uri})`
+        });
+        return rnBuffer;
+    }
+    _setupTransform(gltfModel, groups) {
+        for (let node_i in gltfModel.nodes) {
+            let group = groups[node_i];
+            let nodeJson = gltfModel.nodes[node_i];
+            if (nodeJson.translation) {
+                group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
+            }
+            if (nodeJson.scale) {
+                group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
+            }
+            if (nodeJson.rotation) {
+                group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+            }
+            if (nodeJson.matrix) {
+                group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
+            }
+        }
+    }
+    // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
+    //   for (let node_i in gltfModel.nodes) {
+    //     let node = gltfModel.nodes[parseInt(node_i)];
+    //     let parentGroup = groups[node_i];
+    //     if (node.mesh) {
+    //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
+    //     }
+    //     if (node.childrenIndices) {
+    //       for (let childNode_i of node.childrenIndices) {
+    //         let childGroup = groups[childNode_i];
+    //         parentGroup.addChild(childGroup, true);
+    //       }
+    //     }
+    //   }
+    // }
+    // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
+    //   if (gltfModel.animations) {
+    //     for (let animation of gltfModel.animations) {
+    //       for (let channel of animation.channels) {
+    //         let animInputArray = channel.sampler.input.extras.vertexAttributeArray;
+    //         let animOutputArray = channel.sampler.output.extras.vertexAttributeArray;;
+    //         let animationAttributeName = '';
+    //         if (channel.target.path === 'translation') {
+    //           animationAttributeName = 'translate';
+    //         } else if (channel.target.path === 'rotation') {
+    //           animationAttributeName = 'quaternion';
+    //         } else {
+    //           animationAttributeName = channel.target.path;
+    //         }
+    //         let group = groups[channel.target.nodeIndex];
+    //         if (group) {
+    //           group.setAnimationAtLine('time', animationAttributeName, animInputArray, animOutputArray);
+    //           group.setActiveAnimationLine('time');
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
+    //   for (let node_i in gltfModel.nodes) {
+    //     let node = gltfModel.nodes[node_i];
+    //     let group = groups[node_i];
+    //     if (node.skin && node.skin.skeleton) {
+    //       group._isRootJointGroup = true;
+    //       if (node.mesh) {
+    //         let glboostMesh = glboostMeshes[node.meshIndex];
+    //         glboostMesh.jointsHierarchy = groups[node.skin.skeletonIndex];
+    //       }
+    //     }
+    //     if (node.skin && node.skin.joints) {
+    //       for (let joint_i of node.skin.jointsIndices) {
+    //         let joint = node.skin.joints[joint_i];
+    //         let options = gltfModel.asset.extras.glboostOptions;
+    //         let glboostJoint = glBoostContext.createJoint(options.isExistJointGizmo);
+    //         glboostJoint._glTFJointIndex = joint_i;
+    //         let group = groups[joint_i];
+    //         group.addChild(glboostJoint, true);
+    //       }
+    //     }
+    //   }
+    // }
+    _setupMesh(gltfModel, rnBuffer) {
+        for (let mesh of gltfModel.meshes) {
+            const meshEntity = this.__generateMeshEntity();
+            let rnPrimitiveMode = PrimitiveMode.from(4);
+            for (let i in mesh.primitives) {
+                let primitive = mesh.primitives[i];
+                if (primitive.mode != null) {
+                    rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
+                }
+                const indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+                const attributeRnAccessors = [];
+                const attributeSemantics = [];
+                for (let attributeName in primitive.attributes) {
+                    let attributeAccessor = primitive.attributes[attributeName];
+                    const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+                    attributeRnAccessors.push(attributeRnAccessor);
+                    attributeSemantics.push(VertexAttribute.from({ str: attributeAccessor.extras.attributeName }));
+                }
+                const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+            }
+        }
+        //  return mesh;
+    }
+    __getRnAccessor(accessor, rnBuffer) {
+        const bufferView = accessor.bufferView;
+        const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
+            byteLengthToNeed: bufferView.byteLength,
+            byteStride: bufferView.byteStride,
+            byteOffset: bufferView.byteOffset,
+            isAoS: false
+        });
+        const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+            compositionType: CompositionType.from({ str: accessor.type }),
+            componentType: ComponentType.from(accessor.componentType),
+            count: accessor.count,
+            byteOffset: accessor.byteOffset
+        });
+        return rnAccessor;
+    }
+}
+
 const Rn = Object.freeze({
     EntityRepository,
     TransformComponent,
@@ -6584,7 +6850,8 @@ const Rn = Object.freeze({
     Matrix33,
     Matrix44,
     ProcessApproach,
-    Gltf2Importer
+    Gltf2Importer,
+    ModelConverter
 });
 window['Rn'] = Rn;
 

@@ -214,7 +214,8 @@ export default class Gltf2Importer {
           if (primitive.attributesindex[attributeName] >= 0) {
             let accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
             accessor.extras = {
-              toGetAsTypedArray: true
+              toGetAsTypedArray: true,
+              attributeName: attributeName
             };
             primitive.attributes[attributeName] = accessor;
           } else {

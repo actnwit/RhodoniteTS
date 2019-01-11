@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
@@ -28,8 +28,14 @@ const Instance: VertexAttributeEnum = new VertexAttributeClass({index:8, str:'IN
 
 const typeList = [ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance ];
 
-function from({ index }: { index: number }): VertexAttributeEnum {
-  return _from({typeList, index}) as VertexAttributeEnum;
+function from({ index, str }: { index?: number, str?: string }): VertexAttributeEnum {
+  if (index != null) {
+    return _from({typeList, index}) as VertexAttributeEnum;
+  } else if (str != null) {
+    return _fromString({typeList, str}) as VertexAttributeEnum;
+  } else {
+    throw new Error('Not currect query supplied.');
+  }
 }
 
 export const VertexAttribute = Object.freeze({
