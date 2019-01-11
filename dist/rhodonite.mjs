@@ -6646,7 +6646,7 @@ class ModelConverter {
         // }
         const rnBuffer = this.createRnBuffer(gltfModel);
         // Mesh data
-        const glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+        const meshEntities = this._setupMesh(gltfModel, rnBuffer);
         let groups = [];
         for (let node of gltfModel.nodes) {
             const group = this.__generateGroupEntity();
@@ -6658,7 +6658,7 @@ class ModelConverter {
         // Skeleton
         //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
         // Hierarchy
-        //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+        this._setupHierarchy(gltfModel, groups, meshEntities);
         // Animation
         //    this._setupAnimation(gltfModel, groups);
         // Root Group
@@ -6714,21 +6714,23 @@ class ModelConverter {
             }
         }
     }
-    // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-    //   for (let node_i in gltfModel.nodes) {
-    //     let node = gltfModel.nodes[parseInt(node_i)];
-    //     let parentGroup = groups[node_i];
-    //     if (node.mesh) {
-    //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
-    //     }
-    //     if (node.childrenIndices) {
-    //       for (let childNode_i of node.childrenIndices) {
-    //         let childGroup = groups[childNode_i];
-    //         parentGroup.addChild(childGroup, true);
-    //       }
-    //     }
-    //   }
-    // }
+    _setupHierarchy(gltfModel, groups, meshEntities) {
+        const groupSceneComponents = groups.map(group => { return group.getSceneGraph(); });
+        const meshSceneComponents = meshEntities.map(mesh => { return mesh.getSceneGraph(); });
+        for (let node_i in gltfModel.nodes) {
+            let node = gltfModel.nodes[parseInt(node_i)];
+            let parentGroup = groupSceneComponents[node_i];
+            if (node.mesh) {
+                parentGroup.addChild(meshSceneComponents[node.meshIndex]);
+            }
+            if (node.childrenIndices) {
+                for (let childNode_i of node.childrenIndices) {
+                    let childGroup = groupSceneComponents[childNode_i];
+                    parentGroup.addChild(childGroup);
+                }
+            }
+        }
+    }
     // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
     //   if (gltfModel.animations) {
     //     for (let animation of gltfModel.animations) {
@@ -6776,8 +6778,10 @@ class ModelConverter {
     //   }
     // }
     _setupMesh(gltfModel, rnBuffer) {
+        const meshEntities = [];
         for (let mesh of gltfModel.meshes) {
             const meshEntity = this.__generateMeshEntity();
+            meshEntities.push(meshEntity);
             let rnPrimitiveMode = PrimitiveMode.from(4);
             for (let i in mesh.primitives) {
                 let primitive = mesh.primitives[i];
@@ -6794,9 +6798,11 @@ class ModelConverter {
                     attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                 }
                 const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+                const meshComponent = meshEntity.getComponent(MeshComponent.componentTID);
+                meshComponent.addPrimitive(rnPrimitive);
             }
         }
-        //  return mesh;
+        return meshEntities;
     }
     __getRnAccessor(accessor, rnBuffer) {
         const bufferView = accessor.bufferView;

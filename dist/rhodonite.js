@@ -7533,7 +7533,7 @@
             var e_1, _a, e_2, _b;
             var rnBuffer = this.createRnBuffer(gltfModel);
             // Mesh data
-            var glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+            var meshEntities = this._setupMesh(gltfModel, rnBuffer);
             var groups = [];
             try {
                 for (var _c = __values(gltfModel.nodes), _d = _c.next(); !_d.done; _d = _c.next()) {
@@ -7555,7 +7555,7 @@
             // Skeleton
             //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
             // Hierarchy
-            //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+            this._setupHierarchy(gltfModel, groups, meshEntities);
             // Animation
             //    this._setupAnimation(gltfModel, groups);
             // Root Group
@@ -7621,21 +7621,34 @@
                 }
             }
         };
-        // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-        //   for (let node_i in gltfModel.nodes) {
-        //     let node = gltfModel.nodes[parseInt(node_i)];
-        //     let parentGroup = groups[node_i];
-        //     if (node.mesh) {
-        //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
-        //     }
-        //     if (node.childrenIndices) {
-        //       for (let childNode_i of node.childrenIndices) {
-        //         let childGroup = groups[childNode_i];
-        //         parentGroup.addChild(childGroup, true);
-        //       }
-        //     }
-        //   }
-        // }
+        ModelConverter.prototype._setupHierarchy = function (gltfModel, groups, meshEntities) {
+            var e_3, _a;
+            var groupSceneComponents = groups.map(function (group) { return group.getSceneGraph(); });
+            var meshSceneComponents = meshEntities.map(function (mesh) { return mesh.getSceneGraph(); });
+            for (var node_i in gltfModel.nodes) {
+                var node = gltfModel.nodes[parseInt(node_i)];
+                var parentGroup = groupSceneComponents[node_i];
+                if (node.mesh) {
+                    parentGroup.addChild(meshSceneComponents[node.meshIndex]);
+                }
+                if (node.childrenIndices) {
+                    try {
+                        for (var _b = __values(node.childrenIndices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                            var childNode_i = _c.value;
+                            var childGroup = groupSceneComponents[childNode_i];
+                            parentGroup.addChild(childGroup);
+                        }
+                    }
+                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    finally {
+                        try {
+                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                        }
+                        finally { if (e_3) throw e_3.error; }
+                    }
+                }
+            }
+        };
         // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
         //   if (gltfModel.animations) {
         //     for (let animation of gltfModel.animations) {
@@ -7683,11 +7696,13 @@
         //   }
         // }
         ModelConverter.prototype._setupMesh = function (gltfModel, rnBuffer) {
-            var e_3, _a;
+            var e_4, _a;
+            var meshEntities = [];
             try {
                 for (var _b = __values(gltfModel.meshes), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var mesh = _c.value;
                     var meshEntity = this.__generateMeshEntity();
+                    meshEntities.push(meshEntity);
                     var rnPrimitiveMode = PrimitiveMode.from(4);
                     for (var i in mesh.primitives) {
                         var primitive = mesh.primitives[i];
@@ -7704,17 +7719,19 @@
                             attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                         }
                         var rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+                        var meshComponent = meshEntity.getComponent(MeshComponent.componentTID);
+                        meshComponent.addPrimitive(rnPrimitive);
                     }
                 }
             }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            catch (e_4_1) { e_4 = { error: e_4_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_3) throw e_3.error; }
+                finally { if (e_4) throw e_4.error; }
             }
-            //  return mesh;
+            return meshEntities;
         };
         ModelConverter.prototype.__getRnAccessor = function (accessor, rnBuffer) {
             var bufferView = accessor.bufferView;
