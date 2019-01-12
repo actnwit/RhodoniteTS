@@ -4374,6 +4374,9 @@
     }
     var ProcessStage = Object.freeze({ Unknown: Unknown$3, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
 
+    var maxEntityNumber = 5000;
+    var Config = Object.freeze({ maxEntityNumber: maxEntityNumber });
+
     var Component = /** @class */ (function () {
         function Component(entityUid, componentSid) {
             var _this = this;
@@ -4395,7 +4398,7 @@
             stages.forEach(function (stage) {
                 if (_this.isExistProcessStageMethod(stage)) {
                     if (Component.__componentsOfProcessStages.get(stage) == null) {
-                        Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                        Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
                         Component.__dirtyOfArrayOfProcessStages.set(stage, false);
                         Component.__lengthOfArrayOfProcessStages.set(stage, 0);
                     }
@@ -4430,8 +4433,7 @@
             enumerable: true,
             configurable: true
         });
-        Component.isExistProcessStageMethod = function (componentTid, processStage) {
-            var componentRepository = ComponentRepository.getInstance();
+        Component.isExistProcessStageMethod = function (componentTid, processStage, componentRepository) {
             var component = componentRepository.getComponent(componentTid, 0);
             if (component == null) {
                 return false;
@@ -4448,11 +4450,10 @@
             return true;
         };
         Component.process = function (_a) {
-            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach;
-            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach, componentRepository = _a.componentRepository;
+            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
                 return;
             }
-            var componentRepository = ComponentRepository.getInstance();
             var array = this.__componentsOfProcessStages.get(processStage);
             for (var i = 0; i < array.length; ++i) {
                 if (array[i] === Component.invalidComponentSID) {
@@ -4467,15 +4468,14 @@
                 });
             }
         };
-        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage) {
-            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage, componentRepository) {
+            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
                 return;
             }
-            var componentRepository = ComponentRepository.getInstance();
             var component = componentRepository.getComponent(this.componentTID, 0);
             var dirty = Component.__componentsOfProcessStages.get(processStage);
             if (dirty) {
-                var components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+                var components = componentRepository.getComponentsWithType(componentTid);
                 var array = Component.__componentsOfProcessStages.get(processStage);
                 var count = 0;
                 for (var i = 0; i < components.length; ++i) {
@@ -4497,7 +4497,7 @@
         };
         Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {
             var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             if (!this.__bufferViews.has(componentClass)) {
                 this.__bufferViews.set(componentClass, new Map());
             }
@@ -4526,7 +4526,7 @@
             return this.__accessors.get(componentClass).get(memberName);
         };
         Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             if (!this.__accessors.has(componentClass)) {
                 this.__accessors.set(componentClass, new Map());
             }
@@ -4831,9 +4831,6 @@
                 }
             }
             return component;
-        };
-        EntityRepository.getMaxEntityNumber = function () {
-            return 5000;
         };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();
@@ -6562,7 +6559,7 @@
         };
         class_1.prototype.__setupInstanceIDBuffer = function () {
             var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
             var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -6619,12 +6616,13 @@
                 }
                 componentTids.forEach(function (componentTid) {
                     var componentClass = ComponentRepository.getComponentClass(componentTid);
-                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage, _this.__componentRepository);
                     componentClass.process({
                         componentTid: componentTid,
                         processStage: stage,
                         instanceIDBufferUid: instanceIDBufferUid,
-                        processApproach: _this.__processApproach
+                        processApproach: _this.__processApproach,
+                        componentRepository: _this.__componentRepository
                     });
                 });
             });

@@ -63,10 +63,6 @@ export default class EntityRepository {
     return component;
   }
 
-  static getMaxEntityNumber(): number {
-    return 5000;
-  }
-
   _getEntities() {
     return this.__entities.concat();
   }

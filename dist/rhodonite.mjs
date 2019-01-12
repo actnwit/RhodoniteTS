@@ -3781,6 +3781,9 @@ function from$5(index) {
 }
 const ProcessStage = Object.freeze({ Unknown: Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
 
+let maxEntityNumber = 5000;
+var Config = Object.freeze({ maxEntityNumber });
+
 class Component {
     constructor(entityUid, componentSid) {
         this.__currentProcessStage = ProcessStage.Create;
@@ -3801,7 +3804,7 @@ class Component {
         stages.forEach(stage => {
             if (this.isExistProcessStageMethod(stage)) {
                 if (Component.__componentsOfProcessStages.get(stage) == null) {
-                    Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                    Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
                     Component.__dirtyOfArrayOfProcessStages.set(stage, false);
                     Component.__lengthOfArrayOfProcessStages.set(stage, 0);
                 }
@@ -3824,8 +3827,7 @@ class Component {
     get entityUID() {
         return this.__entityUid;
     }
-    static isExistProcessStageMethod(componentTid, processStage) {
-        const componentRepository = ComponentRepository.getInstance();
+    static isExistProcessStageMethod(componentTid, processStage, componentRepository) {
         const component = componentRepository.getComponent(componentTid, 0);
         if (component == null) {
             return false;
@@ -3841,11 +3843,10 @@ class Component {
         }
         return true;
     }
-    static process({ componentTid, processStage, instanceIDBufferUid, processApproach }) {
-        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+    static process({ componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository }) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
             return;
         }
-        const componentRepository = ComponentRepository.getInstance();
         const array = this.__componentsOfProcessStages.get(processStage);
         for (let i = 0; i < array.length; ++i) {
             if (array[i] === Component.invalidComponentSID) {
@@ -3860,15 +3861,14 @@ class Component {
             });
         }
     }
-    static updateComponentsOfEachProcessStage(componentTid, processStage) {
-        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+    static updateComponentsOfEachProcessStage(componentTid, processStage, componentRepository) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
             return;
         }
-        const componentRepository = ComponentRepository.getInstance();
         const component = componentRepository.getComponent(this.componentTID, 0);
         const dirty = Component.__componentsOfProcessStages.get(processStage);
         if (dirty) {
-            const components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+            const components = componentRepository.getComponentsWithType(componentTid);
             const array = Component.__componentsOfProcessStages.get(processStage);
             let count = 0;
             for (let i = 0; i < components.length; ++i) {
@@ -3890,7 +3890,7 @@ class Component {
     }
     static takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers) {
         const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         if (!this.__bufferViews.has(componentClass)) {
             this.__bufferViews.set(componentClass, new Map());
         }
@@ -3919,7 +3919,7 @@ class Component {
         return this.__accessors.get(componentClass).get(memberName);
     }
     static takeAccessor(bufferUse, memberName, componentClass, compositionType, componentType) {
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         if (!this.__accessors.has(componentClass)) {
             this.__accessors.set(componentClass, new Map());
         }
@@ -4162,9 +4162,6 @@ class EntityRepository {
             }
         }
         return component;
-    }
-    static getMaxEntityNumber() {
-        return 5000;
     }
     _getEntities() {
         return this.__entities.concat();
@@ -5827,7 +5824,7 @@ const WebGLRenderingPipeline = new class {
     }
     __setupInstanceIDBuffer() {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
         const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -5882,12 +5879,13 @@ class System {
             }
             componentTids.forEach(componentTid => {
                 const componentClass = ComponentRepository.getComponentClass(componentTid);
-                componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
                 componentClass.process({
                     componentTid: componentTid,
                     processStage: stage,
                     instanceIDBufferUid: instanceIDBufferUid,
-                    processApproach: this.__processApproach
+                    processApproach: this.__processApproach,
+                    componentRepository: this.__componentRepository
                 });
             });
         });

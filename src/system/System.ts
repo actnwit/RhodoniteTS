@@ -42,12 +42,14 @@ export default class System {
       }
       componentTids.forEach(componentTid=>{
         const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
-        componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+        componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
         componentClass.process({
           componentTid:componentTid,
           processStage:stage,
           instanceIDBufferUid:instanceIDBufferUid,
-          processApproach:this.__processApproach});
+          processApproach:this.__processApproach,
+          componentRepository: this.__componentRepository
+        });
       });
     });
   }
