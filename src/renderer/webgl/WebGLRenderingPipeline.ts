@@ -17,6 +17,7 @@ import WebGLStrategyTransformFeedback from "./WebGLStrategyTransformFeedback";
 import getRenderingStrategy from "./getRenderingStrategy";
 import WebGLStrategy from "./WebGLStrategy";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
+import Config from "../../core/Config";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
@@ -61,7 +62,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
 
   private __setupInstanceIDBuffer() {
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-    const count = EntityRepository.getMaxEntityNumber();
+    const count = Config.maxEntityNumber;
     const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
     const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
 

@@ -4374,8 +4374,11 @@
     }
     var ProcessStage = Object.freeze({ Unknown: Unknown$3, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
 
+    var maxEntityNumber = 5000;
+    var Config = Object.freeze({ maxEntityNumber: maxEntityNumber });
+
     var Component = /** @class */ (function () {
-        function Component(entityUid, componentSid) {
+        function Component(entityUid, componentSid, entityRepository) {
             var _this = this;
             this.__currentProcessStage = ProcessStage.Create;
             this.__entityUid = entityUid;
@@ -4395,14 +4398,14 @@
             stages.forEach(function (stage) {
                 if (_this.isExistProcessStageMethod(stage)) {
                     if (Component.__componentsOfProcessStages.get(stage) == null) {
-                        Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                        Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
                         Component.__dirtyOfArrayOfProcessStages.set(stage, false);
                         Component.__lengthOfArrayOfProcessStages.set(stage, 0);
                     }
                 }
             });
             this.__memoryManager = MemoryManager.getInstance();
-            this.__entityRepository = EntityRepository.getInstance();
+            this.__entityRepository = entityRepository;
         }
         Component.prototype.moveStageTo = function (processStage) {
             Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
@@ -4430,8 +4433,7 @@
             enumerable: true,
             configurable: true
         });
-        Component.isExistProcessStageMethod = function (componentTid, processStage) {
-            var componentRepository = ComponentRepository.getInstance();
+        Component.isExistProcessStageMethod = function (componentTid, processStage, componentRepository) {
             var component = componentRepository.getComponent(componentTid, 0);
             if (component == null) {
                 return false;
@@ -4448,11 +4450,10 @@
             return true;
         };
         Component.process = function (_a) {
-            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach;
-            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach, componentRepository = _a.componentRepository;
+            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
                 return;
             }
-            var componentRepository = ComponentRepository.getInstance();
             var array = this.__componentsOfProcessStages.get(processStage);
             for (var i = 0; i < array.length; ++i) {
                 if (array[i] === Component.invalidComponentSID) {
@@ -4467,15 +4468,14 @@
                 });
             }
         };
-        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage) {
-            if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage, componentRepository) {
+            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
                 return;
             }
-            var componentRepository = ComponentRepository.getInstance();
             var component = componentRepository.getComponent(this.componentTID, 0);
             var dirty = Component.__componentsOfProcessStages.get(processStage);
             if (dirty) {
-                var components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+                var components = componentRepository.getComponentsWithType(componentTid);
                 var array = Component.__componentsOfProcessStages.get(processStage);
                 var count = 0;
                 for (var i = 0; i < components.length; ++i) {
@@ -4497,7 +4497,7 @@
         };
         Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {
             var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             if (!this.__bufferViews.has(componentClass)) {
                 this.__bufferViews.set(componentClass, new Map());
             }
@@ -4526,7 +4526,7 @@
             return this.__accessors.get(componentClass).get(memberName);
         };
         Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             if (!this.__accessors.has(componentClass)) {
                 this.__accessors.set(componentClass, new Map());
             }
@@ -4700,7 +4700,7 @@
         ComponentRepository.getComponentClass = function (componentTid) {
             return this.__componentClasses.get(componentTid);
         };
-        ComponentRepository.prototype.createComponent = function (componentTid, entityUid) {
+        ComponentRepository.prototype.createComponent = function (componentTid, entityUid, entityRepository) {
             var thisClass = ComponentRepository;
             var componentClass = thisClass.__componentClasses.get(componentTid);
             if (componentClass != null) {
@@ -4710,7 +4710,7 @@
                     component_sid_count = Component.invalidComponentSID;
                 }
                 this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-                var component = new componentClass(entityUid, component_sid_count);
+                var component = new componentClass(entityUid, component_sid_count, entityRepository);
                 if (!this.__components.has(componentTid)) {
                     this.__components.set(componentTid, []);
                 }
@@ -4795,7 +4795,7 @@
             try {
                 for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {
                     var componentTid = componentTidArray_1_1.value;
-                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
                     var map = this._components[entity.entityUID];
                     if (map == null) {
                         map = new Map();
@@ -4832,9 +4832,6 @@
             }
             return component;
         };
-        EntityRepository.getMaxEntityNumber = function () {
-            return 5000;
-        };
         EntityRepository.prototype._getEntities = function () {
             return this.__entities.concat();
         };
@@ -4843,8 +4840,8 @@
 
     var SceneGraphComponent = /** @class */ (function (_super) {
         __extends(SceneGraphComponent, _super);
-        function SceneGraphComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function SceneGraphComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this._worldMatrix = RowMajarMatrix44.dummy();
             _this.__isWorldMatrixUpToDate = false;
             _this.__tmpMatrix = Matrix44.identity();
@@ -4940,8 +4937,8 @@
     // import AnimationComponent from './AnimationComponent';
     var TransformComponent = /** @class */ (function (_super) {
         __extends(TransformComponent, _super);
-        function TransformComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function TransformComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this._translate = Vector3.dummy();
             _this._rotate = Vector3.dummy();
             _this._scale = Vector3.dummy();
@@ -5459,8 +5456,8 @@
 
     var MeshComponent = /** @class */ (function (_super) {
         __extends(MeshComponent, _super);
-        function MeshComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function MeshComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this.__primitives = [];
             return _this;
         }
@@ -6453,8 +6450,8 @@
 
     var MeshRendererComponent = /** @class */ (function (_super) {
         __extends(MeshRendererComponent, _super);
-        function MeshRendererComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function MeshRendererComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             _this.__vertexHandles = [];
             _this.__isVAOSet = false;
@@ -6562,7 +6559,7 @@
         };
         class_1.prototype.__setupInstanceIDBuffer = function () {
             var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-            var count = EntityRepository.getMaxEntityNumber();
+            var count = Config.maxEntityNumber;
             var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
             var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -6619,12 +6616,13 @@
                 }
                 componentTids.forEach(function (componentTid) {
                     var componentClass = ComponentRepository.getComponentClass(componentTid);
-                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage, _this.__componentRepository);
                     componentClass.process({
                         componentTid: componentTid,
                         processStage: stage,
                         instanceIDBufferUid: instanceIDBufferUid,
-                        processApproach: _this.__processApproach
+                        processApproach: _this.__processApproach,
+                        componentRepository: _this.__componentRepository
                     });
                 });
             });
@@ -7533,7 +7531,7 @@
             var e_1, _a, e_2, _b;
             var rnBuffer = this.createRnBuffer(gltfModel);
             // Mesh data
-            var glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+            var meshEntities = this._setupMesh(gltfModel, rnBuffer);
             var groups = [];
             try {
                 for (var _c = __values(gltfModel.nodes), _d = _c.next(); !_d.done; _d = _c.next()) {
@@ -7555,7 +7553,7 @@
             // Skeleton
             //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
             // Hierarchy
-            //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+            this._setupHierarchy(gltfModel, groups, meshEntities);
             // Animation
             //    this._setupAnimation(gltfModel, groups);
             // Root Group
@@ -7621,21 +7619,34 @@
                 }
             }
         };
-        // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-        //   for (let node_i in gltfModel.nodes) {
-        //     let node = gltfModel.nodes[parseInt(node_i)];
-        //     let parentGroup = groups[node_i];
-        //     if (node.mesh) {
-        //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
-        //     }
-        //     if (node.childrenIndices) {
-        //       for (let childNode_i of node.childrenIndices) {
-        //         let childGroup = groups[childNode_i];
-        //         parentGroup.addChild(childGroup, true);
-        //       }
-        //     }
-        //   }
-        // }
+        ModelConverter.prototype._setupHierarchy = function (gltfModel, groups, meshEntities) {
+            var e_3, _a;
+            var groupSceneComponents = groups.map(function (group) { return group.getSceneGraph(); });
+            var meshSceneComponents = meshEntities.map(function (mesh) { return mesh.getSceneGraph(); });
+            for (var node_i in gltfModel.nodes) {
+                var node = gltfModel.nodes[parseInt(node_i)];
+                var parentGroup = groupSceneComponents[node_i];
+                if (node.mesh) {
+                    parentGroup.addChild(meshSceneComponents[node.meshIndex]);
+                }
+                if (node.childrenIndices) {
+                    try {
+                        for (var _b = __values(node.childrenIndices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                            var childNode_i = _c.value;
+                            var childGroup = groupSceneComponents[childNode_i];
+                            parentGroup.addChild(childGroup);
+                        }
+                    }
+                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    finally {
+                        try {
+                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                        }
+                        finally { if (e_3) throw e_3.error; }
+                    }
+                }
+            }
+        };
         // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
         //   if (gltfModel.animations) {
         //     for (let animation of gltfModel.animations) {
@@ -7683,11 +7694,13 @@
         //   }
         // }
         ModelConverter.prototype._setupMesh = function (gltfModel, rnBuffer) {
-            var e_3, _a;
+            var e_4, _a;
+            var meshEntities = [];
             try {
                 for (var _b = __values(gltfModel.meshes), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var mesh = _c.value;
                     var meshEntity = this.__generateMeshEntity();
+                    meshEntities.push(meshEntity);
                     var rnPrimitiveMode = PrimitiveMode.from(4);
                     for (var i in mesh.primitives) {
                         var primitive = mesh.primitives[i];
@@ -7704,17 +7717,19 @@
                             attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                         }
                         var rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+                        var meshComponent = meshEntity.getComponent(MeshComponent.componentTID);
+                        meshComponent.addPrimitive(rnPrimitive);
                     }
                 }
             }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            catch (e_4_1) { e_4 = { error: e_4_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_3) throw e_3.error; }
+                finally { if (e_4) throw e_4.error; }
             }
-            //  return mesh;
+            return meshEntities;
         };
         ModelConverter.prototype.__getRnAccessor = function (accessor, rnBuffer) {
             var bufferView = accessor.bufferView;

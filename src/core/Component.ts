@@ -8,8 +8,9 @@ import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
-import ComponentRepository from './ComponentRepository';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
+import ComponentRepository from './ComponentRepository';
+import Config from './Config';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
 
@@ -32,7 +33,7 @@ export default class Component {
   protected __memoryManager: MemoryManager;
   protected __entityRepository: EntityRepository;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     this.__entityUid = entityUid
     this._component_sid = componentSid;
     this.__isAlive = true;
@@ -53,14 +54,14 @@ export default class Component {
     stages.forEach(stage=>{
       if (this.isExistProcessStageMethod(stage)) {
         if (Component.__componentsOfProcessStages.get(stage) == null) {
-          Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+          Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
           Component.__dirtyOfArrayOfProcessStages.set(stage, false);
           Component.__lengthOfArrayOfProcessStages.set(stage, 0);
         }
       }
     });
     this.__memoryManager = MemoryManager.getInstance();
-    this.__entityRepository = EntityRepository.getInstance();
+    this.__entityRepository = entityRepository;
   }
 
   moveStageTo(processStage: ProcessStageEnum) {
@@ -81,8 +82,7 @@ export default class Component {
     return this.__entityUid;
   }
 
-  static isExistProcessStageMethod(componentTid: ComponentTID, processStage: ProcessStageEnum) {
-    const componentRepository = ComponentRepository.getInstance();
+  static isExistProcessStageMethod(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
     const component = componentRepository.getComponent(componentTid, 0)!;
     if (component == null) {
       return false;
@@ -102,17 +102,18 @@ export default class Component {
     return true;
   }
 
-  static process({componentTid, processStage, instanceIDBufferUid, processApproach}: {
+  static process({componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository}: {
     componentTid: ComponentTID,
     processStage: ProcessStageEnum,
     instanceIDBufferUid: CGAPIResourceHandle,
-    processApproach: ProcessApproachEnum}
+    processApproach: ProcessApproachEnum,
+    componentRepository: ComponentRepository
+  }
     ) {
-    if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+    if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
       return;
     }
 
-    const componentRepository = ComponentRepository.getInstance();
     const array = this.__componentsOfProcessStages.get(processStage)!;
     for (let i=0; i<array.length; ++i) {
       if (array[i] === Component.invalidComponentSID) {
@@ -128,16 +129,15 @@ export default class Component {
     }
   }
 
-  static updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum) {
-    if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+  static updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
+    if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
       return;
     }
 
-    const componentRepository = ComponentRepository.getInstance();
     const component = componentRepository.getComponent(this.componentTID, 0)!;
     const dirty = Component.__componentsOfProcessStages.get(processStage)!
     if (dirty) {
-      const components = ComponentRepository.getInstance().getComponentsWithType(componentTid)!;
+      const components = componentRepository.getComponentsWithType(componentTid)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
       let count = 0;
       for (let i=0; i<components.length; ++i) {
@@ -164,7 +164,7 @@ export default class Component {
 
   static takeBufferViewer(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-    const count = EntityRepository.getMaxEntityNumber();
+    const count = Config.maxEntityNumber;
 
     if (!this.__bufferViews.has(componentClass)) {
       this.__bufferViews.set(componentClass, new Map())
@@ -199,7 +199,7 @@ export default class Component {
   }
 
   static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    const count = EntityRepository.getMaxEntityNumber();
+    const count = Config.maxEntityNumber;
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
     }
@@ -341,9 +341,10 @@ export default class Component {
 }
 
 export interface ComponentConstructor {
-  new(entityUid: EntityUID, componentSid: ComponentSID): Component;
-  process({componentTid, processStage, instanceIDBufferUid, processApproach}:
+  new(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository): Component;
+  process({componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository}:
     {componentTid: ComponentTID, processStage: ProcessStageEnum,
-      instanceIDBufferUid: CGAPIResourceHandle, processApproach: ProcessApproachEnum}): void;
-  updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum): void;
+      instanceIDBufferUid: CGAPIResourceHandle, processApproach: ProcessApproachEnum,
+    componentRepository: ComponentRepository}): void;
+  updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository): void;
 }

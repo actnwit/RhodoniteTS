@@ -1,4 +1,4 @@
-test('regression test DataTextureInstancedDrawingWebGL2', async () => {
+test('regression test Gltf2Importer', async () => {
   jest.setTimeout(60000);
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/test/e2e/Gltf2Importer');

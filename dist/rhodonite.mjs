@@ -3781,8 +3781,11 @@ function from$5(index) {
 }
 const ProcessStage = Object.freeze({ Unknown: Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from: from$5 });
 
+let maxEntityNumber = 5000;
+var Config = Object.freeze({ maxEntityNumber });
+
 class Component {
-    constructor(entityUid, componentSid) {
+    constructor(entityUid, componentSid, entityRepository) {
         this.__currentProcessStage = ProcessStage.Create;
         this.__entityUid = entityUid;
         this._component_sid = componentSid;
@@ -3801,14 +3804,14 @@ class Component {
         stages.forEach(stage => {
             if (this.isExistProcessStageMethod(stage)) {
                 if (Component.__componentsOfProcessStages.get(stage) == null) {
-                    Component.__componentsOfProcessStages.set(stage, new Int32Array(EntityRepository.getMaxEntityNumber()));
+                    Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
                     Component.__dirtyOfArrayOfProcessStages.set(stage, false);
                     Component.__lengthOfArrayOfProcessStages.set(stage, 0);
                 }
             }
         });
         this.__memoryManager = MemoryManager.getInstance();
-        this.__entityRepository = EntityRepository.getInstance();
+        this.__entityRepository = entityRepository;
     }
     moveStageTo(processStage) {
         Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
@@ -3824,8 +3827,7 @@ class Component {
     get entityUID() {
         return this.__entityUid;
     }
-    static isExistProcessStageMethod(componentTid, processStage) {
-        const componentRepository = ComponentRepository.getInstance();
+    static isExistProcessStageMethod(componentTid, processStage, componentRepository) {
         const component = componentRepository.getComponent(componentTid, 0);
         if (component == null) {
             return false;
@@ -3841,11 +3843,10 @@ class Component {
         }
         return true;
     }
-    static process({ componentTid, processStage, instanceIDBufferUid, processApproach }) {
-        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+    static process({ componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository }) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
             return;
         }
-        const componentRepository = ComponentRepository.getInstance();
         const array = this.__componentsOfProcessStages.get(processStage);
         for (let i = 0; i < array.length; ++i) {
             if (array[i] === Component.invalidComponentSID) {
@@ -3860,15 +3861,14 @@ class Component {
             });
         }
     }
-    static updateComponentsOfEachProcessStage(componentTid, processStage) {
-        if (!Component.isExistProcessStageMethod(componentTid, processStage)) {
+    static updateComponentsOfEachProcessStage(componentTid, processStage, componentRepository) {
+        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
             return;
         }
-        const componentRepository = ComponentRepository.getInstance();
         const component = componentRepository.getComponent(this.componentTID, 0);
         const dirty = Component.__componentsOfProcessStages.get(processStage);
         if (dirty) {
-            const components = ComponentRepository.getInstance().getComponentsWithType(componentTid);
+            const components = componentRepository.getComponentsWithType(componentTid);
             const array = Component.__componentsOfProcessStages.get(processStage);
             let count = 0;
             for (let i = 0; i < components.length; ++i) {
@@ -3890,7 +3890,7 @@ class Component {
     }
     static takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers) {
         const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         if (!this.__bufferViews.has(componentClass)) {
             this.__bufferViews.set(componentClass, new Map());
         }
@@ -3919,7 +3919,7 @@ class Component {
         return this.__accessors.get(componentClass).get(memberName);
     }
     static takeAccessor(bufferUse, memberName, componentClass, compositionType, componentType) {
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         if (!this.__accessors.has(componentClass)) {
             this.__accessors.set(componentClass, new Map());
         }
@@ -4054,7 +4054,7 @@ class ComponentRepository {
     static getComponentClass(componentTid) {
         return this.__componentClasses.get(componentTid);
     }
-    createComponent(componentTid, entityUid) {
+    createComponent(componentTid, entityUid, entityRepository) {
         const thisClass = ComponentRepository;
         const componentClass = thisClass.__componentClasses.get(componentTid);
         if (componentClass != null) {
@@ -4064,7 +4064,7 @@ class ComponentRepository {
                 component_sid_count = Component.invalidComponentSID;
             }
             this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-            const component = new componentClass(entityUid, component_sid_count);
+            const component = new componentClass(entityUid, component_sid_count, entityRepository);
             if (!this.__components.has(componentTid)) {
                 this.__components.set(componentTid, []);
             }
@@ -4134,7 +4134,7 @@ class EntityRepository {
         const entity = new Entity(++this.__entity_uid_count, true, this);
         this.__entities[this.__entity_uid_count] = entity;
         for (let componentTid of componentTidArray) {
-            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
             let map = this._components[entity.entityUID];
             if (map == null) {
                 map = new Map();
@@ -4163,17 +4163,14 @@ class EntityRepository {
         }
         return component;
     }
-    static getMaxEntityNumber() {
-        return 5000;
-    }
     _getEntities() {
         return this.__entities.concat();
     }
 }
 
 class SceneGraphComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this._worldMatrix = RowMajarMatrix44.dummy();
         this.__isWorldMatrixUpToDate = false;
         this.__tmpMatrix = Matrix44.identity();
@@ -4254,8 +4251,8 @@ ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, Sce
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this._translate = Vector3.dummy();
         this._rotate = Vector3.dummy();
         this._scale = Vector3.dummy();
@@ -4698,8 +4695,8 @@ TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
 
 class MeshComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this.__primitives = [];
     }
     static get componentTID() {
@@ -5726,8 +5723,8 @@ const getRenderingStrategy = function (processApproach) {
 };
 
 class MeshRendererComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexHandles = [];
         this.__isVAOSet = false;
@@ -5827,7 +5824,7 @@ const WebGLRenderingPipeline = new class {
     }
     __setupInstanceIDBuffer() {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-        const count = EntityRepository.getMaxEntityNumber();
+        const count = Config.maxEntityNumber;
         const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
         const accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
@@ -5882,12 +5879,13 @@ class System {
             }
             componentTids.forEach(componentTid => {
                 const componentClass = ComponentRepository.getComponentClass(componentTid);
-                componentClass.updateComponentsOfEachProcessStage(componentTid, stage);
+                componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
                 componentClass.process({
                     componentTid: componentTid,
                     processStage: stage,
                     instanceIDBufferUid: instanceIDBufferUid,
-                    processApproach: this.__processApproach
+                    processApproach: this.__processApproach,
+                    componentRepository: this.__componentRepository
                 });
             });
         });
@@ -6646,7 +6644,7 @@ class ModelConverter {
         // }
         const rnBuffer = this.createRnBuffer(gltfModel);
         // Mesh data
-        const glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+        const meshEntities = this._setupMesh(gltfModel, rnBuffer);
         let groups = [];
         for (let node of gltfModel.nodes) {
             const group = this.__generateGroupEntity();
@@ -6658,7 +6656,7 @@ class ModelConverter {
         // Skeleton
         //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
         // Hierarchy
-        //    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+        this._setupHierarchy(gltfModel, groups, meshEntities);
         // Animation
         //    this._setupAnimation(gltfModel, groups);
         // Root Group
@@ -6714,21 +6712,23 @@ class ModelConverter {
             }
         }
     }
-    // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-    //   for (let node_i in gltfModel.nodes) {
-    //     let node = gltfModel.nodes[parseInt(node_i)];
-    //     let parentGroup = groups[node_i];
-    //     if (node.mesh) {
-    //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
-    //     }
-    //     if (node.childrenIndices) {
-    //       for (let childNode_i of node.childrenIndices) {
-    //         let childGroup = groups[childNode_i];
-    //         parentGroup.addChild(childGroup, true);
-    //       }
-    //     }
-    //   }
-    // }
+    _setupHierarchy(gltfModel, groups, meshEntities) {
+        const groupSceneComponents = groups.map(group => { return group.getSceneGraph(); });
+        const meshSceneComponents = meshEntities.map(mesh => { return mesh.getSceneGraph(); });
+        for (let node_i in gltfModel.nodes) {
+            let node = gltfModel.nodes[parseInt(node_i)];
+            let parentGroup = groupSceneComponents[node_i];
+            if (node.mesh) {
+                parentGroup.addChild(meshSceneComponents[node.meshIndex]);
+            }
+            if (node.childrenIndices) {
+                for (let childNode_i of node.childrenIndices) {
+                    let childGroup = groupSceneComponents[childNode_i];
+                    parentGroup.addChild(childGroup);
+                }
+            }
+        }
+    }
     // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
     //   if (gltfModel.animations) {
     //     for (let animation of gltfModel.animations) {
@@ -6776,8 +6776,10 @@ class ModelConverter {
     //   }
     // }
     _setupMesh(gltfModel, rnBuffer) {
+        const meshEntities = [];
         for (let mesh of gltfModel.meshes) {
             const meshEntity = this.__generateMeshEntity();
+            meshEntities.push(meshEntity);
             let rnPrimitiveMode = PrimitiveMode.from(4);
             for (let i in mesh.primitives) {
                 let primitive = mesh.primitives[i];
@@ -6794,9 +6796,11 @@ class ModelConverter {
                     attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
                 }
                 const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+                const meshComponent = meshEntity.getComponent(MeshComponent.componentTID);
+                meshComponent.addPrimitive(rnPrimitive);
             }
         }
-        //  return mesh;
+        return meshEntities;
     }
     __getRnAccessor(accessor, rnBuffer) {
         const bufferView = accessor.bufferView;

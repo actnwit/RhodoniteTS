@@ -72,7 +72,7 @@ export default class ModelConverter {
 
 
     // Mesh data
-    const glboostMeshes = this._setupMesh(gltfModel, rnBuffer);
+    const meshEntities = this._setupMesh(gltfModel, rnBuffer);
 
     let groups: Entity[] = [];
     for (let node of gltfModel.nodes) {
@@ -88,7 +88,7 @@ export default class ModelConverter {
 //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
 
     // Hierarchy
-//    this._setupHierarchy(gltfModel, groups, glboostMeshes);
+    this._setupHierarchy(gltfModel, groups, meshEntities);
 
     // Animation
 //    this._setupAnimation(gltfModel, groups);
@@ -155,22 +155,24 @@ export default class ModelConverter {
     }
   }
 
-  // _setupHierarchy(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
+  _setupHierarchy(gltfModel: glTF2, groups: Entity[], meshEntities: Entity[]) {
+    const groupSceneComponents = groups.map(group=>{return group.getSceneGraph();});
+    const meshSceneComponents = meshEntities.map(mesh=>{return mesh.getSceneGraph();});
 
-  //   for (let node_i in gltfModel.nodes) {
-  //     let node = gltfModel.nodes[parseInt(node_i)];
-  //     let parentGroup = groups[node_i];
-  //     if (node.mesh) {
-  //       parentGroup.addChild(glboostMeshes[node.meshIndex], true);
-  //     }
-  //     if (node.childrenIndices) {
-  //       for (let childNode_i of node.childrenIndices) {
-  //         let childGroup = groups[childNode_i];
-  //         parentGroup.addChild(childGroup, true);
-  //       }
-  //     }
-  //   }
-  // }
+    for (let node_i in gltfModel.nodes) {
+      let node = gltfModel.nodes[parseInt(node_i)];
+      let parentGroup = groupSceneComponents[node_i];
+      if (node.mesh) {
+        parentGroup.addChild(meshSceneComponents[node.meshIndex]);
+      }
+      if (node.childrenIndices) {
+        for (let childNode_i of node.childrenIndices) {
+          let childGroup = groupSceneComponents[childNode_i];
+          parentGroup.addChild(childGroup);
+        }
+      }
+    }
+  }
 
   // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
   //   if (gltfModel.animations) {
@@ -253,10 +255,12 @@ export default class ModelConverter {
         }
 
         const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+        const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
+        meshComponent.addPrimitive(rnPrimitive);
       }
     }
 
-    //  return mesh;
+      return meshEntities;
    }
 
 

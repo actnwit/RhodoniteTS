@@ -31,7 +31,7 @@ export default class EntityRepository {
     const entity = new Entity(++this.__entity_uid_count, true, this);
     this.__entities[this.__entity_uid_count] = entity;
     for (let componentTid of componentTidArray) {
-      const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+      const component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
       let map = this._components[entity.entityUID];
       if (map == null) {
         map = new Map();
@@ -61,10 +61,6 @@ export default class EntityRepository {
       }
     }
     return component;
-  }
-
-  static getMaxEntityNumber(): number {
-    return 5000;
   }
 
   _getEntities() {
