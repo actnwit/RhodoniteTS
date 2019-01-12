@@ -5,12 +5,13 @@ import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import GLSLShader from '../renderer/webgl/GLSLShader';
 import RenderingPipeline from '../renderer/RenderingPipeline';
 import { WebGLRenderingPipeline } from '../renderer/webgl/WebGLRenderingPipeline';
+import EntityRepository from '../core/EntityRepository';
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
-    super(entityUid, componentSid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
+    super(entityUid, componentSid, entityComponent);
 
   }
 

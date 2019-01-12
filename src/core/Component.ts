@@ -33,7 +33,7 @@ export default class Component {
   protected __memoryManager: MemoryManager;
   protected __entityRepository: EntityRepository;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     this.__entityUid = entityUid
     this._component_sid = componentSid;
     this.__isAlive = true;
@@ -61,7 +61,7 @@ export default class Component {
       }
     });
     this.__memoryManager = MemoryManager.getInstance();
-    this.__entityRepository = EntityRepository.getInstance();
+    this.__entityRepository = entityRepository;
   }
 
   moveStageTo(processStage: ProcessStageEnum) {
@@ -341,7 +341,7 @@ export default class Component {
 }
 
 export interface ComponentConstructor {
-  new(entityUid: EntityUID, componentSid: ComponentSID): Component;
+  new(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository): Component;
   process({componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository}:
     {componentTid: ComponentTID, processStage: ProcessStageEnum,
       instanceIDBufferUid: CGAPIResourceHandle, processApproach: ProcessApproachEnum,

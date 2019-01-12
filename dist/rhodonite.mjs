@@ -3785,7 +3785,7 @@ let maxEntityNumber = 5000;
 var Config = Object.freeze({ maxEntityNumber });
 
 class Component {
-    constructor(entityUid, componentSid) {
+    constructor(entityUid, componentSid, entityRepository) {
         this.__currentProcessStage = ProcessStage.Create;
         this.__entityUid = entityUid;
         this._component_sid = componentSid;
@@ -3811,7 +3811,7 @@ class Component {
             }
         });
         this.__memoryManager = MemoryManager.getInstance();
-        this.__entityRepository = EntityRepository.getInstance();
+        this.__entityRepository = entityRepository;
     }
     moveStageTo(processStage) {
         Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
@@ -4054,7 +4054,7 @@ class ComponentRepository {
     static getComponentClass(componentTid) {
         return this.__componentClasses.get(componentTid);
     }
-    createComponent(componentTid, entityUid) {
+    createComponent(componentTid, entityUid, entityRepository) {
         const thisClass = ComponentRepository;
         const componentClass = thisClass.__componentClasses.get(componentTid);
         if (componentClass != null) {
@@ -4064,7 +4064,7 @@ class ComponentRepository {
                 component_sid_count = Component.invalidComponentSID;
             }
             this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-            const component = new componentClass(entityUid, component_sid_count);
+            const component = new componentClass(entityUid, component_sid_count, entityRepository);
             if (!this.__components.has(componentTid)) {
                 this.__components.set(componentTid, []);
             }
@@ -4134,7 +4134,7 @@ class EntityRepository {
         const entity = new Entity(++this.__entity_uid_count, true, this);
         this.__entities[this.__entity_uid_count] = entity;
         for (let componentTid of componentTidArray) {
-            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+            const component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
             let map = this._components[entity.entityUID];
             if (map == null) {
                 map = new Map();
@@ -4169,8 +4169,8 @@ class EntityRepository {
 }
 
 class SceneGraphComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this._worldMatrix = RowMajarMatrix44.dummy();
         this.__isWorldMatrixUpToDate = false;
         this.__tmpMatrix = Matrix44.identity();
@@ -4251,8 +4251,8 @@ ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, Sce
 
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this._translate = Vector3.dummy();
         this._rotate = Vector3.dummy();
         this._scale = Vector3.dummy();
@@ -4695,8 +4695,8 @@ TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
 ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
 
 class MeshComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this.__primitives = [];
     }
     static get componentTID() {
@@ -5723,8 +5723,8 @@ const getRenderingStrategy = function (processApproach) {
 };
 
 class MeshRendererComponent extends Component {
-    constructor(entityUid, componentSid) {
-        super(entityUid, componentSid);
+    constructor(entityUid, componentSid, entityComponent) {
+        super(entityUid, componentSid, entityComponent);
         this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexHandles = [];
         this.__isVAOSet = false;

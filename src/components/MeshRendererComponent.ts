@@ -9,6 +9,7 @@ import WebGLStrategy from '../renderer/webgl/WebGLStrategy';
 import getRenderingStrategy from '../renderer/webgl/getRenderingStrategy';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ProcessStage } from '../definitions/ProcessStage';
+import EntityRepository from '../core/EntityRepository';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -19,8 +20,8 @@ export default class MeshRendererComponent extends Component {
   private __isVAOSet = false;
   private __webglRenderingStrategy?: WebGLStrategy;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
-    super(entityUid, componentSid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
+    super(entityUid, componentSid, entityComponent);
     this.__currentProcessStage = ProcessStage.Create;
 
     let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;

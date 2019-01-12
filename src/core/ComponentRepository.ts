@@ -2,6 +2,7 @@ import Component from './Component';
 import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
 import InitialSetting from '../system/InitialSetting';
+import EntityRepository from './EntityRepository';
 
 export default class ComponentRepository {
   private static __instance: ComponentRepository;
@@ -36,7 +37,7 @@ export default class ComponentRepository {
     return this.__componentClasses.get(componentTid);
   }
 
-  createComponent(componentTid: ComponentTID, entityUid: EntityUID) {
+  createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
     if (componentClass != null) {
@@ -51,7 +52,7 @@ export default class ComponentRepository {
         ++component_sid_count!
       );
 
-      const component = new componentClass(entityUid, component_sid_count!) as Component;
+      const component = new componentClass(entityUid, component_sid_count!, entityRepository) as Component;
 
       if (!this.__components.has(componentTid)) {
         this.__components.set(componentTid, []);

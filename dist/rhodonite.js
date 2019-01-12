@@ -4378,7 +4378,7 @@
     var Config = Object.freeze({ maxEntityNumber: maxEntityNumber });
 
     var Component = /** @class */ (function () {
-        function Component(entityUid, componentSid) {
+        function Component(entityUid, componentSid, entityRepository) {
             var _this = this;
             this.__currentProcessStage = ProcessStage.Create;
             this.__entityUid = entityUid;
@@ -4405,7 +4405,7 @@
                 }
             });
             this.__memoryManager = MemoryManager.getInstance();
-            this.__entityRepository = EntityRepository.getInstance();
+            this.__entityRepository = entityRepository;
         }
         Component.prototype.moveStageTo = function (processStage) {
             Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
@@ -4700,7 +4700,7 @@
         ComponentRepository.getComponentClass = function (componentTid) {
             return this.__componentClasses.get(componentTid);
         };
-        ComponentRepository.prototype.createComponent = function (componentTid, entityUid) {
+        ComponentRepository.prototype.createComponent = function (componentTid, entityUid, entityRepository) {
             var thisClass = ComponentRepository;
             var componentClass = thisClass.__componentClasses.get(componentTid);
             if (componentClass != null) {
@@ -4710,7 +4710,7 @@
                     component_sid_count = Component.invalidComponentSID;
                 }
                 this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-                var component = new componentClass(entityUid, component_sid_count);
+                var component = new componentClass(entityUid, component_sid_count, entityRepository);
                 if (!this.__components.has(componentTid)) {
                     this.__components.set(componentTid, []);
                 }
@@ -4795,7 +4795,7 @@
             try {
                 for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {
                     var componentTid = componentTidArray_1_1.value;
-                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID);
+                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
                     var map = this._components[entity.entityUID];
                     if (map == null) {
                         map = new Map();
@@ -4840,8 +4840,8 @@
 
     var SceneGraphComponent = /** @class */ (function (_super) {
         __extends(SceneGraphComponent, _super);
-        function SceneGraphComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function SceneGraphComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this._worldMatrix = RowMajarMatrix44.dummy();
             _this.__isWorldMatrixUpToDate = false;
             _this.__tmpMatrix = Matrix44.identity();
@@ -4937,8 +4937,8 @@
     // import AnimationComponent from './AnimationComponent';
     var TransformComponent = /** @class */ (function (_super) {
         __extends(TransformComponent, _super);
-        function TransformComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function TransformComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this._translate = Vector3.dummy();
             _this._rotate = Vector3.dummy();
             _this._scale = Vector3.dummy();
@@ -5456,8 +5456,8 @@
 
     var MeshComponent = /** @class */ (function (_super) {
         __extends(MeshComponent, _super);
-        function MeshComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function MeshComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this.__primitives = [];
             return _this;
         }
@@ -6450,8 +6450,8 @@
 
     var MeshRendererComponent = /** @class */ (function (_super) {
         __extends(MeshRendererComponent, _super);
-        function MeshRendererComponent(entityUid, componentSid) {
-            var _this = _super.call(this, entityUid, componentSid) || this;
+        function MeshRendererComponent(entityUid, componentSid, entityComponent) {
+            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             _this.__vertexHandles = [];
             _this.__isVAOSet = false;

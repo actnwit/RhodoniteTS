@@ -48,8 +48,8 @@ export default class TransformComponent extends Component {
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID) {
-    super(entityUid, componentSid);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
+    super(entityUid, componentSid, entityComponent);
 
     const thisClass = TransformComponent;
 
