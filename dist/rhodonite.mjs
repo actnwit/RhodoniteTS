@@ -4926,7 +4926,7 @@ class WebGLStrategyUBO {
             return false;
         }
     }
-    load(meshComponent) {
+    $load(meshComponent) {
         if (this.__isLoaded(0)) {
             return;
         }
@@ -4938,7 +4938,7 @@ class WebGLStrategyUBO {
             WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
         }
     }
-    prerender(meshComponent, instanceIDBufferUid) {
+    $prerender(meshComponent, instanceIDBufferUid) {
         if (this.__isVAOSet) {
             return;
         }
@@ -4997,6 +4997,9 @@ class WebGLStrategyUBO {
             this.__instance = new WebGLStrategyUBO();
         }
         return this.__instance;
+    }
+    common_$render() {
+        return true;
     }
 }
 WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids = new Map();
@@ -5268,7 +5271,7 @@ void main(){
             attributeSemantics: GLSLShader.attributeSemantics
         });
     }
-    load(meshComponent) {
+    $load(meshComponent) {
         if (this.__isVertexReady) {
             return;
         }
@@ -5292,7 +5295,7 @@ void main(){
         this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);
         this.__isVertexReady = true;
     }
-    prerender(meshComponent, instanceIDBufferUid) {
+    $prerender(meshComponent, instanceIDBufferUid) {
     }
     __setupUBOPrimitiveHeaderData() {
         const memoryManager = MemoryManager.getInstance();
@@ -5482,6 +5485,9 @@ void main(){
         }
         return this.__instance;
     }
+    common_$render() {
+        return true;
+    }
 }
 
 class WebGLStrategyDataTexture {
@@ -5560,7 +5566,7 @@ class WebGLStrategyDataTexture {
             return false;
         }
     }
-    load(meshComponent) {
+    $load(meshComponent) {
         if (this.__isLoaded(0)) {
             return;
         }
@@ -5572,7 +5578,7 @@ class WebGLStrategyDataTexture {
             WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
         }
     }
-    prerender(meshComponent, instanceIDBufferUid) {
+    $prerender(meshComponent, instanceIDBufferUid) {
         if (this.__isVAOSet) {
             return;
         }
@@ -5706,6 +5712,9 @@ class WebGLStrategyDataTexture {
         }
         return this.__instance;
     }
+    common_$render() {
+        return true;
+    }
 }
 WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids = new Map();
 
@@ -5725,9 +5734,7 @@ const getRenderingStrategy = function (processApproach) {
 class MeshRendererComponent extends Component {
     constructor(entityUid, componentSid, entityComponent) {
         super(entityUid, componentSid, entityComponent);
-        this.__webglResourceRepository = WebGLResourceRepository.getInstance();
         this.__vertexHandles = [];
-        this.__isVAOSet = false;
         this.__currentProcessStage = ProcessStage.Create;
         let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create);
         const array = Component.__componentsOfProcessStages.get(ProcessStage.Create);
@@ -5755,38 +5762,23 @@ class MeshRendererComponent extends Component {
         this.moveStageTo(ProcessStage.Load);
     }
     $load() {
-        // if (this.__isLoaded(0)) {
-        //   return;
-        // }
-        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-        // for(let i=0; i<primitiveNum; i++) {
-        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        //   const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-        //   this.__vertexHandles[i] = vertexHandles;
-        //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-        // }
-        this.__webglRenderingStrategy.load(this.__meshComponent);
+        this.__webglRenderingStrategy.$load(this.__meshComponent);
         this.moveStageTo(ProcessStage.PreRender);
     }
     $prerender({ processApproech, instanceIDBufferUid }) {
-        // if (this.__isVAOSet) {
-        //   return;
-        // }
-        // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-        // for(let i=0; i<primitiveNum; i++) {
-        //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-        //  // if (this.__isLoaded(i) && this.__isVAOSet) {
-        //   this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        //     //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-        //   //  continue;
-        //  // }
-        //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-        // }
-        // this.__isVAOSet = true;
-        this.__webglRenderingStrategy.prerender(this.__meshComponent, instanceIDBufferUid);
+        this.__webglRenderingStrategy.$prerender(this.__meshComponent, instanceIDBufferUid);
+    }
+    $render() {
+        if (this.__webglRenderingStrategy.$render == null) {
+            return;
+        }
+        const primitiveNum = this.__meshComponent.getPrimitiveNumber();
+        for (let i = 0; i < primitiveNum; i++) {
+            const primitive = this.__meshComponent.getPrimitiveAt(i);
+            this.__webglRenderingStrategy.$render(primitive);
+        }
     }
 }
-MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
 MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
 
@@ -5834,6 +5826,9 @@ const WebGLRenderingPipeline = new class {
         return this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
     common_$render() {
+        if (!this.__webGLStrategy.common_$render()) {
+            return;
+        }
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
         const meshComponent = meshComponents[0];
         const primitiveNum = meshComponent.getPrimitiveNumber();

@@ -75,6 +75,10 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   common_$render(){
+    if (!this.__webGLStrategy!.common_$render()) {
+      return;
+    }
+
     const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
 
     const meshComponent = meshComponents[0] as MeshComponent;

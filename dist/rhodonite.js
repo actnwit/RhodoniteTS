@@ -5701,7 +5701,7 @@
                 return false;
             }
         };
-        WebGLStrategyUBO.prototype.load = function (meshComponent) {
+        WebGLStrategyUBO.prototype.$load = function (meshComponent) {
             if (this.__isLoaded(0)) {
                 return;
             }
@@ -5713,7 +5713,7 @@
                 WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             }
         };
-        WebGLStrategyUBO.prototype.prerender = function (meshComponent, instanceIDBufferUid) {
+        WebGLStrategyUBO.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
             if (this.__isVAOSet) {
                 return;
             }
@@ -5770,6 +5770,9 @@
                 this.__instance = new WebGLStrategyUBO();
             }
             return this.__instance;
+        };
+        WebGLStrategyUBO.prototype.common_$render = function () {
+            return true;
         };
         WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids = new Map();
         return WebGLStrategyUBO;
@@ -6032,7 +6035,7 @@
                 attributeSemantics: GLSLShader.attributeSemantics
             });
         };
-        WebGLStrategyTransformFeedback.prototype.load = function (meshComponent) {
+        WebGLStrategyTransformFeedback.prototype.$load = function (meshComponent) {
             if (this.__isVertexReady) {
                 return;
             }
@@ -6056,7 +6059,7 @@
             this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);
             this.__isVertexReady = true;
         };
-        WebGLStrategyTransformFeedback.prototype.prerender = function (meshComponent, instanceIDBufferUid) {
+        WebGLStrategyTransformFeedback.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
         };
         WebGLStrategyTransformFeedback.prototype.__setupUBOPrimitiveHeaderData = function () {
             var memoryManager = MemoryManager.getInstance();
@@ -6244,6 +6247,9 @@
             }
             return this.__instance;
         };
+        WebGLStrategyTransformFeedback.prototype.common_$render = function () {
+            return true;
+        };
         return WebGLStrategyTransformFeedback;
     }());
 
@@ -6287,7 +6293,7 @@
                 return false;
             }
         };
-        WebGLStrategyDataTexture.prototype.load = function (meshComponent) {
+        WebGLStrategyDataTexture.prototype.$load = function (meshComponent) {
             if (this.__isLoaded(0)) {
                 return;
             }
@@ -6299,7 +6305,7 @@
                 WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
             }
         };
-        WebGLStrategyDataTexture.prototype.prerender = function (meshComponent, instanceIDBufferUid) {
+        WebGLStrategyDataTexture.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
             if (this.__isVAOSet) {
                 return;
             }
@@ -6431,6 +6437,9 @@
             }
             return this.__instance;
         };
+        WebGLStrategyDataTexture.prototype.common_$render = function () {
+            return true;
+        };
         WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids = new Map();
         return WebGLStrategyDataTexture;
     }());
@@ -6452,9 +6461,7 @@
         __extends(MeshRendererComponent, _super);
         function MeshRendererComponent(entityUid, componentSid, entityComponent) {
             var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this.__webglResourceRepository = WebGLResourceRepository.getInstance();
             _this.__vertexHandles = [];
-            _this.__isVAOSet = false;
             _this.__currentProcessStage = ProcessStage.Create;
             var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create);
             var array = Component.__componentsOfProcessStages.get(ProcessStage.Create);
@@ -6488,38 +6495,23 @@
             this.moveStageTo(ProcessStage.Load);
         };
         MeshRendererComponent.prototype.$load = function () {
-            // if (this.__isLoaded(0)) {
-            //   return;
-            // }
-            // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-            // for(let i=0; i<primitiveNum; i++) {
-            //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-            //   const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-            //   this.__vertexHandles[i] = vertexHandles;
-            //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            // }
-            this.__webglRenderingStrategy.load(this.__meshComponent);
+            this.__webglRenderingStrategy.$load(this.__meshComponent);
             this.moveStageTo(ProcessStage.PreRender);
         };
         MeshRendererComponent.prototype.$prerender = function (_a) {
-            // if (this.__isVAOSet) {
-            //   return;
-            // }
-            // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-            // for(let i=0; i<primitiveNum; i++) {
-            //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-            //  // if (this.__isLoaded(i) && this.__isVAOSet) {
-            //   this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-            //     //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-            //   //  continue;
-            //  // }
-            //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-            // }
-            // this.__isVAOSet = true;
             var processApproech = _a.processApproech, instanceIDBufferUid = _a.instanceIDBufferUid;
-            this.__webglRenderingStrategy.prerender(this.__meshComponent, instanceIDBufferUid);
+            this.__webglRenderingStrategy.$prerender(this.__meshComponent, instanceIDBufferUid);
         };
-        MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids = new Map();
+        MeshRendererComponent.prototype.$render = function () {
+            if (this.__webglRenderingStrategy.$render == null) {
+                return;
+            }
+            var primitiveNum = this.__meshComponent.getPrimitiveNumber();
+            for (var i = 0; i < primitiveNum; i++) {
+                var primitive = this.__meshComponent.getPrimitiveAt(i);
+                this.__webglRenderingStrategy.$render(primitive);
+            }
+        };
         MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
         return MeshRendererComponent;
     }(Component));
@@ -6569,6 +6561,9 @@
             return this.__webglResourceRepository.createVertexBuffer(accesseor);
         };
         class_1.prototype.common_$render = function () {
+            if (!this.__webGLStrategy.common_$render()) {
+                return;
+            }
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
             var meshComponent = meshComponents[0];
             var primitiveNum = meshComponent.getPrimitiveNumber();

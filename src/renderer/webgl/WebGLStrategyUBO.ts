@@ -67,7 +67,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     }
   }
 
-  load(meshComponent: MeshComponent) {
+  $load(meshComponent: MeshComponent) {
     if (this.__isLoaded(0)) {
       return;
     }
@@ -82,7 +82,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     }
   }
 
-  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (this.__isVAOSet) {
       return;
     }
@@ -169,5 +169,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     return this.__instance;
   }
 
+  common_$render() {
+    return true;
+  }
 }
 
