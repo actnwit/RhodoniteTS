@@ -6546,7 +6546,7 @@
             if (this.__isReady()) {
                 return 0;
             }
-            this.__setupInstanceIDBuffer();
+            this.__instanceIDBufferUid = this.__setupInstanceIDBuffer();
             return this.__instanceIDBufferUid;
         };
         class_1.prototype.__isReady = function () {
@@ -6566,7 +6566,7 @@
             for (var i = 0; i < meshComponents.length; i++) {
                 accesseor.setScalar(i, meshComponents[i].entityUID);
             }
-            this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+            return this.__webglResourceRepository.createVertexBuffer(accesseor);
         };
         class_1.prototype.common_$render = function () {
             var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);

@@ -5811,7 +5811,7 @@ const WebGLRenderingPipeline = new class {
         if (this.__isReady()) {
             return 0;
         }
-        this.__setupInstanceIDBuffer();
+        this.__instanceIDBufferUid = this.__setupInstanceIDBuffer();
         return this.__instanceIDBufferUid;
     }
     __isReady() {
@@ -5831,7 +5831,7 @@ const WebGLRenderingPipeline = new class {
         for (var i = 0; i < meshComponents.length; i++) {
             accesseor.setScalar(i, meshComponents[i].entityUID);
         }
-        this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+        return this.__webglResourceRepository.createVertexBuffer(accesseor);
     }
     common_$render() {
         const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);

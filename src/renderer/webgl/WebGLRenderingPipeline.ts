@@ -47,7 +47,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       return 0;
     }
 
-    this.__setupInstanceIDBuffer();
+    this.__instanceIDBufferUid = this.__setupInstanceIDBuffer();
 
     return this.__instanceIDBufferUid;
   }
@@ -71,7 +71,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       accesseor.setScalar(i, meshComponents[i].entityUID);
     }
 
-    this.__instanceIDBufferUid = this.__webglResourceRepository.createVertexBuffer(accesseor);
+    return this.__webglResourceRepository.createVertexBuffer(accesseor);
   }
 
   common_$render(){
