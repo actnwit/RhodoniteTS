@@ -6444,6 +6444,110 @@
         return WebGLStrategyDataTexture;
     }());
 
+    var WebGLStrategyUniform = /** @class */ (function () {
+        function WebGLStrategyUniform() {
+            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
+            this.__uboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            this.__vertexHandles = [];
+            this.__isVAOSet = false;
+            this.vertexShaderMethodDefinitions_uniform = "\n  uniform mat4 worldMatrix;\n\n  mat4 getMatrix(float instanceId) {\n    return worldMatrix;\n  }\n  ";
+        }
+        WebGLStrategyUniform.prototype.setupShaderProgram = function () {
+            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+                return;
+            }
+            // Shader Setup
+            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
+                this.vertexShaderMethodDefinitions_uniform +
+                GLSLShader.vertexShaderBody;
+            var fragmentShader = GLSLShader.fragmentShader;
+            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
+                vertexShaderStr: vertexShader,
+                fragmentShaderStr: fragmentShader,
+                attributeNames: GLSLShader.attributeNames,
+                attributeSemantics: GLSLShader.attributeSemantics
+            });
+            this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            var gl = glw.getRawContext();
+            this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'worldMatrix');
+        };
+        WebGLStrategyUniform.prototype.__isLoaded = function (index) {
+            if (this.__vertexHandles[index] != null) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        WebGLStrategyUniform.prototype.$load = function (meshComponent) {
+            if (this.__isLoaded(0)) {
+                return;
+            }
+            var primitiveNum = meshComponent.getPrimitiveNumber();
+            for (var i = 0; i < primitiveNum; i++) {
+                var primitive = meshComponent.getPrimitiveAt(i);
+                var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
+                this.__vertexHandles[i] = vertexHandles;
+                WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+            }
+        };
+        WebGLStrategyUniform.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
+            if (this.__isVAOSet) {
+                return;
+            }
+            var primitiveNum = meshComponent.getPrimitiveNumber();
+            for (var i = 0; i < primitiveNum; i++) {
+                var primitive = meshComponent.getPrimitiveAt(i);
+                this.__vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
+                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+            }
+            this.__isVAOSet = true;
+        };
+        WebGLStrategyUniform.prototype.common_$prerender = function () {
+        };
+        WebGLStrategyUniform.prototype.attachGPUData = function () {
+        };
+        WebGLStrategyUniform.prototype.attatchShaderProgram = function () {
+            var shaderProgramUid = this.__shaderProgramUid;
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            var gl = glw.getRawContext();
+            gl.useProgram(this.__shaderProgram);
+        };
+        WebGLStrategyUniform.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {
+            var vaoHandles = this.__vertexHandles[i];
+            var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+            var gl = glw.getRawContext();
+            if (vao != null) {
+                glw.bindVertexArray(vao);
+            }
+            else {
+                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+            }
+        };
+        WebGLStrategyUniform.getInstance = function () {
+            if (!this.__instance) {
+                this.__instance = new WebGLStrategyUniform();
+            }
+            return this.__instance;
+        };
+        WebGLStrategyUniform.prototype.common_$render = function () {
+            return false;
+        };
+        WebGLStrategyUniform.prototype.$render = function (primitive, worldMatrix) {
+            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+            this.attatchShaderProgram();
+            var gl = glw.getRawContext();
+            gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).m);
+            glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
+        };
+        WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids = new Map();
+        return WebGLStrategyUniform;
+    }());
+
     var getRenderingStrategy = function (processApproach) {
         // Strategy
         if (processApproach === ProcessApproach.UBOWebGL2) {
@@ -6451,6 +6555,9 @@
         }
         else if (processApproach === ProcessApproach.TransformFeedbackWebGL2) {
             return WebGLStrategyTransformFeedback.getInstance();
+        }
+        else if (processApproach === ProcessApproach.UniformWebGL1) {
+            return WebGLStrategyUniform.getInstance();
         }
         else {
             return WebGLStrategyDataTexture.getInstance();
@@ -6506,10 +6613,11 @@
             if (this.__webglRenderingStrategy.$render == null) {
                 return;
             }
+            var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
             var primitiveNum = this.__meshComponent.getPrimitiveNumber();
             for (var i = 0; i < primitiveNum; i++) {
                 var primitive = this.__meshComponent.getPrimitiveAt(i);
-                this.__webglRenderingStrategy.$render(primitive);
+                this.__webglRenderingStrategy.$render(primitive, sceneGraphComponent.worldMatrix);
             }
         };
         MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
@@ -6550,15 +6658,20 @@
             }
         };
         class_1.prototype.__setupInstanceIDBuffer = function () {
-            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-            var count = Config.maxEntityNumber;
-            var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
-            var accesseor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
-            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-            for (var i = 0; i < meshComponents.length; i++) {
-                accesseor.setScalar(i, meshComponents[i].entityUID);
+            if (this.__instanceIdAccessor == null) {
+                var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+                var count = Config.maxEntityNumber;
+                var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
+                this.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
             }
-            return this.__webglResourceRepository.createVertexBuffer(accesseor);
+            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+            if (meshComponents == null) {
+                return CGAPIResourceRepository.InvalidCGAPIResourceUid;
+            }
+            for (var i = 0; i < meshComponents.length; i++) {
+                this.__instanceIdAccessor.setScalar(i, meshComponents[i].entityUID);
+            }
+            return this.__webglResourceRepository.createVertexBuffer(this.__instanceIdAccessor);
         };
         class_1.prototype.common_$render = function () {
             if (!this.__webGLStrategy.common_$render()) {

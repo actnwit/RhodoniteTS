@@ -18,12 +18,15 @@ import getRenderingStrategy from "./getRenderingStrategy";
 import WebGLStrategy from "./WebGLStrategy";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import Config from "../../core/Config";
+import BufferView from "../../memory/BufferView";
+import Accessor from "../../memory/Accessor";
 
 export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGLStrategy?: WebGLStrategy;
+  private __instanceIdAccessor?: Accessor;
   common_$load(processApproach: ProcessApproachEnum) {
 
     // Strategy
@@ -61,17 +64,23 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
   }
 
   private __setupInstanceIDBuffer() {
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-    const count = Config.maxEntityNumber;
-    const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
-    const accesseor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
-
-    const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
-    for (var i = 0; i < meshComponents.length; i++) {
-      accesseor.setScalar(i, meshComponents[i].entityUID);
+    if (this.__instanceIdAccessor == null) {
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+      const count = Config.maxEntityNumber;
+      const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
+      this.__instanceIdAccessor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
     }
 
-    return this.__webglResourceRepository.createVertexBuffer(accesseor);
+    const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+    if (meshComponents == null) {
+      return CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+
+    for (var i = 0; i < meshComponents.length; i++) {
+      this.__instanceIdAccessor.setScalar(i, meshComponents[i].entityUID);
+    }
+
+    return this.__webglResourceRepository.createVertexBuffer(this.__instanceIdAccessor);
   }
 
   common_$render(){

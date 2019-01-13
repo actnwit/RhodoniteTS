@@ -10,6 +10,7 @@ import getRenderingStrategy from '../renderer/webgl/getRenderingStrategy';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ProcessStage } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
+import SceneGraphComponent from './SceneGraphComponent';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -72,10 +73,13 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
+    const sceneGraphComponent =
+      this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(primitive);
+      this.__webglRenderingStrategy!.$render!(primitive, sceneGraphComponent.worldMatrix);
       }
     }
 
