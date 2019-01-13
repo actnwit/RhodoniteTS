@@ -41,7 +41,7 @@ export const WebGLRenderingPipeline = new class implements RenderingPipeline {
       throw new Error('No WebGLRenderingContext!');
     }
 
-    this.__webGLStrategy!.setupGPUData();
+    this.__webGLStrategy!.common_$prerender();
 
     if (this.__isReady()) {
       return 0;

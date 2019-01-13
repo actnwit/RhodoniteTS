@@ -5729,7 +5729,7 @@
             }
             this.__isVAOSet = true;
         };
-        WebGLStrategyUBO.prototype.setupGPUData = function () {
+        WebGLStrategyUBO.prototype.common_$prerender = function () {
             var memoryManager = MemoryManager.getInstance();
             var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
             var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -6199,7 +6199,7 @@
                 });
             }
         };
-        WebGLStrategyTransformFeedback.prototype.setupGPUData = function () {
+        WebGLStrategyTransformFeedback.prototype.common_$prerender = function () {
             this.__setupUBOPrimitiveHeaderData();
             this.__setupGPUInstanceMetaData();
             this.__setupGPUInstanceData();
@@ -6315,7 +6315,7 @@
             }
             this.__isVAOSet = true;
         };
-        WebGLStrategyDataTexture.prototype.setupGPUData = function () {
+        WebGLStrategyDataTexture.prototype.common_$prerender = function () {
             var isHalfFloatMode = false;
             if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
                 this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -6542,7 +6542,7 @@
             if (gl == null) {
                 throw new Error('No WebGLRenderingContext!');
             }
-            this.__webGLStrategy.setupGPUData();
+            this.__webGLStrategy.common_$prerender();
             if (this.__isReady()) {
                 return 0;
             }

@@ -133,7 +133,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     this.__isVAOSet = true;
   }
 
-  setupGPUData(): void {
+  common_$prerender(): void {
     let isHalfFloatMode = false;
     if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
       this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {

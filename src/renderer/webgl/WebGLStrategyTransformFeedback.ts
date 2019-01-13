@@ -316,7 +316,7 @@ void main(){
     }
   }
 
-  setupGPUData(): void {
+  common_$prerender(): void {
     this.__setupUBOPrimitiveHeaderData();
     this.__setupGPUInstanceMetaData();
     this.__setupGPUInstanceData();

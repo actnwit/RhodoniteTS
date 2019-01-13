@@ -99,7 +99,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     this.__isVAOSet = true;
   }
 
-  setupGPUData(): void {
+  common_$prerender(): void {
     const isHalfFloatMode = false;
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);

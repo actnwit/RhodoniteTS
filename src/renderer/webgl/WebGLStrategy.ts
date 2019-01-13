@@ -6,7 +6,7 @@ export default interface WebGLStrategy {
   load(meshComponent: MeshComponent): void;
   prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle): void;
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
-  setupGPUData(): void;
+  common_$prerender(): void;
   attachGPUData(): void;
   setupShaderProgram(): void;
   attatchShaderProgram(): void;

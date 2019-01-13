@@ -4954,7 +4954,7 @@ class WebGLStrategyUBO {
         }
         this.__isVAOSet = true;
     }
-    setupGPUData() {
+    common_$prerender() {
         const memoryManager = MemoryManager.getInstance();
         const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
         const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -5435,7 +5435,7 @@ void main(){
             });
         }
     }
-    setupGPUData() {
+    common_$prerender() {
         this.__setupUBOPrimitiveHeaderData();
         this.__setupGPUInstanceMetaData();
         this.__setupGPUInstanceData();
@@ -5588,7 +5588,7 @@ class WebGLStrategyDataTexture {
         }
         this.__isVAOSet = true;
     }
-    setupGPUData() {
+    common_$prerender() {
         let isHalfFloatMode = false;
         if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
             this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -5807,7 +5807,7 @@ const WebGLRenderingPipeline = new class {
         if (gl == null) {
             throw new Error('No WebGLRenderingContext!');
         }
-        this.__webGLStrategy.setupGPUData();
+        this.__webGLStrategy.common_$prerender();
         if (this.__isReady()) {
             return 0;
         }
