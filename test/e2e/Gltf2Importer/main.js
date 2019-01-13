@@ -9,6 +9,8 @@ const load = async function(time){
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
+  const modelConverter = Rn.ModelConverter.getInstance();
+  const rootGroup = modelConverter.convertToRhodoniteObject(response);
 
   const draw = function(time) {
 

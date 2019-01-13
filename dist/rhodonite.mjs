@@ -5819,11 +5819,13 @@ class WebGLStrategyUniform {
     common_$render() {
         return false;
     }
-    $render(primitive, worldMatrix) {
+    $render(primitive_i, primitive, worldMatrix) {
         const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
         this.attatchShaderProgram();
         const gl = glw.getRawContext();
+        this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
         gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).m);
+        //    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().m);
         glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
     }
 }
@@ -5881,6 +5883,9 @@ class MeshRendererComponent extends Component {
     }
     $prerender({ processApproech, instanceIDBufferUid }) {
         this.__webglRenderingStrategy.$prerender(this.__meshComponent, instanceIDBufferUid);
+        if (this.__webglRenderingStrategy.$render != null) {
+            this.moveStageTo(ProcessStage.Render);
+        }
     }
     $render() {
         if (this.__webglRenderingStrategy.$render == null) {
@@ -5890,7 +5895,7 @@ class MeshRendererComponent extends Component {
         const primitiveNum = this.__meshComponent.getPrimitiveNumber();
         for (let i = 0; i < primitiveNum; i++) {
             const primitive = this.__meshComponent.getPrimitiveAt(i);
-            this.__webglRenderingStrategy.$render(primitive, sceneGraphComponent.worldMatrix);
+            this.__webglRenderingStrategy.$render(i, primitive, sceneGraphComponent.worldMatrix);
         }
     }
 }

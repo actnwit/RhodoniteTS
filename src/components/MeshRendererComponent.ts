@@ -66,6 +66,10 @@ export default class MeshRendererComponent extends Component {
     }) {
 
     this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, instanceIDBufferUid);
+
+    if (this.__webglRenderingStrategy!.$render != null) {
+      this.moveStageTo(ProcessStage.Render);
+    }
   }
 
   $render() {
@@ -79,7 +83,7 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(primitive, sceneGraphComponent.worldMatrix);
+      this.__webglRenderingStrategy!.$render!(i, primitive, sceneGraphComponent.worldMatrix);
       }
     }
 

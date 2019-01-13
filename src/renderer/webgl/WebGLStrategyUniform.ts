@@ -11,6 +11,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../../geometry/Primitive";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import RowMajarMatrix44 from "../../math/RowMajarMatrix44";
+import Matrix44 from "../../math/Matrix44";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -135,12 +136,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return false;
   }
 
-  $render(primitive: Primitive, worldMatrix: RowMajarMatrix44) {
+  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
+    this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
     gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).m);
+//    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().m);
 
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);
   }
