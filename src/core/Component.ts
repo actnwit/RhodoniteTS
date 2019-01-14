@@ -12,7 +12,7 @@ import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessAppr
 import ComponentRepository from './ComponentRepository';
 import Config from './Config';
 
-type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum};
+type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
 export default class Component {
   private _component_sid: number;
@@ -179,7 +179,7 @@ export default class Component {
     }
   }
 
-  takeOne(memberName: string, dataClassType: any): any {
+  takeOne(memberName: string, dataClassType: any, initValues: number[]): any {
     if (!(this as any)['_'+memberName].isDummy()) {
       return;
     }
@@ -191,6 +191,11 @@ export default class Component {
     } else {
       (this as any)['_'+memberName] = new dataClassType(taken);
     }
+
+    for (let i=0; i<(this as any)['_'+memberName].v.length; ++i) {
+      (this as any)['_'+memberName].v[i] = initValues[i];
+    }
+
     return null;
   }
 
@@ -251,12 +256,12 @@ export default class Component {
     }
   }
 
-  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]) {
     if (!Component.__memberInfo.has(this.constructor)) {
       Component.__memberInfo.set(this.constructor, []);
     }
     const memberInfoArray = Component.__memberInfo.get(this.constructor);
-    memberInfoArray!.push({bufferUse, memberName, dataClassType, compositionType, componentType})
+    memberInfoArray!.push({bufferUse, memberName, dataClassType, compositionType, componentType, initValues})
   }
 
   submitToAllocation() {
@@ -312,7 +317,7 @@ export default class Component {
     for (let bufferUse of member.keys()) {
       const infoArray = member.get(bufferUse)!;
       infoArray.forEach(info=>{
-        this.takeOne(info.memberName, info.dataClassType);
+        this.takeOne(info.memberName, info.dataClassType, info.initValues);
       });
     }
 

@@ -3,7 +3,7 @@ import EntityRepository from '../core/EntityRepository';
 import ComponentRepository from '../core/ComponentRepository';
 import TransformComponent from './TransformComponent';
 import is from '../misc/IsUtil';
-import Vector3 from '../math/Vector3';
+import ImmutableVector3 from '../math/ImmutableVector3';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -14,6 +14,6 @@ function generateEntity() {
 test('Use translate simply', () => {
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
-  transformComponent.translate = new Vector3(1, 0, 0);
-  expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
+  transformComponent.translate = new ImmutableVector3(1, 0, 0);
+  expect(transformComponent.translate.isEqual(new ImmutableVector3(1, 0, 0))).toBe(true);
 });

@@ -142,7 +142,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const gl = glw.getRawContext();
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).m);
+    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
 //    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().m);
 
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);

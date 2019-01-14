@@ -3,7 +3,7 @@ import { CompositionType, CompositionTypeEnum } from "../definitions/Composition
 import RnObject from "../core/Object";
 import BufferView from "./BufferView";
 import Vector2 from "../math/Vector2";
-import Vector3 from "../math/Vector3";
+import ImmutableVector3 from "../math/ImmutableVector3";
 import Vector4 from "../math/ImmutableVector4";
 import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
@@ -211,8 +211,8 @@ export default class AccessorBase extends RnObject {
     return new Vector2(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian));
   }
 
-  getVec3(index: Index, endian: boolean = true): Vector3 {
-    return new Vector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian));
+  getVec3(index: Index, endian: boolean = true): ImmutableVector3 {
+    return new ImmutableVector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian));
   }
 
   getVec4(index: Index, endian: boolean = true): Vector4 {

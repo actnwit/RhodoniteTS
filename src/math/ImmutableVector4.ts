@@ -1,12 +1,12 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
-import Vector3 from './Vector3';
+import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './Vector4';
 
 export default class ImmutableVector4 implements Vector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|Vector4, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|ImmutableVector3|Vector4, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;

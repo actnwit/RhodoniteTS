@@ -1,7 +1,7 @@
 import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import TransformComponent from './TransformComponent';
-import Vector3 from '../math/Vector3';
+import ImmutableVector3 from '../math/ImmutableVector3';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
@@ -20,9 +20,9 @@ test('create Parents and children.', () => {
 //  const child2Entity = generateEntity();
 
   // set transform info
-  sceneEntity.getTransform().translate = new Vector3(1, 0, 0);
-  parentEntity.getTransform().translate = new Vector3(1, 0, 0);
-  childEntity.getTransform().translate = new Vector3(1, 0, 0);
+  sceneEntity.getTransform().translate = new ImmutableVector3(1, 0, 0);
+  parentEntity.getTransform().translate = new ImmutableVector3(1, 0, 0);
+  childEntity.getTransform().translate = new ImmutableVector3(1, 0, 0);
 //  child2Entity.getTransform().translate = new Vector3(0, 1, 0);
 
   // setup scene graph

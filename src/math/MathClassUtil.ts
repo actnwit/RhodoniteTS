@@ -1,7 +1,7 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
-import Vector3 from './Vector3';
-import Vector4 from './Vector4';
+import ImmutableVector3 from './ImmutableVector3';
+import Vector4 from './ImmutableVector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
@@ -17,7 +17,7 @@ export default class MathClassUtil {
       if(typeof(element[3]) !== 'undefined') {
         return new Vector4(element[0], element[1], element[2], element[3]);
       } else if (typeof(element[2]) !== 'undefined') {
-        return new Vector3(element[0], element[1], element[2]);
+        return new ImmutableVector3(element[0], element[1], element[2]);
       } else {
         return new Vector2(element[0], element[1]);
       }
@@ -35,7 +35,7 @@ export default class MathClassUtil {
       } else if(typeof(element[3]) !== 'undefined') {
         return new Vector4(element[0], element[1], element[2], element[3]);
       } else if (typeof(element[2]) !== 'undefined') {
-        return new Vector3(element[0], element[1], element[2]);
+        return new ImmutableVector3(element[0], element[1], element[2]);
       } else {
         return new Vector2(element[0], element[1]);
       }
@@ -51,7 +51,7 @@ export default class MathClassUtil {
       return element.clone();
     } else if (element instanceof Vector4) {
       return element.clone();
-    } else if (element instanceof Vector3) {
+    } else if (element instanceof ImmutableVector3) {
       return element.clone();
     } else if (element instanceof Vector2) {
       return element.clone();
@@ -86,10 +86,10 @@ export default class MathClassUtil {
     }
   }
 
-  static vectorToArray(element:Vector2|Vector3|Vector4|Quaternion) {
+  static vectorToArray(element:Vector2|ImmutableVector3|Vector4|Quaternion) {
     if(element instanceof Vector2) {
       return [element.x, element.y];
-    } else if (element instanceof Vector3) {
+    } else if (element instanceof ImmutableVector3) {
       return [element.x, element.y, element.z];
     } else if (element instanceof Vector4 || element instanceof Quaternion) {
       return [element.x, element.y, element.z, element.w];
@@ -103,10 +103,10 @@ export default class MathClassUtil {
    * @param element any Vector instance  
    * @return number of Vector instance
    */
-  static compomentNumberOfVector(element: Vector2 | Vector3 |  Vector4 | Quaternion | Array<any>): number {
+  static compomentNumberOfVector(element: Vector2 | ImmutableVector3 |  Vector4 | Quaternion | Array<any>): number {
     if(element instanceof Vector2) {
       return 2;
-    } else if (element instanceof Vector3) {
+    } else if (element instanceof ImmutableVector3) {
       return 3;
     } else if (element instanceof Vector4 || element instanceof Quaternion) {
       return 4;
@@ -140,7 +140,7 @@ export default class MathClassUtil {
     return [v0, v1];
   }
 
-  static unProject(windowPosVec3:Vector3, inversePVMat44:Matrix44, viewportVec4:Vector4, zNear:number, zFar:number) {
+  static unProject(windowPosVec3:ImmutableVector3, inversePVMat44:Matrix44, viewportVec4:Vector4, zNear:number, zFar:number) {
     const input = new Vector4(
       (windowPosVec3.x - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
       (windowPosVec3.y - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
@@ -159,7 +159,7 @@ export default class MathClassUtil {
       console.warn("Zero division!");
     }
 
-    const output = new Vector3(out.multiply(1/out.w));
+    const output = new ImmutableVector3(out.multiply(1/out.w));
 
     return output;
   }

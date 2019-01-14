@@ -1,10 +1,10 @@
 // import GLBoost from '../../globals';
-import Vector3 from './Vector3';
+import ImmutableVector3 from './ImmutableVector3';
 import Matrix44 from './Matrix44';
 import Quaternion from './Quaternion';
 
 export default class Matrix33 {
-  m: TypedArray;
+  v: TypedArray;
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
@@ -29,12 +29,12 @@ export default class Matrix33 {
     const m = m0;
 
     if (m == null) {
-      this.m = new Float32Array(0);
+      this.v = new Float32Array(0);
       return;
     }
 
     if (arguments.length === 9) {
-      this.m = new Float32Array(9);
+      this.v = new Float32Array(9);
       if (_isColumnMajor === true) {
         let m = arguments;
         this.setComponents(
@@ -45,7 +45,7 @@ export default class Matrix33 {
         this.setComponents.apply(this, arguments as any);  // arguments[0-8] must be row major values if isColumnMajor is false
       }
     } else if (Array.isArray(m as Array<Number>)) {
-      this.m = new Float32Array(9);
+      this.v = new Float32Array(9);
       if (_isColumnMajor === true) {
         this.setComponents(
           m[0], m[3], m[6],
@@ -56,9 +56,9 @@ export default class Matrix33 {
       }
     } else if (m instanceof Float32Array) {
       if (_notCopyFloatArray) {
-        this.m = m;
+        this.v = m;
       } else {
-        this.m = new Float32Array(9);
+        this.v = new Float32Array(9);
         if (_isColumnMajor === true) {
           this.setComponents(
             m[0], m[3], m[6],
@@ -70,9 +70,9 @@ export default class Matrix33 {
       }
     } else if (!!m && typeof m.m22 !== 'undefined') {
       if (_notCopyFloatArray) {
-        this.m = m.m;
+        this.v = m.v;
       } else {
-        this.m = new Float32Array(9);
+        this.v = new Float32Array(9);
         if (_isColumnMajor === true) {
           const _m = m as Matrix33|Matrix44;
           this.setComponents(
@@ -85,7 +85,7 @@ export default class Matrix33 {
         }
       }
     } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
-      this.m = new Float32Array(9);
+      this.v = new Float32Array(9);
       const q = m as Quaternion;
       const sx = q.x * q.x;
       const sy = q.y * q.y;
@@ -103,7 +103,7 @@ export default class Matrix33 {
         2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy)
       );
     } else {
-      this.m = new Float32Array(9);
+      this.v = new Float32Array(9);
       this.identity();
     }
   }
@@ -113,9 +113,9 @@ export default class Matrix33 {
     m10: number, m11: number, m12: number,
     m20: number, m21: number, m22: number
     ) {
-    this.m[0] = m00; this.m[3] = m01; this.m[6] = m02;
-    this.m[1] = m10; this.m[4] = m11; this.m[7] = m12;
-    this.m[2] = m20; this.m[5] = m21; this.m[8] = m22;
+    this.v[0] = m00; this.v[3] = m01; this.v[6] = m02;
+    this.v[1] = m10; this.v[4] = m11; this.v[7] = m12;
+    this.v[2] = m20; this.v[5] = m21; this.v[8] = m22;
 
     return this;
   }
@@ -149,7 +149,7 @@ export default class Matrix33 {
   }
 
   isDummy() {
-    if (this.m.length === 0) {
+    if (this.v.length === 0) {
       return true;
     } else {
       return false;
@@ -158,9 +158,9 @@ export default class Matrix33 {
 
   clone() {
     return new Matrix33(
-      this.m[0], this.m[3], this.m[6],
-      this.m[1], this.m[4], this.m[7],
-      this.m[2], this.m[5], this.m[8]
+      this.v[0], this.v[3], this.v[6],
+      this.v[1], this.v[4], this.v[7],
+      this.v[2], this.v[5], this.v[8]
     );
   }
 
@@ -246,11 +246,11 @@ export default class Matrix33 {
     return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
   }
 
-  static rotate(vec3:Vector3) {
+  static rotate(vec3:ImmutableVector3) {
     return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
   }
 
-  scale(vec:Vector3) {
+  scale(vec:ImmutableVector3) {
     return this.setComponents(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -258,7 +258,7 @@ export default class Matrix33 {
     );
   }
 
-  static scale(vec:Vector3) {
+  static scale(vec:ImmutableVector3) {
     return new Matrix33(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -281,18 +281,18 @@ export default class Matrix33 {
     return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
-  flatten() {
-    return this.m;
+  raw() {
+    return this.v;
   }
 
   flattenAsArray() {
-    return [this.m[0], this.m[1], this.m[2],
-      this.m[3], this.m[4], this.m[5],
-      this.m[6], this.m[7], this.m[8]];
+    return [this.v[0], this.v[1], this.v[2],
+      this.v[3], this.v[4], this.v[5],
+      this.v[6], this.v[7], this.v[8]];
   }
 
   _swap(l:Index, r:Index) {
-    this.m[r] = [this.m[l], this.m[l] = this.m[r]][0]; // Swap
+    this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
   }
 
   /**
@@ -320,12 +320,12 @@ export default class Matrix33 {
     return mat_t;
   }
 
-  multiplyVector(vec:Vector3) {
+  multiplyVector(vec:ImmutableVector3) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
 
-    return new Vector3(x, y, z);
+    return new ImmutableVector3(x, y, z);
   }
 
   /**
@@ -424,76 +424,76 @@ export default class Matrix33 {
   }
 
   public set m00(val) {
-    this.m[0] = val;
+    this.v[0] = val;
   }
 
   public get m00() {
-    return this.m[0];
+    return this.v[0];
   }
 
   public set m10(val) {
-    this.m[1] = val;
+    this.v[1] = val;
   }
 
   public get m10() {
-    return this.m[1];
+    return this.v[1];
   }
 
   public set m20(val) {
-    this.m[2] = val;
+    this.v[2] = val;
   }
 
   public get m20() {
-    return this.m[2];
+    return this.v[2];
   }
 
 
   public set m01(val) {
-    this.m[3] = val;
+    this.v[3] = val;
   }
 
   public get m01() {
-    return this.m[3];
+    return this.v[3];
   }
 
   public set m11(val) {
-    this.m[4] = val;
+    this.v[4] = val;
   }
 
   public get m11() {
-    return this.m[4];
+    return this.v[4];
   }
 
   public set m21(val) {
-    this.m[5] = val;
+    this.v[5] = val;
   }
 
   public get m21() {
-    return this.m[5];
+    return this.v[5];
   }
 
   public set m02(val) {
-    this.m[6] = val;
+    this.v[6] = val;
   }
 
   public get m02() {
-    return this.m[6];
+    return this.v[6];
   }
 
   public set m12(val) {
-    this.m[7] = val;
+    this.v[7] = val;
   }
 
   public get m12() {
-    return this.m[7];
+    return this.v[7];
   }
 
   public set m22(val) {
-    this.m[8] = val;
+    this.v[8] = val;
   }
 
   public get m22() {
-    return this.m[8];
+    return this.v[8];
   }
 
   toString() {
@@ -520,14 +520,14 @@ export default class Matrix33 {
   }
 
   getScale() {
-    return new Vector3(
+    return new ImmutableVector3(
       Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02),
       Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12),
       Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22)
     );
   }
 
-  addScale(vec:Vector3) {
+  addScale(vec:ImmutableVector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;
@@ -536,15 +536,15 @@ export default class Matrix33 {
   }
 
   isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
-    if (Math.abs(mat.m[0] - this.m[0]) < delta &&
-      Math.abs(mat.m[1] - this.m[1]) < delta &&
-      Math.abs(mat.m[2] - this.m[2]) < delta &&
-      Math.abs(mat.m[3] - this.m[3]) < delta &&
-      Math.abs(mat.m[4] - this.m[4]) < delta &&
-      Math.abs(mat.m[5] - this.m[5]) < delta &&
-      Math.abs(mat.m[6] - this.m[6]) < delta &&
-      Math.abs(mat.m[7] - this.m[7]) < delta &&
-      Math.abs(mat.m[8] - this.m[8]) < delta) {
+    if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+      Math.abs(mat.v[1] - this.v[1]) < delta &&
+      Math.abs(mat.v[2] - this.v[2]) < delta &&
+      Math.abs(mat.v[3] - this.v[3]) < delta &&
+      Math.abs(mat.v[4] - this.v[4]) < delta &&
+      Math.abs(mat.v[5] - this.v[5]) < delta &&
+      Math.abs(mat.v[6] - this.v[6]) < delta &&
+      Math.abs(mat.v[7] - this.v[7]) < delta &&
+      Math.abs(mat.v[8] - this.v[8]) < delta) {
       return true;
     } else {
       return false;

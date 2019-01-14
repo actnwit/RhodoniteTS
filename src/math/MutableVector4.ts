@@ -1,10 +1,10 @@
 import Vector2 from "./Vector2";
-import Vector3 from "./Vector3";
+import ImmutableVector3 from "./ImmutableVector3";
 import ImmutableVector4 from "./ImmutableVector4";
 import Vector4 from "./Vector4";
 
 export default class MutableVector4 extends ImmutableVector4 implements Vector4 {
-  constructor(x: number|TypedArray|Vector2|Vector3|Vector4, y?: number, z?: number, w?: number) {
+  constructor(x: number|TypedArray|Vector2|ImmutableVector3|Vector4, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
 
   }
@@ -31,7 +31,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
     /**
    * add value except w component
    */
-  addWithOutW(v: Vector4|Vector3) {
+  addWithOutW(v: Vector4|ImmutableVector3) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;

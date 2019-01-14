@@ -1,13 +1,13 @@
 //import GLBoost from '../../globals';
 
-import Vector3 from './Vector3';
-import Vector4 from './Vector4';
+import ImmutableVector3 from './ImmutableVector3';
+import Vector4 from './ImmutableVector4';
 import Matrix44 from './Matrix44';
 
 export default class Quaternion {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector3|Vector4|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|ImmutableVector3|Vector4|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -136,11 +136,11 @@ export default class Quaternion {
     }
   }
 
-  axisAngle(axisVec3:Vector3, radian:number) {
+  axisAngle(axisVec3:ImmutableVector3, radian:number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = Vector3.normalize(axisVec3);
+    var axis = ImmutableVector3.normalize(axisVec3);
     this.w = Math.cos(halfAngle);
     this.x = sin * axis.x;
     this.y = sin * axis.y;
@@ -149,11 +149,11 @@ export default class Quaternion {
     return this;
   }
 
-  static axisAngle(axisVec3: Vector3, radian: number) {
+  static axisAngle(axisVec3: ImmutableVector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = Vector3.normalize(axisVec3);
+    var axis = ImmutableVector3.normalize(axisVec3);
     return new Quaternion(
       sin * axis.x,
       sin * axis.y,
@@ -304,7 +304,7 @@ export default class Quaternion {
   }
 */
 
-  static fromPosition(vec3: Vector3) {
+  static fromPosition(vec3: ImmutableVector3) {
     let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }

@@ -39,9 +39,8 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float);
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.submitToAllocation();
-    this._worldMatrix.identity();
 
     //this.__updatedProperly = false;
   }
@@ -94,7 +93,7 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  calcWorldMatrixRecursively(): Matrix44 {
+  calcWorldMatrixRecursively(): Matrix44 | RowMajarMatrix44{
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 

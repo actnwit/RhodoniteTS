@@ -1,5 +1,5 @@
 import Matrix44 from '../math/Matrix44';
-import Vector3 from './Vector3';
+import ImmutableVector3 from './ImmutableVector3';
 
 
 test('Test isEqual', () => {
@@ -9,7 +9,7 @@ test('Test isEqual', () => {
     0, 0, 1, 0,
     0, 0, 0, 1);
   const b = Matrix44.identity();
-  b.translate(new Vector3(1, 0, 0));
+  b.translate(new ImmutableVector3(1, 0, 0));
 
   expect(a.isEqual(b)).toBe(true);
 });
