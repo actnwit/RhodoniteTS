@@ -1,7 +1,7 @@
 import Vector2 from '../math/Vector2';
 import ImmutableVector3 from '../math/ImmutableVector3';
 import Vector4 from '../math/ImmutableVector4';
-import Quaternion from '../math/Quaternion';
+import ImmutableQuaternion from '../math/ImmutableQuaternion';
 import ImmutableMatrix33 from '../math/ImmutableMatrix33';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
@@ -19,6 +19,7 @@ import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import MutableQuaternion from '../math/MutableQuaterion';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -26,7 +27,7 @@ export default class TransformComponent extends Component {
   private _translate: ImmutableVector3 = ImmutableVector3.dummy();
   private _rotate: ImmutableVector3 = ImmutableVector3.dummy();
   private _scale: ImmutableVector3 = ImmutableVector3.dummy();
-  private _quaternion: Quaternion = Quaternion.dummy();
+  private _quaternion: MutableQuaternion = MutableQuaternion.dummy();
   private _matrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _invMatrix: ImmutableMatrix44 = ImmutableMatrix44.dummy();
   private _normalMatrix: ImmutableMatrix33 = ImmutableMatrix33.dummy();
@@ -57,7 +58,7 @@ export default class TransformComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
@@ -191,7 +192,7 @@ export default class TransformComponent extends Component {
     return this._scale;
   }
 
-  set quaternion(quat: Quaternion) {
+  set quaternion(quat: ImmutableQuaternion) {
     this._quaternion.v[0] = quat.v[0];
     this._quaternion.v[1] = quat.v[1];
     this._quaternion.v[2] = quat.v[2];
@@ -208,7 +209,7 @@ export default class TransformComponent extends Component {
     return this.quaternionInner.clone();
   }
 
-  get quaternionInner(): Quaternion {
+  get quaternionInner(): ImmutableQuaternion {
     if (this._is_quaternion_updated) {
       return this._quaternion;
     } else if (!this._is_quaternion_updated) {
@@ -369,7 +370,7 @@ export default class TransformComponent extends Component {
    * @param {*} matrix 
    */
   
-  setTransform(translate: ImmutableVector3, rotate: ImmutableVector3, scale: ImmutableVector3, quaternion: Quaternion, matrix: ImmutableMatrix44) {
+  setTransform(translate: ImmutableVector3, rotate: ImmutableVector3, scale: ImmutableVector3, quaternion: ImmutableQuaternion, matrix: ImmutableMatrix44) {
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
     this._is_normal_trs_matrix_updated = false;
@@ -393,7 +394,7 @@ export default class TransformComponent extends Component {
     // Roatation
     if (rotate != null && quaternion != null) {
       this._rotate = rotate.clone();
-      this._quaternion = quaternion.clone();
+      this._quaternion = new MutableQuaternion(quaternion);
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = true;
     } else if (rotate != null) {
@@ -401,7 +402,7 @@ export default class TransformComponent extends Component {
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = false;
      } else if (quaternion != null) {
-      this._quaternion = quaternion.clone();
+      this._quaternion = new MutableQuaternion(quaternion);
       this._is_euler_angles_updated = false;
       this._is_quaternion_updated = true;
     }
@@ -488,7 +489,7 @@ export default class TransformComponent extends Component {
     for(let key in json) {
       if(json.hasOwnProperty(key) && key in this) {
         if (key === "quaternion") {
-          this[key] = new Quaternion((json as any)[key] as Array<number>);
+          this[key] = new ImmutableQuaternion((json as any)[key] as Array<number>);
         } else if (key === 'matrix') {
           this[key] = new ImmutableMatrix44((json as any)[key] as Array<number>);
         } else {
@@ -526,11 +527,11 @@ export default class TransformComponent extends Component {
     const rotationDir = ImmutableVector3.cross(fromDir, toDir);
     const cosTheta = ImmutableVector3.dotProduct(fromDir, toDir);
     let theta = Math.acos(cosTheta);
-    this.quaternion = Quaternion.axisAngle(rotationDir, theta);
+    this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
   }
 
   set rotateMatrix44(rotateMatrix: ImmutableMatrix44) {
-    this.quaternion.fromMatrix(rotateMatrix);
+    this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {

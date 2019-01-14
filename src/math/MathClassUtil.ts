@@ -2,7 +2,7 @@
 import Vector2 from './Vector2';
 import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './ImmutableVector4';
-import Quaternion from './Quaternion';
+import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 
@@ -71,7 +71,7 @@ export default class MathClassUtil {
   }
 
   static arrayToQuaternion(element:Array<number>) {
-    return new Quaternion(element[0], element[1], element[2], element[3]);
+    return new ImmutableQuaternion(element[0], element[1], element[2], element[3]);
   }
 
   static makeSubArray(array:Array<any>, componentN:number) {
@@ -86,12 +86,12 @@ export default class MathClassUtil {
     }
   }
 
-  static vectorToArray(element:Vector2|ImmutableVector3|Vector4|Quaternion) {
+  static vectorToArray(element:Vector2|ImmutableVector3|Vector4|ImmutableQuaternion) {
     if(element instanceof Vector2) {
       return [element.x, element.y];
     } else if (element instanceof ImmutableVector3) {
       return [element.x, element.y, element.z];
-    } else if (element instanceof Vector4 || element instanceof Quaternion) {
+    } else if (element instanceof Vector4 || element instanceof ImmutableQuaternion) {
       return [element.x, element.y, element.z, element.w];
     } else {
       return element;
@@ -103,12 +103,12 @@ export default class MathClassUtil {
    * @param element any Vector instance  
    * @return number of Vector instance
    */
-  static compomentNumberOfVector(element: Vector2 | ImmutableVector3 |  Vector4 | Quaternion | Array<any>): number {
+  static compomentNumberOfVector(element: Vector2 | ImmutableVector3 |  Vector4 | ImmutableQuaternion | Array<any>): number {
     if(element instanceof Vector2) {
       return 2;
     } else if (element instanceof ImmutableVector3) {
       return 3;
-    } else if (element instanceof Vector4 || element instanceof Quaternion) {
+    } else if (element instanceof Vector4 || element instanceof ImmutableQuaternion) {
       return 4;
     } else if (Array.isArray(element)) {
       return element.length;

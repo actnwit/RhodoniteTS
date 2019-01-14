@@ -1,5 +1,5 @@
 import ImmutableMatrix44 from "./ImmutableMatrix44";
-import Quaternion from "./Quaternion";
+import ImmutableQuaternion from "./ImmutableQuaternion";
 import Matrix33 from "./Matrix33";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
 import ImmutableVector3 from "./ImmutableVector3";
@@ -11,7 +11,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
   constructor(m: Array<number>, isColumnMajor?:boolean);
   constructor(m: ImmutableMatrix33, isColumnMajor?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean);
-  constructor(m: Quaternion, isColumnMajor?:boolean);
+  constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
   constructor(
     m0: number, m1:number, m2:number,
     m3:number, m4:number, m5:number,

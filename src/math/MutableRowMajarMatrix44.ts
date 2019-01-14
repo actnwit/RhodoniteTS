@@ -1,5 +1,5 @@
 import ImmutableMatrix33 from "./ImmutableMatrix33";
-import Quaternion from "./Quaternion";
+import ImmutableQuaternion from "./ImmutableQuaternion";
 import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
 import ImmutableMatrix44 from "./ImmutableMatrix44";
 import ImmutableVector3 from "./ImmutableVector3";
@@ -13,7 +13,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableMatrix33, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableRowMajarMatrix44, notCopyFloatArray?:Boolean);
-  constructor(m: Quaternion, notCopyFloatArray?:Boolean);
+  constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,

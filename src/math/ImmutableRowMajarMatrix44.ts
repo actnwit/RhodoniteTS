@@ -2,7 +2,7 @@
 import Vector4 from './ImmutableVector4';
 import ImmutableVector3 from './ImmutableVector3';
 import ImmutableMatrix33 from './ImmutableMatrix33';
-import Quaternion from './Quaternion';
+import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
 
@@ -16,7 +16,7 @@ export default class ImmutableRowMajarMatrix44 {
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableMatrix33, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableRowMajarMatrix44, notCopyFloatArray?:Boolean);
-  constructor(m: Quaternion, notCopyFloatArray?:Boolean);
+  constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -474,7 +474,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   getRotate() {
-    const quat = Quaternion.fromMatrix(this);
+    const quat = ImmutableQuaternion.fromMatrix(this);
     const rotateMat = new ImmutableRowMajarMatrix44(quat);
     return rotateMat;
   }

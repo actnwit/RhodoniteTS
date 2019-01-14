@@ -1,7 +1,7 @@
 //import GLBoost from '../../globals';
 import ImmutableVector3 from './ImmutableVector3';
 import ImmutableMatrix33 from './ImmutableMatrix33';
-import Quaternion from './Quaternion';
+import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableVector4 from './ImmutableVector4';
 import ImmutableRowMajarMatrix44 from './ImmutableRowMajarMatrix44';
 import Matrix44 from './Matrix44';
@@ -16,7 +16,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
@@ -516,7 +516,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
   }
 
   getRotate() {
-    const quat = Quaternion.fromMatrix(this);
+    const quat = ImmutableQuaternion.fromMatrix(this);
     const rotateMat = new ImmutableMatrix44(quat);
     return rotateMat;
   }

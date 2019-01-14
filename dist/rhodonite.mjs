@@ -1418,7 +1418,7 @@ class ImmutableVector4 {
 // GLBoost["Vector4"] = Vector4;
 
 //import GLBoost from '../../globals';
-class Quaternion {
+class ImmutableQuaternion {
     constructor(x, y, z, w) {
         if (ArrayBuffer.isView(x)) {
             this.v = x;
@@ -1431,47 +1431,41 @@ class Quaternion {
             this.v = new Float32Array(4);
         }
         if (!(x != null)) {
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-            this.w = 1;
+            this.v[0] = 0;
+            this.v[1] = 0;
+            this.v[2] = 0;
+            this.v[3] = 1;
         }
         else if (Array.isArray(x)) {
-            this.x = x[0];
-            this.y = x[1];
-            this.z = x[2];
-            this.w = x[3];
+            this.v[0] = x[0];
+            this.v[1] = x[1];
+            this.v[2] = x[2];
+            this.v[3] = x[3];
         }
         else if (typeof x.w !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = x.w;
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = x.z;
+            this.v[3] = x.w;
         }
         else if (typeof x.z !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = 1;
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = x.z;
+            this.v[3] = 1;
         }
         else if (typeof x.y !== 'undefined') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = 0;
-            this.w = 1;
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = 0;
+            this.v[3] = 1;
         }
         else {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.w = w;
+            this.v[0] = x;
+            this.v[1] = y;
+            this.v[2] = z;
+            this.v[3] = w;
         }
-    }
-    identity() {
-        this.x = 0;
-        this.y = 0;
-        this.x = 0;
-        this.w = 1;
     }
     isEqual(quat) {
         if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
@@ -1482,7 +1476,7 @@ class Quaternion {
         }
     }
     static dummy() {
-        return new Quaternion(null);
+        return new ImmutableQuaternion(null);
     }
     isDummy() {
         if (this.v.length === 0) {
@@ -1496,26 +1490,26 @@ class Quaternion {
         return this.constructor.name;
     }
     clone() {
-        return new Quaternion(this.x, this.y, this.z, this.w);
+        return new ImmutableQuaternion(this.x, this.y, this.z, this.w);
     }
     static invert(quat) {
-        quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
+        quat = new ImmutableQuaternion(-quat.x, -quat.y, -quat.z, quat.w);
         const inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
-        quat.x *= inorm2;
-        quat.y *= inorm2;
-        quat.z *= inorm2;
-        quat.w *= inorm2;
+        quat.v[0] *= inorm2;
+        quat.v[1] *= inorm2;
+        quat.v[2] *= inorm2;
+        quat.v[3] *= inorm2;
         return quat;
     }
     static qlerp(lhq, rhq, ratio) {
-        var q = new Quaternion(0, 0, 0, 1);
+        var q = new ImmutableQuaternion(0, 0, 0, 1);
         var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
         var ss = 1.0 - qr * qr;
         if (ss === 0.0) {
-            q.w = lhq.w;
-            q.x = lhq.x;
-            q.y = lhq.y;
-            q.z = lhq.z;
+            q.v[3] = lhq.w;
+            q.v[0] = lhq.x;
+            q.v[1] = lhq.y;
+            q.v[2] = lhq.z;
             return q;
         }
         else {
@@ -1536,166 +1530,62 @@ class Quaternion {
                 s2 = Math.sin(ph * ratio) / Math.sin(ph);
             }
             let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-            q.x = lhq.x * s1 + rhq.x * s2;
-            q.y = lhq.y * s1 + rhq.y * s2;
-            q.z = lhq.z * s1 + rhq.z * s2;
-            q.w = lhq.w * s1 + rhq.w * s2;
+            q.v[0] = lhq.x * s1 + rhq.x * s2;
+            q.v[1] = lhq.y * s1 + rhq.y * s2;
+            q.v[2] = lhq.z * s1 + rhq.z * s2;
+            q.v[3] = lhq.w * s1 + rhq.w * s2;
             return q;
         }
-    }
-    axisAngle(axisVec3, radian) {
-        var halfAngle = 0.5 * radian;
-        var sin = Math.sin(halfAngle);
-        var axis = ImmutableVector3.normalize(axisVec3);
-        this.w = Math.cos(halfAngle);
-        this.x = sin * axis.x;
-        this.y = sin * axis.y;
-        this.z = sin * axis.z;
-        return this;
     }
     static axisAngle(axisVec3, radian) {
         var halfAngle = 0.5 * radian;
         var sin = Math.sin(halfAngle);
         var axis = ImmutableVector3.normalize(axisVec3);
-        return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
-    }
-    add(q) {
-        this.x += q.x;
-        this.y += q.y;
-        this.z += q.z;
-        this.w += q.w;
-        return this;
-    }
-    multiply(q) {
-        let result = new Quaternion(0, 0, 0, 1);
-        result.x = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-        result.y = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-        result.z = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-        result.w = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-        this.x = result.x;
-        this.y = result.y;
-        this.z = result.z;
-        this.w = result.w;
-        return this;
+        return new ImmutableQuaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
     }
     static multiply(q1, q2) {
-        let result = new Quaternion(0, 0, 0, 1);
-        result.x = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-        result.y = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-        result.z = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-        result.w = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
+        let result = new ImmutableQuaternion(0, 0, 0, 1);
+        result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
+        result.v[1] = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
+        result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
+        result.v[3] = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
         return result;
     }
     static fromMatrix(m) {
-        let q = new Quaternion();
+        let q = new ImmutableQuaternion();
         let tr = m.m00 + m.m11 + m.m22;
         if (tr > 0) {
             let S = 0.5 / Math.sqrt(tr + 1.0);
-            q.w = 0.25 / S;
-            q.x = (m.m21 - m.m12) * S;
-            q.y = (m.m02 - m.m20) * S;
-            q.z = (m.m10 - m.m01) * S;
+            q.v[3] = 0.25 / S;
+            q.v[0] = (m.m21 - m.m12) * S;
+            q.v[1] = (m.m02 - m.m20) * S;
+            q.v[2] = (m.m10 - m.m01) * S;
         }
         else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
             let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-            q.w = (m.m21 - m.m12) / S;
-            q.x = 0.25 * S;
-            q.y = (m.m01 + m.m10) / S;
-            q.z = (m.m02 + m.m20) / S;
+            q.v[3] = (m.m21 - m.m12) / S;
+            q.v[0] = 0.25 * S;
+            q.v[1] = (m.m01 + m.m10) / S;
+            q.v[2] = (m.m02 + m.m20) / S;
         }
         else if (m.m11 > m.m22) {
             let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-            q.w = (m.m02 - m.m20) / S;
-            q.x = (m.m01 + m.m10) / S;
-            q.y = 0.25 * S;
-            q.z = (m.m12 + m.m21) / S;
+            q.v[3] = (m.m02 - m.m20) / S;
+            q.v[0] = (m.m01 + m.m10) / S;
+            q.v[1] = 0.25 * S;
+            q.v[2] = (m.m12 + m.m21) / S;
         }
         else {
             let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-            q.w = (m.m10 - m.m01) / S;
-            q.x = (m.m02 + m.m20) / S;
-            q.y = (m.m12 + m.m21) / S;
-            q.z = 0.25 * S;
+            q.v[3] = (m.m10 - m.m01) / S;
+            q.v[0] = (m.m02 + m.m20) / S;
+            q.v[1] = (m.m12 + m.m21) / S;
+            q.v[2] = 0.25 * S;
         }
         return q;
     }
-    fromMatrix(m) {
-        let tr = m.m00 + m.m11 + m.m22;
-        if (tr > 0) {
-            let S = 0.5 / Math.sqrt(tr + 1.0);
-            this.v[0] = (m.m21 - m.m12) * S;
-            this.v[1] = (m.m02 - m.m20) * S;
-            this.v[2] = (m.m10 - m.m01) * S;
-            this.v[3] = 0.25 / S;
-        }
-        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-            let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-            this.v[0] = 0.25 * S;
-            this.v[1] = (m.m01 + m.m10) / S;
-            this.v[2] = (m.m02 + m.m20) / S;
-            this.v[3] = (m.m21 - m.m12) / S;
-        }
-        else if (m.m11 > m.m22) {
-            let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-            this.v[0] = (m.m01 + m.m10) / S;
-            this.v[1] = 0.25 * S;
-            this.v[2] = (m.m12 + m.m21) / S;
-            this.v[3] = (m.m02 - m.m20) / S;
-        }
-        else {
-            let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-            this.v[0] = (m.m02 + m.m20) / S;
-            this.v[1] = (m.m12 + m.m21) / S;
-            this.v[2] = 0.25 * S;
-            this.v[3] = (m.m10 - m.m01) / S;
-        }
-        return this;
-    }
-    /*
-      static fromMatrix(m) {
-        let fTrace = m.m[0] + m.m[4] + m.m[8];
-        let fRoot;
-        let q = new Quaternion();
-        if ( fTrace > 0.0 ) {
-          // |w| > 1/2, may as well choose w > 1/2
-          fRoot = Math.sqrt(fTrace + 1.0);  // 2w
-          q.w = 0.5 * fRoot;
-          fRoot = 0.5/fRoot;  // 1/(4w)
-          q.x = (m.m[5]-m.m[7])*fRoot;
-          q.y = (m.m[6]-m.m[2])*fRoot;
-          q.z = (m.m[1]-m.m[3])*fRoot;
-        } else {
-          // |w| <= 1/2
-          let i = 0;
-          if ( m.m[4] > m.m[0] )
-            i = 1;
-          if ( m.m[8] > m.m[i*3+i] )
-            i = 2;
-          let j = (i+1)%3;
-          let k = (i+2)%3;
-          fRoot = Math.sqrt(m.m[i*3+i]-m.m[j*3+j]-m.m[k*3+k] + 1.0);
-          
-          let setValue = function(q, i, value) {
-            switch (i) {
-              case 0: q.x = value; break;
-              case 1: q.y = value; break;
-              case 2: q.z = value; break;
-            }
-          }
-    
-          setValue(q, i, 0.5 * fRoot); //      q[i] = 0.5 * fRoot;
-          fRoot = 0.5 / fRoot;
-          q.w = (m.m[j*3+k] - m.m[k*3+j]) * fRoot;
-    
-          setValue(q, j, (m.m[j*3+i] + m.m[i*3+j]) * fRoot); //      q[j] = (m.m[j*3+i] + m.m[i*3+j]) * fRoot;
-          setValue(q, k, (m.m[k*3+i] + m.m[i*3+k]) * fRoot); //      q[k] = (m.m[k*3+i] + m.m[i*3+k]) * fRoot;
-        }
-    
-        return q;
-      }
-    */
     static fromPosition(vec3) {
-        let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
+        let q = new ImmutableQuaternion(vec3.x, vec3.y, vec3.z, 0);
         return q;
     }
     at(i) {
@@ -1706,62 +1596,22 @@ class Quaternion {
             case 3: return this.w;
         }
     }
-    setAt(i, val) {
-        switch (i % 4) {
-            case 0:
-                this.x = val;
-                break;
-            case 1:
-                this.y = val;
-                break;
-            case 2:
-                this.z = val;
-                break;
-            case 3:
-                this.w = val;
-                break;
-        }
-    }
-    normalize() {
-        let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        this.x /= norm;
-        this.y /= norm;
-        this.z /= norm;
-        this.w /= norm;
-        return this;
-    }
     toString() {
         return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
     }
     get x() {
         return this.v[0];
     }
-    set x(x) {
-        this.v[0] = x;
-    }
     get y() {
         return this.v[1];
-    }
-    set y(y) {
-        this.v[1] = y;
     }
     get z() {
         return this.v[2];
     }
-    set z(z) {
-        this.v[2] = z;
-    }
     get w() {
         return this.v[3];
     }
-    set w(w) {
-        this.v[3] = w;
-    }
-    get raw() {
-        return this.v;
-    }
 }
-//GLBoost["Quaternion"] = Quaternion;
 
 //import GLBoost from '../../globals';
 const FloatArray = Float32Array;
@@ -2299,7 +2149,7 @@ class ImmutableMatrix44 {
         return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
     }
     getRotate() {
-        const quat = Quaternion.fromMatrix(this);
+        const quat = ImmutableQuaternion.fromMatrix(this);
         const rotateMat = new ImmutableMatrix44(quat);
         return rotateMat;
     }
@@ -3601,7 +3451,7 @@ class ImmutableRowMajarMatrix44 {
         return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
     }
     getRotate() {
-        const quat = Quaternion.fromMatrix(this);
+        const quat = ImmutableQuaternion.fromMatrix(this);
         const rotateMat = new ImmutableRowMajarMatrix44(quat);
         return rotateMat;
     }
@@ -4444,6 +4294,136 @@ class SceneGraphComponent extends Component {
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
 
+class MutableQuaternion extends ImmutableQuaternion {
+    constructor(x, y, z, w) {
+        super(x, y, z, w);
+    }
+    static dummy() {
+        return new MutableQuaternion(null);
+    }
+    clone() {
+        return new MutableQuaternion(this.x, this.y, this.z, this.w);
+    }
+    axisAngle(axisVec3, radian) {
+        var halfAngle = 0.5 * radian;
+        var sin = Math.sin(halfAngle);
+        var axis = ImmutableVector3.normalize(axisVec3);
+        this.w = Math.cos(halfAngle);
+        this.x = sin * axis.x;
+        this.y = sin * axis.y;
+        this.z = sin * axis.z;
+        return this;
+    }
+    add(q) {
+        this.x += q.x;
+        this.y += q.y;
+        this.z += q.z;
+        this.w += q.w;
+        return this;
+    }
+    multiply(q) {
+        let result = new ImmutableQuaternion(0, 0, 0, 1);
+        result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
+        result.v[1] = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
+        result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
+        result.v[3] = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
+        this.x = result.x;
+        this.y = result.y;
+        this.z = result.z;
+        this.w = result.w;
+        return this;
+    }
+    fromMatrix(m) {
+        let tr = m.m00 + m.m11 + m.m22;
+        if (tr > 0) {
+            let S = 0.5 / Math.sqrt(tr + 1.0);
+            this.v[0] = (m.m21 - m.m12) * S;
+            this.v[1] = (m.m02 - m.m20) * S;
+            this.v[2] = (m.m10 - m.m01) * S;
+            this.v[3] = 0.25 / S;
+        }
+        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+            let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+            this.v[0] = 0.25 * S;
+            this.v[1] = (m.m01 + m.m10) / S;
+            this.v[2] = (m.m02 + m.m20) / S;
+            this.v[3] = (m.m21 - m.m12) / S;
+        }
+        else if (m.m11 > m.m22) {
+            let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+            this.v[0] = (m.m01 + m.m10) / S;
+            this.v[1] = 0.25 * S;
+            this.v[2] = (m.m12 + m.m21) / S;
+            this.v[3] = (m.m02 - m.m20) / S;
+        }
+        else {
+            let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+            this.v[0] = (m.m02 + m.m20) / S;
+            this.v[1] = (m.m12 + m.m21) / S;
+            this.v[2] = 0.25 * S;
+            this.v[3] = (m.m10 - m.m01) / S;
+        }
+        return this;
+    }
+    setAt(i, val) {
+        switch (i % 4) {
+            case 0:
+                this.x = val;
+                break;
+            case 1:
+                this.y = val;
+                break;
+            case 2:
+                this.z = val;
+                break;
+            case 3:
+                this.w = val;
+                break;
+        }
+    }
+    normalize() {
+        let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        this.x /= norm;
+        this.y /= norm;
+        this.z /= norm;
+        this.w /= norm;
+        return this;
+    }
+    identity() {
+        this.x = 0;
+        this.y = 0;
+        this.x = 0;
+        this.w = 1;
+    }
+    get x() {
+        return this.v[0];
+    }
+    set x(x) {
+        this.v[0] = x;
+    }
+    get y() {
+        return this.v[1];
+    }
+    set y(y) {
+        this.v[1] = y;
+    }
+    get z() {
+        return this.v[2];
+    }
+    set z(z) {
+        this.v[2] = z;
+    }
+    get w() {
+        return this.v[3];
+    }
+    set w(w) {
+        this.v[3] = w;
+    }
+    get raw() {
+        return this.v;
+    }
+}
+
 // import AnimationComponent from './AnimationComponent';
 class TransformComponent extends Component {
     constructor(entityUid, componentSid, entityComponent) {
@@ -4451,7 +4431,7 @@ class TransformComponent extends Component {
         this._translate = ImmutableVector3.dummy();
         this._rotate = ImmutableVector3.dummy();
         this._scale = ImmutableVector3.dummy();
-        this._quaternion = Quaternion.dummy();
+        this._quaternion = MutableQuaternion.dummy();
         this._matrix = MutableMatrix44.dummy();
         this._invMatrix = ImmutableMatrix44.dummy();
         this._normalMatrix = ImmutableMatrix33.dummy();
@@ -4463,7 +4443,7 @@ class TransformComponent extends Component {
         this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
         this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
         this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
@@ -4750,7 +4730,7 @@ class TransformComponent extends Component {
         // Roatation
         if (rotate != null && quaternion != null) {
             this._rotate = rotate.clone();
-            this._quaternion = quaternion.clone();
+            this._quaternion = new MutableQuaternion(quaternion);
             this._is_euler_angles_updated = true;
             this._is_quaternion_updated = true;
         }
@@ -4760,7 +4740,7 @@ class TransformComponent extends Component {
             this._is_quaternion_updated = false;
         }
         else if (quaternion != null) {
-            this._quaternion = quaternion.clone();
+            this._quaternion = new MutableQuaternion(quaternion);
             this._is_euler_angles_updated = false;
             this._is_quaternion_updated = true;
         }
@@ -4836,7 +4816,7 @@ class TransformComponent extends Component {
         for (let key in json) {
             if (json.hasOwnProperty(key) && key in this) {
                 if (key === "quaternion") {
-                    this[key] = new Quaternion(json[key]);
+                    this[key] = new ImmutableQuaternion(json[key]);
                 }
                 else if (key === 'matrix') {
                     this[key] = new ImmutableMatrix44(json[key]);
@@ -4869,10 +4849,10 @@ class TransformComponent extends Component {
         const rotationDir = ImmutableVector3.cross(fromDir, toDir);
         const cosTheta = ImmutableVector3.dotProduct(fromDir, toDir);
         let theta = Math.acos(cosTheta);
-        this.quaternion = Quaternion.axisAngle(rotationDir, theta);
+        this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
     }
     set rotateMatrix44(rotateMatrix) {
-        this.quaternion.fromMatrix(rotateMatrix);
+        this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
     }
     get rotateMatrix44() {
         return new ImmutableMatrix44(this.quaternion);
@@ -7255,7 +7235,7 @@ class ModelConverter {
                 group.getTransform().scale = new ImmutableVector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
             }
             if (nodeJson.rotation) {
-                group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+                group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
             }
             if (nodeJson.matrix) {
                 group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);

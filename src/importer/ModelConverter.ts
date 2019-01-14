@@ -4,7 +4,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Entity from "../core/Entity";
 import ImmutableVector3 from "../math/ImmutableVector3";
-import Quaternion from "../math/Quaternion";
+import ImmutableQuaternion from "../math/ImmutableQuaternion";
 import ImmutableMatrix44 from "../math/ImmutableMatrix44";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import Primitive from "../geometry/Primitive";
@@ -148,7 +148,7 @@ export default class ModelConverter {
         group.getTransform().scale = new ImmutableVector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
       }
       if (nodeJson.rotation) {
-        group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+        group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
       }
       if (nodeJson.matrix) {
         group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
