@@ -9,17 +9,18 @@ import Accessor from '../memory/Accessor';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
-  private _worldMatrix: RowMajarMatrix44 = RowMajarMatrix44.dummy();
+  private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
 
@@ -40,7 +41,7 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', RowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.submitToAllocation();
 
     //this.__updatedProperly = false;
@@ -94,7 +95,7 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  calcWorldMatrixRecursively(): ImmutableMatrix44 | RowMajarMatrix44{
+  calcWorldMatrixRecursively(): ImmutableMatrix44 | MutableRowMajarMatrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 

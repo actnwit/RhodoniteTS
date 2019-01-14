@@ -1,5 +1,5 @@
 
-//    import Rn from '../../../dist/rhodonite.js';
+    import Rn from '../../../dist/rhodonite.mjs';
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
       const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);

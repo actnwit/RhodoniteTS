@@ -6,12 +6,13 @@ import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import Quaternion from '../math/Quaternion';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
 import ComponentRepository from './ComponentRepository';
 import Config from './Config';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
@@ -187,7 +188,7 @@ export default class Component {
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
     if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
-    } else if (dataClassType === RowMajarMatrix44) {
+    } else if (dataClassType === ImmutableRowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, true);
     } else {
       (this as any)['_'+memberName] = new dataClassType(taken);

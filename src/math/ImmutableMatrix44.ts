@@ -3,7 +3,7 @@ import ImmutableVector3 from './ImmutableVector3';
 import ImmutableMatrix33 from './ImmutableMatrix33';
 import Quaternion from './Quaternion';
 import ImmutableVector4 from './ImmutableVector4';
-import RowMajarMatrix44 from './RowMajarMatrix44';
+import ImmutableRowMajarMatrix44 from './ImmutableRowMajarMatrix44';
 import Matrix44 from './Matrix44';
 
 const FloatArray = Float32Array;
@@ -17,7 +17,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
   constructor(m: ImmutableMatrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -165,7 +165,6 @@ export default class ImmutableMatrix44 implements Matrix44 {
       return false;
     }
   }
-
 
   get className() {
     return this.constructor.name;

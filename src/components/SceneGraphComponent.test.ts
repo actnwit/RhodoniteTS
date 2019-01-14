@@ -4,7 +4,7 @@ import TransformComponent from './TransformComponent';
 import ImmutableVector3 from '../math/ImmutableVector3';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';
 import SceneGraphComponent from './SceneGraphComponent';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -42,7 +42,7 @@ test('create Parents and children.', () => {
   console.log(childEntity.getSceneGraph().worldMatrix);
 
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
-    new RowMajarMatrix44(
+    new ImmutableRowMajarMatrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,
       0, 0, 1, 0,
