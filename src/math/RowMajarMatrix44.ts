@@ -1,9 +1,10 @@
 //import GLBoost from '../../globals';
-import Vector4 from './Vector4';
+import Vector4 from './ImmutableVector4';
 import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Matrix44 from './Matrix44';
+import ImmutableVector4 from './ImmutableVector4';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -493,13 +494,13 @@ export default class RowMajarMatrix44 {
     return mat_t;
   }
 
-  multiplyVector(vec: Vector4) {
+  multiplyVector(vec: ImmutableVector4) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
     var w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
 
-    return new Vector4(x, y, z, w);
+    return new ImmutableVector4(x, y, z, w);
   }
 
   /**

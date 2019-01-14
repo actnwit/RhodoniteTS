@@ -1267,252 +1267,6 @@
     }());
     //GLBoost['Vector3'] = Vector3;
 
-    var Vector4 = /** @class */ (function () {
-        function Vector4(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.x = 0;
-                this.y = 0;
-                this.z = 0;
-                this.w = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.x = x[0];
-                this.y = x[1];
-                this.z = x[2];
-                this.w = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = 0;
-                this.w = 1;
-            }
-            else {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                this.w = w;
-            }
-        }
-        Object.defineProperty(Vector4.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.prototype.isStrictEqual = function (vec) {
-            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-                Math.abs(vec.v[1] - this.v[1]) < delta &&
-                Math.abs(vec.v[2] - this.v[2]) < delta &&
-                Math.abs(vec.v[3] - this.v[3]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.clone = function () {
-            return new Vector4(this.x, this.y, this.z, this.w);
-        };
-        /**
-         * Zero Vector
-         */
-        Vector4.zero = function () {
-            return new Vector4(0, 0, 0, 1);
-        };
-        Vector4.prototype.length = function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        };
-        Vector4.prototype.normalize = function () {
-            var length = this.length();
-            this.divide(length);
-            return this;
-        };
-        Vector4.normalize = function (vec4) {
-            var length = vec4.length();
-            var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-            newVec.divide(length);
-            return newVec;
-        };
-        /**
-         * add value
-         */
-        Vector4.prototype.add = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            this.w += v.w;
-            return this;
-        };
-        /**
-         * add value（static version）
-         */
-        Vector4.add = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-        };
-        /**
-         * add value except w component
-         */
-        Vector4.prototype.addWithOutW = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            return this;
-        };
-        Vector4.prototype.subtract = function (v) {
-            this.x -= v.x;
-            this.y -= v.y;
-            this.z -= v.z;
-            this.w -= v.w;
-            return this;
-        };
-        Vector4.subtract = function (lv, rv) {
-            return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-        };
-        /**
-         * add value except w component（static version）
-         */
-        Vector4.addWithOutW = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-        };
-        Vector4.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
-            this.z *= val;
-            this.w *= val;
-            return this;
-        };
-        Vector4.prototype.multiplyVector = function (vec) {
-            this.x *= vec.x;
-            this.y *= vec.y;
-            this.z *= vec.z;
-            this.w *= vec.w;
-            return this;
-        };
-        Vector4.multiply = function (vec4, val) {
-            return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-        };
-        Vector4.multiplyVector = function (vec4, vec) {
-            return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-        };
-        Vector4.prototype.divide = function (val) {
-            if (val !== 0) {
-                this.x /= val;
-                this.y /= val;
-                this.z /= val;
-                this.w /= val;
-            }
-            else {
-                console.warn("0 division occured!");
-                this.x = Infinity;
-                this.y = Infinity;
-                this.z = Infinity;
-                this.w = Infinity;
-            }
-            return this;
-        };
-        Vector4.divide = function (vec4, val) {
-            if (val !== 0) {
-                return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-            }
-            else {
-                console.warn("0 division occured!");
-                return new Vector4(Infinity, Infinity, Infinity, Infinity);
-            }
-        };
-        Vector4.prototype.divideVector = function (vec4) {
-            this.x /= vec4.x;
-            this.y /= vec4.y;
-            this.z /= vec4.z;
-            this.w /= vec4.w;
-            return this;
-        };
-        Vector4.divideVector = function (lvec4, rvec4) {
-            return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-        };
-        Vector4.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(Vector4.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (w) {
-                this.v[3] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Vector4;
-    }());
-    // GLBoost["Vector4"] = Vector4;
-
     //import GLBoost from '../../globals';
     var Quaternion = /** @class */ (function () {
         function Quaternion(x, y, z, w) {
@@ -1884,7 +1638,165 @@
     }());
     //GLBoost["Quaternion"] = Quaternion;
 
-    //import GLBoost from '../../globals';
+    var ImmutableVector4 = /** @class */ (function () {
+        function ImmutableVector4(x, y, z, w) {
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+                return;
+            }
+            else {
+                this.v = new Float32Array(4);
+            }
+            if (!(x != null)) {
+                this.v[0] = 0;
+                this.v[1] = 0;
+                this.v[2] = 0;
+                this.v[3] = 1;
+            }
+            else if (Array.isArray(x)) {
+                this.v[0] = x[0];
+                this.v[1] = x[1];
+                this.v[2] = x[2];
+                this.v[3] = x[3];
+            }
+            else if (typeof x.w !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = x.z;
+                this.v[3] = x.w;
+            }
+            else if (typeof x.z !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = x.z;
+                this.v[3] = 1;
+            }
+            else if (typeof x.y !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = 0;
+                this.v[3] = 1;
+            }
+            else {
+                this.v[0] = x;
+                this.v[1] = y;
+                this.v[2] = z;
+                this.v[3] = w;
+            }
+        }
+        Object.defineProperty(ImmutableVector4.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ImmutableVector4.prototype.isStrictEqual = function (vec) {
+            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        ImmutableVector4.prototype.isEqual = function (vec, delta) {
+            if (delta === void 0) { delta = Number.EPSILON; }
+            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+                Math.abs(vec.v[1] - this.v[1]) < delta &&
+                Math.abs(vec.v[2] - this.v[2]) < delta &&
+                Math.abs(vec.v[3] - this.v[3]) < delta) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        ImmutableVector4.prototype.clone = function () {
+            return new ImmutableVector4(this.x, this.y, this.z, this.w);
+        };
+        /**
+         * Zero Vector
+         */
+        ImmutableVector4.zero = function () {
+            return new ImmutableVector4(0, 0, 0, 1);
+        };
+        ImmutableVector4.prototype.length = function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        };
+        ImmutableVector4.normalize = function (vec4) {
+            var length = vec4.length();
+            var newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
+            newVec = ImmutableVector4.divide(newVec, length);
+            return newVec;
+        };
+        /**
+         * add value（static version）
+         */
+        ImmutableVector4.add = function (lv, rv) {
+            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+        };
+        ImmutableVector4.subtract = function (lv, rv) {
+            return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+        };
+        /**
+         * add value except w component（static version）
+         */
+        ImmutableVector4.addWithOutW = function (lv, rv) {
+            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+        };
+        ImmutableVector4.multiply = function (vec4, val) {
+            return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+        };
+        ImmutableVector4.multiplyVector = function (vec4, vec) {
+            return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+        };
+        ImmutableVector4.divide = function (vec4, val) {
+            if (val !== 0) {
+                return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+            }
+            else {
+                console.warn("0 division occured!");
+                return new ImmutableVector4(Infinity, Infinity, Infinity, Infinity);
+            }
+        };
+        ImmutableVector4.divideVector = function (lvec4, rvec4) {
+            return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+        };
+        ImmutableVector4.prototype.toString = function () {
+            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+        };
+        Object.defineProperty(ImmutableVector4.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "z", {
+            get: function () {
+                return this.v[2];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "w", {
+            get: function () {
+                return this.v[3];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ImmutableVector4;
+    }());
+    // GLBoost["Vector4"] = Vector4;
+
     var FloatArray = Float32Array;
     var Matrix44 = /** @class */ (function () {
         function Matrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
@@ -2260,7 +2172,7 @@
             var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
             var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
             var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-            return new Vector4(x, y, z, w);
+            return new ImmutableVector4(x, y, z, w);
         };
         /**
          * multiply zero matrix and zero matrix
@@ -3232,7 +3144,7 @@
         };
         AccessorBase.prototype.getVec4 = function (index, endian) {
             if (endian === void 0) { endian = true; }
-            return new Vector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
+            return new ImmutableVector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
         };
         AccessorBase.prototype.getMat3 = function (index, endian) {
             if (endian === void 0) { endian = true; }
@@ -3656,7 +3568,6 @@
         return MemoryManager;
     }());
 
-    //import GLBoost from '../../globals';
     var FloatArray$1 = Float32Array;
     var RowMajarMatrix44 = /** @class */ (function () {
         function RowMajarMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray) {
@@ -4026,7 +3937,7 @@
             var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
             var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
             var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-            return new Vector4(x, y, z, w);
+            return new ImmutableVector4(x, y, z, w);
         };
         /**
          * multiply zero matrix and zero matrix
@@ -6771,6 +6682,143 @@
         return System;
     }());
 
+    var MutableVector4 = /** @class */ (function (_super) {
+        __extends(MutableVector4, _super);
+        function MutableVector4(x, y, z, w) {
+            return _super.call(this, x, y, z, w) || this;
+        }
+        MutableVector4.prototype.normalize = function () {
+            var length = this.length();
+            this.divide(length);
+            return this;
+        };
+        /**
+         * add value
+         */
+        MutableVector4.prototype.add = function (v) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+            this.w += v.w;
+            return this;
+        };
+        /**
+       * add value except w component
+       */
+        MutableVector4.prototype.addWithOutW = function (v) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+            return this;
+        };
+        MutableVector4.prototype.subtract = function (v) {
+            this.x -= v.x;
+            this.y -= v.y;
+            this.z -= v.z;
+            this.w -= v.w;
+            return this;
+        };
+        MutableVector4.prototype.multiply = function (val) {
+            this.x *= val;
+            this.y *= val;
+            this.z *= val;
+            this.w *= val;
+            return this;
+        };
+        MutableVector4.prototype.multiplyVector = function (vec) {
+            this.x *= vec.x;
+            this.y *= vec.y;
+            this.z *= vec.z;
+            this.w *= vec.w;
+            return this;
+        };
+        MutableVector4.prototype.divide = function (val) {
+            if (val !== 0) {
+                this.x /= val;
+                this.y /= val;
+                this.z /= val;
+                this.w /= val;
+            }
+            else {
+                console.error("0 division occured!");
+                this.x = Infinity;
+                this.y = Infinity;
+                this.z = Infinity;
+                this.w = Infinity;
+            }
+            return this;
+        };
+        MutableVector4.prototype.divideVector = function (vec4) {
+            this.x /= vec4.x;
+            this.y /= vec4.y;
+            this.z /= vec4.z;
+            this.w /= vec4.w;
+            return this;
+        };
+        Object.defineProperty(MutableVector4.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            set: function (x) {
+                this.v[0] = x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableVector4.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            set: function (y) {
+                this.v[1] = y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableVector4.prototype, "z", {
+            get: function () {
+                return this.v[2];
+            },
+            set: function (z) {
+                this.v[2] = z;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableVector4.prototype, "w", {
+            get: function () {
+                return this.v[3];
+            },
+            set: function (w) {
+                this.v[3] = w;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableVector4.prototype, "raw", {
+            get: function () {
+                return this.v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // set w(w:number) {
+        //   this.__Error();
+        // }
+        // get w(): number {
+        //   return this.v[3];
+        // }
+        // get raw(): TypedArray {
+        //   this.__Error();
+        //   return new Float32Array(0);
+        // }
+        MutableVector4.prototype.__Error = function () {
+            //console.error('Not avavailabe because this Vector class is immutable.');
+            throw new Error('Not avavailabe because this Vector class is immutable.');
+        };
+        return MutableVector4;
+    }(ImmutableVector4));
+
     var DataUtil = /** @class */ (function () {
         function DataUtil() {
         }
@@ -7878,7 +7926,7 @@
         GLSLShader: GLSLShader,
         System: System,
         Vector3: Vector3,
-        Vector4: Vector4,
+        MutableVector4: MutableVector4,
         Matrix33: Matrix33,
         Matrix44: Matrix44,
         ProcessApproach: ProcessApproach,
