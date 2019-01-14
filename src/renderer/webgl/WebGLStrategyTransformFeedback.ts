@@ -132,7 +132,7 @@ void main(){
   }
 
 
-  load(meshComponent: MeshComponent) {
+  $load(meshComponent: MeshComponent) {
     if (this.__isVertexReady) {
       return;
     }
@@ -162,7 +162,7 @@ void main(){
     this.__isVertexReady = true;
   }
 
-  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   private __setupUBOPrimitiveHeaderData() {
@@ -316,7 +316,7 @@ void main(){
     }
   }
 
-  setupGPUData(): void {
+  common_$prerender(): void {
     this.__setupUBOPrimitiveHeaderData();
     this.__setupGPUInstanceMetaData();
     this.__setupGPUInstanceData();
@@ -367,6 +367,10 @@ void main(){
     }
 
     return this.__instance;
+  }
+
+  common_$render() {
+    return true;
   }
 
 }

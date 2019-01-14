@@ -101,7 +101,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
   }
 
-  load(meshComponent: MeshComponent) {
+  $load(meshComponent: MeshComponent) {
     if (this.__isLoaded(0)) {
       return;
     }
@@ -116,7 +116,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
   }
 
-  prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (this.__isVAOSet) {
       return;
     }
@@ -133,7 +133,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     this.__isVAOSet = true;
   }
 
-  setupGPUData(): void {
+  common_$prerender(): void {
     let isHalfFloatMode = false;
     if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
       this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -253,6 +253,10 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
     return this.__instance;
+  }
+
+  common_$render() {
+    return true;
   }
 
 }

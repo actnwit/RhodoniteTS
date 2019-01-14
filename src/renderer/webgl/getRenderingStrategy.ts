@@ -3,6 +3,7 @@ import WebGLStrategyUBO from "./WebGLStrategyUBO";
 import WebGLStrategyTransformFeedback from "./WebGLStrategyTransformFeedback";
 import WebGLStrategyDataTexture from "./WebGLStrategyDataTexture";
 import WebGLStrategy from "./WebGLStrategy";
+import WebGLStrategyUniform from "./WebGLStrategyUniform";
 
 const getRenderingStrategy = function (processApproach: ProcessApproachEnum): WebGLStrategy {
   // Strategy
@@ -10,6 +11,8 @@ const getRenderingStrategy = function (processApproach: ProcessApproachEnum): We
     return WebGLStrategyUBO.getInstance();
   } else if (processApproach === ProcessApproach.TransformFeedbackWebGL2) {
     return WebGLStrategyTransformFeedback.getInstance();
+  } else if (processApproach === ProcessApproach.UniformWebGL1) {
+    return WebGLStrategyUniform.getInstance();
   } else {
     return WebGLStrategyDataTexture.getInstance();
   }

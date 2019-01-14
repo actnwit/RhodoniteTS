@@ -10,14 +10,12 @@ import getRenderingStrategy from '../renderer/webgl/getRenderingStrategy';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ProcessStage } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
+import SceneGraphComponent from './SceneGraphComponent';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
-  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   __vertexHandles: Array<VertexHandles> = [];
-  private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
-  private __isVAOSet = false;
   private __webglRenderingStrategy?: WebGLStrategy;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
@@ -57,18 +55,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   $load() {
-    // if (this.__isLoaded(0)) {
-    //   return;
-    // }
-
-    // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-    // for(let i=0; i<primitiveNum; i++) {
-    //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-    //   const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-    //   this.__vertexHandles[i] = vertexHandles;
-    //   MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-    // }
-    this.__webglRenderingStrategy!.load(this.__meshComponent!);
+    this.__webglRenderingStrategy!.$load(this.__meshComponent!);
     this.moveStageTo(ProcessStage.PreRender);
   }
 
@@ -77,31 +64,28 @@ export default class MeshRendererComponent extends Component {
       processApproech: ProcessApproachEnum,
       instanceIDBufferUid: WebGLResourceHandle
     }) {
-    // if (this.__isVAOSet) {
-    //   return;
-    // }
-    // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-    // for(let i=0; i<primitiveNum; i++) {
-    //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-    //  // if (this.__isLoaded(i) && this.__isVAOSet) {
-    //   this.__vertexHandles[i] = MeshRendererComponent.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-    //     //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-    //   //  continue;
-    //  // }
-    //   this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-    // }
-    // this.__isVAOSet = true;
 
-    this.__webglRenderingStrategy!.prerender(this.__meshComponent!, instanceIDBufferUid);
+    this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, instanceIDBufferUid);
+
+    if (this.__webglRenderingStrategy!.$render != null) {
+      this.moveStageTo(ProcessStage.Render);
+    }
   }
 
-  // $render() {
-  //   // const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
-  //   //   for(let i=0; i<primitiveNum; i++) {
-  //   //   const primitive = this.__meshComponent!.getPrimitiveAt(i);
-  //   //   this.__renderingPipeline.render(this.__vertexHandles[i].vaoHandle, this.__vertexShaderProgramHandles[i], primitive);
-  //   // }
-  // }
+  $render() {
+    if (this.__webglRenderingStrategy!.$render == null) {
+      return;
+    }
+
+    const sceneGraphComponent =
+      this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+
+    const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
+      for(let i=0; i<primitiveNum; i++) {
+      const primitive = this.__meshComponent!.getPrimitiveAt(i);
+      this.__webglRenderingStrategy!.$render!(i, primitive, sceneGraphComponent.worldMatrix);
+      }
+    }
 
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
