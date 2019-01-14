@@ -1829,7 +1829,7 @@ class ImmutableMatrix44 {
             this.v = new FloatArray(0);
             return;
         }
-        if (arguments.length >= 16) {
+        if (arguments.length >= 16 && arguments[3] != null) {
             this.v = new FloatArray(16); // Data order is column major
             let m = arguments;
             if (_isColumnMajor === true) {
@@ -1955,24 +1955,71 @@ class ImmutableMatrix44 {
                 }
             }
         }
+        else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {
+            if (_notCopyFloatArray) {
+                this.v = m.v;
+            }
+            else {
+                this.v = new FloatArray(16);
+                const v = m.v;
+                if (_isColumnMajor === true) {
+                    this.v[0] = v[0];
+                    this.v[4] = v[4];
+                    this.v[8] = v[8];
+                    this.v[12] = v[12];
+                    this.v[1] = v[1];
+                    this.v[5] = v[5];
+                    this.v[9] = v[9];
+                    this.v[13] = v[13];
+                    this.v[2] = v[2];
+                    this.v[6] = v[6];
+                    this.v[10] = v[10];
+                    this.v[14] = v[14];
+                    this.v[3] = v[3];
+                    this.v[7] = v[7];
+                    this.v[11] = v[11];
+                    this.v[15] = v[15];
+                }
+                else {
+                    // arguments[0-15] must be row major values if isColumnMajor is false
+                    this.v[0] = v[0];
+                    this.v[4] = v[1];
+                    this.v[8] = v[2];
+                    this.v[12] = v[3];
+                    this.v[1] = v[4];
+                    this.v[5] = v[5];
+                    this.v[9] = v[6];
+                    this.v[13] = v[7];
+                    this.v[2] = v[8];
+                    this.v[6] = v[9];
+                    this.v[10] = v[10];
+                    this.v[14] = v[11];
+                    this.v[3] = v[12];
+                    this.v[7] = v[13];
+                    this.v[11] = v[14];
+                    this.v[15] = v[15];
+                }
+            }
+        }
         else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
             if (_notCopyFloatArray) {
                 this.v = m.v;
             }
             else {
                 this.v = new FloatArray(16);
+                const v = m.v;
                 if (_isColumnMajor === true) {
-                    this.v[0] = m[0];
-                    this.v[4] = m[3];
-                    this.v[8] = m[6];
+                    this.v[0] = v[0];
+                    this.v[4] = v[3];
+                    this.v[8] = v[6];
                     this.v[12] = 0;
-                    this.v[1] = m[1];
-                    this.v[5] = m[4];
-                    this.v[9] = m[7];
+                    this.v[1] = v[1];
+                    this.v[5] = v[4];
+                    this.v[9] = v[7];
                     this.v[13] = 0;
-                    this.v[2] = m[2];
-                    this.v[6] = m[5];
-                    this.v[10] = m[8];
+                    this.v[2] = v[2];
+                    this.v[6] = v[5];
+                    this.v[10] = v[8];
                     this.v[14] = 0;
                     this.v[3] = 0;
                     this.v[7] = 0;
@@ -1980,17 +2027,17 @@ class ImmutableMatrix44 {
                     this.v[15] = 1;
                 }
                 else {
-                    this.v[0] = m[0];
-                    this.v[4] = m[1];
-                    this.v[8] = m[2];
+                    this.v[0] = v[0];
+                    this.v[4] = v[1];
+                    this.v[8] = v[2];
                     this.v[12] = 0;
-                    this.v[1] = m[3];
-                    this.v[5] = m[4];
-                    this.v[9] = m[5];
+                    this.v[1] = v[3];
+                    this.v[5] = v[4];
+                    this.v[9] = v[5];
                     this.v[13] = 0;
-                    this.v[2] = m[6];
-                    this.v[6] = m[7];
-                    this.v[10] = m[8];
+                    this.v[2] = v[6];
+                    this.v[6] = v[7];
+                    this.v[10] = v[8];
                     this.v[14] = 0;
                     this.v[3] = 0;
                     this.v[7] = 0;
@@ -3171,29 +3218,29 @@ class MemoryManager {
 MemoryManager.__bufferWidthLength = Math.pow(2, 8);
 MemoryManager.__bufferHeightLength = Math.pow(2, 8);
 
-const FloatArray$1 = Float32Array;
+const FloatArray$2 = Float32Array;
 class RowMajarMatrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
         const m = m0;
         if (m == null) {
-            this.v = new FloatArray$1(0);
+            this.v = new FloatArray$2(0);
             return;
         }
         if (arguments.length >= 16) {
-            this.v = new FloatArray$1(16); // Data order is row major
+            this.v = new FloatArray$2(16); // Data order is row major
             this.setComponents.apply(this, arguments);
         }
         else if (Array.isArray(m)) {
-            this.v = new FloatArray$1(16);
+            this.v = new FloatArray$2(16);
             this.setComponents.apply(this, m);
         }
-        else if (m instanceof FloatArray$1) {
+        else if (m instanceof FloatArray$2) {
             if (_notCopyFloatArray) {
                 this.v = m;
             }
             else {
-                this.v = new FloatArray$1(16);
+                this.v = new FloatArray$2(16);
                 this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
             }
         }
@@ -3202,12 +3249,12 @@ class RowMajarMatrix44 {
                 this.v = m.v;
             }
             else {
-                this.v = new FloatArray$1(16);
+                this.v = new FloatArray$2(16);
                 this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
             }
         }
         else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-            this.v = new FloatArray$1(16);
+            this.v = new FloatArray$2(16);
             const sx = m.x * m.x;
             const sy = m.y * m.y;
             const sz = m.z * m.z;
@@ -3220,7 +3267,7 @@ class RowMajarMatrix44 {
             this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 0.0, 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 0.0, 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy), 0.0, 0.0, 0.0, 0.0, 1.0);
         }
         else {
-            this.v = new FloatArray$1(16);
+            this.v = new FloatArray$2(16);
             this.identity();
         }
     }
@@ -3936,7 +3983,7 @@ class Component {
             return;
         }
         let taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
-        if (dataClassType === ImmutableMatrix44) {
+        if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
             this['_' + memberName] = new dataClassType(taken, false, true);
         }
         else if (dataClassType === RowMajarMatrix44) {
@@ -5851,8 +5898,8 @@ class WebGLStrategyUniform {
         this.attatchShaderProgram();
         const gl = glw.getRawContext();
         this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
-        //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-        gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, worldMatrix.raw());
+        gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
+        //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);
         glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
     }
 }

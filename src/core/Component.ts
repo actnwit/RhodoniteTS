@@ -11,6 +11,7 @@ import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
 import ComponentRepository from './ComponentRepository';
 import Config from './Config';
+import MutableMatrix44 from '../math/MutableMatrix44';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
@@ -184,7 +185,7 @@ export default class Component {
       return;
     }
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
-    if (dataClassType === ImmutableMatrix44) {
+    if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
     } else if (dataClassType === RowMajarMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, true);

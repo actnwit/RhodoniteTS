@@ -42,7 +42,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
       return;
     }
 
-    if (arguments.length >= 16) {
+    if (arguments.length >= 16 && arguments[3] != null) {
       this.v = new FloatArray(16); // Data order is column major
       let m = arguments;
       if (_isColumnMajor === true) {
@@ -89,20 +89,40 @@ export default class ImmutableMatrix44 implements Matrix44 {
           this.v[3] = m[12]; this.v[7] = m[13]; this.v[11] = m[14]; this.v[15] = m[15];
         }
       }
+    } else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {
+      if (_notCopyFloatArray) {
+        this.v = m.v;
+      } else {
+        this.v = new FloatArray(16);
+        const v: FloatArray = (m as any).v;
+        if (_isColumnMajor === true) {
+          this.v[0] = v[0]; this.v[4] = v[4]; this.v[8] = v[8]; this.v[12] = v[12];
+          this.v[1] = v[1]; this.v[5] = v[5]; this.v[9] = v[9]; this.v[13] = v[13];
+          this.v[2] = v[2]; this.v[6] = v[6]; this.v[10] = v[10]; this.v[14] = v[14];
+          this.v[3] = v[3]; this.v[7] = v[7]; this.v[11] = v[11]; this.v[15] = v[15];
+        } else {
+          // arguments[0-15] must be row major values if isColumnMajor is false
+          this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = v[3];
+          this.v[1] = v[4]; this.v[5] = v[5]; this.v[9] = v[6]; this.v[13] = v[7];
+          this.v[2] = v[8]; this.v[6] = v[9]; this.v[10] = v[10]; this.v[14] = v[11];
+          this.v[3] = v[12]; this.v[7] = v[13]; this.v[11] = v[14]; this.v[15] = v[15];
+        }
+      }
     } else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
       if (_notCopyFloatArray) {
         this.v = m.v;
       } else {
         this.v = new FloatArray(16);
+        const v: FloatArray = (m as any).v;
         if (_isColumnMajor === true) {
-          this.v[0] = m[0]; this.v[4] = m[3]; this.v[8] = m[6]; this.v[12] = 0;
-          this.v[1] = m[1]; this.v[5] = m[4]; this.v[9] = m[7]; this.v[13] = 0;
-          this.v[2] = m[2]; this.v[6] = m[5]; this.v[10] = m[8]; this.v[14] = 0;
+          this.v[0] = v[0]; this.v[4] = v[3]; this.v[8] = v[6]; this.v[12] = 0;
+          this.v[1] = v[1]; this.v[5] = v[4]; this.v[9] = v[7]; this.v[13] = 0;
+          this.v[2] = v[2]; this.v[6] = v[5]; this.v[10] = v[8]; this.v[14] = 0;
           this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
         } else {
-          this.v[0] = m[0]; this.v[4] = m[1]; this.v[8] = m[2]; this.v[12] = 0;
-          this.v[1] = m[3]; this.v[5] = m[4]; this.v[9] = m[5]; this.v[13] = 0;
-          this.v[2] = m[6]; this.v[6] = m[7]; this.v[10] = m[8]; this.v[14] = 0;
+          this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = 0;
+          this.v[1] = v[3]; this.v[5] = v[4]; this.v[9] = v[5]; this.v[13] = 0;
+          this.v[2] = v[6]; this.v[6] = v[7]; this.v[10] = v[8]; this.v[14] = 0;
           this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
         }
       }

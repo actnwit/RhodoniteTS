@@ -5,7 +5,23 @@ import Quaternion from "./Quaternion";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
 import ImmutableVector3 from "./ImmutableVector3";
 
+const FloatArray = Float32Array;
+type FloatArray = Float32Array;
+
 export default class MutableMatrix44 extends ImmutableMatrix44 implements Matrix44{
+  constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: null);
+  constructor(
+    m0: number, m1: number, m2: number, m3: number,
+    m4: number, m5: number, m6: number, m7: number,
+    m8: number, m9: number, m10: number, m11: number,
+    m12: number, m13: number, m14: number, m15: number,
+    isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(
     m0: any, m1?: any, m2?: any, m3?: any,
     m4?: number, m5?: number, m6?: number, m7?: number,
