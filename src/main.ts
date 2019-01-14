@@ -16,7 +16,8 @@ import ImmutableVector4 from './math/ImmutableVector4';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
 import Matrix33 from './math/Matrix33';
-import Matrix44 from './math/Matrix44';
+import ImmutableMatrix44 from './math/ImmutableMatrix44';
+import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf2Importer from './importer/Gltf2Importer';
 import ModelConverter from './importer/ModelConverter';
@@ -40,7 +41,8 @@ const Rn = Object.freeze({
   MutableVector3,
   MutableVector4,
   Matrix33,
-  Matrix44,
+  ImmutableMatrix44,
+  MutableMatrix44,
   ProcessApproach,
   Gltf2Importer,
   ModelConverter

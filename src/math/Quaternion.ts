@@ -2,7 +2,7 @@
 
 import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './ImmutableVector4';
-import Matrix44 from './Matrix44';
+import ImmutableMatrix44 from './ImmutableMatrix44';
 
 export default class Quaternion {
   v: TypedArray;
@@ -193,7 +193,7 @@ export default class Quaternion {
     return result;
   }
 
-  static fromMatrix(m:Matrix44) {
+  static fromMatrix(m:ImmutableMatrix44) {
     
     let q = new Quaternion();
     let tr = m.m00 + m.m11 + m.m22;
@@ -227,7 +227,7 @@ export default class Quaternion {
     return q;
   }
 
-  fromMatrix(m:Matrix44) {
+  fromMatrix(m:ImmutableMatrix44) {
     
     let tr = m.m00 + m.m11 + m.m22;
 

@@ -5,9 +5,10 @@ import BufferView from "./BufferView";
 import Vector2 from "../math/Vector2";
 import ImmutableVector3 from "../math/ImmutableVector3";
 import Vector4 from "../math/ImmutableVector4";
-import Matrix44 from "../math/Matrix44";
+import ImmutableMatrix44 from "../math/ImmutableMatrix44";
 import Matrix33 from "../math/Matrix33";
 import ImmutableVector4 from "../math/ImmutableVector4";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;
@@ -227,8 +228,8 @@ export default class AccessorBase extends RnObject {
     );
   }
 
-  getMat4(index: Index, endian: boolean = true): Matrix44 {
-    return new Matrix44(
+  getMat4(index: Index, endian: boolean = true): MutableMatrix44 {
+    return new MutableMatrix44(
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
       this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
       this.__dataViewGetter(this.__byteStride*index+8, endian), this.__dataViewGetter(this.__byteStride*index+9, endian), this.__dataViewGetter(this.__byteStride*index+10, endian), this.__dataViewGetter(this.__byteStride*index+11, endian),

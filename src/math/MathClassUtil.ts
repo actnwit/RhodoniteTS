@@ -4,7 +4,7 @@ import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './ImmutableVector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';
-import Matrix44 from './Matrix44';
+import ImmutableMatrix44 from './ImmutableMatrix44';
 
 export default class MathClassUtil {
   constructor() {
@@ -29,7 +29,7 @@ export default class MathClassUtil {
   static arrayToVectorOrMatrix(element:Array<number>) {
     if (Array.isArray(element)) {
       if(typeof(element[15]) !== 'undefined') {
-        return new Matrix44(element);
+        return new ImmutableMatrix44(element);
       } else if(typeof(element[8]) !== 'undefined') {
         return new Matrix33(element);
       } else if(typeof(element[3]) !== 'undefined') {
@@ -45,7 +45,7 @@ export default class MathClassUtil {
   }
 
   static cloneOfMathObjects(element:any) {
-    if(element instanceof Matrix44) {
+    if(element instanceof ImmutableMatrix44) {
       return element.clone();
     } else if (element instanceof Matrix33) {
       return element.clone();
@@ -140,7 +140,7 @@ export default class MathClassUtil {
     return [v0, v1];
   }
 
-  static unProject(windowPosVec3:ImmutableVector3, inversePVMat44:Matrix44, viewportVec4:Vector4, zNear:number, zFar:number) {
+  static unProject(windowPosVec3:ImmutableVector3, inversePVMat44:ImmutableMatrix44, viewportVec4:Vector4, zNear:number, zFar:number) {
     const input = new Vector4(
       (windowPosVec3.x - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
       (windowPosVec3.y - viewportVec4.y) / viewportVec4.w * 2 - 1.0,

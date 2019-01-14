@@ -1,4 +1,4 @@
-import Matrix44 from '../math/Matrix44';
+import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
 
 

@@ -1150,1228 +1150,6 @@
     }());
     //GLBoost['Vector3'] = Vector3;
 
-    //import GLBoost from '../../globals';
-    var Quaternion = /** @class */ (function () {
-        function Quaternion(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else if (x == null) {
-                this.v = new Float32Array(0);
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.x = 0;
-                this.y = 0;
-                this.z = 0;
-                this.w = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.x = x[0];
-                this.y = x[1];
-                this.z = x[2];
-                this.w = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = x.z;
-                this.w = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.x = x.x;
-                this.y = x.y;
-                this.z = 0;
-                this.w = 1;
-            }
-            else {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                this.w = w;
-            }
-        }
-        Quaternion.prototype.identity = function () {
-            this.x = 0;
-            this.y = 0;
-            this.x = 0;
-            this.w = 1;
-        };
-        Quaternion.prototype.isEqual = function (quat) {
-            if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Quaternion.dummy = function () {
-            return new Quaternion(null);
-        };
-        Quaternion.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(Quaternion.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Quaternion.prototype.clone = function () {
-            return new Quaternion(this.x, this.y, this.z, this.w);
-        };
-        Quaternion.invert = function (quat) {
-            quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-            var inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
-            quat.x *= inorm2;
-            quat.y *= inorm2;
-            quat.z *= inorm2;
-            quat.w *= inorm2;
-            return quat;
-        };
-        Quaternion.qlerp = function (lhq, rhq, ratio) {
-            var q = new Quaternion(0, 0, 0, 1);
-            var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-            var ss = 1.0 - qr * qr;
-            if (ss === 0.0) {
-                q.w = lhq.w;
-                q.x = lhq.x;
-                q.y = lhq.y;
-                q.z = lhq.z;
-                return q;
-            }
-            else {
-                if (qr > 1) {
-                    qr = 0.999;
-                }
-                else if (qr < -1) {
-                    qr = -0.999;
-                }
-                var ph = Math.acos(qr);
-                var s2 = void 0;
-                if (qr < 0.0 && ph > Math.PI / 2.0) {
-                    qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
-                    ph = Math.acos(qr);
-                    s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
-                }
-                else {
-                    s2 = Math.sin(ph * ratio) / Math.sin(ph);
-                }
-                var s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-                q.x = lhq.x * s1 + rhq.x * s2;
-                q.y = lhq.y * s1 + rhq.y * s2;
-                q.z = lhq.z * s1 + rhq.z * s2;
-                q.w = lhq.w * s1 + rhq.w * s2;
-                return q;
-            }
-        };
-        Quaternion.prototype.axisAngle = function (axisVec3, radian) {
-            var halfAngle = 0.5 * radian;
-            var sin = Math.sin(halfAngle);
-            var axis = ImmutableVector3.normalize(axisVec3);
-            this.w = Math.cos(halfAngle);
-            this.x = sin * axis.x;
-            this.y = sin * axis.y;
-            this.z = sin * axis.z;
-            return this;
-        };
-        Quaternion.axisAngle = function (axisVec3, radian) {
-            var halfAngle = 0.5 * radian;
-            var sin = Math.sin(halfAngle);
-            var axis = ImmutableVector3.normalize(axisVec3);
-            return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
-        };
-        Quaternion.prototype.add = function (q) {
-            this.x += q.x;
-            this.y += q.y;
-            this.z += q.z;
-            this.w += q.w;
-            return this;
-        };
-        Quaternion.prototype.multiply = function (q) {
-            var result = new Quaternion(0, 0, 0, 1);
-            result.x = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-            result.y = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-            result.z = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-            result.w = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-            this.x = result.x;
-            this.y = result.y;
-            this.z = result.z;
-            this.w = result.w;
-            return this;
-        };
-        Quaternion.multiply = function (q1, q2) {
-            var result = new Quaternion(0, 0, 0, 1);
-            result.x = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-            result.y = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-            result.z = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-            result.w = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
-            return result;
-        };
-        Quaternion.fromMatrix = function (m) {
-            var q = new Quaternion();
-            var tr = m.m00 + m.m11 + m.m22;
-            if (tr > 0) {
-                var S = 0.5 / Math.sqrt(tr + 1.0);
-                q.w = 0.25 / S;
-                q.x = (m.m21 - m.m12) * S;
-                q.y = (m.m02 - m.m20) * S;
-                q.z = (m.m10 - m.m01) * S;
-            }
-            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-                q.w = (m.m21 - m.m12) / S;
-                q.x = 0.25 * S;
-                q.y = (m.m01 + m.m10) / S;
-                q.z = (m.m02 + m.m20) / S;
-            }
-            else if (m.m11 > m.m22) {
-                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-                q.w = (m.m02 - m.m20) / S;
-                q.x = (m.m01 + m.m10) / S;
-                q.y = 0.25 * S;
-                q.z = (m.m12 + m.m21) / S;
-            }
-            else {
-                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-                q.w = (m.m10 - m.m01) / S;
-                q.x = (m.m02 + m.m20) / S;
-                q.y = (m.m12 + m.m21) / S;
-                q.z = 0.25 * S;
-            }
-            return q;
-        };
-        Quaternion.prototype.fromMatrix = function (m) {
-            var tr = m.m00 + m.m11 + m.m22;
-            if (tr > 0) {
-                var S = 0.5 / Math.sqrt(tr + 1.0);
-                this.v[0] = (m.m21 - m.m12) * S;
-                this.v[1] = (m.m02 - m.m20) * S;
-                this.v[2] = (m.m10 - m.m01) * S;
-                this.v[3] = 0.25 / S;
-            }
-            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-                this.v[0] = 0.25 * S;
-                this.v[1] = (m.m01 + m.m10) / S;
-                this.v[2] = (m.m02 + m.m20) / S;
-                this.v[3] = (m.m21 - m.m12) / S;
-            }
-            else if (m.m11 > m.m22) {
-                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-                this.v[0] = (m.m01 + m.m10) / S;
-                this.v[1] = 0.25 * S;
-                this.v[2] = (m.m12 + m.m21) / S;
-                this.v[3] = (m.m02 - m.m20) / S;
-            }
-            else {
-                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-                this.v[0] = (m.m02 + m.m20) / S;
-                this.v[1] = (m.m12 + m.m21) / S;
-                this.v[2] = 0.25 * S;
-                this.v[3] = (m.m10 - m.m01) / S;
-            }
-            return this;
-        };
-        /*
-          static fromMatrix(m) {
-            let fTrace = m.m[0] + m.m[4] + m.m[8];
-            let fRoot;
-            let q = new Quaternion();
-            if ( fTrace > 0.0 ) {
-              // |w| > 1/2, may as well choose w > 1/2
-              fRoot = Math.sqrt(fTrace + 1.0);  // 2w
-              q.w = 0.5 * fRoot;
-              fRoot = 0.5/fRoot;  // 1/(4w)
-              q.x = (m.m[5]-m.m[7])*fRoot;
-              q.y = (m.m[6]-m.m[2])*fRoot;
-              q.z = (m.m[1]-m.m[3])*fRoot;
-            } else {
-              // |w| <= 1/2
-              let i = 0;
-              if ( m.m[4] > m.m[0] )
-                i = 1;
-              if ( m.m[8] > m.m[i*3+i] )
-                i = 2;
-              let j = (i+1)%3;
-              let k = (i+2)%3;
-              fRoot = Math.sqrt(m.m[i*3+i]-m.m[j*3+j]-m.m[k*3+k] + 1.0);
-              
-              let setValue = function(q, i, value) {
-                switch (i) {
-                  case 0: q.x = value; break;
-                  case 1: q.y = value; break;
-                  case 2: q.z = value; break;
-                }
-              }
-        
-              setValue(q, i, 0.5 * fRoot); //      q[i] = 0.5 * fRoot;
-              fRoot = 0.5 / fRoot;
-              q.w = (m.m[j*3+k] - m.m[k*3+j]) * fRoot;
-        
-              setValue(q, j, (m.m[j*3+i] + m.m[i*3+j]) * fRoot); //      q[j] = (m.m[j*3+i] + m.m[i*3+j]) * fRoot;
-              setValue(q, k, (m.m[k*3+i] + m.m[i*3+k]) * fRoot); //      q[k] = (m.m[k*3+i] + m.m[i*3+k]) * fRoot;
-            }
-        
-            return q;
-          }
-        */
-        Quaternion.fromPosition = function (vec3) {
-            var q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
-            return q;
-        };
-        Quaternion.prototype.at = function (i) {
-            switch (i % 4) {
-                case 0: return this.x;
-                case 1: return this.y;
-                case 2: return this.z;
-                case 3: return this.w;
-            }
-        };
-        Quaternion.prototype.setAt = function (i, val) {
-            switch (i % 4) {
-                case 0:
-                    this.x = val;
-                    break;
-                case 1:
-                    this.y = val;
-                    break;
-                case 2:
-                    this.z = val;
-                    break;
-                case 3:
-                    this.w = val;
-                    break;
-            }
-        };
-        Quaternion.prototype.normalize = function () {
-            var norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-            this.x /= norm;
-            this.y /= norm;
-            this.z /= norm;
-            this.w /= norm;
-            return this;
-        };
-        Quaternion.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(Quaternion.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (w) {
-                this.v[3] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Quaternion;
-    }());
-    //GLBoost["Quaternion"] = Quaternion;
-
-    var ImmutableVector4 = /** @class */ (function () {
-        function ImmutableVector4(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.v[0] = 0;
-                this.v[1] = 0;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.v[0] = x[0];
-                this.v[1] = x[1];
-                this.v[2] = x[2];
-                this.v[3] = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else {
-                this.v[0] = x;
-                this.v[1] = y;
-                this.v[2] = z;
-                this.v[3] = w;
-            }
-        }
-        Object.defineProperty(ImmutableVector4.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ImmutableVector4.prototype.isStrictEqual = function (vec) {
-            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        ImmutableVector4.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-                Math.abs(vec.v[1] - this.v[1]) < delta &&
-                Math.abs(vec.v[2] - this.v[2]) < delta &&
-                Math.abs(vec.v[3] - this.v[3]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        ImmutableVector4.prototype.clone = function () {
-            return new ImmutableVector4(this.x, this.y, this.z, this.w);
-        };
-        /**
-         * Zero Vector
-         */
-        ImmutableVector4.zero = function () {
-            return new ImmutableVector4(0, 0, 0, 1);
-        };
-        ImmutableVector4.prototype.length = function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        };
-        ImmutableVector4.normalize = function (vec4) {
-            var length = vec4.length();
-            var newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
-            newVec = ImmutableVector4.divide(newVec, length);
-            return newVec;
-        };
-        /**
-         * add value（static version）
-         */
-        ImmutableVector4.add = function (lv, rv) {
-            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-        };
-        ImmutableVector4.subtract = function (lv, rv) {
-            return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-        };
-        /**
-         * add value except w component（static version）
-         */
-        ImmutableVector4.addWithOutW = function (lv, rv) {
-            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-        };
-        ImmutableVector4.multiply = function (vec4, val) {
-            return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-        };
-        ImmutableVector4.multiplyVector = function (vec4, vec) {
-            return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-        };
-        ImmutableVector4.divide = function (vec4, val) {
-            if (val !== 0) {
-                return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-            }
-            else {
-                console.warn("0 division occured!");
-                return new ImmutableVector4(Infinity, Infinity, Infinity, Infinity);
-            }
-        };
-        ImmutableVector4.divideVector = function (lvec4, rvec4) {
-            return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-        };
-        ImmutableVector4.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(ImmutableVector4.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ImmutableVector4.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ImmutableVector4.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ImmutableVector4.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return ImmutableVector4;
-    }());
-    // GLBoost["Vector4"] = Vector4;
-
-    var FloatArray = Float32Array;
-    var Matrix44 = /** @class */ (function () {
-        function Matrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
-            if (isColumnMajor === void 0) { isColumnMajor = false; }
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-            var m = m0;
-            if (m == null) {
-                this.v = new FloatArray(0);
-                return;
-            }
-            if (arguments.length >= 16) {
-                this.v = new FloatArray(16); // Data order is column major
-                if (_isColumnMajor === true) {
-                    var m_1 = arguments;
-                    this.setComponents(m_1[0], m_1[4], m_1[8], m_1[12], m_1[1], m_1[5], m_1[9], m_1[13], m_1[2], m_1[6], m_1[10], m_1[14], m_1[3], m_1[7], m_1[11], m_1[15]);
-                }
-                else {
-                    this.setComponents.apply(this, arguments); // arguments[0-15] must be row major values if isColumnMajor is false
-                }
-            }
-            else if (Array.isArray(m)) {
-                this.v = new FloatArray(16);
-                if (_isColumnMajor === true) {
-                    this.setComponents(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
-                }
-                else {
-                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-                }
-            }
-            else if (m instanceof FloatArray) {
-                if (_notCopyFloatArray) {
-                    this.v = m;
-                }
-                else {
-                    this.v = new FloatArray(16);
-                    if (_isColumnMajor === true) {
-                        this.setComponents(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
-                    }
-                    else {
-                        this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
-                    }
-                }
-            }
-            else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new FloatArray(16);
-                    if (_isColumnMajor === true) {
-                        this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1);
-                    }
-                    else {
-                        this.setComponents(m.m00, m.m01, m.m02, 0, m.m10, m.m11, m.m12, 0, m.m20, m.m21, m.m22, 0, 0, 0, 0, 1); // 'm' must be row major array if isColumnMajor is false
-                    }
-                }
-            }
-            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-                this.v = new FloatArray(16);
-                var sx = m.x * m.x;
-                var sy = m.y * m.y;
-                var sz = m.z * m.z;
-                var cx = m.y * m.z;
-                var cy = m.x * m.z;
-                var cz = m.x * m.y;
-                var wx = m.w * m.x;
-                var wy = m.w * m.y;
-                var wz = m.w * m.z;
-                this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 0.0, 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 0.0, 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy), 0.0, 0.0, 0.0, 0.0, 1.0);
-            }
-            else {
-                this.v = new FloatArray(16);
-                this.identity();
-            }
-        }
-        Matrix44.dummy = function () {
-            return new Matrix44(null);
-        };
-        Matrix44.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Matrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-            this.v[0] = m00;
-            this.v[4] = m01;
-            this.v[8] = m02;
-            this.v[12] = m03;
-            this.v[1] = m10;
-            this.v[5] = m11;
-            this.v[9] = m12;
-            this.v[13] = m13;
-            this.v[2] = m20;
-            this.v[6] = m21;
-            this.v[10] = m22;
-            this.v[14] = m23;
-            this.v[3] = m30;
-            this.v[7] = m31;
-            this.v[11] = m32;
-            this.v[15] = m33;
-            return this;
-        };
-        Matrix44.prototype.copyComponents = function (mat4) {
-            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
-            var m = mat4.v;
-            this.v[0] = m[0];
-            this.v[1] = m[1];
-            this.v[2] = m[2];
-            this.v[3] = m[3];
-            this.v[4] = m[4];
-            this.v[5] = m[5];
-            this.v[6] = m[6];
-            this.v[7] = m[7];
-            this.v[8] = m[8];
-            this.v[9] = m[9];
-            this.v[10] = m[10];
-            this.v[11] = m[11];
-            this.v[12] = m[12];
-            this.v[13] = m[13];
-            this.v[14] = m[14];
-            this.v[15] = m[15];
-        };
-        Object.defineProperty(Matrix44.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix44.prototype.clone = function () {
-            return new Matrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
-        };
-        /**
-         * to the identity matrix
-         */
-        Matrix44.prototype.identity = function () {
-            this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-            return this;
-        };
-        /**
-         * to the identity matrix（static版）
-         */
-        Matrix44.identity = function () {
-            return new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.isEqual = function (mat, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-                Math.abs(mat.v[1] - this.v[1]) < delta &&
-                Math.abs(mat.v[2] - this.v[2]) < delta &&
-                Math.abs(mat.v[3] - this.v[3]) < delta &&
-                Math.abs(mat.v[4] - this.v[4]) < delta &&
-                Math.abs(mat.v[5] - this.v[5]) < delta &&
-                Math.abs(mat.v[6] - this.v[6]) < delta &&
-                Math.abs(mat.v[7] - this.v[7]) < delta &&
-                Math.abs(mat.v[8] - this.v[8]) < delta &&
-                Math.abs(mat.v[9] - this.v[9]) < delta &&
-                Math.abs(mat.v[10] - this.v[10]) < delta &&
-                Math.abs(mat.v[11] - this.v[11]) < delta &&
-                Math.abs(mat.v[12] - this.v[12]) < delta &&
-                Math.abs(mat.v[13] - this.v[13]) < delta &&
-                Math.abs(mat.v[14] - this.v[14]) < delta &&
-                Math.abs(mat.v[15] - this.v[15]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Matrix44.prototype.translate = function (vec) {
-            return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.putTranslate = function (vec) {
-            this.m03 = vec.x;
-            this.m13 = vec.y;
-            this.m23 = vec.z;
-        };
-        Matrix44.prototype.getTranslate = function () {
-            return new ImmutableVector3(this.m03, this.m13, this.m23);
-        };
-        Matrix44.translate = function (vec) {
-            return new Matrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.scale = function (vec) {
-            return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        Matrix44.scale = function (vec) {
-            return new Matrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.addScale = function (vec) {
-            this.m00 *= vec.x;
-            this.m11 *= vec.y;
-            this.m22 *= vec.z;
-            return this;
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        Matrix44.prototype.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-        */
-        Matrix44.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix44.prototype.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix44.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix44.prototype.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix44.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.rotateXYZ = function (x, y, z) {
-            var cosX = Math.cos(x);
-            var sinX = Math.sin(x);
-            var cosY = Math.cos(y);
-            var sinY = Math.sin(y);
-            var cosZ = Math.cos(z);
-            var sinZ = Math.sin(z);
-            var xm00 = 1;
-            //const xm01 = 0;
-            //const xm02 = 0;
-            //const xm10 = 0;
-            var xm11 = cosX;
-            var xm12 = -sinX;
-            //const xm20 = 0;
-            var xm21 = sinX;
-            var xm22 = cosX;
-            var ym00 = cosY;
-            //const ym01 = 0;
-            var ym02 = sinY;
-            //const ym10 = 0;
-            var ym11 = 1;
-            //const ym12 = 0;
-            var ym20 = -sinY;
-            //const ym21 = 0;
-            var ym22 = cosY;
-            var zm00 = cosZ;
-            var zm01 = -sinZ;
-            //const zm02 = 0;
-            var zm10 = sinZ;
-            var zm11 = cosZ;
-            //const zm12 = 0;
-            //const zm20 = 0;
-            //const zm21 = 0;
-            var zm22 = 1;
-            var yxm00 = ym00 * xm00;
-            var yxm01 = ym02 * xm21;
-            var yxm02 = ym02 * xm22;
-            //const yxm10 = 0;
-            var yxm11 = ym11 * xm11;
-            var yxm12 = ym11 * xm12;
-            var yxm20 = ym20 * xm00;
-            var yxm21 = ym22 * xm21;
-            var yxm22 = ym22 * xm22;
-            this.v[0] = zm00 * yxm00;
-            this.v[4] = zm00 * yxm01 + zm01 * yxm11;
-            this.v[8] = zm00 * yxm02 + zm01 * yxm12;
-            this.v[12] = 0;
-            this.v[1] = zm10 * yxm00;
-            this.v[5] = zm10 * yxm01 + zm11 * yxm11;
-            this.v[9] = zm10 * yxm02 + zm11 * yxm12;
-            this.v[13] = 0;
-            this.v[2] = zm22 * yxm20;
-            this.v[6] = zm22 * yxm21;
-            this.v[10] = zm22 * yxm22;
-            this.v[14] = 0;
-            this.v[3] = 0;
-            this.v[7] = 0;
-            this.v[11] = 0;
-            this.v[15] = 1;
-            return this;
-        };
-        /**
-         * @return Euler Angles Rotation (x, y, z)
-         */
-        Matrix44.prototype.toEulerAngles = function () {
-            var rotate = null;
-            if (Math.abs(this.m20) != 1.0) {
-                var y = -Math.asin(this.m20);
-                var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
-                var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-                rotate = new ImmutableVector3(x, y, z);
-            }
-            else if (this.m20 === -1.0) {
-                rotate = new ImmutableVector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
-            }
-            else {
-                rotate = new ImmutableVector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
-            }
-            return rotate;
-        };
-        /**
-         * zero matrix
-         */
-        Matrix44.prototype.zero = function () {
-            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
-        };
-        Matrix44.zero = function () {
-            return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        };
-        Matrix44.prototype.flattenAsArray = function () {
-            return [this.v[0], this.v[1], this.v[2], this.v[3],
-                this.v[4], this.v[5], this.v[6], this.v[7],
-                this.v[8], this.v[9], this.v[10], this.v[11],
-                this.v[12], this.v[13], this.v[14], this.v[15]];
-        };
-        Matrix44.prototype._swap = function (l, r) {
-            this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
-        };
-        /**
-         * transpose
-         */
-        Matrix44.prototype.transpose = function () {
-            this._swap(1, 4);
-            this._swap(2, 8);
-            this._swap(3, 12);
-            this._swap(6, 9);
-            this._swap(7, 13);
-            this._swap(11, 14);
-            return this;
-        };
-        /**
-         * transpose(static version)
-         */
-        Matrix44.transpose = function (mat) {
-            var mat_t = new Matrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
-            return mat_t;
-        };
-        Matrix44.prototype.multiplyVector = function (vec) {
-            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
-            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
-            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
-            var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-            return new ImmutableVector4(x, y, z, w);
-        };
-        /**
-         * multiply zero matrix and zero matrix
-         */
-        Matrix44.prototype.multiply = function (mat) {
-            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
-            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
-            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
-            var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
-            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
-            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
-            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
-            var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
-            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
-            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
-            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
-            var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
-            var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
-            var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
-            var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
-            var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Matrix44.prototype.multiplyByLeft = function (mat) {
-            var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
-            var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
-            var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
-            var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
-            var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
-            var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
-            var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
-            var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
-            var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
-            var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
-            var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
-            var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
-            var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
-            var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
-            var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
-            var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        /**
-         * multiply zero matrix and zero matrix(static version)
-         */
-        Matrix44.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
-            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Matrix44.prototype.determinant = function () {
-            return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
-                this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
-                this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
-                this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -
-                this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -
-                this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -
-                this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
-                this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
-        };
-        Matrix44.determinant = function (mat) {
-            return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
-                mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
-                mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
-                mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -
-                mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -
-                mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -
-                mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
-                mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
-        };
-        Matrix44.prototype.invert = function () {
-            var det = this.determinant();
-            var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
-            var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
-            var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
-            var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
-            var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
-            var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
-            var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
-            var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
-            var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
-            var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
-            var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
-            var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
-            var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
-            var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
-            var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
-            var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Matrix44.invert = function (mat) {
-            var det = mat.determinant();
-            var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
-            var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
-            var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
-            var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
-            var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
-            var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
-            var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
-            var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
-            var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
-            var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
-            var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
-            var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
-            var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
-            var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
-            var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
-            var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Object.defineProperty(Matrix44.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (val) {
-                this.v[0] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m10", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (val) {
-                this.v[1] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m20", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (val) {
-                this.v[2] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m30", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (val) {
-                this.v[3] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m01", {
-            get: function () {
-                return this.v[4];
-            },
-            set: function (val) {
-                this.v[4] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m11", {
-            get: function () {
-                return this.v[5];
-            },
-            set: function (val) {
-                this.v[5] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m21", {
-            get: function () {
-                return this.v[6];
-            },
-            set: function (val) {
-                this.v[6] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m31", {
-            get: function () {
-                return this.v[7];
-            },
-            set: function (val) {
-                this.v[7] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m02", {
-            get: function () {
-                return this.v[8];
-            },
-            set: function (val) {
-                this.v[8] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m12", {
-            get: function () {
-                return this.v[9];
-            },
-            set: function (val) {
-                this.v[9] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m22", {
-            get: function () {
-                return this.v[10];
-            },
-            set: function (val) {
-                this.v[10] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m32", {
-            get: function () {
-                return this.v[11];
-            },
-            set: function (val) {
-                this.v[11] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m03", {
-            get: function () {
-                return this.v[12];
-            },
-            set: function (val) {
-                this.v[12] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m13", {
-            get: function () {
-                return this.v[13];
-            },
-            set: function (val) {
-                this.v[13] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m23", {
-            get: function () {
-                return this.v[14];
-            },
-            set: function (val) {
-                this.v[14] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m33", {
-            get: function () {
-                return this.v[15];
-            },
-            set: function (val) {
-                this.v[15] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix44.prototype.toString = function () {
-            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
-                this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
-                this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
-                this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
-        };
-        Matrix44.prototype.nearZeroToZero = function (value) {
-            if (Math.abs(value) < 0.00001) {
-                value = 0;
-            }
-            else if (0.99999 < value && value < 1.00001) {
-                value = 1;
-            }
-            else if (-1.00001 < value && value < -0.99999) {
-                value = -1;
-            }
-            return value;
-        };
-        Matrix44.prototype.toStringApproximately = function () {
-            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
-                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
-                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
-                this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
-        };
-        Matrix44.prototype.getScale = function () {
-            return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-        };
-        Matrix44.prototype.getRotate = function () {
-            var quat = Quaternion.fromMatrix(this);
-            var rotateMat = new Matrix44(quat);
-            return rotateMat;
-        };
-        return Matrix44;
-    }());
-    //GLBoost["Matrix44"] = Matrix44;
-
     // import GLBoost from '../../globals';
     var Matrix33 = /** @class */ (function () {
         function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
@@ -2808,6 +1586,1534 @@
     }());
     // GLBoost['Matrix33'] = Matrix33;
 
+    var ImmutableVector4 = /** @class */ (function () {
+        function ImmutableVector4(x, y, z, w) {
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+                return;
+            }
+            else {
+                this.v = new Float32Array(4);
+            }
+            if (!(x != null)) {
+                this.v[0] = 0;
+                this.v[1] = 0;
+                this.v[2] = 0;
+                this.v[3] = 1;
+            }
+            else if (Array.isArray(x)) {
+                this.v[0] = x[0];
+                this.v[1] = x[1];
+                this.v[2] = x[2];
+                this.v[3] = x[3];
+            }
+            else if (typeof x.w !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = x.z;
+                this.v[3] = x.w;
+            }
+            else if (typeof x.z !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = x.z;
+                this.v[3] = 1;
+            }
+            else if (typeof x.y !== 'undefined') {
+                this.v[0] = x.x;
+                this.v[1] = x.y;
+                this.v[2] = 0;
+                this.v[3] = 1;
+            }
+            else {
+                this.v[0] = x;
+                this.v[1] = y;
+                this.v[2] = z;
+                this.v[3] = w;
+            }
+        }
+        Object.defineProperty(ImmutableVector4.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ImmutableVector4.prototype.isStrictEqual = function (vec) {
+            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        ImmutableVector4.prototype.isEqual = function (vec, delta) {
+            if (delta === void 0) { delta = Number.EPSILON; }
+            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+                Math.abs(vec.v[1] - this.v[1]) < delta &&
+                Math.abs(vec.v[2] - this.v[2]) < delta &&
+                Math.abs(vec.v[3] - this.v[3]) < delta) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        ImmutableVector4.prototype.clone = function () {
+            return new ImmutableVector4(this.x, this.y, this.z, this.w);
+        };
+        /**
+         * Zero Vector
+         */
+        ImmutableVector4.zero = function () {
+            return new ImmutableVector4(0, 0, 0, 1);
+        };
+        ImmutableVector4.prototype.length = function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        };
+        ImmutableVector4.normalize = function (vec4) {
+            var length = vec4.length();
+            var newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
+            newVec = ImmutableVector4.divide(newVec, length);
+            return newVec;
+        };
+        /**
+         * add value（static version）
+         */
+        ImmutableVector4.add = function (lv, rv) {
+            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+        };
+        ImmutableVector4.subtract = function (lv, rv) {
+            return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+        };
+        /**
+         * add value except w component（static version）
+         */
+        ImmutableVector4.addWithOutW = function (lv, rv) {
+            return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+        };
+        ImmutableVector4.multiply = function (vec4, val) {
+            return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+        };
+        ImmutableVector4.multiplyVector = function (vec4, vec) {
+            return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+        };
+        ImmutableVector4.divide = function (vec4, val) {
+            if (val !== 0) {
+                return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+            }
+            else {
+                console.warn("0 division occured!");
+                return new ImmutableVector4(Infinity, Infinity, Infinity, Infinity);
+            }
+        };
+        ImmutableVector4.divideVector = function (lvec4, rvec4) {
+            return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+        };
+        ImmutableVector4.prototype.toString = function () {
+            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+        };
+        Object.defineProperty(ImmutableVector4.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "z", {
+            get: function () {
+                return this.v[2];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableVector4.prototype, "w", {
+            get: function () {
+                return this.v[3];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ImmutableVector4;
+    }());
+    // GLBoost["Vector4"] = Vector4;
+
+    //import GLBoost from '../../globals';
+    var Quaternion = /** @class */ (function () {
+        function Quaternion(x, y, z, w) {
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+                return;
+            }
+            else if (x == null) {
+                this.v = new Float32Array(0);
+            }
+            else {
+                this.v = new Float32Array(4);
+            }
+            if (!(x != null)) {
+                this.x = 0;
+                this.y = 0;
+                this.z = 0;
+                this.w = 1;
+            }
+            else if (Array.isArray(x)) {
+                this.x = x[0];
+                this.y = x[1];
+                this.z = x[2];
+                this.w = x[3];
+            }
+            else if (typeof x.w !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = x.z;
+                this.w = x.w;
+            }
+            else if (typeof x.z !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = x.z;
+                this.w = 1;
+            }
+            else if (typeof x.y !== 'undefined') {
+                this.x = x.x;
+                this.y = x.y;
+                this.z = 0;
+                this.w = 1;
+            }
+            else {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.w = w;
+            }
+        }
+        Quaternion.prototype.identity = function () {
+            this.x = 0;
+            this.y = 0;
+            this.x = 0;
+            this.w = 1;
+        };
+        Quaternion.prototype.isEqual = function (quat) {
+            if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        Quaternion.dummy = function () {
+            return new Quaternion(null);
+        };
+        Quaternion.prototype.isDummy = function () {
+            if (this.v.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        Object.defineProperty(Quaternion.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Quaternion.prototype.clone = function () {
+            return new Quaternion(this.x, this.y, this.z, this.w);
+        };
+        Quaternion.invert = function (quat) {
+            quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
+            var inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
+            quat.x *= inorm2;
+            quat.y *= inorm2;
+            quat.z *= inorm2;
+            quat.w *= inorm2;
+            return quat;
+        };
+        Quaternion.qlerp = function (lhq, rhq, ratio) {
+            var q = new Quaternion(0, 0, 0, 1);
+            var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+            var ss = 1.0 - qr * qr;
+            if (ss === 0.0) {
+                q.w = lhq.w;
+                q.x = lhq.x;
+                q.y = lhq.y;
+                q.z = lhq.z;
+                return q;
+            }
+            else {
+                if (qr > 1) {
+                    qr = 0.999;
+                }
+                else if (qr < -1) {
+                    qr = -0.999;
+                }
+                var ph = Math.acos(qr);
+                var s2 = void 0;
+                if (qr < 0.0 && ph > Math.PI / 2.0) {
+                    qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
+                    ph = Math.acos(qr);
+                    s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+                }
+                else {
+                    s2 = Math.sin(ph * ratio) / Math.sin(ph);
+                }
+                var s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+                q.x = lhq.x * s1 + rhq.x * s2;
+                q.y = lhq.y * s1 + rhq.y * s2;
+                q.z = lhq.z * s1 + rhq.z * s2;
+                q.w = lhq.w * s1 + rhq.w * s2;
+                return q;
+            }
+        };
+        Quaternion.prototype.axisAngle = function (axisVec3, radian) {
+            var halfAngle = 0.5 * radian;
+            var sin = Math.sin(halfAngle);
+            var axis = ImmutableVector3.normalize(axisVec3);
+            this.w = Math.cos(halfAngle);
+            this.x = sin * axis.x;
+            this.y = sin * axis.y;
+            this.z = sin * axis.z;
+            return this;
+        };
+        Quaternion.axisAngle = function (axisVec3, radian) {
+            var halfAngle = 0.5 * radian;
+            var sin = Math.sin(halfAngle);
+            var axis = ImmutableVector3.normalize(axisVec3);
+            return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
+        };
+        Quaternion.prototype.add = function (q) {
+            this.x += q.x;
+            this.y += q.y;
+            this.z += q.z;
+            this.w += q.w;
+            return this;
+        };
+        Quaternion.prototype.multiply = function (q) {
+            var result = new Quaternion(0, 0, 0, 1);
+            result.x = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
+            result.y = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
+            result.z = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
+            result.w = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
+            this.x = result.x;
+            this.y = result.y;
+            this.z = result.z;
+            this.w = result.w;
+            return this;
+        };
+        Quaternion.multiply = function (q1, q2) {
+            var result = new Quaternion(0, 0, 0, 1);
+            result.x = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
+            result.y = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
+            result.z = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
+            result.w = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
+            return result;
+        };
+        Quaternion.fromMatrix = function (m) {
+            var q = new Quaternion();
+            var tr = m.m00 + m.m11 + m.m22;
+            if (tr > 0) {
+                var S = 0.5 / Math.sqrt(tr + 1.0);
+                q.w = 0.25 / S;
+                q.x = (m.m21 - m.m12) * S;
+                q.y = (m.m02 - m.m20) * S;
+                q.z = (m.m10 - m.m01) * S;
+            }
+            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+                q.w = (m.m21 - m.m12) / S;
+                q.x = 0.25 * S;
+                q.y = (m.m01 + m.m10) / S;
+                q.z = (m.m02 + m.m20) / S;
+            }
+            else if (m.m11 > m.m22) {
+                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+                q.w = (m.m02 - m.m20) / S;
+                q.x = (m.m01 + m.m10) / S;
+                q.y = 0.25 * S;
+                q.z = (m.m12 + m.m21) / S;
+            }
+            else {
+                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+                q.w = (m.m10 - m.m01) / S;
+                q.x = (m.m02 + m.m20) / S;
+                q.y = (m.m12 + m.m21) / S;
+                q.z = 0.25 * S;
+            }
+            return q;
+        };
+        Quaternion.prototype.fromMatrix = function (m) {
+            var tr = m.m00 + m.m11 + m.m22;
+            if (tr > 0) {
+                var S = 0.5 / Math.sqrt(tr + 1.0);
+                this.v[0] = (m.m21 - m.m12) * S;
+                this.v[1] = (m.m02 - m.m20) * S;
+                this.v[2] = (m.m10 - m.m01) * S;
+                this.v[3] = 0.25 / S;
+            }
+            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+                this.v[0] = 0.25 * S;
+                this.v[1] = (m.m01 + m.m10) / S;
+                this.v[2] = (m.m02 + m.m20) / S;
+                this.v[3] = (m.m21 - m.m12) / S;
+            }
+            else if (m.m11 > m.m22) {
+                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+                this.v[0] = (m.m01 + m.m10) / S;
+                this.v[1] = 0.25 * S;
+                this.v[2] = (m.m12 + m.m21) / S;
+                this.v[3] = (m.m02 - m.m20) / S;
+            }
+            else {
+                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+                this.v[0] = (m.m02 + m.m20) / S;
+                this.v[1] = (m.m12 + m.m21) / S;
+                this.v[2] = 0.25 * S;
+                this.v[3] = (m.m10 - m.m01) / S;
+            }
+            return this;
+        };
+        /*
+          static fromMatrix(m) {
+            let fTrace = m.m[0] + m.m[4] + m.m[8];
+            let fRoot;
+            let q = new Quaternion();
+            if ( fTrace > 0.0 ) {
+              // |w| > 1/2, may as well choose w > 1/2
+              fRoot = Math.sqrt(fTrace + 1.0);  // 2w
+              q.w = 0.5 * fRoot;
+              fRoot = 0.5/fRoot;  // 1/(4w)
+              q.x = (m.m[5]-m.m[7])*fRoot;
+              q.y = (m.m[6]-m.m[2])*fRoot;
+              q.z = (m.m[1]-m.m[3])*fRoot;
+            } else {
+              // |w| <= 1/2
+              let i = 0;
+              if ( m.m[4] > m.m[0] )
+                i = 1;
+              if ( m.m[8] > m.m[i*3+i] )
+                i = 2;
+              let j = (i+1)%3;
+              let k = (i+2)%3;
+              fRoot = Math.sqrt(m.m[i*3+i]-m.m[j*3+j]-m.m[k*3+k] + 1.0);
+              
+              let setValue = function(q, i, value) {
+                switch (i) {
+                  case 0: q.x = value; break;
+                  case 1: q.y = value; break;
+                  case 2: q.z = value; break;
+                }
+              }
+        
+              setValue(q, i, 0.5 * fRoot); //      q[i] = 0.5 * fRoot;
+              fRoot = 0.5 / fRoot;
+              q.w = (m.m[j*3+k] - m.m[k*3+j]) * fRoot;
+        
+              setValue(q, j, (m.m[j*3+i] + m.m[i*3+j]) * fRoot); //      q[j] = (m.m[j*3+i] + m.m[i*3+j]) * fRoot;
+              setValue(q, k, (m.m[k*3+i] + m.m[i*3+k]) * fRoot); //      q[k] = (m.m[k*3+i] + m.m[i*3+k]) * fRoot;
+            }
+        
+            return q;
+          }
+        */
+        Quaternion.fromPosition = function (vec3) {
+            var q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
+            return q;
+        };
+        Quaternion.prototype.at = function (i) {
+            switch (i % 4) {
+                case 0: return this.x;
+                case 1: return this.y;
+                case 2: return this.z;
+                case 3: return this.w;
+            }
+        };
+        Quaternion.prototype.setAt = function (i, val) {
+            switch (i % 4) {
+                case 0:
+                    this.x = val;
+                    break;
+                case 1:
+                    this.y = val;
+                    break;
+                case 2:
+                    this.z = val;
+                    break;
+                case 3:
+                    this.w = val;
+                    break;
+            }
+        };
+        Quaternion.prototype.normalize = function () {
+            var norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+            this.x /= norm;
+            this.y /= norm;
+            this.z /= norm;
+            this.w /= norm;
+            return this;
+        };
+        Quaternion.prototype.toString = function () {
+            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+        };
+        Object.defineProperty(Quaternion.prototype, "x", {
+            get: function () {
+                return this.v[0];
+            },
+            set: function (x) {
+                this.v[0] = x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Quaternion.prototype, "y", {
+            get: function () {
+                return this.v[1];
+            },
+            set: function (y) {
+                this.v[1] = y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Quaternion.prototype, "z", {
+            get: function () {
+                return this.v[2];
+            },
+            set: function (z) {
+                this.v[2] = z;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Quaternion.prototype, "w", {
+            get: function () {
+                return this.v[3];
+            },
+            set: function (w) {
+                this.v[3] = w;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Quaternion.prototype, "raw", {
+            get: function () {
+                return this.v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Quaternion;
+    }());
+    //GLBoost["Quaternion"] = Quaternion;
+
+    //import GLBoost from '../../globals';
+    var FloatArray = Float32Array;
+    var ImmutableMatrix44 = /** @class */ (function () {
+        function ImmutableMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
+            if (isColumnMajor === void 0) { isColumnMajor = false; }
+            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
+            var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
+            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
+            var m = m0;
+            if (m == null) {
+                this.v = new FloatArray(0);
+                return;
+            }
+            if (arguments.length >= 16) {
+                this.v = new FloatArray(16); // Data order is column major
+                var m_1 = arguments;
+                if (_isColumnMajor === true) {
+                    this.v[0] = m_1[0];
+                    this.v[4] = m_1[4];
+                    this.v[8] = m_1[8];
+                    this.v[12] = m_1[12];
+                    this.v[1] = m_1[1];
+                    this.v[5] = m_1[5];
+                    this.v[9] = m_1[9];
+                    this.v[13] = m_1[13];
+                    this.v[2] = m_1[2];
+                    this.v[6] = m_1[6];
+                    this.v[10] = m_1[10];
+                    this.v[14] = m_1[14];
+                    this.v[3] = m_1[3];
+                    this.v[7] = m_1[7];
+                    this.v[11] = m_1[11];
+                    this.v[15] = m_1[15];
+                }
+                else {
+                    // arguments[0-15] must be row major values if isColumnMajor is false
+                    this.v[0] = m_1[0];
+                    this.v[4] = m_1[1];
+                    this.v[8] = m_1[2];
+                    this.v[12] = m_1[3];
+                    this.v[1] = m_1[4];
+                    this.v[5] = m_1[5];
+                    this.v[9] = m_1[6];
+                    this.v[13] = m_1[7];
+                    this.v[2] = m_1[8];
+                    this.v[6] = m_1[9];
+                    this.v[10] = m_1[10];
+                    this.v[14] = m_1[11];
+                    this.v[3] = m_1[12];
+                    this.v[7] = m_1[13];
+                    this.v[11] = m_1[14];
+                    this.v[15] = m_1[15];
+                }
+            }
+            else if (Array.isArray(m)) {
+                this.v = new FloatArray(16);
+                if (_isColumnMajor === true) {
+                    this.v[0] = m[0];
+                    this.v[4] = m[4];
+                    this.v[8] = m[8];
+                    this.v[12] = m[12];
+                    this.v[1] = m[1];
+                    this.v[5] = m[5];
+                    this.v[9] = m[9];
+                    this.v[13] = m[13];
+                    this.v[2] = m[2];
+                    this.v[6] = m[6];
+                    this.v[10] = m[10];
+                    this.v[14] = m[14];
+                    this.v[3] = m[3];
+                    this.v[7] = m[7];
+                    this.v[11] = m[11];
+                    this.v[15] = m[15];
+                }
+                else {
+                    // arguments[0-15] must be row major values if isColumnMajor is false
+                    this.v[0] = m[0];
+                    this.v[4] = m[1];
+                    this.v[8] = m[2];
+                    this.v[12] = m[3];
+                    this.v[1] = m[4];
+                    this.v[5] = m[5];
+                    this.v[9] = m[6];
+                    this.v[13] = m[7];
+                    this.v[2] = m[8];
+                    this.v[6] = m[9];
+                    this.v[10] = m[10];
+                    this.v[14] = m[11];
+                    this.v[3] = m[12];
+                    this.v[7] = m[13];
+                    this.v[11] = m[14];
+                    this.v[15] = m[15];
+                }
+            }
+            else if (m instanceof FloatArray) {
+                if (_notCopyFloatArray) {
+                    this.v = m;
+                }
+                else {
+                    this.v = new FloatArray(16);
+                    if (_isColumnMajor === true) {
+                        this.v[0] = m[0];
+                        this.v[4] = m[4];
+                        this.v[8] = m[8];
+                        this.v[12] = m[12];
+                        this.v[1] = m[1];
+                        this.v[5] = m[5];
+                        this.v[9] = m[9];
+                        this.v[13] = m[13];
+                        this.v[2] = m[2];
+                        this.v[6] = m[6];
+                        this.v[10] = m[10];
+                        this.v[14] = m[14];
+                        this.v[3] = m[3];
+                        this.v[7] = m[7];
+                        this.v[11] = m[11];
+                        this.v[15] = m[15];
+                    }
+                    else {
+                        // arguments[0-15] must be row major values if isColumnMajor is false
+                        this.v[0] = m[0];
+                        this.v[4] = m[1];
+                        this.v[8] = m[2];
+                        this.v[12] = m[3];
+                        this.v[1] = m[4];
+                        this.v[5] = m[5];
+                        this.v[9] = m[6];
+                        this.v[13] = m[7];
+                        this.v[2] = m[8];
+                        this.v[6] = m[9];
+                        this.v[10] = m[10];
+                        this.v[14] = m[11];
+                        this.v[3] = m[12];
+                        this.v[7] = m[13];
+                        this.v[11] = m[14];
+                        this.v[15] = m[15];
+                    }
+                }
+            }
+            else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
+                if (_notCopyFloatArray) {
+                    this.v = m.v;
+                }
+                else {
+                    this.v = new FloatArray(16);
+                    if (_isColumnMajor === true) {
+                        this.v[0] = m[0];
+                        this.v[4] = m[3];
+                        this.v[8] = m[6];
+                        this.v[12] = 0;
+                        this.v[1] = m[1];
+                        this.v[5] = m[4];
+                        this.v[9] = m[7];
+                        this.v[13] = 0;
+                        this.v[2] = m[2];
+                        this.v[6] = m[5];
+                        this.v[10] = m[8];
+                        this.v[14] = 0;
+                        this.v[3] = 0;
+                        this.v[7] = 0;
+                        this.v[11] = 0;
+                        this.v[15] = 1;
+                    }
+                    else {
+                        this.v[0] = m[0];
+                        this.v[4] = m[1];
+                        this.v[8] = m[2];
+                        this.v[12] = 0;
+                        this.v[1] = m[3];
+                        this.v[5] = m[4];
+                        this.v[9] = m[5];
+                        this.v[13] = 0;
+                        this.v[2] = m[6];
+                        this.v[6] = m[7];
+                        this.v[10] = m[8];
+                        this.v[14] = 0;
+                        this.v[3] = 0;
+                        this.v[7] = 0;
+                        this.v[11] = 0;
+                        this.v[15] = 1;
+                    }
+                }
+            }
+            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+                this.v = new FloatArray(16);
+                var sx = m.x * m.x;
+                var sy = m.y * m.y;
+                var sz = m.z * m.z;
+                var cx = m.y * m.z;
+                var cy = m.x * m.z;
+                var cz = m.x * m.y;
+                var wx = m.w * m.x;
+                var wy = m.w * m.y;
+                var wz = m.w * m.z;
+                this.v[0] = 1.0 - 2.0 * (sy + sz);
+                this.v[4] = 2.0 * (cz - wz);
+                this.v[8] = 2.0 * (cy + wy);
+                this.v[12] = 0;
+                this.v[1] = 2.0 * (cz + wz);
+                this.v[5] = 1.0 - 2.0 * (sx + sz);
+                this.v[9] = 2.0 * (cx - wx);
+                this.v[13] = 0;
+                this.v[2] = 2.0 * (cy - wy);
+                this.v[6] = 2.0 * (cx + wx);
+                this.v[10] = 1.0 - 2.0 * (sx + sy);
+                this.v[14] = 0;
+                this.v[3] = 0;
+                this.v[7] = 0;
+                this.v[11] = 0;
+                this.v[15] = 1;
+            }
+            else {
+                this.v = new FloatArray(16);
+                this.v[0] = 1;
+                this.v[4] = 0;
+                this.v[8] = 0;
+                this.v[12] = 0;
+                this.v[1] = 0;
+                this.v[5] = 1;
+                this.v[9] = 0;
+                this.v[13] = 0;
+                this.v[2] = 0;
+                this.v[6] = 0;
+                this.v[10] = 1;
+                this.v[14] = 0;
+                this.v[3] = 0;
+                this.v[7] = 0;
+                this.v[11] = 0;
+                this.v[15] = 1;
+            }
+        }
+        ImmutableMatrix44.dummy = function () {
+            return new ImmutableMatrix44(null);
+        };
+        ImmutableMatrix44.prototype.isDummy = function () {
+            if (this.v.length === 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        Object.defineProperty(ImmutableMatrix44.prototype, "className", {
+            get: function () {
+                return this.constructor.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ImmutableMatrix44.prototype.clone = function () {
+            return new ImmutableMatrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
+        };
+        /**
+         * to the identity matrix（static版）
+         */
+        ImmutableMatrix44.identity = function () {
+            return new ImmutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        };
+        ImmutableMatrix44.prototype.isEqual = function (mat, delta) {
+            if (delta === void 0) { delta = Number.EPSILON; }
+            if (Math.abs(mat.v[0] - this.v[0]) < delta &&
+                Math.abs(mat.v[1] - this.v[1]) < delta &&
+                Math.abs(mat.v[2] - this.v[2]) < delta &&
+                Math.abs(mat.v[3] - this.v[3]) < delta &&
+                Math.abs(mat.v[4] - this.v[4]) < delta &&
+                Math.abs(mat.v[5] - this.v[5]) < delta &&
+                Math.abs(mat.v[6] - this.v[6]) < delta &&
+                Math.abs(mat.v[7] - this.v[7]) < delta &&
+                Math.abs(mat.v[8] - this.v[8]) < delta &&
+                Math.abs(mat.v[9] - this.v[9]) < delta &&
+                Math.abs(mat.v[10] - this.v[10]) < delta &&
+                Math.abs(mat.v[11] - this.v[11]) < delta &&
+                Math.abs(mat.v[12] - this.v[12]) < delta &&
+                Math.abs(mat.v[13] - this.v[13]) < delta &&
+                Math.abs(mat.v[14] - this.v[14]) < delta &&
+                Math.abs(mat.v[15] - this.v[15]) < delta) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        ImmutableMatrix44.prototype.getTranslate = function () {
+            return new ImmutableVector3(this.m03, this.m13, this.m23);
+        };
+        ImmutableMatrix44.translate = function (vec) {
+            return new ImmutableMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+        };
+        ImmutableMatrix44.scale = function (vec) {
+            return new ImmutableMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+        };
+        /**
+         * Create X oriented Rotation Matrix
+        */
+        ImmutableMatrix44.rotateX = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new ImmutableMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+        };
+        /**
+         * Create Y oriented Rotation Matrix
+         */
+        ImmutableMatrix44.rotateY = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new ImmutableMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+        };
+        /**
+         * Create Z oriented Rotation Matrix
+         */
+        ImmutableMatrix44.rotateZ = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return new ImmutableMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        };
+        /**
+         * @return Euler Angles Rotation (x, y, z)
+         */
+        ImmutableMatrix44.prototype.toEulerAngles = function () {
+            var rotate = null;
+            if (Math.abs(this.m20) != 1.0) {
+                var y = -Math.asin(this.m20);
+                var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
+                var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+                rotate = new ImmutableVector3(x, y, z);
+            }
+            else if (this.m20 === -1.0) {
+                rotate = new ImmutableVector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
+            }
+            else {
+                rotate = new ImmutableVector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
+            }
+            return rotate;
+        };
+        ImmutableMatrix44.zero = function () {
+            return new ImmutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        };
+        ImmutableMatrix44.prototype.flattenAsArray = function () {
+            return [this.v[0], this.v[1], this.v[2], this.v[3],
+                this.v[4], this.v[5], this.v[6], this.v[7],
+                this.v[8], this.v[9], this.v[10], this.v[11],
+                this.v[12], this.v[13], this.v[14], this.v[15]];
+        };
+        /**
+         * transpose(static version)
+         */
+        ImmutableMatrix44.transpose = function (mat) {
+            var mat_t = new ImmutableMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
+            return mat_t;
+        };
+        ImmutableMatrix44.prototype.multiplyVector = function (vec) {
+            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
+            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
+            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
+            var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
+            return new ImmutableVector4(x, y, z, w);
+        };
+        /**
+         * multiply zero matrix and zero matrix(static version)
+         */
+        ImmutableMatrix44.multiply = function (l_m, r_m) {
+            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
+            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
+            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
+            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
+            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
+            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
+            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
+            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
+            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
+            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
+            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
+            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
+            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
+            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
+            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
+            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
+            return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        ImmutableMatrix44.prototype.determinant = function () {
+            return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
+                this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
+                this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
+                this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -
+                this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -
+                this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -
+                this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
+                this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
+        };
+        ImmutableMatrix44.determinant = function (mat) {
+            return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
+                mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
+                mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
+                mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -
+                mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -
+                mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -
+                mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
+                mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
+        };
+        ImmutableMatrix44.invert = function (mat) {
+            var det = mat.determinant();
+            var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
+            var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
+            var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
+            var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
+            var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
+            var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
+            var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
+            var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
+            var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
+            var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
+            var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
+            var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
+            var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
+            var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
+            var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
+            var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
+            return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        Object.defineProperty(ImmutableMatrix44.prototype, "m00", {
+            get: function () {
+                return this.v[0];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m10", {
+            get: function () {
+                return this.v[1];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m20", {
+            get: function () {
+                return this.v[2];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m30", {
+            get: function () {
+                return this.v[3];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m01", {
+            get: function () {
+                return this.v[4];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m11", {
+            get: function () {
+                return this.v[5];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m21", {
+            get: function () {
+                return this.v[6];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m31", {
+            get: function () {
+                return this.v[7];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m02", {
+            get: function () {
+                return this.v[8];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m12", {
+            get: function () {
+                return this.v[9];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m22", {
+            get: function () {
+                return this.v[10];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m32", {
+            get: function () {
+                return this.v[11];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m03", {
+            get: function () {
+                return this.v[12];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m13", {
+            get: function () {
+                return this.v[13];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m23", {
+            get: function () {
+                return this.v[14];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ImmutableMatrix44.prototype, "m33", {
+            get: function () {
+                return this.v[15];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ImmutableMatrix44.prototype.toString = function () {
+            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
+                this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
+                this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
+                this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
+        };
+        ImmutableMatrix44.prototype.nearZeroToZero = function (value) {
+            if (Math.abs(value) < 0.00001) {
+                value = 0;
+            }
+            else if (0.99999 < value && value < 1.00001) {
+                value = 1;
+            }
+            else if (-1.00001 < value && value < -0.99999) {
+                value = -1;
+            }
+            return value;
+        };
+        ImmutableMatrix44.prototype.toStringApproximately = function () {
+            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
+                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
+                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
+                this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
+        };
+        ImmutableMatrix44.prototype.getScale = function () {
+            return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+        };
+        ImmutableMatrix44.prototype.getRotate = function () {
+            var quat = Quaternion.fromMatrix(this);
+            var rotateMat = new ImmutableMatrix44(quat);
+            return rotateMat;
+        };
+        return ImmutableMatrix44;
+    }());
+
+    var MutableMatrix44 = /** @class */ (function (_super) {
+        __extends(MutableMatrix44, _super);
+        function MutableMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
+            if (isColumnMajor === void 0) { isColumnMajor = false; }
+            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
+            return _super.call(this, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) || this;
+        }
+        MutableMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+            this.v[0] = m00;
+            this.v[4] = m01;
+            this.v[8] = m02;
+            this.v[12] = m03;
+            this.v[1] = m10;
+            this.v[5] = m11;
+            this.v[9] = m12;
+            this.v[13] = m13;
+            this.v[2] = m20;
+            this.v[6] = m21;
+            this.v[10] = m22;
+            this.v[14] = m23;
+            this.v[3] = m30;
+            this.v[7] = m31;
+            this.v[11] = m32;
+            this.v[15] = m33;
+            return this;
+        };
+        MutableMatrix44.prototype.copyComponents = function (mat4) {
+            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
+            var m = mat4.v;
+            this.v[0] = m[0];
+            this.v[1] = m[1];
+            this.v[2] = m[2];
+            this.v[3] = m[3];
+            this.v[4] = m[4];
+            this.v[5] = m[5];
+            this.v[6] = m[6];
+            this.v[7] = m[7];
+            this.v[8] = m[8];
+            this.v[9] = m[9];
+            this.v[10] = m[10];
+            this.v[11] = m[11];
+            this.v[12] = m[12];
+            this.v[13] = m[13];
+            this.v[14] = m[14];
+            this.v[15] = m[15];
+        };
+        MutableMatrix44.dummy = function () {
+            return new MutableMatrix44(null);
+        };
+        /**
+         * to the identity matrix（static版）
+         */
+        MutableMatrix44.identity = function () {
+            return new MutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        };
+        MutableMatrix44.prototype.translate = function (vec) {
+            return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+        };
+        MutableMatrix44.prototype.putTranslate = function (vec) {
+            this.m03 = vec.x;
+            this.m13 = vec.y;
+            this.m23 = vec.z;
+        };
+        MutableMatrix44.prototype.scale = function (vec) {
+            return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+        };
+        MutableMatrix44.prototype.addScale = function (vec) {
+            this.m00 *= vec.x;
+            this.m11 *= vec.y;
+            this.m22 *= vec.z;
+            return this;
+        };
+        /**
+         * Create X oriented Rotation Matrix
+         */
+        MutableMatrix44.prototype.rotateX = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+        };
+        /**
+         * Create Y oriented Rotation Matrix
+         */
+        MutableMatrix44.prototype.rotateY = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+        };
+        /**
+       * Create Z oriented Rotation Matrix
+       */
+        MutableMatrix44.prototype.rotateZ = function (radian) {
+            var cos = Math.cos(radian);
+            var sin = Math.sin(radian);
+            return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        };
+        MutableMatrix44.prototype.rotateXYZ = function (x, y, z) {
+            var cosX = Math.cos(x);
+            var sinX = Math.sin(x);
+            var cosY = Math.cos(y);
+            var sinY = Math.sin(y);
+            var cosZ = Math.cos(z);
+            var sinZ = Math.sin(z);
+            var xm00 = 1;
+            //const xm01 = 0;
+            //const xm02 = 0;
+            //const xm10 = 0;
+            var xm11 = cosX;
+            var xm12 = -sinX;
+            //const xm20 = 0;
+            var xm21 = sinX;
+            var xm22 = cosX;
+            var ym00 = cosY;
+            //const ym01 = 0;
+            var ym02 = sinY;
+            //const ym10 = 0;
+            var ym11 = 1;
+            //const ym12 = 0;
+            var ym20 = -sinY;
+            //const ym21 = 0;
+            var ym22 = cosY;
+            var zm00 = cosZ;
+            var zm01 = -sinZ;
+            //const zm02 = 0;
+            var zm10 = sinZ;
+            var zm11 = cosZ;
+            //const zm12 = 0;
+            //const zm20 = 0;
+            //const zm21 = 0;
+            var zm22 = 1;
+            var yxm00 = ym00 * xm00;
+            var yxm01 = ym02 * xm21;
+            var yxm02 = ym02 * xm22;
+            //const yxm10 = 0;
+            var yxm11 = ym11 * xm11;
+            var yxm12 = ym11 * xm12;
+            var yxm20 = ym20 * xm00;
+            var yxm21 = ym22 * xm21;
+            var yxm22 = ym22 * xm22;
+            this.v[0] = zm00 * yxm00;
+            this.v[4] = zm00 * yxm01 + zm01 * yxm11;
+            this.v[8] = zm00 * yxm02 + zm01 * yxm12;
+            this.v[12] = 0;
+            this.v[1] = zm10 * yxm00;
+            this.v[5] = zm10 * yxm01 + zm11 * yxm11;
+            this.v[9] = zm10 * yxm02 + zm11 * yxm12;
+            this.v[13] = 0;
+            this.v[2] = zm22 * yxm20;
+            this.v[6] = zm22 * yxm21;
+            this.v[10] = zm22 * yxm22;
+            this.v[14] = 0;
+            this.v[3] = 0;
+            this.v[7] = 0;
+            this.v[11] = 0;
+            this.v[15] = 1;
+            return this;
+        };
+        /**
+         * to the identity matrix
+         */
+        MutableMatrix44.prototype.identity = function () {
+            this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+            return this;
+        };
+        MutableMatrix44.prototype._swap = function (l, r) {
+            this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
+        };
+        /**
+         * transpose
+         */
+        MutableMatrix44.prototype.transpose = function () {
+            this._swap(1, 4);
+            this._swap(2, 8);
+            this._swap(3, 12);
+            this._swap(6, 9);
+            this._swap(7, 13);
+            this._swap(11, 14);
+            return this;
+        };
+        /**
+       * multiply zero matrix and zero matrix
+       */
+        MutableMatrix44.prototype.multiply = function (mat) {
+            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
+            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
+            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
+            var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
+            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
+            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
+            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
+            var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
+            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
+            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
+            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
+            var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
+            var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
+            var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
+            var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
+            var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
+            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        MutableMatrix44.prototype.multiplyByLeft = function (mat) {
+            var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
+            var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
+            var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
+            var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
+            var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
+            var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
+            var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
+            var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
+            var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
+            var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
+            var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
+            var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
+            var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
+            var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
+            var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
+            var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
+            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        MutableMatrix44.prototype.invert = function () {
+            var det = this.determinant();
+            var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
+            var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
+            var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
+            var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
+            var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
+            var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
+            var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
+            var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
+            var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
+            var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
+            var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
+            var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
+            var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
+            var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
+            var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
+            var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
+            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        /**
+         * multiply zero matrix and zero matrix(static version)
+         */
+        MutableMatrix44.multiply = function (l_m, r_m) {
+            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
+            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
+            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
+            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
+            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
+            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
+            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
+            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
+            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
+            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
+            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
+            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
+            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
+            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
+            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
+            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
+            return new MutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        };
+        /**
+         * zero matrix
+         */
+        MutableMatrix44.prototype.zero = function () {
+            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            return this;
+        };
+        Object.defineProperty(MutableMatrix44.prototype, "m00", {
+            get: function () {
+                return this.v[0];
+            },
+            set: function (val) {
+                this.v[0] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m10", {
+            get: function () {
+                return this.v[1];
+            },
+            set: function (val) {
+                this.v[1] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m20", {
+            get: function () {
+                return this.v[2];
+            },
+            set: function (val) {
+                this.v[2] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m30", {
+            get: function () {
+                return this.v[3];
+            },
+            set: function (val) {
+                this.v[3] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m01", {
+            get: function () {
+                return this.v[4];
+            },
+            set: function (val) {
+                this.v[4] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m11", {
+            get: function () {
+                return this.v[5];
+            },
+            set: function (val) {
+                this.v[5] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m21", {
+            get: function () {
+                return this.v[6];
+            },
+            set: function (val) {
+                this.v[6] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m31", {
+            get: function () {
+                return this.v[7];
+            },
+            set: function (val) {
+                this.v[7] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m02", {
+            get: function () {
+                return this.v[8];
+            },
+            set: function (val) {
+                this.v[8] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m12", {
+            get: function () {
+                return this.v[9];
+            },
+            set: function (val) {
+                this.v[9] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m22", {
+            get: function () {
+                return this.v[10];
+            },
+            set: function (val) {
+                this.v[10] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m32", {
+            get: function () {
+                return this.v[11];
+            },
+            set: function (val) {
+                this.v[11] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m03", {
+            get: function () {
+                return this.v[12];
+            },
+            set: function (val) {
+                this.v[12] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m13", {
+            get: function () {
+                return this.v[13];
+            },
+            set: function (val) {
+                this.v[13] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m23", {
+            get: function () {
+                return this.v[14];
+            },
+            set: function (val) {
+                this.v[14] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MutableMatrix44.prototype, "m33", {
+            get: function () {
+                return this.v[15];
+            },
+            set: function (val) {
+                this.v[15] = val;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return MutableMatrix44;
+    }(ImmutableMatrix44));
+
     var AccessorBase = /** @class */ (function (_super) {
         __extends(AccessorBase, _super);
         function AccessorBase(_a) {
@@ -3031,7 +3337,7 @@
         };
         AccessorBase.prototype.getMat4 = function (index, endian) {
             if (endian === void 0) { endian = true; }
-            return new Matrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
+            return new MutableMatrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
         };
         AccessorBase.prototype.setScalar = function (index, value, endian) {
             if (endian === void 0) { endian = true; }
@@ -4301,7 +4607,7 @@
                 return;
             }
             var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
-            if (dataClassType === Matrix44) {
+            if (dataClassType === ImmutableMatrix44) {
                 this['_' + memberName] = new dataClassType(taken, false, true);
             }
             else if (dataClassType === RowMajarMatrix44) {
@@ -4637,7 +4943,7 @@
             var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
             _this._worldMatrix = RowMajarMatrix44.dummy();
             _this.__isWorldMatrixUpToDate = false;
-            _this.__tmpMatrix = Matrix44.identity();
+            _this.__tmpMatrix = MutableMatrix44.identity();
             _this.__currentProcessStage = ProcessStage.Logic;
             var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
             var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
@@ -4735,8 +5041,8 @@
             _this._rotate = ImmutableVector3.dummy();
             _this._scale = ImmutableVector3.dummy();
             _this._quaternion = Quaternion.dummy();
-            _this._matrix = Matrix44.dummy();
-            _this._invMatrix = Matrix44.dummy();
+            _this._matrix = MutableMatrix44.dummy();
+            _this._invMatrix = ImmutableMatrix44.dummy();
             _this._normalMatrix = Matrix33.dummy();
             _this.__toUpdateAllTransform = true;
             _this._updateCount = 0;
@@ -4747,8 +5053,8 @@
             _this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
             _this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'matrix', Matrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', Matrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
             _this.submitToAllocation();
             _this._is_translate_updated = true;
@@ -4854,7 +5160,7 @@
                     this._rotate = this._matrix.toEulerAngles();
                 }
                 else if (this._is_quaternion_updated) {
-                    this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
+                    this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
                 }
                 this._is_euler_angles_updated = true;
                 return this._rotate;
@@ -4942,7 +5248,7 @@
                 return this.matrixInner.clone();
             },
             set: function (mat) {
-                this._matrix = mat.clone();
+                this._matrix = new MutableMatrix44(mat);
                 this._is_trs_matrix_updated = true;
                 this._is_translate_updated = false;
                 this._is_euler_angles_updated = false;
@@ -5038,7 +5344,7 @@
         Object.defineProperty(TransformComponent.prototype, "inverseMatrixInner", {
             get: function () {
                 if (!this._is_inverse_trs_matrix_updated) {
-                    this._invMatrix = this.matrix.invert();
+                    this._invMatrix = MutableMatrix44.invert(this.matrixInner);
                     this._is_inverse_trs_matrix_updated = true;
                 }
                 return this._invMatrix;
@@ -5056,7 +5362,7 @@
         Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
             get: function () {
                 if (!this._is_normal_trs_matrix_updated) {
-                    this._normalMatrix = new Matrix33(Matrix44.invert(this.matrix).transpose());
+                    this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
                     this._is_normal_trs_matrix_updated = true;
                 }
                 return this._normalMatrix;
@@ -5087,7 +5393,7 @@
             this._is_normal_trs_matrix_updated = false;
             // Matrix
             if (matrix != null) {
-                this._matrix = matrix.clone();
+                this._matrix = new MutableMatrix44(matrix);
                 this._is_trs_matrix_updated = true;
                 this._is_translate_updated = false;
                 this._is_euler_angles_updated = false;
@@ -5139,7 +5445,7 @@
                 this._is_quaternion_updated = true;
             }
             else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-                this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
+                this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
                 this._is_euler_angles_updated = true;
             }
             else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
@@ -5170,9 +5476,9 @@
         };
         TransformComponent.prototype.__updateMatrix = function () {
             if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-                var rotationMatrix = new Matrix44(this._quaternion);
+                var rotationMatrix = new ImmutableMatrix44(this._quaternion);
                 var scale = this._scale;
-                this._matrix = Matrix44.multiply(rotationMatrix, Matrix44.scale(scale));
+                this._matrix = MutableMatrix44.multiply(rotationMatrix, ImmutableMatrix44.scale(scale));
                 var translateVec = this._translate;
                 this._matrix.m03 = translateVec.x;
                 this._matrix.m13 = translateVec.y;
@@ -5191,7 +5497,7 @@
                         this[key] = new Quaternion(json[key]);
                     }
                     else if (key === 'matrix') {
-                        this[key] = new Matrix44(json[key]);
+                        this[key] = new ImmutableMatrix44(json[key]);
                     }
                     else {
                         this[key] = new ImmutableVector3(json[key]);
@@ -5203,7 +5509,7 @@
             var yDir = UpVec;
             var xDir = ImmutableVector3.cross(yDir, FrontVec);
             var zDir = ImmutableVector3.cross(xDir, yDir);
-            var rotateMatrix = Matrix44.identity();
+            var rotateMatrix = MutableMatrix44.identity();
             rotateMatrix.m00 = xDir.x;
             rotateMatrix.m10 = xDir.y;
             rotateMatrix.m20 = xDir.z;
@@ -5225,7 +5531,7 @@
         };
         Object.defineProperty(TransformComponent.prototype, "rotateMatrix44", {
             get: function () {
-                return new Matrix44(this.quaternion);
+                return new ImmutableMatrix44(this.quaternion);
             },
             set: function (rotateMatrix) {
                 this.quaternion.fromMatrix(rotateMatrix);
@@ -5233,8 +5539,8 @@
             enumerable: true,
             configurable: true
         });
-        TransformComponent.__tmpMat_updateRotation = Matrix44.identity();
-        TransformComponent.__tmpMat_quaternionInner = Matrix44.identity();
+        TransformComponent.__tmpMat_updateRotation = MutableMatrix44.identity();
+        TransformComponent.__tmpMat_quaternionInner = MutableMatrix44.identity();
         return TransformComponent;
     }(Component));
     ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
@@ -6327,8 +6633,8 @@
             this.attatchShaderProgram();
             var gl = glw.getRawContext();
             this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
-            gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-            //    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().m);
+            //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
+            gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, worldMatrix.raw());
             glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
         };
         WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids = new Map();
@@ -7795,7 +8101,7 @@
                     group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
                 }
                 if (nodeJson.matrix) {
-                    group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
+                    group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
                 }
             }
         };
@@ -7949,7 +8255,8 @@
         MutableVector3: MutableVector3,
         MutableVector4: MutableVector4,
         Matrix33: Matrix33,
-        Matrix44: Matrix44,
+        ImmutableMatrix44: ImmutableMatrix44,
+        MutableMatrix44: MutableMatrix44,
         ProcessApproach: ProcessApproach,
         Gltf2Importer: Gltf2Importer,
         ModelConverter: ModelConverter

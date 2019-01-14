@@ -3,7 +3,7 @@ import Vector4 from './ImmutableVector4';
 import ImmutableVector3 from './ImmutableVector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
-import Matrix44 from './Matrix44';
+import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
 
 const FloatArray = Float32Array;
@@ -111,7 +111,7 @@ export default class RowMajarMatrix44 {
     return this;
   }
 
-  copyComponents(mat4: RowMajarMatrix44 | Matrix44) {
+  copyComponents(mat4: RowMajarMatrix44 | ImmutableMatrix44) {
     //this.m.set(mat4.m);
     //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false    
     const m = mat4;

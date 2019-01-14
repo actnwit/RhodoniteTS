@@ -11,7 +11,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../../geometry/Primitive";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import RowMajarMatrix44 from "../../math/RowMajarMatrix44";
-import Matrix44 from "../../math/Matrix44";
+import ImmutableMatrix44 from "../../math/ImmutableMatrix44";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -143,7 +143,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
     gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-//    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().m);
+    //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, worldMatrix.raw());
 
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);
   }

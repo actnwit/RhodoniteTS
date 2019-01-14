@@ -5,7 +5,7 @@ import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import Quaternion from '../math/Quaternion';
-import Matrix44 from '../math/Matrix44';
+import ImmutableMatrix44 from '../math/ImmutableMatrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
@@ -184,7 +184,7 @@ export default class Component {
       return;
     }
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
-    if (dataClassType === Matrix44) {
+    if (dataClassType === ImmutableMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
     } else if (dataClassType === RowMajarMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, true);
