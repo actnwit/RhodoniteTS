@@ -6,7 +6,7 @@ import Vector2 from "../math/Vector2";
 import ImmutableVector3 from "../math/ImmutableVector3";
 import Vector4 from "../math/ImmutableVector4";
 import ImmutableMatrix44 from "../math/ImmutableMatrix44";
-import Matrix33 from "../math/Matrix33";
+import ImmutableMatrix33 from "../math/ImmutableMatrix33";
 import ImmutableVector4 from "../math/ImmutableVector4";
 import MutableMatrix44 from "../math/MutableMatrix44";
 
@@ -220,8 +220,8 @@ export default class AccessorBase extends RnObject {
     return new ImmutableVector4(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian));
   }
 
-  getMat3(index: Index, endian: boolean = true): Matrix33 {
-    return new Matrix33(
+  getMat3(index: Index, endian: boolean = true): ImmutableMatrix33 {
+    return new ImmutableMatrix33(
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
       this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
       this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian), this.__dataViewGetter(this.__byteStride*index+8, endian),

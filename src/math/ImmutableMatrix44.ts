@@ -1,6 +1,6 @@
 //import GLBoost from '../../globals';
 import ImmutableVector3 from './ImmutableVector3';
-import Matrix33 from './Matrix33';
+import ImmutableMatrix33 from './ImmutableMatrix33';
 import Quaternion from './Quaternion';
 import ImmutableVector4 from './ImmutableVector4';
 import RowMajarMatrix44 from './RowMajarMatrix44';
@@ -14,7 +14,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
 
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: ImmutableMatrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
@@ -65,7 +65,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
         this.v[2] = m[2]; this.v[6] = m[6]; this.v[10] = m[10]; this.v[14] = m[14];
         this.v[3] = m[3]; this.v[7] = m[7]; this.v[11] = m[11]; this.v[15] = m[15];
       } else {
-        // arguments[0-15] must be row major values if isColumnMajor is false
+        // 'm' must be row major values if isColumnMajor is false
         this.v[0] = m[0]; this.v[4] = m[1]; this.v[8] = m[2]; this.v[12] = m[3];
         this.v[1] = m[4]; this.v[5] = m[5]; this.v[9] = m[6]; this.v[13] = m[7];
         this.v[2] = m[8]; this.v[6] = m[9]; this.v[10] = m[10]; this.v[14] = m[11];
@@ -82,7 +82,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
           this.v[2] = m[2]; this.v[6] = m[6]; this.v[10] = m[10]; this.v[14] = m[14];
           this.v[3] = m[3]; this.v[7] = m[7]; this.v[11] = m[11]; this.v[15] = m[15];
         } else {
-          // arguments[0-15] must be row major values if isColumnMajor is false
+          // 'm' must be row major values if isColumnMajor is false
           this.v[0] = m[0]; this.v[4] = m[1]; this.v[8] = m[2]; this.v[12] = m[3];
           this.v[1] = m[4]; this.v[5] = m[5]; this.v[9] = m[6]; this.v[13] = m[7];
           this.v[2] = m[8]; this.v[6] = m[9]; this.v[10] = m[10]; this.v[14] = m[11];
@@ -101,7 +101,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
           this.v[2] = v[2]; this.v[6] = v[6]; this.v[10] = v[10]; this.v[14] = v[14];
           this.v[3] = v[3]; this.v[7] = v[7]; this.v[11] = v[11]; this.v[15] = v[15];
         } else {
-          // arguments[0-15] must be row major values if isColumnMajor is false
+          // 'm' must be row major values if isColumnMajor is false
           this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = v[3];
           this.v[1] = v[4]; this.v[5] = v[5]; this.v[9] = v[6]; this.v[13] = v[7];
           this.v[2] = v[8]; this.v[6] = v[9]; this.v[10] = v[10]; this.v[14] = v[11];
@@ -120,6 +120,7 @@ export default class ImmutableMatrix44 implements Matrix44 {
           this.v[2] = v[2]; this.v[6] = v[5]; this.v[10] = v[8]; this.v[14] = 0;
           this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
         } else {
+          // 'm' must be row major values if isColumnMajor is false
           this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = 0;
           this.v[1] = v[3]; this.v[5] = v[4]; this.v[9] = v[5]; this.v[13] = 0;
           this.v[2] = v[6]; this.v[6] = v[7]; this.v[10] = v[8]; this.v[14] = 0;
@@ -333,8 +334,6 @@ export default class ImmutableMatrix44 implements Matrix44 {
 
     return new ImmutableVector4(x, y, z, w);
   }
-
-
 
   /**
    * multiply zero matrix and zero matrix(static version)

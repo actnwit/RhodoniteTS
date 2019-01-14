@@ -2,7 +2,7 @@ import Vector2 from '../math/Vector2';
 import ImmutableVector3 from '../math/ImmutableVector3';
 import Vector4 from '../math/ImmutableVector4';
 import Quaternion from '../math/Quaternion';
-import Matrix33 from '../math/Matrix33';
+import ImmutableMatrix33 from '../math/ImmutableMatrix33';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
 import is from '../misc/IsUtil';
@@ -29,7 +29,7 @@ export default class TransformComponent extends Component {
   private _quaternion: Quaternion = Quaternion.dummy();
   private _matrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _invMatrix: ImmutableMatrix44 = ImmutableMatrix44.dummy();
-  private _normalMatrix: Matrix33 = Matrix33.dummy();
+  private _normalMatrix: ImmutableMatrix33 = ImmutableMatrix33.dummy();
 
   private _is_translate_updated: boolean;
   private _is_euler_angles_updated: boolean;
@@ -60,7 +60,7 @@ export default class TransformComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation();
 
@@ -344,7 +344,7 @@ export default class TransformComponent extends Component {
 
   get normalMatrixInner() {
     if (!this._is_normal_trs_matrix_updated) {
-      this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+      this._normalMatrix = new ImmutableMatrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
       this._is_normal_trs_matrix_updated = true;
     }
     return this._normalMatrix;

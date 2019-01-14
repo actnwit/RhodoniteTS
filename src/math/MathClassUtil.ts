@@ -3,7 +3,7 @@ import Vector2 from './Vector2';
 import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './ImmutableVector4';
 import Quaternion from './Quaternion';
-import Matrix33 from './Matrix33';
+import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 
 export default class MathClassUtil {
@@ -31,7 +31,7 @@ export default class MathClassUtil {
       if(typeof(element[15]) !== 'undefined') {
         return new ImmutableMatrix44(element);
       } else if(typeof(element[8]) !== 'undefined') {
-        return new Matrix33(element);
+        return new ImmutableMatrix33(element);
       } else if(typeof(element[3]) !== 'undefined') {
         return new Vector4(element[0], element[1], element[2], element[3]);
       } else if (typeof(element[2]) !== 'undefined') {
@@ -47,7 +47,7 @@ export default class MathClassUtil {
   static cloneOfMathObjects(element:any) {
     if(element instanceof ImmutableMatrix44) {
       return element.clone();
-    } else if (element instanceof Matrix33) {
+    } else if (element instanceof ImmutableMatrix33) {
       return element.clone();
     } else if (element instanceof Vector4) {
       return element.clone();

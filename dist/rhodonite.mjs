@@ -944,7 +944,7 @@ class ImmutableVector3 {
 //GLBoost['Vector3'] = Vector3;
 
 // import GLBoost from '../../globals';
-class Matrix33 {
+class ImmutableMatrix33 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
         const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
@@ -957,19 +957,53 @@ class Matrix33 {
             this.v = new Float32Array(9);
             if (_isColumnMajor === true) {
                 let m = arguments;
-                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                this.v[0] = m[0];
+                this.v[3] = m[3];
+                this.v[6] = m[6];
+                this.v[1] = m[1];
+                this.v[4] = m[4];
+                this.v[7] = m[7];
+                this.v[2] = m[2];
+                this.v[5] = m[5];
+                this.v[8] = m[8];
             }
             else {
-                this.setComponents.apply(this, arguments); // arguments[0-8] must be row major values if isColumnMajor is false
+                // arguments[0-8] must be row major values if isColumnMajor is false
+                this.v[0] = m[0];
+                this.v[3] = m[1];
+                this.v[6] = m[2];
+                this.v[1] = m[3];
+                this.v[4] = m[4];
+                this.v[7] = m[5];
+                this.v[2] = m[6];
+                this.v[5] = m[7];
+                this.v[8] = m[8];
             }
         }
         else if (Array.isArray(m)) {
             this.v = new Float32Array(9);
             if (_isColumnMajor === true) {
-                this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                this.v[0] = m[0];
+                this.v[3] = m[3];
+                this.v[6] = m[6];
+                this.v[1] = m[1];
+                this.v[4] = m[4];
+                this.v[7] = m[7];
+                this.v[2] = m[2];
+                this.v[5] = m[5];
+                this.v[8] = m[8];
             }
             else {
-                this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                // 'm' must be row major array if isColumnMajor is false
+                this.v[0] = m[0];
+                this.v[3] = m[1];
+                this.v[6] = m[2];
+                this.v[1] = m[3];
+                this.v[4] = m[4];
+                this.v[7] = m[5];
+                this.v[2] = m[6];
+                this.v[5] = m[7];
+                this.v[8] = m[8];
             }
         }
         else if (m instanceof Float32Array) {
@@ -979,10 +1013,27 @@ class Matrix33 {
             else {
                 this.v = new Float32Array(9);
                 if (_isColumnMajor === true) {
-                    this.setComponents(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+                    this.v[0] = m[0];
+                    this.v[3] = m[3];
+                    this.v[6] = m[6];
+                    this.v[1] = m[1];
+                    this.v[4] = m[4];
+                    this.v[7] = m[7];
+                    this.v[2] = m[2];
+                    this.v[5] = m[5];
+                    this.v[8] = m[8];
                 }
                 else {
-                    this.setComponents.apply(this, m); // 'm' must be row major array if isColumnMajor is false
+                    // 'm' must be row major array if isColumnMajor is false
+                    this.v[0] = m[0];
+                    this.v[3] = m[1];
+                    this.v[6] = m[2];
+                    this.v[1] = m[3];
+                    this.v[4] = m[4];
+                    this.v[7] = m[5];
+                    this.v[2] = m[6];
+                    this.v[5] = m[7];
+                    this.v[8] = m[8];
                 }
             }
         }
@@ -993,12 +1044,29 @@ class Matrix33 {
             else {
                 this.v = new Float32Array(9);
                 if (_isColumnMajor === true) {
-                    const _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22);
+                    const v = m.v;
+                    this.v[0] = v[0];
+                    this.v[3] = v[3];
+                    this.v[6] = v[6];
+                    this.v[1] = v[1];
+                    this.v[4] = v[4];
+                    this.v[7] = v[7];
+                    this.v[2] = v[2];
+                    this.v[5] = v[5];
+                    this.v[8] = v[8];
                 }
                 else {
-                    const _m = m;
-                    this.setComponents(_m.m00, _m.m01, _m.m02, _m.m10, _m.m11, _m.m12, _m.m20, _m.m21, _m.m22); // 'm' must be row major array if isColumnMajor is false
+                    const v = m.v;
+                    // 'm' must be row major array if isColumnMajor is false
+                    this.v[0] = v[0];
+                    this.v[3] = v[1];
+                    this.v[6] = v[2];
+                    this.v[1] = v[3];
+                    this.v[4] = v[4];
+                    this.v[7] = v[5];
+                    this.v[2] = v[6];
+                    this.v[5] = v[7];
+                    this.v[8] = v[8];
                 }
             }
         }
@@ -1014,40 +1082,40 @@ class Matrix33 {
             const wx = q.w * q.x;
             const wy = q.w * q.y;
             const wz = q.w * q.z;
-            this.setComponents(1.0 - 2.0 * (sy + sz), 2.0 * (cz - wz), 2.0 * (cy + wy), 2.0 * (cz + wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx - wx), 2.0 * (cy - wy), 2.0 * (cx + wx), 1.0 - 2.0 * (sx + sy));
+            this.v[0] = 1.0 - 2.0 * (sy + sz);
+            this.v[3] = 2.0 * (cz - wz);
+            this.v[6] = 2.0 * (cy + wy);
+            this.v[1] = 2.0 * (cz + wz);
+            this.v[4] = 1.0 - 2.0 * (sx + sz);
+            this.v[7] = 2.0 * (cx - wx);
+            this.v[2] = 2.0 * (cy - wy);
+            this.v[5] = 2.0 * (cx + wx);
+            this.v[8] = 1.0 - 2.0 * (sx + sy);
         }
         else {
             this.v = new Float32Array(9);
-            this.identity();
+            this.v[0] = 1;
+            this.v[3] = 0;
+            this.v[6] = 0;
+            this.v[1] = 0;
+            this.v[4] = 1;
+            this.v[7] = 0;
+            this.v[2] = 0;
+            this.v[5] = 0;
+            this.v[8] = 1;
         }
-    }
-    setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22) {
-        this.v[0] = m00;
-        this.v[3] = m01;
-        this.v[6] = m02;
-        this.v[1] = m10;
-        this.v[4] = m11;
-        this.v[7] = m12;
-        this.v[2] = m20;
-        this.v[5] = m21;
-        this.v[8] = m22;
-        return this;
     }
     get className() {
         return this.constructor.name;
-    }
-    identity() {
-        this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
-        return this;
     }
     /**
      * Make this identity matrix（static method version）
      */
     static identity() {
-        return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        return new ImmutableMatrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
     }
     static dummy() {
-        return new Matrix33(null);
+        return new ImmutableMatrix33(null);
     }
     isDummy() {
         if (this.v.length === 0) {
@@ -1058,15 +1126,7 @@ class Matrix33 {
         }
     }
     clone() {
-        return new Matrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
-    }
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    rotateX(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+        return new ImmutableMatrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
     }
     /**
      * Create X oriented Rotation Matrix
@@ -1074,16 +1134,7 @@ class Matrix33 {
     static rotateX(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-    }
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    rotateY(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-        return this;
+        return new ImmutableMatrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
     }
     /**
      * Create Y oriented Rotation Matrix
@@ -1091,15 +1142,7 @@ class Matrix33 {
     static rotateY(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-    }
-    /**
-     * Create Z oriented Rotation Matrix
-     */
-    rotateZ(radian) {
-        var cos = Math.cos(radian);
-        var sin = Math.sin(radian);
-        return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+        return new ImmutableMatrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
     }
     /**
      * Create Z oriented Rotation Matrix
@@ -1107,83 +1150,32 @@ class Matrix33 {
     static rotateZ(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+        return new ImmutableMatrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
     }
     static rotateXYZ(x, y, z) {
-        return (Matrix33.rotateZ(z).multiply(Matrix33.rotateY(y).multiply(Matrix33.rotateX(x))));
+        return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(z), ImmutableMatrix33.rotateY(y)), ImmutableMatrix33.rotateX(x));
     }
     static rotate(vec3) {
-        return (Matrix33.rotateZ(vec3.z).multiply(Matrix33.rotateY(vec3.y).multiply(Matrix33.rotateX(vec3.x))));
-    }
-    scale(vec) {
-        return this.setComponents(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+        return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(vec3.z), ImmutableMatrix33.rotateY(vec3.y)), ImmutableMatrix33.rotateX(vec3.x));
     }
     static scale(vec) {
-        return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-    }
-    /**
-     * zero matrix
-     */
-    zero() {
-        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        return this;
+        return new ImmutableMatrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
     }
     /**
      * zero matrix(static version)
      */
     static zero() {
-        return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    }
-    raw() {
-        return this.v;
-    }
-    flattenAsArray() {
-        return [this.v[0], this.v[1], this.v[2],
-            this.v[3], this.v[4], this.v[5],
-            this.v[6], this.v[7], this.v[8]];
-    }
-    _swap(l, r) {
-        this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
-    }
-    /**
-     * transpose
-     */
-    transpose() {
-        this._swap(1, 3);
-        this._swap(2, 6);
-        this._swap(5, 8);
-        return this;
+        return new ImmutableMatrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     /**
      * transpose(static version)
      */
     static transpose(mat) {
-        var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
+        var mat_t = new ImmutableMatrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
         return mat_t;
     }
-    multiplyVector(vec) {
-        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z;
-        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z;
-        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z;
-        return new ImmutableVector3(x, y, z);
-    }
     /**
-     * multiply zero matrix and zero matrix
-     */
-    multiply(mat) {
-        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20;
-        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21;
-        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22;
-        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20;
-        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21;
-        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22;
-        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20;
-        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21;
-        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22;
-        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    /**
-     * multiply zero matrix and zero matrix(static version)
+     * multiply matrixs (static version)
      */
     static multiply(l_m, r_m) {
         var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
@@ -1195,7 +1187,7 @@ class Matrix33 {
         var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
         var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
         var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
     determinant() {
         return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
@@ -1204,19 +1196,6 @@ class Matrix33 {
     static determinant(mat) {
         return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
             - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-    }
-    invert() {
-        var det = this.determinant();
-        var m00 = (this.m11 * this.m22 - this.m12 * this.m21) / det;
-        var m01 = (this.m02 * this.m21 - this.m01 * this.m22) / det;
-        var m02 = (this.m01 * this.m12 - this.m02 * this.m11) / det;
-        var m10 = (this.m12 * this.m20 - this.m10 * this.m22) / det;
-        var m11 = (this.m00 * this.m22 - this.m02 * this.m20) / det;
-        var m12 = (this.m02 * this.m10 - this.m00 * this.m12) / det;
-        var m20 = (this.m10 * this.m21 - this.m11 * this.m20) / det;
-        var m21 = (this.m01 * this.m20 - this.m00 * this.m21) / det;
-        var m22 = (this.m00 * this.m11 - this.m01 * this.m10) / det;
-        return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
     static invert(mat) {
         var det = mat.determinant();
@@ -1229,58 +1208,31 @@ class Matrix33 {
         var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
         var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
         var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-    set m00(val) {
-        this.v[0] = val;
+        return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
     get m00() {
         return this.v[0];
     }
-    set m10(val) {
-        this.v[1] = val;
-    }
     get m10() {
         return this.v[1];
-    }
-    set m20(val) {
-        this.v[2] = val;
     }
     get m20() {
         return this.v[2];
     }
-    set m01(val) {
-        this.v[3] = val;
-    }
     get m01() {
         return this.v[3];
-    }
-    set m11(val) {
-        this.v[4] = val;
     }
     get m11() {
         return this.v[4];
     }
-    set m21(val) {
-        this.v[5] = val;
-    }
     get m21() {
         return this.v[5];
-    }
-    set m02(val) {
-        this.v[6] = val;
     }
     get m02() {
         return this.v[6];
     }
-    set m12(val) {
-        this.v[7] = val;
-    }
     get m12() {
         return this.v[7];
-    }
-    set m22(val) {
-        this.v[8] = val;
     }
     get m22() {
         return this.v[8];
@@ -1310,12 +1262,6 @@ class Matrix33 {
     getScale() {
         return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
     }
-    addScale(vec) {
-        this.m00 *= vec.x;
-        this.m11 *= vec.y;
-        this.m22 *= vec.z;
-        return this;
-    }
     isEqual(mat, delta = Number.EPSILON) {
         if (Math.abs(mat.v[0] - this.v[0]) < delta &&
             Math.abs(mat.v[1] - this.v[1]) < delta &&
@@ -1333,7 +1279,6 @@ class Matrix33 {
         }
     }
 }
-// GLBoost['Matrix33'] = Matrix33;
 
 class ImmutableVector4 {
     constructor(x, y, z, w) {
@@ -1891,7 +1836,7 @@ class ImmutableMatrix44 {
                 this.v[15] = m[15];
             }
             else {
-                // arguments[0-15] must be row major values if isColumnMajor is false
+                // 'm' must be row major values if isColumnMajor is false
                 this.v[0] = m[0];
                 this.v[4] = m[1];
                 this.v[8] = m[2];
@@ -1935,7 +1880,7 @@ class ImmutableMatrix44 {
                     this.v[15] = m[15];
                 }
                 else {
-                    // arguments[0-15] must be row major values if isColumnMajor is false
+                    // 'm' must be row major values if isColumnMajor is false
                     this.v[0] = m[0];
                     this.v[4] = m[1];
                     this.v[8] = m[2];
@@ -1981,7 +1926,7 @@ class ImmutableMatrix44 {
                     this.v[15] = v[15];
                 }
                 else {
-                    // arguments[0-15] must be row major values if isColumnMajor is false
+                    // 'm' must be row major values if isColumnMajor is false
                     this.v[0] = v[0];
                     this.v[4] = v[1];
                     this.v[8] = v[2];
@@ -2027,6 +1972,7 @@ class ImmutableMatrix44 {
                     this.v[15] = 1;
                 }
                 else {
+                    // 'm' must be row major values if isColumnMajor is false
                     this.v[0] = v[0];
                     this.v[4] = v[1];
                     this.v[8] = v[2];
@@ -2888,7 +2834,7 @@ class AccessorBase extends RnObject {
         return new ImmutableVector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
     }
     getMat3(index, endian = true) {
-        return new Matrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
+        return new ImmutableMatrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
     }
     getMat4(index, endian = true) {
         return new MutableMatrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
@@ -4340,7 +4286,7 @@ class TransformComponent extends Component {
         this._quaternion = Quaternion.dummy();
         this._matrix = MutableMatrix44.dummy();
         this._invMatrix = ImmutableMatrix44.dummy();
-        this._normalMatrix = Matrix33.dummy();
+        this._normalMatrix = ImmutableMatrix33.dummy();
         this.__toUpdateAllTransform = true;
         this._updateCount = 0;
         this.__updateCountAtLastLogic = 0;
@@ -4352,7 +4298,7 @@ class TransformComponent extends Component {
         this.registerMember(BufferUse.CPUGeneric, 'quaternion', Quaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
         this.submitToAllocation();
         this._is_translate_updated = true;
         this._is_euler_angles_updated = true;
@@ -4593,7 +4539,7 @@ class TransformComponent extends Component {
     }
     get normalMatrixInner() {
         if (!this._is_normal_trs_matrix_updated) {
-            this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+            this._normalMatrix = new ImmutableMatrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
             this._is_normal_trs_matrix_updated = true;
         }
         return this._normalMatrix;
@@ -5899,7 +5845,7 @@ class WebGLStrategyUniform {
         const gl = glw.getRawContext();
         this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
         gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-        //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);
+        //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, worldMatrix.raw());
         glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
     }
 }
@@ -7274,7 +7220,7 @@ const Rn = Object.freeze({
     ImmutableVector4,
     MutableVector3,
     MutableVector4,
-    Matrix33,
+    ImmutableMatrix33,
     ImmutableMatrix44,
     MutableMatrix44,
     ProcessApproach,

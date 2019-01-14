@@ -15,7 +15,7 @@ import ImmutableVector3 from './math/ImmutableVector3';
 import ImmutableVector4 from './math/ImmutableVector4';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
-import Matrix33 from './math/Matrix33';
+import ImmutableMatrix33 from './math/ImmutableMatrix33';
 import ImmutableMatrix44 from './math/ImmutableMatrix44';
 import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
@@ -40,7 +40,7 @@ const Rn = Object.freeze({
   ImmutableVector4,
   MutableVector3,
   MutableVector4,
-  Matrix33,
+  ImmutableMatrix33,
   ImmutableMatrix44,
   MutableMatrix44,
   ProcessApproach,
