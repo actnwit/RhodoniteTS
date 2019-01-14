@@ -1,5 +1,5 @@
 
-//    import Rn from '../../../dist/rhodonite.js';
+    import Rn from '../../../dist/rhodonite.mjs';
     function generateEntity() {
       const repo = Rn.EntityRepository.getInstance();
       const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
@@ -136,13 +136,13 @@
       const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
       meshComponent.addPrimitive(primitive);
       //entity.getTransform().toUpdateAllTransform = false;
-      entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);
-      entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
+      entity.getTransform().scale = new Rn.ImmutableVector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);
+      entity.getTransform().translate = new Rn.ImmutableVector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
     }
 
     const startTime = Date.now();
     let p = null;
-    const rotationVec3 = Rn.Vector3.zero();
+    const rotationVec3 = Rn.MutableVector3.zero();
     let count = 0
 
     const stats = new Stats();

@@ -3,9 +3,9 @@ import TransformComponent from "../components/TransformComponent";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Entity from "../core/Entity";
-import Vector3 from "../math/Vector3";
-import Quaternion from "../math/Quaternion";
-import Matrix44 from "../math/Matrix44";
+import ImmutableVector3 from "../math/ImmutableVector3";
+import ImmutableQuaternion from "../math/ImmutableQuaternion";
+import ImmutableMatrix44 from "../math/ImmutableMatrix44";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import Primitive from "../geometry/Primitive";
 import Buffer from "../memory/Buffer";
@@ -13,6 +13,7 @@ import { PrimitiveMode } from "../definitions/PrimitiveMode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -141,16 +142,16 @@ export default class ModelConverter {
       let nodeJson = gltfModel.nodes[node_i];
 
       if (nodeJson.translation) {
-        group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
+        group.getTransform().translate = new ImmutableVector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
       }
       if (nodeJson.scale) {
-        group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
+        group.getTransform().scale = new ImmutableVector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
       }
       if (nodeJson.rotation) {
-        group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+        group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
       }
       if (nodeJson.matrix) {
-        group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
+        group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
       }
     }
   }
