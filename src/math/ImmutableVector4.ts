@@ -2,6 +2,7 @@
 import Vector2 from './Vector2';
 import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './Vector4';
+import { CompositionType } from '../definitions/CompositionType';
 
 export default class ImmutableVector4 implements Vector4 {
   v: TypedArray;
@@ -51,6 +52,10 @@ export default class ImmutableVector4 implements Vector4 {
     return this.constructor.name;
   }
 
+  static get compositionType() {
+    return CompositionType.Vec4;
+  }
+
   isStrictEqual(vec:ImmutableVector4): boolean {
     if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
@@ -86,7 +91,7 @@ export default class ImmutableVector4 implements Vector4 {
   }
 
 
-  static normalize(vec4:Vector4) {
+  static normalize(vec4:ImmutableVector4) {
     const length = vec4.length();
     let newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
     newVec = ImmutableVector4.divide(newVec, length);

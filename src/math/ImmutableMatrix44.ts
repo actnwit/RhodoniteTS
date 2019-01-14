@@ -5,6 +5,7 @@ import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableVector4 from './ImmutableVector4';
 import ImmutableRowMajarMatrix44 from './ImmutableRowMajarMatrix44';
 import Matrix44 from './Matrix44';
+import { CompositionType } from '../definitions/CompositionType';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -156,6 +157,10 @@ export default class ImmutableMatrix44 implements Matrix44 {
 
   static dummy() {
     return new ImmutableMatrix44(null);
+  }
+
+  static get compositionType() {
+    return CompositionType.Mat4;
   }
 
   isDummy() {

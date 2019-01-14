@@ -3,6 +3,7 @@ import ImmutableQuaternion from "./ImmutableQuaternion";
 import Matrix33 from "./Matrix33";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
 import ImmutableVector3 from "./ImmutableVector3";
+import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix33 {
 
@@ -38,6 +39,10 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     this.v[2] = m20; this.v[5] = m21; this.v[8] = m22;
 
     return this;
+  }
+
+  static get compositionType() {
+    return CompositionType.Mat3;
   }
 
   identity() {

@@ -3,6 +3,7 @@ import ImmutableVector4 from "./ImmutableVector4";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import Vector4 from "./Vector4";
 import ImmutableMatrix44 from "./ImmutableMatrix44";
+import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableQuaternion extends ImmutableQuaternion implements Vector4 {
 
@@ -85,6 +86,10 @@ export default class MutableQuaternion extends ImmutableQuaternion implements Ve
     }
 
     return this;
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec4;
   }
 
   setAt(i: number, val: number) {

@@ -2,11 +2,16 @@ import Vector2 from "./Vector2";
 import ImmutableVector3 from "./ImmutableVector3";
 import ImmutableVector4 from "./ImmutableVector4";
 import Vector4 from "./Vector4";
+import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableVector4 extends ImmutableVector4 implements Vector4 {
   constructor(x: number|TypedArray|Vector2|ImmutableVector3|Vector4, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
 
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec4;
   }
 
   normalize() {

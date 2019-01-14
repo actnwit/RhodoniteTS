@@ -3,6 +3,7 @@ import Vector2 from './Vector2';
 import Vector4 from './ImmutableVector4';
 import is from '../misc/IsUtil';
 import Vector3 from './Vector3';
+import { CompositionType } from '../definitions/CompositionType';
 
 export default class ImmutableVector3 implements Vector3 {
   v: TypedArray;
@@ -47,6 +48,10 @@ export default class ImmutableVector3 implements Vector3 {
 
   get className() {
     return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec3;
   }
 
   isStrictEqual(vec:ImmutableVector3) {

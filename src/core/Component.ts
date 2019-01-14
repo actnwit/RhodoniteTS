@@ -13,6 +13,13 @@ import ComponentRepository from './ComponentRepository';
 import Config from './Config';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
+import { CompositionType } from '../definitions/CompositionType';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import ImmutableMatrix33 from '../math/ImmutableMatrix33';
+import ImmutableVector3 from '../math/ImmutableVector3';
+import ImmutableVector4 from '../math/ImmutableVector4';
+import MutableVector4 from '../math/MutableVector4';
+import MutableQuaternion from '../math/MutableQuaterion';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
@@ -258,12 +265,14 @@ export default class Component {
     }
   }
 
-  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]) {
+  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, componentType: ComponentTypeEnum, initValues: number[]) {
     if (!Component.__memberInfo.has(this.constructor)) {
       Component.__memberInfo.set(this.constructor, []);
     }
     const memberInfoArray = Component.__memberInfo.get(this.constructor);
-    memberInfoArray!.push({bufferUse, memberName, dataClassType, compositionType, componentType, initValues})
+
+    memberInfoArray!.push({bufferUse:bufferUse, memberName:memberName, dataClassType:dataClassType,
+      compositionType:(dataClassType as any).compositionType, componentType:componentType, initValues:initValues});
   }
 
   submitToAllocation() {

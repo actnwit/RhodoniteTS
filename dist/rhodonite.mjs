@@ -783,6 +783,9 @@ class ImmutableVector3 {
     get className() {
         return this.constructor.name;
     }
+    static get compositionType() {
+        return CompositionType.Vec3;
+    }
     isStrictEqual(vec) {
         if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
             return true;
@@ -1108,6 +1111,9 @@ class ImmutableMatrix33 {
     get className() {
         return this.constructor.name;
     }
+    static get compositionType() {
+        return CompositionType.Mat3;
+    }
     /**
      * Make this identity matrix（static method version）
      */
@@ -1329,6 +1335,9 @@ class ImmutableVector4 {
     get className() {
         return this.constructor.name;
     }
+    static get compositionType() {
+        return CompositionType.Vec4;
+    }
     isStrictEqual(vec) {
         if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
             return true;
@@ -1474,6 +1483,9 @@ class ImmutableQuaternion {
         else {
             return false;
         }
+    }
+    static get compositionType() {
+        return CompositionType.Vec4;
     }
     static dummy() {
         return new ImmutableQuaternion(null);
@@ -1893,6 +1905,9 @@ class ImmutableMatrix44 {
     static dummy() {
         return new ImmutableMatrix44(null);
     }
+    static get compositionType() {
+        return CompositionType.Mat4;
+    }
     isDummy() {
         if (this.v.length === 0) {
             return true;
@@ -2204,6 +2219,9 @@ class MutableMatrix44 extends ImmutableMatrix44 {
         this.v[13] = m[13];
         this.v[14] = m[14];
         this.v[15] = m[15];
+    }
+    static get compositionType() {
+        return CompositionType.Mat4;
     }
     static dummy() {
         return new MutableMatrix44(null);
@@ -3192,6 +3210,9 @@ class ImmutableRowMajarMatrix44 {
     static dummy() {
         return new ImmutableRowMajarMatrix44(null);
     }
+    static get compositionType() {
+        return CompositionType.Mat4;
+    }
     isDummy() {
         if (this.v.length === 0) {
             return true;
@@ -3493,6 +3514,9 @@ class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
         else {
             super(m0, _notCopyFloatArray);
         }
+    }
+    static get compositionType() {
+        return CompositionType.Mat4;
     }
     static dummy() {
         return new MutableRowMajarMatrix44(null);
@@ -4008,12 +4032,13 @@ class Component {
             return null;
         }
     }
-    registerMember(bufferUse, memberName, dataClassType, compositionType, componentType, initValues) {
+    registerMember(bufferUse, memberName, dataClassType, componentType, initValues) {
         if (!Component.__memberInfo.has(this.constructor)) {
             Component.__memberInfo.set(this.constructor, []);
         }
         const memberInfoArray = Component.__memberInfo.get(this.constructor);
-        memberInfoArray.push({ bufferUse, memberName, dataClassType, compositionType, componentType, initValues });
+        memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType,
+            compositionType: dataClassType.compositionType, componentType: componentType, initValues: initValues });
     }
     submitToAllocation() {
         const componentClass = this.constructor;
@@ -4228,7 +4253,7 @@ class SceneGraphComponent extends Component {
         Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
         this.__isAbleToBeParent = false;
         this.beAbleToBeParent(true);
-        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.submitToAllocation();
         //this.__updatedProperly = false;
     }
@@ -4365,6 +4390,9 @@ class MutableQuaternion extends ImmutableQuaternion {
         }
         return this;
     }
+    static get compositionType() {
+        return CompositionType.Vec4;
+    }
     setAt(i, val) {
         switch (i % 4) {
             case 0:
@@ -4440,13 +4468,13 @@ class TransformComponent extends Component {
         this.__updateCountAtLastLogic = 0;
         // dependencies
         this._dependentAnimationComponentId = 0;
-        this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-        this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-        this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+        this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+        this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, ComponentType.Float, [1, 1, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
         this.submitToAllocation();
         this._is_translate_updated = true;
         this._is_euler_angles_updated = true;
@@ -6208,6 +6236,9 @@ class MutableVector3 extends ImmutableVector3 {
     constructor(x, y, z) {
         super(x, y, z);
     }
+    static get compositionType() {
+        return CompositionType.Vec3;
+    }
     zero() {
         this.x = 0;
         this.y = 0;
@@ -6334,6 +6365,9 @@ class MutableVector3 extends ImmutableVector3 {
 class MutableVector4 extends ImmutableVector4 {
     constructor(x, y, z, w) {
         super(x, y, z, w);
+    }
+    static get compositionType() {
+        return CompositionType.Vec4;
     }
     normalize() {
         var length = this.length();

@@ -41,7 +41,7 @@ export default class SceneGraphComponent extends Component {
 
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.submitToAllocation();
 
     //this.__updatedProperly = false;

@@ -55,13 +55,13 @@ export default class TransformComponent extends Component {
 
     const thisClass = TransformComponent;
 
-    this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, ComponentType.Float, [1, 1, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation();
 

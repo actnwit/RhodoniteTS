@@ -4,6 +4,7 @@ import ImmutableVector3 from './ImmutableVector3';
 import Vector4 from './Vector4';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
+import { CompositionType } from '../definitions/CompositionType';
 
 export default class ImmutableQuaternion implements Vector4 {
   v: TypedArray;
@@ -58,6 +59,10 @@ export default class ImmutableQuaternion implements Vector4 {
     } else {
       return false;
     }
+  }
+
+  static get compositionType() {
+    return CompositionType.Vec4;
   }
 
   static dummy() {

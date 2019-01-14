@@ -5,6 +5,7 @@ import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
+import { CompositionType } from '../definitions/CompositionType';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -112,6 +113,11 @@ export default class ImmutableRowMajarMatrix44 {
   static dummy() {
     return new ImmutableRowMajarMatrix44(null);
   }
+
+  static get compositionType() {
+    return CompositionType.Mat4;
+  }
+
 
   isDummy() {
     if (this.v.length === 0) {

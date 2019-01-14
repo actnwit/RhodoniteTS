@@ -4,6 +4,7 @@ import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import Matrix33 from './Matrix33';
 import MutableMatrix33 from './MutableMatrix33';
+import { CompositionType } from '../definitions/CompositionType';
 
 export default class ImmutableMatrix33 implements Matrix33 {
   v: TypedArray;
@@ -122,6 +123,10 @@ export default class ImmutableMatrix33 implements Matrix33 {
 
   get className() {
     return this.constructor.name;
+  }
+
+  static get compositionType() {
+    return CompositionType.Mat3;
   }
 
   /**

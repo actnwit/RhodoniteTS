@@ -972,6 +972,13 @@
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ImmutableVector3, "compositionType", {
+            get: function () {
+                return CompositionType.Vec3;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ImmutableVector3.prototype.isStrictEqual = function (vec) {
             if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
                 return true;
@@ -1321,6 +1328,13 @@
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ImmutableMatrix33, "compositionType", {
+            get: function () {
+                return CompositionType.Mat3;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * Make this identity matrix（static method version）
          */
@@ -1584,6 +1598,13 @@
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ImmutableVector4, "compositionType", {
+            get: function () {
+                return CompositionType.Vec4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ImmutableVector4.prototype.isStrictEqual = function (vec) {
             if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
                 return true;
@@ -1748,6 +1769,13 @@
                 return false;
             }
         };
+        Object.defineProperty(ImmutableQuaternion, "compositionType", {
+            get: function () {
+                return CompositionType.Vec4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ImmutableQuaternion.dummy = function () {
             return new ImmutableQuaternion(null);
         };
@@ -2189,6 +2217,13 @@
         ImmutableMatrix44.dummy = function () {
             return new ImmutableMatrix44(null);
         };
+        Object.defineProperty(ImmutableMatrix44, "compositionType", {
+            get: function () {
+                return CompositionType.Mat4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ImmutableMatrix44.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
@@ -2576,6 +2611,13 @@
             this.v[14] = m[14];
             this.v[15] = m[15];
         };
+        Object.defineProperty(MutableMatrix44, "compositionType", {
+            get: function () {
+                return CompositionType.Mat4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         MutableMatrix44.dummy = function () {
             return new MutableMatrix44(null);
         };
@@ -3773,6 +3815,13 @@
         ImmutableRowMajarMatrix44.dummy = function () {
             return new ImmutableRowMajarMatrix44(null);
         };
+        Object.defineProperty(ImmutableRowMajarMatrix44, "compositionType", {
+            get: function () {
+                return CompositionType.Mat4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ImmutableRowMajarMatrix44.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
@@ -4153,6 +4202,13 @@
             }
             return _this;
         }
+        Object.defineProperty(MutableRowMajarMatrix44, "compositionType", {
+            get: function () {
+                return CompositionType.Mat4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         MutableRowMajarMatrix44.dummy = function () {
             return new MutableRowMajarMatrix44(null);
         };
@@ -4746,12 +4802,13 @@
                 return null;
             }
         };
-        Component.prototype.registerMember = function (bufferUse, memberName, dataClassType, compositionType, componentType, initValues) {
+        Component.prototype.registerMember = function (bufferUse, memberName, dataClassType, componentType, initValues) {
             if (!Component.__memberInfo.has(this.constructor)) {
                 Component.__memberInfo.set(this.constructor, []);
             }
             var memberInfoArray = Component.__memberInfo.get(this.constructor);
-            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType, compositionType: compositionType, componentType: componentType, initValues: initValues });
+            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType,
+                compositionType: dataClassType.compositionType, componentType: componentType, initValues: initValues });
         };
         Component.prototype.submitToAllocation = function () {
             var _this = this;
@@ -5030,7 +5087,7 @@
             Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
             _this.__isAbleToBeParent = false;
             _this.beAbleToBeParent(true);
-            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
             _this.submitToAllocation();
             return _this;
             //this.__updatedProperly = false;
@@ -5182,6 +5239,13 @@
             }
             return this;
         };
+        Object.defineProperty(MutableQuaternion, "compositionType", {
+            get: function () {
+                return CompositionType.Vec4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         MutableQuaternion.prototype.setAt = function (i, val) {
             switch (i % 4) {
                 case 0:
@@ -5279,13 +5343,13 @@
             _this.__updateCountAtLastLogic = 0;
             // dependencies
             _this._dependentAnimationComponentId = 0;
-            _this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, CompositionType.Vec3, ComponentType.Float, [1, 1, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, CompositionType.Vec4, ComponentType.Float, [0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, CompositionType.Mat4, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, CompositionType.Mat3, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+            _this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
+            _this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, ComponentType.Float, [1, 1, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
             _this.submitToAllocation();
             _this._is_translate_updated = true;
             _this._is_euler_angles_updated = true;
@@ -7097,6 +7161,13 @@
         function MutableVector3(x, y, z) {
             return _super.call(this, x, y, z) || this;
         }
+        Object.defineProperty(MutableVector3, "compositionType", {
+            get: function () {
+                return CompositionType.Vec3;
+            },
+            enumerable: true,
+            configurable: true
+        });
         MutableVector3.prototype.zero = function () {
             this.x = 0;
             this.y = 0;
@@ -7242,6 +7313,13 @@
         function MutableVector4(x, y, z, w) {
             return _super.call(this, x, y, z, w) || this;
         }
+        Object.defineProperty(MutableVector4, "compositionType", {
+            get: function () {
+                return CompositionType.Vec4;
+            },
+            enumerable: true,
+            configurable: true
+        });
         MutableVector4.prototype.normalize = function () {
             var length = this.length();
             this.divide(length);
