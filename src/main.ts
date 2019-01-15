@@ -11,7 +11,7 @@ import { CompositionType, CompositionTypeEnum } from './definitions/CompositionT
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
 import GLSLShader from './renderer/webgl/GLSLShader';
 import System from './system/System';
-import ImmutableVector3 from './math/ImmutableVector3';
+import Vector3 from './math/Vector3';
 import ImmutableVector4 from './math/ImmutableVector4';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
@@ -36,7 +36,7 @@ const Rn = Object.freeze({
   PrimitiveMode,
   GLSLShader,
   System,
-  ImmutableVector3,
+  Vector3,
   ImmutableVector4,
   MutableVector3,
   MutableVector4,

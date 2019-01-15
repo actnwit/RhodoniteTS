@@ -1,5 +1,5 @@
 // import GLBoost from '../../globals';
-import ImmutableVector3 from './ImmutableVector3';
+import Vector3 from './Vector3';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import Matrix33 from './Matrix33';
@@ -203,11 +203,11 @@ export default class ImmutableMatrix33 implements Matrix33 {
     return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(z), ImmutableMatrix33.rotateY(y)), ImmutableMatrix33.rotateX(x));
   }
 
-  static rotate(vec3:ImmutableVector3) {
+  static rotate(vec3:Vector3) {
     return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(vec3.z), ImmutableMatrix33.rotateY(vec3.y)), ImmutableMatrix33.rotateX(vec3.x));
   }
 
-  static scale(vec:ImmutableVector3) {
+  static scale(vec:Vector3) {
     return new ImmutableMatrix33(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -350,7 +350,7 @@ export default class ImmutableMatrix33 implements Matrix33 {
   }
 
   getScale() {
-    return new ImmutableVector3(
+    return new Vector3(
       Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02),
       Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12),
       Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22)

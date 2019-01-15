@@ -2,7 +2,7 @@ import ImmutableMatrix44 from "./ImmutableMatrix44";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import Matrix33 from "./Matrix33";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
-import ImmutableVector3 from "./ImmutableVector3";
+import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix33 {
@@ -135,7 +135,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     );
   }
 
-  scale(vec: ImmutableVector3) {
+  scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -147,7 +147,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     return (MutableMatrix33.rotateZ(z).multiply(MutableMatrix33.rotateY(y).multiply(MutableMatrix33.rotateX(x))));
   }
 
-  static rotate(vec3:ImmutableVector3) {
+  static rotate(vec3:Vector3) {
     return (MutableMatrix33.rotateZ(vec3.z).multiply(MutableMatrix33.rotateY(vec3.y).multiply(MutableMatrix33.rotateX(vec3.x))));
   }
 
@@ -185,12 +185,12 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
   }
 
 
-  multiplyVector(vec:ImmutableVector3) {
+  multiplyVector(vec:Vector3) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
 
-    return new ImmutableVector3(x, y, z);
+    return new Vector3(x, y, z);
   }
 
   /**
@@ -237,7 +237,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     );
   }
 
-  addScale(vec:ImmutableVector3) {
+  addScale(vec:Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;

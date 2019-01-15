@@ -5,7 +5,7 @@ import is from '../misc/IsUtil';
 import {IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableVector3 implements IVector3 {
+export default class Vector3 implements IVector3 {
   v: TypedArray;
 
   constructor(x?:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?:number, z?:number) {
@@ -54,7 +54,7 @@ export default class ImmutableVector3 implements IVector3 {
     return CompositionType.Vec3;
   }
 
-  isStrictEqual(vec:ImmutableVector3) {
+  isStrictEqual(vec:Vector3) {
     if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
       return true;
     } else {
@@ -62,7 +62,7 @@ export default class ImmutableVector3 implements IVector3 {
     }
   }
 
-  isEqual(vec: ImmutableVector3, delta: number = Number.EPSILON) {
+  isEqual(vec: Vector3, delta: number = Number.EPSILON) {
     if (Math.abs(vec.x - this.x) < delta &&
       Math.abs(vec.y - this.y) < delta &&
       Math.abs(vec.z - this.z) < delta) {
@@ -76,15 +76,15 @@ export default class ImmutableVector3 implements IVector3 {
    * Zero Vector
    */
   static zero() {
-    return new ImmutableVector3(0, 0, 0);
+    return new Vector3(0, 0, 0);
   }
 
   static one() {
-    return new ImmutableVector3(1, 1, 1);
+    return new Vector3(1, 1, 1);
   }
 
   static dummy() {
-    return new ImmutableVector3(null);
+    return new Vector3(null);
   }
 
   isDummy() {
@@ -96,7 +96,7 @@ export default class ImmutableVector3 implements IVector3 {
   }
 
   clone() {
-    return new ImmutableVector3(this.x, this.y, this.z);
+    return new Vector3(this.x, this.y, this.z);
   }
 
   length() {
@@ -106,18 +106,18 @@ export default class ImmutableVector3 implements IVector3 {
   /**
    * to square length(static verison)
    */
-  static lengthSquared(vec3:ImmutableVector3) {
+  static lengthSquared(vec3:Vector3) {
     return vec3.x*vec3.x + vec3.y*vec3.y + vec3.z*vec3.z;
   }
 
-  lengthTo(vec3:ImmutableVector3) {
+  lengthTo(vec3:Vector3) {
     var deltaX = vec3.x - this.x;
     var deltaY = vec3.y - this.y;
     var deltaZ = vec3.z - this.z;
     return Math.sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ);
   }
 
-  static lengthBtw(lhv:ImmutableVector3, rhv:ImmutableVector3) {
+  static lengthBtw(lhv:Vector3, rhv:Vector3) {
     var deltaX = rhv.x - lhv.x;
     var deltaY = rhv.y - lhv.y;
     var deltaZ = rhv.z - lhv.z;
@@ -127,36 +127,36 @@ export default class ImmutableVector3 implements IVector3 {
   /**
    * dot product
    */
-  dotProduct(vec3:ImmutableVector3) {
+  dotProduct(vec3:Vector3) {
       return this.x * vec3.x + this.y * vec3.y + this.z * vec3.z;
   }
 
   /**
    * dot product(static version)
    */
-  static dotProduct(lv:ImmutableVector3, rv:ImmutableVector3) {
+  static dotProduct(lv:Vector3, rv:Vector3) {
     return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z;
   }
 
   /**
   * cross product(static version)
   */
-  static cross(lv:ImmutableVector3, rv:ImmutableVector3) {
+  static cross(lv:Vector3, rv:Vector3) {
     var x = lv.y*rv.z - lv.z*rv.y;
     var y = lv.z*rv.x - lv.x*rv.z;
     var z = lv.x*rv.y - lv.y*rv.x;
 
-    return new ImmutableVector3(x, y, z);
+    return new Vector3(x, y, z);
   }
 
 
   /**
    * normalize(static version)
    */
-  static normalize(vec3:ImmutableVector3) {
+  static normalize(vec3:Vector3) {
     var length = vec3.length();
-    var newVec = new ImmutableVector3(vec3.x, vec3.y, vec3.z);
-    newVec = ImmutableVector3.divide(newVec, length);
+    var newVec = new Vector3(vec3.x, vec3.y, vec3.z);
+    newVec = Vector3.divide(newVec, length);
 
     return newVec;
   }
@@ -165,16 +165,16 @@ export default class ImmutableVector3 implements IVector3 {
   /**
    * add value（static version）
    */
-  static add(lv:ImmutableVector3, rv:ImmutableVector3) {
-    return new ImmutableVector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
+  static add(lv:Vector3, rv:Vector3) {
+    return new Vector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
   }
 
 
   /**
    * subtract(subtract)
    */
-  static subtract(lv:ImmutableVector3, rv:ImmutableVector3) {
-    return new ImmutableVector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
+  static subtract(lv:Vector3, rv:Vector3) {
+    return new Vector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
   }
 
 
@@ -182,31 +182,31 @@ export default class ImmutableVector3 implements IVector3 {
   /**
    * divide(static version)
    */
-  static divide(vec3:ImmutableVector3, val:number) {
+  static divide(vec3:Vector3, val:number) {
     if (val !== 0) {
-      return new ImmutableVector3(vec3.x / val, vec3.y / val, vec3.z / val);
+      return new Vector3(vec3.x / val, vec3.y / val, vec3.z / val);
     } else {
       console.error("0 division occured!");
-      return new ImmutableVector3(Infinity, Infinity, Infinity);
+      return new Vector3(Infinity, Infinity, Infinity);
     }
   }
 
   /**
    * multiply(static version)
    */
-  static multiply(vec3:ImmutableVector3, val:number) {
-    return new ImmutableVector3(vec3.x * val, vec3.y * val, vec3.z * val);
+  static multiply(vec3:Vector3, val:number) {
+    return new Vector3(vec3.x * val, vec3.y * val, vec3.z * val);
   }
 
   /**
    * multiply vector(static version)
    */
-  static multiplyVector(vec3:ImmutableVector3, vec:ImmutableVector3) {
-    return new ImmutableVector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
+  static multiplyVector(vec3:Vector3, vec:Vector3) {
+    return new Vector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
   }
 
-  static angleOfVectors(lhv:ImmutableVector3, rhv:ImmutableVector3) {
-    let cos_sita = ImmutableVector3.dotProduct(lhv, rhv) / ( lhv.length() * rhv.length() );
+  static angleOfVectors(lhv:Vector3, rhv:Vector3) {
+    let cos_sita = Vector3.dotProduct(lhv, rhv) / ( lhv.length() * rhv.length() );
 
     let sita = Math.acos(cos_sita);
 
@@ -216,8 +216,8 @@ export default class ImmutableVector3 implements IVector3 {
   /**
    * divide vector(static version)
    */
-  static divideVector(lvec3:ImmutableVector3, rvec3:ImmutableVector3) {
-    return new ImmutableVector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
+  static divideVector(lvec3:Vector3, rvec3:Vector3) {
+    return new Vector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
   }
 
   /**

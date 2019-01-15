@@ -1,4 +1,4 @@
-import ImmutableVector3 from "./ImmutableVector3";
+import Vector3 from "./Vector3";
 import ImmutableVector4 from "./ImmutableVector4";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import {IVector4} from "./IVector";
@@ -7,7 +7,7 @@ import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableQuaternion extends ImmutableQuaternion implements IVector4 {
 
-  constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     super(x, y, z, w);
   }
 
@@ -19,11 +19,11 @@ export default class MutableQuaternion extends ImmutableQuaternion implements IV
     return new MutableQuaternion(this.x, this.y, this.z, this.w);
   }
 
-  axisAngle(axisVec3:ImmutableVector3, radian:number) {
+  axisAngle(axisVec3:Vector3, radian:number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = ImmutableVector3.normalize(axisVec3);
+    var axis = Vector3.normalize(axisVec3);
     this.w = Math.cos(halfAngle);
     this.x = sin * axis.x;
     this.y = sin * axis.y;

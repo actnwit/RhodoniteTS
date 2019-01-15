@@ -1,13 +1,13 @@
 //import GLBoost from './../../globals';
 import Vector2 from './Vector2';
 import Vector4 from './ImmutableVector4';
-import Vector3 from './Vector3';
+import IVector3 from './Vector3';
 import {IColorRgb} from './IColor';
 
-export default class ColorRgb implements Vector3, IColorRgb {
+export default class ColorRgb implements IVector3, IColorRgb {
   v: TypedArray;
 
-  constructor(r?:number|TypedArray|Vector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
+  constructor(r?:number|TypedArray|IVector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
     if (ArrayBuffer.isView(r)) {
       this.v = ((r as any) as TypedArray);
       return;

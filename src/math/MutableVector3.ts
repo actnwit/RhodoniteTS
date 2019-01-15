@@ -1,9 +1,9 @@
 import Vector2 from "./Vector2";
-import ImmutableVector3 from "./ImmutableVector3";
+import Vector3 from "./Vector3";
 import {IVector3, IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableVector3 extends ImmutableVector3 implements IVector3 {
+export default class MutableVector3 extends Vector3 implements IVector3 {
   constructor(x: number|TypedArray|Vector2|IVector3|IVector4, y?: number, z?: number) {
     super(x as any, y, z);
   }
@@ -42,7 +42,7 @@ export default class MutableVector3 extends ImmutableVector3 implements IVector3
   /**
    * cross product
    */
-  cross(v:ImmutableVector3) {
+  cross(v:Vector3) {
     var x = this.y*v.z - this.z*v.y;
     var y = this.z*v.x - this.x*v.z;
     var z = this.x*v.y - this.y*v.x;
@@ -67,7 +67,7 @@ export default class MutableVector3 extends ImmutableVector3 implements IVector3
     /**
    * add value
    */
-  add(v:ImmutableVector3) {
+  add(v:Vector3) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;
@@ -78,7 +78,7 @@ export default class MutableVector3 extends ImmutableVector3 implements IVector3
     /**
    * subtract
    */
-  subtract(v:ImmutableVector3) {
+  subtract(v:Vector3) {
     this.x -= v.x;
     this.y -= v.y;
     this.z -= v.z;
@@ -119,7 +119,7 @@ export default class MutableVector3 extends ImmutableVector3 implements IVector3
   /**
    * multiply vector
    */
-  multiplyVector(vec:ImmutableVector3) {
+  multiplyVector(vec:Vector3) {
     this.x *= vec.x;
     this.y *= vec.y;
     this.z *= vec.z;
@@ -130,7 +130,7 @@ export default class MutableVector3 extends ImmutableVector3 implements IVector3
     /**
    * divide vector
    */
-  divideVector(vec3:ImmutableVector3) {
+  divideVector(vec3:Vector3) {
     this.x /= vec3.x;
     this.y /= vec3.y;
     this.z /= vec3.z;

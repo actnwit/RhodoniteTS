@@ -1,7 +1,7 @@
 import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import TransformComponent from '../components/TransformComponent';
-import ImmutableVector3 from '../math/ImmutableVector3';
+import Vector3 from '../math/Vector3';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 

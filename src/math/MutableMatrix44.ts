@@ -3,7 +3,7 @@ import Matrix44 from "./Matrix44";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
-import ImmutableVector3 from "./ImmutableVector3";
+import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
 const FloatArray = Float32Array;
@@ -94,7 +94,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements Matrix
     );
   }
 
-  translate(vec: ImmutableVector3) {
+  translate(vec: Vector3) {
     return this.setComponents(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
@@ -103,13 +103,13 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements Matrix
     );
   }
 
-  putTranslate(vec: ImmutableVector3) {
+  putTranslate(vec: Vector3) {
     this.m03 = vec.x;
     this.m13 = vec.y;
     this.m23 = vec.z;
   }
 
-  scale(vec: ImmutableVector3) {
+  scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
@@ -118,7 +118,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements Matrix
     );
   }
 
-  addScale(vec: ImmutableVector3) {
+  addScale(vec: Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;

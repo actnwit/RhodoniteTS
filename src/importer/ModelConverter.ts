@@ -3,7 +3,7 @@ import TransformComponent from "../components/TransformComponent";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Entity from "../core/Entity";
-import ImmutableVector3 from "../math/ImmutableVector3";
+import Vector3 from "../math/Vector3";
 import ImmutableQuaternion from "../math/ImmutableQuaternion";
 import ImmutableMatrix44 from "../math/ImmutableMatrix44";
 import MeshRendererComponent from "../components/MeshRendererComponent";
@@ -142,10 +142,10 @@ export default class ModelConverter {
       let nodeJson = gltfModel.nodes[node_i];
 
       if (nodeJson.translation) {
-        group.getTransform().translate = new ImmutableVector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
+        group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
       }
       if (nodeJson.scale) {
-        group.getTransform().scale = new ImmutableVector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
+        group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
       }
       if (nodeJson.rotation) {
         group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);

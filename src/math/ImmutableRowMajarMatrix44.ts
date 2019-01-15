@@ -1,6 +1,6 @@
 //import GLBoost from '../../globals';
 import Vector4 from './ImmutableVector4';
-import ImmutableVector3 from './ImmutableVector3';
+import Vector3 from './Vector3';
 import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix44 from './ImmutableMatrix44';
@@ -177,10 +177,10 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   getTranslate() {
-    return new ImmutableVector3(this.m03, this.m13, this.m23);
+    return new Vector3(this.m03, this.m13, this.m23);
   }
 
-  static translate(vec:ImmutableVector3) {
+  static translate(vec:Vector3) {
     return new ImmutableRowMajarMatrix44(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
@@ -189,7 +189,7 @@ export default class ImmutableRowMajarMatrix44 {
     );
   }
 
-  static scale(vec: ImmutableVector3) {
+  static scale(vec: Vector3) {
     return new ImmutableRowMajarMatrix44(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
@@ -249,11 +249,11 @@ export default class ImmutableRowMajarMatrix44 {
       let y   = -Math.asin(this.m20);
       let x  = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
       let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-      rotate = new ImmutableVector3(x, y, z);
+      rotate = new Vector3(x, y, z);
     } else if (this.m20 === -1.0) {
-      rotate = new ImmutableVector3(Math.atan2(this.m01, this.m02), Math.PI/2.0, 0.0);
+      rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI/2.0, 0.0);
     } else {
-      rotate = new ImmutableVector3(Math.atan2(-this.m01, -this.m02), -Math.PI/2.0, 0.0);
+      rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI/2.0, 0.0);
     }
 
     return rotate;
@@ -472,7 +472,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   getScale() {
-    return new ImmutableVector3(
+    return new Vector3(
       Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02),
       Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12),
       Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22)

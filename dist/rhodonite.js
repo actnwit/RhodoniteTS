@@ -921,8 +921,8 @@
         _loop_1(fn);
     }
 
-    var ImmutableVector3 = /** @class */ (function () {
-        function ImmutableVector3(x, y, z) {
+    var Vector3 = /** @class */ (function () {
+        function Vector3(x, y, z) {
             if (ArrayBuffer.isView(x)) {
                 this.v = x;
                 return;
@@ -965,21 +965,21 @@
                 this.v[2] = z;
             }
         }
-        Object.defineProperty(ImmutableVector3.prototype, "className", {
+        Object.defineProperty(Vector3.prototype, "className", {
             get: function () {
                 return this.constructor.name;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableVector3, "compositionType", {
+        Object.defineProperty(Vector3, "compositionType", {
             get: function () {
                 return CompositionType.Vec3;
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableVector3.prototype.isStrictEqual = function (vec) {
+        Vector3.prototype.isStrictEqual = function (vec) {
             if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
                 return true;
             }
@@ -987,7 +987,7 @@
                 return false;
             }
         };
-        ImmutableVector3.prototype.isEqual = function (vec, delta) {
+        Vector3.prototype.isEqual = function (vec, delta) {
             if (delta === void 0) { delta = Number.EPSILON; }
             if (Math.abs(vec.x - this.x) < delta &&
                 Math.abs(vec.y - this.y) < delta &&
@@ -1001,16 +1001,16 @@
         /**
          * Zero Vector
          */
-        ImmutableVector3.zero = function () {
-            return new ImmutableVector3(0, 0, 0);
+        Vector3.zero = function () {
+            return new Vector3(0, 0, 0);
         };
-        ImmutableVector3.one = function () {
-            return new ImmutableVector3(1, 1, 1);
+        Vector3.one = function () {
+            return new Vector3(1, 1, 1);
         };
-        ImmutableVector3.dummy = function () {
-            return new ImmutableVector3(null);
+        Vector3.dummy = function () {
+            return new Vector3(null);
         };
-        ImmutableVector3.prototype.isDummy = function () {
+        Vector3.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
             }
@@ -1018,25 +1018,25 @@
                 return false;
             }
         };
-        ImmutableVector3.prototype.clone = function () {
-            return new ImmutableVector3(this.x, this.y, this.z);
+        Vector3.prototype.clone = function () {
+            return new Vector3(this.x, this.y, this.z);
         };
-        ImmutableVector3.prototype.length = function () {
+        Vector3.prototype.length = function () {
             return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         };
         /**
          * to square length(static verison)
          */
-        ImmutableVector3.lengthSquared = function (vec3) {
+        Vector3.lengthSquared = function (vec3) {
             return vec3.x * vec3.x + vec3.y * vec3.y + vec3.z * vec3.z;
         };
-        ImmutableVector3.prototype.lengthTo = function (vec3) {
+        Vector3.prototype.lengthTo = function (vec3) {
             var deltaX = vec3.x - this.x;
             var deltaY = vec3.y - this.y;
             var deltaZ = vec3.z - this.z;
             return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
         };
-        ImmutableVector3.lengthBtw = function (lhv, rhv) {
+        Vector3.lengthBtw = function (lhv, rhv) {
             var deltaX = rhv.x - lhv.x;
             var deltaY = rhv.y - lhv.y;
             var deltaZ = rhv.z - lhv.z;
@@ -1045,115 +1045,115 @@
         /**
          * dot product
          */
-        ImmutableVector3.prototype.dotProduct = function (vec3) {
+        Vector3.prototype.dotProduct = function (vec3) {
             return this.x * vec3.x + this.y * vec3.y + this.z * vec3.z;
         };
         /**
          * dot product(static version)
          */
-        ImmutableVector3.dotProduct = function (lv, rv) {
+        Vector3.dotProduct = function (lv, rv) {
             return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z;
         };
         /**
         * cross product(static version)
         */
-        ImmutableVector3.cross = function (lv, rv) {
+        Vector3.cross = function (lv, rv) {
             var x = lv.y * rv.z - lv.z * rv.y;
             var y = lv.z * rv.x - lv.x * rv.z;
             var z = lv.x * rv.y - lv.y * rv.x;
-            return new ImmutableVector3(x, y, z);
+            return new Vector3(x, y, z);
         };
         /**
          * normalize(static version)
          */
-        ImmutableVector3.normalize = function (vec3) {
+        Vector3.normalize = function (vec3) {
             var length = vec3.length();
-            var newVec = new ImmutableVector3(vec3.x, vec3.y, vec3.z);
-            newVec = ImmutableVector3.divide(newVec, length);
+            var newVec = new Vector3(vec3.x, vec3.y, vec3.z);
+            newVec = Vector3.divide(newVec, length);
             return newVec;
         };
         /**
          * add value（static version）
          */
-        ImmutableVector3.add = function (lv, rv) {
-            return new ImmutableVector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
+        Vector3.add = function (lv, rv) {
+            return new Vector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
         };
         /**
          * subtract(subtract)
          */
-        ImmutableVector3.subtract = function (lv, rv) {
-            return new ImmutableVector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
+        Vector3.subtract = function (lv, rv) {
+            return new Vector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
         };
         /**
          * divide(static version)
          */
-        ImmutableVector3.divide = function (vec3, val) {
+        Vector3.divide = function (vec3, val) {
             if (val !== 0) {
-                return new ImmutableVector3(vec3.x / val, vec3.y / val, vec3.z / val);
+                return new Vector3(vec3.x / val, vec3.y / val, vec3.z / val);
             }
             else {
                 console.error("0 division occured!");
-                return new ImmutableVector3(Infinity, Infinity, Infinity);
+                return new Vector3(Infinity, Infinity, Infinity);
             }
         };
         /**
          * multiply(static version)
          */
-        ImmutableVector3.multiply = function (vec3, val) {
-            return new ImmutableVector3(vec3.x * val, vec3.y * val, vec3.z * val);
+        Vector3.multiply = function (vec3, val) {
+            return new Vector3(vec3.x * val, vec3.y * val, vec3.z * val);
         };
         /**
          * multiply vector(static version)
          */
-        ImmutableVector3.multiplyVector = function (vec3, vec) {
-            return new ImmutableVector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
+        Vector3.multiplyVector = function (vec3, vec) {
+            return new Vector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
         };
-        ImmutableVector3.angleOfVectors = function (lhv, rhv) {
-            var cos_sita = ImmutableVector3.dotProduct(lhv, rhv) / (lhv.length() * rhv.length());
+        Vector3.angleOfVectors = function (lhv, rhv) {
+            var cos_sita = Vector3.dotProduct(lhv, rhv) / (lhv.length() * rhv.length());
             var sita = Math.acos(cos_sita);
             return sita;
         };
         /**
          * divide vector(static version)
          */
-        ImmutableVector3.divideVector = function (lvec3, rvec3) {
-            return new ImmutableVector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
+        Vector3.divideVector = function (lvec3, rvec3) {
+            return new Vector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
         };
         /**
          * change to string
          */
-        ImmutableVector3.prototype.toString = function () {
+        Vector3.prototype.toString = function () {
             return '(' + this.x + ', ' + this.y + ', ' + this.z + ')';
         };
-        Object.defineProperty(ImmutableVector3.prototype, "x", {
+        Object.defineProperty(Vector3.prototype, "x", {
             get: function () {
                 return this.v[0];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableVector3.prototype, "y", {
+        Object.defineProperty(Vector3.prototype, "y", {
             get: function () {
                 return this.v[1];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableVector3.prototype, "z", {
+        Object.defineProperty(Vector3.prototype, "z", {
             get: function () {
                 return this.v[2];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableVector3.prototype, "raw", {
+        Object.defineProperty(Vector3.prototype, "raw", {
             get: function () {
                 return this.v;
             },
             enumerable: true,
             configurable: true
         });
-        return ImmutableVector3;
+        return Vector3;
     }());
     //GLBoost['Vector3'] = Vector3;
 
@@ -1523,7 +1523,7 @@
                 this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
         };
         ImmutableMatrix33.prototype.getScale = function () {
-            return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
         ImmutableMatrix33.prototype.isEqual = function (mat, delta) {
             if (delta === void 0) { delta = Number.EPSILON; }
@@ -1845,7 +1845,7 @@
         ImmutableQuaternion.axisAngle = function (axisVec3, radian) {
             var halfAngle = 0.5 * radian;
             var sin = Math.sin(halfAngle);
-            var axis = ImmutableVector3.normalize(axisVec3);
+            var axis = Vector3.normalize(axisVec3);
             return new ImmutableQuaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
         };
         ImmutableQuaternion.multiply = function (q1, q2) {
@@ -2273,7 +2273,7 @@
             }
         };
         ImmutableMatrix44.prototype.getTranslate = function () {
-            return new ImmutableVector3(this.m03, this.m13, this.m23);
+            return new Vector3(this.m03, this.m13, this.m23);
         };
         ImmutableMatrix44.translate = function (vec) {
             return new ImmutableMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
@@ -2314,13 +2314,13 @@
                 var y = -Math.asin(this.m20);
                 var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
                 var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-                rotate = new ImmutableVector3(x, y, z);
+                rotate = new Vector3(x, y, z);
             }
             else if (this.m20 === -1.0) {
-                rotate = new ImmutableVector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
+                rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
             }
             else {
-                rotate = new ImmutableVector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
+                rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
             }
             return rotate;
         };
@@ -2546,7 +2546,7 @@
                 this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
         };
         ImmutableMatrix44.prototype.getScale = function () {
-            return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
         ImmutableMatrix44.prototype.getRotate = function () {
             var quat = ImmutableQuaternion.fromMatrix(this);
@@ -3215,7 +3215,7 @@
         };
         AccessorBase.prototype.getVec3 = function (index, endian) {
             if (endian === void 0) { endian = true; }
-            return new ImmutableVector3(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian));
+            return new Vector3(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian));
         };
         AccessorBase.prototype.getVec4 = function (index, endian) {
             if (endian === void 0) { endian = true; }
@@ -3871,7 +3871,7 @@
             }
         };
         ImmutableRowMajarMatrix44.prototype.getTranslate = function () {
-            return new ImmutableVector3(this.m03, this.m13, this.m23);
+            return new Vector3(this.m03, this.m13, this.m23);
         };
         ImmutableRowMajarMatrix44.translate = function (vec) {
             return new ImmutableRowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
@@ -3912,13 +3912,13 @@
                 var y = -Math.asin(this.m20);
                 var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
                 var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-                rotate = new ImmutableVector3(x, y, z);
+                rotate = new Vector3(x, y, z);
             }
             else if (this.m20 === -1.0) {
-                rotate = new ImmutableVector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
+                rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
             }
             else {
-                rotate = new ImmutableVector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
+                rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
             }
             return rotate;
         };
@@ -4147,7 +4147,7 @@
                 this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
         };
         ImmutableRowMajarMatrix44.prototype.getScale = function () {
-            return new ImmutableVector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
+            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
         ImmutableRowMajarMatrix44.prototype.getRotate = function () {
             var quat = ImmutableQuaternion.fromMatrix(this);
@@ -5181,7 +5181,7 @@
         MutableQuaternion.prototype.axisAngle = function (axisVec3, radian) {
             var halfAngle = 0.5 * radian;
             var sin = Math.sin(halfAngle);
-            var axis = ImmutableVector3.normalize(axisVec3);
+            var axis = Vector3.normalize(axisVec3);
             this.w = Math.cos(halfAngle);
             this.x = sin * axis.x;
             this.y = sin * axis.y;
@@ -5331,9 +5331,9 @@
         __extends(TransformComponent, _super);
         function TransformComponent(entityUid, componentSid, entityComponent) {
             var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this._translate = ImmutableVector3.dummy();
-            _this._rotate = ImmutableVector3.dummy();
-            _this._scale = ImmutableVector3.dummy();
+            _this._translate = Vector3.dummy();
+            _this._rotate = Vector3.dummy();
+            _this._scale = Vector3.dummy();
             _this._quaternion = MutableQuaternion.dummy();
             _this._matrix = MutableMatrix44.dummy();
             _this._invMatrix = ImmutableMatrix44.dummy();
@@ -5343,9 +5343,9 @@
             _this.__updateCountAtLastLogic = 0;
             // dependencies
             _this._dependentAnimationComponentId = 0;
-            _this.registerMember(BufferUse.CPUGeneric, 'translate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'rotate', ImmutableVector3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'scale', ImmutableVector3, ComponentType.Float, [1, 1, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, ComponentType.Float, [0, 0, 0]);
+            _this.registerMember(BufferUse.CPUGeneric, 'rotate', Vector3, ComponentType.Float, [0, 0, 0]);
+            _this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, ComponentType.Float, [1, 1, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -5794,15 +5794,15 @@
                         this[key] = new ImmutableMatrix44(json[key]);
                     }
                     else {
-                        this[key] = new ImmutableVector3(json[key]);
+                        this[key] = new Vector3(json[key]);
                     }
                 }
             }
         };
         TransformComponent.prototype.setRotationFromNewUpAndFront = function (UpVec, FrontVec) {
             var yDir = UpVec;
-            var xDir = ImmutableVector3.cross(yDir, FrontVec);
-            var zDir = ImmutableVector3.cross(xDir, yDir);
+            var xDir = Vector3.cross(yDir, FrontVec);
+            var zDir = Vector3.cross(xDir, yDir);
             var rotateMatrix = MutableMatrix44.identity();
             rotateMatrix.m00 = xDir.x;
             rotateMatrix.m10 = xDir.y;
@@ -5816,10 +5816,10 @@
             this.rotateMatrix44 = rotateMatrix;
         };
         TransformComponent.prototype.headToDirection = function (fromVec, toVec) {
-            var fromDir = ImmutableVector3.normalize(fromVec);
-            var toDir = ImmutableVector3.normalize(toVec);
-            var rotationDir = ImmutableVector3.cross(fromDir, toDir);
-            var cosTheta = ImmutableVector3.dotProduct(fromDir, toDir);
+            var fromDir = Vector3.normalize(fromVec);
+            var toDir = Vector3.normalize(toVec);
+            var rotationDir = Vector3.cross(fromDir, toDir);
+            var cosTheta = Vector3.dotProduct(fromDir, toDir);
             var theta = Math.acos(cosTheta);
             this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
         };
@@ -7306,7 +7306,7 @@
             configurable: true
         });
         return MutableVector3;
-    }(ImmutableVector3));
+    }(Vector3));
 
     var MutableVector4 = /** @class */ (function (_super) {
         __extends(MutableVector4, _super);
@@ -8400,10 +8400,10 @@
                 var group = groups[node_i];
                 var nodeJson = gltfModel.nodes[node_i];
                 if (nodeJson.translation) {
-                    group.getTransform().translate = new ImmutableVector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
+                    group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
                 }
                 if (nodeJson.scale) {
-                    group.getTransform().scale = new ImmutableVector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
+                    group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
                 }
                 if (nodeJson.rotation) {
                     group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
@@ -8558,7 +8558,7 @@
         PrimitiveMode: PrimitiveMode,
         GLSLShader: GLSLShader,
         System: System,
-        ImmutableVector3: ImmutableVector3,
+        Vector3: Vector3,
         ImmutableVector4: ImmutableVector4,
         MutableVector3: MutableVector3,
         MutableVector4: MutableVector4,

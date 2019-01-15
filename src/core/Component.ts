@@ -16,7 +16,7 @@ import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import ImmutableMatrix33 from '../math/ImmutableMatrix33';
-import ImmutableVector3 from '../math/ImmutableVector3';
+import Vector3 from '../math/Vector3';
 import ImmutableVector4 from '../math/ImmutableVector4';
 import MutableVector4 from '../math/MutableVector4';
 import MutableQuaternion from '../math/MutableQuaterion';

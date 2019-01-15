@@ -1,6 +1,6 @@
 //import GLBoost from '../../globals';
 
-import ImmutableVector3 from './ImmutableVector3';
+import Vector3 from './Vector3';
 import { IVector4 } from './IVector';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
@@ -9,7 +9,7 @@ import { CompositionType } from '../definitions/CompositionType';
 export default class ImmutableQuaternion implements IVector4 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -136,11 +136,11 @@ export default class ImmutableQuaternion implements IVector4 {
     }
   }
 
-  static axisAngle(axisVec3: ImmutableVector3, radian: number) {
+  static axisAngle(axisVec3: Vector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = ImmutableVector3.normalize(axisVec3);
+    var axis = Vector3.normalize(axisVec3);
     return new ImmutableQuaternion(
       sin * axis.x,
       sin * axis.y,
@@ -191,7 +191,7 @@ export default class ImmutableQuaternion implements IVector4 {
     return q;
   }
 
-  static fromPosition(vec3: ImmutableVector3) {
+  static fromPosition(vec3: Vector3) {
     let q = new ImmutableQuaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }
