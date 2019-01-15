@@ -1,20 +1,20 @@
-import ImmutableMatrix33 from "./ImmutableMatrix33";
-import ImmutableQuaternion from "./ImmutableQuaternion";
-import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
-import ImmutableMatrix44 from "./ImmutableMatrix44";
-import ImmutableVector3 from "./ImmutableVector3";
+import Matrix33 from "./Matrix33";
+import Quaternion from "./Quaternion";
+import RowMajarMatrix44 from "./RowMajarMatrix44";
+import Matrix44 from "./Matrix44";
+import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
+export default class MutableRowMajarMatrix44 extends RowMajarMatrix44 {
 
   constructor(m: FloatArray, notCopyFloatArray?:Boolean);
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableMatrix33, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableRowMajarMatrix44, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
+  constructor(m: Matrix33, notCopyFloatArray?:Boolean);
+  constructor(m: RowMajarMatrix44, notCopyFloatArray?:Boolean);
+  constructor(m: Quaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -60,7 +60,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
     return this;
   }
 
-  copyComponents(mat4: ImmutableRowMajarMatrix44 | ImmutableMatrix44) {
+  copyComponents(mat4: RowMajarMatrix44 | Matrix44) {
     //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
     const m = mat4;
 
@@ -96,7 +96,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
     return this;
   }
 
-  translate(vec: ImmutableVector3) {
+  translate(vec: Vector3) {
     return this.setComponents(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
@@ -105,13 +105,13 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
     );
   }
 
-  putTranslate(vec: ImmutableVector3) {
+  putTranslate(vec: Vector3) {
     this.m03 = vec.x;
     this.m13 = vec.y;
     this.m23 = vec.z;
   }
 
-  scale(vec: ImmutableVector3) {
+  scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
@@ -120,7 +120,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
     );
   }
 
-  addScale(vec: ImmutableVector3) {
+  addScale(vec: Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;
@@ -269,7 +269,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat: ImmutableRowMajarMatrix44) {
+  multiply(mat: RowMajarMatrix44) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20 + this.m03*mat.m30;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21 + this.m03*mat.m31;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22 + this.m03*mat.m32;
@@ -299,7 +299,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
   }
 
 
-  multiplyByLeft(mat: ImmutableRowMajarMatrix44) {
+  multiplyByLeft(mat: RowMajarMatrix44) {
     var m00 = mat.m00*this.m00 + mat.m01*this.m10 + mat.m02*this.m20 + mat.m03*this.m30;
     var m01 = mat.m00*this.m01 + mat.m01*this.m11 + mat.m02*this.m21 + mat.m03*this.m31;
     var m02 = mat.m00*this.m02 + mat.m01*this.m12 + mat.m02*this.m22 + mat.m03*this.m32;

@@ -1,6 +1,6 @@
 import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
-import ImmutableMatrix44 from '../math/ImmutableMatrix44';
+import Matrix44 from '../math/Matrix44';
 import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import MemoryManager from '../core/MemoryManager';
@@ -14,7 +14,7 @@ import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -95,7 +95,7 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  calcWorldMatrixRecursively(): ImmutableMatrix44 | MutableRowMajarMatrix44 {
+  calcWorldMatrixRecursively(): Matrix44 | MutableRowMajarMatrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 

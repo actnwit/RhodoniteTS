@@ -1,13 +1,13 @@
-import ImmutableVector3 from "./ImmutableVector3";
-import ImmutableVector4 from "./ImmutableVector4";
-import ImmutableQuaternion from "./ImmutableQuaternion";
+import Vector3 from "./Vector3";
 import Vector4 from "./Vector4";
-import ImmutableMatrix44 from "./ImmutableMatrix44";
+import Quaternion from "./Quaternion";
+import {IVector4} from "./IVector";
+import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableQuaternion extends ImmutableQuaternion implements Vector4 {
+export default class MutableQuaternion extends Quaternion implements IVector4 {
 
-  constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|Vector4|Quaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     super(x, y, z, w);
   }
 
@@ -19,11 +19,11 @@ export default class MutableQuaternion extends ImmutableQuaternion implements Ve
     return new MutableQuaternion(this.x, this.y, this.z, this.w);
   }
 
-  axisAngle(axisVec3:ImmutableVector3, radian:number) {
+  axisAngle(axisVec3:Vector3, radian:number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = ImmutableVector3.normalize(axisVec3);
+    var axis = Vector3.normalize(axisVec3);
     this.w = Math.cos(halfAngle);
     this.x = sin * axis.x;
     this.y = sin * axis.y;
@@ -32,7 +32,7 @@ export default class MutableQuaternion extends ImmutableQuaternion implements Ve
     return this;
   }
 
-  add(q:ImmutableQuaternion) {
+  add(q:Quaternion) {
     this.x += q.x;
     this.y += q.y;
     this.z += q.z;
@@ -41,8 +41,8 @@ export default class MutableQuaternion extends ImmutableQuaternion implements Ve
     return this;
   }
 
-  multiply(q:ImmutableQuaternion) {
-    let result = new ImmutableQuaternion(0, 0, 0, 1);
+  multiply(q:Quaternion) {
+    let result = new Quaternion(0, 0, 0, 1);
     result.v[0] =   q.w*this.x + q.z*this.y + q.y*this.z - q.x*this.w;
     result.v[1] = - q.z*this.x + q.w*this.y + q.x*this.z - q.y*this.w;
     result.v[2] =   q.y*this.x + q.x*this.y + q.w*this.z - q.z*this.w;
@@ -55,7 +55,7 @@ export default class MutableQuaternion extends ImmutableQuaternion implements Ve
     return this;
   }
 
-  fromMatrix(m:ImmutableMatrix44) {
+  fromMatrix(m:Matrix44) {
 
     let tr = m.m00 + m.m11 + m.m22;
 

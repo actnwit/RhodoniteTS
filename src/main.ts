@@ -11,12 +11,12 @@ import { CompositionType, CompositionTypeEnum } from './definitions/CompositionT
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
 import GLSLShader from './renderer/webgl/GLSLShader';
 import System from './system/System';
-import ImmutableVector3 from './math/ImmutableVector3';
-import ImmutableVector4 from './math/ImmutableVector4';
+import Vector3 from './math/Vector3';
+import Vector4 from './math/Vector4';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
-import ImmutableMatrix33 from './math/ImmutableMatrix33';
-import ImmutableMatrix44 from './math/ImmutableMatrix44';
+import Matrix33 from './math/Matrix33';
+import Matrix44 from './math/Matrix44';
 import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf2Importer from './importer/Gltf2Importer';
@@ -36,12 +36,12 @@ const Rn = Object.freeze({
   PrimitiveMode,
   GLSLShader,
   System,
-  ImmutableVector3,
-  ImmutableVector4,
+  Vector3,
+  Vector4,
   MutableVector3,
   MutableVector4,
-  ImmutableMatrix33,
-  ImmutableMatrix44,
+  Matrix33,
+  Matrix44,
   MutableMatrix44,
   ProcessApproach,
   Gltf2Importer,

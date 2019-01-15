@@ -1,18 +1,18 @@
-import ImmutableMatrix44 from "./ImmutableMatrix44";
-import ImmutableQuaternion from "./ImmutableQuaternion";
+import Matrix44 from "./Matrix44";
+import Quaternion from "./Quaternion";
+import {IMutableMatrix33} from "./IMatrix";
 import Matrix33 from "./Matrix33";
-import ImmutableMatrix33 from "./ImmutableMatrix33";
-import ImmutableVector3 from "./ImmutableVector3";
+import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix33 {
+export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean);
-  constructor(m: ImmutableMatrix33, isColumnMajor?:boolean);
-  constructor(m: ImmutableMatrix44, isColumnMajor?:boolean);
-  constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean);
   constructor(
     m0: number, m1:number, m2:number,
     m3:number, m4:number, m5:number,
@@ -135,7 +135,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     );
   }
 
-  scale(vec: ImmutableVector3) {
+  scale(vec: Vector3) {
     return this.setComponents(
       vec.x, 0, 0,
       0, vec.y, 0,
@@ -147,7 +147,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     return (MutableMatrix33.rotateZ(z).multiply(MutableMatrix33.rotateY(y).multiply(MutableMatrix33.rotateX(x))));
   }
 
-  static rotate(vec3:ImmutableVector3) {
+  static rotate(vec3:Vector3) {
     return (MutableMatrix33.rotateZ(vec3.z).multiply(MutableMatrix33.rotateY(vec3.y).multiply(MutableMatrix33.rotateX(vec3.x))));
   }
 
@@ -185,18 +185,18 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
   }
 
 
-  multiplyVector(vec:ImmutableVector3) {
+  multiplyVector(vec:Vector3) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
     var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
 
-    return new ImmutableVector3(x, y, z);
+    return new Vector3(x, y, z);
   }
 
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat:ImmutableMatrix33) {
+  multiply(mat:Matrix33) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22;
@@ -237,7 +237,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix
     );
   }
 
-  addScale(vec:ImmutableVector3) {
+  addScale(vec:Vector3) {
     this.m00 *= vec.x;
     this.m11 *= vec.y;
     this.m22 *= vec.z;

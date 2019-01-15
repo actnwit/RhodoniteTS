@@ -1,15 +1,15 @@
 //import GLBoost from '../../globals';
 
-import ImmutableVector3 from './ImmutableVector3';
+import Vector3 from './Vector3';
+import { IVector4 } from './IVector';
+import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
-import ImmutableMatrix44 from './ImmutableMatrix44';
-import ImmutableVector4 from './ImmutableVector4';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableQuaternion implements Vector4 {
+export default class Quaternion implements IVector4 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|Vector4|Quaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -53,7 +53,7 @@ export default class ImmutableQuaternion implements Vector4 {
   }
 
 
-  isEqual(quat: ImmutableQuaternion) {
+  isEqual(quat: Quaternion) {
     if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
       return true;
     } else {
@@ -66,7 +66,7 @@ export default class ImmutableQuaternion implements Vector4 {
   }
 
   static dummy() {
-    return new ImmutableQuaternion(null);
+    return new Quaternion(null);
   }
 
   isDummy() {
@@ -82,11 +82,11 @@ export default class ImmutableQuaternion implements Vector4 {
   }
 
   clone() {
-    return new ImmutableQuaternion(this.x, this.y, this.z, this.w);
+    return new Quaternion(this.x, this.y, this.z, this.w);
   }
 
-  static invert(quat: ImmutableQuaternion) {
-    quat = new ImmutableQuaternion(-quat.x, -quat.y, -quat.z, quat.w);
+  static invert(quat: Quaternion) {
+    quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
     const inorm2 = 1.0/(quat.x*quat.x + quat.y*quat.y + quat.z*quat.z + quat.w*quat.w);
     quat.v[0] *= inorm2;
     quat.v[1] *= inorm2;
@@ -95,9 +95,9 @@ export default class ImmutableQuaternion implements Vector4 {
     return quat;
   }
 
-  static qlerp(lhq: ImmutableQuaternion, rhq: ImmutableQuaternion, ratio:number) {
+  static qlerp(lhq: Quaternion, rhq: Quaternion, ratio:number) {
 
-    var q = new ImmutableQuaternion(0, 0, 0, 1);
+    var q = new Quaternion(0, 0, 0, 1);
     var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
     var ss = 1.0 - qr * qr;
 
@@ -136,20 +136,20 @@ export default class ImmutableQuaternion implements Vector4 {
     }
   }
 
-  static axisAngle(axisVec3: ImmutableVector3, radian: number) {
+  static axisAngle(axisVec3: Vector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
 
-    var axis = ImmutableVector3.normalize(axisVec3);
-    return new ImmutableQuaternion(
+    var axis = Vector3.normalize(axisVec3);
+    return new Quaternion(
       sin * axis.x,
       sin * axis.y,
       sin * axis.z,
       Math.cos(halfAngle));
   }
 
-  static multiply(q1:ImmutableQuaternion, q2:ImmutableQuaternion) {
-    let result = new ImmutableQuaternion(0, 0, 0, 1);
+  static multiply(q1:Quaternion, q2:Quaternion) {
+    let result = new Quaternion(0, 0, 0, 1);
     result.v[0] =   q2.w*q1.x + q2.z*q1.y - q2.y*q1.z + q2.x*q1.w;
     result.v[1] = - q2.z*q1.x + q2.w*q1.y + q2.x*q1.z + q2.y*q1.w;
     result.v[2] =   q2.y*q1.x - q2.x*q1.y + q2.w*q1.z + q2.z*q1.w;
@@ -157,9 +157,9 @@ export default class ImmutableQuaternion implements Vector4 {
     return result;
   }
 
-  static fromMatrix(m:ImmutableMatrix44) {
+  static fromMatrix(m:Matrix44) {
 
-    let q = new ImmutableQuaternion();
+    let q = new Quaternion();
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
@@ -191,8 +191,8 @@ export default class ImmutableQuaternion implements Vector4 {
     return q;
   }
 
-  static fromPosition(vec3: ImmutableVector3) {
-    let q = new ImmutableQuaternion(vec3.x, vec3.y, vec3.z, 0);
+  static fromPosition(vec3: Vector3) {
+    let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
   }
 

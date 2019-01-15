@@ -4,9 +4,9 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
-import ImmutableQuaternion from '../math/ImmutableQuaternion';
-import ImmutableMatrix44 from '../math/ImmutableMatrix44';
-import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
+import Quaternion from '../math/Quaternion';
+import Matrix44 from '../math/Matrix44';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
 import ComponentRepository from './ComponentRepository';
@@ -15,9 +15,9 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import ImmutableMatrix33 from '../math/ImmutableMatrix33';
-import ImmutableVector3 from '../math/ImmutableVector3';
-import ImmutableVector4 from '../math/ImmutableVector4';
+import Matrix33 from '../math/Matrix33';
+import Vector3 from '../math/Vector3';
+import Vector4 from '../math/Vector4';
 import MutableVector4 from '../math/MutableVector4';
 import MutableQuaternion from '../math/MutableQuaterion';
 
@@ -193,9 +193,9 @@ export default class Component {
       return;
     }
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
-    if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
+    if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
-    } else if (dataClassType === ImmutableRowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
+    } else if (dataClassType === RowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, true);
     } else {
       (this as any)['_'+memberName] = new dataClassType(taken);
