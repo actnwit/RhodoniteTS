@@ -946,6 +946,146 @@ class Vector3 {
 }
 //GLBoost['Vector3'] = Vector3;
 
+class Vector4 {
+    constructor(x, y, z, w) {
+        if (ArrayBuffer.isView(x)) {
+            this.v = x;
+            return;
+        }
+        else {
+            this.v = new Float32Array(4);
+        }
+        if (!(x != null)) {
+            this.v[0] = 0;
+            this.v[1] = 0;
+            this.v[2] = 0;
+            this.v[3] = 1;
+        }
+        else if (Array.isArray(x)) {
+            this.v[0] = x[0];
+            this.v[1] = x[1];
+            this.v[2] = x[2];
+            this.v[3] = x[3];
+        }
+        else if (typeof x.w !== 'undefined') {
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = x.z;
+            this.v[3] = x.w;
+        }
+        else if (typeof x.z !== 'undefined') {
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = x.z;
+            this.v[3] = 1;
+        }
+        else if (typeof x.y !== 'undefined') {
+            this.v[0] = x.x;
+            this.v[1] = x.y;
+            this.v[2] = 0;
+            this.v[3] = 1;
+        }
+        else {
+            this.v[0] = x;
+            this.v[1] = y;
+            this.v[2] = z;
+            this.v[3] = w;
+        }
+    }
+    get className() {
+        return this.constructor.name;
+    }
+    static get compositionType() {
+        return CompositionType.Vec4;
+    }
+    isStrictEqual(vec) {
+        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    isEqual(vec, delta = Number.EPSILON) {
+        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
+            Math.abs(vec.v[1] - this.v[1]) < delta &&
+            Math.abs(vec.v[2] - this.v[2]) < delta &&
+            Math.abs(vec.v[3] - this.v[3]) < delta) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    clone() {
+        return new Vector4(this.x, this.y, this.z, this.w);
+    }
+    /**
+     * Zero Vector
+     */
+    static zero() {
+        return new Vector4(0, 0, 0, 1);
+    }
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    }
+    static normalize(vec4) {
+        const length = vec4.length();
+        let newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
+        newVec = Vector4.divide(newVec, length);
+        return newVec;
+    }
+    /**
+     * add value（static version）
+     */
+    static add(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+    }
+    static subtract(lv, rv) {
+        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
+    }
+    /**
+     * add value except w component（static version）
+     */
+    static addWithOutW(lv, rv) {
+        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+    }
+    static multiply(vec4, val) {
+        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+    }
+    static multiplyVector(vec4, vec) {
+        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+    }
+    static divide(vec4, val) {
+        if (val !== 0) {
+            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+        }
+        else {
+            console.warn("0 division occured!");
+            return new Vector4(Infinity, Infinity, Infinity, Infinity);
+        }
+    }
+    static divideVector(lvec4, rvec4) {
+        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+    }
+    toString() {
+        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+    }
+    get x() {
+        return this.v[0];
+    }
+    get y() {
+        return this.v[1];
+    }
+    get z() {
+        return this.v[2];
+    }
+    get w() {
+        return this.v[3];
+    }
+}
+// GLBoost["Vector4"] = Vector4;
+
 // import GLBoost from '../../globals';
 class ImmutableMatrix33 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
@@ -1285,146 +1425,6 @@ class ImmutableMatrix33 {
         }
     }
 }
-
-class ImmutableVector4 {
-    constructor(x, y, z, w) {
-        if (ArrayBuffer.isView(x)) {
-            this.v = x;
-            return;
-        }
-        else {
-            this.v = new Float32Array(4);
-        }
-        if (!(x != null)) {
-            this.v[0] = 0;
-            this.v[1] = 0;
-            this.v[2] = 0;
-            this.v[3] = 1;
-        }
-        else if (Array.isArray(x)) {
-            this.v[0] = x[0];
-            this.v[1] = x[1];
-            this.v[2] = x[2];
-            this.v[3] = x[3];
-        }
-        else if (typeof x.w !== 'undefined') {
-            this.v[0] = x.x;
-            this.v[1] = x.y;
-            this.v[2] = x.z;
-            this.v[3] = x.w;
-        }
-        else if (typeof x.z !== 'undefined') {
-            this.v[0] = x.x;
-            this.v[1] = x.y;
-            this.v[2] = x.z;
-            this.v[3] = 1;
-        }
-        else if (typeof x.y !== 'undefined') {
-            this.v[0] = x.x;
-            this.v[1] = x.y;
-            this.v[2] = 0;
-            this.v[3] = 1;
-        }
-        else {
-            this.v[0] = x;
-            this.v[1] = y;
-            this.v[2] = z;
-            this.v[3] = w;
-        }
-    }
-    get className() {
-        return this.constructor.name;
-    }
-    static get compositionType() {
-        return CompositionType.Vec4;
-    }
-    isStrictEqual(vec) {
-        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    isEqual(vec, delta = Number.EPSILON) {
-        if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-            Math.abs(vec.v[1] - this.v[1]) < delta &&
-            Math.abs(vec.v[2] - this.v[2]) < delta &&
-            Math.abs(vec.v[3] - this.v[3]) < delta) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    clone() {
-        return new ImmutableVector4(this.x, this.y, this.z, this.w);
-    }
-    /**
-     * Zero Vector
-     */
-    static zero() {
-        return new ImmutableVector4(0, 0, 0, 1);
-    }
-    length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-    }
-    static normalize(vec4) {
-        const length = vec4.length();
-        let newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
-        newVec = ImmutableVector4.divide(newVec, length);
-        return newVec;
-    }
-    /**
-     * add value（static version）
-     */
-    static add(lv, rv) {
-        return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-    }
-    static subtract(lv, rv) {
-        return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-    }
-    /**
-     * add value except w component（static version）
-     */
-    static addWithOutW(lv, rv) {
-        return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-    }
-    static multiply(vec4, val) {
-        return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-    }
-    static multiplyVector(vec4, vec) {
-        return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-    }
-    static divide(vec4, val) {
-        if (val !== 0) {
-            return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-        }
-        else {
-            console.warn("0 division occured!");
-            return new ImmutableVector4(Infinity, Infinity, Infinity, Infinity);
-        }
-    }
-    static divideVector(lvec4, rvec4) {
-        return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-    }
-    toString() {
-        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-    }
-    get x() {
-        return this.v[0];
-    }
-    get y() {
-        return this.v[1];
-    }
-    get z() {
-        return this.v[2];
-    }
-    get w() {
-        return this.v[3];
-    }
-}
-// GLBoost["Vector4"] = Vector4;
 
 //import GLBoost from '../../globals';
 class ImmutableQuaternion {
@@ -2024,7 +2024,7 @@ class ImmutableMatrix44 {
         var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
         var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
         var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-        return new ImmutableVector4(x, y, z, w);
+        return new Vector4(x, y, z, w);
     }
     /**
      * multiply zero matrix and zero matrix(static version)
@@ -2706,7 +2706,7 @@ class AccessorBase extends RnObject {
         return new Vector3(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian));
     }
     getVec4(index, endian = true) {
-        return new ImmutableVector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
+        return new Vector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
     }
     getMat3(index, endian = true) {
         return new ImmutableMatrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
@@ -3039,6 +3039,7 @@ class MemoryManager {
 MemoryManager.__bufferWidthLength = Math.pow(2, 8);
 MemoryManager.__bufferHeightLength = Math.pow(2, 8);
 
+//import GLBoost from '../../globals';
 const FloatArray$2 = Float32Array;
 class ImmutableRowMajarMatrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
@@ -3332,7 +3333,7 @@ class ImmutableRowMajarMatrix44 {
         var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
         var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
         var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-        return new ImmutableVector4(x, y, z, w);
+        return new Vector4(x, y, z, w);
     }
     /**
      * multiply zero matrix and zero matrix(static version)
@@ -6362,7 +6363,7 @@ class MutableVector3 extends Vector3 {
     }
 }
 
-class MutableVector4 extends ImmutableVector4 {
+class MutableVector4 extends Vector4 {
     constructor(x, y, z, w) {
         super(x, y, z, w);
     }
@@ -7399,7 +7400,7 @@ const Rn = Object.freeze({
     GLSLShader,
     System,
     Vector3,
-    ImmutableVector4,
+    Vector4,
     MutableVector3,
     MutableVector4,
     ImmutableMatrix33,

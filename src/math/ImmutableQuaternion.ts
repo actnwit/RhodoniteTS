@@ -3,13 +3,13 @@
 import Vector3 from './Vector3';
 import { IVector4 } from './IVector';
 import ImmutableMatrix44 from './ImmutableMatrix44';
-import ImmutableVector4 from './ImmutableVector4';
+import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 
 export default class ImmutableQuaternion implements IVector4 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?:number|TypedArray|Vector3|Vector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;

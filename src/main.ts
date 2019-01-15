@@ -12,7 +12,7 @@ import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
 import GLSLShader from './renderer/webgl/GLSLShader';
 import System from './system/System';
 import Vector3 from './math/Vector3';
-import ImmutableVector4 from './math/ImmutableVector4';
+import Vector4 from './math/Vector4';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
 import ImmutableMatrix33 from './math/ImmutableMatrix33';
@@ -37,7 +37,7 @@ const Rn = Object.freeze({
   GLSLShader,
   System,
   Vector3,
-  ImmutableVector4,
+  Vector4,
   MutableVector3,
   MutableVector4,
   ImmutableMatrix33,

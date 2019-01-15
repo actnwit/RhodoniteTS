@@ -1,6 +1,6 @@
 //import GLBoost from './../../globals';
 import Vector2 from './Vector2';
-import Vector4 from './ImmutableVector4';
+import Vector4 from './Vector4';
 import is from '../misc/IsUtil';
 import {IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';

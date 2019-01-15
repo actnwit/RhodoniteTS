@@ -1,6 +1,6 @@
 import Vector2 from '../math/Vector2';
 import Vector3 from '../math/Vector3';
-import Vector4 from '../math/ImmutableVector4';
+import Vector4 from '../math/Vector4';
 import ImmutableQuaternion from '../math/ImmutableQuaternion';
 import ImmutableMatrix33 from '../math/ImmutableMatrix33';
 import ImmutableMatrix44 from '../math/ImmutableMatrix44';

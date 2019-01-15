@@ -1,6 +1,6 @@
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-import ImmutableVector4 from './ImmutableVector4';
+import Vector4 from './Vector4';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableMatrix44 from './ImmutableMatrix44';
@@ -14,7 +14,7 @@ export default class MathClassUtil {
   static arrayToVector(element:Array<number>) {
     if (Array.isArray(element)) {
       if(typeof(element[3]) !== 'undefined') {
-        return new ImmutableVector4(element[0], element[1], element[2], element[3]);
+        return new Vector4(element[0], element[1], element[2], element[3]);
       } else if (typeof(element[2]) !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
@@ -32,7 +32,7 @@ export default class MathClassUtil {
       } else if(typeof(element[8]) !== 'undefined') {
         return new ImmutableMatrix33(element);
       } else if(typeof(element[3]) !== 'undefined') {
-        return new ImmutableVector4(element[0], element[1], element[2], element[3]);
+        return new Vector4(element[0], element[1], element[2], element[3]);
       } else if (typeof(element[2]) !== 'undefined') {
         return new Vector3(element[0], element[1], element[2]);
       } else {
@@ -48,7 +48,7 @@ export default class MathClassUtil {
       return element.clone();
     } else if (element instanceof ImmutableMatrix33) {
       return element.clone();
-    } else if (element instanceof ImmutableVector4) {
+    } else if (element instanceof Vector4) {
       return element.clone();
     } else if (element instanceof Vector3) {
       return element.clone();
@@ -85,12 +85,12 @@ export default class MathClassUtil {
     }
   }
 
-  static vectorToArray(element:Vector2|Vector3|ImmutableVector4|ImmutableQuaternion) {
+  static vectorToArray(element:Vector2|Vector3|Vector4|ImmutableQuaternion) {
     if(element instanceof Vector2) {
       return [element.x, element.y];
     } else if (element instanceof Vector3) {
       return [element.x, element.y, element.z];
-    } else if (element instanceof ImmutableVector4 || element instanceof ImmutableQuaternion) {
+    } else if (element instanceof Vector4 || element instanceof ImmutableQuaternion) {
       return [element.x, element.y, element.z, element.w];
     } else {
       return element;
@@ -102,12 +102,12 @@ export default class MathClassUtil {
    * @param element any Vector instance  
    * @return number of Vector instance
    */
-  static compomentNumberOfVector(element: Vector2 | Vector3 |  ImmutableVector4 | ImmutableQuaternion | Array<any>): number {
+  static compomentNumberOfVector(element: Vector2 | Vector3 |  Vector4 | ImmutableQuaternion | Array<any>): number {
     if(element instanceof Vector2) {
       return 2;
     } else if (element instanceof Vector3) {
       return 3;
-    } else if (element instanceof ImmutableVector4 || element instanceof ImmutableQuaternion) {
+    } else if (element instanceof Vector4 || element instanceof ImmutableQuaternion) {
       return 4;
     } else if (Array.isArray(element)) {
       return element.length;
@@ -139,8 +139,8 @@ export default class MathClassUtil {
     return [v0, v1];
   }
 
-  static unProject(windowPosVec3:Vector3, inversePVMat44:ImmutableMatrix44, viewportVec4:ImmutableVector4, zNear:number, zFar:number) {
-    const input = new ImmutableVector4(
+  static unProject(windowPosVec3:Vector3, inversePVMat44:ImmutableMatrix44, viewportVec4:Vector4, zNear:number, zFar:number) {
+    const input = new Vector4(
       (windowPosVec3.x - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
       (windowPosVec3.y - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
 //      (windowPosVec3.z - zNear) / (zFar - zNear),
@@ -158,7 +158,7 @@ export default class MathClassUtil {
       console.warn("Zero division!");
     }
 
-    const output = new Vector3(ImmutableVector4.multiply(out, 1/out.w));
+    const output = new Vector3(Vector4.multiply(out, 1/out.w));
 
     return output;
   }

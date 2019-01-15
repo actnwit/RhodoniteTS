@@ -4,7 +4,7 @@ import Vector3 from './Vector3';
 import {IVector4} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableVector4 implements IVector4 {
+export default class Vector4 implements IVector4 {
   v: TypedArray;
 
   constructor(x:number|TypedArray|Vector2|Vector3|IVector4, y?:number, z?:number, w?:number) {
@@ -56,7 +56,7 @@ export default class ImmutableVector4 implements IVector4 {
     return CompositionType.Vec4;
   }
 
-  isStrictEqual(vec:ImmutableVector4): boolean {
+  isStrictEqual(vec:Vector4): boolean {
     if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
     } else {
@@ -64,7 +64,7 @@ export default class ImmutableVector4 implements IVector4 {
     }
   }
 
-  isEqual(vec: ImmutableVector4, delta: number = Number.EPSILON) {
+  isEqual(vec: Vector4, delta: number = Number.EPSILON) {
     if (Math.abs(vec.v[0] - this.v[0]) < delta &&
       Math.abs(vec.v[1] - this.v[1]) < delta &&
       Math.abs(vec.v[2] - this.v[2]) < delta &&
@@ -76,14 +76,14 @@ export default class ImmutableVector4 implements IVector4 {
   }
 
   clone() {
-    return new ImmutableVector4(this.x, this.y, this.z, this.w);
+    return new Vector4(this.x, this.y, this.z, this.w);
   }
 
   /**
    * Zero Vector
    */
   static zero() {
-    return new ImmutableVector4(0, 0, 0, 1);
+    return new Vector4(0, 0, 0, 1);
   }
 
   length() {
@@ -91,10 +91,10 @@ export default class ImmutableVector4 implements IVector4 {
   }
 
 
-  static normalize(vec4:ImmutableVector4) {
+  static normalize(vec4:Vector4) {
     const length = vec4.length();
-    let newVec = new ImmutableVector4(vec4.x, vec4.y, vec4.z, vec4.w);
-    newVec = ImmutableVector4.divide(newVec, length);
+    let newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
+    newVec = Vector4.divide(newVec, length);
 
     return newVec;
   }
@@ -103,40 +103,40 @@ export default class ImmutableVector4 implements IVector4 {
    * add value（static version）
    */
   static add(lv:IVector4, rv:IVector4) {
-    return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+    return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
   }
 
 
   static subtract(lv:IVector4, rv:IVector4) {
-    return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
+    return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
   }
   /**
    * add value except w component（static version）
    */
   static addWithOutW(lv:IVector4, rv:IVector4) {
-    return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+    return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
   }
 
   static multiply(vec4:IVector4, val:number) {
-    return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+    return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
   }
 
   static multiplyVector(vec4:IVector4, vec:IVector4) {
-    return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+    return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
   }
 
 
   static divide(vec4:IVector4, val:number) {
     if (val !== 0) {
-      return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+      return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
     } else {
       console.warn("0 division occured!");
-      return new ImmutableVector4(Infinity, Infinity, Infinity, Infinity);
+      return new Vector4(Infinity, Infinity, Infinity, Infinity);
     }
   }
 
   static divideVector(lvec4:IVector4, rvec4:IVector4) {
-    return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+    return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
   }
 
   toString() {
