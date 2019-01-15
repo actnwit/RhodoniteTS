@@ -2,11 +2,11 @@
 import Vector3 from './Vector3';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableQuaternion from './ImmutableQuaternion';
-import Matrix33 from './Matrix33';
+import {IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableMatrix33 implements Matrix33 {
+export default class ImmutableMatrix33 implements IMatrix33 {
   v: TypedArray;
 
   constructor(m: null);

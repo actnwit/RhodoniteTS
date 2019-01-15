@@ -4,13 +4,13 @@ import ImmutableMatrix33 from './ImmutableMatrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import Vector4 from './Vector4';
 import ImmutableRowMajarMatrix44 from './ImmutableRowMajarMatrix44';
-import Matrix44 from './Matrix44';
+import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class ImmutableMatrix44 implements Matrix44 {
+export default class ImmutableMatrix44 implements IMatrix44 {
   v: TypedArray;
 
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);

@@ -1,11 +1,11 @@
 import ImmutableMatrix44 from "./ImmutableMatrix44";
 import ImmutableQuaternion from "./ImmutableQuaternion";
-import Matrix33 from "./Matrix33";
+import {IMutableMatrix33} from "./IMatrix";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableMatrix33 extends ImmutableMatrix33 implements Matrix33 {
+export default class MutableMatrix33 extends ImmutableMatrix33 implements IMutableMatrix33 {
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);

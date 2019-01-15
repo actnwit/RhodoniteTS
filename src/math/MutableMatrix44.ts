@@ -1,5 +1,5 @@
 import ImmutableMatrix44 from "./ImmutableMatrix44";
-import Matrix44 from "./Matrix44";
+import {IMutableMatrix44} from "./IMatrix";
 import ImmutableMatrix33 from "./ImmutableMatrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
@@ -9,7 +9,7 @@ import { CompositionType } from "../definitions/CompositionType";
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableMatrix44 extends ImmutableMatrix44 implements Matrix44{
+export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
