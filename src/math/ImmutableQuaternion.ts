@@ -1,12 +1,12 @@
 //import GLBoost from '../../globals';
 
 import ImmutableVector3 from './ImmutableVector3';
-import Vector4 from './Vector4';
+import { IVector4 } from './IVector';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import ImmutableVector4 from './ImmutableVector4';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableQuaternion implements Vector4 {
+export default class ImmutableQuaternion implements IVector4 {
   v: TypedArray;
 
   constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {

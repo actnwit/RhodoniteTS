@@ -1,11 +1,11 @@
 import ImmutableVector3 from "./ImmutableVector3";
 import ImmutableVector4 from "./ImmutableVector4";
 import ImmutableQuaternion from "./ImmutableQuaternion";
-import Vector4 from "./Vector4";
+import {IVector4} from "./IVector";
 import ImmutableMatrix44 from "./ImmutableMatrix44";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableQuaternion extends ImmutableQuaternion implements Vector4 {
+export default class MutableQuaternion extends ImmutableQuaternion implements IVector4 {
 
   constructor(x?:number|TypedArray|ImmutableVector3|ImmutableVector4|ImmutableQuaternion|Array<number>|null, y?:number, z?:number, w?:number) {
     super(x, y, z, w);

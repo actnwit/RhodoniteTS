@@ -1,11 +1,10 @@
 import Vector2 from "./Vector2";
 import ImmutableVector3 from "./ImmutableVector3";
-import Vector4 from "./Vector4";
-import Vector3 from "./Vector3";
+import {IVector3, IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableVector3 extends ImmutableVector3 implements Vector3 {
-  constructor(x: number|TypedArray|Vector2|Vector3|Vector4, y?: number, z?: number) {
+export default class MutableVector3 extends ImmutableVector3 implements IVector3 {
+  constructor(x: number|TypedArray|Vector2|IVector3|IVector4, y?: number, z?: number) {
     super(x as any, y, z);
   }
 

@@ -1,12 +1,12 @@
 import Vector2 from './Vector2';
 import Vector4 from './ImmutableVector4';
-import Vector3 from './Vector3';
+import {IVector3} from './IVector';
 import {IMutableColorRgb} from './IColor';
 import ColorRgb from './ColorRgb';
 
-export default class MutableColorRgb extends ColorRgb implements Vector3, IMutableColorRgb {
+export default class MutableColorRgb extends ColorRgb implements IVector3, IMutableColorRgb {
 
-  constructor(r?:number|TypedArray|Vector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
+  constructor(r?:number|TypedArray|IVector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
     super(r, g, b);
   }
 

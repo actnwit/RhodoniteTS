@@ -1,13 +1,13 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import ImmutableVector3 from './ImmutableVector3';
-import Vector4 from './Vector4';
+import {IVector4} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableVector4 implements Vector4 {
+export default class ImmutableVector4 implements IVector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|ImmutableVector3|Vector4, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|ImmutableVector3|IVector4, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -102,31 +102,31 @@ export default class ImmutableVector4 implements Vector4 {
   /**
    * add value（static version）
    */
-  static add(lv:Vector4, rv:Vector4) {
+  static add(lv:IVector4, rv:IVector4) {
     return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
   }
 
 
-  static subtract(lv:Vector4, rv:Vector4) {
+  static subtract(lv:IVector4, rv:IVector4) {
     return new ImmutableVector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
   }
   /**
    * add value except w component（static version）
    */
-  static addWithOutW(lv:Vector4, rv:Vector4) {
+  static addWithOutW(lv:IVector4, rv:IVector4) {
     return new ImmutableVector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
   }
 
-  static multiply(vec4:Vector4, val:number) {
+  static multiply(vec4:IVector4, val:number) {
     return new ImmutableVector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
   }
 
-  static multiplyVector(vec4:Vector4, vec:Vector4) {
+  static multiplyVector(vec4:IVector4, vec:IVector4) {
     return new ImmutableVector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
   }
 
 
-  static divide(vec4:Vector4, val:number) {
+  static divide(vec4:IVector4, val:number) {
     if (val !== 0) {
       return new ImmutableVector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
     } else {
@@ -135,7 +135,7 @@ export default class ImmutableVector4 implements Vector4 {
     }
   }
 
-  static divideVector(lvec4:Vector4, rvec4:Vector4) {
+  static divideVector(lvec4:IVector4, rvec4:IVector4) {
     return new ImmutableVector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
   }
 

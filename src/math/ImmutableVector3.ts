@@ -2,13 +2,13 @@
 import Vector2 from './Vector2';
 import Vector4 from './ImmutableVector4';
 import is from '../misc/IsUtil';
-import Vector3 from './Vector3';
+import {IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableVector3 implements Vector3 {
+export default class ImmutableVector3 implements IVector3 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector2|Vector3|Vector4|Array<number>|null, y?:number, z?:number) {
+  constructor(x?:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?:number, z?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;

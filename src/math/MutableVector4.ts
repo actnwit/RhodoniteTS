@@ -1,11 +1,11 @@
 import Vector2 from "./Vector2";
 import ImmutableVector3 from "./ImmutableVector3";
 import ImmutableVector4 from "./ImmutableVector4";
-import Vector4 from "./Vector4";
+import {IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableVector4 extends ImmutableVector4 implements Vector4 {
-  constructor(x: number|TypedArray|Vector2|ImmutableVector3|Vector4, y?: number, z?: number, w?: number) {
+export default class MutableVector4 extends ImmutableVector4 implements IVector4 {
+  constructor(x: number|TypedArray|Vector2|ImmutableVector3|IVector4, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
 
   }
@@ -24,7 +24,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
   /**
    * add value
    */
-  add(v: Vector4) {
+  add(v: IVector4) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;
@@ -36,7 +36,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
     /**
    * add value except w component
    */
-  addWithOutW(v: Vector4|ImmutableVector3) {
+  addWithOutW(v: IVector4|ImmutableVector3) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;
@@ -44,7 +44,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
     return this;
   }
 
-  subtract(v: Vector4) {
+  subtract(v: IVector4) {
     this.x -= v.x;
     this.y -= v.y;
     this.z -= v.z;
@@ -62,7 +62,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
     return this;
   }
 
-  multiplyVector(vec: Vector4) {
+  multiplyVector(vec: IVector4) {
     this.x *= vec.x;
     this.y *= vec.y;
     this.z *= vec.z;
@@ -87,7 +87,7 @@ export default class MutableVector4 extends ImmutableVector4 implements Vector4 
     return this;
   }
 
-  divideVector(vec4: Vector4) {
+  divideVector(vec4: IVector4) {
     this.x /= vec4.x;
     this.y /= vec4.y;
     this.z /= vec4.z;
