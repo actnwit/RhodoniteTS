@@ -1,7 +1,7 @@
 //import GLBoost from './../../globals';
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';
-import IVector3 from './Vector3';
+import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
 
 export default class ColorRgb implements IVector3, IColorRgb {
