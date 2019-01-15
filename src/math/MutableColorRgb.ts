@@ -7,7 +7,7 @@ import ColorRgb from './ColorRgb';
 export default class MutableColorRgb extends ColorRgb implements IVector3, IMutableColorRgb {
 
   constructor(r?:number|TypedArray|IVector3|Vector4|Array<number>|ColorRgb|null, g?:number, b?:number) {
-    super(r, g, b);
+    super(r as any, g, b);
   }
 
   get x() {
