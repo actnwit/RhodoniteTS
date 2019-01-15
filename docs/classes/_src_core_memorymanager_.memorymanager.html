@@ -69,6 +69,17 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Usage
+							const mm = MemoryManager.getInstance();
+							this.translate = new Vector3(
+							mm.assignMem(componentUID, propetyId, entityUID, isRendered)
+						);</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -90,17 +101,23 @@
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_memorymanager_.memorymanager.html#__bufferforcpu" class="tsd-kind-icon">__buffer<wbr>ForCPU</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_memorymanager_.memorymanager.html#__bufferforgpu" class="tsd-kind-icon">__buffer<wbr>ForGPU</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_memorymanager_.memorymanager.html#__buffers" class="tsd-kind-icon">__buffers</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#__bufferheightlength" class="tsd-kind-icon">__buffer<wbr>Height<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#__bufferwidthlength" class="tsd-kind-icon">__buffer<wbr>Width<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#__instance" class="tsd-kind-icon">__instance</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#bufferheightlength" class="tsd-kind-icon">buffer<wbr>Height<wbr>Length</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#bufferwidthlength" class="tsd-kind-icon">buffer<wbr>Width<wbr>Length</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_memorymanager_.memorymanager.html#getbufferforcpu" class="tsd-kind-icon">get<wbr>Buffer<wbr>ForCPU</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_memorymanager_.memorymanager.html#getbufferforgpu" class="tsd-kind-icon">get<wbr>Buffer<wbr>ForGPU</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_memorymanager_.memorymanager.html#getbuffer" class="tsd-kind-icon">get<wbr>Buffer</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_core_memorymanager_.memorymanager.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a></li>
 							</ul>
 						</section>
@@ -113,21 +130,15 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Memory<wbr>Manager<span class="tsd-signature-symbol">(</span>enforcer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Memory<wbr>Manager<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L17">src/core/MemoryManager.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L17">src/core/MemoryManager.ts:17</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>enforcer: <span class="tsd-signature-type">Symbol</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></h4>
 						</li>
 					</ul>
@@ -136,78 +147,112 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="__bufferforcpu" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __buffer<wbr>ForCPU</h3>
-					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>ForCPU<span class="tsd-signature-symbol">:</span> <a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L17">src/core/MemoryManager.ts:17</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="__bufferforgpu" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __buffer<wbr>ForGPU</h3>
-					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>ForGPU<span class="tsd-signature-symbol">:</span> <a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L16">src/core/MemoryManager.ts:16</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__buffers" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __buffers</h3>
-					<div class="tsd-signature tsd-kind-icon">__buffers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol">, </span><a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">__buffers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L15">src/core/MemoryManager.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L15">src/core/MemoryManager.ts:15</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>s: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__bufferheightlength" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __buffer<wbr>Height<wbr>Length</h3>
+					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>Height<wbr>Length<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a><span class="tsd-signature-symbol"> =&nbsp;Math.pow(2,8)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L17">src/core/MemoryManager.ts:17</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
-					<a name="__singletonenforcer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __singleton<wbr>Enforcer</h3>
-					<div class="tsd-signature tsd-kind-icon">__singleton<wbr>Enforcer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Symbol</span><span class="tsd-signature-symbol"> =&nbsp;Symbol()</span></div>
+					<a name="__bufferwidthlength" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __buffer<wbr>Width<wbr>Length</h3>
+					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>Width<wbr>Length<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a><span class="tsd-signature-symbol"> =&nbsp;Math.pow(2,8)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L13">src/core/MemoryManager.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L16">src/core/MemoryManager.ts:16</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__instance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __instance</h3>
+					<div class="tsd-signature tsd-kind-icon">__instance<span class="tsd-signature-symbol">:</span> <a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L13">src/core/MemoryManager.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getbufferforcpu" class="tsd-anchor"></a>
-					<h3>get<wbr>Buffer<wbr>ForCPU</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Buffer<wbr>ForCPU<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></li>
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+					<a name="bufferheightlength" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> buffer<wbr>Height<wbr>Length</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> bufferHeightLength<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L60">src/core/MemoryManager.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L78">src/core/MemoryManager.ts:78</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getbufferforgpu" class="tsd-anchor"></a>
-					<h3>get<wbr>Buffer<wbr>ForGPU</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Buffer<wbr>ForGPU<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></li>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+					<a name="bufferwidthlength" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> buffer<wbr>Width<wbr>Length</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> bufferWidthLength<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L57">src/core/MemoryManager.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L74">src/core/MemoryManager.ts:74</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_src__types_defined_d_.html#size" class="tsd-signature-type">Size</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getbuffer" class="tsd-anchor"></a>
+					<h3>get<wbr>Buffer</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Buffer<span class="tsd-signature-symbol">(</span>bufferUse<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_bufferuse_.bufferuseenum.html" class="tsd-signature-type">BufferUseEnum</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L70">src/core/MemoryManager.ts:70</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>bufferUse: <a href="../interfaces/_src_definitions_bufferuse_.bufferuseenum.html" class="tsd-signature-type">BufferUseEnum</a></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a></h4>
 						</li>
 					</ul>
@@ -216,16 +261,16 @@
 					<a name="getinstance" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Instance</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/MemoryManager.ts#L49">src/core/MemoryManager.ts:49</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/MemoryManager.ts#L63">src/core/MemoryManager.ts:63</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="_src_core_memorymanager_.memorymanager.html" class="tsd-signature-type">MemoryManager</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -253,22 +298,25 @@
 								<a href="_src_core_memorymanager_.memorymanager.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="_src_core_memorymanager_.memorymanager.html#__bufferforcpu" class="tsd-kind-icon">__buffer<wbr>ForCPU</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="_src_core_memorymanager_.memorymanager.html#__bufferforgpu" class="tsd-kind-icon">__buffer<wbr>ForGPU</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_src_core_memorymanager_.memorymanager.html#__buffers" class="tsd-kind-icon">__buffers</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
-								<a href="_src_core_memorymanager_.memorymanager.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a>
+								<a href="_src_core_memorymanager_.memorymanager.html#__bufferheightlength" class="tsd-kind-icon">__buffer<wbr>Height<wbr>Length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_core_memorymanager_.memorymanager.html#__bufferwidthlength" class="tsd-kind-icon">__buffer<wbr>Width<wbr>Length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_core_memorymanager_.memorymanager.html#__instance" class="tsd-kind-icon">__instance</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+								<a href="_src_core_memorymanager_.memorymanager.html#bufferheightlength" class="tsd-kind-icon">buffer<wbr>Height<wbr>Length</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+								<a href="_src_core_memorymanager_.memorymanager.html#bufferwidthlength" class="tsd-kind-icon">buffer<wbr>Width<wbr>Length</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_core_memorymanager_.memorymanager.html#getbufferforcpu" class="tsd-kind-icon">get<wbr>Buffer<wbr>ForCPU</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_core_memorymanager_.memorymanager.html#getbufferforgpu" class="tsd-kind-icon">get<wbr>Buffer<wbr>ForGPU</a>
+								<a href="_src_core_memorymanager_.memorymanager.html#getbuffer" class="tsd-kind-icon">get<wbr>Buffer</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_src_core_memorymanager_.memorymanager.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a>
@@ -277,9 +325,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_src_core_memorymanager_.html#singleton" class="tsd-kind-icon">singleton</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

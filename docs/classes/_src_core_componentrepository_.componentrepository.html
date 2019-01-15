@@ -93,7 +93,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_componentrepository_.componentrepository.html#__component_sid_count_map" class="tsd-kind-icon">__component_<wbr>sid_<wbr>count_<wbr>map</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_componentrepository_.componentrepository.html#__components" class="tsd-kind-icon">__components</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#__componentclasses" class="tsd-kind-icon">__component<wbr>Classes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#__instance" class="tsd-kind-icon">__instance</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -101,6 +101,9 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_componentrepository_.componentrepository.html#createcomponent" class="tsd-kind-icon">create<wbr>Component</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_componentrepository_.componentrepository.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_componentrepository_.componentrepository.html#getcomponenttids" class="tsd-kind-icon">get<wbr>ComponentTIDs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_componentrepository_.componentrepository.html#getcomponentswithtype" class="tsd-kind-icon">get<wbr>Components<wbr>With<wbr>Type</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#getcomponentclass" class="tsd-kind-icon">get<wbr>Component<wbr>Class</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#getmemorybeginindex" class="tsd-kind-icon">get<wbr>Memory<wbr>Begin<wbr>Index</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_core_componentrepository_.componentrepository.html#registercomponentclass" class="tsd-kind-icon">register<wbr>Component<wbr>Class</a></li>
@@ -116,21 +119,15 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Component<wbr>Repository<span class="tsd-signature-symbol">(</span>enforcer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Component<wbr>Repository<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L12">src/core/ComponentRepository.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L11">src/core/ComponentRepository.ts:11</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>enforcer: <span class="tsd-signature-type">Symbol</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></h4>
 						</li>
 					</ul>
@@ -144,7 +141,7 @@
 					<div class="tsd-signature tsd-kind-icon">__component_<wbr>sid_<wbr>count_<wbr>map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L10">src/core/ComponentRepository.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L9">src/core/ComponentRepository.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -154,27 +151,27 @@
 					<div class="tsd-signature tsd-kind-icon">__components<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_src_core_component_.component.html" class="tsd-signature-type">Component</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L11">src/core/ComponentRepository.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L10">src/core/ComponentRepository.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="__componentclasses" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> __component<wbr>Classes</h3>
-					<div class="tsd-signature tsd-kind-icon">__component<wbr>Classes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/_src_core_component_.componentconstructor.html" class="tsd-signature-type">ComponentConstructor</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">__component<wbr>Classes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/_src_core_component_.componentconstructor.html" class="tsd-signature-type">ComponentConstructor</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L12">src/core/ComponentRepository.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L11">src/core/ComponentRepository.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="__singletonenforcer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> __singleton<wbr>Enforcer</h3>
-					<div class="tsd-signature tsd-kind-icon">__singleton<wbr>Enforcer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Symbol</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__instance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __instance</h3>
+					<div class="tsd-signature tsd-kind-icon">__instance<span class="tsd-signature-symbol">:</span> <a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L9">src/core/ComponentRepository.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L8">src/core/ComponentRepository.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -185,22 +182,25 @@
 					<a name="createcomponent" class="tsd-anchor"></a>
 					<h3>create<wbr>Component</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Component<span class="tsd-signature-symbol">(</span>componentTID<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a>, entityUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="_src_core_component_.component.html" class="tsd-signature-type">Component</a></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Component<span class="tsd-signature-symbol">(</span>componentTid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a>, entityUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a>, entityRepository<span class="tsd-signature-symbol">: </span><a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="_src_core_component_.component.html" class="tsd-signature-type">Component</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L42">src/core/ComponentRepository.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L40">src/core/ComponentRepository.ts:40</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>componentTID: <a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a></h5>
+									<h5>componentTid: <a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a></h5>
 								</li>
 								<li>
 									<h5>entityUid: <a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a></h5>
+								</li>
+								<li>
+									<h5>entityRepository: <a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span>
@@ -220,7 +220,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L72">src/core/ComponentRepository.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L69">src/core/ComponentRepository.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -239,20 +239,89 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="getinstance" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Instance</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getcomponenttids" class="tsd-anchor"></a>
+					<h3>get<wbr>ComponentTIDs</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>ComponentTIDs<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L34">src/core/ComponentRepository.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L102">src/core/ComponentRepository.ts:102</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getcomponentswithtype" class="tsd-anchor"></a>
+					<h3>get<wbr>Components<wbr>With<wbr>Type</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Components<wbr>With<wbr>Type<span class="tsd-signature-symbol">(</span>componentTid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_src_core_component_.component.html" class="tsd-signature-type">Component</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L95">src/core/ComponentRepository.ts:95</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>componentTid: <a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_src_core_component_.component.html" class="tsd-signature-type">Component</a><span class="tsd-signature-symbol">&gt;</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">undefined</span>
+							</h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="getcomponentclass" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Component<wbr>Class</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Component<wbr>Class<span class="tsd-signature-symbol">(</span>componentTid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_src_core_component_.componentconstructor.html" class="tsd-signature-type">ComponentConstructor</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L36">src/core/ComponentRepository.ts:36</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>componentTid: <a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="../interfaces/_src_core_component_.componentconstructor.html" class="tsd-signature-type">ComponentConstructor</a>
+							</h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="getinstance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Instance</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L29">src/core/ComponentRepository.ts:29</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -266,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L85">src/core/ComponentRepository.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L82">src/core/ComponentRepository.ts:82</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -289,7 +358,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L24">src/core/ComponentRepository.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L19">src/core/ComponentRepository.ts:19</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -315,7 +384,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/ComponentRepository.ts#L29">src/core/ComponentRepository.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/ComponentRepository.ts#L24">src/core/ComponentRepository.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -360,14 +429,23 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_src_core_componentrepository_.componentrepository.html#__componentclasses" class="tsd-kind-icon">__component<wbr>Classes</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="_src_core_componentrepository_.componentrepository.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_core_componentrepository_.componentrepository.html#__instance" class="tsd-kind-icon">__instance</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_core_componentrepository_.componentrepository.html#createcomponent" class="tsd-kind-icon">create<wbr>Component</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_core_componentrepository_.componentrepository.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_src_core_componentrepository_.componentrepository.html#getcomponenttids" class="tsd-kind-icon">get<wbr>ComponentTIDs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_src_core_componentrepository_.componentrepository.html#getcomponentswithtype" class="tsd-kind-icon">get<wbr>Components<wbr>With<wbr>Type</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_src_core_componentrepository_.componentrepository.html#getcomponentclass" class="tsd-kind-icon">get<wbr>Component<wbr>Class</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_src_core_componentrepository_.componentrepository.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a>
@@ -385,9 +463,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_src_core_componentrepository_.html#singleton" class="tsd-kind-icon">singleton</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
