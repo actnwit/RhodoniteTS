@@ -3041,7 +3041,7 @@ MemoryManager.__bufferHeightLength = Math.pow(2, 8);
 
 //import GLBoost from '../../globals';
 const FloatArray$2 = Float32Array;
-class ImmutableRowMajarMatrix44 {
+class RowMajarMatrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
         const m = m0;
@@ -3209,7 +3209,7 @@ class ImmutableRowMajarMatrix44 {
         }
     }
     static dummy() {
-        return new ImmutableRowMajarMatrix44(null);
+        return new RowMajarMatrix44(null);
     }
     static get compositionType() {
         return CompositionType.Mat4;
@@ -3226,13 +3226,13 @@ class ImmutableRowMajarMatrix44 {
         return this.constructor.name;
     }
     clone() {
-        return new ImmutableRowMajarMatrix44(this.v[0], this.v[1], this.v[2], this.v[3], this.v[4], this.v[5], this.v[6], this.v[7], this.v[8], this.v[9], this.v[10], this.v[11], this.v[12], this.v[13], this.v[14], this.v[15]);
+        return new RowMajarMatrix44(this.v[0], this.v[1], this.v[2], this.v[3], this.v[4], this.v[5], this.v[6], this.v[7], this.v[8], this.v[9], this.v[10], this.v[11], this.v[12], this.v[13], this.v[14], this.v[15]);
     }
     /**
      * to the identity matrix（static版）
      */
     static identity() {
-        return new ImmutableRowMajarMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        return new RowMajarMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     isEqual(mat, delta = Number.EPSILON) {
         if (Math.abs(mat.v[0] - this.v[0]) < delta &&
@@ -3261,10 +3261,10 @@ class ImmutableRowMajarMatrix44 {
         return new Vector3(this.m03, this.m13, this.m23);
     }
     static translate(vec) {
-        return new ImmutableRowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+        return new RowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
     }
     static scale(vec) {
-        return new ImmutableRowMajarMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+        return new RowMajarMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
     }
     /**
      * Create X oriented Rotation Matrix
@@ -3272,7 +3272,7 @@ class ImmutableRowMajarMatrix44 {
     static rotateX(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableRowMajarMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+        return new RowMajarMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
     }
     /**
      * Create Y oriented Rotation Matrix
@@ -3280,7 +3280,7 @@ class ImmutableRowMajarMatrix44 {
     static rotateY(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableRowMajarMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+        return new RowMajarMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
     }
     /**
      * Create Z oriented Rotation Matrix
@@ -3288,7 +3288,7 @@ class ImmutableRowMajarMatrix44 {
     static rotateZ(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableRowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -3310,7 +3310,7 @@ class ImmutableRowMajarMatrix44 {
         return rotate;
     }
     static zero() {
-        return new ImmutableRowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     raw() {
         return this.v;
@@ -3325,7 +3325,7 @@ class ImmutableRowMajarMatrix44 {
      * transpose(static version)
      */
     static transpose(mat) {
-        var mat_t = new ImmutableRowMajarMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
+        var mat_t = new RowMajarMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
         return mat_t;
     }
     multiplyVector(vec) {
@@ -3355,7 +3355,7 @@ class ImmutableRowMajarMatrix44 {
         var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
         var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
         var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-        return new ImmutableRowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
     }
     determinant() {
         return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
@@ -3395,7 +3395,7 @@ class ImmutableRowMajarMatrix44 {
         var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
         var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
         var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-        return new ImmutableRowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
     }
     get m00() {
         return this.v[0];
@@ -3474,7 +3474,7 @@ class ImmutableRowMajarMatrix44 {
     }
     getRotate() {
         const quat = ImmutableQuaternion.fromMatrix(this);
-        const rotateMat = new ImmutableRowMajarMatrix44(quat);
+        const rotateMat = new RowMajarMatrix44(quat);
         return rotateMat;
     }
 }
@@ -3506,7 +3506,7 @@ const ProcessStage = Object.freeze({ Unknown: Unknown$3, Create, Load, Mount, Lo
 let maxEntityNumber = 5000;
 var Config = Object.freeze({ maxEntityNumber });
 
-class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
+class MutableRowMajarMatrix44 extends RowMajarMatrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray = false) {
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
         if (arguments.length >= 16) {
@@ -3975,7 +3975,7 @@ class Component {
         if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
             this['_' + memberName] = new dataClassType(taken, false, true);
         }
-        else if (dataClassType === ImmutableRowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
+        else if (dataClassType === RowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
             this['_' + memberName] = new dataClassType(taken, true);
         }
         else {
@@ -6021,7 +6021,7 @@ class WebGLStrategyUniform {
         this.attatchShaderProgram();
         const gl = glw.getRawContext();
         this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
-        gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableRowMajarMatrix44.transpose(worldMatrix).raw());
+        gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
         //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);
         glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
     }

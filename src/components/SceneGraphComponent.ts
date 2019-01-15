@@ -14,7 +14,7 @@ import WebGLResourceRepository from '../renderer/webgl/WebGLResourceRepository';
 import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent

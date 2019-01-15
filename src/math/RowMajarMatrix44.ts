@@ -9,13 +9,13 @@ import { CompositionType } from '../definitions/CompositionType';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class ImmutableRowMajarMatrix44 {
+export default class RowMajarMatrix44 {
   v: TypedArray;
 
   constructor(m: FloatArray, notCopyFloatArray?:Boolean);
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
   constructor(m: Matrix33, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableRowMajarMatrix44, notCopyFloatArray?:Boolean);
+  constructor(m: RowMajarMatrix44, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);
   constructor(
@@ -110,7 +110,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   static dummy() {
-    return new ImmutableRowMajarMatrix44(null);
+    return new RowMajarMatrix44(null);
   }
 
   static get compositionType() {
@@ -132,7 +132,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   clone() {
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       this.v[0], this.v[1], this.v[2], this.v[3],
       this.v[4], this.v[5], this.v[6], this.v[7],
       this.v[8], this.v[9], this.v[10], this.v[11],
@@ -144,7 +144,7 @@ export default class ImmutableRowMajarMatrix44 {
    * to the identity matrix（static版）
    */
   static identity() {
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -152,7 +152,7 @@ export default class ImmutableRowMajarMatrix44 {
     );
   }
 
-  isEqual(mat: ImmutableRowMajarMatrix44, delta: number = Number.EPSILON) {
+  isEqual(mat: RowMajarMatrix44, delta: number = Number.EPSILON) {
     if (Math.abs(mat.v[0] - this.v[0]) < delta &&
       Math.abs(mat.v[1] - this.v[1]) < delta &&
       Math.abs(mat.v[2] - this.v[2]) < delta &&
@@ -180,7 +180,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   static translate(vec:Vector3) {
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
       0, 0, 1, vec.z,
@@ -189,7 +189,7 @@ export default class ImmutableRowMajarMatrix44 {
   }
 
   static scale(vec: Vector3) {
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
       0, 0, vec.z, 0,
@@ -203,7 +203,7 @@ export default class ImmutableRowMajarMatrix44 {
   static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       1, 0, 0, 0,
       0, cos, -sin, 0,
       0, sin, cos, 0,
@@ -217,7 +217,7 @@ export default class ImmutableRowMajarMatrix44 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       cos, 0, sin, 0,
       0, 1, 0, 0,
       -sin, 0, cos, 0,
@@ -231,7 +231,7 @@ export default class ImmutableRowMajarMatrix44 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
       0, 0, 1, 0,
@@ -260,7 +260,7 @@ export default class ImmutableRowMajarMatrix44 {
 
 
   static zero() {
-    return new ImmutableRowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   raw() {
@@ -277,9 +277,9 @@ export default class ImmutableRowMajarMatrix44 {
   /**
    * transpose(static version)
    */
-  static transpose(mat: ImmutableRowMajarMatrix44) {
+  static transpose(mat: RowMajarMatrix44) {
 
-    var mat_t = new ImmutableRowMajarMatrix44(
+    var mat_t = new RowMajarMatrix44(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -301,7 +301,7 @@ export default class ImmutableRowMajarMatrix44 {
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m: ImmutableRowMajarMatrix44, r_m: ImmutableRowMajarMatrix44) {
+  static multiply(l_m: RowMajarMatrix44, r_m: RowMajarMatrix44) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20 + l_m.m03*r_m.m30;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20 + l_m.m13*r_m.m30;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20 + l_m.m23*r_m.m30;
@@ -322,7 +322,7 @@ export default class ImmutableRowMajarMatrix44 {
     var m23 = l_m.m20*r_m.m03 + l_m.m21*r_m.m13 + l_m.m22*r_m.m23 + l_m.m23*r_m.m33;
     var m33 = l_m.m30*r_m.m03 + l_m.m31*r_m.m13 + l_m.m32*r_m.m23 + l_m.m33*r_m.m33;
 
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
         m00, m01, m02, m03,
         m10, m11, m12, m13,
         m20, m21, m22, m23,
@@ -342,7 +342,7 @@ export default class ImmutableRowMajarMatrix44 {
       this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
   }
 
-  static determinant(mat: ImmutableRowMajarMatrix44) {
+  static determinant(mat: RowMajarMatrix44) {
     return mat.m00*mat.m11*mat.m22*mat.m33 + mat.m00*mat.m12*mat.m23*mat.m31 + mat.m00*mat.m13*mat.m21*mat.m32 +
       mat.m01*mat.m10*mat.m23*mat.m32 + mat.m01*mat.m12*mat.m20*mat.m33 + mat.m01*mat.m13*mat.m22*mat.m30 +
       mat.m02*mat.m10*mat.m21*mat.m33 + mat.m02*mat.m11*mat.m23*mat.m30 + mat.m02*mat.m13*mat.m20*mat.m31 +
@@ -354,7 +354,7 @@ export default class ImmutableRowMajarMatrix44 {
       mat.m03*mat.m10*mat.m21*mat.m32 - mat.m03*mat.m11*mat.m22*mat.m30 - mat.m03*mat.m12*mat.m20*mat.m31;
   }
 
-  static invert(mat: ImmutableRowMajarMatrix44) {
+  static invert(mat: RowMajarMatrix44) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22*mat.m33 + mat.m12*mat.m23*mat.m31 + mat.m13*mat.m21*mat.m32 - mat.m11*mat.m23*mat.m32 - mat.m12*mat.m21*mat.m33 - mat.m13*mat.m22*mat.m31) / det;
     var m01 = (mat.m01*mat.m23*mat.m32 + mat.m02*mat.m21*mat.m33 + mat.m03*mat.m22*mat.m31 - mat.m01*mat.m22*mat.m33 - mat.m02*mat.m23*mat.m31 - mat.m03*mat.m21*mat.m32) / det;
@@ -373,7 +373,7 @@ export default class ImmutableRowMajarMatrix44 {
     var m32 = (mat.m00*mat.m12*mat.m31 + mat.m01*mat.m10*mat.m32 + mat.m02*mat.m11*mat.m30 - mat.m00*mat.m11*mat.m32 - mat.m01*mat.m12*mat.m30 - mat.m02*mat.m10*mat.m31) / det;
     var m33 = (mat.m00*mat.m11*mat.m22 + mat.m01*mat.m12*mat.m20 + mat.m02*mat.m10*mat.m21 - mat.m00*mat.m12*mat.m21 - mat.m01*mat.m10*mat.m22 - mat.m02*mat.m11*mat.m20) / det;
 
-    return new ImmutableRowMajarMatrix44(
+    return new RowMajarMatrix44(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -480,7 +480,7 @@ export default class ImmutableRowMajarMatrix44 {
 
   getRotate() {
     const quat = ImmutableQuaternion.fromMatrix(this);
-    const rotateMat = new ImmutableRowMajarMatrix44(quat);
+    const rotateMat = new RowMajarMatrix44(quat);
     return rotateMat;
   }
 }

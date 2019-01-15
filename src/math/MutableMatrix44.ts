@@ -2,7 +2,7 @@ import Matrix44 from "./Matrix44";
 import {IMutableMatrix44} from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
-import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
+import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
@@ -15,7 +15,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -302,7 +302,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
   }
 
 
-  multiplyByLeft(mat:Matrix44 | ImmutableRowMajarMatrix44) {
+  multiplyByLeft(mat:Matrix44 | RowMajarMatrix44) {
     var m00 = mat.m00*this.m00 + mat.m01*this.m10 + mat.m02*this.m20 + mat.m03*this.m30;
     var m01 = mat.m00*this.m01 + mat.m01*this.m11 + mat.m02*this.m21 + mat.m03*this.m31;
     var m02 = mat.m00*this.m02 + mat.m01*this.m12 + mat.m02*this.m22 + mat.m03*this.m32;

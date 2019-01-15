@@ -3,7 +3,7 @@ import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import Vector4 from './Vector4';
-import ImmutableRowMajarMatrix44 from './ImmutableRowMajarMatrix44';
+import RowMajarMatrix44 from './RowMajarMatrix44';
 import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 
@@ -18,7 +18,7 @@ export default class Matrix44 implements IMatrix44 {
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
