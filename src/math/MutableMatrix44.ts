@@ -1,6 +1,6 @@
 import ImmutableMatrix44 from "./ImmutableMatrix44";
 import {IMutableMatrix44} from "./IMatrix";
-import ImmutableMatrix33 from "./ImmutableMatrix33";
+import Matrix33 from "./Matrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
 import Vector3 from "./Vector3";
@@ -12,7 +12,7 @@ type FloatArray = Float32Array;
 export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableMatrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);

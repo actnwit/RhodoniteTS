@@ -1087,7 +1087,7 @@ class Vector4 {
 // GLBoost["Vector4"] = Vector4;
 
 // import GLBoost from '../../globals';
-class ImmutableMatrix33 {
+class Matrix33 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
         const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
@@ -1258,10 +1258,10 @@ class ImmutableMatrix33 {
      * Make this identity matrix（static method version）
      */
     static identity() {
-        return new ImmutableMatrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
     }
     static dummy() {
-        return new ImmutableMatrix33(null);
+        return new Matrix33(null);
     }
     isDummy() {
         if (this.v.length === 0) {
@@ -1272,7 +1272,7 @@ class ImmutableMatrix33 {
         }
     }
     clone() {
-        return new ImmutableMatrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
+        return new Matrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
     }
     /**
      * Create X oriented Rotation Matrix
@@ -1280,7 +1280,7 @@ class ImmutableMatrix33 {
     static rotateX(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+        return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
     }
     /**
      * Create Y oriented Rotation Matrix
@@ -1288,7 +1288,7 @@ class ImmutableMatrix33 {
     static rotateY(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+        return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
     }
     /**
      * Create Z oriented Rotation Matrix
@@ -1296,28 +1296,28 @@ class ImmutableMatrix33 {
     static rotateZ(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+        return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
     }
     static rotateXYZ(x, y, z) {
-        return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(z), ImmutableMatrix33.rotateY(y)), ImmutableMatrix33.rotateX(x));
+        return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
     }
     static rotate(vec3) {
-        return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(vec3.z), ImmutableMatrix33.rotateY(vec3.y)), ImmutableMatrix33.rotateX(vec3.x));
+        return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
     }
     static scale(vec) {
-        return new ImmutableMatrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+        return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
     }
     /**
      * zero matrix(static version)
      */
     static zero() {
-        return new ImmutableMatrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     /**
      * transpose(static version)
      */
     static transpose(mat) {
-        var mat_t = new ImmutableMatrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
+        var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
         return mat_t;
     }
     /**
@@ -1333,7 +1333,7 @@ class ImmutableMatrix33 {
         var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
         var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
         var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-        return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
     determinant() {
         return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
@@ -1354,7 +1354,7 @@ class ImmutableMatrix33 {
         var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
         var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
         var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-        return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
     }
     get m00() {
         return this.v[0];
@@ -2709,7 +2709,7 @@ class AccessorBase extends RnObject {
         return new Vector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
     }
     getMat3(index, endian = true) {
-        return new ImmutableMatrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
+        return new Matrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
     }
     getMat4(index, endian = true) {
         return new MutableMatrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
@@ -4463,7 +4463,7 @@ class TransformComponent extends Component {
         this._quaternion = MutableQuaternion.dummy();
         this._matrix = MutableMatrix44.dummy();
         this._invMatrix = ImmutableMatrix44.dummy();
-        this._normalMatrix = ImmutableMatrix33.dummy();
+        this._normalMatrix = Matrix33.dummy();
         this.__toUpdateAllTransform = true;
         this._updateCount = 0;
         this.__updateCountAtLastLogic = 0;
@@ -4475,7 +4475,7 @@ class TransformComponent extends Component {
         this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+        this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
         this.submitToAllocation();
         this._is_translate_updated = true;
         this._is_euler_angles_updated = true;
@@ -4716,7 +4716,7 @@ class TransformComponent extends Component {
     }
     get normalMatrixInner() {
         if (!this._is_normal_trs_matrix_updated) {
-            this._normalMatrix = new ImmutableMatrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+            this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
             this._is_normal_trs_matrix_updated = true;
         }
         return this._normalMatrix;
@@ -7403,7 +7403,7 @@ const Rn = Object.freeze({
     Vector4,
     MutableVector3,
     MutableVector4,
-    ImmutableMatrix33,
+    Matrix33,
     ImmutableMatrix44,
     MutableMatrix44,
     ProcessApproach,

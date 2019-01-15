@@ -1,16 +1,16 @@
 import ImmutableMatrix44 from "./ImmutableMatrix44";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import {IMutableMatrix33} from "./IMatrix";
-import ImmutableMatrix33 from "./ImmutableMatrix33";
+import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableMatrix33 extends ImmutableMatrix33 implements IMutableMatrix33 {
+export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean);
-  constructor(m: ImmutableMatrix33, isColumnMajor?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
   constructor(
@@ -196,7 +196,7 @@ export default class MutableMatrix33 extends ImmutableMatrix33 implements IMutab
   /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat:ImmutableMatrix33) {
+  multiply(mat:Matrix33) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22;

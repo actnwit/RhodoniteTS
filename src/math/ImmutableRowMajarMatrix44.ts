@@ -1,6 +1,6 @@
 //import GLBoost from '../../globals';
 import Vector3 from './Vector3';
-import ImmutableMatrix33 from './ImmutableMatrix33';
+import Matrix33 from './Matrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import ImmutableMatrix44 from './ImmutableMatrix44';
 import Vector4 from './Vector4';
@@ -14,7 +14,7 @@ export default class ImmutableRowMajarMatrix44 {
 
   constructor(m: FloatArray, notCopyFloatArray?:Boolean);
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableMatrix33, notCopyFloatArray?:Boolean);
+  constructor(m: Matrix33, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableRowMajarMatrix44, notCopyFloatArray?:Boolean);
   constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);

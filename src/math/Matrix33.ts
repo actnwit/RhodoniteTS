@@ -6,13 +6,13 @@ import {IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class ImmutableMatrix33 implements IMatrix33 {
+export default class Matrix33 implements IMatrix33 {
   v: TypedArray;
 
   constructor(m: null);
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean);
-  constructor(m: ImmutableMatrix33, isColumnMajor?:boolean);
+  constructor(m: Matrix33, isColumnMajor?:boolean);
   constructor(m: ImmutableMatrix44, isColumnMajor?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
   constructor(
@@ -83,12 +83,12 @@ export default class ImmutableMatrix33 implements IMatrix33 {
       } else {
         this.v = new Float32Array(9);
         if (_isColumnMajor === true) {
-          const v = (m as ImmutableMatrix33|ImmutableMatrix44).v;
+          const v = (m as Matrix33|ImmutableMatrix44).v;
           this.v[0] = v[0]; this.v[3] = v[3]; this.v[6] = v[6];
           this.v[1] = v[1]; this.v[4] = v[4]; this.v[7] = v[7];
           this.v[2] = v[2]; this.v[5] = v[5]; this.v[8] = v[8];
         } else {
-          const v = (m as ImmutableMatrix33|ImmutableMatrix44).v;
+          const v = (m as Matrix33|ImmutableMatrix44).v;
           // 'm' must be row major array if isColumnMajor is false
           this.v[0] = v[0]; this.v[3] = v[1]; this.v[6] = v[2];
           this.v[1] = v[3]; this.v[4] = v[4]; this.v[7] = v[5];
@@ -133,7 +133,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
    * Make this identity matrix（static method version）
    */
   static identity() {
-    return new ImmutableMatrix33(
+    return new Matrix33(
       1, 0, 0,
       0, 1, 0,
       0, 0, 1
@@ -141,7 +141,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   }
 
   static dummy() {
-    return new ImmutableMatrix33(null);
+    return new Matrix33(null);
   }
 
   isDummy() {
@@ -153,7 +153,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   }
 
   clone() {
-    return new ImmutableMatrix33(
+    return new Matrix33(
       this.v[0], this.v[3], this.v[6],
       this.v[1], this.v[4], this.v[7],
       this.v[2], this.v[5], this.v[8]
@@ -166,7 +166,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix33(
+    return new Matrix33(
       1, 0, 0,
       0, cos, -sin,
       0, sin, cos
@@ -179,7 +179,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   static rotateY(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix33(
+    return new Matrix33(
       cos, 0, sin,
       0, 1, 0,
       -sin, 0, cos
@@ -192,7 +192,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   static rotateZ(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix33(
+    return new Matrix33(
       cos, -sin, 0,
       sin, cos, 0,
       0, 0, 1
@@ -200,15 +200,15 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   }
 
   static rotateXYZ(x:number, y:number, z:number) {
-    return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(z), ImmutableMatrix33.rotateY(y)), ImmutableMatrix33.rotateX(x));
+    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
   }
 
   static rotate(vec3:Vector3) {
-    return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(vec3.z), ImmutableMatrix33.rotateY(vec3.y)), ImmutableMatrix33.rotateX(vec3.x));
+    return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
   }
 
   static scale(vec:Vector3) {
-    return new ImmutableMatrix33(
+    return new Matrix33(
       vec.x, 0, 0,
       0, vec.y, 0,
       0, 0, vec.z
@@ -219,16 +219,16 @@ export default class ImmutableMatrix33 implements IMatrix33 {
    * zero matrix(static version)
    */
   static zero() {
-    return new ImmutableMatrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
 
   /**
    * transpose(static version)
    */
-  static transpose(mat:ImmutableMatrix33) {
+  static transpose(mat:Matrix33) {
 
-    var mat_t = new ImmutableMatrix33(
+    var mat_t = new Matrix33(
       mat.m00, mat.m10, mat.m20,
       mat.m01, mat.m11, mat.m21,
       mat.m02, mat.m12, mat.m22
@@ -240,7 +240,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
   /**
    * multiply matrixs (static version)
    */
-  static multiply(l_m:ImmutableMatrix33, r_m:ImmutableMatrix33) {
+  static multiply(l_m:Matrix33, r_m:Matrix33) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20;
@@ -253,7 +253,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
     var m12 = l_m.m10*r_m.m02 + l_m.m11*r_m.m12 + l_m.m12*r_m.m22;
     var m22 = l_m.m20*r_m.m02 + l_m.m21*r_m.m12 + l_m.m22*r_m.m22;
 
-    return new ImmutableMatrix33(
+    return new Matrix33(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -265,13 +265,13 @@ export default class ImmutableMatrix33 implements IMatrix33 {
       - this.m00*this.m21*this.m12 - this.m20*this.m11*this.m02 - this.m10*this.m01*this.m22;
   }
 
-  static determinant(mat:ImmutableMatrix33) {
+  static determinant(mat:Matrix33) {
     return mat.m00*mat.m11*mat.m22 + mat.m10*mat.m21*mat.m02 + mat.m20*mat.m01*mat.m12
       - mat.m00*mat.m21*mat.m12 - mat.m20*mat.m11*mat.m02 - mat.m10*mat.m01*mat.m22;
   }
 
 
-  static invert(mat:ImmutableMatrix33) {
+  static invert(mat:Matrix33) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22 - mat.m12*mat.m21) / det;
     var m01 = (mat.m02*mat.m21 - mat.m01*mat.m22) / det;
@@ -283,7 +283,7 @@ export default class ImmutableMatrix33 implements IMatrix33 {
     var m21 = (mat.m01*mat.m20 - mat.m00*mat.m21) / det;
     var m22 = (mat.m00*mat.m11 - mat.m01*mat.m10) / det;
 
-    return new ImmutableMatrix33(
+    return new Matrix33(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22

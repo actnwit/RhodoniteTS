@@ -1324,8 +1324,8 @@
     // GLBoost["Vector4"] = Vector4;
 
     // import GLBoost from '../../globals';
-    var ImmutableMatrix33 = /** @class */ (function () {
-        function ImmutableMatrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
+    var Matrix33 = /** @class */ (function () {
+        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
             if (isColumnMajor === void 0) { isColumnMajor = false; }
             if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
             var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
@@ -1487,14 +1487,14 @@
                 this.v[8] = 1;
             }
         }
-        Object.defineProperty(ImmutableMatrix33.prototype, "className", {
+        Object.defineProperty(Matrix33.prototype, "className", {
             get: function () {
                 return this.constructor.name;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33, "compositionType", {
+        Object.defineProperty(Matrix33, "compositionType", {
             get: function () {
                 return CompositionType.Mat3;
             },
@@ -1504,13 +1504,13 @@
         /**
          * Make this identity matrix（static method version）
          */
-        ImmutableMatrix33.identity = function () {
-            return new ImmutableMatrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        Matrix33.identity = function () {
+            return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
         };
-        ImmutableMatrix33.dummy = function () {
-            return new ImmutableMatrix33(null);
+        Matrix33.dummy = function () {
+            return new Matrix33(null);
         };
-        ImmutableMatrix33.prototype.isDummy = function () {
+        Matrix33.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
             }
@@ -1518,59 +1518,59 @@
                 return false;
             }
         };
-        ImmutableMatrix33.prototype.clone = function () {
-            return new ImmutableMatrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
+        Matrix33.prototype.clone = function () {
+            return new Matrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
         };
         /**
          * Create X oriented Rotation Matrix
          */
-        ImmutableMatrix33.rotateX = function (radian) {
+        Matrix33.rotateX = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+            return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
         };
         /**
          * Create Y oriented Rotation Matrix
          */
-        ImmutableMatrix33.rotateY = function (radian) {
+        Matrix33.rotateY = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+            return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
         };
         /**
          * Create Z oriented Rotation Matrix
          */
-        ImmutableMatrix33.rotateZ = function (radian) {
+        Matrix33.rotateZ = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+            return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
         };
-        ImmutableMatrix33.rotateXYZ = function (x, y, z) {
-            return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(z), ImmutableMatrix33.rotateY(y)), ImmutableMatrix33.rotateX(x));
+        Matrix33.rotateXYZ = function (x, y, z) {
+            return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
         };
-        ImmutableMatrix33.rotate = function (vec3) {
-            return ImmutableMatrix33.multiply(ImmutableMatrix33.multiply(ImmutableMatrix33.rotateZ(vec3.z), ImmutableMatrix33.rotateY(vec3.y)), ImmutableMatrix33.rotateX(vec3.x));
+        Matrix33.rotate = function (vec3) {
+            return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
         };
-        ImmutableMatrix33.scale = function (vec) {
-            return new ImmutableMatrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
+        Matrix33.scale = function (vec) {
+            return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
         };
         /**
          * zero matrix(static version)
          */
-        ImmutableMatrix33.zero = function () {
-            return new ImmutableMatrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        Matrix33.zero = function () {
+            return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
         };
         /**
          * transpose(static version)
          */
-        ImmutableMatrix33.transpose = function (mat) {
-            var mat_t = new ImmutableMatrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
+        Matrix33.transpose = function (mat) {
+            var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
             return mat_t;
         };
         /**
          * multiply matrixs (static version)
          */
-        ImmutableMatrix33.multiply = function (l_m, r_m) {
+        Matrix33.multiply = function (l_m, r_m) {
             var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
             var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
             var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
@@ -1580,17 +1580,17 @@
             var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
             var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
             var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-            return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
         };
-        ImmutableMatrix33.prototype.determinant = function () {
+        Matrix33.prototype.determinant = function () {
             return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
                 - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
         };
-        ImmutableMatrix33.determinant = function (mat) {
+        Matrix33.determinant = function (mat) {
             return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
                 - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
         };
-        ImmutableMatrix33.invert = function (mat) {
+        Matrix33.invert = function (mat) {
             var det = mat.determinant();
             var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
             var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
@@ -1601,77 +1601,77 @@
             var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
             var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
             var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-            return new ImmutableMatrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
         };
-        Object.defineProperty(ImmutableMatrix33.prototype, "m00", {
+        Object.defineProperty(Matrix33.prototype, "m00", {
             get: function () {
                 return this.v[0];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m10", {
+        Object.defineProperty(Matrix33.prototype, "m10", {
             get: function () {
                 return this.v[1];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m20", {
+        Object.defineProperty(Matrix33.prototype, "m20", {
             get: function () {
                 return this.v[2];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m01", {
+        Object.defineProperty(Matrix33.prototype, "m01", {
             get: function () {
                 return this.v[3];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m11", {
+        Object.defineProperty(Matrix33.prototype, "m11", {
             get: function () {
                 return this.v[4];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m21", {
+        Object.defineProperty(Matrix33.prototype, "m21", {
             get: function () {
                 return this.v[5];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m02", {
+        Object.defineProperty(Matrix33.prototype, "m02", {
             get: function () {
                 return this.v[6];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m12", {
+        Object.defineProperty(Matrix33.prototype, "m12", {
             get: function () {
                 return this.v[7];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix33.prototype, "m22", {
+        Object.defineProperty(Matrix33.prototype, "m22", {
             get: function () {
                 return this.v[8];
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableMatrix33.prototype.toString = function () {
+        Matrix33.prototype.toString = function () {
             return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
                 this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
                 this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
         };
-        ImmutableMatrix33.prototype.nearZeroToZero = function (value) {
+        Matrix33.prototype.nearZeroToZero = function (value) {
             if (Math.abs(value) < 0.00001) {
                 value = 0;
             }
@@ -1683,15 +1683,15 @@
             }
             return value;
         };
-        ImmutableMatrix33.prototype.toStringApproximately = function () {
+        Matrix33.prototype.toStringApproximately = function () {
             return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
                 this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
                 this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
         };
-        ImmutableMatrix33.prototype.getScale = function () {
+        Matrix33.prototype.getScale = function () {
             return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
-        ImmutableMatrix33.prototype.isEqual = function (mat, delta) {
+        Matrix33.prototype.isEqual = function (mat, delta) {
             if (delta === void 0) { delta = Number.EPSILON; }
             if (Math.abs(mat.v[0] - this.v[0]) < delta &&
                 Math.abs(mat.v[1] - this.v[1]) < delta &&
@@ -1708,7 +1708,7 @@
                 return false;
             }
         };
-        return ImmutableMatrix33;
+        return Matrix33;
     }());
 
     //import GLBoost from '../../globals';
@@ -3223,7 +3223,7 @@
         };
         AccessorBase.prototype.getMat3 = function (index, endian) {
             if (endian === void 0) { endian = true; }
-            return new ImmutableMatrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
+            return new Matrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
         };
         AccessorBase.prototype.getMat4 = function (index, endian) {
             if (endian === void 0) { endian = true; }
@@ -5338,7 +5338,7 @@
             _this._quaternion = MutableQuaternion.dummy();
             _this._matrix = MutableMatrix44.dummy();
             _this._invMatrix = ImmutableMatrix44.dummy();
-            _this._normalMatrix = ImmutableMatrix33.dummy();
+            _this._normalMatrix = Matrix33.dummy();
             _this.__toUpdateAllTransform = true;
             _this._updateCount = 0;
             _this.__updateCountAtLastLogic = 0;
@@ -5350,7 +5350,7 @@
             _this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
             _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', ImmutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
             _this.submitToAllocation();
             _this._is_translate_updated = true;
             _this._is_euler_angles_updated = true;
@@ -5657,7 +5657,7 @@
         Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
             get: function () {
                 if (!this._is_normal_trs_matrix_updated) {
-                    this._normalMatrix = new ImmutableMatrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+                    this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
                     this._is_normal_trs_matrix_updated = true;
                 }
                 return this._normalMatrix;
@@ -8563,7 +8563,7 @@
         Vector4: Vector4,
         MutableVector3: MutableVector3,
         MutableVector4: MutableVector4,
-        ImmutableMatrix33: ImmutableMatrix33,
+        Matrix33: Matrix33,
         ImmutableMatrix44: ImmutableMatrix44,
         MutableMatrix44: MutableMatrix44,
         ProcessApproach: ProcessApproach,
