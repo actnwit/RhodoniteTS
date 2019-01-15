@@ -4,7 +4,7 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
-import ImmutableQuaternion from '../math/ImmutableQuaternion';
+import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';

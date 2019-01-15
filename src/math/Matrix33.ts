@@ -1,7 +1,7 @@
 // import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
-import ImmutableQuaternion from './ImmutableQuaternion';
+import Quaternion from './Quaternion';
 import {IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
@@ -14,7 +14,7 @@ export default class Matrix33 implements IMatrix33 {
   constructor(m: Array<number>, isColumnMajor?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean);
-  constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean);
   constructor(
     m0: number, m1:number, m2:number,
     m3:number, m4:number, m5:number,
@@ -95,9 +95,9 @@ export default class Matrix33 implements IMatrix33 {
           this.v[2] = v[6]; this.v[5] = v[7]; this.v[8] = v[8];
         }
       }
-    } else if (!!m && typeof (m as ImmutableQuaternion).className !== 'undefined' && (m as ImmutableQuaternion).className === 'Quaternion') {
+    } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
       this.v = new Float32Array(9);
-      const q = m as ImmutableQuaternion;
+      const q = m as Quaternion;
       const sx = q.x * q.x;
       const sy = q.y * q.y;
       const sz = q.z * q.z;

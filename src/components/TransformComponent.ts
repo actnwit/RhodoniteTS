@@ -1,7 +1,7 @@
 import Vector2 from '../math/Vector2';
 import Vector3 from '../math/Vector3';
 import Vector4 from '../math/Vector4';
-import ImmutableQuaternion from '../math/ImmutableQuaternion';
+import Quaternion from '../math/Quaternion';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
 import MathClassUtil from '../math/MathClassUtil';
@@ -192,7 +192,7 @@ export default class TransformComponent extends Component {
     return this._scale;
   }
 
-  set quaternion(quat: ImmutableQuaternion) {
+  set quaternion(quat: Quaternion) {
     this._quaternion.v[0] = quat.v[0];
     this._quaternion.v[1] = quat.v[1];
     this._quaternion.v[2] = quat.v[2];
@@ -209,7 +209,7 @@ export default class TransformComponent extends Component {
     return this.quaternionInner.clone();
   }
 
-  get quaternionInner(): ImmutableQuaternion {
+  get quaternionInner(): Quaternion {
     if (this._is_quaternion_updated) {
       return this._quaternion;
     } else if (!this._is_quaternion_updated) {
@@ -370,7 +370,7 @@ export default class TransformComponent extends Component {
    * @param {*} matrix 
    */
   
-  setTransform(translate: Vector3, rotate: Vector3, scale: Vector3, quaternion: ImmutableQuaternion, matrix: Matrix44) {
+  setTransform(translate: Vector3, rotate: Vector3, scale: Vector3, quaternion: Quaternion, matrix: Matrix44) {
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
     this._is_normal_trs_matrix_updated = false;
@@ -489,7 +489,7 @@ export default class TransformComponent extends Component {
     for(let key in json) {
       if(json.hasOwnProperty(key) && key in this) {
         if (key === "quaternion") {
-          this[key] = new ImmutableQuaternion((json as any)[key] as Array<number>);
+          this[key] = new Quaternion((json as any)[key] as Array<number>);
         } else if (key === 'matrix') {
           this[key] = new Matrix44((json as any)[key] as Array<number>);
         } else {

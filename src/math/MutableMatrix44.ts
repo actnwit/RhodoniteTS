@@ -1,7 +1,7 @@
 import Matrix44 from "./Matrix44";
 import {IMutableMatrix44} from "./IMatrix";
 import Matrix33 from "./Matrix33";
-import ImmutableQuaternion from "./ImmutableQuaternion";
+import Quaternion from "./Quaternion";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
@@ -14,7 +14,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(

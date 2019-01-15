@@ -1712,8 +1712,8 @@
     }());
 
     //import GLBoost from '../../globals';
-    var ImmutableQuaternion = /** @class */ (function () {
-        function ImmutableQuaternion(x, y, z, w) {
+    var Quaternion = /** @class */ (function () {
+        function Quaternion(x, y, z, w) {
             if (ArrayBuffer.isView(x)) {
                 this.v = x;
                 return;
@@ -1761,7 +1761,7 @@
                 this.v[3] = w;
             }
         }
-        ImmutableQuaternion.prototype.isEqual = function (quat) {
+        Quaternion.prototype.isEqual = function (quat) {
             if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
                 return true;
             }
@@ -1769,17 +1769,17 @@
                 return false;
             }
         };
-        Object.defineProperty(ImmutableQuaternion, "compositionType", {
+        Object.defineProperty(Quaternion, "compositionType", {
             get: function () {
                 return CompositionType.Vec4;
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableQuaternion.dummy = function () {
-            return new ImmutableQuaternion(null);
+        Quaternion.dummy = function () {
+            return new Quaternion(null);
         };
-        ImmutableQuaternion.prototype.isDummy = function () {
+        Quaternion.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
             }
@@ -1787,18 +1787,18 @@
                 return false;
             }
         };
-        Object.defineProperty(ImmutableQuaternion.prototype, "className", {
+        Object.defineProperty(Quaternion.prototype, "className", {
             get: function () {
                 return this.constructor.name;
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableQuaternion.prototype.clone = function () {
-            return new ImmutableQuaternion(this.x, this.y, this.z, this.w);
+        Quaternion.prototype.clone = function () {
+            return new Quaternion(this.x, this.y, this.z, this.w);
         };
-        ImmutableQuaternion.invert = function (quat) {
-            quat = new ImmutableQuaternion(-quat.x, -quat.y, -quat.z, quat.w);
+        Quaternion.invert = function (quat) {
+            quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
             var inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
             quat.v[0] *= inorm2;
             quat.v[1] *= inorm2;
@@ -1806,8 +1806,8 @@
             quat.v[3] *= inorm2;
             return quat;
         };
-        ImmutableQuaternion.qlerp = function (lhq, rhq, ratio) {
-            var q = new ImmutableQuaternion(0, 0, 0, 1);
+        Quaternion.qlerp = function (lhq, rhq, ratio) {
+            var q = new Quaternion(0, 0, 0, 1);
             var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
             var ss = 1.0 - qr * qr;
             if (ss === 0.0) {
@@ -1842,22 +1842,22 @@
                 return q;
             }
         };
-        ImmutableQuaternion.axisAngle = function (axisVec3, radian) {
+        Quaternion.axisAngle = function (axisVec3, radian) {
             var halfAngle = 0.5 * radian;
             var sin = Math.sin(halfAngle);
             var axis = Vector3.normalize(axisVec3);
-            return new ImmutableQuaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
+            return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
         };
-        ImmutableQuaternion.multiply = function (q1, q2) {
-            var result = new ImmutableQuaternion(0, 0, 0, 1);
+        Quaternion.multiply = function (q1, q2) {
+            var result = new Quaternion(0, 0, 0, 1);
             result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
             result.v[1] = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
             result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
             result.v[3] = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
             return result;
         };
-        ImmutableQuaternion.fromMatrix = function (m) {
-            var q = new ImmutableQuaternion();
+        Quaternion.fromMatrix = function (m) {
+            var q = new Quaternion();
             var tr = m.m00 + m.m11 + m.m22;
             if (tr > 0) {
                 var S = 0.5 / Math.sqrt(tr + 1.0);
@@ -1889,11 +1889,11 @@
             }
             return q;
         };
-        ImmutableQuaternion.fromPosition = function (vec3) {
-            var q = new ImmutableQuaternion(vec3.x, vec3.y, vec3.z, 0);
+        Quaternion.fromPosition = function (vec3) {
+            var q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
             return q;
         };
-        ImmutableQuaternion.prototype.at = function (i) {
+        Quaternion.prototype.at = function (i) {
             switch (i % 4) {
                 case 0: return this.x;
                 case 1: return this.y;
@@ -1901,38 +1901,38 @@
                 case 3: return this.w;
             }
         };
-        ImmutableQuaternion.prototype.toString = function () {
+        Quaternion.prototype.toString = function () {
             return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
         };
-        Object.defineProperty(ImmutableQuaternion.prototype, "x", {
+        Object.defineProperty(Quaternion.prototype, "x", {
             get: function () {
                 return this.v[0];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableQuaternion.prototype, "y", {
+        Object.defineProperty(Quaternion.prototype, "y", {
             get: function () {
                 return this.v[1];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableQuaternion.prototype, "z", {
+        Object.defineProperty(Quaternion.prototype, "z", {
             get: function () {
                 return this.v[2];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableQuaternion.prototype, "w", {
+        Object.defineProperty(Quaternion.prototype, "w", {
             get: function () {
                 return this.v[3];
             },
             enumerable: true,
             configurable: true
         });
-        return ImmutableQuaternion;
+        return Quaternion;
     }());
 
     //import GLBoost from '../../globals';
@@ -2549,7 +2549,7 @@
             return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
         Matrix44.prototype.getRotate = function () {
-            var quat = ImmutableQuaternion.fromMatrix(this);
+            var quat = Quaternion.fromMatrix(this);
             var rotateMat = new Matrix44(quat);
             return rotateMat;
         };
@@ -4151,7 +4151,7 @@
             return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
         RowMajarMatrix44.prototype.getRotate = function () {
-            var quat = ImmutableQuaternion.fromMatrix(this);
+            var quat = Quaternion.fromMatrix(this);
             var rotateMat = new RowMajarMatrix44(quat);
             return rotateMat;
         };
@@ -5197,7 +5197,7 @@
             return this;
         };
         MutableQuaternion.prototype.multiply = function (q) {
-            var result = new ImmutableQuaternion(0, 0, 0, 1);
+            var result = new Quaternion(0, 0, 0, 1);
             result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
             result.v[1] = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
             result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
@@ -5325,7 +5325,7 @@
             configurable: true
         });
         return MutableQuaternion;
-    }(ImmutableQuaternion));
+    }(Quaternion));
 
     // import AnimationComponent from './AnimationComponent';
     var TransformComponent = /** @class */ (function (_super) {
@@ -5789,7 +5789,7 @@
             for (var key in json) {
                 if (json.hasOwnProperty(key) && key in this) {
                     if (key === "quaternion") {
-                        this[key] = new ImmutableQuaternion(json[key]);
+                        this[key] = new Quaternion(json[key]);
                     }
                     else if (key === 'matrix') {
                         this[key] = new Matrix44(json[key]);
@@ -8407,7 +8407,7 @@
                     group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
                 }
                 if (nodeJson.rotation) {
-                    group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
+                    group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
                 }
                 if (nodeJson.matrix) {
                     group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);

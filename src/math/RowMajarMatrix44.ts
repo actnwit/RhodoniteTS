@@ -1,7 +1,7 @@
 //import GLBoost from '../../globals';
 import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
-import ImmutableQuaternion from './ImmutableQuaternion';
+import Quaternion from './Quaternion';
 import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
@@ -16,7 +16,7 @@ export default class RowMajarMatrix44 {
   constructor(m: Array<number>, notCopyFloatArray?:Boolean);
   constructor(m: Matrix33, notCopyFloatArray?:Boolean);
   constructor(m: RowMajarMatrix44, notCopyFloatArray?:Boolean);
-  constructor(m: ImmutableQuaternion, notCopyFloatArray?:Boolean);
+  constructor(m: Quaternion, notCopyFloatArray?:Boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -479,7 +479,7 @@ export default class RowMajarMatrix44 {
   }
 
   getRotate() {
-    const quat = ImmutableQuaternion.fromMatrix(this);
+    const quat = Quaternion.fromMatrix(this);
     const rotateMat = new RowMajarMatrix44(quat);
     return rotateMat;
   }
