@@ -1,4 +1,3 @@
-//import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import ImmutableVector3 from './ImmutableVector3';
 import ImmutableVector4 from './ImmutableVector4';
@@ -159,7 +158,7 @@ export default class MathClassUtil {
       console.warn("Zero division!");
     }
 
-    const output = new ImmutableVector3(out.multiply(1/out.w));
+    const output = new ImmutableVector3(ImmutableVector4.multiply(out, 1/out.w));
 
     return output;
   }
