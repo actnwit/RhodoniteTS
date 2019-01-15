@@ -71,12 +71,97 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Classes</h3>
+							<h3>Variables</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_src_math_mathutil_.mathutil.html" class="tsd-kind-icon">Math<wbr>Util</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_src_math_mathutil_.html#mathutil" class="tsd-kind-icon">Math<wbr>Util</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_math_mathutil_.html#tohalffloat" class="tsd-kind-icon">to<wbr>Half<wbr>Float</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_math_mathutil_.html#degreetoradian" class="tsd-kind-icon">degree<wbr>ToRadian</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_math_mathutil_.html#radiantodegree" class="tsd-kind-icon">radian<wbr>ToDegree</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
+					<a name="mathutil" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Math<wbr>Util</h3>
+					<div class="tsd-signature tsd-kind-icon">Math<wbr>Util<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({radianToDegree, degreeToRadian, toHalfFloat})</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/math/MathUtil.ts#L63">src/math/MathUtil.ts:63</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="tohalffloat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> to<wbr>Half<wbr>Float</h3>
+					<div class="tsd-signature tsd-kind-icon">to<wbr>Half<wbr>Float<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">toHalf</span><span class="tsd-signature-symbol"> =&nbsp;(function() {var floatView &#x3D; new Float32Array(1);var int32View &#x3D; new Int32Array(floatView.buffer);/* This method is faster than the OpenEXR implementation (very often* used, eg. in Ogre), with the additional benefit of rounding, inspired* by James Tursa?s half-precision code. */return function toHalf(val: number) {floatView[0] &#x3D; val;var x &#x3D; int32View[0];var bits &#x3D; (x &gt;&gt; 16) &amp; 0x8000; /* Get the sign */var m &#x3D; (x &gt;&gt; 12) &amp; 0x07ff; /* Keep one extra bit for rounding */var e &#x3D; (x &gt;&gt; 23) &amp; 0xff; /* Using int is faster here *//* If zero, or denormal, or exponent underflows too much for a denormal* half, return signed zero. */if (e &lt; 103) {return bits;}/* If NaN, return NaN. If Inf or exponent overflow, return Inf. */if (e &gt; 142) {bits |&#x3D; 0x7c00;/* If exponent was 0xff and one mantissa bit was set, it means NaN,* not Inf, so make sure we set one mantissa bit too. */bits |&#x3D; ((e &#x3D;&#x3D; 255) ? 0 : 1) &amp;&amp; (x &amp; 0x007fffff);return bits;}/* If exponent underflows but not too much, return a denormal */if (e &lt; 113) {m |&#x3D; 0x0800;/* Extra rounding may overflow and set mantissa to 0 and exponent* to 1, which is OK. */bits |&#x3D; (m &gt;&gt; (114 - e)) + ((m &gt;&gt; (113 - e)) &amp; 1);return bits;}bits |&#x3D; ((e - 112) &lt;&lt; 10) | (m &gt;&gt; 1);/* Extra rounding. An overflow will set mantissa to 0 and increment* the exponent, which is OK. */bits +&#x3D; m &amp; 1;return bits;};}())</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/math/MathUtil.ts#L13">src/math/MathUtil.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="degreetoradian" class="tsd-anchor"></a>
+					<h3>degree<wbr>ToRadian</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">degree<wbr>ToRadian<span class="tsd-signature-symbol">(</span>deg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/math/MathUtil.ts#L8">src/math/MathUtil.ts:8</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>deg: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="radiantodegree" class="tsd-anchor"></a>
+					<h3>radian<wbr>ToDegree</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">radian<wbr>ToDegree<span class="tsd-signature-symbol">(</span>rad<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/math/MathUtil.ts#L4">src/math/MathUtil.ts:4</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>rad: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -93,8 +178,17 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_src_math_mathutil_.mathutil.html" class="tsd-kind-icon">Math<wbr>Util</a>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="_src_math_mathutil_.html#mathutil" class="tsd-kind-icon">Math<wbr>Util</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_math_mathutil_.html#tohalffloat" class="tsd-kind-icon">to<wbr>Half<wbr>Float</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_math_mathutil_.html#degreetoradian" class="tsd-kind-icon">degree<wbr>ToRadian</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_math_mathutil_.html#radiantodegree" class="tsd-kind-icon">radian<wbr>ToDegree</a>
 					</li>
 				</ul>
 			</nav>

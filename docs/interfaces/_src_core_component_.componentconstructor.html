@@ -90,7 +90,8 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_core_component_.componentconstructor.html#setupbufferview" class="tsd-kind-icon">setup<wbr>Buffer<wbr>View</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_core_component_.componentconstructor.html#process" class="tsd-kind-icon">process</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_core_component_.componentconstructor.html#updatecomponentsofeachprocessstage" class="tsd-kind-icon">update<wbr>Components<wbr>OfEach<wbr>Process<wbr>Stage</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,19 +103,25 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Component<wbr>Constructor<span class="tsd-signature-symbol">(</span>entityUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_core_component_.component.html" class="tsd-signature-type">Component</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Component<wbr>Constructor<span class="tsd-signature-symbol">(</span>entityUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a>, componentSid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componentsid" class="tsd-signature-type">ComponentSID</a>, entityRepository<span class="tsd-signature-symbol">: </span><a href="../classes/_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_core_component_.component.html" class="tsd-signature-type">Component</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Component.ts#L75">src/core/Component.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Component.ts#L359">src/core/Component.ts:359</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>entityUid: <a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a></h5>
+								</li>
+								<li>
+									<h5>componentSid: <a href="../modules/_src__types_defined_d_.html#componentsid" class="tsd-signature-type">ComponentSID</a></h5>
+								</li>
+								<li>
+									<h5>entityRepository: <a href="../classes/_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_core_component_.component.html" class="tsd-signature-type">Component</a></h4>
@@ -125,18 +132,70 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="setupbufferview" class="tsd-anchor"></a>
-					<h3>setup<wbr>Buffer<wbr>View</h3>
+					<a name="process" class="tsd-anchor"></a>
+					<h3>process</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">setup<wbr>Buffer<wbr>View<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">process<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Component.ts#L77">src/core/Component.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Component.ts#L361">src/core/Component.ts:361</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>component<wbr>Repository<span class="tsd-signature-symbol">: </span><a href="../classes/_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>component<wbr>Tid<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>instanceIDBuffer<wbr>Uid<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>process<wbr>Approach<span class="tsd-signature-symbol">: </span><a href="_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>process<wbr>Stage<span class="tsd-signature-symbol">: </span><a href="_src_definitions_processstage_.processstageenum.html" class="tsd-signature-type">ProcessStageEnum</a></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="updatecomponentsofeachprocessstage" class="tsd-anchor"></a>
+					<h3>update<wbr>Components<wbr>OfEach<wbr>Process<wbr>Stage</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Components<wbr>OfEach<wbr>Process<wbr>Stage<span class="tsd-signature-symbol">(</span>componentTid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a>, processStage<span class="tsd-signature-symbol">: </span><a href="_src_definitions_processstage_.processstageenum.html" class="tsd-signature-type">ProcessStageEnum</a>, componentRepository<span class="tsd-signature-symbol">: </span><a href="../classes/_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Component.ts#L365">src/core/Component.ts:365</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>componentTid: <a href="../modules/_src__types_defined_d_.html#componenttid" class="tsd-signature-type">ComponentTID</a></h5>
+								</li>
+								<li>
+									<h5>processStage: <a href="_src_definitions_processstage_.processstageenum.html" class="tsd-signature-type">ProcessStageEnum</a></h5>
+								</li>
+								<li>
+									<h5>componentRepository: <a href="../classes/_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -168,12 +227,18 @@
 								<a href="_src_core_component_.componentconstructor.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="_src_core_component_.componentconstructor.html#setupbufferview" class="tsd-kind-icon">setup<wbr>Buffer<wbr>View</a>
+								<a href="_src_core_component_.componentconstructor.html#process" class="tsd-kind-icon">process</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_src_core_component_.componentconstructor.html#updatecomponentsofeachprocessstage" class="tsd-kind-icon">update<wbr>Components<wbr>OfEach<wbr>Process<wbr>Stage</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_src_core_component_.html#memberinfo" class="tsd-kind-icon">Member<wbr>Info</a>
+					</li>
 				</ul>
 			</nav>
 		</div>

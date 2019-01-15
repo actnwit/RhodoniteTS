@@ -89,6 +89,7 @@
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_src_definitions_componenttype_.html#componenttype" class="tsd-kind-icon">Component<wbr>Type</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#double" class="tsd-kind-icon">Double</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#float" class="tsd-kind-icon">Float</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#halffloat" class="tsd-kind-icon">Half<wbr>Float</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#int" class="tsd-kind-icon">Int</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#short" class="tsd-kind-icon">Short</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_componenttype_.html#unknown" class="tsd-kind-icon">Unknown</a></li>
@@ -116,17 +117,17 @@
 					<div class="tsd-signature tsd-kind-icon">Byte<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5120, str:&#x27;BYTE&#x27;, sizeInBytes: 1})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L20">src/definitions/ComponentType.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L20">src/definitions/ComponentType.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
 					<a name="componenttype" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Component<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">Component<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, from, fromTypedArray })</span></div>
+					<div class="tsd-signature tsd-kind-icon">Component<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from, fromTypedArray })</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L57">src/definitions/ComponentType.ts:57</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L58">src/definitions/ComponentType.ts:58</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -141,7 +142,7 @@
 					<div class="tsd-signature tsd-kind-icon">Double<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5127, str:&#x27;DOUBLE&#x27;, sizeInBytes: 8})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L27">src/definitions/ComponentType.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L27">src/definitions/ComponentType.ts:27</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -151,7 +152,17 @@
 					<div class="tsd-signature tsd-kind-icon">Float<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5126, str:&#x27;FLOAT&#x27;, sizeInBytes: 4})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L26">src/definitions/ComponentType.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L26">src/definitions/ComponentType.ts:26</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="halffloat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Half<wbr>Float</h3>
+					<div class="tsd-signature tsd-kind-icon">Half<wbr>Float<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:0x8D61, str:&#x27;HALF_FLOAT_OES&#x27;, sizeInBytes: 2})</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L28">src/definitions/ComponentType.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -161,7 +172,7 @@
 					<div class="tsd-signature tsd-kind-icon">Int<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5124, str:&#x27;INT&#x27;, sizeInBytes: 4})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L24">src/definitions/ComponentType.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L24">src/definitions/ComponentType.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -171,7 +182,7 @@
 					<div class="tsd-signature tsd-kind-icon">Short<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5122, str:&#x27;SHORT&#x27;, sizeInBytes: 2})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L22">src/definitions/ComponentType.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L22">src/definitions/ComponentType.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -181,7 +192,7 @@
 					<div class="tsd-signature tsd-kind-icon">Unknown<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5119, str:&#x27;UNKNOWN&#x27;, sizeInBytes: 0})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L19">src/definitions/ComponentType.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L19">src/definitions/ComponentType.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -191,7 +202,7 @@
 					<div class="tsd-signature tsd-kind-icon">Unsigned<wbr>Byte<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5121, str:&#x27;UNSIGNED_BYTE&#x27;, sizeInBytes: 1})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L21">src/definitions/ComponentType.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L21">src/definitions/ComponentType.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -201,7 +212,7 @@
 					<div class="tsd-signature tsd-kind-icon">Unsigned<wbr>Short<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5123, str:&#x27;UNSIGNED_SHORT&#x27;, sizeInBytes: 2})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L23">src/definitions/ComponentType.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L23">src/definitions/ComponentType.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -211,17 +222,17 @@
 					<div class="tsd-signature tsd-kind-icon">Unsinged<wbr>Int<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new ComponentTypeClass({index:5125, str:&#x27;UNSIGNED_INT&#x27;, sizeInBytes: 4})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L25">src/definitions/ComponentType.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L25">src/definitions/ComponentType.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="typelist" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> type<wbr>List</h3>
-					<div class="tsd-signature tsd-kind-icon">type<wbr>List<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double]</span></div>
+					<div class="tsd-signature tsd-kind-icon">type<wbr>List<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L29">src/definitions/ComponentType.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L30">src/definitions/ComponentType.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -232,24 +243,19 @@
 					<a name="from" class="tsd-anchor"></a>
 					<h3>from</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a></li>
+						<li class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L31">src/definitions/ComponentType.ts:31</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L32">src/definitions/ComponentType.ts:32</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
-										</li>
-									</ul>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a></h4>
@@ -266,7 +272,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/ComponentType.ts#L35">src/definitions/ComponentType.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/ComponentType.ts#L36">src/definitions/ComponentType.ts:36</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -311,6 +317,9 @@
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_definitions_componenttype_.html#float" class="tsd-kind-icon">Float</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_definitions_componenttype_.html#halffloat" class="tsd-kind-icon">Half<wbr>Float</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_definitions_componenttype_.html#int" class="tsd-kind-icon">Int</a>

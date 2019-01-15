@@ -101,6 +101,7 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_compositiontype_.html#from" class="tsd-kind-icon">from</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_definitions_compositiontype_.html#fromstring" class="tsd-kind-icon">from<wbr>String</a></li>
 							</ul>
 						</section>
 					</div>
@@ -111,10 +112,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
 					<a name="compositiontype" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Composition<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">Composition<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from })</span></div>
+					<div class="tsd-signature tsd-kind-icon">Composition<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from, fromString })</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L34">src/definitions/CompositionType.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L38">src/definitions/CompositionType.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -126,80 +127,80 @@
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="mat2" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Mat2</h3>
-					<div class="tsd-signature tsd-kind-icon">Mat2<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:4, str:&#x27;MAT2&#x27;, numberOfComponent: 4})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Mat2<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:4, str:&#x27;MAT2&#x27;, numberOfComponents: 4})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L24">src/definitions/CompositionType.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L24">src/definitions/CompositionType.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="mat3" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Mat3</h3>
-					<div class="tsd-signature tsd-kind-icon">Mat3<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:5, str:&#x27;MAT3&#x27;, numberOfComponent: 9})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Mat3<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:5, str:&#x27;MAT3&#x27;, numberOfComponents: 9})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L25">src/definitions/CompositionType.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L25">src/definitions/CompositionType.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="mat4" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Mat4</h3>
-					<div class="tsd-signature tsd-kind-icon">Mat4<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:6, str:&#x27;MAT4&#x27;, numberOfComponent: 16})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Mat4<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:6, str:&#x27;MAT4&#x27;, numberOfComponents: 16})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L26">src/definitions/CompositionType.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L26">src/definitions/CompositionType.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="scalar" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Scalar</h3>
-					<div class="tsd-signature tsd-kind-icon">Scalar<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:0, str:&#x27;SCALAR&#x27;, numberOfComponent: 1})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Scalar<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:0, str:&#x27;SCALAR&#x27;, numberOfComponents: 1})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L20">src/definitions/CompositionType.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L20">src/definitions/CompositionType.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="unknown" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Unknown</h3>
-					<div class="tsd-signature tsd-kind-icon">Unknown<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:-1, str:&#x27;UNKNOWN&#x27;, numberOfComponent: 0})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Unknown<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:-1, str:&#x27;UNKNOWN&#x27;, numberOfComponents: 0})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L19">src/definitions/CompositionType.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L19">src/definitions/CompositionType.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="vec2" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Vec2</h3>
-					<div class="tsd-signature tsd-kind-icon">Vec2<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:1, str:&#x27;VEC2&#x27;, numberOfComponent: 2})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Vec2<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:1, str:&#x27;VEC2&#x27;, numberOfComponents: 2})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L21">src/definitions/CompositionType.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L21">src/definitions/CompositionType.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="vec3" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Vec3</h3>
-					<div class="tsd-signature tsd-kind-icon">Vec3<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:2, str:&#x27;VEC3&#x27;, numberOfComponent: 3})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Vec3<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:2, str:&#x27;VEC3&#x27;, numberOfComponents: 3})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L22">src/definitions/CompositionType.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L22">src/definitions/CompositionType.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="vec4" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> Vec4</h3>
-					<div class="tsd-signature tsd-kind-icon">Vec4<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:3, str:&#x27;VEC4&#x27;, numberOfComponent: 4})</span></div>
+					<div class="tsd-signature tsd-kind-icon">Vec4<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol"> =&nbsp;new CompositionTypeClass({index:3, str:&#x27;VEC4&#x27;, numberOfComponents: 4})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L23">src/definitions/CompositionType.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L23">src/definitions/CompositionType.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -209,7 +210,7 @@
 					<div class="tsd-signature tsd-kind-icon">type<wbr>List<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L28">src/definitions/CompositionType.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L28">src/definitions/CompositionType.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -220,24 +221,42 @@
 					<a name="from" class="tsd-anchor"></a>
 					<h3>from</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
+						<li class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/definitions/CompositionType.ts#L30">src/definitions/CompositionType.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L30">src/definitions/CompositionType.ts:30</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
-										</li>
-									</ul>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="fromstring" class="tsd-anchor"></a>
+					<h3>from<wbr>String</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">from<wbr>String<span class="tsd-signature-symbol">(</span>str<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/definitions/CompositionType.ts#L34">src/definitions/CompositionType.ts:34</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>str: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
@@ -297,6 +316,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_definitions_compositiontype_.html#from" class="tsd-kind-icon">from</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_definitions_compositiontype_.html#fromstring" class="tsd-kind-icon">from<wbr>String</a>
 					</li>
 				</ul>
 			</nav>

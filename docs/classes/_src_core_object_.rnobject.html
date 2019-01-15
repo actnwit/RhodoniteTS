@@ -76,7 +76,7 @@
 						<span class="target">RnObject</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="_src_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a>
+								<a href="_src_memory_accessorbase_.accessorbase.html" class="tsd-signature-type">AccessorBase</a>
 							</li>
 							<li>
 								<a href="_src_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a>
@@ -86,6 +86,9 @@
 							</li>
 							<li>
 								<a href="_src_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a>
+							</li>
+							<li>
+								<a href="_src_materials_material_.material.html" class="tsd-signature-type">Material</a>
 							</li>
 						</ul>
 					</li>
@@ -105,6 +108,7 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_object_.rnobject.html#__objectuid" class="tsd-kind-icon">__object<wbr>Uid</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_object_.rnobject.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_object_.rnobject.html#currentmaxobjectcount" class="tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count</a></li>
 							</ul>
 						</section>
@@ -123,15 +127,21 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>RnObject<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_object_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>RnObject<span class="tsd-signature-symbol">(</span>needToManage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_object_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Object.ts#L3">src/core/Object.ts:3</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Object.ts#L4">src/core/Object.ts:4</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> needToManage: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;false</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_core_object_.rnobject.html" class="tsd-signature-type">RnObject</a></h4>
 						</li>
 					</ul>
@@ -142,20 +152,30 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__objectuid" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __object<wbr>Uid</h3>
-					<div class="tsd-signature tsd-kind-icon">__object<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a></div>
+					<div class="tsd-signature tsd-kind-icon">__object<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Object.ts#L2">src/core/Object.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Object.ts#L2">src/core/Object.ts:2</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="invalidobjectuid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> Invalid<wbr>ObjectUID</h3>
+					<div class="tsd-signature tsd-kind-icon">Invalid<wbr>ObjectUID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Object.ts#L4">src/core/Object.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="currentmaxobjectcount" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> current<wbr>Max<wbr>Object<wbr>Count</h3>
-					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Object.ts#L3">src/core/Object.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Object.ts#L3">src/core/Object.ts:3</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -166,16 +186,16 @@
 					<a name="objectuid" class="tsd-anchor"></a>
 					<h3>object<wbr>Uid</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectUid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectUid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Object.ts#L9">src/core/Object.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Object.ts#L12">src/core/Object.ts:12</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -204,6 +224,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_src_core_object_.rnobject.html#__objectuid" class="tsd-kind-icon">__object<wbr>Uid</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="_src_core_object_.rnobject.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_src_core_object_.rnobject.html#currentmaxobjectcount" class="tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count</a>

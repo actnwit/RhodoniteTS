@@ -95,13 +95,17 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_entity_.entity.html#__isalive" class="tsd-kind-icon">__is<wbr>Alive</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_entity_.entity.html#__scenegraphcomponent" class="tsd-kind-icon">__scene<wbr>Graph<wbr>Component</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_entity_.entity.html#__transformcomponent" class="tsd-kind-icon">__transform<wbr>Component</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_entity_.entity.html#_enforcer" class="tsd-kind-icon">_enforcer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_core_entity_.entity.html#__uniquename" class="tsd-kind-icon">__unique<wbr>Name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_entity_.entity.html#__instance" class="tsd-kind-icon">__instance</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_core_entity_.entity.html#__uniquenames" class="tsd-kind-icon">__unique<wbr>Names</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_core_entity_.entity.html#invalidentityuid" class="tsd-kind-icon">invalid<wbr>EntityUID</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#entityuid" class="tsd-kind-icon">entityUID</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -110,6 +114,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#getscenegraph" class="tsd-kind-icon">get<wbr>Scene<wbr>Graph</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#gettransform" class="tsd-kind-icon">get<wbr>Transform</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_core_entity_.entity.html#trytosetuniquename" class="tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name</a></li>
 							</ul>
 						</section>
 					</div>
@@ -121,13 +126,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Entity<span class="tsd-signature-symbol">(</span>entityUID<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a>, isAlive<span class="tsd-signature-symbol">: </span><a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.boolean.html" class="tsd-signature-type">Boolean</a>, enforcer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_entity_.entity.html" class="tsd-signature-type">Entity</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Entity<span class="tsd-signature-symbol">(</span>entityUID<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#entityuid" class="tsd-signature-type">EntityUID</a>, isAlive<span class="tsd-signature-symbol">: </span><a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.boolean.html" class="tsd-signature-type">Boolean</a>, entityComponent<span class="tsd-signature-symbol">: </span><a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_core_entity_.entity.html" class="tsd-signature-type">Entity</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L13">src/core/Entity.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L18">src/core/Entity.ts:18</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -139,7 +144,7 @@
 									<h5>isAlive: <a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.boolean.html" class="tsd-signature-type">Boolean</a></h5>
 								</li>
 								<li>
-									<h5>enforcer: <span class="tsd-signature-type">Symbol</span></h5>
+									<h5>entityComponent: <a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_core_entity_.entity.html" class="tsd-signature-type">Entity</a></h4>
@@ -155,7 +160,7 @@
 					<div class="tsd-signature tsd-kind-icon">__entity<wbr>Repository<span class="tsd-signature-symbol">:</span> <a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L10">src/core/Entity.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L15">src/core/Entity.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -165,7 +170,7 @@
 					<div class="tsd-signature tsd-kind-icon">__entity_<wbr>uid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L7">src/core/Entity.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L9">src/core/Entity.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -175,7 +180,7 @@
 					<div class="tsd-signature tsd-kind-icon">__is<wbr>Alive<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.boolean.html" class="tsd-signature-type">Boolean</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L8">src/core/Entity.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L11">src/core/Entity.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -185,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">__scene<wbr>Graph<wbr>Component<span class="tsd-signature-symbol">:</span> <a href="_src_components_scenegraphcomponent_.scenegraphcomponent.html" class="tsd-signature-type">SceneGraphComponent</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L13">src/core/Entity.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L18">src/core/Entity.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -195,17 +200,47 @@
 					<div class="tsd-signature tsd-kind-icon">__transform<wbr>Component<span class="tsd-signature-symbol">:</span> <a href="_src_components_transformcomponent_.transformcomponent.html" class="tsd-signature-type">TransformComponent</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L12">src/core/Entity.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L17">src/core/Entity.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__uniquename" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __unique<wbr>Name</h3>
+					<div class="tsd-signature tsd-kind-icon">__unique<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L13">src/core/Entity.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__instance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __instance</h3>
+					<div class="tsd-signature tsd-kind-icon">__instance<span class="tsd-signature-symbol">:</span> <a href="_src_core_entity_.entity.html" class="tsd-signature-type">Entity</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L12">src/core/Entity.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__uniquenames" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __unique<wbr>Names</h3>
+					<div class="tsd-signature tsd-kind-icon">__unique<wbr>Names<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L14">src/core/Entity.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="_enforcer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> _enforcer</h3>
-					<div class="tsd-signature tsd-kind-icon">_enforcer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Symbol</span></div>
+					<a name="invalidentityuid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> invalid<wbr>EntityUID</h3>
+					<div class="tsd-signature tsd-kind-icon">invalid<wbr>EntityUID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L9">src/core/Entity.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L10">src/core/Entity.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -222,10 +257,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L26">src/core/Entity.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L29">src/core/Entity.ts:29</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="uniquename" class="tsd-anchor"></a>
+					<h3>unique<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> uniqueName<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L80">src/core/Entity.ts:80</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -242,7 +294,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L30">src/core/Entity.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L33">src/core/Entity.ts:33</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -268,7 +320,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L50">src/core/Entity.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L53">src/core/Entity.ts:53</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_src_components_scenegraphcomponent_.scenegraphcomponent.html" class="tsd-signature-type">SceneGraphComponent</a></h4>
@@ -285,10 +337,36 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/core/Entity.ts#L43">src/core/Entity.ts:43</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L46">src/core/Entity.ts:46</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_src_components_transformcomponent_.transformcomponent.html" class="tsd-signature-type">TransformComponent</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="trytosetuniquename" class="tsd-anchor"></a>
+					<h3>try<wbr>ToSet<wbr>Unique<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, toAddNameIfConflict<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/core/Entity.ts#L60">src/core/Entity.ts:60</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>toAddNameIfConflict: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -330,11 +408,23 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_src_core_entity_.entity.html#__transformcomponent" class="tsd-kind-icon">__transform<wbr>Component</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_src_core_entity_.entity.html#__uniquename" class="tsd-kind-icon">__unique<wbr>Name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_core_entity_.entity.html#__instance" class="tsd-kind-icon">__instance</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_core_entity_.entity.html#__uniquenames" class="tsd-kind-icon">__unique<wbr>Names</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="_src_core_entity_.entity.html#_enforcer" class="tsd-kind-icon">_enforcer</a>
+								<a href="_src_core_entity_.entity.html#invalidentityuid" class="tsd-kind-icon">invalid<wbr>EntityUID</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_src_core_entity_.entity.html#entityuid" class="tsd-kind-icon">entityUID</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_src_core_entity_.entity.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_core_entity_.entity.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a>
@@ -344,6 +434,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_core_entity_.entity.html#gettransform" class="tsd-kind-icon">get<wbr>Transform</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_src_core_entity_.entity.html#trytosetuniquename" class="tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name</a>
 							</li>
 						</ul>
 					</li>

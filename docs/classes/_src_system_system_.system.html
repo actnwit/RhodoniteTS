@@ -90,15 +90,24 @@
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_system_system_.system.html#__entityrepository" class="tsd-kind-icon">__entity<wbr>Repository</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_system_system_.system.html#__componentrepository" class="tsd-kind-icon">__component<wbr>Repository</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_system_system_.system.html#__processapproach" class="tsd-kind-icon">__process<wbr>Approach</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_system_system_.system.html#__processstages" class="tsd-kind-icon">__process<wbr>Stages</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_system_system_.system.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_system_system_.system.html#__renderingpipeline" class="tsd-kind-icon">__rendering<wbr>Pipeline</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_system_system_.system.html#__instance" class="tsd-kind-icon">__instance</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_system_system_.system.html#processapproach" class="tsd-kind-icon">process<wbr>Approach</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_system_system_.system.html#process" class="tsd-kind-icon">process</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_system_system_.system.html#setprocessapproachandcanvas" class="tsd-kind-icon">set<wbr>Process<wbr>Approach<wbr>And<wbr>Canvas</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_system_system_.system.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a></li>
 							</ul>
 						</section>
@@ -111,21 +120,15 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>System<span class="tsd-signature-symbol">(</span>enforcer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>System<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L19">src/system/System.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L25">src/system/System.ts:25</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>enforcer: <span class="tsd-signature-type">Symbol</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></h4>
 						</li>
 					</ul>
@@ -134,12 +137,22 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="__entityrepository" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __entity<wbr>Repository</h3>
-					<div class="tsd-signature tsd-kind-icon">__entity<wbr>Repository<span class="tsd-signature-symbol">:</span> <a href="_src_core_entityrepository_.entityrepository.html" class="tsd-signature-type">EntityRepository</a><span class="tsd-signature-symbol"> =&nbsp;EntityRepository.getInstance()</span></div>
+					<a name="__componentrepository" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __component<wbr>Repository</h3>
+					<div class="tsd-signature tsd-kind-icon">__component<wbr>Repository<span class="tsd-signature-symbol">:</span> <a href="_src_core_componentrepository_.componentrepository.html" class="tsd-signature-type">ComponentRepository</a><span class="tsd-signature-symbol"> =&nbsp;ComponentRepository.getInstance()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L19">src/system/System.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L23">src/system/System.ts:23</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__processapproach" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __process<wbr>Approach</h3>
+					<div class="tsd-signature tsd-kind-icon">__process<wbr>Approach<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a><span class="tsd-signature-symbol"> =&nbsp;ProcessApproach.None</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L25">src/system/System.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -149,19 +162,49 @@
 					<div class="tsd-signature tsd-kind-icon">__process<wbr>Stages<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_src_definitions_processstage_.processstageenum.html" class="tsd-signature-type">ProcessStageEnum</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;[ProcessStage.Create,ProcessStage.Load,ProcessStage.Mount,ProcessStage.Logic,ProcessStage.PreRender,ProcessStage.Render,ProcessStage.Unmount,ProcessStage.Discard]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L9">src/system/System.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L13">src/system/System.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="__renderingpipeline" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __rendering<wbr>Pipeline</h3>
+					<div class="tsd-signature tsd-kind-icon">__rendering<wbr>Pipeline<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_renderer_renderingpipeline_.renderingpipeline.html" class="tsd-signature-type">RenderingPipeline</a><span class="tsd-signature-symbol"> =&nbsp;WebGLRenderingPipeline</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L24">src/system/System.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
-					<a name="__singletonenforcer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __singleton<wbr>Enforcer</h3>
-					<div class="tsd-signature tsd-kind-icon">__singleton<wbr>Enforcer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Symbol</span></div>
+					<a name="__instance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __instance</h3>
+					<div class="tsd-signature tsd-kind-icon">__instance<span class="tsd-signature-symbol">:</span> <a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L8">src/system/System.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L12">src/system/System.ts:12</a></li>
 						</ul>
 					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="processapproach" class="tsd-anchor"></a>
+					<h3>process<wbr>Approach</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> processApproach<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L77">src/system/System.ts:77</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -176,10 +219,43 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L27">src/system/System.ts:27</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L30">src/system/System.ts:30</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setprocessapproachandcanvas" class="tsd-anchor"></a>
+					<h3>set<wbr>Process<wbr>Approach<wbr>And<wbr>Canvas</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Process<wbr>Approach<wbr>And<wbr>Canvas<span class="tsd-signature-symbol">(</span>approach<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a>, canvas<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_node_modules__types_webgl2_index_d_.webgl2renderingcontext.html" class="tsd-signature-type">WebGL2RenderingContext</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_dom_d_.webglrenderingcontext.html" class="tsd-signature-type">WebGLRenderingContext</a><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/_node_modules__types_webgl_ext_index_d_.webgl1extensions.html" class="tsd-signature-type">WebGL1Extensions</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L57">src/system/System.ts:57</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>approach: <a href="../interfaces/_src_definitions_processapproach_.processapproachenum.html" class="tsd-signature-type">ProcessApproachEnum</a></h5>
+								</li>
+								<li>
+									<h5>canvas: <span class="tsd-signature-type">HTMLCanvasElement</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="../interfaces/_node_modules__types_webgl2_index_d_.webgl2renderingcontext.html" class="tsd-signature-type">WebGL2RenderingContext</a>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="../interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_dom_d_.webglrenderingcontext.html" class="tsd-signature-type">WebGLRenderingContext</a>
+								<span class="tsd-signature-symbol"> &amp; </span>
+								<a href="../interfaces/_node_modules__types_webgl_ext_index_d_.webgl1extensions.html" class="tsd-signature-type">WebGL1Extensions</a>
+							</h4>
 						</li>
 					</ul>
 				</section>
@@ -187,16 +263,16 @@
 					<a name="getinstance" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Instance</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/256dc22/src/system/System.ts#L47">src/system/System.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/7b519b8/src/system/System.ts#L81">src/system/System.ts:81</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="_src_system_system_.system.html" class="tsd-signature-type">System</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -224,16 +300,28 @@
 								<a href="_src_system_system_.system.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="_src_system_system_.system.html#__entityrepository" class="tsd-kind-icon">__entity<wbr>Repository</a>
+								<a href="_src_system_system_.system.html#__componentrepository" class="tsd-kind-icon">__component<wbr>Repository</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_src_system_system_.system.html#__processapproach" class="tsd-kind-icon">__process<wbr>Approach</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_src_system_system_.system.html#__processstages" class="tsd-kind-icon">__process<wbr>Stages</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_src_system_system_.system.html#__renderingpipeline" class="tsd-kind-icon">__rendering<wbr>Pipeline</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
-								<a href="_src_system_system_.system.html#__singletonenforcer" class="tsd-kind-icon">__singleton<wbr>Enforcer</a>
+								<a href="_src_system_system_.system.html#__instance" class="tsd-kind-icon">__instance</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_src_system_system_.system.html#processapproach" class="tsd-kind-icon">process<wbr>Approach</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_system_system_.system.html#process" class="tsd-kind-icon">process</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_src_system_system_.system.html#setprocessapproachandcanvas" class="tsd-kind-icon">set<wbr>Process<wbr>Approach<wbr>And<wbr>Canvas</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_src_system_system_.system.html#getinstance" class="tsd-kind-icon">get<wbr>Instance</a>
@@ -242,9 +330,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_src_system_system_.html#singleton" class="tsd-kind-icon">singleton</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
