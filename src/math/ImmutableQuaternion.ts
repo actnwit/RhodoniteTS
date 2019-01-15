@@ -2,7 +2,7 @@
 
 import Vector3 from './Vector3';
 import { IVector4 } from './IVector';
-import ImmutableMatrix44 from './ImmutableMatrix44';
+import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 
@@ -157,7 +157,7 @@ export default class ImmutableQuaternion implements IVector4 {
     return result;
   }
 
-  static fromMatrix(m:ImmutableMatrix44) {
+  static fromMatrix(m:Matrix44) {
 
     let q = new ImmutableQuaternion();
     let tr = m.m00 + m.m11 + m.m22;

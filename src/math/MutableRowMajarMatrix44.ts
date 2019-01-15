@@ -1,7 +1,7 @@
 import Matrix33 from "./Matrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
 import ImmutableRowMajarMatrix44 from "./ImmutableRowMajarMatrix44";
-import ImmutableMatrix44 from "./ImmutableMatrix44";
+import Matrix44 from "./Matrix44";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 
@@ -60,7 +60,7 @@ export default class MutableRowMajarMatrix44 extends ImmutableRowMajarMatrix44 {
     return this;
   }
 
-  copyComponents(mat4: ImmutableRowMajarMatrix44 | ImmutableMatrix44) {
+  copyComponents(mat4: ImmutableRowMajarMatrix44 | Matrix44) {
     //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
     const m = mat4;
 

@@ -2,7 +2,7 @@ import Entity from '../core/Entity';
 import EntityRepository from '../core/EntityRepository';
 import TransformComponent from './TransformComponent';
 import Vector3 from '../math/Vector3';
-import ImmutableMatrix44 from '../math/ImmutableMatrix44';
+import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import ImmutableRowMajarMatrix44 from '../math/ImmutableRowMajarMatrix44';
 

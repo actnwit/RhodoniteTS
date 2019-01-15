@@ -2,7 +2,7 @@
 import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import ImmutableQuaternion from './ImmutableQuaternion';
-import ImmutableMatrix44 from './ImmutableMatrix44';
+import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 

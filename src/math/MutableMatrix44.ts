@@ -1,4 +1,4 @@
-import ImmutableMatrix44 from "./ImmutableMatrix44";
+import Matrix44 from "./Matrix44";
 import {IMutableMatrix44} from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import ImmutableQuaternion from "./ImmutableQuaternion";
@@ -9,11 +9,11 @@ import { CompositionType } from "../definitions/CompositionType";
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutableMatrix44 {
+export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix44 {
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
@@ -53,7 +53,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutab
     return this;
   }
 
-  copyComponents(mat4: ImmutableMatrix44) {
+  copyComponents(mat4: Matrix44) {
     //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
     const m = mat4.v;
     this.v[0] = m[0];
@@ -272,7 +272,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutab
     /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat: ImmutableMatrix44) {
+  multiply(mat: Matrix44) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20 + this.m03*mat.m30;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21 + this.m03*mat.m31;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22 + this.m03*mat.m32;
@@ -302,7 +302,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutab
   }
 
 
-  multiplyByLeft(mat:ImmutableMatrix44 | ImmutableRowMajarMatrix44) {
+  multiplyByLeft(mat:Matrix44 | ImmutableRowMajarMatrix44) {
     var m00 = mat.m00*this.m00 + mat.m01*this.m10 + mat.m02*this.m20 + mat.m03*this.m30;
     var m01 = mat.m00*this.m01 + mat.m01*this.m11 + mat.m02*this.m21 + mat.m03*this.m31;
     var m02 = mat.m00*this.m02 + mat.m01*this.m12 + mat.m02*this.m22 + mat.m03*this.m32;
@@ -361,7 +361,7 @@ export default class MutableMatrix44 extends ImmutableMatrix44 implements IMutab
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m: ImmutableMatrix44, r_m: ImmutableMatrix44) {
+  static multiply(l_m: Matrix44, r_m: Matrix44) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20 + l_m.m03*r_m.m30;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20 + l_m.m13*r_m.m30;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20 + l_m.m23*r_m.m30;

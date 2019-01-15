@@ -1,6 +1,6 @@
 // import GLBoost from '../../globals';
 import Vector3 from './Vector3';
-import ImmutableMatrix44 from './ImmutableMatrix44';
+import Matrix44 from './Matrix44';
 import ImmutableQuaternion from './ImmutableQuaternion';
 import {IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
@@ -13,7 +13,7 @@ export default class Matrix33 implements IMatrix33 {
   constructor(m: Float32Array, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean);
-  constructor(m: ImmutableMatrix44, isColumnMajor?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean);
   constructor(
     m0: number, m1:number, m2:number,
@@ -83,12 +83,12 @@ export default class Matrix33 implements IMatrix33 {
       } else {
         this.v = new Float32Array(9);
         if (_isColumnMajor === true) {
-          const v = (m as Matrix33|ImmutableMatrix44).v;
+          const v = (m as Matrix33|Matrix44).v;
           this.v[0] = v[0]; this.v[3] = v[3]; this.v[6] = v[6];
           this.v[1] = v[1]; this.v[4] = v[4]; this.v[7] = v[7];
           this.v[2] = v[2]; this.v[5] = v[5]; this.v[8] = v[8];
         } else {
-          const v = (m as Matrix33|ImmutableMatrix44).v;
+          const v = (m as Matrix33|Matrix44).v;
           // 'm' must be row major array if isColumnMajor is false
           this.v[0] = v[0]; this.v[3] = v[1]; this.v[6] = v[2];
           this.v[1] = v[3]; this.v[4] = v[4]; this.v[7] = v[5];
@@ -358,7 +358,7 @@ export default class Matrix33 implements IMatrix33 {
   }
 
 
-  isEqual(mat: ImmutableMatrix44, delta: number = Number.EPSILON) {
+  isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
     if (Math.abs(mat.v[0] - this.v[0]) < delta &&
       Math.abs(mat.v[1] - this.v[1]) < delta &&
       Math.abs(mat.v[2] - this.v[2]) < delta &&

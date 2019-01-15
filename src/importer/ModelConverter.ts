@@ -5,7 +5,7 @@ import MeshComponent from "../components/MeshComponent";
 import Entity from "../core/Entity";
 import Vector3 from "../math/Vector3";
 import ImmutableQuaternion from "../math/ImmutableQuaternion";
-import ImmutableMatrix44 from "../math/ImmutableMatrix44";
+import Matrix44 from "../math/Matrix44";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import Primitive from "../geometry/Primitive";
 import Buffer from "../memory/Buffer";
@@ -151,7 +151,7 @@ export default class ModelConverter {
         group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
       }
       if (nodeJson.matrix) {
-        group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
+        group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
       }
     }
   }

@@ -10,13 +10,13 @@ import { CompositionType } from '../definitions/CompositionType';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
-export default class ImmutableMatrix44 implements IMatrix44 {
+export default class Matrix44 implements IMatrix44 {
   v: TypedArray;
 
   constructor(m: FloatArray, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Array<number>, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: ImmutableMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
+  constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableQuaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: ImmutableRowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
@@ -156,7 +156,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   }
 
   static dummy() {
-    return new ImmutableMatrix44(null);
+    return new Matrix44(null);
   }
 
   static get compositionType() {
@@ -176,7 +176,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   }
 
   clone() {
-    return new ImmutableMatrix44(
+    return new Matrix44(
       this.v[0], this.v[4], this.v[8], this.v[12],
       this.v[1], this.v[5], this.v[9], this.v[13],
       this.v[2], this.v[6], this.v[10], this.v[14],
@@ -188,7 +188,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
    * to the identity matrix（static版）
    */
   static identity() {
-    return new ImmutableMatrix44(
+    return new Matrix44(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -196,7 +196,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
     );
   }
 
-  isEqual(mat: ImmutableMatrix44, delta: number = Number.EPSILON) {
+  isEqual(mat: Matrix44, delta: number = Number.EPSILON) {
     if (Math.abs(mat.v[0] - this.v[0]) < delta &&
       Math.abs(mat.v[1] - this.v[1]) < delta &&
       Math.abs(mat.v[2] - this.v[2]) < delta &&
@@ -224,7 +224,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   }
 
   static translate(vec:Vector3) {
-    return new ImmutableMatrix44(
+    return new Matrix44(
       1, 0, 0, vec.x,
       0, 1, 0, vec.y,
       0, 0, 1, vec.z,
@@ -234,7 +234,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
 
 
   static scale(vec: Vector3) {
-    return new ImmutableMatrix44(
+    return new Matrix44(
       vec.x, 0, 0, 0,
       0, vec.y, 0, 0,
       0, 0, vec.z, 0,
@@ -248,7 +248,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   static rotateX(radian:number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix44(
+    return new Matrix44(
       1, 0, 0, 0,
       0, cos, -sin, 0,
       0, sin, cos, 0,
@@ -262,7 +262,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   static rotateY(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix44(
+    return new Matrix44(
       cos, 0, sin, 0,
       0, 1, 0, 0,
       -sin, 0, cos, 0,
@@ -277,7 +277,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   static rotateZ(radian: number) {
     var cos = Math.cos(radian);
     var sin = Math.sin(radian);
-    return new ImmutableMatrix44(
+    return new Matrix44(
       cos, -sin, 0, 0,
       sin, cos, 0, 0,
       0, 0, 1, 0,
@@ -305,7 +305,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   }
 
   static zero() {
-    return new ImmutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   flattenAsArray() {
@@ -318,9 +318,9 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   /**
    * transpose(static version)
    */
-  static transpose(mat:ImmutableMatrix44) {
+  static transpose(mat:Matrix44) {
 
-    var mat_t = new ImmutableMatrix44(
+    var mat_t = new Matrix44(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -342,7 +342,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   /**
    * multiply zero matrix and zero matrix(static version)
    */
-  static multiply(l_m:ImmutableMatrix44, r_m:ImmutableMatrix44) {
+  static multiply(l_m:Matrix44, r_m:Matrix44) {
     var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20 + l_m.m03*r_m.m30;
     var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20 + l_m.m13*r_m.m30;
     var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20 + l_m.m23*r_m.m30;
@@ -363,7 +363,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
     var m23 = l_m.m20*r_m.m03 + l_m.m21*r_m.m13 + l_m.m22*r_m.m23 + l_m.m23*r_m.m33;
     var m33 = l_m.m30*r_m.m03 + l_m.m31*r_m.m13 + l_m.m32*r_m.m23 + l_m.m33*r_m.m33;
 
-    return new ImmutableMatrix44(
+    return new Matrix44(
         m00, m01, m02, m03,
         m10, m11, m12, m13,
         m20, m21, m22, m23,
@@ -383,7 +383,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
       this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
   }
 
-  static determinant(mat:ImmutableMatrix44) {
+  static determinant(mat:Matrix44) {
     return mat.m00*mat.m11*mat.m22*mat.m33 + mat.m00*mat.m12*mat.m23*mat.m31 + mat.m00*mat.m13*mat.m21*mat.m32 +
       mat.m01*mat.m10*mat.m23*mat.m32 + mat.m01*mat.m12*mat.m20*mat.m33 + mat.m01*mat.m13*mat.m22*mat.m30 +
       mat.m02*mat.m10*mat.m21*mat.m33 + mat.m02*mat.m11*mat.m23*mat.m30 + mat.m02*mat.m13*mat.m20*mat.m31 +
@@ -396,7 +396,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
   }
 
 
-  static invert(mat:ImmutableMatrix44) {
+  static invert(mat:Matrix44) {
     var det = mat.determinant();
     var m00 = (mat.m11*mat.m22*mat.m33 + mat.m12*mat.m23*mat.m31 + mat.m13*mat.m21*mat.m32 - mat.m11*mat.m23*mat.m32 - mat.m12*mat.m21*mat.m33 - mat.m13*mat.m22*mat.m31) / det;
     var m01 = (mat.m01*mat.m23*mat.m32 + mat.m02*mat.m21*mat.m33 + mat.m03*mat.m22*mat.m31 - mat.m01*mat.m22*mat.m33 - mat.m02*mat.m23*mat.m31 - mat.m03*mat.m21*mat.m32) / det;
@@ -415,7 +415,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
     var m32 = (mat.m00*mat.m12*mat.m31 + mat.m01*mat.m10*mat.m32 + mat.m02*mat.m11*mat.m30 - mat.m00*mat.m11*mat.m32 - mat.m01*mat.m12*mat.m30 - mat.m02*mat.m10*mat.m31) / det;
     var m33 = (mat.m00*mat.m11*mat.m22 + mat.m01*mat.m12*mat.m20 + mat.m02*mat.m10*mat.m21 - mat.m00*mat.m12*mat.m21 - mat.m01*mat.m10*mat.m22 - mat.m02*mat.m11*mat.m20) / det;
 
-    return new ImmutableMatrix44(
+    return new Matrix44(
       m00, m01, m02, m03,
       m10, m11, m12, m13,
       m20, m21, m22, m23,
@@ -522,7 +522,7 @@ export default class ImmutableMatrix44 implements IMatrix44 {
 
   getRotate() {
     const quat = ImmutableQuaternion.fromMatrix(this);
-    const rotateMat = new ImmutableMatrix44(quat);
+    const rotateMat = new Matrix44(quat);
     return rotateMat;
   }
 }

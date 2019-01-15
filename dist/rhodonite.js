@@ -1937,8 +1937,8 @@
 
     //import GLBoost from '../../globals';
     var FloatArray = Float32Array;
-    var ImmutableMatrix44 = /** @class */ (function () {
-        function ImmutableMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
+    var Matrix44 = /** @class */ (function () {
+        function Matrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
             if (isColumnMajor === void 0) { isColumnMajor = false; }
             if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
             var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
@@ -2214,17 +2214,17 @@
                 this.v[15] = 1;
             }
         }
-        ImmutableMatrix44.dummy = function () {
-            return new ImmutableMatrix44(null);
+        Matrix44.dummy = function () {
+            return new Matrix44(null);
         };
-        Object.defineProperty(ImmutableMatrix44, "compositionType", {
+        Object.defineProperty(Matrix44, "compositionType", {
             get: function () {
                 return CompositionType.Mat4;
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableMatrix44.prototype.isDummy = function () {
+        Matrix44.prototype.isDummy = function () {
             if (this.v.length === 0) {
                 return true;
             }
@@ -2232,23 +2232,23 @@
                 return false;
             }
         };
-        Object.defineProperty(ImmutableMatrix44.prototype, "className", {
+        Object.defineProperty(Matrix44.prototype, "className", {
             get: function () {
                 return this.constructor.name;
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableMatrix44.prototype.clone = function () {
-            return new ImmutableMatrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
+        Matrix44.prototype.clone = function () {
+            return new Matrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
         };
         /**
          * to the identity matrix（static版）
          */
-        ImmutableMatrix44.identity = function () {
-            return new ImmutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        Matrix44.identity = function () {
+            return new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
-        ImmutableMatrix44.prototype.isEqual = function (mat, delta) {
+        Matrix44.prototype.isEqual = function (mat, delta) {
             if (delta === void 0) { delta = Number.EPSILON; }
             if (Math.abs(mat.v[0] - this.v[0]) < delta &&
                 Math.abs(mat.v[1] - this.v[1]) < delta &&
@@ -2272,43 +2272,43 @@
                 return false;
             }
         };
-        ImmutableMatrix44.prototype.getTranslate = function () {
+        Matrix44.prototype.getTranslate = function () {
             return new Vector3(this.m03, this.m13, this.m23);
         };
-        ImmutableMatrix44.translate = function (vec) {
-            return new ImmutableMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+        Matrix44.translate = function (vec) {
+            return new Matrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
         };
-        ImmutableMatrix44.scale = function (vec) {
-            return new ImmutableMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+        Matrix44.scale = function (vec) {
+            return new Matrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
         };
         /**
          * Create X oriented Rotation Matrix
         */
-        ImmutableMatrix44.rotateX = function (radian) {
+        Matrix44.rotateX = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+            return new Matrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
         };
         /**
          * Create Y oriented Rotation Matrix
          */
-        ImmutableMatrix44.rotateY = function (radian) {
+        Matrix44.rotateY = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+            return new Matrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
         };
         /**
          * Create Z oriented Rotation Matrix
          */
-        ImmutableMatrix44.rotateZ = function (radian) {
+        Matrix44.rotateZ = function (radian) {
             var cos = Math.cos(radian);
             var sin = Math.sin(radian);
-            return new ImmutableMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+            return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         };
         /**
          * @return Euler Angles Rotation (x, y, z)
          */
-        ImmutableMatrix44.prototype.toEulerAngles = function () {
+        Matrix44.prototype.toEulerAngles = function () {
             var rotate = null;
             if (Math.abs(this.m20) != 1.0) {
                 var y = -Math.asin(this.m20);
@@ -2324,10 +2324,10 @@
             }
             return rotate;
         };
-        ImmutableMatrix44.zero = function () {
-            return new ImmutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        Matrix44.zero = function () {
+            return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         };
-        ImmutableMatrix44.prototype.flattenAsArray = function () {
+        Matrix44.prototype.flattenAsArray = function () {
             return [this.v[0], this.v[1], this.v[2], this.v[3],
                 this.v[4], this.v[5], this.v[6], this.v[7],
                 this.v[8], this.v[9], this.v[10], this.v[11],
@@ -2336,11 +2336,11 @@
         /**
          * transpose(static version)
          */
-        ImmutableMatrix44.transpose = function (mat) {
-            var mat_t = new ImmutableMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
+        Matrix44.transpose = function (mat) {
+            var mat_t = new Matrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
             return mat_t;
         };
-        ImmutableMatrix44.prototype.multiplyVector = function (vec) {
+        Matrix44.prototype.multiplyVector = function (vec) {
             var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
             var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
             var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
@@ -2350,7 +2350,7 @@
         /**
          * multiply zero matrix and zero matrix(static version)
          */
-        ImmutableMatrix44.multiply = function (l_m, r_m) {
+        Matrix44.multiply = function (l_m, r_m) {
             var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
             var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
             var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
@@ -2367,9 +2367,9 @@
             var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
             var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
             var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-            return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
         };
-        ImmutableMatrix44.prototype.determinant = function () {
+        Matrix44.prototype.determinant = function () {
             return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
                 this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
                 this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
@@ -2379,7 +2379,7 @@
                 this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
                 this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
         };
-        ImmutableMatrix44.determinant = function (mat) {
+        Matrix44.determinant = function (mat) {
             return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
                 mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
                 mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
@@ -2389,7 +2389,7 @@
                 mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
                 mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
         };
-        ImmutableMatrix44.invert = function (mat) {
+        Matrix44.invert = function (mat) {
             var det = mat.determinant();
             var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
             var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
@@ -2407,127 +2407,127 @@
             var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
             var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
             var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-            return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
         };
-        Object.defineProperty(ImmutableMatrix44.prototype, "m00", {
+        Object.defineProperty(Matrix44.prototype, "m00", {
             get: function () {
                 return this.v[0];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m10", {
+        Object.defineProperty(Matrix44.prototype, "m10", {
             get: function () {
                 return this.v[1];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m20", {
+        Object.defineProperty(Matrix44.prototype, "m20", {
             get: function () {
                 return this.v[2];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m30", {
+        Object.defineProperty(Matrix44.prototype, "m30", {
             get: function () {
                 return this.v[3];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m01", {
+        Object.defineProperty(Matrix44.prototype, "m01", {
             get: function () {
                 return this.v[4];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m11", {
+        Object.defineProperty(Matrix44.prototype, "m11", {
             get: function () {
                 return this.v[5];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m21", {
+        Object.defineProperty(Matrix44.prototype, "m21", {
             get: function () {
                 return this.v[6];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m31", {
+        Object.defineProperty(Matrix44.prototype, "m31", {
             get: function () {
                 return this.v[7];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m02", {
+        Object.defineProperty(Matrix44.prototype, "m02", {
             get: function () {
                 return this.v[8];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m12", {
+        Object.defineProperty(Matrix44.prototype, "m12", {
             get: function () {
                 return this.v[9];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m22", {
+        Object.defineProperty(Matrix44.prototype, "m22", {
             get: function () {
                 return this.v[10];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m32", {
+        Object.defineProperty(Matrix44.prototype, "m32", {
             get: function () {
                 return this.v[11];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m03", {
+        Object.defineProperty(Matrix44.prototype, "m03", {
             get: function () {
                 return this.v[12];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m13", {
+        Object.defineProperty(Matrix44.prototype, "m13", {
             get: function () {
                 return this.v[13];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m23", {
+        Object.defineProperty(Matrix44.prototype, "m23", {
             get: function () {
                 return this.v[14];
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ImmutableMatrix44.prototype, "m33", {
+        Object.defineProperty(Matrix44.prototype, "m33", {
             get: function () {
                 return this.v[15];
             },
             enumerable: true,
             configurable: true
         });
-        ImmutableMatrix44.prototype.toString = function () {
+        Matrix44.prototype.toString = function () {
             return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
                 this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
                 this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
                 this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
         };
-        ImmutableMatrix44.prototype.nearZeroToZero = function (value) {
+        Matrix44.prototype.nearZeroToZero = function (value) {
             if (Math.abs(value) < 0.00001) {
                 value = 0;
             }
@@ -2539,21 +2539,21 @@
             }
             return value;
         };
-        ImmutableMatrix44.prototype.toStringApproximately = function () {
+        Matrix44.prototype.toStringApproximately = function () {
             return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
                 this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
                 this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
                 this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
         };
-        ImmutableMatrix44.prototype.getScale = function () {
+        Matrix44.prototype.getScale = function () {
             return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
         };
-        ImmutableMatrix44.prototype.getRotate = function () {
+        Matrix44.prototype.getRotate = function () {
             var quat = ImmutableQuaternion.fromMatrix(this);
-            var rotateMat = new ImmutableMatrix44(quat);
+            var rotateMat = new Matrix44(quat);
             return rotateMat;
         };
-        return ImmutableMatrix44;
+        return Matrix44;
     }());
 
     var MutableMatrix44 = /** @class */ (function (_super) {
@@ -3002,7 +3002,7 @@
             configurable: true
         });
         return MutableMatrix44;
-    }(ImmutableMatrix44));
+    }(Matrix44));
 
     var AccessorBase = /** @class */ (function (_super) {
         __extends(AccessorBase, _super);
@@ -4742,7 +4742,7 @@
                 return;
             }
             var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
-            if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
+            if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
                 this['_' + memberName] = new dataClassType(taken, false, true);
             }
             else if (dataClassType === ImmutableRowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
@@ -5337,7 +5337,7 @@
             _this._scale = Vector3.dummy();
             _this._quaternion = MutableQuaternion.dummy();
             _this._matrix = MutableMatrix44.dummy();
-            _this._invMatrix = ImmutableMatrix44.dummy();
+            _this._invMatrix = Matrix44.dummy();
             _this._normalMatrix = Matrix33.dummy();
             _this.__toUpdateAllTransform = true;
             _this._updateCount = 0;
@@ -5455,7 +5455,7 @@
                     this._rotate = this._matrix.toEulerAngles();
                 }
                 else if (this._is_quaternion_updated) {
-                    this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
+                    this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
                 }
                 this._is_euler_angles_updated = true;
                 return this._rotate;
@@ -5657,7 +5657,7 @@
         Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
             get: function () {
                 if (!this._is_normal_trs_matrix_updated) {
-                    this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+                    this._normalMatrix = new Matrix33(Matrix44.transpose(Matrix44.invert(this.matrix)));
                     this._is_normal_trs_matrix_updated = true;
                 }
                 return this._normalMatrix;
@@ -5740,7 +5740,7 @@
                 this._is_quaternion_updated = true;
             }
             else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-                this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
+                this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
                 this._is_euler_angles_updated = true;
             }
             else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
@@ -5771,9 +5771,9 @@
         };
         TransformComponent.prototype.__updateMatrix = function () {
             if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-                var rotationMatrix = new ImmutableMatrix44(this._quaternion);
+                var rotationMatrix = new Matrix44(this._quaternion);
                 var scale = this._scale;
-                this._matrix = MutableMatrix44.multiply(rotationMatrix, ImmutableMatrix44.scale(scale));
+                this._matrix = MutableMatrix44.multiply(rotationMatrix, Matrix44.scale(scale));
                 var translateVec = this._translate;
                 this._matrix.m03 = translateVec.x;
                 this._matrix.m13 = translateVec.y;
@@ -5792,7 +5792,7 @@
                         this[key] = new ImmutableQuaternion(json[key]);
                     }
                     else if (key === 'matrix') {
-                        this[key] = new ImmutableMatrix44(json[key]);
+                        this[key] = new Matrix44(json[key]);
                     }
                     else {
                         this[key] = new Vector3(json[key]);
@@ -5826,7 +5826,7 @@
         };
         Object.defineProperty(TransformComponent.prototype, "rotateMatrix44", {
             get: function () {
-                return new ImmutableMatrix44(this.quaternion);
+                return new Matrix44(this.quaternion);
             },
             set: function (rotateMatrix) {
                 this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
@@ -8410,7 +8410,7 @@
                     group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
                 }
                 if (nodeJson.matrix) {
-                    group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
+                    group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
                 }
             }
         };
@@ -8564,7 +8564,7 @@
         MutableVector3: MutableVector3,
         MutableVector4: MutableVector4,
         Matrix33: Matrix33,
-        ImmutableMatrix44: ImmutableMatrix44,
+        Matrix44: Matrix44,
         MutableMatrix44: MutableMatrix44,
         ProcessApproach: ProcessApproach,
         Gltf2Importer: Gltf2Importer,

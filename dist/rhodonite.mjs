@@ -1627,7 +1627,7 @@ class ImmutableQuaternion {
 
 //import GLBoost from '../../globals';
 const FloatArray = Float32Array;
-class ImmutableMatrix44 {
+class Matrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
@@ -1903,7 +1903,7 @@ class ImmutableMatrix44 {
         }
     }
     static dummy() {
-        return new ImmutableMatrix44(null);
+        return new Matrix44(null);
     }
     static get compositionType() {
         return CompositionType.Mat4;
@@ -1920,13 +1920,13 @@ class ImmutableMatrix44 {
         return this.constructor.name;
     }
     clone() {
-        return new ImmutableMatrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
+        return new Matrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
     }
     /**
      * to the identity matrix（static版）
      */
     static identity() {
-        return new ImmutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        return new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     isEqual(mat, delta = Number.EPSILON) {
         if (Math.abs(mat.v[0] - this.v[0]) < delta &&
@@ -1955,10 +1955,10 @@ class ImmutableMatrix44 {
         return new Vector3(this.m03, this.m13, this.m23);
     }
     static translate(vec) {
-        return new ImmutableMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
+        return new Matrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
     }
     static scale(vec) {
-        return new ImmutableMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
+        return new Matrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
     }
     /**
      * Create X oriented Rotation Matrix
@@ -1966,7 +1966,7 @@ class ImmutableMatrix44 {
     static rotateX(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
+        return new Matrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
     }
     /**
      * Create Y oriented Rotation Matrix
@@ -1974,7 +1974,7 @@ class ImmutableMatrix44 {
     static rotateY(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
+        return new Matrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
     }
     /**
      * Create Z oriented Rotation Matrix
@@ -1982,7 +1982,7 @@ class ImmutableMatrix44 {
     static rotateZ(radian) {
         var cos = Math.cos(radian);
         var sin = Math.sin(radian);
-        return new ImmutableMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
     /**
      * @return Euler Angles Rotation (x, y, z)
@@ -2004,7 +2004,7 @@ class ImmutableMatrix44 {
         return rotate;
     }
     static zero() {
-        return new ImmutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     flattenAsArray() {
         return [this.v[0], this.v[1], this.v[2], this.v[3],
@@ -2016,7 +2016,7 @@ class ImmutableMatrix44 {
      * transpose(static version)
      */
     static transpose(mat) {
-        var mat_t = new ImmutableMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
+        var mat_t = new Matrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
         return mat_t;
     }
     multiplyVector(vec) {
@@ -2046,7 +2046,7 @@ class ImmutableMatrix44 {
         var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
         var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
         var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-        return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
     }
     determinant() {
         return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
@@ -2086,7 +2086,7 @@ class ImmutableMatrix44 {
         var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
         var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
         var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-        return new ImmutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+        return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
     }
     get m00() {
         return this.v[0];
@@ -2165,12 +2165,12 @@ class ImmutableMatrix44 {
     }
     getRotate() {
         const quat = ImmutableQuaternion.fromMatrix(this);
-        const rotateMat = new ImmutableMatrix44(quat);
+        const rotateMat = new Matrix44(quat);
         return rotateMat;
     }
 }
 
-class MutableMatrix44 extends ImmutableMatrix44 {
+class MutableMatrix44 extends Matrix44 {
     constructor(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor = false, notCopyFloatArray = false) {
         const _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
         const _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
@@ -3972,7 +3972,7 @@ class Component {
             return;
         }
         let taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
-        if (dataClassType === ImmutableMatrix44 || dataClassType === MutableMatrix44) {
+        if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
             this['_' + memberName] = new dataClassType(taken, false, true);
         }
         else if (dataClassType === ImmutableRowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
@@ -4462,7 +4462,7 @@ class TransformComponent extends Component {
         this._scale = Vector3.dummy();
         this._quaternion = MutableQuaternion.dummy();
         this._matrix = MutableMatrix44.dummy();
-        this._invMatrix = ImmutableMatrix44.dummy();
+        this._invMatrix = Matrix44.dummy();
         this._normalMatrix = Matrix33.dummy();
         this.__toUpdateAllTransform = true;
         this._updateCount = 0;
@@ -4554,7 +4554,7 @@ class TransformComponent extends Component {
             this._rotate = this._matrix.toEulerAngles();
         }
         else if (this._is_quaternion_updated) {
-            this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
+            this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
         }
         this._is_euler_angles_updated = true;
         return this._rotate;
@@ -4716,7 +4716,7 @@ class TransformComponent extends Component {
     }
     get normalMatrixInner() {
         if (!this._is_normal_trs_matrix_updated) {
-            this._normalMatrix = new Matrix33(ImmutableMatrix44.transpose(ImmutableMatrix44.invert(this.matrix)));
+            this._normalMatrix = new Matrix33(Matrix44.transpose(Matrix44.invert(this.matrix)));
             this._is_normal_trs_matrix_updated = true;
         }
         return this._normalMatrix;
@@ -4796,7 +4796,7 @@ class TransformComponent extends Component {
             this._is_quaternion_updated = true;
         }
         else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-            this._rotate = (new ImmutableMatrix44(this._quaternion)).toEulerAngles();
+            this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
             this._is_euler_angles_updated = true;
         }
         else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
@@ -4827,9 +4827,9 @@ class TransformComponent extends Component {
     }
     __updateMatrix() {
         if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-            const rotationMatrix = new ImmutableMatrix44(this._quaternion);
+            const rotationMatrix = new Matrix44(this._quaternion);
             let scale = this._scale;
-            this._matrix = MutableMatrix44.multiply(rotationMatrix, ImmutableMatrix44.scale(scale));
+            this._matrix = MutableMatrix44.multiply(rotationMatrix, Matrix44.scale(scale));
             let translateVec = this._translate;
             this._matrix.m03 = translateVec.x;
             this._matrix.m13 = translateVec.y;
@@ -4848,7 +4848,7 @@ class TransformComponent extends Component {
                     this[key] = new ImmutableQuaternion(json[key]);
                 }
                 else if (key === 'matrix') {
-                    this[key] = new ImmutableMatrix44(json[key]);
+                    this[key] = new Matrix44(json[key]);
                 }
                 else {
                     this[key] = new Vector3(json[key]);
@@ -4884,7 +4884,7 @@ class TransformComponent extends Component {
         this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
     }
     get rotateMatrix44() {
-        return new ImmutableMatrix44(this.quaternion);
+        return new Matrix44(this.quaternion);
     }
 }
 TransformComponent.__tmpMat_updateRotation = MutableMatrix44.identity();
@@ -7273,7 +7273,7 @@ class ModelConverter {
                 group.getTransform().quaternion = new ImmutableQuaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
             }
             if (nodeJson.matrix) {
-                group.getTransform().matrix = new ImmutableMatrix44(nodeJson.matrix, true);
+                group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
             }
         }
     }
@@ -7404,7 +7404,7 @@ const Rn = Object.freeze({
     MutableVector3,
     MutableVector4,
     Matrix33,
-    ImmutableMatrix44,
+    Matrix44,
     MutableMatrix44,
     ProcessApproach,
     Gltf2Importer,

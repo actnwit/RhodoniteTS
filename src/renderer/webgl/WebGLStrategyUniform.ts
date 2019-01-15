@@ -11,7 +11,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../../geometry/Primitive";
 import CGAPIResourceRepository from "../CGAPIResourceRepository";
 import ImmutableRowMajarMatrix44 from "../../math/ImmutableRowMajarMatrix44";
-import ImmutableMatrix44 from "../../math/ImmutableMatrix44";
+import Matrix44 from "../../math/Matrix44";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
