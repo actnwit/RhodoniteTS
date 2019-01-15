@@ -7385,7 +7385,7 @@ class ModelConverter {
     }
 }
 
-const Rn = Object.freeze({
+const Rn = {
     EntityRepository,
     TransformComponent,
     SceneGraphComponent,
@@ -7409,7 +7409,9 @@ const Rn = Object.freeze({
     ProcessApproach,
     Gltf2Importer,
     ModelConverter
-});
+};
 window['Rn'] = Rn;
 
 export default Rn;
+
+(0,eval)('this').Rn.VERSION='version: UKNOWN branch: feature/project-settings';

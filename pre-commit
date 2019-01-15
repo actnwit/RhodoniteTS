@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ $CURRENT_BRANCH = master || $CURRENT_BRANCH = develop ]]
+then
+    npm rum build
+fi
+
+git add ./VERSION-FILE ./dist/rhodonite.js ./dist/rhodonite.min.js ./dist/rhodonite.min.js.map ./dist/rhodonite.mjs ./dist/rhodonite.min.mjs ./dist/rhodonite.min.mjs.map

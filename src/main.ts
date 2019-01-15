@@ -22,7 +22,7 @@ import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf2Importer from './importer/Gltf2Importer';
 import ModelConverter from './importer/ModelConverter';
 
-const Rn = Object.freeze({
+const Rn = {
   EntityRepository,
   TransformComponent,
   SceneGraphComponent,
@@ -46,7 +46,7 @@ const Rn = Object.freeze({
   ProcessApproach,
   Gltf2Importer,
   ModelConverter
-});
+};
 export default Rn;
 
 declare var window:any;

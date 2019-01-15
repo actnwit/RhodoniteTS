@@ -8545,7 +8545,7 @@
         return ModelConverter;
     }());
 
-    var Rn = Object.freeze({
+    var Rn = {
         EntityRepository: EntityRepository,
         TransformComponent: TransformComponent,
         SceneGraphComponent: SceneGraphComponent,
@@ -8569,9 +8569,11 @@
         ProcessApproach: ProcessApproach,
         Gltf2Importer: Gltf2Importer,
         ModelConverter: ModelConverter
-    });
+    };
     window['Rn'] = Rn;
 
     return Rn;
 
 })));
+
+(0,eval)('this').Rn.VERSION='version: UKNOWN branch: feature/project-settings';
