@@ -1,8 +1,6 @@
-version: UKNOWN
-branch: feature/project-settings
-82d4e9d5e039c08196dc8cb37e3a5af7ed5254308cefcbf6792b1a22115753f2 ./dist/rhodonite.js
-c2ba0222cd7260147f5c9c47875c162f65a23a4d504055402dd8b774c32463b3 ./dist/rhodonite.min.js
-005005b4cfc34cd25486314247a353779eabf15c637e51db9a1b0e440a0736a1 ./dist/rhodonite.min.js.map
-546bac84b35a0037745f4bbdacf1c8f7bc605f775b530a6a37418a3510a01f16 ./dist/rhodonite.mjs
-e0eadfbdd21de84bfcd1b81c4fa697ea339902d9e893884de3324ad2243d4f8c ./dist/rhodonite.min.mjs
-2d1c9b3027107d85ad922563140e63c998d0f93bb36fc24799332129931872a2 ./dist/rhodonite.min.mjs.map
+version: 0.1.0-15-g9b58-mod
+branch: feature/webpack
+80945e8812568bc91a6b9776c3560e0ed269e6fa589b9594b5311082d6530750 ./dist/rhodonite.js
+e8c146075143d8302d320e4f576ce33e9c7f06c4c75d09ea1167a4cf95e1430a ./dist/rhodonite.min.js
+3aa0335076af1839e4477948d434362a0cbccb4527dfdbd42ec2180ff151eb1c ./dist/rhodonite-webgl.js
+590583b1248f79a8b63e8cecaa74e5ef23cb31969a4df1222853a157e58287f3 ./dist/rhodonite-webgl.min.js

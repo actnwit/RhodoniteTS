@@ -1,0 +1,24 @@
+import GLSLShader, { AttributeNames } from "./GLSLShader";
+import WebGLContextWrapper from './WebGLContextWrapper';
+import WebGLRenderingPipeline from './WebGLRenderingPipeline';
+import WebGLResourceRepository, { VertexHandles } from './WebGLResourceRepository';
+import WebGLStrategy from './WebGLStrategy';
+import WebGLStrategyDataTexture from './WebGLStrategyDataTexture';
+import WebGLStrategyTransformFeedback from './WebGLStrategyTransformFeedback';
+import WebGLStrategyUBO from './WebGLStrategyUBO';
+import WebGLStrategyUniform from './WebGLStrategyUniform';
+declare const WebGL: Readonly<{
+    getRenderingStrategy: (processApproach: import("../foundation/definitions/ProcessApproach").ProcessApproachEnum) => WebGLStrategy;
+    GLSLShader: typeof GLSLShader;
+    WebGLContextWrapper: typeof WebGLContextWrapper;
+    WebGLRenderingPipeline: typeof WebGLRenderingPipeline;
+    WebGLResourceRepository: typeof WebGLResourceRepository;
+    WebGLStrategyDataTexture: typeof WebGLStrategyDataTexture;
+    WebGLStrategyTransformFeedback: typeof WebGLStrategyTransformFeedback;
+    WebGLStrategyUBO: typeof WebGLStrategyUBO;
+    WebGLStrategyUniform: typeof WebGLStrategyUniform;
+}>;
+export default WebGL;
+export declare type AttributeNames = AttributeNames;
+export declare type VertexHandles = VertexHandles;
+export declare type WebGLStrategy = WebGLStrategy;

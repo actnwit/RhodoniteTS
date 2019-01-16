@@ -7,9 +7,9 @@
   "license": "MIT",
   "scripts": {
     "setup": "cp ./pre-commit ./.git/hooks",
-    "build": "yarn build-umd && yarn build-es && bash versioning.sh",
-    "build-es": "npx rollup -c ./rollup.config-es.js && npx uglifyjs --source-map \"base='./dist/',url='rhodonite.min.mjs.map'\" -o ./dist/rhodonite.min.mjs -- ./dist/rhodonite.mjs",
-    "build-umd": "npx rollup -c ./rollup.config-umd.js && npx uglifyjs --source-map \"base='./dist/',url='rhodonite.min.js.map'\" -o ./dist/rhodonite.min.js -- ./dist/rhodonite.js",
+    "build": "yarn build-dev && yarn build-prod && bash versioning.sh",
+    "build-dev": "webpack --config webpack.config.development.js",
+    "build-prod": "webpack --config webpack.config.production.js",
     "serv": "node server.js",
     "test": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest",
     "test-update": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest --updateSnapshot",
@@ -28,16 +28,19 @@
     "jest-image-snapshot": "^2.7.0",
     "jest-puppeteer": "^3.7.0",
     "puppeteer": "^1.11.0",
+    "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",
     "rollup": "^0.66.6",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-typescript2": "^0.17.2",
     "ts-jest": "^23.10.4",
+    "ts-loader": "^5.3.3",
     "typedoc": "^0.13.0",
-    "typescript": "^3.1.4",
+    "typescript": "^3.2.2",
     "uglify-es": "^3.3.9",
-    "reflect-metadata": "^0.1.12"
-    },
-  "dependencies": {
-  }
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1",
+    "webpack-merge": "^4.2.1"
+  },
+  "dependencies": {}
 }
