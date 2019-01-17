@@ -1,8579 +1,978 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global.rhodonite = factory());
-}(this, (function () { 'use strict';
-
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-    /* global Reflect, Promise */
-
-    var extendStatics = function(d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-
-    function __extends(d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    }
-
-    function __awaiter(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
-    function __generator(thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    }
-
-    function __values(o) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-        if (m) return m.call(o);
-        return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-    }
-
-    function __read(o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    }
-
-    function __spread() {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    }
-
-    var CGAPIResourceRepository = /** @class */ (function () {
-        function CGAPIResourceRepository() {
-        }
-        CGAPIResourceRepository.InvalidCGAPIResourceUid = -1;
-        return CGAPIResourceRepository;
-    }());
-
-    // This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb
-    var EnumClass = /** @class */ (function () {
-        function EnumClass(_a) {
-            var index = _a.index, str = _a.str;
-            if (EnumClass.__indices.get(this.constructor) == null) {
-                EnumClass.__indices.set(this.constructor, []);
-            }
-            if (EnumClass.__strings.get(this.constructor) == null) {
-                EnumClass.__strings.set(this.constructor, []);
-            }
-            if (EnumClass.__indices.get(this.constructor).indexOf(index) !== -1) {
-                throw new Error('Dont use duplicate index.');
-            }
-            if (EnumClass.__strings.get(this.constructor).indexOf(str) !== -1) {
-                throw new Error('Dont use duplicate str.');
-            }
-            this.index = index;
-            this.str = str;
-            EnumClass.__indices.get(this.constructor).push(index);
-            EnumClass.__strings.get(this.constructor).push(str);
-        }
-        EnumClass.prototype.toString = function () {
-            return this.str;
-        };
-        EnumClass.prototype.toJSON = function () {
-            return this.index;
-        };
-        EnumClass.__indices = new Map();
-        EnumClass.__strings = new Map();
-        return EnumClass;
-    }());
-    function _from(_a) {
-        var typeList = _a.typeList, index = _a.index;
-        var match = typeList.find(function (type) { return type.index === index; });
-        if (!match) {
-            throw new Error("Invalid PrimitiveMode index: [" + index + "]");
-        }
-        return match;
-    }
-    function _fromString(_a) {
-        var typeList = _a.typeList, str = _a.str;
-        var match = typeList.find(function (type) { return type.str === str; });
-        if (!match) {
-            throw new Error("Invalid PrimitiveMode index: [" + str + "]");
-        }
-        return match;
-    }
-
-    var VertexAttributeClass = /** @class */ (function (_super) {
-        __extends(VertexAttributeClass, _super);
-        function VertexAttributeClass(_a) {
-            var index = _a.index, str = _a.str, attributeSlot = _a.attributeSlot;
-            var _this = _super.call(this, { index: index, str: str }) || this;
-            _this.__attributeSlot = attributeSlot;
-            return _this;
-        }
-        VertexAttributeClass.prototype.getAttributeSlot = function () {
-            return this.__attributeSlot;
-        };
-        return VertexAttributeClass;
-    }(EnumClass));
-    var Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN', attributeSlot: -1 });
-    var Position = new VertexAttributeClass({ index: 0, str: 'POSITION', attributeSlot: 0 });
-    var Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL', attributeSlot: 1 });
-    var Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT', attributeSlot: 2 });
-    var Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0', attributeSlot: 3 });
-    var Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1', attributeSlot: 4 });
-    var Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0', attributeSlot: 5 });
-    var Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeSlot: 6 });
-    var Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });
-    var Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });
-    var typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];
-    function from(index) {
-        return _from({ typeList: typeList, index: index });
-    }
-    function fromString(str) {
-        return _fromString({ typeList: typeList, str: str });
-    }
-    var VertexAttribute = Object.freeze({
-        Unknown: Unknown, Position: Position, Normal: Normal, Tangent: Tangent, Texcoord0: Texcoord0, Texcoord1: Texcoord1, Color0: Color0, Joints0: Joints0, Weights0: Weights0, Instance: Instance, from: from, fromString: fromString
-    });
-
-    var CompositionTypeClass = /** @class */ (function (_super) {
-        __extends(CompositionTypeClass, _super);
-        function CompositionTypeClass(_a) {
-            var index = _a.index, str = _a.str, numberOfComponents = _a.numberOfComponents;
-            var _this = _super.call(this, { index: index, str: str }) || this;
-            _this.__numberOfComponents = 0;
-            _this.__numberOfComponents = numberOfComponents;
-            return _this;
-        }
-        CompositionTypeClass.prototype.getNumberOfComponents = function () {
-            return this.__numberOfComponents;
-        };
-        return CompositionTypeClass;
-    }(EnumClass));
-    var Unknown$1 = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });
-    var Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });
-    var Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });
-    var Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });
-    var Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });
-    var Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });
-    var Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });
-    var Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });
-    var typeList$1 = [Unknown$1, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
-    function from$1(index) {
-        return _from({ typeList: typeList$1, index: index });
-    }
-    function fromString$1(str) {
-        return _fromString({ typeList: typeList$1, str: str });
-    }
-    var CompositionType = Object.freeze({ Unknown: Unknown$1, Scalar: Scalar, Vec2: Vec2, Vec3: Vec3, Vec4: Vec4, Mat2: Mat2, Mat3: Mat3, Mat4: Mat4, from: from$1, fromString: fromString$1 });
-
-    var ComponentTypeClass = /** @class */ (function (_super) {
-        __extends(ComponentTypeClass, _super);
-        function ComponentTypeClass(_a) {
-            var index = _a.index, str = _a.str, sizeInBytes = _a.sizeInBytes;
-            var _this = _super.call(this, { index: index, str: str }) || this;
-            _this.__sizeInBytes = sizeInBytes;
-            return _this;
-        }
-        ComponentTypeClass.prototype.getSizeInBytes = function () {
-            return this.__sizeInBytes;
-        };
-        return ComponentTypeClass;
-    }(EnumClass));
-    var Unknown$2 = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
-    var Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
-    var UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
-    var Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
-    var UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
-    var Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
-    var UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
-    var Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
-    var Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
-    var HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
-    var typeList$2 = [Unknown$2, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
-    function from$2(index) {
-        return _from({ typeList: typeList$2, index: index });
-    }
-    function fromTypedArray(typedArray) {
-        if (typedArray instanceof Int8Array) {
-            return Byte;
-        }
-        else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
-            return UnsignedByte;
-        }
-        else if (typedArray instanceof Int16Array) {
-            return Short;
-        }
-        else if (typedArray instanceof Uint16Array) {
-            return UnsignedShort;
-        }
-        else if (typedArray instanceof Int32Array) {
-            return Int;
-        }
-        else if (typedArray instanceof Uint32Array) {
-            return UnsingedInt;
-        }
-        else if (typedArray instanceof Float32Array) {
-            return Float;
-        }
-        else if (typedArray instanceof Float64Array) {
-            return Double;
-        }
-        return Unknown$2;
-    }
-    var ComponentType = Object.freeze({ Unknown: Unknown$2, Byte: Byte, UnsignedByte: UnsignedByte, Short: Short, UnsignedShort: UnsignedShort, Int: Int, UnsingedInt: UnsingedInt, Float: Float, Double: Double, HalfFloat: HalfFloat, from: from$2, fromTypedArray: fromTypedArray });
-
-    var WebGLExtensionClass = /** @class */ (function (_super) {
-        __extends(WebGLExtensionClass, _super);
-        function WebGLExtensionClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return WebGLExtensionClass;
-    }(EnumClass));
-    var VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });
-    var TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });
-    var TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });
-    var TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });
-    var TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });
-    var InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });
-    var WebGLExtension = Object.freeze({ VertexArrayObject: VertexArrayObject, TextureFloat: TextureFloat, TextureHalfFloat: TextureHalfFloat, TextureFloatLinear: TextureFloatLinear, TextureHalfFloatLinear: TextureHalfFloatLinear, InstancedArrays: InstancedArrays });
-
-    var WebGLContextWrapper = /** @class */ (function () {
-        function WebGLContextWrapper(gl) {
-            this.__webglVersion = 1;
-            this.__extensions = new Map();
-            this.__gl = gl;
-            if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
-                this.__webglVersion = 2;
-            }
-            else {
-                this.__webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
-                this.__webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
-                this.__webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
-                this.__webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
-                this.__webgl1ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
-                this.__webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear);
-            }
-        }
-        WebGLContextWrapper.prototype.getRawContext = function () {
-            return this.__gl;
-        };
-        WebGLContextWrapper.prototype.isSupportWebGL1Extension = function (webGLExtension) {
-            if (this.__getExtension(webGLExtension)) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(WebGLContextWrapper.prototype, "isWebGL2", {
-            get: function () {
-                if (this.__webglVersion === 2) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        WebGLContextWrapper.prototype.createVertexArray = function () {
-            if (this.isWebGL2) {
-                return this.__gl.createVertexArray();
-            }
-            else {
-                if (this.__webgl1ExtVAO != null) {
-                    return this.__webgl1ExtVAO.createVertexArrayOES();
-                }
-            }
-        };
-        WebGLContextWrapper.prototype.bindVertexArray = function (vao) {
-            if (this.isWebGL2) {
-                this.__gl.bindVertexArray(vao);
-            }
-            else {
-                if (this.__webgl1ExtVAO != null) {
-                    this.__webgl1ExtVAO.bindVertexArrayOES(vao);
-                }
-            }
-        };
-        WebGLContextWrapper.prototype.vertexAttribDivisor = function (index, divisor) {
-            if (this.isWebGL2) {
-                this.__gl.vertexAttribDivisor(index, divisor);
-            }
-            else {
-                this.__webgl1ExtIA.vertexAttribDivisorANGLE(index, divisor);
-            }
-        };
-        WebGLContextWrapper.prototype.drawElementsInstanced = function (primitiveMode, indexCount, type, offset, instanceCount) {
-            if (this.isWebGL2) {
-                this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
-            }
-            else {
-                this.__webgl1ExtIA.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
-            }
-        };
-        WebGLContextWrapper.prototype.__getExtension = function (extension) {
-            var gl = this.__gl;
-            if (!this.__extensions.has(extension)) {
-                var extObj = gl.getExtension(extension.toString());
-                if (extObj == null) {
-                    var text = "The library does not support this environment because the " + extension.toString() + " is not available";
-                    if (console.error != null) {
-                        console.error(text);
-                    }
-                    else {
-                        console.log(text);
-                    }
-                }
-                this.__extensions.set(extension, extObj);
-                return extObj;
-            }
-            return this.__extensions.get(extension);
-        };
-        return WebGLContextWrapper;
-    }());
-
-    var WebGLResourceRepository = /** @class */ (function (_super) {
-        __extends(WebGLResourceRepository, _super);
-        function WebGLResourceRepository() {
-            var _this = _super.call(this) || this;
-            _this.__webglContexts = new Map();
-            _this.__resourceCounter = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            _this.__webglResources = new Map();
-            _this.__extensions = new Map();
-            return _this;
-        }
-        WebGLResourceRepository.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new WebGLResourceRepository();
-            }
-            return this.__instance;
-        };
-        WebGLResourceRepository.prototype.addWebGLContext = function (gl, asCurrent) {
-            var glw = new WebGLContextWrapper(gl);
-            this.__webglContexts.set('default', glw);
-            if (asCurrent) {
-                this.__glw = glw;
-            }
-        };
-        Object.defineProperty(WebGLResourceRepository.prototype, "currentWebGLContextWrapper", {
-            get: function () {
-                return this.__glw;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        WebGLResourceRepository.prototype.getResourceNumber = function () {
-            return ++this.__resourceCounter;
-        };
-        WebGLResourceRepository.prototype.getWebGLResource = function (WebGLResourceHandle) {
-            return this.__webglResources.get(WebGLResourceHandle);
-        };
-        WebGLResourceRepository.prototype.createIndexBuffer = function (accsessor) {
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var ibo = gl.createBuffer();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, ibo);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.createVertexBuffer = function (accessor) {
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var vbo = gl.createBuffer();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, vbo);
-            gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-            gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.createVertexArray = function () {
-            var gl = this.__glw;
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var vao = this.__glw.createVertexArray();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, vao);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.createVertexDataResources = function (primitive) {
-            var _this = this;
-            var gl = this.__glw.getRawContext();
-            var vaoHandle = this.createVertexArray();
-            var iboHandle;
-            if (primitive.hasIndices) {
-                iboHandle = this.createIndexBuffer(primitive.indicesAccessor);
-            }
-            var vboHandles = [];
-            primitive.attributeAccessors.forEach(function (accessor) {
-                var vboHandle = _this.createVertexBuffer(accessor);
-                vboHandles.push(vboHandle);
-            });
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-            return { vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles };
-        };
-        WebGLResourceRepository.prototype.createShaderProgram = function (_a) {
-            var vertexShaderStr = _a.vertexShaderStr, fragmentShaderStr = _a.fragmentShaderStr, attributeNames = _a.attributeNames, attributeSemantics = _a.attributeSemantics;
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-            gl.shaderSource(vertexShader, vertexShaderStr);
-            gl.compileShader(vertexShader);
-            this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
-            var shaderProgram = gl.createProgram();
-            gl.attachShader(shaderProgram, vertexShader);
-            var fragmentShader;
-            if (fragmentShaderStr != null) {
-                fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-                gl.shaderSource(fragmentShader, fragmentShaderStr);
-                gl.compileShader(fragmentShader);
-                this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
-                gl.attachShader(shaderProgram, fragmentShader);
-            }
-            attributeNames.forEach(function (attributeName, i) {
-                gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);
-            });
-            gl.linkProgram(shaderProgram);
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, shaderProgram);
-            this.__checkShaderProgramLinkStatus(shaderProgram);
-            gl.deleteShader(vertexShader);
-            if (fragmentShaderStr != null) {
-                gl.deleteShader(fragmentShader);
-            }
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.__addLineNumber = function (shaderString) {
-            var shaderTextLines = shaderString.split(/\r\n|\r|\n/);
-            var shaderTextWithLineNumber = '';
-            for (var i = 0; i < shaderTextLines.length; i++) {
-                var lineIndex = i + 1;
-                var splitter = ' : ';
-                if (lineIndex < 10) {
-                    splitter = '  : ';
-                }
-                else if (lineIndex >= 100) {
-                    splitter = ': ';
-                }
-                shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
-            }
-            return shaderTextWithLineNumber;
-        };
-        WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader, shaderText) {
-            var gl = this.__glw.getRawContext();
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.log(this.__addLineNumber(shaderText));
-                throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
-            }
-        };
-        WebGLResourceRepository.prototype.__checkShaderProgramLinkStatus = function (shaderProgram) {
-            var gl = this.__glw.getRawContext();
-            // If creating the shader program failed, alert
-            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
-            }
-        };
-        WebGLResourceRepository.prototype.setVertexDataToPipeline = function (_a, primitive, instanceIDBufferUid) {
-            var _this = this;
-            var vaoHandle = _a.vaoHandle, iboHandle = _a.iboHandle, vboHandles = _a.vboHandles;
-            if (instanceIDBufferUid === void 0) { instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid; }
-            var gl = this.__glw.getRawContext();
-            var vao = this.getWebGLResource(vaoHandle);
-            // VAO bind
-            this.__glw.bindVertexArray(vao);
-            // IBO bind
-            if (iboHandle != null) {
-                var ibo = this.getWebGLResource(iboHandle);
-                if (ibo != null) {
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-                }
-                else {
-                    throw new Error('Nothing Element Array Buffer!');
-                }
-            }
-            // bind vertex attributes to VBO's
-            vboHandles.forEach(function (vboHandle, i) {
-                var vbo = _this.getWebGLResource(vboHandle);
-                if (vbo != null) {
-                    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-                }
-                else {
-                    throw new Error('Nothing Element Array Buffer at index ' + i);
-                }
-                gl.enableVertexAttribArray(primitive.attributeSemantics[i].getAttributeSlot());
-                gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);
-            });
-            /// for InstanceIDBuffer
-            if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                var instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);
-                if (instanceIDBuffer != null) {
-                    gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);
-                }
-                else {
-                    throw new Error('Nothing Element Array Buffer at index');
-                }
-                gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
-                gl.vertexAttribPointer(VertexAttribute.Instance.getAttributeSlot(), CompositionType.Scalar.getNumberOfComponents(), ComponentType.Float.index, false, 0, 0);
-                this.__glw.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
-            }
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-            this.__glw.bindVertexArray(null);
-            if (vao == null) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-            }
-        };
-        WebGLResourceRepository.prototype.createTexture = function (typedArray, _a) {
-            var level = _a.level, internalFormat = _a.internalFormat, width = _a.width, height = _a.height, border = _a.border, format = _a.format, type = _a.type, magFilter = _a.magFilter, minFilter = _a.minFilter, wrapS = _a.wrapS, wrapT = _a.wrapT;
-            var gl = this.__glw.getRawContext();
-            var dataTexture = gl.createTexture();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, dataTexture);
-            gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border, format.index, type.index, typedArray);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.updateTexture = function (textureUid, typedArray, _a) {
-            var level = _a.level, width = _a.width, height = _a.height, format = _a.format, type = _a.type;
-            var gl = this.__glw.getRawContext();
-            var texture = this.getWebGLResource(textureUid);
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
-        };
-        WebGLResourceRepository.prototype.deleteTexture = function (textureHandle) {
-            var texture = this.getWebGLResource(textureHandle);
-            var gl = this.__glw.getRawContext();
-            if (texture != null) {
-                gl.deleteTexture(texture);
-                this.__webglResources.delete(textureHandle);
-            }
-        };
-        WebGLResourceRepository.prototype.createUniformBuffer = function (bufferView) {
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var ubo = gl.createBuffer();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, ubo);
-            gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-            gl.bufferData(gl.UNIFORM_BUFFER, bufferView, gl.DYNAMIC_DRAW);
-            gl.bindBuffer(gl.UNIFORM_BUFFER, null);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.updateUniformBuffer = function (uboUid, bufferView) {
-            var gl = this.__glw.getRawContext();
-            var ubo = this.getWebGLResource(uboUid);
-            gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-            void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
-            gl.bindBuffer(gl.UNIFORM_BUFFER, null);
-        };
-        WebGLResourceRepository.prototype.bindUniformBlock = function (shaderProgramUid, blockName, blockIndex) {
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var shaderProgram = this.getWebGLResource(shaderProgramUid);
-            var block = gl.getUniformBlockIndex(shaderProgram, blockName);
-            gl.uniformBlockBinding(shaderProgram, block, blockIndex);
-        };
-        WebGLResourceRepository.prototype.bindUniformBufferBase = function (blockIndex, uboUid) {
-            var gl = this.__glw.getRawContext();
-            if (gl == null) {
-                throw new Error("No WebGLRenderingContext set as Default.");
-            }
-            var ubo = this.getWebGLResource(uboUid);
-            gl.bindBufferBase(gl.UNIFORM_BUFFER, blockIndex, ubo);
-        };
-        WebGLResourceRepository.prototype.deleteUniformBuffer = function (uboUid) {
-            var gl = this.__glw.getRawContext();
-            var ubo = this.getWebGLResource(uboUid);
-            gl.deleteBuffer(ubo);
-        };
-        WebGLResourceRepository.prototype.createTransformFeedback = function () {
-            var gl = this.__glw.getRawContext();
-            var transformFeedback = gl.createTransformFeedback();
-            var resourceHandle = this.getResourceNumber();
-            this.__webglResources.set(resourceHandle, transformFeedback);
-            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
-            return resourceHandle;
-        };
-        WebGLResourceRepository.prototype.deleteTransformFeedback = function (transformFeedbackUid) {
-            var gl = this.__glw.getRawContext();
-            var transformFeedback = this.getWebGLResource(transformFeedbackUid);
-            gl.deleteTransformFeedback(transformFeedback);
-        };
-        return WebGLResourceRepository;
-    }(CGAPIResourceRepository));
-
-    var TransformComponentTID = 1;
-    var SceneGraphComponentTID = 2;
-    var WellKnownComponentTIDs = Object.freeze({
-        TransformComponentTID: TransformComponentTID,
-        SceneGraphComponentTID: SceneGraphComponentTID
-    });
-
-    var Entity = /** @class */ (function () {
-        function Entity(entityUID, isAlive, entityComponent) {
-            this.__entity_uid = entityUID;
-            this.__isAlive = isAlive;
-            this.__entityRepository = entityComponent;
-            this.__uniqueName = 'entity_of_uid_' + entityUID;
-            Entity.__uniqueNames[entityUID] = this.__uniqueName;
-        }
-        Object.defineProperty(Entity.prototype, "entityUID", {
-            get: function () {
-                return this.__entity_uid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Entity.prototype.getComponent = function (componentTid) {
-            var map = this.__entityRepository._components[this.entityUID];
-            if (map != null) {
-                var component = map.get(componentTid);
-                if (component != null) {
-                    return component;
-                }
-                else {
-                    return null;
-                }
-            }
-            return null;
-        };
-        Entity.prototype.getTransform = function () {
-            if (this.__transformComponent == null) {
-                this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID);
-            }
-            return this.__transformComponent;
-        };
-        Entity.prototype.getSceneGraph = function () {
-            if (this.__sceneGraphComponent == null) {
-                this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID);
-            }
-            return this.__sceneGraphComponent;
-        };
-        Entity.prototype.tryToSetUniqueName = function (name, toAddNameIfConflict) {
-            if (Entity.__uniqueNames.indexOf(name) !== -1) {
-                // Conflict
-                if (toAddNameIfConflict) {
-                    var newName = name + '_(' + this.__uniqueName + ')';
-                    if (Entity.__uniqueNames.indexOf(newName) === -1) {
-                        this.__uniqueName = newName;
-                        Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
-                        return true;
-                    }
-                }
-                return false;
-            }
-            else {
-                this.__uniqueName = name;
-                Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
-                return true;
-            }
-        };
-        Object.defineProperty(Entity.prototype, "uniqueName", {
-            get: function () {
-                return this.__uniqueName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Entity.invalidEntityUID = -1;
-        Entity.__uniqueNames = [];
-        return Entity;
-    }());
-
-    var RnObject = /** @class */ (function () {
-        function RnObject(needToManage) {
-            if (needToManage === void 0) { needToManage = false; }
-            this.__objectUid = -1;
-            if (needToManage) {
-                this.__objectUid = ++RnObject.currentMaxObjectCount;
-            }
-        }
-        Object.defineProperty(RnObject.prototype, "objectUid", {
-            get: function () {
-                return this.__objectUid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RnObject.currentMaxObjectCount = -1;
-        RnObject.InvalidObjectUID = -1;
-        return RnObject;
-    }());
-
-    var _Vector2 = /** @class */ (function () {
-        function _Vector2(typedArray, x, y) {
-            this.__typedArray = typedArray;
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else {
-                this.v = new typedArray(2);
-            }
-            this.x = x;
-            this.y = y;
-        }
-        Object.defineProperty(_Vector2.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        _Vector2.prototype.clone = function () {
-            return new _Vector2(this.__typedArray, this.x, this.y);
-        };
-        _Vector2.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
-            return this;
-        };
-        _Vector2.prototype.isStrictEqual = function (vec) {
-            if (this.x === vec.x && this.y === vec.y) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        _Vector2.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.x - this.x) < delta &&
-                Math.abs(vec.y - this.y) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        _Vector2.multiply = function (typedArray, vec2, val) {
-            return new _Vector2(typedArray, vec2.x * val, vec2.y * val);
-        };
-        Object.defineProperty(_Vector2.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_Vector2.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(_Vector2.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return _Vector2;
-    }());
-    var Vector2_F64 = /** @class */ (function (_super) {
-        __extends(Vector2_F64, _super);
-        function Vector2_F64(x, y) {
-            return _super.call(this, Float64Array, x, y) || this;
-        }
-        return Vector2_F64;
-    }(_Vector2));
-
-    var IsUtil = {
-        not: {},
-        all: {},
-        any: {},
-        _not: function (fn) {
-            return function () {
-                return !fn.apply(null, __spread(arguments));
-            };
-        },
-        _all: function (fn) {
-            return function () {
-                if (Array.isArray(arguments[0])) {
-                    return arguments[0].every(fn);
-                }
-                return __spread(arguments).every(fn);
-            };
-        },
-        _any: function (fn) {
-            return function () {
-                if (Array.isArray(arguments[0])) {
-                    return arguments[0].some(fn);
-                }
-                return __spread(arguments).some(fn);
-            };
-        },
-        defined: function (val) {
-            return val !== void 0;
-        },
-        undefined: function (val) {
-            return val === void 0;
-        },
-        null: function (val) {
-            return val === null;
-        },
-        // is NOT null or undefined
-        exist: function (val) {
-            return val != null;
-        },
-        function: function (val) {
-            return typeof val === 'function';
-        }
-    };
-    var _loop_1 = function (fn) {
-        if (IsUtil.hasOwnProperty(fn)) {
-            var interfaces = ['not', 'all', 'any'];
-            if (fn.indexOf('_') === -1 && !interfaces.includes(fn)) {
-                interfaces.forEach(function (itf) {
-                    var op = '_' + itf;
-                    IsUtil[itf][fn] = IsUtil[op](IsUtil[fn]);
-                });
-            }
-        }
-    };
-    for (var fn in IsUtil) {
-        _loop_1(fn);
-    }
-
-    var Vector3 = /** @class */ (function () {
-        function Vector3(x, y, z) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else if (x == null) {
-                this.v = new Float32Array(0);
-                return;
-            }
-            else {
-                this.v = new Float32Array(3);
-            }
-            if (IsUtil.not.exist(x)) {
-                this.v[0] = 0;
-                this.v[1] = 0;
-                this.v[2] = 0;
-            }
-            else if (Array.isArray(x)) {
-                this.v[0] = x[0];
-                this.v[1] = x[1];
-                this.v[2] = x[2];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = 0;
-            }
-            else {
-                this.v[0] = x;
-                this.v[1] = y;
-                this.v[2] = z;
-            }
-        }
-        Object.defineProperty(Vector3.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3, "compositionType", {
-            get: function () {
-                return CompositionType.Vec3;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector3.prototype.isStrictEqual = function (vec) {
-            if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector3.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.x - this.x) < delta &&
-                Math.abs(vec.y - this.y) < delta &&
-                Math.abs(vec.z - this.z) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        /**
-         * Zero Vector
-         */
-        Vector3.zero = function () {
-            return new Vector3(0, 0, 0);
-        };
-        Vector3.one = function () {
-            return new Vector3(1, 1, 1);
-        };
-        Vector3.dummy = function () {
-            return new Vector3(null);
-        };
-        Vector3.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector3.prototype.clone = function () {
-            return new Vector3(this.x, this.y, this.z);
-        };
-        Vector3.prototype.length = function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-        };
-        /**
-         * to square length(static verison)
-         */
-        Vector3.lengthSquared = function (vec3) {
-            return vec3.x * vec3.x + vec3.y * vec3.y + vec3.z * vec3.z;
-        };
-        Vector3.prototype.lengthTo = function (vec3) {
-            var deltaX = vec3.x - this.x;
-            var deltaY = vec3.y - this.y;
-            var deltaZ = vec3.z - this.z;
-            return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-        };
-        Vector3.lengthBtw = function (lhv, rhv) {
-            var deltaX = rhv.x - lhv.x;
-            var deltaY = rhv.y - lhv.y;
-            var deltaZ = rhv.z - lhv.z;
-            return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-        };
-        /**
-         * dot product
-         */
-        Vector3.prototype.dotProduct = function (vec3) {
-            return this.x * vec3.x + this.y * vec3.y + this.z * vec3.z;
-        };
-        /**
-         * dot product(static version)
-         */
-        Vector3.dotProduct = function (lv, rv) {
-            return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z;
-        };
-        /**
-        * cross product(static version)
-        */
-        Vector3.cross = function (lv, rv) {
-            var x = lv.y * rv.z - lv.z * rv.y;
-            var y = lv.z * rv.x - lv.x * rv.z;
-            var z = lv.x * rv.y - lv.y * rv.x;
-            return new Vector3(x, y, z);
-        };
-        /**
-         * normalize(static version)
-         */
-        Vector3.normalize = function (vec3) {
-            var length = vec3.length();
-            var newVec = new Vector3(vec3.x, vec3.y, vec3.z);
-            newVec = Vector3.divide(newVec, length);
-            return newVec;
-        };
-        /**
-         * add value（static version）
-         */
-        Vector3.add = function (lv, rv) {
-            return new Vector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
-        };
-        /**
-         * subtract(subtract)
-         */
-        Vector3.subtract = function (lv, rv) {
-            return new Vector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
-        };
-        /**
-         * divide(static version)
-         */
-        Vector3.divide = function (vec3, val) {
-            if (val !== 0) {
-                return new Vector3(vec3.x / val, vec3.y / val, vec3.z / val);
-            }
-            else {
-                console.error("0 division occured!");
-                return new Vector3(Infinity, Infinity, Infinity);
-            }
-        };
-        /**
-         * multiply(static version)
-         */
-        Vector3.multiply = function (vec3, val) {
-            return new Vector3(vec3.x * val, vec3.y * val, vec3.z * val);
-        };
-        /**
-         * multiply vector(static version)
-         */
-        Vector3.multiplyVector = function (vec3, vec) {
-            return new Vector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
-        };
-        Vector3.angleOfVectors = function (lhv, rhv) {
-            var cos_sita = Vector3.dotProduct(lhv, rhv) / (lhv.length() * rhv.length());
-            var sita = Math.acos(cos_sita);
-            return sita;
-        };
-        /**
-         * divide vector(static version)
-         */
-        Vector3.divideVector = function (lvec3, rvec3) {
-            return new Vector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
-        };
-        /**
-         * change to string
-         */
-        Vector3.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ')';
-        };
-        Object.defineProperty(Vector3.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector3.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Vector3;
-    }());
-    //GLBoost['Vector3'] = Vector3;
-
-    var Vector4 = /** @class */ (function () {
-        function Vector4(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.v[0] = 0;
-                this.v[1] = 0;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.v[0] = x[0];
-                this.v[1] = x[1];
-                this.v[2] = x[2];
-                this.v[3] = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else {
-                this.v[0] = x;
-                this.v[1] = y;
-                this.v[2] = z;
-                this.v[3] = w;
-            }
-        }
-        Object.defineProperty(Vector4.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4, "compositionType", {
-            get: function () {
-                return CompositionType.Vec4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Vector4.prototype.isStrictEqual = function (vec) {
-            if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.isEqual = function (vec, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(vec.v[0] - this.v[0]) < delta &&
-                Math.abs(vec.v[1] - this.v[1]) < delta &&
-                Math.abs(vec.v[2] - this.v[2]) < delta &&
-                Math.abs(vec.v[3] - this.v[3]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Vector4.prototype.clone = function () {
-            return new Vector4(this.x, this.y, this.z, this.w);
-        };
-        /**
-         * Zero Vector
-         */
-        Vector4.zero = function () {
-            return new Vector4(0, 0, 0, 1);
-        };
-        Vector4.prototype.length = function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        };
-        Vector4.normalize = function (vec4) {
-            var length = vec4.length();
-            var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-            newVec = Vector4.divide(newVec, length);
-            return newVec;
-        };
-        /**
-         * add value（static version）
-         */
-        Vector4.add = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
-        };
-        Vector4.subtract = function (lv, rv) {
-            return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);
-        };
-        /**
-         * add value except w component（static version）
-         */
-        Vector4.addWithOutW = function (lv, rv) {
-            return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
-        };
-        Vector4.multiply = function (vec4, val) {
-            return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
-        };
-        Vector4.multiplyVector = function (vec4, vec) {
-            return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
-        };
-        Vector4.divide = function (vec4, val) {
-            if (val !== 0) {
-                return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
-            }
-            else {
-                console.warn("0 division occured!");
-                return new Vector4(Infinity, Infinity, Infinity, Infinity);
-            }
-        };
-        Vector4.divideVector = function (lvec4, rvec4) {
-            return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
-        };
-        Vector4.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(Vector4.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Vector4.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Vector4;
-    }());
-    // GLBoost["Vector4"] = Vector4;
-
-    // import GLBoost from '../../globals';
-    var Matrix33 = /** @class */ (function () {
-        function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {
-            if (isColumnMajor === void 0) { isColumnMajor = false; }
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-            var _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
-            var m = m0;
-            if (m == null) {
-                this.v = new Float32Array(0);
-                return;
-            }
-            if (arguments.length === 9) {
-                this.v = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    var m_1 = arguments;
-                    this.v[0] = m_1[0];
-                    this.v[3] = m_1[3];
-                    this.v[6] = m_1[6];
-                    this.v[1] = m_1[1];
-                    this.v[4] = m_1[4];
-                    this.v[7] = m_1[7];
-                    this.v[2] = m_1[2];
-                    this.v[5] = m_1[5];
-                    this.v[8] = m_1[8];
-                }
-                else {
-                    // arguments[0-8] must be row major values if isColumnMajor is false
-                    this.v[0] = m[0];
-                    this.v[3] = m[1];
-                    this.v[6] = m[2];
-                    this.v[1] = m[3];
-                    this.v[4] = m[4];
-                    this.v[7] = m[5];
-                    this.v[2] = m[6];
-                    this.v[5] = m[7];
-                    this.v[8] = m[8];
-                }
-            }
-            else if (Array.isArray(m)) {
-                this.v = new Float32Array(9);
-                if (_isColumnMajor === true) {
-                    this.v[0] = m[0];
-                    this.v[3] = m[3];
-                    this.v[6] = m[6];
-                    this.v[1] = m[1];
-                    this.v[4] = m[4];
-                    this.v[7] = m[7];
-                    this.v[2] = m[2];
-                    this.v[5] = m[5];
-                    this.v[8] = m[8];
-                }
-                else {
-                    // 'm' must be row major array if isColumnMajor is false
-                    this.v[0] = m[0];
-                    this.v[3] = m[1];
-                    this.v[6] = m[2];
-                    this.v[1] = m[3];
-                    this.v[4] = m[4];
-                    this.v[7] = m[5];
-                    this.v[2] = m[6];
-                    this.v[5] = m[7];
-                    this.v[8] = m[8];
-                }
-            }
-            else if (m instanceof Float32Array) {
-                if (_notCopyFloatArray) {
-                    this.v = m;
-                }
-                else {
-                    this.v = new Float32Array(9);
-                    if (_isColumnMajor === true) {
-                        this.v[0] = m[0];
-                        this.v[3] = m[3];
-                        this.v[6] = m[6];
-                        this.v[1] = m[1];
-                        this.v[4] = m[4];
-                        this.v[7] = m[7];
-                        this.v[2] = m[2];
-                        this.v[5] = m[5];
-                        this.v[8] = m[8];
-                    }
-                    else {
-                        // 'm' must be row major array if isColumnMajor is false
-                        this.v[0] = m[0];
-                        this.v[3] = m[1];
-                        this.v[6] = m[2];
-                        this.v[1] = m[3];
-                        this.v[4] = m[4];
-                        this.v[7] = m[5];
-                        this.v[2] = m[6];
-                        this.v[5] = m[7];
-                        this.v[8] = m[8];
-                    }
-                }
-            }
-            else if (!!m && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new Float32Array(9);
-                    if (_isColumnMajor === true) {
-                        var v = m.v;
-                        this.v[0] = v[0];
-                        this.v[3] = v[3];
-                        this.v[6] = v[6];
-                        this.v[1] = v[1];
-                        this.v[4] = v[4];
-                        this.v[7] = v[7];
-                        this.v[2] = v[2];
-                        this.v[5] = v[5];
-                        this.v[8] = v[8];
-                    }
-                    else {
-                        var v = m.v;
-                        // 'm' must be row major array if isColumnMajor is false
-                        this.v[0] = v[0];
-                        this.v[3] = v[1];
-                        this.v[6] = v[2];
-                        this.v[1] = v[3];
-                        this.v[4] = v[4];
-                        this.v[7] = v[5];
-                        this.v[2] = v[6];
-                        this.v[5] = v[7];
-                        this.v[8] = v[8];
-                    }
-                }
-            }
-            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-                this.v = new Float32Array(9);
-                var q = m;
-                var sx = q.x * q.x;
-                var sy = q.y * q.y;
-                var sz = q.z * q.z;
-                var cx = q.y * q.z;
-                var cy = q.x * q.z;
-                var cz = q.x * q.y;
-                var wx = q.w * q.x;
-                var wy = q.w * q.y;
-                var wz = q.w * q.z;
-                this.v[0] = 1.0 - 2.0 * (sy + sz);
-                this.v[3] = 2.0 * (cz - wz);
-                this.v[6] = 2.0 * (cy + wy);
-                this.v[1] = 2.0 * (cz + wz);
-                this.v[4] = 1.0 - 2.0 * (sx + sz);
-                this.v[7] = 2.0 * (cx - wx);
-                this.v[2] = 2.0 * (cy - wy);
-                this.v[5] = 2.0 * (cx + wx);
-                this.v[8] = 1.0 - 2.0 * (sx + sy);
-            }
-            else {
-                this.v = new Float32Array(9);
-                this.v[0] = 1;
-                this.v[3] = 0;
-                this.v[6] = 0;
-                this.v[1] = 0;
-                this.v[4] = 1;
-                this.v[7] = 0;
-                this.v[2] = 0;
-                this.v[5] = 0;
-                this.v[8] = 1;
-            }
-        }
-        Object.defineProperty(Matrix33.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33, "compositionType", {
-            get: function () {
-                return CompositionType.Mat3;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Make this identity matrix（static method version）
-         */
-        Matrix33.identity = function () {
-            return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);
-        };
-        Matrix33.dummy = function () {
-            return new Matrix33(null);
-        };
-        Matrix33.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Matrix33.prototype.clone = function () {
-            return new Matrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        Matrix33.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix33.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix33.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
-        };
-        Matrix33.rotateXYZ = function (x, y, z) {
-            return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));
-        };
-        Matrix33.rotate = function (vec3) {
-            return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));
-        };
-        Matrix33.scale = function (vec) {
-            return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);
-        };
-        /**
-         * zero matrix(static version)
-         */
-        Matrix33.zero = function () {
-            return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        };
-        /**
-         * transpose(static version)
-         */
-        Matrix33.transpose = function (mat) {
-            var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);
-            return mat_t;
-        };
-        /**
-         * multiply matrixs (static version)
-         */
-        Matrix33.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;
-            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        Matrix33.prototype.determinant = function () {
-            return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12
-                - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;
-        };
-        Matrix33.determinant = function (mat) {
-            return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12
-                - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;
-        };
-        Matrix33.invert = function (mat) {
-            var det = mat.determinant();
-            var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;
-            var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;
-            var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;
-            var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;
-            var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;
-            var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;
-            var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;
-            var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;
-            var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;
-            return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-        };
-        Object.defineProperty(Matrix33.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m10", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m20", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m01", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m11", {
-            get: function () {
-                return this.v[4];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m21", {
-            get: function () {
-                return this.v[5];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m02", {
-            get: function () {
-                return this.v[6];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m12", {
-            get: function () {
-                return this.v[7];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix33.prototype, "m22", {
-            get: function () {
-                return this.v[8];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix33.prototype.toString = function () {
-            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
-                this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
-                this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
-        };
-        Matrix33.prototype.nearZeroToZero = function (value) {
-            if (Math.abs(value) < 0.00001) {
-                value = 0;
-            }
-            else if (0.99999 < value && value < 1.00001) {
-                value = 1;
-            }
-            else if (-1.00001 < value && value < -0.99999) {
-                value = -1;
-            }
-            return value;
-        };
-        Matrix33.prototype.toStringApproximately = function () {
-            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
-                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
-                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
-        };
-        Matrix33.prototype.getScale = function () {
-            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-        };
-        Matrix33.prototype.isEqual = function (mat, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-                Math.abs(mat.v[1] - this.v[1]) < delta &&
-                Math.abs(mat.v[2] - this.v[2]) < delta &&
-                Math.abs(mat.v[3] - this.v[3]) < delta &&
-                Math.abs(mat.v[4] - this.v[4]) < delta &&
-                Math.abs(mat.v[5] - this.v[5]) < delta &&
-                Math.abs(mat.v[6] - this.v[6]) < delta &&
-                Math.abs(mat.v[7] - this.v[7]) < delta &&
-                Math.abs(mat.v[8] - this.v[8]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        return Matrix33;
-    }());
-
-    //import GLBoost from '../../globals';
-    var Quaternion = /** @class */ (function () {
-        function Quaternion(x, y, z, w) {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-                return;
-            }
-            else if (x == null) {
-                this.v = new Float32Array(0);
-            }
-            else {
-                this.v = new Float32Array(4);
-            }
-            if (!(x != null)) {
-                this.v[0] = 0;
-                this.v[1] = 0;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else if (Array.isArray(x)) {
-                this.v[0] = x[0];
-                this.v[1] = x[1];
-                this.v[2] = x[2];
-                this.v[3] = x[3];
-            }
-            else if (typeof x.w !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = x.w;
-            }
-            else if (typeof x.z !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = x.z;
-                this.v[3] = 1;
-            }
-            else if (typeof x.y !== 'undefined') {
-                this.v[0] = x.x;
-                this.v[1] = x.y;
-                this.v[2] = 0;
-                this.v[3] = 1;
-            }
-            else {
-                this.v[0] = x;
-                this.v[1] = y;
-                this.v[2] = z;
-                this.v[3] = w;
-            }
-        }
-        Quaternion.prototype.isEqual = function (quat) {
-            if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(Quaternion, "compositionType", {
-            get: function () {
-                return CompositionType.Vec4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Quaternion.dummy = function () {
-            return new Quaternion(null);
-        };
-        Quaternion.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(Quaternion.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Quaternion.prototype.clone = function () {
-            return new Quaternion(this.x, this.y, this.z, this.w);
-        };
-        Quaternion.invert = function (quat) {
-            quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-            var inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
-            quat.v[0] *= inorm2;
-            quat.v[1] *= inorm2;
-            quat.v[2] *= inorm2;
-            quat.v[3] *= inorm2;
-            return quat;
-        };
-        Quaternion.qlerp = function (lhq, rhq, ratio) {
-            var q = new Quaternion(0, 0, 0, 1);
-            var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-            var ss = 1.0 - qr * qr;
-            if (ss === 0.0) {
-                q.v[3] = lhq.w;
-                q.v[0] = lhq.x;
-                q.v[1] = lhq.y;
-                q.v[2] = lhq.z;
-                return q;
-            }
-            else {
-                if (qr > 1) {
-                    qr = 0.999;
-                }
-                else if (qr < -1) {
-                    qr = -0.999;
-                }
-                var ph = Math.acos(qr);
-                var s2 = void 0;
-                if (qr < 0.0 && ph > Math.PI / 2.0) {
-                    qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
-                    ph = Math.acos(qr);
-                    s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
-                }
-                else {
-                    s2 = Math.sin(ph * ratio) / Math.sin(ph);
-                }
-                var s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-                q.v[0] = lhq.x * s1 + rhq.x * s2;
-                q.v[1] = lhq.y * s1 + rhq.y * s2;
-                q.v[2] = lhq.z * s1 + rhq.z * s2;
-                q.v[3] = lhq.w * s1 + rhq.w * s2;
-                return q;
-            }
-        };
-        Quaternion.axisAngle = function (axisVec3, radian) {
-            var halfAngle = 0.5 * radian;
-            var sin = Math.sin(halfAngle);
-            var axis = Vector3.normalize(axisVec3);
-            return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));
-        };
-        Quaternion.multiply = function (q1, q2) {
-            var result = new Quaternion(0, 0, 0, 1);
-            result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
-            result.v[1] = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
-            result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
-            result.v[3] = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
-            return result;
-        };
-        Quaternion.fromMatrix = function (m) {
-            var q = new Quaternion();
-            var tr = m.m00 + m.m11 + m.m22;
-            if (tr > 0) {
-                var S = 0.5 / Math.sqrt(tr + 1.0);
-                q.v[3] = 0.25 / S;
-                q.v[0] = (m.m21 - m.m12) * S;
-                q.v[1] = (m.m02 - m.m20) * S;
-                q.v[2] = (m.m10 - m.m01) * S;
-            }
-            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-                q.v[3] = (m.m21 - m.m12) / S;
-                q.v[0] = 0.25 * S;
-                q.v[1] = (m.m01 + m.m10) / S;
-                q.v[2] = (m.m02 + m.m20) / S;
-            }
-            else if (m.m11 > m.m22) {
-                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-                q.v[3] = (m.m02 - m.m20) / S;
-                q.v[0] = (m.m01 + m.m10) / S;
-                q.v[1] = 0.25 * S;
-                q.v[2] = (m.m12 + m.m21) / S;
-            }
-            else {
-                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-                q.v[3] = (m.m10 - m.m01) / S;
-                q.v[0] = (m.m02 + m.m20) / S;
-                q.v[1] = (m.m12 + m.m21) / S;
-                q.v[2] = 0.25 * S;
-            }
-            return q;
-        };
-        Quaternion.fromPosition = function (vec3) {
-            var q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
-            return q;
-        };
-        Quaternion.prototype.at = function (i) {
-            switch (i % 4) {
-                case 0: return this.x;
-                case 1: return this.y;
-                case 2: return this.z;
-                case 3: return this.w;
-            }
-        };
-        Quaternion.prototype.toString = function () {
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-        };
-        Object.defineProperty(Quaternion.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Quaternion.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Quaternion;
-    }());
-
-    //import GLBoost from '../../globals';
-    var FloatArray = Float32Array;
-    var Matrix44 = /** @class */ (function () {
-        function Matrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
-            if (isColumnMajor === void 0) { isColumnMajor = false; }
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-            var m = m0;
-            if (m == null) {
-                this.v = new FloatArray(0);
-                return;
-            }
-            if (arguments.length >= 16 && arguments[3] != null) {
-                this.v = new FloatArray(16); // Data order is column major
-                var m_1 = arguments;
-                if (_isColumnMajor === true) {
-                    this.v[0] = m_1[0];
-                    this.v[4] = m_1[4];
-                    this.v[8] = m_1[8];
-                    this.v[12] = m_1[12];
-                    this.v[1] = m_1[1];
-                    this.v[5] = m_1[5];
-                    this.v[9] = m_1[9];
-                    this.v[13] = m_1[13];
-                    this.v[2] = m_1[2];
-                    this.v[6] = m_1[6];
-                    this.v[10] = m_1[10];
-                    this.v[14] = m_1[14];
-                    this.v[3] = m_1[3];
-                    this.v[7] = m_1[7];
-                    this.v[11] = m_1[11];
-                    this.v[15] = m_1[15];
-                }
-                else {
-                    // arguments[0-15] must be row major values if isColumnMajor is false
-                    this.v[0] = m_1[0];
-                    this.v[4] = m_1[1];
-                    this.v[8] = m_1[2];
-                    this.v[12] = m_1[3];
-                    this.v[1] = m_1[4];
-                    this.v[5] = m_1[5];
-                    this.v[9] = m_1[6];
-                    this.v[13] = m_1[7];
-                    this.v[2] = m_1[8];
-                    this.v[6] = m_1[9];
-                    this.v[10] = m_1[10];
-                    this.v[14] = m_1[11];
-                    this.v[3] = m_1[12];
-                    this.v[7] = m_1[13];
-                    this.v[11] = m_1[14];
-                    this.v[15] = m_1[15];
-                }
-            }
-            else if (Array.isArray(m)) {
-                this.v = new FloatArray(16);
-                if (_isColumnMajor === true) {
-                    this.v[0] = m[0];
-                    this.v[4] = m[4];
-                    this.v[8] = m[8];
-                    this.v[12] = m[12];
-                    this.v[1] = m[1];
-                    this.v[5] = m[5];
-                    this.v[9] = m[9];
-                    this.v[13] = m[13];
-                    this.v[2] = m[2];
-                    this.v[6] = m[6];
-                    this.v[10] = m[10];
-                    this.v[14] = m[14];
-                    this.v[3] = m[3];
-                    this.v[7] = m[7];
-                    this.v[11] = m[11];
-                    this.v[15] = m[15];
-                }
-                else {
-                    // 'm' must be row major values if isColumnMajor is false
-                    this.v[0] = m[0];
-                    this.v[4] = m[1];
-                    this.v[8] = m[2];
-                    this.v[12] = m[3];
-                    this.v[1] = m[4];
-                    this.v[5] = m[5];
-                    this.v[9] = m[6];
-                    this.v[13] = m[7];
-                    this.v[2] = m[8];
-                    this.v[6] = m[9];
-                    this.v[10] = m[10];
-                    this.v[14] = m[11];
-                    this.v[3] = m[12];
-                    this.v[7] = m[13];
-                    this.v[11] = m[14];
-                    this.v[15] = m[15];
-                }
-            }
-            else if (m instanceof FloatArray) {
-                if (_notCopyFloatArray) {
-                    this.v = m;
-                }
-                else {
-                    this.v = new FloatArray(16);
-                    if (_isColumnMajor === true) {
-                        this.v[0] = m[0];
-                        this.v[4] = m[4];
-                        this.v[8] = m[8];
-                        this.v[12] = m[12];
-                        this.v[1] = m[1];
-                        this.v[5] = m[5];
-                        this.v[9] = m[9];
-                        this.v[13] = m[13];
-                        this.v[2] = m[2];
-                        this.v[6] = m[6];
-                        this.v[10] = m[10];
-                        this.v[14] = m[14];
-                        this.v[3] = m[3];
-                        this.v[7] = m[7];
-                        this.v[11] = m[11];
-                        this.v[15] = m[15];
-                    }
-                    else {
-                        // 'm' must be row major values if isColumnMajor is false
-                        this.v[0] = m[0];
-                        this.v[4] = m[1];
-                        this.v[8] = m[2];
-                        this.v[12] = m[3];
-                        this.v[1] = m[4];
-                        this.v[5] = m[5];
-                        this.v[9] = m[6];
-                        this.v[13] = m[7];
-                        this.v[2] = m[8];
-                        this.v[6] = m[9];
-                        this.v[10] = m[10];
-                        this.v[14] = m[11];
-                        this.v[3] = m[12];
-                        this.v[7] = m[13];
-                        this.v[11] = m[14];
-                        this.v[15] = m[15];
-                    }
-                }
-            }
-            else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new FloatArray(16);
-                    var v = m.v;
-                    if (_isColumnMajor === true) {
-                        this.v[0] = v[0];
-                        this.v[4] = v[4];
-                        this.v[8] = v[8];
-                        this.v[12] = v[12];
-                        this.v[1] = v[1];
-                        this.v[5] = v[5];
-                        this.v[9] = v[9];
-                        this.v[13] = v[13];
-                        this.v[2] = v[2];
-                        this.v[6] = v[6];
-                        this.v[10] = v[10];
-                        this.v[14] = v[14];
-                        this.v[3] = v[3];
-                        this.v[7] = v[7];
-                        this.v[11] = v[11];
-                        this.v[15] = v[15];
-                    }
-                    else {
-                        // 'm' must be row major values if isColumnMajor is false
-                        this.v[0] = v[0];
-                        this.v[4] = v[1];
-                        this.v[8] = v[2];
-                        this.v[12] = v[3];
-                        this.v[1] = v[4];
-                        this.v[5] = v[5];
-                        this.v[9] = v[6];
-                        this.v[13] = v[7];
-                        this.v[2] = v[8];
-                        this.v[6] = v[9];
-                        this.v[10] = v[10];
-                        this.v[14] = v[11];
-                        this.v[3] = v[12];
-                        this.v[7] = v[13];
-                        this.v[11] = v[14];
-                        this.v[15] = v[15];
-                    }
-                }
-            }
-            else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new FloatArray(16);
-                    var v = m.v;
-                    if (_isColumnMajor === true) {
-                        this.v[0] = v[0];
-                        this.v[4] = v[3];
-                        this.v[8] = v[6];
-                        this.v[12] = 0;
-                        this.v[1] = v[1];
-                        this.v[5] = v[4];
-                        this.v[9] = v[7];
-                        this.v[13] = 0;
-                        this.v[2] = v[2];
-                        this.v[6] = v[5];
-                        this.v[10] = v[8];
-                        this.v[14] = 0;
-                        this.v[3] = 0;
-                        this.v[7] = 0;
-                        this.v[11] = 0;
-                        this.v[15] = 1;
-                    }
-                    else {
-                        // 'm' must be row major values if isColumnMajor is false
-                        this.v[0] = v[0];
-                        this.v[4] = v[1];
-                        this.v[8] = v[2];
-                        this.v[12] = 0;
-                        this.v[1] = v[3];
-                        this.v[5] = v[4];
-                        this.v[9] = v[5];
-                        this.v[13] = 0;
-                        this.v[2] = v[6];
-                        this.v[6] = v[7];
-                        this.v[10] = v[8];
-                        this.v[14] = 0;
-                        this.v[3] = 0;
-                        this.v[7] = 0;
-                        this.v[11] = 0;
-                        this.v[15] = 1;
-                    }
-                }
-            }
-            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-                this.v = new FloatArray(16);
-                var sx = m.x * m.x;
-                var sy = m.y * m.y;
-                var sz = m.z * m.z;
-                var cx = m.y * m.z;
-                var cy = m.x * m.z;
-                var cz = m.x * m.y;
-                var wx = m.w * m.x;
-                var wy = m.w * m.y;
-                var wz = m.w * m.z;
-                this.v[0] = 1.0 - 2.0 * (sy + sz);
-                this.v[4] = 2.0 * (cz - wz);
-                this.v[8] = 2.0 * (cy + wy);
-                this.v[12] = 0;
-                this.v[1] = 2.0 * (cz + wz);
-                this.v[5] = 1.0 - 2.0 * (sx + sz);
-                this.v[9] = 2.0 * (cx - wx);
-                this.v[13] = 0;
-                this.v[2] = 2.0 * (cy - wy);
-                this.v[6] = 2.0 * (cx + wx);
-                this.v[10] = 1.0 - 2.0 * (sx + sy);
-                this.v[14] = 0;
-                this.v[3] = 0;
-                this.v[7] = 0;
-                this.v[11] = 0;
-                this.v[15] = 1;
-            }
-            else {
-                this.v = new FloatArray(16);
-                this.v[0] = 1;
-                this.v[4] = 0;
-                this.v[8] = 0;
-                this.v[12] = 0;
-                this.v[1] = 0;
-                this.v[5] = 1;
-                this.v[9] = 0;
-                this.v[13] = 0;
-                this.v[2] = 0;
-                this.v[6] = 0;
-                this.v[10] = 1;
-                this.v[14] = 0;
-                this.v[3] = 0;
-                this.v[7] = 0;
-                this.v[11] = 0;
-                this.v[15] = 1;
-            }
-        }
-        Matrix44.dummy = function () {
-            return new Matrix44(null);
-        };
-        Object.defineProperty(Matrix44, "compositionType", {
-            get: function () {
-                return CompositionType.Mat4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix44.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(Matrix44.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix44.prototype.clone = function () {
-            return new Matrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);
-        };
-        /**
-         * to the identity matrix（static版）
-         */
-        Matrix44.identity = function () {
-            return new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        Matrix44.prototype.isEqual = function (mat, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-                Math.abs(mat.v[1] - this.v[1]) < delta &&
-                Math.abs(mat.v[2] - this.v[2]) < delta &&
-                Math.abs(mat.v[3] - this.v[3]) < delta &&
-                Math.abs(mat.v[4] - this.v[4]) < delta &&
-                Math.abs(mat.v[5] - this.v[5]) < delta &&
-                Math.abs(mat.v[6] - this.v[6]) < delta &&
-                Math.abs(mat.v[7] - this.v[7]) < delta &&
-                Math.abs(mat.v[8] - this.v[8]) < delta &&
-                Math.abs(mat.v[9] - this.v[9]) < delta &&
-                Math.abs(mat.v[10] - this.v[10]) < delta &&
-                Math.abs(mat.v[11] - this.v[11]) < delta &&
-                Math.abs(mat.v[12] - this.v[12]) < delta &&
-                Math.abs(mat.v[13] - this.v[13]) < delta &&
-                Math.abs(mat.v[14] - this.v[14]) < delta &&
-                Math.abs(mat.v[15] - this.v[15]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Matrix44.prototype.getTranslate = function () {
-            return new Vector3(this.m03, this.m13, this.m23);
-        };
-        Matrix44.translate = function (vec) {
-            return new Matrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        Matrix44.scale = function (vec) {
-            return new Matrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-        */
-        Matrix44.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        Matrix44.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        Matrix44.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        /**
-         * @return Euler Angles Rotation (x, y, z)
-         */
-        Matrix44.prototype.toEulerAngles = function () {
-            var rotate = null;
-            if (Math.abs(this.m20) != 1.0) {
-                var y = -Math.asin(this.m20);
-                var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
-                var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-                rotate = new Vector3(x, y, z);
-            }
-            else if (this.m20 === -1.0) {
-                rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
-            }
-            else {
-                rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
-            }
-            return rotate;
-        };
-        Matrix44.zero = function () {
-            return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        };
-        Matrix44.prototype.flattenAsArray = function () {
-            return [this.v[0], this.v[1], this.v[2], this.v[3],
-                this.v[4], this.v[5], this.v[6], this.v[7],
-                this.v[8], this.v[9], this.v[10], this.v[11],
-                this.v[12], this.v[13], this.v[14], this.v[15]];
-        };
-        /**
-         * transpose(static version)
-         */
-        Matrix44.transpose = function (mat) {
-            var mat_t = new Matrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
-            return mat_t;
-        };
-        Matrix44.prototype.multiplyVector = function (vec) {
-            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
-            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
-            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
-            var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-            return new Vector4(x, y, z, w);
-        };
-        /**
-         * multiply zero matrix and zero matrix(static version)
-         */
-        Matrix44.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
-            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Matrix44.prototype.determinant = function () {
-            return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
-                this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
-                this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
-                this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -
-                this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -
-                this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -
-                this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
-                this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
-        };
-        Matrix44.determinant = function (mat) {
-            return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
-                mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
-                mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
-                mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -
-                mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -
-                mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -
-                mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
-                mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
-        };
-        Matrix44.invert = function (mat) {
-            var det = mat.determinant();
-            var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
-            var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
-            var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
-            var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
-            var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
-            var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
-            var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
-            var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
-            var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
-            var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
-            var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
-            var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
-            var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
-            var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
-            var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
-            var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-            return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Object.defineProperty(Matrix44.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m10", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m20", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m30", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m01", {
-            get: function () {
-                return this.v[4];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m11", {
-            get: function () {
-                return this.v[5];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m21", {
-            get: function () {
-                return this.v[6];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m31", {
-            get: function () {
-                return this.v[7];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m02", {
-            get: function () {
-                return this.v[8];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m12", {
-            get: function () {
-                return this.v[9];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m22", {
-            get: function () {
-                return this.v[10];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m32", {
-            get: function () {
-                return this.v[11];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m03", {
-            get: function () {
-                return this.v[12];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m13", {
-            get: function () {
-                return this.v[13];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m23", {
-            get: function () {
-                return this.v[14];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Matrix44.prototype, "m33", {
-            get: function () {
-                return this.v[15];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Matrix44.prototype.toString = function () {
-            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
-                this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
-                this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
-                this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
-        };
-        Matrix44.prototype.nearZeroToZero = function (value) {
-            if (Math.abs(value) < 0.00001) {
-                value = 0;
-            }
-            else if (0.99999 < value && value < 1.00001) {
-                value = 1;
-            }
-            else if (-1.00001 < value && value < -0.99999) {
-                value = -1;
-            }
-            return value;
-        };
-        Matrix44.prototype.toStringApproximately = function () {
-            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
-                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
-                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
-                this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
-        };
-        Matrix44.prototype.getScale = function () {
-            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-        };
-        Matrix44.prototype.getRotate = function () {
-            var quat = Quaternion.fromMatrix(this);
-            var rotateMat = new Matrix44(quat);
-            return rotateMat;
-        };
-        return Matrix44;
-    }());
-
-    var MutableMatrix44 = /** @class */ (function (_super) {
-        __extends(MutableMatrix44, _super);
-        function MutableMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {
-            if (isColumnMajor === void 0) { isColumnMajor = false; }
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _this = this;
-            var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;
-            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;
-            if (arguments.length >= 16) {
-                _this = _super.call(this, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, _isColumnMajor, _notCopyFloatArray) || this;
-            }
-            else {
-                _this = _super.call(this, m0, _isColumnMajor, _notCopyFloatArray) || this;
-            }
-            return _this;
-        }
-        MutableMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-            this.v[0] = m00;
-            this.v[4] = m01;
-            this.v[8] = m02;
-            this.v[12] = m03;
-            this.v[1] = m10;
-            this.v[5] = m11;
-            this.v[9] = m12;
-            this.v[13] = m13;
-            this.v[2] = m20;
-            this.v[6] = m21;
-            this.v[10] = m22;
-            this.v[14] = m23;
-            this.v[3] = m30;
-            this.v[7] = m31;
-            this.v[11] = m32;
-            this.v[15] = m33;
-            return this;
-        };
-        MutableMatrix44.prototype.copyComponents = function (mat4) {
-            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
-            var m = mat4.v;
-            this.v[0] = m[0];
-            this.v[1] = m[1];
-            this.v[2] = m[2];
-            this.v[3] = m[3];
-            this.v[4] = m[4];
-            this.v[5] = m[5];
-            this.v[6] = m[6];
-            this.v[7] = m[7];
-            this.v[8] = m[8];
-            this.v[9] = m[9];
-            this.v[10] = m[10];
-            this.v[11] = m[11];
-            this.v[12] = m[12];
-            this.v[13] = m[13];
-            this.v[14] = m[14];
-            this.v[15] = m[15];
-        };
-        Object.defineProperty(MutableMatrix44, "compositionType", {
-            get: function () {
-                return CompositionType.Mat4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MutableMatrix44.dummy = function () {
-            return new MutableMatrix44(null);
-        };
-        /**
-         * to the identity matrix（static版）
-         */
-        MutableMatrix44.identity = function () {
-            return new MutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        MutableMatrix44.prototype.translate = function (vec) {
-            return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        MutableMatrix44.prototype.putTranslate = function (vec) {
-            this.m03 = vec.x;
-            this.m13 = vec.y;
-            this.m23 = vec.z;
-        };
-        MutableMatrix44.prototype.scale = function (vec) {
-            return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        MutableMatrix44.prototype.addScale = function (vec) {
-            this.m00 *= vec.x;
-            this.m11 *= vec.y;
-            this.m22 *= vec.z;
-            return this;
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        MutableMatrix44.prototype.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        MutableMatrix44.prototype.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-       * Create Z oriented Rotation Matrix
-       */
-        MutableMatrix44.prototype.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        MutableMatrix44.prototype.rotateXYZ = function (x, y, z) {
-            var cosX = Math.cos(x);
-            var sinX = Math.sin(x);
-            var cosY = Math.cos(y);
-            var sinY = Math.sin(y);
-            var cosZ = Math.cos(z);
-            var sinZ = Math.sin(z);
-            var xm00 = 1;
-            //const xm01 = 0;
-            //const xm02 = 0;
-            //const xm10 = 0;
-            var xm11 = cosX;
-            var xm12 = -sinX;
-            //const xm20 = 0;
-            var xm21 = sinX;
-            var xm22 = cosX;
-            var ym00 = cosY;
-            //const ym01 = 0;
-            var ym02 = sinY;
-            //const ym10 = 0;
-            var ym11 = 1;
-            //const ym12 = 0;
-            var ym20 = -sinY;
-            //const ym21 = 0;
-            var ym22 = cosY;
-            var zm00 = cosZ;
-            var zm01 = -sinZ;
-            //const zm02 = 0;
-            var zm10 = sinZ;
-            var zm11 = cosZ;
-            //const zm12 = 0;
-            //const zm20 = 0;
-            //const zm21 = 0;
-            var zm22 = 1;
-            var yxm00 = ym00 * xm00;
-            var yxm01 = ym02 * xm21;
-            var yxm02 = ym02 * xm22;
-            //const yxm10 = 0;
-            var yxm11 = ym11 * xm11;
-            var yxm12 = ym11 * xm12;
-            var yxm20 = ym20 * xm00;
-            var yxm21 = ym22 * xm21;
-            var yxm22 = ym22 * xm22;
-            this.v[0] = zm00 * yxm00;
-            this.v[4] = zm00 * yxm01 + zm01 * yxm11;
-            this.v[8] = zm00 * yxm02 + zm01 * yxm12;
-            this.v[12] = 0;
-            this.v[1] = zm10 * yxm00;
-            this.v[5] = zm10 * yxm01 + zm11 * yxm11;
-            this.v[9] = zm10 * yxm02 + zm11 * yxm12;
-            this.v[13] = 0;
-            this.v[2] = zm22 * yxm20;
-            this.v[6] = zm22 * yxm21;
-            this.v[10] = zm22 * yxm22;
-            this.v[14] = 0;
-            this.v[3] = 0;
-            this.v[7] = 0;
-            this.v[11] = 0;
-            this.v[15] = 1;
-            return this;
-        };
-        /**
-         * to the identity matrix
-         */
-        MutableMatrix44.prototype.identity = function () {
-            this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-            return this;
-        };
-        MutableMatrix44.prototype._swap = function (l, r) {
-            this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
-        };
-        /**
-         * transpose
-         */
-        MutableMatrix44.prototype.transpose = function () {
-            this._swap(1, 4);
-            this._swap(2, 8);
-            this._swap(3, 12);
-            this._swap(6, 9);
-            this._swap(7, 13);
-            this._swap(11, 14);
-            return this;
-        };
-        /**
-       * multiply zero matrix and zero matrix
-       */
-        MutableMatrix44.prototype.multiply = function (mat) {
-            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
-            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
-            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
-            var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
-            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
-            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
-            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
-            var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
-            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
-            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
-            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
-            var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
-            var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
-            var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
-            var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
-            var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        MutableMatrix44.prototype.multiplyByLeft = function (mat) {
-            var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
-            var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
-            var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
-            var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
-            var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
-            var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
-            var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
-            var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
-            var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
-            var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
-            var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
-            var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
-            var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
-            var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
-            var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
-            var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        MutableMatrix44.prototype.invert = function () {
-            var det = this.determinant();
-            var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
-            var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
-            var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
-            var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
-            var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
-            var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
-            var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
-            var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
-            var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
-            var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
-            var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
-            var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
-            var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
-            var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
-            var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
-            var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        /**
-         * multiply zero matrix and zero matrix(static version)
-         */
-        MutableMatrix44.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
-            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-            return new MutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        /**
-         * zero matrix
-         */
-        MutableMatrix44.prototype.zero = function () {
-            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
-        };
-        Object.defineProperty(MutableMatrix44.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (val) {
-                this.v[0] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m10", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (val) {
-                this.v[1] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m20", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (val) {
-                this.v[2] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m30", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (val) {
-                this.v[3] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m01", {
-            get: function () {
-                return this.v[4];
-            },
-            set: function (val) {
-                this.v[4] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m11", {
-            get: function () {
-                return this.v[5];
-            },
-            set: function (val) {
-                this.v[5] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m21", {
-            get: function () {
-                return this.v[6];
-            },
-            set: function (val) {
-                this.v[6] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m31", {
-            get: function () {
-                return this.v[7];
-            },
-            set: function (val) {
-                this.v[7] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m02", {
-            get: function () {
-                return this.v[8];
-            },
-            set: function (val) {
-                this.v[8] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m12", {
-            get: function () {
-                return this.v[9];
-            },
-            set: function (val) {
-                this.v[9] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m22", {
-            get: function () {
-                return this.v[10];
-            },
-            set: function (val) {
-                this.v[10] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m32", {
-            get: function () {
-                return this.v[11];
-            },
-            set: function (val) {
-                this.v[11] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m03", {
-            get: function () {
-                return this.v[12];
-            },
-            set: function (val) {
-                this.v[12] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m13", {
-            get: function () {
-                return this.v[13];
-            },
-            set: function (val) {
-                this.v[13] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m23", {
-            get: function () {
-                return this.v[14];
-            },
-            set: function (val) {
-                this.v[14] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableMatrix44.prototype, "m33", {
-            get: function () {
-                return this.v[15];
-            },
-            set: function (val) {
-                this.v[15] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return MutableMatrix44;
-    }(Matrix44));
-
-    var AccessorBase = /** @class */ (function (_super) {
-        __extends(AccessorBase, _super);
-        function AccessorBase(_a) {
-            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
-            var _this = _super.call(this, true) || this;
-            _this.__compositionType = CompositionType.Unknown;
-            _this.__componentType = ComponentType.Unknown;
-            _this.__count = 0;
-            _this.__takenCount = 0;
-            _this.__byteStride = 0;
-            _this.__bufferView = bufferView;
-            _this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;
-            _this.__compositionType = compositionType;
-            _this.__componentType = componentType;
-            _this.__count = count;
-            _this.__raw = raw.buffer;
-            _this.__byteStride = byteStride;
-            if (_this.__byteStride === 0) {
-                _this.__byteStride = _this.__compositionType.getNumberOfComponents() * _this.__componentType.getSizeInBytes();
-            }
-            _this.prepare();
-            return _this;
-        }
-        AccessorBase.prototype.prepare = function () {
-            var typedArrayClass = this.getTypedArrayClass(this.__componentType);
-            this.__typedArrayClass = typedArrayClass;
-            if (this.__componentType.getSizeInBytes() === 8) {
-                if (this.__byteOffsetInBuffer % 8 !== 0) {
-                    console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
-                    this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;
-                }
-            }
-            if (this.__bufferView.isSoA) {
-                this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
-            }
-            else {
-                this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);
-            }
-            this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
-            this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);
-            this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);
-        };
-        AccessorBase.prototype.getTypedArrayClass = function (componentType) {
-            switch (componentType) {
-                case ComponentType.Byte: return Int8Array;
-                case ComponentType.UnsignedByte: return Uint8Array;
-                case ComponentType.Short: return Int16Array;
-                case ComponentType.UnsignedShort: return Uint16Array;
-                case ComponentType.Int: return Int32Array;
-                case ComponentType.UnsingedInt: return Uint32Array;
-                case ComponentType.Float: return Float32Array;
-                case ComponentType.Double: return Float64Array;
-                default: console.error('Unexpected ComponentType!');
-            }
-        };
-        AccessorBase.prototype.getDataViewGetter = function (componentType) {
-            switch (componentType) {
-                case ComponentType.Byte: return 'getInt8';
-                case ComponentType.UnsignedByte: return 'getUint8';
-                case ComponentType.Short: return 'getInt16';
-                case ComponentType.UnsignedShort: return 'getUint16';
-                case ComponentType.Int: return 'getInt32';
-                case ComponentType.UnsingedInt: return 'getUint32';
-                case ComponentType.Float: return 'getFloat32';
-                case ComponentType.Double: return 'getFloat64';
-                default: console.error('Unexpected ComponentType!');
-            }
-        };
-        AccessorBase.prototype.getDataViewSetter = function (componentType) {
-            switch (componentType) {
-                case ComponentType.Byte: return 'setInt8';
-                case ComponentType.UnsignedByte: return 'setUint8';
-                case ComponentType.Short: return 'setInt16';
-                case ComponentType.UnsignedShort: return 'setUint16';
-                case ComponentType.Int: return 'setInt32';
-                case ComponentType.UnsingedInt: return 'setUint32';
-                case ComponentType.Float: return 'setFloat32';
-                case ComponentType.Double: return 'setFloat64';
-                default: console.error('Unexpected ComponentType!');
-            }
-            return undefined;
-        };
-        AccessorBase.prototype.takeOne = function () {
-            var arrayBufferOfBufferView = this.__raw;
-            // let stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
-            // if (this.__bufferView.isAoS) {
-            //   stride = this.__bufferView.byteStride;
-            // }
-            var subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents());
-            this.__takenCount += 1;
-            return subTypedArray;
-        };
-        Object.defineProperty(AccessorBase.prototype, "numberOfComponents", {
-            get: function () {
-                return this.__compositionType.getNumberOfComponents();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "componentSizeInBytes", {
-            get: function () {
-                return this.__componentType.getSizeInBytes();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "elementSizeInBytes", {
-            get: function () {
-                return this.numberOfComponents * this.componentSizeInBytes;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "elementCount", {
-            get: function () {
-                return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "byteLength", {
-            get: function () {
-                return this.__byteStride * this.__count;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "componentType", {
-            get: function () {
-                return this.__componentType;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "compositionType", {
-            get: function () {
-                return this.__compositionType;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        AccessorBase.prototype.getTypedArray = function () {
-            if (this.__bufferView.isAoS) {
-                console.warn('Be careful. this referance bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.');
-            }
-            return this.__typedArray;
-        };
-        Object.defineProperty(AccessorBase.prototype, "isAoS", {
-            get: function () {
-                return this.__bufferView.isAoS;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "isSoA", {
-            get: function () {
-                return this.__bufferView.isSoA;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "byteStride", {
-            get: function () {
-                return this.__byteStride;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        AccessorBase.prototype.getScalar = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return this.__dataViewGetter(this.__byteStride * index, endian);
-        };
-        AccessorBase.prototype.getScalarAt = function (index, compositionOffset, endian) {
-            if (endian === void 0) { endian = true; }
-            return this.__dataViewGetter(this.__byteStride * index + compositionOffset, endian);
-        };
-        AccessorBase.prototype.getVec2AsArray = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian)];
-        };
-        AccessorBase.prototype.getVec3AsArray = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian)];
-        };
-        AccessorBase.prototype.getVec4AsArray = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian)];
-        };
-        AccessorBase.prototype.getMat3AsArray = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return [
-                this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian),
-                this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian),
-                this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian),
-            ];
-        };
-        AccessorBase.prototype.getMat4AsArray = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return [
-                this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian),
-                this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian),
-                this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian),
-                this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian),
-            ];
-        };
-        AccessorBase.prototype.getVec2 = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return new Vector2_F64(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian));
-        };
-        AccessorBase.prototype.getVec3 = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return new Vector3(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian));
-        };
-        AccessorBase.prototype.getVec4 = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return new Vector4(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));
-        };
-        AccessorBase.prototype.getMat3 = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return new Matrix33(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));
-        };
-        AccessorBase.prototype.getMat4 = function (index, endian) {
-            if (endian === void 0) { endian = true; }
-            return new MutableMatrix44(this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));
-        };
-        AccessorBase.prototype.setScalar = function (index, value, endian) {
-            if (endian === void 0) { endian = true; }
-            this.__dataViewSetter(this.__byteStride * index, value, endian);
-        };
-        AccessorBase.prototype.setVec2 = function (index, x, y, endian) {
-            if (endian === void 0) { endian = true; }
-            var sizeInBytes = this.componentSizeInBytes;
-            this.__dataViewSetter(this.__byteStride * index, x, endian);
-            this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
-        };
-        AccessorBase.prototype.setVec3 = function (index, x, y, z, endian) {
-            if (endian === void 0) { endian = true; }
-            var sizeInBytes = this.componentSizeInBytes;
-            this.__dataViewSetter(this.__byteStride * index, x, endian);
-            this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
-            this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
-        };
-        AccessorBase.prototype.setVec4 = function (index, x, y, z, w, endian) {
-            if (endian === void 0) { endian = true; }
-            var sizeInBytes = this.componentSizeInBytes;
-            this.__dataViewSetter(this.__byteStride * index, x, endian);
-            this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
-            this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
-            this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);
-        };
-        AccessorBase.prototype.copyFromTypedArray = function (typedArray) {
-            var componentN = this.numberOfComponents;
-            var setter = this['setVec' + componentN];
-            for (var j = 0; j < (typedArray.byteLength / this.componentSizeInBytes); j++) {
-                var idx = Math.floor(j / componentN);
-                var idxN = idx * componentN;
-                switch (componentN) {
-                    case 1:
-                        setter.call(this, idx, typedArray[idxN + 0]);
-                        break;
-                    case 2:
-                        setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1]);
-                        break;
-                    case 3:
-                        setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2]);
-                        break;
-                    case 4:
-                        setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], typedArray[idxN + 3]);
-                        break;
-                    default: throw new Error('Other than vectors are currently not supported.');
-                }
-            }
-        };
-        AccessorBase.prototype.setScalarAt = function (index, conpositionOffset, value, endian) {
-            if (endian === void 0) { endian = true; }
-            this.__dataViewSetter(this.__byteStride * index + conpositionOffset, value, endian);
-        };
-        Object.defineProperty(AccessorBase.prototype, "arrayBufferOfBufferView", {
-            get: function () {
-                return this.__raw;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "dataViewOfBufferView", {
-            get: function () {
-                return this.__dataView;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "byteOffsetInBufferView", {
-            get: function () {
-                return this.__byteOffsetInBuffer - this.__bufferView.byteOffset;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "byteOffsetInBuffer", {
-            get: function () {
-                return this.__byteOffsetInBuffer;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AccessorBase.prototype, "bufferView", {
-            get: function () {
-                return this.__bufferView;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return AccessorBase;
-    }(RnObject));
-
-    var FlexibleAccessor = /** @class */ (function (_super) {
-        __extends(FlexibleAccessor, _super);
-        function FlexibleAccessor(_a) {
-            var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;
-            return _super.call(this, { bufferView: bufferView, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: raw }) || this;
-        }
-        return FlexibleAccessor;
-    }(AccessorBase));
-
-    var BufferView = /** @class */ (function (_super) {
-        __extends(BufferView, _super);
-        function BufferView(_a) {
-            var buffer = _a.buffer, byteOffset = _a.byteOffset, byteLength = _a.byteLength, raw = _a.raw, isAoS = _a.isAoS;
-            var _this = _super.call(this, true) || this;
-            _this.__byteStride = 0;
-            _this.__target = 0;
-            _this.__takenByteIndex = 0;
-            _this.__takenByteOffsetOfFirstElement = 0;
-            _this.__accessors = [];
-            _this.__buffer = buffer;
-            _this.__byteOffset = byteOffset;
-            _this.__byteLength = byteLength;
-            _this.__raw = raw;
-            _this.__isAoS = isAoS;
-            return _this;
-        }
-        Object.defineProperty(BufferView.prototype, "byteStride", {
-            get: function () {
-                return this.__byteStride;
-            },
-            set: function (stride) {
-                this.__byteStride = stride;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BufferView.prototype, "byteLength", {
-            get: function () {
-                return this.__byteLength;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BufferView.prototype, "byteOffset", {
-            get: function () {
-                return this.__byteOffset;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BufferView.prototype, "buffer", {
-            get: function () {
-                return this.__buffer;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BufferView.prototype, "isSoA", {
-            get: function () {
-                return !this.__isAoS;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BufferView.prototype.recheckIsSoA = function () {
-            if (this.__accessors.length <= 1) {
-                return true;
-            }
-            var firstStrideBytes = this.__accessors[0].byteStride;
-            var secondStrideBytes = this.__accessors[1].byteStride;
-            var firstElementSizeInBytes = this.__accessors[0].elementSizeInBytes;
-            var secondElementSizeInBytes = this.__accessors[1].elementSizeInBytes;
-            if (firstStrideBytes === secondStrideBytes &&
-                (firstElementSizeInBytes + secondElementSizeInBytes) < firstElementSizeInBytes) {
-                return true;
-            }
-        };
-        Object.defineProperty(BufferView.prototype, "isAoS", {
-            get: function () {
-                return this.__isAoS;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BufferView.prototype.getUint8Array = function () {
-            return this.__raw;
-        };
-        BufferView.prototype.takeAccessor = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count;
-            var byteStride = this.byteStride;
-            var accessor = this.__takeAccessorInner({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, accessorClass: AccessorBase });
-            return accessor;
-        };
-        BufferView.prototype.takeFlexibleAccessor = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride;
-            var accessor = this.__takeAccessorInner({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, accessorClass: FlexibleAccessor });
-            return accessor;
-        };
-        BufferView.prototype.takeAccessorWithByteOffset = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteOffset = _a.byteOffset;
-            var byteStride = this.byteStride;
-            var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: AccessorBase });
-            return accessor;
-        };
-        BufferView.prototype.takeFlexibleAccessorWithByteOffset = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset;
-            var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: FlexibleAccessor });
-            return accessor;
-        };
-        BufferView.prototype.__takeAccessorInner = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, accessorClass = _a.accessorClass;
-            var byteOffset = 0;
-            if (this.isSoA) {
-                byteOffset = this.__takenByteIndex;
-                this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;
-            }
-            else {
-                byteOffset = this.__takenByteIndex;
-                this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
-            }
-            if (byteOffset % 4 !== 0) {
-                console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-                byteOffset += 4 - byteOffset % 4;
-            }
-            if (this.__byteOffset % 4 !== 0) {
-                console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-                this.__byteOffset += 4 - this.__byteOffset % 4;
-            }
-            var accessor = new accessorClass({
-                bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
-            });
-            this.__accessors.push(accessor);
-            return accessor;
-        };
-        BufferView.prototype.__takeAccessorInnerWithByteOffset = function (_a) {
-            var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset, accessorClass = _a.accessorClass;
-            if (byteOffset % 4 !== 0) {
-                console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-                byteOffset += 4 - byteOffset % 4;
-            }
-            if (this.__byteOffset % 4 !== 0) {
-                console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-                this.__byteOffset += 4 - this.__byteOffset % 4;
-            }
-            var accessor = new accessorClass({
-                bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
-            });
-            this.__accessors.push(accessor);
-            return accessor;
-        };
-        return BufferView;
-    }(RnObject));
-
-    var Buffer$1 = /** @class */ (function (_super) {
-        __extends(Buffer, _super);
-        function Buffer(_a) {
-            var byteLength = _a.byteLength, arrayBuffer = _a.arrayBuffer, name = _a.name;
-            var _this = _super.call(this, true) || this;
-            _this.__byteLength = 0;
-            _this.__name = '';
-            _this.__takenBytesIndex = 0;
-            _this.__bufferViews = [];
-            _this.__name = name;
-            _this.__byteLength = byteLength;
-            _this.__raw = arrayBuffer;
-            return _this;
-        }
-        Object.defineProperty(Buffer.prototype, "name", {
-            get: function () {
-                return this.__name;
-            },
-            set: function (str) {
-                this.__name = str;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Buffer.prototype.getArrayBuffer = function () {
-            return this.__raw;
-        };
-        Buffer.prototype.takeBufferView = function (_a) {
-            var byteLengthToNeed = _a.byteLengthToNeed, byteStride = _a.byteStride, isAoS = _a.isAoS;
-            if (byteLengthToNeed % 4 !== 0) {
-                console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
-                byteLengthToNeed += 4 - (byteLengthToNeed % 4);
-            }
-            if (byteStride % 4 !== 0) {
-                console.info('Padding bytes added, byteStride must be a multiple of 4.');
-                byteStride += 4 - (byteStride % 4);
-            }
-            var array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
-            var bufferView = new BufferView({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
-            bufferView.byteStride = byteStride;
-            this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
-            this.__bufferViews.push(bufferView);
-            return bufferView;
-        };
-        Buffer.prototype.takeBufferViewWithByteOffset = function (_a) {
-            var byteLengthToNeed = _a.byteLengthToNeed, byteStride = _a.byteStride, byteOffset = _a.byteOffset, isAoS = _a.isAoS;
-            if (byteLengthToNeed % 4 !== 0) {
-                console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
-                byteLengthToNeed += 4 - (byteLengthToNeed % 4);
-            }
-            if (byteStride % 4 !== 0) {
-                console.info('Padding bytes added, byteStride must be a multiple of 4.');
-                byteStride += 4 - (byteStride % 4);
-            }
-            var array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);
-            var bufferView = new BufferView({ buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });
-            bufferView.byteStride = byteStride;
-            this.__bufferViews.push(bufferView);
-            return bufferView;
-        };
-        Object.defineProperty(Buffer.prototype, "byteSizeInUse", {
-            get: function () {
-                return this.__byteLength;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Buffer;
-    }(RnObject));
-
-    var BufferUseClass = /** @class */ (function (_super) {
-        __extends(BufferUseClass, _super);
-        function BufferUseClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return BufferUseClass;
-    }(EnumClass));
-    var GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });
-    var GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });
-    var UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });
-    var CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });
-    var typeList$4 = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
-    function from$4(index) {
-        return _from({ typeList: typeList$4, index: index });
-    }
-    function fromString$2(str) {
-        return _fromString({ typeList: typeList$4, str: str });
-    }
-    var BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, UBOGeneric: UBOGeneric, CPUGeneric: CPUGeneric, from: from$4, fromString: fromString$2 });
-
-    /**
-     * Usage
-     * const mm = MemoryManager.getInstance();
-     * this.translate = new Vector3(
-     *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
-     * );
-     */
-    var MemoryManager = /** @class */ (function () {
-        function MemoryManager() {
-            //__entityMaxCount: number;
-            this.__buffers = {};
-            // BufferForGPUInstanceData
-            {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer$1({
-                    byteLength: arrayBuffer.byteLength,
-                    arrayBuffer: arrayBuffer,
-                    name: BufferUse.GPUInstanceData.toString()
-                });
-                this.__buffers[buffer.name] = buffer;
-            }
-            // BufferForGPUVertexData
-            {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer$1({
-                    byteLength: arrayBuffer.byteLength,
-                    arrayBuffer: arrayBuffer,
-                    name: BufferUse.GPUVertexData.toString()
-                });
-                this.__buffers[buffer.name] = buffer;
-            }
-            // BufferForUBO
-            {
-                var arrayBuffer = new ArrayBuffer((MemoryManager.bufferWidthLength - 1) * (MemoryManager.bufferHeightLength - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer$1({
-                    byteLength: arrayBuffer.byteLength,
-                    arrayBuffer: arrayBuffer,
-                    name: BufferUse.UBOGeneric.toString()
-                });
-                this.__buffers[buffer.name] = buffer;
-            }
-            // BufferForCP
-            {
-                var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);
-                var buffer = new Buffer$1({
-                    byteLength: arrayBuffer.byteLength,
-                    arrayBuffer: arrayBuffer,
-                    name: BufferUse.CPUGeneric.toString()
-                });
-                this.__buffers[buffer.name] = buffer;
-            }
-        }
-        MemoryManager.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new MemoryManager();
-            }
-            return this.__instance;
-        };
-        MemoryManager.prototype.getBuffer = function (bufferUse) {
-            return this.__buffers[bufferUse.toString()];
-        };
-        Object.defineProperty(MemoryManager, "bufferWidthLength", {
-            get: function () {
-                return MemoryManager.__bufferWidthLength;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MemoryManager, "bufferHeightLength", {
-            get: function () {
-                return MemoryManager.__bufferHeightLength;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MemoryManager.__bufferWidthLength = Math.pow(2, 8);
-        MemoryManager.__bufferHeightLength = Math.pow(2, 8);
-        return MemoryManager;
-    }());
-
-    //import GLBoost from '../../globals';
-    var FloatArray$2 = Float32Array;
-    var RowMajarMatrix44 = /** @class */ (function () {
-        function RowMajarMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray) {
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
-            var m = m0;
-            if (m == null) {
-                this.v = new FloatArray$2(0);
-                return;
-            }
-            if (arguments.length >= 16) {
-                var m_1 = arguments;
-                this.v = new FloatArray$2(16); // Data order is row major
-                this.v[0] = m_1[0];
-                this.v[4] = m_1[4];
-                this.v[8] = m_1[8];
-                this.v[12] = m_1[12];
-                this.v[1] = m_1[1];
-                this.v[5] = m_1[5];
-                this.v[9] = m_1[9];
-                this.v[13] = m_1[13];
-                this.v[2] = m_1[2];
-                this.v[6] = m_1[6];
-                this.v[10] = m_1[10];
-                this.v[14] = m_1[14];
-                this.v[3] = m_1[3];
-                this.v[7] = m_1[7];
-                this.v[11] = m_1[11];
-                this.v[15] = m_1[15];
-            }
-            else if (Array.isArray(m)) {
-                this.v = new FloatArray$2(16);
-                this.v[0] = m[0];
-                this.v[4] = m[4];
-                this.v[8] = m[8];
-                this.v[12] = m[12];
-                this.v[1] = m[1];
-                this.v[5] = m[5];
-                this.v[9] = m[9];
-                this.v[13] = m[13];
-                this.v[2] = m[2];
-                this.v[6] = m[6];
-                this.v[10] = m[10];
-                this.v[14] = m[14];
-                this.v[3] = m[3];
-                this.v[7] = m[7];
-                this.v[11] = m[11];
-                this.v[15] = m[15];
-            }
-            else if (m instanceof FloatArray$2) {
-                if (_notCopyFloatArray) {
-                    this.v = m;
-                }
-                else {
-                    this.v = new FloatArray$2(16);
-                    this.v[0] = m[0];
-                    this.v[4] = m[4];
-                    this.v[8] = m[8];
-                    this.v[12] = m[12];
-                    this.v[1] = m[1];
-                    this.v[5] = m[5];
-                    this.v[9] = m[9];
-                    this.v[13] = m[13];
-                    this.v[2] = m[2];
-                    this.v[6] = m[6];
-                    this.v[10] = m[10];
-                    this.v[14] = m[14];
-                    this.v[3] = m[3];
-                    this.v[7] = m[7];
-                    this.v[11] = m[11];
-                    this.v[15] = m[15];
-                }
-            }
-            else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new FloatArray$2(16);
-                    this.v[0] = m.m00;
-                    this.v[4] = m.m10;
-                    this.v[8] = m.m20;
-                    this.v[12] = m.m30;
-                    this.v[1] = m.m01;
-                    this.v[5] = m.m11;
-                    this.v[9] = m.m21;
-                    this.v[13] = m.m31;
-                    this.v[2] = m.m02;
-                    this.v[6] = m.m12;
-                    this.v[10] = m.m22;
-                    this.v[14] = m.m32;
-                    this.v[3] = m.m03;
-                    this.v[7] = m.m13;
-                    this.v[11] = m.m23;
-                    this.v[15] = m.m33;
-                }
-            }
-            else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {
-                if (_notCopyFloatArray) {
-                    this.v = m.v;
-                }
-                else {
-                    this.v = new FloatArray$2(16);
-                    this.v[0] = m.m00;
-                    this.v[4] = m.m10;
-                    this.v[8] = m.m20;
-                    this.v[12] = 0;
-                    this.v[1] = m.m01;
-                    this.v[5] = m.m11;
-                    this.v[9] = m.m21;
-                    this.v[13] = 0;
-                    this.v[2] = m.m02;
-                    this.v[6] = m.m12;
-                    this.v[10] = m.m22;
-                    this.v[14] = 0;
-                    this.v[3] = 0;
-                    this.v[7] = 0;
-                    this.v[11] = 0;
-                    this.v[15] = 1;
-                }
-            }
-            else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
-                this.v = new FloatArray$2(16);
-                var sx = m.x * m.x;
-                var sy = m.y * m.y;
-                var sz = m.z * m.z;
-                var cx = m.y * m.z;
-                var cy = m.x * m.z;
-                var cz = m.x * m.y;
-                var wx = m.w * m.x;
-                var wy = m.w * m.y;
-                var wz = m.w * m.z;
-                this.v[0] = 1.0 - 2.0 * (sy + sz);
-                this.v[1] = 2.0 * (cz - wz);
-                this.v[2] = 2.0 * (cy + wy);
-                this.v[3] = 0;
-                this.v[4] = 2.0 * (cz + wz);
-                this.v[5] = 1.0 - 2.0 * (sx + sz);
-                this.v[6] = 2.0 * (cx - wx);
-                this.v[7] = 0;
-                this.v[8] = 2.0 * (cy - wy);
-                this.v[9] = 2.0 * (cx + wx);
-                this.v[10] = 1.0 - 2.0 * (sx + sy);
-                this.v[11] = 0;
-                this.v[12] = 0;
-                this.v[13] = 0;
-                this.v[14] = 0;
-                this.v[15] = 1;
-            }
-            else {
-                this.v = new FloatArray$2(16);
-                this.v[0] = 1;
-                this.v[4] = 0;
-                this.v[8] = 0;
-                this.v[12] = 0;
-                this.v[1] = 0;
-                this.v[5] = 1;
-                this.v[9] = 0;
-                this.v[13] = 0;
-                this.v[2] = 0;
-                this.v[6] = 0;
-                this.v[10] = 1;
-                this.v[14] = 0;
-                this.v[3] = 0;
-                this.v[7] = 0;
-                this.v[11] = 0;
-                this.v[15] = 1;
-            }
-        }
-        RowMajarMatrix44.dummy = function () {
-            return new RowMajarMatrix44(null);
-        };
-        Object.defineProperty(RowMajarMatrix44, "compositionType", {
-            get: function () {
-                return CompositionType.Mat4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RowMajarMatrix44.prototype.isDummy = function () {
-            if (this.v.length === 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        Object.defineProperty(RowMajarMatrix44.prototype, "className", {
-            get: function () {
-                return this.constructor.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RowMajarMatrix44.prototype.clone = function () {
-            return new RowMajarMatrix44(this.v[0], this.v[1], this.v[2], this.v[3], this.v[4], this.v[5], this.v[6], this.v[7], this.v[8], this.v[9], this.v[10], this.v[11], this.v[12], this.v[13], this.v[14], this.v[15]);
-        };
-        /**
-         * to the identity matrix（static版）
-         */
-        RowMajarMatrix44.identity = function () {
-            return new RowMajarMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        RowMajarMatrix44.prototype.isEqual = function (mat, delta) {
-            if (delta === void 0) { delta = Number.EPSILON; }
-            if (Math.abs(mat.v[0] - this.v[0]) < delta &&
-                Math.abs(mat.v[1] - this.v[1]) < delta &&
-                Math.abs(mat.v[2] - this.v[2]) < delta &&
-                Math.abs(mat.v[3] - this.v[3]) < delta &&
-                Math.abs(mat.v[4] - this.v[4]) < delta &&
-                Math.abs(mat.v[5] - this.v[5]) < delta &&
-                Math.abs(mat.v[6] - this.v[6]) < delta &&
-                Math.abs(mat.v[7] - this.v[7]) < delta &&
-                Math.abs(mat.v[8] - this.v[8]) < delta &&
-                Math.abs(mat.v[9] - this.v[9]) < delta &&
-                Math.abs(mat.v[10] - this.v[10]) < delta &&
-                Math.abs(mat.v[11] - this.v[11]) < delta &&
-                Math.abs(mat.v[12] - this.v[12]) < delta &&
-                Math.abs(mat.v[13] - this.v[13]) < delta &&
-                Math.abs(mat.v[14] - this.v[14]) < delta &&
-                Math.abs(mat.v[15] - this.v[15]) < delta) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        RowMajarMatrix44.prototype.getTranslate = function () {
-            return new Vector3(this.m03, this.m13, this.m23);
-        };
-        RowMajarMatrix44.translate = function (vec) {
-            return new RowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        RowMajarMatrix44.scale = function (vec) {
-            return new RowMajarMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create X oriented Rotation Matrix
-        */
-        RowMajarMatrix44.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new RowMajarMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Y oriented Rotation Matrix
-         */
-        RowMajarMatrix44.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new RowMajarMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        RowMajarMatrix44.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        /**
-         * @return Euler Angles Rotation (x, y, z)
-         */
-        RowMajarMatrix44.prototype.toEulerAngles = function () {
-            var rotate = null;
-            if (Math.abs(this.m20) != 1.0) {
-                var y = -Math.asin(this.m20);
-                var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
-                var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
-                rotate = new Vector3(x, y, z);
-            }
-            else if (this.m20 === -1.0) {
-                rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);
-            }
-            else {
-                rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);
-            }
-            return rotate;
-        };
-        RowMajarMatrix44.zero = function () {
-            return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        };
-        RowMajarMatrix44.prototype.raw = function () {
-            return this.v;
-        };
-        RowMajarMatrix44.prototype.flattenAsArray = function () {
-            return [this.v[0], this.v[1], this.v[2], this.v[3],
-                this.v[4], this.v[5], this.v[6], this.v[7],
-                this.v[8], this.v[9], this.v[10], this.v[11],
-                this.v[12], this.v[13], this.v[14], this.v[15]];
-        };
-        /**
-         * transpose(static version)
-         */
-        RowMajarMatrix44.transpose = function (mat) {
-            var mat_t = new RowMajarMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);
-            return mat_t;
-        };
-        RowMajarMatrix44.prototype.multiplyVector = function (vec) {
-            var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;
-            var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;
-            var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;
-            var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;
-            return new Vector4(x, y, z, w);
-        };
-        /**
-         * multiply zero matrix and zero matrix(static version)
-         */
-        RowMajarMatrix44.multiply = function (l_m, r_m) {
-            var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;
-            var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;
-            var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;
-            var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;
-            var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;
-            var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;
-            var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;
-            var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;
-            var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;
-            var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;
-            var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;
-            var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;
-            var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;
-            var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;
-            var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;
-            var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;
-            return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        RowMajarMatrix44.prototype.determinant = function () {
-            return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +
-                this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +
-                this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +
-                this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -
-                this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -
-                this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -
-                this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -
-                this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;
-        };
-        RowMajarMatrix44.determinant = function (mat) {
-            return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +
-                mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +
-                mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +
-                mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -
-                mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -
-                mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -
-                mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -
-                mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;
-        };
-        RowMajarMatrix44.invert = function (mat) {
-            var det = mat.determinant();
-            var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;
-            var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;
-            var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;
-            var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;
-            var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;
-            var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;
-            var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;
-            var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;
-            var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;
-            var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;
-            var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;
-            var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;
-            var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;
-            var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;
-            var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;
-            var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;
-            return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Object.defineProperty(RowMajarMatrix44.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m01", {
-            get: function () {
-                return this.v[1];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m02", {
-            get: function () {
-                return this.v[2];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m03", {
-            get: function () {
-                return this.v[3];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m10", {
-            get: function () {
-                return this.v[4];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m11", {
-            get: function () {
-                return this.v[5];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m12", {
-            get: function () {
-                return this.v[6];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m13", {
-            get: function () {
-                return this.v[7];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m20", {
-            get: function () {
-                return this.v[8];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m21", {
-            get: function () {
-                return this.v[9];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m22", {
-            get: function () {
-                return this.v[10];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m23", {
-            get: function () {
-                return this.v[11];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m30", {
-            get: function () {
-                return this.v[12];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m31", {
-            get: function () {
-                return this.v[13];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m32", {
-            get: function () {
-                return this.v[14];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RowMajarMatrix44.prototype, "m33", {
-            get: function () {
-                return this.v[15];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        RowMajarMatrix44.prototype.toString = function () {
-            return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
-                this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
-                this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
-                this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
-        };
-        RowMajarMatrix44.prototype.nearZeroToZero = function (value) {
-            if (Math.abs(value) < 0.00001) {
-                value = 0;
-            }
-            else if (0.99999 < value && value < 1.00001) {
-                value = 1;
-            }
-            else if (-1.00001 < value && value < -0.99999) {
-                value = -1;
-            }
-            return value;
-        };
-        RowMajarMatrix44.prototype.toStringApproximately = function () {
-            return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
-                this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
-                this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
-                this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
-        };
-        RowMajarMatrix44.prototype.getScale = function () {
-            return new Vector3(Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));
-        };
-        RowMajarMatrix44.prototype.getRotate = function () {
-            var quat = Quaternion.fromMatrix(this);
-            var rotateMat = new RowMajarMatrix44(quat);
-            return rotateMat;
-        };
-        return RowMajarMatrix44;
-    }());
-
-    var ProcessStageClass = /** @class */ (function (_super) {
-        __extends(ProcessStageClass, _super);
-        function ProcessStageClass(_a) {
-            var index = _a.index, str = _a.str, methodName = _a.methodName;
-            var _this = _super.call(this, { index: index, str: str }) || this;
-            _this.__methodName = methodName;
-            return _this;
-        }
-        ProcessStageClass.prototype.getMethodName = function () {
-            return this.__methodName;
-        };
-        return ProcessStageClass;
-    }(EnumClass));
-    var Unknown$3 = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });
-    var Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });
-    var Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });
-    var Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });
-    var Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });
-    var PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });
-    var Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });
-    var Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });
-    var Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });
-    var typeList$5 = [Unknown$3, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
-    function from$5(index) {
-        return _from({ typeList: typeList$5, index: index });
-    }
-    var ProcessStage = Object.freeze({ Unknown: Unknown$3, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from$5 });
-
-    var maxEntityNumber = 5000;
-    var Config = Object.freeze({ maxEntityNumber: maxEntityNumber });
-
-    var MutableRowMajarMatrix44 = /** @class */ (function (_super) {
-        __extends(MutableRowMajarMatrix44, _super);
-        function MutableRowMajarMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray) {
-            if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }
-            var _this = this;
-            var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;
-            if (arguments.length >= 16) {
-                _this = _super.call(this, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, _notCopyFloatArray) || this;
-            }
-            else {
-                _this = _super.call(this, m0, _notCopyFloatArray) || this;
-            }
-            return _this;
-        }
-        Object.defineProperty(MutableRowMajarMatrix44, "compositionType", {
-            get: function () {
-                return CompositionType.Mat4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MutableRowMajarMatrix44.dummy = function () {
-            return new MutableRowMajarMatrix44(null);
-        };
-        MutableRowMajarMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-            this.v[0] = m00;
-            this.v[4] = m10;
-            this.v[8] = m20;
-            this.v[12] = m30;
-            this.v[1] = m01;
-            this.v[5] = m11;
-            this.v[9] = m21;
-            this.v[13] = m31;
-            this.v[2] = m02;
-            this.v[6] = m12;
-            this.v[10] = m22;
-            this.v[14] = m32;
-            this.v[3] = m03;
-            this.v[7] = m13;
-            this.v[11] = m23;
-            this.v[15] = m33;
-            return this;
-        };
-        MutableRowMajarMatrix44.prototype.copyComponents = function (mat4) {
-            //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false
-            var m = mat4;
-            this.m00 = m.m00;
-            this.m01 = m.m01;
-            this.m02 = m.m02;
-            this.m03 = m.m03;
-            this.m10 = m.m10;
-            this.m11 = m.m11;
-            this.m12 = m.m12;
-            this.m13 = m.m13;
-            this.m20 = m.m20;
-            this.m21 = m.m21;
-            this.m22 = m.m22;
-            this.m23 = m.m23;
-            this.m30 = m.m30;
-            this.m31 = m.m31;
-            this.m32 = m.m32;
-            this.m33 = m.m33;
-        };
-        /**
-         * to the identity matrix
-         */
-        MutableRowMajarMatrix44.prototype.identity = function () {
-            this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-            return this;
-        };
-        MutableRowMajarMatrix44.prototype.translate = function (vec) {
-            return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);
-        };
-        MutableRowMajarMatrix44.prototype.putTranslate = function (vec) {
-            this.m03 = vec.x;
-            this.m13 = vec.y;
-            this.m23 = vec.z;
-        };
-        MutableRowMajarMatrix44.prototype.scale = function (vec) {
-            return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);
-        };
-        MutableRowMajarMatrix44.prototype.addScale = function (vec) {
-            this.m00 *= vec.x;
-            this.m11 *= vec.y;
-            this.m22 *= vec.z;
-            return this;
-        };
-        /**
-         * Create X oriented Rotation Matrix
-         */
-        MutableRowMajarMatrix44.prototype.rotateX = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-       * Create Y oriented Rotation Matrix
-       */
-        MutableRowMajarMatrix44.prototype.rotateY = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
-        };
-        /**
-         * Create Z oriented Rotation Matrix
-         */
-        MutableRowMajarMatrix44.prototype.rotateZ = function (radian) {
-            var cos = Math.cos(radian);
-            var sin = Math.sin(radian);
-            return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        };
-        MutableRowMajarMatrix44.prototype.rotateXYZ = function (x, y, z) {
-            var cosX = Math.cos(x);
-            var sinX = Math.sin(x);
-            var cosY = Math.cos(y);
-            var sinY = Math.sin(y);
-            var cosZ = Math.cos(z);
-            var sinZ = Math.sin(z);
-            var xm00 = 1;
-            //const xm01 = 0;
-            //const xm02 = 0;
-            //const xm10 = 0;
-            var xm11 = cosX;
-            var xm12 = -sinX;
-            //const xm20 = 0;
-            var xm21 = sinX;
-            var xm22 = cosX;
-            var ym00 = cosY;
-            //const ym01 = 0;
-            var ym02 = sinY;
-            //const ym10 = 0;
-            var ym11 = 1;
-            //const ym12 = 0;
-            var ym20 = -sinY;
-            //const ym21 = 0;
-            var ym22 = cosY;
-            var zm00 = cosZ;
-            var zm01 = -sinZ;
-            //const zm02 = 0;
-            var zm10 = sinZ;
-            var zm11 = cosZ;
-            //const zm12 = 0;
-            //const zm20 = 0;
-            //const zm21 = 0;
-            var zm22 = 1;
-            var yxm00 = ym00 * xm00;
-            var yxm01 = ym02 * xm21;
-            var yxm02 = ym02 * xm22;
-            //const yxm10 = 0;
-            var yxm11 = ym11 * xm11;
-            var yxm12 = ym11 * xm12;
-            var yxm20 = ym20 * xm00;
-            var yxm21 = ym22 * xm21;
-            var yxm22 = ym22 * xm22;
-            this.v[0] = zm00 * yxm00;
-            this.v[1] = zm00 * yxm01 + zm01 * yxm11;
-            this.v[2] = zm00 * yxm02 + zm01 * yxm12;
-            this.v[3] = 0;
-            this.v[4] = zm10 * yxm00;
-            this.v[5] = zm10 * yxm01 + zm11 * yxm11;
-            this.v[6] = zm10 * yxm02 + zm11 * yxm12;
-            this.v[7] = 0;
-            this.v[8] = zm22 * yxm20;
-            this.v[9] = zm22 * yxm21;
-            this.v[10] = zm22 * yxm22;
-            this.v[11] = 0;
-            this.v[12] = 0;
-            this.v[13] = 0;
-            this.v[14] = 0;
-            this.v[15] = 1;
-            return this;
-            //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));
-        };
-        /**
-         * Zero Matrix
-         */
-        MutableRowMajarMatrix44.prototype.zero = function () {
-            this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
-        };
-        MutableRowMajarMatrix44.prototype._swap = function (l, r) {
-            this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap
-        };
-        /**
-         * transpose
-         */
-        MutableRowMajarMatrix44.prototype.transpose = function () {
-            this._swap(1, 4);
-            this._swap(2, 8);
-            this._swap(3, 12);
-            this._swap(6, 9);
-            this._swap(7, 13);
-            this._swap(11, 14);
-            return this;
-        };
-        /**
-         * multiply zero matrix and zero matrix
-         */
-        MutableRowMajarMatrix44.prototype.multiply = function (mat) {
-            var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;
-            var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;
-            var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;
-            var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;
-            var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;
-            var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;
-            var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;
-            var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;
-            var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;
-            var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;
-            var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;
-            var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;
-            var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;
-            var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;
-            var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;
-            var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        MutableRowMajarMatrix44.prototype.multiplyByLeft = function (mat) {
-            var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;
-            var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;
-            var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;
-            var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;
-            var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;
-            var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;
-            var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;
-            var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;
-            var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;
-            var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;
-            var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;
-            var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;
-            var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;
-            var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;
-            var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;
-            var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        MutableRowMajarMatrix44.prototype.invert = function () {
-            var det = this.determinant();
-            var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;
-            var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;
-            var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;
-            var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;
-            var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;
-            var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;
-            var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;
-            var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;
-            var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;
-            var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;
-            var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;
-            var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;
-            var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;
-            var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;
-            var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;
-            var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;
-            return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-        };
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m00", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (val) {
-                this.v[0] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m01", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (val) {
-                this.v[1] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m02", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (val) {
-                this.v[2] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m03", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (val) {
-                this.v[3] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m10", {
-            get: function () {
-                return this.v[4];
-            },
-            set: function (val) {
-                this.v[4] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m11", {
-            get: function () {
-                return this.v[5];
-            },
-            set: function (val) {
-                this.v[5] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m12", {
-            get: function () {
-                return this.v[6];
-            },
-            set: function (val) {
-                this.v[6] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m13", {
-            get: function () {
-                return this.v[7];
-            },
-            set: function (val) {
-                this.v[7] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m20", {
-            get: function () {
-                return this.v[8];
-            },
-            set: function (val) {
-                this.v[8] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m21", {
-            get: function () {
-                return this.v[9];
-            },
-            set: function (val) {
-                this.v[9] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m22", {
-            get: function () {
-                return this.v[10];
-            },
-            set: function (val) {
-                this.v[10] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m23", {
-            get: function () {
-                return this.v[11];
-            },
-            set: function (val) {
-                this.v[11] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m30", {
-            get: function () {
-                return this.v[12];
-            },
-            set: function (val) {
-                this.v[12] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m31", {
-            get: function () {
-                return this.v[13];
-            },
-            set: function (val) {
-                this.v[13] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m32", {
-            get: function () {
-                return this.v[14];
-            },
-            set: function (val) {
-                this.v[14] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableRowMajarMatrix44.prototype, "m33", {
-            get: function () {
-                return this.v[15];
-            },
-            set: function (val) {
-                this.v[15] = val;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return MutableRowMajarMatrix44;
-    }(RowMajarMatrix44));
-
-    var Component = /** @class */ (function () {
-        function Component(entityUid, componentSid, entityRepository) {
-            var _this = this;
-            this.__currentProcessStage = ProcessStage.Create;
-            this.__entityUid = entityUid;
-            this._component_sid = componentSid;
-            this.__isAlive = true;
-            this.__currentProcessStage = ProcessStage.Logic;
-            var stages = [
-                ProcessStage.Create,
-                ProcessStage.Load,
-                ProcessStage.Mount,
-                ProcessStage.Logic,
-                ProcessStage.PreRender,
-                ProcessStage.Render,
-                ProcessStage.Unmount,
-                ProcessStage.Discard
-            ];
-            stages.forEach(function (stage) {
-                if (_this.isExistProcessStageMethod(stage)) {
-                    if (Component.__componentsOfProcessStages.get(stage) == null) {
-                        Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
-                        Component.__dirtyOfArrayOfProcessStages.set(stage, false);
-                        Component.__lengthOfArrayOfProcessStages.set(stage, 0);
-                    }
-                }
-            });
-            this.__memoryManager = MemoryManager.getInstance();
-            this.__entityRepository = entityRepository;
-        }
-        Component.prototype.moveStageTo = function (processStage) {
-            Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
-            Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
-            this.__currentProcessStage = processStage;
-        };
-        Object.defineProperty(Component, "componentTID", {
-            get: function () {
-                return 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Component.prototype, "componentSID", {
-            get: function () {
-                return this._component_sid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Component.prototype, "entityUID", {
-            get: function () {
-                return this.__entityUid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Component.isExistProcessStageMethod = function (componentTid, processStage, componentRepository) {
-            var component = componentRepository.getComponent(componentTid, 0);
-            if (component == null) {
-                return false;
-            }
-            if (component[processStage.getMethodName()] == null) {
-                return false;
-            }
-            return true;
-        };
-        Component.prototype.isExistProcessStageMethod = function (processStage) {
-            if (this[processStage.getMethodName()] == null) {
-                return false;
-            }
-            return true;
-        };
-        Component.process = function (_a) {
-            var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach, componentRepository = _a.componentRepository;
-            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
-                return;
-            }
-            var array = this.__componentsOfProcessStages.get(processStage);
-            for (var i = 0; i < array.length; ++i) {
-                if (array[i] === Component.invalidComponentSID) {
-                    break;
-                }
-                var componentSid = array[i];
-                var component = componentRepository.getComponent(componentTid, componentSid);
-                component[processStage.getMethodName()]({
-                    processStage: processStage,
-                    instanceIDBufferUid: instanceIDBufferUid,
-                    processApproach: processApproach
-                });
-            }
-        };
-        Component.updateComponentsOfEachProcessStage = function (componentTid, processStage, componentRepository) {
-            if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
-                return;
-            }
-            var component = componentRepository.getComponent(this.componentTID, 0);
-            var dirty = Component.__componentsOfProcessStages.get(processStage);
-            if (dirty) {
-                var components = componentRepository.getComponentsWithType(componentTid);
-                var array = Component.__componentsOfProcessStages.get(processStage);
-                var count = 0;
-                for (var i = 0; i < components.length; ++i) {
-                    var component_1 = components[i];
-                    if (processStage === component_1.__currentProcessStage) {
-                        array[count++] = component_1.componentSID;
-                    }
-                }
-                array[count] = Component.invalidComponentSID;
-            }
-        };
-        Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {
-            var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);
-            return byteLengthSumOfMembers.get(bufferUse);
-        };
-        Component.setupBufferView = function () {
-        };
-        Component.prototype.registerDependency = function (component, isMust) {
-        };
-        Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {
-            var buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-            var count = Config.maxEntityNumber;
-            if (!this.__bufferViews.has(componentClass)) {
-                this.__bufferViews.set(componentClass, new Map());
-            }
-            var bufferViews = this.__bufferViews.get(componentClass);
-            if (!bufferViews.has(bufferUse)) {
-                bufferViews.set(bufferUse, buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false }));
-            }
-        };
-        Component.prototype.takeOne = function (memberName, dataClassType, initValues) {
-            if (!this['_' + memberName].isDummy()) {
-                return;
-            }
-            var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();
-            if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
-                this['_' + memberName] = new dataClassType(taken, false, true);
-            }
-            else if (dataClassType === RowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
-                this['_' + memberName] = new dataClassType(taken, true);
-            }
-            else {
-                this['_' + memberName] = new dataClassType(taken);
-            }
-            for (var i = 0; i < this['_' + memberName].v.length; ++i) {
-                this['_' + memberName].v[i] = initValues[i];
-            }
-            return null;
-        };
-        Component.getAccessor = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName);
-        };
-        Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {
-            var count = Config.maxEntityNumber;
-            if (!this.__accessors.has(componentClass)) {
-                this.__accessors.set(componentClass, new Map());
-            }
-            var accessors = this.__accessors.get(componentClass);
-            if (!accessors.has(memberName)) {
-                var bufferViews = this.__bufferViews.get(componentClass);
-                accessors.set(memberName, bufferViews.get(bufferUse).takeAccessor({ compositionType: compositionType, componentType: componentType, count: count }));
-            }
-        };
-        Component.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse, componentClass) {
-            return this.__bufferViews.get(componentClass).get(bufferUse).byteOffset;
-        };
-        Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;
-        };
-        Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName, componentClass) {
-            return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;
-        };
-        Component.getCompositionTypeOfMember = function (memberName, componentClass) {
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            var info = memberInfoArray.find(function (info) {
-                return info.memberName === memberName;
-            });
-            if (info != null) {
-                return info.compositionType;
-            }
-            else {
-                return null;
-            }
-        };
-        Component.getComponentTypeOfMember = function (memberName, componentClass) {
-            var memberInfoArray = this.__memberInfo.get(componentClass);
-            var info = memberInfoArray.find(function (info) {
-                return info.memberName === memberName;
-            });
-            if (info != null) {
-                return info.componentType;
-            }
-            else {
-                return null;
-            }
-        };
-        Component.prototype.registerMember = function (bufferUse, memberName, dataClassType, componentType, initValues) {
-            if (!Component.__memberInfo.has(this.constructor)) {
-                Component.__memberInfo.set(this.constructor, []);
-            }
-            var memberInfoArray = Component.__memberInfo.get(this.constructor);
-            memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType,
-                compositionType: dataClassType.compositionType, componentType: componentType, initValues: initValues });
-        };
-        Component.prototype.submitToAllocation = function () {
-            var _this = this;
-            var e_1, _a, e_2, _b, e_3, _c;
-            var componentClass = this.constructor;
-            var memberInfoArray = Component.__memberInfo.get(componentClass);
-            if (this._component_sid <= 1) {
-                if (!Component.__members.has(componentClass)) {
-                    Component.__members.set(componentClass, new Map());
-                }
-                var member_1 = Component.__members.get(componentClass);
-                memberInfoArray.forEach(function (info) {
-                    member_1.set(info.bufferUse, []);
-                });
-                memberInfoArray.forEach(function (info) {
-                    member_1.get(info.bufferUse).push(info);
-                });
-                var _loop_1 = function (bufferUse) {
-                    var infoArray = member_1.get(bufferUse);
-                    var bufferUseName = bufferUse.toString();
-                    if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
-                        Component.__byteLengthSumOfMembers.set(componentClass, new Map());
-                    }
-                    var byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);
-                    if (!byteLengthSumOfMembers.has(bufferUse)) {
-                        byteLengthSumOfMembers.set(bufferUse, 0);
-                    }
-                    infoArray.forEach(function (info) {
-                        byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +
-                            info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());
-                    });
-                    if (infoArray.length > 0) {
-                        Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));
-                    }
-                };
-                try {
-                    for (var _d = __values(member_1.keys()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                        var bufferUse = _e.value;
-                        _loop_1(bufferUse);
-                    }
-                }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-                    }
-                    finally { if (e_1) throw e_1.error; }
-                }
-                try {
-                    for (var _f = __values(member_1.keys()), _g = _f.next(); !_g.done; _g = _f.next()) {
-                        var bufferUse = _g.value;
-                        var infoArray = member_1.get(bufferUse);
-                        infoArray.forEach(function (info) {
-                            Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
-                        });
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-            }
-            var member = Component.__members.get(componentClass);
-            try {
-                // takeOne
-                for (var _h = __values(member.keys()), _j = _h.next(); !_j.done; _j = _h.next()) {
-                    var bufferUse = _j.value;
-                    var infoArray = member.get(bufferUse);
-                    infoArray.forEach(function (info) {
-                        _this.takeOne(info.memberName, info.dataClassType, info.initValues);
-                    });
-                }
-            }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-            finally {
-                try {
-                    if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
-                }
-                finally { if (e_3) throw e_3.error; }
-            }
-        };
-        Component.invalidComponentSID = -1;
-        Component.__componentsOfProcessStages = new Map();
-        Component.__lengthOfArrayOfProcessStages = new Map();
-        Component.__dirtyOfArrayOfProcessStages = new Map();
-        Component.__bufferViews = new Map();
-        Component.__accessors = new Map();
-        Component.__byteLengthSumOfMembers = new Map();
-        Component.__memberInfo = new Map();
-        Component.__members = new Map();
-        return Component;
-    }());
-
-    var InitialSetting = /** @class */ (function () {
-        function InitialSetting() {
-        }
-        InitialSetting.maxEntityNumber = 10000;
-        return InitialSetting;
-    }());
-
-    var ComponentRepository = /** @class */ (function () {
-        function ComponentRepository() {
-            this.__component_sid_count_map = new Map();
-            this.__components = new Map();
-        }
-        ComponentRepository.registerComponentClass = function (componentTID, componentClass) {
-            var thisClass = ComponentRepository;
-            thisClass.__componentClasses.set(componentTID, componentClass);
-        };
-        ComponentRepository.unregisterComponentClass = function (componentTID) {
-            var thisClass = ComponentRepository;
-            thisClass.__componentClasses.delete(componentTID);
-        };
-        ComponentRepository.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new ComponentRepository();
-            }
-            return this.__instance;
-        };
-        ComponentRepository.getComponentClass = function (componentTid) {
-            return this.__componentClasses.get(componentTid);
-        };
-        ComponentRepository.prototype.createComponent = function (componentTid, entityUid, entityRepository) {
-            var thisClass = ComponentRepository;
-            var componentClass = thisClass.__componentClasses.get(componentTid);
-            if (componentClass != null) {
-                var component_sid_count = this.__component_sid_count_map.get(componentTid);
-                if (!IsUtil.exist(component_sid_count)) {
-                    this.__component_sid_count_map.set(componentTid, 0);
-                    component_sid_count = Component.invalidComponentSID;
-                }
-                this.__component_sid_count_map.set(componentTid, ++component_sid_count);
-                var component = new componentClass(entityUid, component_sid_count, entityRepository);
-                if (!this.__components.has(componentTid)) {
-                    this.__components.set(componentTid, []);
-                }
-                var array = this.__components.get(componentTid);
-                if (array != null) {
-                    array[component.componentSID] = component;
-                    return component;
-                }
-            }
-            return null;
-        };
-        ComponentRepository.prototype.getComponent = function (componentTid, componentSid) {
-            var map = this.__components.get(componentTid);
-            if (map != null) {
-                var component = map[componentSid];
-                if (component != null) {
-                    return map[componentSid];
-                }
-                else {
-                    return null;
-                }
-            }
-            return null;
-        };
-        ComponentRepository.getMemoryBeginIndex = function (componentTid) {
-            var memoryBeginIndex = 0;
-            for (var i = 0; i < componentTid; i++) {
-                var componentClass = ComponentRepository.__componentClasses.get(i);
-                if (componentClass != null) {
-                    var sizeOfComponent = componentClass.sizeOfThisComponent;
-                    var maxEntityNumber = InitialSetting.maxEntityNumber;
-                    memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-                }
-            }
-            return memoryBeginIndex;
-        };
-        ComponentRepository.prototype.getComponentsWithType = function (componentTid) {
-            var components = this.__components.get(componentTid);
-            var copyArray = components; //.concat();
-            //copyArray.shift();
-            return copyArray;
-        };
-        ComponentRepository.prototype.getComponentTIDs = function () {
-            var e_1, _a;
-            var indices = [];
-            try {
-                for (var _b = __values(this.__components.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var type = _c.value;
-                    indices.push(type);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return indices;
-        };
-        ComponentRepository.__componentClasses = new Map();
-        return ComponentRepository;
-    }());
-
-    var EntityRepository = /** @class */ (function () {
-        function EntityRepository() {
-            this.__entity_uid_count = Entity.invalidEntityUID;
-            this.__entities = [];
-            this._components = [];
-            this.__componentRepository = ComponentRepository.getInstance();
-        }
-        EntityRepository.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new EntityRepository();
-            }
-            return this.__instance;
-        };
-        EntityRepository.prototype.createEntity = function (componentTidArray) {
-            var e_1, _a;
-            var entity = new Entity(++this.__entity_uid_count, true, this);
-            this.__entities[this.__entity_uid_count] = entity;
-            try {
-                for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {
-                    var componentTid = componentTidArray_1_1.value;
-                    var component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
-                    var map = this._components[entity.entityUID];
-                    if (map == null) {
-                        map = new Map();
-                        this._components[entity.entityUID] = map;
-                    }
-                    if (component != null) {
-                        map.set(componentTid, component);
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (componentTidArray_1_1 && !componentTidArray_1_1.done && (_a = componentTidArray_1.return)) _a.call(componentTidArray_1);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return entity;
-        };
-        EntityRepository.prototype.getEntity = function (entityUid) {
-            return this.__entities[entityUid];
-        };
-        EntityRepository.prototype.getComponentOfEntity = function (entityUid, componentTid) {
-            var entity = this._components[entityUid];
-            var component = null;
-            if (entity != null) {
-                component = entity.get(componentTid);
-                if (component != null) {
-                    return component;
-                }
-                else {
-                    return null;
-                }
-            }
-            return component;
-        };
-        EntityRepository.prototype._getEntities = function () {
-            return this.__entities.concat();
-        };
-        return EntityRepository;
-    }());
-
-    var SceneGraphComponent = /** @class */ (function (_super) {
-        __extends(SceneGraphComponent, _super);
-        function SceneGraphComponent(entityUid, componentSid, entityComponent) {
-            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this._worldMatrix = MutableRowMajarMatrix44.dummy();
-            _this.__isWorldMatrixUpToDate = false;
-            _this.__tmpMatrix = MutableMatrix44.identity();
-            _this.__currentProcessStage = ProcessStage.Logic;
-            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic);
-            var array = Component.__componentsOfProcessStages.get(ProcessStage.Logic);
-            array[count++] = _this.componentSID;
-            array[count] = Component.invalidComponentSID;
-            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count);
-            _this.__isAbleToBeParent = false;
-            _this.beAbleToBeParent(true);
-            _this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.submitToAllocation();
-            return _this;
-            //this.__updatedProperly = false;
-        }
-        Object.defineProperty(SceneGraphComponent, "componentTID", {
-            get: function () {
-                return WellKnownComponentTIDs.SceneGraphComponentTID;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {
-            this.__isAbleToBeParent = flag;
-            if (this.__isAbleToBeParent) {
-                this.__children = [];
-            }
-            else {
-                this.__children = void 0;
-            }
-        };
-        SceneGraphComponent.prototype.setWorldMatrixDirty = function () {
-            this.__isWorldMatrixUpToDate = false;
-        };
-        SceneGraphComponent.prototype.addChild = function (sg) {
-            if (this.__children != null) {
-                sg.__parent = this;
-                this.__children.push(sg);
-            }
-            else {
-                console.error('This is not allowed to have children.');
-            }
-        };
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrixInner", {
-            get: function () {
-                if (!this.__isWorldMatrixUpToDate) {
-                    //this._worldMatrix.identity();
-                    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
-                    this.__isWorldMatrixUpToDate = true;
-                }
-                return this._worldMatrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SceneGraphComponent.prototype, "worldMatrix", {
-            get: function () {
-                return this.worldMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SceneGraphComponent.prototype.$logic = function () {
-            if (!this.__isWorldMatrixUpToDate) {
-                //this._worldMatrix.identity();
-                this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
-                this.__isWorldMatrixUpToDate = true;
-            }
-        };
-        SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {
-            var entity = this.__entityRepository.getEntity(this.__entityUid);
-            var transform = entity.getTransform();
-            if (this.__isWorldMatrixUpToDate) {
-                return this._worldMatrix;
-            }
-            else {
-                var matrix = transform.matrixInner;
-                if (this.__parent == null) {
-                    return matrix;
-                }
-                this.__tmpMatrix.copyComponents(matrix);
-                var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
-                this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
-            }
-            return this.__tmpMatrix;
-        };
-        return SceneGraphComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
-
-    var MutableQuaternion = /** @class */ (function (_super) {
-        __extends(MutableQuaternion, _super);
-        function MutableQuaternion(x, y, z, w) {
-            return _super.call(this, x, y, z, w) || this;
-        }
-        MutableQuaternion.dummy = function () {
-            return new MutableQuaternion(null);
-        };
-        MutableQuaternion.prototype.clone = function () {
-            return new MutableQuaternion(this.x, this.y, this.z, this.w);
-        };
-        MutableQuaternion.prototype.axisAngle = function (axisVec3, radian) {
-            var halfAngle = 0.5 * radian;
-            var sin = Math.sin(halfAngle);
-            var axis = Vector3.normalize(axisVec3);
-            this.w = Math.cos(halfAngle);
-            this.x = sin * axis.x;
-            this.y = sin * axis.y;
-            this.z = sin * axis.z;
-            return this;
-        };
-        MutableQuaternion.prototype.add = function (q) {
-            this.x += q.x;
-            this.y += q.y;
-            this.z += q.z;
-            this.w += q.w;
-            return this;
-        };
-        MutableQuaternion.prototype.multiply = function (q) {
-            var result = new Quaternion(0, 0, 0, 1);
-            result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;
-            result.v[1] = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;
-            result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;
-            result.v[3] = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;
-            this.x = result.x;
-            this.y = result.y;
-            this.z = result.z;
-            this.w = result.w;
-            return this;
-        };
-        MutableQuaternion.prototype.fromMatrix = function (m) {
-            var tr = m.m00 + m.m11 + m.m22;
-            if (tr > 0) {
-                var S = 0.5 / Math.sqrt(tr + 1.0);
-                this.v[0] = (m.m21 - m.m12) * S;
-                this.v[1] = (m.m02 - m.m20) * S;
-                this.v[2] = (m.m10 - m.m01) * S;
-                this.v[3] = 0.25 / S;
-            }
-            else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
-                var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-                this.v[0] = 0.25 * S;
-                this.v[1] = (m.m01 + m.m10) / S;
-                this.v[2] = (m.m02 + m.m20) / S;
-                this.v[3] = (m.m21 - m.m12) / S;
-            }
-            else if (m.m11 > m.m22) {
-                var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-                this.v[0] = (m.m01 + m.m10) / S;
-                this.v[1] = 0.25 * S;
-                this.v[2] = (m.m12 + m.m21) / S;
-                this.v[3] = (m.m02 - m.m20) / S;
-            }
-            else {
-                var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-                this.v[0] = (m.m02 + m.m20) / S;
-                this.v[1] = (m.m12 + m.m21) / S;
-                this.v[2] = 0.25 * S;
-                this.v[3] = (m.m10 - m.m01) / S;
-            }
-            return this;
-        };
-        Object.defineProperty(MutableQuaternion, "compositionType", {
-            get: function () {
-                return CompositionType.Vec4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MutableQuaternion.prototype.setAt = function (i, val) {
-            switch (i % 4) {
-                case 0:
-                    this.x = val;
-                    break;
-                case 1:
-                    this.y = val;
-                    break;
-                case 2:
-                    this.z = val;
-                    break;
-                case 3:
-                    this.w = val;
-                    break;
-            }
-        };
-        MutableQuaternion.prototype.normalize = function () {
-            var norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-            this.x /= norm;
-            this.y /= norm;
-            this.z /= norm;
-            this.w /= norm;
-            return this;
-        };
-        MutableQuaternion.prototype.identity = function () {
-            this.x = 0;
-            this.y = 0;
-            this.x = 0;
-            this.w = 1;
-        };
-        Object.defineProperty(MutableQuaternion.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableQuaternion.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableQuaternion.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableQuaternion.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (w) {
-                this.v[3] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableQuaternion.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return MutableQuaternion;
-    }(Quaternion));
-
-    // import AnimationComponent from './AnimationComponent';
-    var TransformComponent = /** @class */ (function (_super) {
-        __extends(TransformComponent, _super);
-        function TransformComponent(entityUid, componentSid, entityComponent) {
-            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this._translate = Vector3.dummy();
-            _this._rotate = Vector3.dummy();
-            _this._scale = Vector3.dummy();
-            _this._quaternion = MutableQuaternion.dummy();
-            _this._matrix = MutableMatrix44.dummy();
-            _this._invMatrix = Matrix44.dummy();
-            _this._normalMatrix = Matrix33.dummy();
-            _this.__toUpdateAllTransform = true;
-            _this._updateCount = 0;
-            _this.__updateCountAtLastLogic = 0;
-            // dependencies
-            _this._dependentAnimationComponentId = 0;
-            _this.registerMember(BufferUse.CPUGeneric, 'translate', Vector3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'rotate', Vector3, ComponentType.Float, [0, 0, 0]);
-            _this.registerMember(BufferUse.CPUGeneric, 'scale', Vector3, ComponentType.Float, [1, 1, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'quaternion', MutableQuaternion, ComponentType.Float, [0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'matrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-            _this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
-            _this.submitToAllocation();
-            _this._is_translate_updated = true;
-            _this._is_euler_angles_updated = true;
-            _this._is_scale_updated = true;
-            _this._is_quaternion_updated = true;
-            _this._is_trs_matrix_updated = true;
-            _this._is_inverse_trs_matrix_updated = true;
-            _this._is_normal_trs_matrix_updated = true;
-            return _this;
-        }
-        Object.defineProperty(TransformComponent, "renderedPropertyCount", {
-            get: function () {
-                return null;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent, "componentTID", {
-            get: function () {
-                return WellKnownComponentTIDs.TransformComponentTID;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TransformComponent.prototype.$logic = function () {
-            if (this.__updateCountAtLastLogic !== this._updateCount) {
-                var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
-                sceneGraphComponent.setWorldMatrixDirty();
-                this.__updateCountAtLastLogic = this._updateCount;
-            }
-        };
-        Object.defineProperty(TransformComponent.prototype, "toUpdateAllTransform", {
-            get: function () {
-                return this.__toUpdateAllTransform;
-            },
-            set: function (flag) {
-                this.__toUpdateAllTransform = flag;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TransformComponent.prototype._needUpdate = function () {
-            this._updateCount++;
-        };
-        Object.defineProperty(TransformComponent.prototype, "translate", {
-            get: function () {
-                return this.translateInner.clone();
-            },
-            set: function (vec) {
-                this._translate.v[0] = vec.v[0];
-                this._translate.v[1] = vec.v[1];
-                this._translate.v[2] = vec.v[2];
-                this._is_translate_updated = true;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "translateInner", {
-            get: function () {
-                if (this._is_translate_updated) {
-                    return this._translate;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    this._translate.v[0] = this._matrix.m03;
-                    this._translate.v[1] = this._matrix.m13;
-                    this._translate.v[2] = this._matrix.m23;
-                    this._is_translate_updated = true;
-                }
-                return this._translate;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "rotate", {
-            get: function () {
-                return this.rotateInner.clone();
-            },
-            set: function (vec) {
-                this._rotate.v[0] = vec.v[0];
-                this._rotate.v[1] = vec.v[1];
-                this._rotate.v[2] = vec.v[2];
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = false;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "rotateInner", {
-            get: function () {
-                if (this._is_euler_angles_updated) {
-                    return this._rotate;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    this._rotate = this._matrix.toEulerAngles();
-                }
-                else if (this._is_quaternion_updated) {
-                    this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
-                }
-                this._is_euler_angles_updated = true;
-                return this._rotate;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "scale", {
-            get: function () {
-                return this.scaleInner.clone();
-            },
-            set: function (vec) {
-                this._scale.v[0] = vec.v[0];
-                this._scale.v[1] = vec.v[1];
-                this._scale.v[2] = vec.v[2];
-                this._is_scale_updated = true;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "scaleInner", {
-            get: function () {
-                if (this._is_scale_updated) {
-                    return this._scale;
-                }
-                else if (this._is_trs_matrix_updated) {
-                    var m = this._matrix;
-                    this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-                    this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-                    this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
-                    this._is_scale_updated = true;
-                }
-                return this._scale;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "quaternion", {
-            get: function () {
-                return this.quaternionInner.clone();
-            },
-            set: function (quat) {
-                this._quaternion.v[0] = quat.v[0];
-                this._quaternion.v[1] = quat.v[1];
-                this._quaternion.v[2] = quat.v[2];
-                this._is_quaternion_updated = true;
-                this._is_euler_angles_updated = false;
-                this._is_trs_matrix_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "quaternionInner", {
-            get: function () {
-                if (this._is_quaternion_updated) {
-                    return this._quaternion;
-                }
-                else if (!this._is_quaternion_updated) {
-                    if (this._is_trs_matrix_updated) {
-                        this._is_quaternion_updated = true;
-                        this._quaternion.fromMatrix(this._matrix);
-                        return this._quaternion;
-                    }
-                    else if (this._is_euler_angles_updated) {
-                        TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
-                        this._is_quaternion_updated = true;
-                        this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);
-                        return this._quaternion;
-                    }
-                }
-                return this._quaternion;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "matrix", {
-            get: function () {
-                return this.matrixInner.clone();
-            },
-            set: function (mat) {
-                this._matrix = new MutableMatrix44(mat);
-                this._is_trs_matrix_updated = true;
-                this._is_translate_updated = false;
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = false;
-                this._is_scale_updated = false;
-                this._is_inverse_trs_matrix_updated = false;
-                this._is_normal_trs_matrix_updated = false;
-                this.__updateTransform();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "matrixInner", {
-            get: function () {
-                if (this._is_trs_matrix_updated) {
-                    return this._matrix;
-                }
-                // Clear and set Scale
-                var scale = this.scaleInner;
-                var n00 = scale.v[0];
-                // const n01 = 0;
-                // const n02 = 0;
-                // const n03 = 0;
-                // const n10 = 0;
-                var n11 = scale.v[1];
-                // const n12 = 0;
-                // const n13 = 0;
-                // const n20 = 0;
-                // const n21 = 0;
-                var n22 = scale.v[2];
-                // const n23 = 0;
-                // const n30 = 0;
-                // const n31 = 0;
-                // const n32 = 0;
-                // const n33 = 1;
-                var q = this.quaternionInner;
-                var sx = q.v[0] * q.v[0];
-                var sy = q.v[1] * q.v[1];
-                var sz = q.v[2] * q.v[2];
-                var cx = q.v[1] * q.v[2];
-                var cy = q.v[0] * q.v[2];
-                var cz = q.v[0] * q.v[1];
-                var wx = q.v[3] * q.v[0];
-                var wy = q.v[3] * q.v[1];
-                var wz = q.v[3] * q.v[2];
-                var m00 = 1.0 - 2.0 * (sy + sz);
-                var m01 = 2.0 * (cz - wz);
-                var m02 = 2.0 * (cy + wy);
-                // const m03 = 0.0;
-                var m10 = 2.0 * (cz + wz);
-                var m11 = 1.0 - 2.0 * (sx + sz);
-                var m12 = 2.0 * (cx - wx);
-                // const m13 = 0.0;
-                var m20 = 2.0 * (cy - wy);
-                var m21 = 2.0 * (cx + wx);
-                var m22 = 1.0 - 2.0 * (sx + sy);
-                // const m23 = 0.0;
-                // const m30 = 0.0;
-                // const m31 = 0.0;
-                // const m32 = 0.0;
-                // const m33 = 1.0;
-                var translate = this.translateInner;
-                // TranslateMatrix * RotateMatrix * ScaleMatrix
-                this._matrix.m00 = m00 * n00;
-                this._matrix.m01 = m01 * n11;
-                this._matrix.m02 = m02 * n22;
-                this._matrix.m03 = translate.v[0];
-                this._matrix.m10 = m10 * n00;
-                this._matrix.m11 = m11 * n11;
-                this._matrix.m12 = m12 * n22;
-                this._matrix.m13 = translate.v[1];
-                this._matrix.m20 = m20 * n00;
-                this._matrix.m21 = m21 * n11;
-                this._matrix.m22 = m22 * n22;
-                this._matrix.m23 = translate.v[2];
-                this._matrix.m30 = 0;
-                this._matrix.m31 = 0;
-                this._matrix.m32 = 0;
-                this._matrix.m33 = 1;
-                this._is_trs_matrix_updated = true;
-                return this._matrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "inverseMatrix", {
-            get: function () {
-                return this.inverseMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "inverseMatrixInner", {
-            get: function () {
-                if (!this._is_inverse_trs_matrix_updated) {
-                    this._invMatrix = MutableMatrix44.invert(this.matrixInner);
-                    this._is_inverse_trs_matrix_updated = true;
-                }
-                return this._invMatrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "normalMatrix", {
-            get: function () {
-                return this.normalMatrixInner.clone();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformComponent.prototype, "normalMatrixInner", {
-            get: function () {
-                if (!this._is_normal_trs_matrix_updated) {
-                    this._normalMatrix = new Matrix33(Matrix44.transpose(Matrix44.invert(this.matrix)));
-                    this._is_normal_trs_matrix_updated = true;
-                }
-                return this._normalMatrix;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Set multiple transform information at once. By using this method,
-         * we reduce the cost of automatically updating other transform components inside this class.
-         * This method may be useful for animation processing and so on.
-         *
-         * The transform components of these arguments must not be mutually discrepant.
-         * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
-         * must be equal to translate, rotate, scale, quaternion arguments.
-         * And both rotate and quaternion arguments must be same rotation.
-         * If there is an argument passed with null or undefined, it is interpreted as unchanged.
-         *
-         * @param {*} translate
-         * @param {*} rotate
-         * @param {*} scale
-         * @param {*} quaternion
-         * @param {*} matrix
-         */
-        TransformComponent.prototype.setTransform = function (translate, rotate, scale, quaternion, matrix) {
-            this._is_trs_matrix_updated = false;
-            this._is_inverse_trs_matrix_updated = false;
-            this._is_normal_trs_matrix_updated = false;
-            // Matrix
-            if (matrix != null) {
-                this._matrix = new MutableMatrix44(matrix);
-                this._is_trs_matrix_updated = true;
-                this._is_translate_updated = false;
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = false;
-                this._is_scale_updated = false;
-            }
-            // Translate
-            if (translate != null) {
-                this._translate = translate.clone();
-                this._is_translate_updated = true;
-            }
-            // Roatation
-            if (rotate != null && quaternion != null) {
-                this._rotate = rotate.clone();
-                this._quaternion = new MutableQuaternion(quaternion);
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = true;
-            }
-            else if (rotate != null) {
-                this._rotate = rotate.clone();
-                this._is_euler_angles_updated = true;
-                this._is_quaternion_updated = false;
-            }
-            else if (quaternion != null) {
-                this._quaternion = new MutableQuaternion(quaternion);
-                this._is_euler_angles_updated = false;
-                this._is_quaternion_updated = true;
-            }
-            // Scale
-            if (scale != null) {
-                this._scale = scale.clone();
-                this._is_scale_updated = true;
-            }
-            this.__updateTransform();
-        };
-        TransformComponent.prototype.__updateTransform = function () {
-            if (this.__toUpdateAllTransform) {
-                this.__updateRotation();
-                this.__updateTranslate();
-                this.__updateScale();
-            }
-            //this.__updateMatrix();
-            this._needUpdate();
-        };
-        TransformComponent.prototype.__updateRotation = function () {
-            if (this._is_euler_angles_updated && !this._is_quaternion_updated) {
-                TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);
-                this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
-                this._is_quaternion_updated = true;
-            }
-            else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-                this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
-                this._is_euler_angles_updated = true;
-            }
-            else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._quaternion.fromMatrix(m);
-                this._is_quaternion_updated = true;
-                this._rotate = m.toEulerAngles();
-                this._is_euler_angles_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateTranslate = function () {
-            if (!this._is_translate_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._translate.v[0] = m.m03;
-                this._translate.v[1] = m.m13;
-                this._translate.v[2] = m.m23;
-                this._is_translate_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateScale = function () {
-            if (!this._is_scale_updated && this._is_trs_matrix_updated) {
-                var m = this._matrix;
-                this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
-                this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
-                this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
-                this._is_scale_updated = true;
-            }
-        };
-        TransformComponent.prototype.__updateMatrix = function () {
-            if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
-                var rotationMatrix = new Matrix44(this._quaternion);
-                var scale = this._scale;
-                this._matrix = MutableMatrix44.multiply(rotationMatrix, Matrix44.scale(scale));
-                var translateVec = this._translate;
-                this._matrix.m03 = translateVec.x;
-                this._matrix.m13 = translateVec.y;
-                this._matrix.m23 = translateVec.z;
-                this._is_trs_matrix_updated = true;
-            }
-        };
-        TransformComponent.prototype.setPropertiesFromJson = function (arg) {
-            var json = arg;
-            if (typeof arg === "string") {
-                json = JSON.parse(arg);
-            }
-            for (var key in json) {
-                if (json.hasOwnProperty(key) && key in this) {
-                    if (key === "quaternion") {
-                        this[key] = new Quaternion(json[key]);
-                    }
-                    else if (key === 'matrix') {
-                        this[key] = new Matrix44(json[key]);
-                    }
-                    else {
-                        this[key] = new Vector3(json[key]);
-                    }
-                }
-            }
-        };
-        TransformComponent.prototype.setRotationFromNewUpAndFront = function (UpVec, FrontVec) {
-            var yDir = UpVec;
-            var xDir = Vector3.cross(yDir, FrontVec);
-            var zDir = Vector3.cross(xDir, yDir);
-            var rotateMatrix = MutableMatrix44.identity();
-            rotateMatrix.m00 = xDir.x;
-            rotateMatrix.m10 = xDir.y;
-            rotateMatrix.m20 = xDir.z;
-            rotateMatrix.m01 = yDir.x;
-            rotateMatrix.m11 = yDir.y;
-            rotateMatrix.m21 = yDir.z;
-            rotateMatrix.m02 = zDir.x;
-            rotateMatrix.m12 = zDir.y;
-            rotateMatrix.m22 = zDir.z;
-            this.rotateMatrix44 = rotateMatrix;
-        };
-        TransformComponent.prototype.headToDirection = function (fromVec, toVec) {
-            var fromDir = Vector3.normalize(fromVec);
-            var toDir = Vector3.normalize(toVec);
-            var rotationDir = Vector3.cross(fromDir, toDir);
-            var cosTheta = Vector3.dotProduct(fromDir, toDir);
-            var theta = Math.acos(cosTheta);
-            this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
-        };
-        Object.defineProperty(TransformComponent.prototype, "rotateMatrix44", {
-            get: function () {
-                return new Matrix44(this.quaternion);
-            },
-            set: function (rotateMatrix) {
-                this.quaternion = MutableQuaternion.fromMatrix(rotateMatrix);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TransformComponent.__tmpMat_updateRotation = MutableMatrix44.identity();
-        TransformComponent.__tmpMat_quaternionInner = MutableMatrix44.identity();
-        return TransformComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(TransformComponent.componentTID, TransformComponent);
-
-    var MeshComponent = /** @class */ (function (_super) {
-        __extends(MeshComponent, _super);
-        function MeshComponent(entityUid, componentSid, entityComponent) {
-            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this.__primitives = [];
-            return _this;
-        }
-        Object.defineProperty(MeshComponent, "componentTID", {
-            get: function () {
-                return 3;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MeshComponent.prototype.addPrimitive = function (primitive) {
-            this.__primitives.push(primitive);
-        };
-        MeshComponent.prototype.getPrimitiveAt = function (i) {
-            return this.__primitives[i];
-        };
-        MeshComponent.prototype.getPrimitiveNumber = function () {
-            return this.__primitives.length;
-        };
-        return MeshComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
-
-    var ProcessApproachClass = /** @class */ (function (_super) {
-        __extends(ProcessApproachClass, _super);
-        function ProcessApproachClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return ProcessApproachClass;
-    }(EnumClass));
-    var None = new ProcessApproachClass({ index: 0, str: 'NONE' });
-    var UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });
-    var DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });
-    var DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });
-    var UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });
-    var TransformFeedbackWebGL2 = new ProcessApproachClass({ index: 5, str: 'TRNASFORM_FEEDBACK_WEBGL2' });
-    var ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2, TransformFeedbackWebGL2: TransformFeedbackWebGL2 });
-
-    //import GLBoost from '../../globals';
-    function radianToDegree(rad) {
-        return rad * 180 / Math.PI;
-    }
-    function degreeToRadian(deg) {
-        return deg * Math.PI / 180;
-    }
-    // https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
-    var toHalfFloat = (function () {
-        var floatView = new Float32Array(1);
-        var int32View = new Int32Array(floatView.buffer);
-        /* This method is faster than the OpenEXR implementation (very often
-          * used, eg. in Ogre), with the additional benefit of rounding, inspired
-          * by James Tursa?s half-precision code. */
-        return function toHalf(val) {
-            floatView[0] = val;
-            var x = int32View[0];
-            var bits = (x >> 16) & 0x8000; /* Get the sign */
-            var m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */
-            var e = (x >> 23) & 0xff; /* Using int is faster here */
-            /* If zero, or denormal, or exponent underflows too much for a denormal
-              * half, return signed zero. */
-            if (e < 103) {
-                return bits;
-            }
-            /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */
-            if (e > 142) {
-                bits |= 0x7c00;
-                /* If exponent was 0xff and one mantissa bit was set, it means NaN,
-                      * not Inf, so make sure we set one mantissa bit too. */
-                bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);
-                return bits;
-            }
-            /* If exponent underflows but not too much, return a denormal */
-            if (e < 113) {
-                m |= 0x0800;
-                /* Extra rounding may overflow and set mantissa to 0 and exponent
-                  * to 1, which is OK. */
-                bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
-                return bits;
-            }
-            bits |= ((e - 112) << 10) | (m >> 1);
-            /* Extra rounding. An overflow will set mantissa to 0 and increment
-              * the exponent, which is OK. */
-            bits += m & 1;
-            return bits;
-        };
-    }());
-    var MathUtil = Object.freeze({ radianToDegree: radianToDegree, degreeToRadian: degreeToRadian, toHalfFloat: toHalfFloat });
-
-    var GLSLShader = /** @class */ (function () {
-        function GLSLShader() {
-        }
-        Object.defineProperty(GLSLShader, "glsl_rt0", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'layout(location = 0) out vec4 rt0;\n';
-                }
-                else {
-                    return 'vec4 rt0;\n';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_fragColor", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return '';
-                }
-                else {
-                    return 'gl_FragColor = rt0;\n';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_vertex_in", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'in';
-                }
-                else {
-                    return 'attribute';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_fragment_in", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'in';
-                }
-                else {
-                    return 'varying';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_vertex_out", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'out';
-                }
-                else {
-                    return 'varying';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_texture", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return 'texture';
-                }
-                else {
-                    return 'texture2D';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "glsl_versionText", {
-            get: function () {
-                if (WebGLResourceRepository.getInstance().currentWebGLContextWrapper.isWebGL2) {
-                    return '#version 300 es\n';
-                }
-                else {
-                    return '';
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "vertexShaderVariableDefinitions", {
-            get: function () {
-                var _version = this.glsl_versionText;
-                var _in = this.glsl_vertex_in;
-                var _out = this.glsl_vertex_out;
-                return _version + "\nprecision highp float;\n" + _in + " vec3 a_position;\n" + _in + " vec3 a_color;\n" + _in + " float a_instanceID;\n" + _out + " vec3 v_color;";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShaderSimple", {
-            get: function () {
-                var _version = this.glsl_versionText;
-                var _in = this.glsl_fragment_in;
-                var _def_rt0 = this.glsl_rt0;
-                var _def_fragColor = this.glsl_fragColor;
-                return _version + "\nprecision highp float;\n" + _in + " vec3 v_color;\n" + _def_rt0 + "\nvoid main ()\n{\n  rt0 = vec4(v_color, 1.0);\n  " + _def_fragColor + "\n}\n";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(GLSLShader, "fragmentShader", {
-            get: function () {
-                return GLSLShader.fragmentShaderSimple;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        GLSLShader.vertexShaderBody = "\n\nvoid main ()\n{\n  mat4 matrix = getMatrix(a_instanceID);\n  //mat4 matrix = getMatrix(gl_InstanceID);\n\n  gl_Position = matrix * vec4(a_position, 1.0);\n  // gl_Position = vec4(a_position, 1.0);\n  // gl_Position.xyz /= 10.0;\n  // gl_Position.x += a_instanceID / 20.0;\n//  gl_Position.x += col0.x / 5.0;\n\n  v_color = a_color;\n}\n  ";
-        GLSLShader.attributeNames = ['a_position', 'a_color', 'a_instanceID'];
-        GLSLShader.attributeSemantics = [VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Instance];
-        return GLSLShader;
-    }());
-
-    var WebGLStrategyUBO = /** @class */ (function () {
-        function WebGLStrategyUBO() {
-            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__uboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__vertexHandles = [];
-            this.__isVAOSet = false;
-            this.vertexShaderMethodDefinitions_UBO = "layout (std140) uniform matrix {\n    mat4 world[1024];\n  } u_matrix;\n\n  mat4 getMatrix(float instanceId) {\n    float index = instanceId;\n    return transpose(u_matrix.world[int(index)]);\n  }\n  ";
-        }
-        WebGLStrategyUBO.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            // Shader Setup
-            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
-                this.vertexShaderMethodDefinitions_UBO +
-                GLSLShader.vertexShaderBody;
-            var fragmentShader = GLSLShader.fragmentShader;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
-                vertexShaderStr: vertexShader,
-                fragmentShaderStr: fragmentShader,
-                attributeNames: GLSLShader.attributeNames,
-                attributeSemantics: GLSLShader.attributeSemantics
-            });
-        };
-        WebGLStrategyUBO.prototype.__isLoaded = function (index) {
-            if (this.__vertexHandles[index] != null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        WebGLStrategyUBO.prototype.$load = function (meshComponent) {
-            if (this.__isLoaded(0)) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-                this.__vertexHandles[i] = vertexHandles;
-                WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            }
-        };
-        WebGLStrategyUBO.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
-            if (this.__isVAOSet) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                // if (this.__isLoaded(i) && this.__isVAOSet) {
-                this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                //  continue;
-                // }
-                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-            }
-            this.__isVAOSet = true;
-        };
-        WebGLStrategyUBO.prototype.common_$prerender = function () {
-            var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-            {
-                if (this.__uboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                    this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
-                    return;
-                }
-                this.__uboUid = this.__webglResourceRepository.createUniformBuffer(SceneGraphComponent.getAccessor('worldMatrix', SceneGraphComponent).dataViewOfBufferView);
-            }
-            this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);
-        };
-        WebGLStrategyUBO.prototype.attachGPUData = function () {
-            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'matrix', 0);
-        };
-        WebGLStrategyUBO.prototype.attatchShaderProgram = function () {
-            var shaderProgramUid = this.__shaderProgramUid;
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            var gl = glw.getRawContext();
-            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
-            gl.useProgram(shaderProgram);
-        };
-        WebGLStrategyUBO.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {
-            var vaoHandles = this.__vertexHandles[i];
-            var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-            var gl = glw.getRawContext();
-            if (vao != null) {
-                glw.bindVertexArray(vao);
-            }
-            else {
-                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-            }
-        };
-        WebGLStrategyUBO.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new WebGLStrategyUBO();
-            }
-            return this.__instance;
-        };
-        WebGLStrategyUBO.prototype.common_$render = function () {
-            return true;
-        };
-        WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids = new Map();
-        return WebGLStrategyUBO;
-    }());
-
-    var PixelFormatClass = /** @class */ (function (_super) {
-        __extends(PixelFormatClass, _super);
-        function PixelFormatClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return PixelFormatClass;
-    }(EnumClass));
-    var DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });
-    var Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });
-    var RGB = new PixelFormatClass({ index: 0x1907, str: 'RGB' });
-    var RGBA = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });
-    var Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });
-    var LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });
-    var PixelFormat = Object.freeze({ DepthComponent: DepthComponent, Alpha: Alpha, RGB: RGB, RGBA: RGBA, Luminance: Luminance, LuminanceAlpha: LuminanceAlpha });
-
-    var TextureParameterClass = /** @class */ (function (_super) {
-        __extends(TextureParameterClass, _super);
-        function TextureParameterClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return TextureParameterClass;
-    }(EnumClass));
-    var Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });
-    var Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });
-    var TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });
-    var TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });
-    var TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });
-    var TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });
-    var Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });
-    var Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });
-    var Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });
-    var Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });
-    var ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });
-    var Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });
-    var ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });
-    var RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });
-    var RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });
-    var RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });
-    var RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });
-    var RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });
-    var RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });
-    var RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });
-    var TextureParameter = Object.freeze({ Nearest: Nearest, Linear: Linear, TextureMagFilter: TextureMagFilter, TextureMinFilter: TextureMinFilter, TextureWrapS: TextureWrapS, TextureWrapT: TextureWrapT, Texture2D: Texture2D, Texture: Texture,
-        Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });
-
-    var Primitive = /** @class */ (function (_super) {
-        __extends(Primitive, _super);
-        function Primitive(attributeAccessors, attributeSemantics, mode, material, indicesAccessor) {
-            var _this = _super.call(this) || this;
-            _this.__primitiveUid = -1; // start ID from zero
-            _this.__indices = indicesAccessor;
-            _this.__attributes = attributeAccessors;
-            _this.__attributeSemantics = attributeSemantics;
-            _this.__material = material;
-            _this.__mode = mode;
-            _this.__primitiveUid = Primitive.__primitiveCount++;
-            if (Primitive.__headerAccessor == null) {
-                // primitive 0
-                // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
-                //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
-                //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
-                //   ...
-                //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
-                // primitive 1
-                // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
-                //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
-                //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
-                //   ...
-                //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
-                var buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
-                var bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });
-                Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount });
-            }
-            var attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;
-            if (_this.indicesAccessor != null) {
-                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, _this.indicesAccessor.byteOffsetInBuffer, _this.indicesAccessor.componentSizeInBytes, _this.indicesAccessor.byteLength / _this.indicesAccessor.componentSizeInBytes, -1);
-            }
-            else {
-                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);
-            }
-            _this.attributeAccessors.forEach(function (attributeAccessor, i) {
-                Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);
-            });
-            return _this;
-        }
-        Object.defineProperty(Primitive, "maxPrimitiveCount", {
-            get: function () {
-                return 100;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive, "headerAccessor", {
-            get: function () {
-                return this.__headerAccessor;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Primitive.createPrimitive = function (_a) {
-            var indices = _a.indices, attributeCompositionTypes = _a.attributeCompositionTypes, attributeSemantics = _a.attributeSemantics, attributes = _a.attributes, material = _a.material, primitiveMode = _a.primitiveMode;
-            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
-            var indicesComponentType;
-            var indicesBufferView;
-            var indicesAccessor;
-            if (indices != null) {
-                indicesComponentType = ComponentType.fromTypedArray(indices);
-                indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
-                indicesAccessor = indicesBufferView.takeAccessor({
-                    compositionType: CompositionType.Scalar,
-                    componentType: indicesComponentType,
-                    count: indices.byteLength / indicesComponentType.getSizeInBytes()
-                });
-                // copy indices
-                for (var i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {
-                    indicesAccessor.setScalar(i, indices[i]);
-                }
-            }
-            var sumOfAttributesByteSize = 0;
-            attributes.forEach(function (attribute) {
-                sumOfAttributesByteSize += attribute.byteLength;
-            });
-            var attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
-            var attributeAccessors = [];
-            var attributeComponentTypes = [];
-            attributes.forEach(function (attribute, i) {
-                attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-                var accessor = attributesBufferView.takeAccessor({
-                    compositionType: attributeCompositionTypes[i],
-                    componentType: ComponentType.fromTypedArray(attributes[i]),
-                    count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
-                });
-                accessor.copyFromTypedArray(attribute);
-                attributeAccessors.push(accessor);
-            });
-            return new Primitive(attributeAccessors, attributeSemantics, primitiveMode, material, indicesAccessor);
-        };
-        Object.defineProperty(Primitive.prototype, "indicesAccessor", {
-            get: function () {
-                return this.__indices;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Primitive.prototype.hasIndices = function () {
-            return this.__indices != null;
-        };
-        Object.defineProperty(Primitive.prototype, "attributeAccessors", {
-            get: function () {
-                return this.__attributes.concat();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive.prototype, "attributeSemantics", {
-            get: function () {
-                return this.__attributeSemantics.concat();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive.prototype, "attributeCompositionTypes", {
-            get: function () {
-                return this.__attributes.map(function (attribute) { return attribute.compositionType; });
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive.prototype, "attributeComponentTypes", {
-            get: function () {
-                return this.__attributes.map(function (attribute) { return attribute.componentType; });
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive.prototype, "primitiveMode", {
-            get: function () {
-                return this.__mode;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Primitive.prototype, "primitiveUid", {
-            get: function () {
-                return this.__primitiveUid;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Primitive.__primitiveCount = 0;
-        return Primitive;
-    }(RnObject));
-
-    var PrimitiveModeClass = /** @class */ (function (_super) {
-        __extends(PrimitiveModeClass, _super);
-        function PrimitiveModeClass(_a) {
-            var index = _a.index, str = _a.str;
-            return _super.call(this, { index: index, str: str }) || this;
-        }
-        return PrimitiveModeClass;
-    }(EnumClass));
-    var Unknown$4 = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });
-    var Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });
-    var Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });
-    var LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });
-    var LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });
-    var Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });
-    var TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });
-    var TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });
-    var typeList$9 = [Unknown$4, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
-    function from$9(index) {
-        return _from({ typeList: typeList$9, index: index });
-    }
-    var PrimitiveMode = Object.freeze({ Unknown: Unknown$4, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from$9 });
-
-    var WebGLStrategyTransformFeedback = /** @class */ (function () {
-        function WebGLStrategyTransformFeedback() {
-            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__instanceDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__vertexDataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__primitiveHeaderUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__indexCountToSubtractUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__entitiesUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__primitiveUidUboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__isVertexReady = false;
-        }
-        Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackShaderText", {
-            get: function () {
-                return "#version 300 es\n\n    layout (std140) uniform indexCountsToSubtract {\n      ivec4 counts[256];\n    } u_indexCountsToSubtract;\n    layout (std140) uniform entityUids {\n      ivec4 ids[256];\n    } u_entityData;\n    layout (std140) uniform primitiveUids {\n      ivec4 ids[256];\n    } u_primitiveData;\n    layout (std140) uniform primitiveHeader {\n      ivec4 data[256];\n    } u_primitiveHeader;\n\n    out vec4 position;\n    //out vec3 colors;\n\n    uniform sampler2D u_instanceDataTexture;\n    uniform sampler2D u_vertexDataTexture;\n\n    void main(){\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\n\n      int entityUidMinusOne = 0;\n      int primitiveUid = 0;\n      for (int i=0; i<=indexOfVertices; i++) {\n        for (int j=0; j<1024; j++) {\n          int value = u_indexCountsToSubtract.counts[j/4][j%4];\n          int result = int(step(float(value), float(i)));\n          if (result > 0) {\n            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;\n            primitiveUid = result * u_primitiveData.ids[j/4][j%4];\n          } else {\n            break;\n          }\n        }\n      }\n\n      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\n      int primIndicesByteOffset = indicesMeta.x;\n      int primIndicesComponentSizeInByte = indicesMeta.y;\n      int primIndicesLength = indicesMeta.z;\n\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\n\n      // get Indices\n      int texelLength = " + MemoryManager.bufferWidthLength + ";\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n      int index = int(indexVec4[idx%4]);\n\n      // get Positions\n      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\n      int primPositionsByteOffset = indicesData.x;\n      idx = primPositionsByteOffset/4 + index;\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\n\n      position = posVec4;\n    }\n";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(WebGLStrategyTransformFeedback.prototype, "__transformFeedbackFragmentShaderText", {
-            get: function () {
-                return "#version 300 es\nprecision highp float;\n\nout vec4 outColor;\n\nvoid main(){\n    outColor = vec4(1.0);\n}\n    ";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        WebGLStrategyTransformFeedback.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            // Shader Setup
-            var vertexShader = this.__transformFeedbackShaderText;
-            var fragmentShader = this.__transformFeedbackFragmentShaderText;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
-                vertexShaderStr: vertexShader,
-                fragmentShaderStr: fragmentShader,
-                attributeNames: GLSLShader.attributeNames,
-                attributeSemantics: GLSLShader.attributeSemantics
-            });
-        };
-        WebGLStrategyTransformFeedback.prototype.$load = function (meshComponent) {
-            if (this.__isVertexReady) {
-                return;
-            }
-            var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-            var indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: 4 * 3, byteStride: 4, isAoS: false });
-            var indicesAccessor = indicesBufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.UnsingedInt, count: 3 });
-            var attributeBufferView = buffer.takeBufferView({ byteLengthToNeed: 16 * 3, byteStride: 16, isAoS: false });
-            var attributeAccessor = attributeBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 3 });
-            var indicesUint16Array = indicesAccessor.getTypedArray();
-            indicesUint16Array[0] = 0;
-            indicesUint16Array[1] = 1;
-            indicesUint16Array[2] = 2;
-            var primitive = Primitive.createPrimitive({
-                indices: indicesUint16Array,
-                attributeCompositionTypes: [attributeAccessor.compositionType],
-                attributeSemantics: [VertexAttribute.Position],
-                attributes: [attributeAccessor.getTypedArray()],
-                primitiveMode: PrimitiveMode.Triangles,
-                material: 0
-            });
-            this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);
-            this.__isVertexReady = true;
-        };
-        WebGLStrategyTransformFeedback.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
-        };
-        WebGLStrategyTransformFeedback.prototype.__setupUBOPrimitiveHeaderData = function () {
-            var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBuffer(BufferUse.UBOGeneric);
-            var floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());
-            if (this.__primitiveHeaderUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);
-                return;
-            }
-            this.__primitiveHeaderUboUid = this.__webglResourceRepository.createUniformBuffer(floatDataTextureBuffer);
-            this.__webglResourceRepository.bindUniformBufferBase(3, this.__primitiveHeaderUboUid);
-        };
-        WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceMetaData = function () {
-            if (this.__primitiveUidUboUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            var entities = EntityRepository.getInstance()._getEntities();
-            var entityIds = new Int32Array(entities.length);
-            var primitiveIds = new Int32Array(entities.length);
-            var indexCountToSubtract = new Int32Array(entities.length);
-            var tmpSumIndexCount = 0;
-            entities.forEach(function (entity, i) {
-                var meshComponent = entity.getComponent(MeshComponent.componentTID);
-                if (meshComponent) {
-                    primitiveIds[i] = meshComponent.getPrimitiveAt(0).primitiveUid;
-                    entityIds[i] = entity.entityUID;
-                    var indexCountOfPrimitive = meshComponent.getPrimitiveAt(0).indicesAccessor.elementCount;
-                    indexCountToSubtract[i] = tmpSumIndexCount + indexCountOfPrimitive;
-                    tmpSumIndexCount += indexCountOfPrimitive;
-                }
-            });
-            this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(indexCountToSubtract);
-            this.__webglResourceRepository.bindUniformBufferBase(0, this.__indexCountToSubtractUboUid);
-            this.__entitiesUidUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);
-            this.__webglResourceRepository.bindUniformBufferBase(1, this.__entitiesUidUboUid);
-            this.__primitiveUidUboUid = this.__webglResourceRepository.createUniformBuffer(primitiveIds);
-            this.__webglResourceRepository.bindUniformBufferBase(2, this.__primitiveUidUboUid);
-        };
-        WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceData = function () {
-            var isHalfFloatMode = false;
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
-                this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-                isHalfFloatMode = true;
-            }
-            var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-            var halfFloatDataTextureBuffer;
-            if (isHalfFloatMode) {
-                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-                var convertLength = buffer.byteSizeInUse / 4; //components
-                convertLength /= 2; // bytes
-                for (var i = 0; i < convertLength; i++) {
-                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-                }
-            }
-            if (this.__instanceDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                if (isHalfFloatMode) {
-                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                    else {
-                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, halfFloatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.HalfFloat
-                        });
-                    }
-                }
-                else {
-                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                    else {
-                        this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                }
-                return;
-            }
-            if (isHalfFloatMode) {
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-                else {
-                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-            }
-            else {
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-                else {
-                    this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-            }
-        };
-        WebGLStrategyTransformFeedback.prototype.__setupGPUVertexData = function () {
-            if (this.__vertexDataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                });
-            }
-            else {
-                this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                    level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                    border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                    wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                });
-            }
-        };
-        WebGLStrategyTransformFeedback.prototype.common_$prerender = function () {
-            this.__setupUBOPrimitiveHeaderData();
-            this.__setupGPUInstanceMetaData();
-            this.__setupGPUInstanceData();
-            this.__setupGPUVertexData();
-        };
-        WebGLStrategyTransformFeedback.prototype.attachGPUData = function () {
-            {
-                var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
-                var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid);
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-                var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
-                var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');
-                gl.uniform1i(uniform_instanceDataTexture, 0);
-            }
-            {
-                var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
-                var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid);
-                gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-                var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
-                var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');
-                gl.uniform1i(uniform_vertexDataTexture, 1);
-            }
-            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'indexCountsToSubtract', 0);
-            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'entityUids', 1);
-            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveUids', 2);
-            this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveHeader', 3);
-        };
-        WebGLStrategyTransformFeedback.prototype.attatchShaderProgram = function () {
-            var shaderProgramUid = this.__shaderProgramUid;
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            var gl = glw.getRawContext();
-            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
-            gl.useProgram(shaderProgram);
-        };
-        WebGLStrategyTransformFeedback.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {
-        };
-        WebGLStrategyTransformFeedback.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new WebGLStrategyTransformFeedback();
-            }
-            return this.__instance;
-        };
-        WebGLStrategyTransformFeedback.prototype.common_$render = function () {
-            return true;
-        };
-        return WebGLStrategyTransformFeedback;
-    }());
-
-    var WebGLStrategyDataTexture = /** @class */ (function () {
-        function WebGLStrategyDataTexture() {
-            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__vertexHandles = [];
-            this.__isVAOSet = false;
-        }
-        Object.defineProperty(WebGLStrategyDataTexture.prototype, "vertexShaderMethodDefinitions_dataTexture", {
-            get: function () {
-                var _texture = GLSLShader.glsl_texture;
-                return "\n  uniform sampler2D u_dataTexture;\n  /*\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\n   */\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\n  // {\n  //   return " + _texture + "( tex, arg * (index + 0.5) );\n  // }\n\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\n  {\n    float t = (index + 0.5) * invSize.x;\n    float x = fract(t);\n    float y = (floor(t) + 0.5) * invSize.y;\n    return " + _texture + "( tex, vec2(x, y) );\n  }\n\n  mat4 getMatrix(float instanceId)\n  {\n    float index = instanceId;\n    float powWidthVal = " + MemoryManager.bufferWidthLength + ".0;\n    float powHeightVal = " + MemoryManager.bufferHeightLength + ".0;\n    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);\n  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);\n\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\n\n    mat4 matrix = mat4(\n      col0.x, col1.x, col2.x, 0.0,\n      col0.y, col1.y, col2.y, 0.0,\n      col0.z, col1.z, col2.z, 0.0,\n      col0.w, col1.w, col2.w, 1.0\n      );\n\n    return matrix;\n  }\n  ";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        WebGLStrategyDataTexture.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            // Shader Setup
-            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
-                this.vertexShaderMethodDefinitions_dataTexture +
-                GLSLShader.vertexShaderBody;
-            var fragmentShader = GLSLShader.fragmentShader;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
-                vertexShaderStr: vertexShader,
-                fragmentShaderStr: fragmentShader,
-                attributeNames: GLSLShader.attributeNames,
-                attributeSemantics: GLSLShader.attributeSemantics
-            });
-        };
-        WebGLStrategyDataTexture.prototype.__isLoaded = function (index) {
-            if (this.__vertexHandles[index] != null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        WebGLStrategyDataTexture.prototype.$load = function (meshComponent) {
-            if (this.__isLoaded(0)) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-                this.__vertexHandles[i] = vertexHandles;
-                WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            }
-        };
-        WebGLStrategyDataTexture.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
-            if (this.__isVAOSet) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                // if (this.__isLoaded(i) && this.__isVAOSet) {
-                this.__vertexHandles[i] = WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-                //  continue;
-                // }
-                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-            }
-            this.__isVAOSet = true;
-        };
-        WebGLStrategyDataTexture.prototype.common_$prerender = function () {
-            var isHalfFloatMode = false;
-            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||
-                this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-                isHalfFloatMode = true;
-            }
-            var memoryManager = MemoryManager.getInstance();
-            var buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-            var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-            var halfFloatDataTextureBuffer;
-            if (isHalfFloatMode) {
-                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-                var convertLength = buffer.byteSizeInUse / 4; //components
-                convertLength /= 2; // bytes
-                for (var i = 0; i < convertLength; i++) {
-                    halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-                }
-            }
-            if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                if (isHalfFloatMode) {
-                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                    else {
-                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.HalfFloat
-                        });
-                    }
-                }
-                else {
-                    if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                    else {
-                        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-                            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                            format: PixelFormat.RGBA, type: ComponentType.Float
-                        });
-                    }
-                }
-                return;
-            }
-            if (isHalfFloatMode) {
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-                else {
-                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-            }
-            else {
-                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {
-                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-                else {
-                    this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-                        level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-                        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-                        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat
-                    });
-                }
-            }
-        };
-        WebGLStrategyDataTexture.prototype.attachGPUData = function () {
-            var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();
-            var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);
-            gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-            var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
-            var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-            gl.uniform1i(uniform_dataTexture, 0);
-        };
-        WebGLStrategyDataTexture.prototype.attatchShaderProgram = function () {
-            var shaderProgramUid = this.__shaderProgramUid;
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            var gl = glw.getRawContext();
-            var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);
-            gl.useProgram(shaderProgram);
-        };
-        WebGLStrategyDataTexture.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {
-            var vaoHandles = this.__vertexHandles[i];
-            var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-            var gl = glw.getRawContext();
-            if (vao != null) {
-                glw.bindVertexArray(vao);
-            }
-            else {
-                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-            }
-        };
-        WebGLStrategyDataTexture.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new WebGLStrategyDataTexture();
-            }
-            return this.__instance;
-        };
-        WebGLStrategyDataTexture.prototype.common_$render = function () {
-            return true;
-        };
-        WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids = new Map();
-        return WebGLStrategyDataTexture;
-    }());
-
-    var WebGLStrategyUniform = /** @class */ (function () {
-        function WebGLStrategyUniform() {
-            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__uboUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__shaderProgramUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            this.__vertexHandles = [];
-            this.__isVAOSet = false;
-            this.vertexShaderMethodDefinitions_uniform = "\n  uniform mat4 worldMatrix;\n\n  mat4 getMatrix(float instanceId) {\n    return worldMatrix;\n  }\n  ";
-        }
-        WebGLStrategyUniform.prototype.setupShaderProgram = function () {
-            if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return;
-            }
-            // Shader Setup
-            var vertexShader = GLSLShader.vertexShaderVariableDefinitions +
-                this.vertexShaderMethodDefinitions_uniform +
-                GLSLShader.vertexShaderBody;
-            var fragmentShader = GLSLShader.fragmentShader;
-            this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({
-                vertexShaderStr: vertexShader,
-                fragmentShaderStr: fragmentShader,
-                attributeNames: GLSLShader.attributeNames,
-                attributeSemantics: GLSLShader.attributeSemantics
-            });
-            this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            var gl = glw.getRawContext();
-            this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'worldMatrix');
-        };
-        WebGLStrategyUniform.prototype.__isLoaded = function (index) {
-            if (this.__vertexHandles[index] != null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        WebGLStrategyUniform.prototype.$load = function (meshComponent) {
-            if (this.__isLoaded(0)) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-                this.__vertexHandles[i] = vertexHandles;
-                WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
-            }
-        };
-        WebGLStrategyUniform.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {
-            if (this.__isVAOSet) {
-                return;
-            }
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                this.__vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);
-                this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-            }
-            this.__isVAOSet = true;
-        };
-        WebGLStrategyUniform.prototype.common_$prerender = function () {
-        };
-        WebGLStrategyUniform.prototype.attachGPUData = function () {
-        };
-        WebGLStrategyUniform.prototype.attatchShaderProgram = function () {
-            var shaderProgramUid = this.__shaderProgramUid;
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            var gl = glw.getRawContext();
-            gl.useProgram(this.__shaderProgram);
-        };
-        WebGLStrategyUniform.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {
-            var vaoHandles = this.__vertexHandles[i];
-            var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
-            var gl = glw.getRawContext();
-            if (vao != null) {
-                glw.bindVertexArray(vao);
-            }
-            else {
-                this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-                var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-            }
-        };
-        WebGLStrategyUniform.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new WebGLStrategyUniform();
-            }
-            return this.__instance;
-        };
-        WebGLStrategyUniform.prototype.common_$render = function () {
-            return false;
-        };
-        WebGLStrategyUniform.prototype.$render = function (primitive_i, primitive, worldMatrix) {
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            this.attatchShaderProgram();
-            var gl = glw.getRawContext();
-            this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
-            gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-            //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);
-            glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
-        };
-        WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids = new Map();
-        return WebGLStrategyUniform;
-    }());
-
-    var getRenderingStrategy = function (processApproach) {
-        // Strategy
-        if (processApproach === ProcessApproach.UBOWebGL2) {
-            return WebGLStrategyUBO.getInstance();
-        }
-        else if (processApproach === ProcessApproach.TransformFeedbackWebGL2) {
-            return WebGLStrategyTransformFeedback.getInstance();
-        }
-        else if (processApproach === ProcessApproach.UniformWebGL1) {
-            return WebGLStrategyUniform.getInstance();
-        }
-        else {
-            return WebGLStrategyDataTexture.getInstance();
-        }
-    };
-
-    var MeshRendererComponent = /** @class */ (function (_super) {
-        __extends(MeshRendererComponent, _super);
-        function MeshRendererComponent(entityUid, componentSid, entityComponent) {
-            var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;
-            _this.__vertexHandles = [];
-            _this.__currentProcessStage = ProcessStage.Create;
-            var count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create);
-            var array = Component.__componentsOfProcessStages.get(ProcessStage.Create);
-            array[count++] = _this.componentSID;
-            array[count] = Component.invalidComponentSID;
-            Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count);
-            return _this;
-        }
-        Object.defineProperty(MeshRendererComponent, "componentTID", {
-            get: function () {
-                return 4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MeshRendererComponent.prototype.__isLoaded = function (index) {
-            if (this.__vertexHandles[index] != null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        MeshRendererComponent.prototype.$create = function (_a) {
-            var processApproach = _a.processApproach;
-            if (this.__meshComponent != null) {
-                return;
-            }
-            this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID);
-            this.__webglRenderingStrategy = getRenderingStrategy(processApproach);
-            this.moveStageTo(ProcessStage.Load);
-        };
-        MeshRendererComponent.prototype.$load = function () {
-            this.__webglRenderingStrategy.$load(this.__meshComponent);
-            this.moveStageTo(ProcessStage.PreRender);
-        };
-        MeshRendererComponent.prototype.$prerender = function (_a) {
-            var processApproech = _a.processApproech, instanceIDBufferUid = _a.instanceIDBufferUid;
-            this.__webglRenderingStrategy.$prerender(this.__meshComponent, instanceIDBufferUid);
-            if (this.__webglRenderingStrategy.$render != null) {
-                this.moveStageTo(ProcessStage.Render);
-            }
-        };
-        MeshRendererComponent.prototype.$render = function () {
-            if (this.__webglRenderingStrategy.$render == null) {
-                return;
-            }
-            var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID);
-            var primitiveNum = this.__meshComponent.getPrimitiveNumber();
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = this.__meshComponent.getPrimitiveAt(i);
-                this.__webglRenderingStrategy.$render(i, primitive, sceneGraphComponent.worldMatrix);
-            }
-        };
-        MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();
-        return MeshRendererComponent;
-    }(Component));
-    ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
-
-    var WebGLRenderingPipeline = new /** @class */ (function () {
-        function class_1() {
-            this.__webglResourceRepository = WebGLResourceRepository.getInstance();
-            this.__componentRepository = ComponentRepository.getInstance();
-            this.__instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-        }
-        class_1.prototype.common_$load = function (processApproach) {
-            // Strategy
-            this.__webGLStrategy = getRenderingStrategy(processApproach);
-            // Shader setup
-            this.__webGLStrategy.setupShaderProgram();
-        };
-        class_1.prototype.common_$prerender = function () {
-            var gl = this.__webglResourceRepository.currentWebGLContextWrapper;
-            if (gl == null) {
-                throw new Error('No WebGLRenderingContext!');
-            }
-            this.__webGLStrategy.common_$prerender();
-            if (this.__isReady()) {
-                return 0;
-            }
-            this.__instanceIDBufferUid = this.__setupInstanceIDBuffer();
-            return this.__instanceIDBufferUid;
-        };
-        class_1.prototype.__isReady = function () {
-            if (this.__instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        class_1.prototype.__setupInstanceIDBuffer = function () {
-            if (this.__instanceIdAccessor == null) {
-                var buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-                var count = Config.maxEntityNumber;
-                var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });
-                this.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
-            }
-            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-            if (meshComponents == null) {
-                return CGAPIResourceRepository.InvalidCGAPIResourceUid;
-            }
-            for (var i = 0; i < meshComponents.length; i++) {
-                this.__instanceIdAccessor.setScalar(i, meshComponents[i].entityUID);
-            }
-            return this.__webglResourceRepository.createVertexBuffer(this.__instanceIdAccessor);
-        };
-        class_1.prototype.common_$render = function () {
-            if (!this.__webGLStrategy.common_$render()) {
-                return;
-            }
-            var meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-            var meshComponent = meshComponents[0];
-            var primitiveNum = meshComponent.getPrimitiveNumber();
-            var glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-            for (var i = 0; i < primitiveNum; i++) {
-                var primitive = meshComponent.getPrimitiveAt(i);
-                this.__webGLStrategy.attachVertexData(i, primitive, glw, this.__instanceIDBufferUid);
-                this.__webGLStrategy.attatchShaderProgram();
-                this.__webGLStrategy.attachGPUData();
-                var meshComponents_1 = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
-                glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);
-            }
-        };
-        return class_1;
-    }());
-
-    var System = /** @class */ (function () {
-        function System() {
-            this.__processStages = [
-                ProcessStage.Create,
-                ProcessStage.Load,
-                ProcessStage.Mount,
-                ProcessStage.Logic,
-                ProcessStage.PreRender,
-                ProcessStage.Render,
-                ProcessStage.Unmount,
-                ProcessStage.Discard
-            ];
-            this.__componentRepository = ComponentRepository.getInstance();
-            this.__renderingPipeline = WebGLRenderingPipeline;
-            this.__processApproach = ProcessApproach.None;
-        }
-        System.prototype.process = function () {
-            var _this = this;
-            if (this.__processApproach === ProcessApproach.None) {
-                throw new Error('Choose a process approach first.');
-            }
-            this.__processStages.forEach(function (stage) {
-                var methodName = stage.getMethodName();
-                var instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-                var componentTids = _this.__componentRepository.getComponentTIDs();
-                var commonMethod = _this.__renderingPipeline['common_' + methodName];
-                if (commonMethod != null) {
-                    instanceIDBufferUid = commonMethod.call(_this.__renderingPipeline, _this.__processApproach);
-                }
-                componentTids.forEach(function (componentTid) {
-                    var componentClass = ComponentRepository.getComponentClass(componentTid);
-                    componentClass.updateComponentsOfEachProcessStage(componentTid, stage, _this.__componentRepository);
-                    componentClass.process({
-                        componentTid: componentTid,
-                        processStage: stage,
-                        instanceIDBufferUid: instanceIDBufferUid,
-                        processApproach: _this.__processApproach,
-                        componentRepository: _this.__componentRepository
-                    });
-                });
-            });
-        };
-        System.prototype.setProcessApproachAndCanvas = function (approach, canvas) {
-            var repo = WebGLResourceRepository.getInstance();
-            var gl;
-            if (approach === ProcessApproach.DataTextureWebGL2 ||
-                approach === ProcessApproach.UBOWebGL2 ||
-                approach === ProcessApproach.TransformFeedbackWebGL2) {
-                gl = canvas.getContext('webgl2');
-            }
-            else {
-                gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            }
-            repo.addWebGLContext(gl, true);
-            this.__processApproach = approach;
-            return gl;
-        };
-        Object.defineProperty(System.prototype, "processApproach", {
-            get: function () {
-                return this.__processApproach;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        System.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new System();
-            }
-            return this.__instance;
-        };
-        return System;
-    }());
-
-    var MutableVector3 = /** @class */ (function (_super) {
-        __extends(MutableVector3, _super);
-        function MutableVector3(x, y, z) {
-            return _super.call(this, x, y, z) || this;
-        }
-        Object.defineProperty(MutableVector3, "compositionType", {
-            get: function () {
-                return CompositionType.Vec3;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MutableVector3.prototype.zero = function () {
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-            return this;
-        };
-        MutableVector3.prototype.one = function () {
-            this.x = 1;
-            this.y = 1;
-            this.z = 1;
-            return this;
-        };
-        /**
-         * to square length
-         */
-        MutableVector3.prototype.lengthSquared = function () {
-            return this.x * this.x + this.y * this.y + this.z * this.z;
-        };
-        /**
-         * cross product
-         */
-        MutableVector3.prototype.cross = function (v) {
-            var x = this.y * v.z - this.z * v.y;
-            var y = this.z * v.x - this.x * v.z;
-            var z = this.x * v.y - this.y * v.x;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            return this;
-        };
-        /**
-       * normalize
-       */
-        MutableVector3.prototype.normalize = function () {
-            var length = this.length();
-            this.divide(length);
-            return this;
-        };
-        /**
-       * add value
-       */
-        MutableVector3.prototype.add = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            return this;
-        };
-        /**
-       * subtract
-       */
-        MutableVector3.prototype.subtract = function (v) {
-            this.x -= v.x;
-            this.y -= v.y;
-            this.z -= v.z;
-            return this;
-        };
-        /**
-         * divide
-         */
-        MutableVector3.prototype.divide = function (val) {
-            if (val !== 0) {
-                this.x /= val;
-                this.y /= val;
-                this.z /= val;
-            }
-            else {
-                console.error("0 division occured!");
-                this.x = Infinity;
-                this.y = Infinity;
-                this.z = Infinity;
-            }
-            return this;
-        };
-        /**
-         * multiply
-         */
-        MutableVector3.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
-            this.z *= val;
-            return this;
-        };
-        /**
-         * multiply vector
-         */
-        MutableVector3.prototype.multiplyVector = function (vec) {
-            this.x *= vec.x;
-            this.y *= vec.y;
-            this.z *= vec.z;
-            return this;
-        };
-        /**
-       * divide vector
-       */
-        MutableVector3.prototype.divideVector = function (vec3) {
-            this.x /= vec3.x;
-            this.y /= vec3.y;
-            this.z /= vec3.z;
-            return this;
-        };
-        Object.defineProperty(MutableVector3.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector3.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector3.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector3.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return MutableVector3;
-    }(Vector3));
-
-    var MutableVector4 = /** @class */ (function (_super) {
-        __extends(MutableVector4, _super);
-        function MutableVector4(x, y, z, w) {
-            return _super.call(this, x, y, z, w) || this;
-        }
-        Object.defineProperty(MutableVector4, "compositionType", {
-            get: function () {
-                return CompositionType.Vec4;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MutableVector4.prototype.normalize = function () {
-            var length = this.length();
-            this.divide(length);
-            return this;
-        };
-        /**
-         * add value
-         */
-        MutableVector4.prototype.add = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            this.w += v.w;
-            return this;
-        };
-        /**
-       * add value except w component
-       */
-        MutableVector4.prototype.addWithOutW = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-            return this;
-        };
-        MutableVector4.prototype.subtract = function (v) {
-            this.x -= v.x;
-            this.y -= v.y;
-            this.z -= v.z;
-            this.w -= v.w;
-            return this;
-        };
-        MutableVector4.prototype.multiply = function (val) {
-            this.x *= val;
-            this.y *= val;
-            this.z *= val;
-            this.w *= val;
-            return this;
-        };
-        MutableVector4.prototype.multiplyVector = function (vec) {
-            this.x *= vec.x;
-            this.y *= vec.y;
-            this.z *= vec.z;
-            this.w *= vec.w;
-            return this;
-        };
-        MutableVector4.prototype.divide = function (val) {
-            if (val !== 0) {
-                this.x /= val;
-                this.y /= val;
-                this.z /= val;
-                this.w /= val;
-            }
-            else {
-                console.error("0 division occured!");
-                this.x = Infinity;
-                this.y = Infinity;
-                this.z = Infinity;
-                this.w = Infinity;
-            }
-            return this;
-        };
-        MutableVector4.prototype.divideVector = function (vec4) {
-            this.x /= vec4.x;
-            this.y /= vec4.y;
-            this.z /= vec4.z;
-            this.w /= vec4.w;
-            return this;
-        };
-        Object.defineProperty(MutableVector4.prototype, "x", {
-            get: function () {
-                return this.v[0];
-            },
-            set: function (x) {
-                this.v[0] = x;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector4.prototype, "y", {
-            get: function () {
-                return this.v[1];
-            },
-            set: function (y) {
-                this.v[1] = y;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector4.prototype, "z", {
-            get: function () {
-                return this.v[2];
-            },
-            set: function (z) {
-                this.v[2] = z;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector4.prototype, "w", {
-            get: function () {
-                return this.v[3];
-            },
-            set: function (w) {
-                this.v[3] = w;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MutableVector4.prototype, "raw", {
-            get: function () {
-                return this.v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // set w(w:number) {
-        //   this.__Error();
-        // }
-        // get w(): number {
-        //   return this.v[3];
-        // }
-        // get raw(): TypedArray {
-        //   this.__Error();
-        //   return new Float32Array(0);
-        // }
-        MutableVector4.prototype.__Error = function () {
-            //console.error('Not avavailabe because this Vector class is immutable.');
-            throw new Error('Not avavailabe because this Vector class is immutable.');
-        };
-        return MutableVector4;
-    }(Vector4));
-
-    var DataUtil = /** @class */ (function () {
-        function DataUtil() {
-        }
-        DataUtil.isNode = function () {
-            var isNode = (window === void 0 && typeof process !== "undefined" && typeof require !== "undefined");
-            return isNode;
-        };
-        DataUtil.btoa = function (str) {
-            var isNode = DataUtil.isNode();
-            if (isNode) {
-                var buffer = void 0;
-                if (Buffer.isBuffer(str)) {
-                    buffer = str;
-                }
-                else {
-                    buffer = new Buffer(str.toString(), 'binary');
-                }
-                return buffer.toString('base64');
-            }
-            else {
-                return btoa(str);
-            }
-        };
-        DataUtil.atob = function (str) {
-            var isNode = DataUtil.isNode();
-            if (isNode) {
-                return new Buffer(str, 'base64').toString('binary');
-            }
-            else {
-                return atob(str);
-            }
-        };
-        DataUtil.base64ToArrayBuffer = function (dataUri) {
-            var splittedDataUri = dataUri.split(',');
-            var type = splittedDataUri[0].split(':')[1].split(';')[0];
-            var byteString = DataUtil.atob(splittedDataUri[1]);
-            var byteStringLength = byteString.length;
-            var arrayBuffer = new ArrayBuffer(byteStringLength);
-            var uint8Array = new Uint8Array(arrayBuffer);
-            for (var i = 0; i < byteStringLength; i++) {
-                uint8Array[i] = byteString.charCodeAt(i);
-            }
-            return arrayBuffer;
-        };
-        DataUtil.arrayBufferToString = function (arrayBuffer) {
-            if (typeof TextDecoder !== 'undefined') {
-                var textDecoder = new TextDecoder();
-                return textDecoder.decode(arrayBuffer);
-            }
-            else {
-                var bytes = new Uint8Array(arrayBuffer);
-                var result = "";
-                var length_1 = bytes.length;
-                for (var i = 0; i < length_1; i++) {
-                    result += String.fromCharCode(bytes[i]);
-                }
-                return result;
-            }
-        };
-        DataUtil.stringToBase64 = function (str) {
-            var b64 = null;
-            b64 = DataUtil.btoa(str);
-            return b64;
-        };
-        DataUtil.UInt8ArrayToDataURL = function (uint8array, width, height) {
-            var canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            var ctx = canvas.getContext("2d");
-            var imageData = ctx.createImageData(width, height);
-            for (var i = 0; i < imageData.data.length; i += 4) {
-                imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 0];
-                imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 1];
-                imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 2];
-                imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 3];
-            }
-            ctx.putImageData(imageData, 0, 0);
-            canvas.remove();
-            return canvas.toDataURL("image/png");
-        };
-        DataUtil.loadResourceAsync = function (resourceUri, isBinary, resolveCallback, rejectCallback) {
-            return new Promise(function (resolve, reject) {
-                var isNode = DataUtil.isNode();
-                if (isNode) {
-                    var fs = require('fs');
-                    var args = [resourceUri];
-                    var func = function (err, response) {
-                        if (err) {
-                            if (rejectCallback) {
-                                rejectCallback(reject, err);
-                            }
-                            return;
-                        }
-                        if (isBinary) {
-                            var buffer = new Buffer(response, 'binary');
-                            var uint8Buffer = new Uint8Array(buffer);
-                            response = uint8Buffer.buffer;
-                        }
-                        resolveCallback(resolve, response);
-                    };
-                    if (isBinary) {
-                        args.push(func);
-                    }
-                    else {
-                        args.push('utf8');
-                        args.push(func);
-                    }
-                    fs.readFile.apply(fs, args);
-                }
-                else {
-                    var xmlHttp_1 = new XMLHttpRequest();
-                    if (isBinary) {
-                        xmlHttp_1.responseType = "arraybuffer";
-                        xmlHttp_1.onload = function (oEvent) {
-                            var response = null;
-                            if (isBinary) {
-                                response = xmlHttp_1.response;
-                            }
-                            else {
-                                response = xmlHttp_1.responseText;
-                            }
-                            resolveCallback(resolve, response);
-                        };
-                    }
-                    else {
-                        xmlHttp_1.onreadystatechange = function () {
-                            if (xmlHttp_1.readyState === 4 && (Math.floor(xmlHttp_1.status / 100) === 2 || xmlHttp_1.status === 0)) {
-                                var response = null;
-                                if (isBinary) {
-                                    response = xmlHttp_1.response;
-                                }
-                                else {
-                                    response = xmlHttp_1.responseText;
-                                }
-                                resolveCallback(resolve, response);
-                            }
-                            else {
-                                if (rejectCallback) {
-                                    rejectCallback(reject, xmlHttp_1.status);
-                                }
-                            }
-                        };
-                    }
-                    xmlHttp_1.open("GET", resourceUri, true);
-                    xmlHttp_1.send(null);
-                }
-            });
-        };
-        return DataUtil;
-    }());
-
-    var Gltf2Importer = /** @class */ (function () {
-        function Gltf2Importer() {
-        }
-        Gltf2Importer.prototype.import = function (uri, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(this, void 0, void 0, function () {
-                var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, result, gotText, json;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            defaultOptions = {
-                                files: {
-                                //        "foo.gltf": content of file as ArrayBuffer,
-                                //        "foo.bin": content of file as ArrayBuffer,
-                                //        "boo.png": content of file as ArrayBuffer
-                                },
-                                loaderExtension: null,
-                                defaultShaderClass: null,
-                                statesOfElements: [
-                                    {
-                                        targets: [],
-                                        states: {
-                                            enable: [
-                                            // 3042,  // BLEND
-                                            ],
-                                            functions: {
-                                            //"blendFuncSeparate": [1, 0, 1, 0],
-                                            }
-                                        },
-                                        isTransparent: true,
-                                        opacity: 1.0,
-                                        isTextureImageToLoadPreMultipliedAlpha: false,
-                                    }
-                                ],
-                                extendedJson: null //   URI string / JSON Object / ArrayBuffer
-                            };
-                            return [4 /*yield*/, fetch(uri)];
-                        case 1:
-                            response = _a.sent();
-                            return [4 /*yield*/, response.arrayBuffer()];
-                        case 2:
-                            arrayBuffer = _a.sent();
-                            dataView = new DataView(arrayBuffer, 0, 20);
-                            isLittleEndian = true;
-                            magic = dataView.getUint32(0, isLittleEndian);
-                            if (!(magic !== 0x46546C67)) return [3 /*break*/, 4];
-                            gotText = DataUtil.arrayBufferToString(arrayBuffer);
-                            json = JSON.parse(gotText);
-                            return [4 /*yield*/, this._loadAsTextJson(json, uri, options, defaultOptions)];
-                        case 3:
-                            result = _a.sent();
-                            return [3 /*break*/, 4];
-                        case 4: return [2 /*return*/, result];
-                    }
-                });
-            });
-        };
-        Gltf2Importer.prototype._getOptions = function (defaultOptions, json, options) {
-            if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
-                for (var optionName in json.asset.extras.loadOptions) {
-                    defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
-                }
-            }
-            for (var optionName in options) {
-                defaultOptions[optionName] = options[optionName];
-            }
-            return defaultOptions;
-        };
-        Gltf2Importer.prototype._loadAsTextJson = function (gltfJson, uri, options, defaultOptions) {
-            return __awaiter(this, void 0, void 0, function () {
-                var basePath, result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (uri) {
-                                //Set the location of gltf file as basePath
-                                basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
-                            }
-                            if (gltfJson.asset.extras === undefined) {
-                                gltfJson.asset.extras = {};
-                            }
-                            options = this._getOptions(defaultOptions, gltfJson, options);
-                            this._mergeExtendedJson(gltfJson, options.extendedJson);
-                            gltfJson.asset.extras.basePath = basePath;
-                            return [4 /*yield*/, this._loadInner(undefined, basePath, gltfJson, options)];
-                        case 1:
-                            result = _a.sent();
-                            return [2 /*return*/, result[0][0]];
-                    }
-                });
-            });
-        };
-        Gltf2Importer.prototype._loadInner = function (arrayBufferBinary, basePath, gltfJson, options) {
-            var _this = this;
-            var promises = [];
-            var resources = {
-                shaders: [],
-                buffers: [],
-                images: []
-            };
-            promises.push(this._loadResources(arrayBufferBinary, basePath, gltfJson, options, resources));
-            promises.push(new Promise(function (resolve, reject) {
-                _this._loadJsonContent(gltfJson, options);
-                resolve();
-            }));
-            return Promise.all(promises);
-        };
-        Gltf2Importer.prototype._loadJsonContent = function (gltfJson, options) {
-            // Scene
-            this._loadDependenciesOfScenes(gltfJson);
-            // Node
-            this._loadDependenciesOfNodes(gltfJson);
-            // Node Transformation
-            //    this._loadTransformationsOfNodes(gltfJson);
-            // Mesh
-            this._loadDependenciesOfMeshes(gltfJson);
-            // Material
-            this._loadDependenciesOfMaterials(gltfJson);
-            // Texture
-            this._loadDependenciesOfTextures(gltfJson);
-            // Joint
-            this._loadDependenciesOfJoints(gltfJson);
-            // Animation
-            this._loadDependenciesOfAnimations(gltfJson);
-            // Accessor
-            this._loadDependenciesOfAccessors(gltfJson);
-            // BufferView
-            this._loadDependenciesOfBufferViews(gltfJson);
-            if (gltfJson.asset === void 0) {
-                gltfJson.asset = {};
-            }
-            if (gltfJson.asset.extras === void 0) {
-                gltfJson.asset.extras = {};
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfScenes = function (gltfJson) {
-            var e_1, _a;
-            try {
-                for (var _b = __values(gltfJson.scenes), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var scene = _c.value;
-                    scene.nodesIndices = scene.nodes.concat();
-                    for (var i in scene.nodesIndices) {
-                        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfNodes = function (gltfJson) {
-            var e_2, _a;
-            try {
-                for (var _b = __values(gltfJson.nodes), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var node = _c.value;
-                    // Hierarchy
-                    if (node.children) {
-                        node.childrenIndices = node.children.concat();
-                        node.children = [];
-                        for (var i in node.childrenIndices) {
-                            node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
-                        }
-                    }
-                    // Mesh
-                    if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
-                        node.meshIndex = node.mesh;
-                        node.mesh = gltfJson.meshes[node.meshIndex];
-                    }
-                    // Skin
-                    if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-                        node.skinIndex = node.skin;
-                        node.skin = gltfJson.skins[node.skinIndex];
-                        if (node.mesh.extras === void 0) {
-                            node.mesh.extras = {};
-                        }
-                        node.mesh.extras._skin = node.skin;
-                    }
-                    // Camera
-                    if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
-                        node.cameraIndex = node.camera;
-                        node.camera = gltfJson.cameras[node.cameraIndex];
-                    }
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfMeshes = function (gltfJson) {
-            var e_3, _a, e_4, _b;
-            try {
-                // Mesh
-                for (var _c = __values(gltfJson.meshes), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var mesh = _d.value;
-                    try {
-                        for (var _e = __values(mesh.primitives), _f = _e.next(); !_f.done; _f = _e.next()) {
-                            var primitive = _f.value;
-                            if (primitive.material !== void 0) {
-                                primitive.materialIndex = primitive.material;
-                                primitive.material = gltfJson.materials[primitive.materialIndex];
-                            }
-                            primitive.attributesindex = Object.assign({}, primitive.attributes);
-                            for (var attributeName in primitive.attributesindex) {
-                                if (primitive.attributesindex[attributeName] >= 0) {
-                                    var accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
-                                    accessor.extras = {
-                                        toGetAsTypedArray: true,
-                                        attributeName: attributeName
-                                    };
-                                    primitive.attributes[attributeName] = accessor;
-                                }
-                                else {
-                                    primitive.attributes[attributeName] = void 0;
-                                }
-                            }
-                            if (primitive.indices !== void 0) {
-                                primitive.indicesIndex = primitive.indices;
-                                primitive.indices = gltfJson.accessors[primitive.indicesIndex];
-                            }
-                        }
-                    }
-                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                    finally {
-                        try {
-                            if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                        }
-                        finally { if (e_4) throw e_4.error; }
-                    }
-                }
-            }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                }
-                finally { if (e_3) throw e_3.error; }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfMaterials = function (gltfJson) {
-            var e_5, _a;
-            // Material
-            if (gltfJson.materials) {
-                try {
-                    for (var _b = __values(gltfJson.materials), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var material = _c.value;
-                        if (material.pbrMetallicRoughness) {
-                            var baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
-                            if (baseColorTexture !== void 0) {
-                                baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
-                            }
-                            var metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
-                            if (metallicRoughnessTexture !== void 0) {
-                                metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
-                            }
-                        }
-                        var normalTexture = material.normalTexture;
-                        if (normalTexture !== void 0) {
-                            normalTexture.texture = gltfJson.textures[normalTexture.index];
-                        }
-                        var occlusionTexture = material.occlusionTexture;
-                        if (occlusionTexture !== void 0) {
-                            occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
-                        }
-                        var emissiveTexture = material.emissiveTexture;
-                        if (emissiveTexture !== void 0) {
-                            emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
-                        }
-                    }
-                }
-                catch (e_5_1) { e_5 = { error: e_5_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_5) throw e_5.error; }
-                }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfTextures = function (gltfJson) {
-            var e_6, _a;
-            // Texture
-            if (gltfJson.textures) {
-                try {
-                    for (var _b = __values(gltfJson.textures), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var texture = _c.value;
-                        if (texture.sampler !== void 0) {
-                            texture.samplerIndex = texture.sampler;
-                            texture.sampler = gltfJson.samplers[texture.samplerIndex];
-                        }
-                        if (texture.source !== void 0) {
-                            texture.sourceIndex = texture.source;
-                            texture.image = gltfJson.images[texture.sourceIndex];
-                        }
-                    }
-                }
-                catch (e_6_1) { e_6 = { error: e_6_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_6) throw e_6.error; }
-                }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfJoints = function (gltfJson) {
-            var e_7, _a, e_8, _b;
-            if (gltfJson.skins) {
-                try {
-                    for (var _c = __values(gltfJson.skins), _d = _c.next(); !_d.done; _d = _c.next()) {
-                        var skin = _d.value;
-                        skin.skeletonIndex = skin.skeleton;
-                        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
-                        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-                        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
-                        skin.jointsIndices = skin.joints;
-                        skin.joints = [];
-                        try {
-                            for (var _e = __values(skin.jointsIndices), _f = _e.next(); !_f.done; _f = _e.next()) {
-                                var jointIndex = _f.value;
-                                skin.joints.push(gltfJson.nodes[jointIndex]);
-                            }
-                        }
-                        catch (e_8_1) { e_8 = { error: e_8_1 }; }
-                        finally {
-                            try {
-                                if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                            }
-                            finally { if (e_8) throw e_8.error; }
-                        }
-                    }
-                }
-                catch (e_7_1) { e_7 = { error: e_7_1 }; }
-                finally {
-                    try {
-                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                    }
-                    finally { if (e_7) throw e_7.error; }
-                }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfAnimations = function (gltfJson) {
-            var e_9, _a, e_10, _b, e_11, _c;
-            if (gltfJson.animations) {
-                try {
-                    for (var _d = __values(gltfJson.animations), _e = _d.next(); !_e.done; _e = _d.next()) {
-                        var animation = _e.value;
-                        try {
-                            for (var _f = __values(animation.channels), _g = _f.next(); !_g.done; _g = _f.next()) {
-                                var channel = _g.value;
-                                channel.samplerIndex = channel.sampler;
-                                channel.sampler = animation.samplers[channel.samplerIndex];
-                                channel.target.nodeIndex = channel.target.node;
-                                channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
-                            }
-                        }
-                        catch (e_10_1) { e_10 = { error: e_10_1 }; }
-                        finally {
-                            try {
-                                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
-                            }
-                            finally { if (e_10) throw e_10.error; }
-                        }
-                        try {
-                            for (var _h = __values(animation.channels), _j = _h.next(); !_j.done; _j = _h.next()) {
-                                var channel = _j.value;
-                                channel.sampler.inputIndex = channel.sampler.input;
-                                channel.sampler.outputIndex = channel.sampler.output;
-                                channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
-                                channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
-                                if (channel.target.path === 'rotation') {
-                                    if (channel.sampler.output.extras === void 0) {
-                                        channel.sampler.output.extras = {};
-                                    }
-                                    channel.sampler.output.extras.quaternionIfVec4 = true;
-                                }
-                            }
-                        }
-                        catch (e_11_1) { e_11 = { error: e_11_1 }; }
-                        finally {
-                            try {
-                                if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
-                            }
-                            finally { if (e_11) throw e_11.error; }
-                        }
-                    }
-                }
-                catch (e_9_1) { e_9 = { error: e_9_1 }; }
-                finally {
-                    try {
-                        if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-                    }
-                    finally { if (e_9) throw e_9.error; }
-                }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfAccessors = function (gltfJson) {
-            var e_12, _a;
-            try {
-                // Accessor
-                for (var _b = __values(gltfJson.accessors), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var accessor = _c.value;
-                    if (accessor.bufferView !== void 0) {
-                        accessor.bufferViewIndex = accessor.bufferView;
-                        accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
-                    }
-                }
-            }
-            catch (e_12_1) { e_12 = { error: e_12_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_12) throw e_12.error; }
-            }
-        };
-        Gltf2Importer.prototype._loadDependenciesOfBufferViews = function (gltfJson) {
-            var e_13, _a;
-            try {
-                // BufferView
-                for (var _b = __values(gltfJson.bufferViews), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var bufferView = _c.value;
-                    if (bufferView.buffer !== void 0) {
-                        bufferView.bufferIndex = bufferView.buffer;
-                        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
-                    }
-                }
-            }
-            catch (e_13_1) { e_13 = { error: e_13_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_13) throw e_13.error; }
-            }
-        };
-        Gltf2Importer.prototype._mergeExtendedJson = function (gltfJson, extendedData) {
-            var extendedJson = null;
-            if (extendedData instanceof ArrayBuffer) {
-                var extendedJsonStr = DataUtil.arrayBufferToString(extendedData);
-                extendedJson = JSON.parse(extendedJsonStr);
-            }
-            else if (typeof extendedData === 'string') {
-                extendedJson = JSON.parse(extendedData);
-                extendedJson = extendedJson;
-            }
-            else if (typeof extendedData === 'object') {
-                extendedJson = extendedData;
-            }
-            Object.assign(gltfJson, extendedJson);
-        };
-        Gltf2Importer.prototype._loadResources = function (arrayBufferBinary, basePath, gltfJson, options, resources) {
-            var _this = this;
-            var promisesToLoadResources = [];
-            var _loop_1 = function (i) {
-                var bufferInfo = gltfJson.buffers[i];
-                var splitted = void 0;
-                var filename;
-                if (bufferInfo.uri) {
-                    splitted = bufferInfo.uri.split('/');
-                    filename = splitted[splitted.length - 1];
-                }
-                if (typeof bufferInfo.uri === 'undefined') {
-                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
-                        resources.buffers[i] = arrayBufferBinary;
-                        bufferInfo.buffer = arrayBufferBinary;
-                        resolve(gltfJson);
-                    }));
-                }
-                else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
-                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
-                        var arrayBuffer = DataUtil.base64ToArrayBuffer(bufferInfo.uri);
-                        resources.buffers[i] = arrayBuffer;
-                        bufferInfo.buffer = arrayBuffer;
-                        resolve(gltfJson);
-                    }));
-                }
-                else if (options.files && options.files[filename]) {
-                    promisesToLoadResources.push(new Promise(function (resolve, rejected) {
-                        var arrayBuffer = options.files[filename];
-                        resources.buffers[i] = arrayBuffer;
-                        bufferInfo.buffer = arrayBuffer;
-                        resolve(gltfJson);
-                    }));
-                }
-                else {
-                    promisesToLoadResources.push(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true, function (resolve, response) {
-                        resources.buffers[i] = response;
-                        bufferInfo.buffer = response;
-                        resolve(gltfJson);
-                    }, function (reject, error) {
-                    }));
-                }
-            };
-            // Shaders Async load
-            // for (let _i in gltfJson.shaders) {
-            //   const i = _i as any as number;
-            //   resources.shaders[i] = {};
-            //   let shaderJson = gltfJson.shaders[i];
-            //   let shaderType = shaderJson.type;
-            //   if (typeof shaderJson.extensions !== 'undefined' && typeof shaderJson.extensions.KHR_binary_glTF !== 'undefined') {
-            //     resources.shaders[i].shaderText = this._accessBinaryAsShader(shaderJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary);
-            //     resources.shaders[i].shaderType = shaderType;
-            //     continue;
-            //   }
-            //   let shaderUri = shaderJson.uri;
-            //   if (options.files) {
-            //     const splitted = shaderUri.split('/');
-            //     const filename = splitted[splitted.length - 1];
-            //     if (options.files[filename]) {
-            //       const arrayBuffer = options.files[filename];
-            //       resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
-            //       resources.shaders[i].shaderType = shaderType;
-            //       continue;
-            //     }
-            //   }
-            //   if (shaderUri.match(/^data:/)) {
-            //     promisesToLoadResources.push(
-            //       new Promise((resolve, rejected) => {
-            //         let arrayBuffer = DataUtil.base64ToArrayBuffer(shaderUri);
-            //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
-            //         resources.shaders[i].shaderType = shaderType;
-            //         resolve();
-            //       })
-            //     );
-            //   } else {
-            //     shaderUri = basePath + shaderUri;
-            //     promisesToLoadResources.push(
-            //       DataUtil.loadResourceAsync(shaderUri, false,
-            //         (resolve:Function, response:any)=>{
-            //           resources.shaders[i].shaderText = response;
-            //           resources.shaders[i].shaderType = shaderType;
-            //           resolve(gltfJson);
-            //         },
-            //         (reject:Function, error:any)=>{
-            //         }
-            //       )
-            //     );
-            //   }
-            // }
-            // Buffers Async load
-            for (var i in gltfJson.buffers) {
-                _loop_1(i);
-            }
-            var _loop_2 = function (_i) {
-                var i = _i;
-                var imageJson = gltfJson.images[i];
-                //let imageJson = gltfJson.images[textureJson.source];
-                //let samplerJson = gltfJson.samplers[textureJson.sampler];
-                var imageUri;
-                if (typeof imageJson.uri === 'undefined') {
-                    imageUri = this_1._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
-                }
-                else {
-                    var imageFileStr = imageJson.uri;
-                    var splitted = imageFileStr.split('/');
-                    var filename = splitted[splitted.length - 1];
-                    if (options.files && options.files[filename]) {
-                        var arrayBuffer = options.files[filename];
-                        var splitted_1 = filename.split('.');
-                        var fileExtension = splitted_1[splitted_1.length - 1];
-                        imageUri = this_1._accessArrayBufferAsImage(arrayBuffer, fileExtension);
-                    }
-                    else if (imageFileStr.match(/^data:/)) {
-                        imageUri = imageFileStr;
-                    }
-                    else {
-                        imageUri = basePath + imageFileStr;
-                    }
-                }
-                // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
-                //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
-                // }
-                promisesToLoadResources.push(new Promise(function (resolve, reject) {
-                    var img = new Image();
-                    img.crossOrigin = 'Anonymous';
-                    img.src = imageUri;
-                    imageJson.image = img;
-                    if (imageUri.match(/^data:/)) {
-                        resolve(gltfJson);
-                    }
-                    else {
-                        var load_1 = function (img, response) {
-                            var bytes = new Uint8Array(response);
-                            var binaryData = "";
-                            for (var i = 0, len = bytes.byteLength; i < len; i++) {
-                                binaryData += String.fromCharCode(bytes[i]);
-                            }
-                            var split = imageUri.split('.');
-                            var ext = split[split.length - 1];
-                            img.src = _this._getImageType(ext) + window.btoa(binaryData);
-                            img.onload = function () {
-                                resolve(gltfJson);
-                            };
-                        };
-                        var loadBinaryImage = function () {
-                            var xhr = new XMLHttpRequest();
-                            xhr.onreadystatechange = (function (_img) {
-                                return function () {
-                                    if (xhr.readyState == 4 && xhr.status == 200) {
-                                        load_1(_img, xhr.response);
-                                    }
-                                };
-                            })(img);
-                            xhr.open('GET', imageUri);
-                            xhr.responseType = 'arraybuffer';
-                            xhr.send();
-                        };
-                        loadBinaryImage();
-                    }
-                    resources.images[i] = img;
-                }));
-            };
-            var this_1 = this;
-            // Textures Async load
-            for (var _i in gltfJson.images) {
-                _loop_2(_i);
-            }
-            return Promise.all(promisesToLoadResources);
-        };
-        Gltf2Importer.prototype._accessBinaryAsImage = function (bufferViewStr, json, arrayBuffer, mimeType) {
-            var arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
-            return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
-        };
-        Gltf2Importer.prototype._sliceBufferViewToArrayBuffer = function (json, bufferViewStr, arrayBuffer) {
-            var bufferViewJson = json.bufferViews[bufferViewStr];
-            var byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-            var byteLength = bufferViewJson.byteLength;
-            var arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
-            return arrayBufferSliced;
-        };
-        Gltf2Importer.prototype._accessArrayBufferAsImage = function (arrayBuffer, imageType) {
-            var bytes = new Uint8Array(arrayBuffer);
-            var binaryData = '';
-            for (var i = 0, len = bytes.byteLength; i < len; i++) {
-                binaryData += String.fromCharCode(bytes[i]);
-            }
-            var imgSrc = this._getImageType(imageType);
-            var dataUrl = imgSrc + DataUtil.btoa(binaryData);
-            return dataUrl;
-        };
-        Gltf2Importer.prototype._getImageType = function (imageType) {
-            var imgSrc = null;
-            if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
-                imgSrc = "data:image/jpeg;base64,";
-            }
-            else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
-                imgSrc = "data:image/png;base64,";
-            }
-            else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
-                imgSrc = "data:image/gif;base64,";
-            }
-            else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
-                imgSrc = "data:image/bmp;base64,";
-            }
-            else {
-                imgSrc = "data:image/unknown;base64,";
-            }
-            return imgSrc;
-        };
-        Gltf2Importer.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new Gltf2Importer();
-            }
-            return this.__instance;
-        };
-        return Gltf2Importer;
-    }());
-
-    /**
-     * A converter class from glTF2 model to Rhodonite Native data
-     */
-    var ModelConverter = /** @class */ (function () {
-        function ModelConverter() {
-        }
-        /**
-         * The static method to get singleton instance of this class.
-         * @return The singleton instance of ModelConverter class
-         */
-        ModelConverter.getInstance = function () {
-            if (!this.__instance) {
-                this.__instance = new ModelConverter();
-            }
-            return this.__instance;
-        };
-        ModelConverter.prototype._getDefaultShader = function (options) {
-            var defaultShader = null;
-            // if (options && typeof options.defaultShaderClass !== "undefined") {
-            //   if (typeof options.defaultShaderClass === "string") {
-            //     defaultShader = GLBoost[options.defaultShaderClass];
-            //   } else {
-            //     defaultShader = options.defaultShaderClass;
-            //   }
-            // }
-            return defaultShader;
-        };
-        ModelConverter.prototype.__generateGroupEntity = function () {
-            var repo = EntityRepository.getInstance();
-            var entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
-            return entity;
-        };
-        ModelConverter.prototype.__generateMeshEntity = function () {
-            var repo = EntityRepository.getInstance();
-            var entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
-                MeshComponent.componentTID, MeshRendererComponent.componentTID]);
-            return entity;
-        };
-        ModelConverter.prototype.convertToRhodoniteObject = function (gltfModel) {
-            // load binary data
-            // for (let accessor of gltfModel.accessors) {
-            //   this._accessBinaryWithAccessor(accessor);
-            // }
-            var e_1, _a, e_2, _b;
-            var rnBuffer = this.createRnBuffer(gltfModel);
-            // Mesh data
-            var meshEntities = this._setupMesh(gltfModel, rnBuffer);
-            var groups = [];
-            try {
-                for (var _c = __values(gltfModel.nodes), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var node = _d.value;
-                    var group = this.__generateGroupEntity();
-                    group.tryToSetUniqueName(node.name, true);
-                    groups.push(group);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            // Transfrom
-            this._setupTransform(gltfModel, groups);
-            // Skeleton
-            //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
-            // Hierarchy
-            this._setupHierarchy(gltfModel, groups, meshEntities);
-            // Animation
-            //    this._setupAnimation(gltfModel, groups);
-            // Root Group
-            var rootGroup = this.__generateGroupEntity();
-            rootGroup.tryToSetUniqueName('FileRoot', true);
-            if (gltfModel.scenes[0].nodesIndices) {
-                try {
-                    for (var _e = __values(gltfModel.scenes[0].nodesIndices), _f = _e.next(); !_f.done; _f = _e.next()) {
-                        var nodesIndex = _f.value;
-                        rootGroup.getSceneGraph().addChild(groups[nodesIndex].getSceneGraph());
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-            }
-            // Post Skeletal Proccess
-            // for (let glboostMesh of glboostMeshes) {
-            //   if (glboostMesh instanceof M_SkeletalMesh) {
-            //     if (!glboostMesh.jointsHierarchy) {
-            //       glboostMesh.jointsHierarchy = rootGroup;
-            //     }
-            //   }
-            // }
-            // let options = gltfModel.asset.extras.glboostOptions;
-            // if (options.loaderExtension && options.loaderExtension.setAssetPropertiesToRootGroup) {
-            //   options.loaderExtension.setAssetPropertiesToRootGroup(rootGroup, gltfModel.asset);
-            // }
-            // if (options && options.loaderExtension && options.loaderExtension.loadExtensionInfoAndSetToRootGroup) {
-            //   options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel, glBoostContext);
-            // }
-            // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
-            return rootGroup;
-        };
-        ModelConverter.prototype.createRnBuffer = function (gltfModel) {
-            var buffer = gltfModel.buffers[0];
-            var rnBuffer = new Buffer$1({
-                byteLength: buffer.byteLength,
-                arrayBuffer: buffer.buffer,
-                name: "gltf2Buffer_0_(" + buffer.uri + ")"
-            });
-            return rnBuffer;
-        };
-        ModelConverter.prototype._setupTransform = function (gltfModel, groups) {
-            for (var node_i in gltfModel.nodes) {
-                var group = groups[node_i];
-                var nodeJson = gltfModel.nodes[node_i];
-                if (nodeJson.translation) {
-                    group.getTransform().translate = new Vector3(nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);
-                }
-                if (nodeJson.scale) {
-                    group.getTransform().scale = new Vector3(nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);
-                }
-                if (nodeJson.rotation) {
-                    group.getTransform().quaternion = new Quaternion(nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);
-                }
-                if (nodeJson.matrix) {
-                    group.getTransform().matrix = new Matrix44(nodeJson.matrix, true);
-                }
-            }
-        };
-        ModelConverter.prototype._setupHierarchy = function (gltfModel, groups, meshEntities) {
-            var e_3, _a;
-            var groupSceneComponents = groups.map(function (group) { return group.getSceneGraph(); });
-            var meshSceneComponents = meshEntities.map(function (mesh) { return mesh.getSceneGraph(); });
-            for (var node_i in gltfModel.nodes) {
-                var node = gltfModel.nodes[parseInt(node_i)];
-                var parentGroup = groupSceneComponents[node_i];
-                if (node.mesh) {
-                    parentGroup.addChild(meshSceneComponents[node.meshIndex]);
-                }
-                if (node.childrenIndices) {
-                    try {
-                        for (var _b = __values(node.childrenIndices), _c = _b.next(); !_c.done; _c = _b.next()) {
-                            var childNode_i = _c.value;
-                            var childGroup = groupSceneComponents[childNode_i];
-                            parentGroup.addChild(childGroup);
-                        }
-                    }
-                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                    finally {
-                        try {
-                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                        }
-                        finally { if (e_3) throw e_3.error; }
-                    }
-                }
-            }
-        };
-        // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
-        //   if (gltfModel.animations) {
-        //     for (let animation of gltfModel.animations) {
-        //       for (let channel of animation.channels) {
-        //         let animInputArray = channel.sampler.input.extras.vertexAttributeArray;
-        //         let animOutputArray = channel.sampler.output.extras.vertexAttributeArray;;
-        //         let animationAttributeName = '';
-        //         if (channel.target.path === 'translation') {
-        //           animationAttributeName = 'translate';
-        //         } else if (channel.target.path === 'rotation') {
-        //           animationAttributeName = 'quaternion';
-        //         } else {
-        //           animationAttributeName = channel.target.path;
-        //         }
-        //         let group = groups[channel.target.nodeIndex];
-        //         if (group) {
-        //           group.setAnimationAtLine('time', animationAttributeName, animInputArray, animOutputArray);
-        //           group.setActiveAnimationLine('time');
-        //         }
-        //       }
-        //     }
-        //   }
-        // }
-        // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-        //   for (let node_i in gltfModel.nodes) {
-        //     let node = gltfModel.nodes[node_i];
-        //     let group = groups[node_i];
-        //     if (node.skin && node.skin.skeleton) {
-        //       group._isRootJointGroup = true;
-        //       if (node.mesh) {
-        //         let glboostMesh = glboostMeshes[node.meshIndex];
-        //         glboostMesh.jointsHierarchy = groups[node.skin.skeletonIndex];
-        //       }
-        //     }
-        //     if (node.skin && node.skin.joints) {
-        //       for (let joint_i of node.skin.jointsIndices) {
-        //         let joint = node.skin.joints[joint_i];
-        //         let options = gltfModel.asset.extras.glboostOptions;
-        //         let glboostJoint = glBoostContext.createJoint(options.isExistJointGizmo);
-        //         glboostJoint._glTFJointIndex = joint_i;
-        //         let group = groups[joint_i];
-        //         group.addChild(glboostJoint, true);
-        //       }
-        //     }
-        //   }
-        // }
-        ModelConverter.prototype._setupMesh = function (gltfModel, rnBuffer) {
-            var e_4, _a;
-            var meshEntities = [];
-            try {
-                for (var _b = __values(gltfModel.meshes), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var mesh = _c.value;
-                    var meshEntity = this.__generateMeshEntity();
-                    meshEntities.push(meshEntity);
-                    var rnPrimitiveMode = PrimitiveMode.from(4);
-                    for (var i in mesh.primitives) {
-                        var primitive = mesh.primitives[i];
-                        if (primitive.mode != null) {
-                            rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
-                        }
-                        var indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
-                        var attributeRnAccessors = [];
-                        var attributeSemantics = [];
-                        for (var attributeName in primitive.attributes) {
-                            var attributeAccessor = primitive.attributes[attributeName];
-                            var attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-                            attributeRnAccessors.push(attributeRnAccessor);
-                            attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
-                        }
-                        var rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
-                        var meshComponent = meshEntity.getComponent(MeshComponent.componentTID);
-                        meshComponent.addPrimitive(rnPrimitive);
-                    }
-                }
-            }
-            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_4) throw e_4.error; }
-            }
-            return meshEntities;
-        };
-        ModelConverter.prototype.__getRnAccessor = function (accessor, rnBuffer) {
-            var bufferView = accessor.bufferView;
-            var rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-                byteLengthToNeed: bufferView.byteLength,
-                byteStride: bufferView.byteStride,
-                byteOffset: bufferView.byteOffset,
-                isAoS: false
-            });
-            var rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-                compositionType: CompositionType.fromString(accessor.type),
-                componentType: ComponentType.from(accessor.componentType),
-                count: accessor.count,
-                byteOffset: accessor.byteOffset
-            });
-            return rnAccessor;
-        };
-        return ModelConverter;
-    }());
-
-    var Rn = {
-        EntityRepository: EntityRepository,
-        TransformComponent: TransformComponent,
-        SceneGraphComponent: SceneGraphComponent,
-        MeshComponent: MeshComponent,
-        MeshRendererComponent: MeshRendererComponent,
-        Primitive: Primitive,
-        WebGLResourceRepository: WebGLResourceRepository,
-        CompositionType: CompositionType,
-        ComponentType: ComponentType,
-        VertexAttribute: VertexAttribute,
-        PrimitiveMode: PrimitiveMode,
-        GLSLShader: GLSLShader,
-        System: System,
-        Vector3: Vector3,
-        Vector4: Vector4,
-        MutableVector3: MutableVector3,
-        MutableVector4: MutableVector4,
-        Matrix33: Matrix33,
-        Matrix44: Matrix44,
-        MutableMatrix44: MutableMatrix44,
-        ProcessApproach: ProcessApproach,
-        Gltf2Importer: Gltf2Importer,
-        ModelConverter: ModelConverter
-    };
-    window['Rn'] = Rn;
-
-    return Rn;
-
-})));
-
-(0,eval)('this').Rn.VERSION='version: UKNOWN branch: feature/project-settings';
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// install a JSONP callback for chunk loading
+/******/ 	function webpackJsonpCallback(data) {
+/******/ 		var chunkIds = data[0];
+/******/ 		var moreModules = data[1];
+/******/
+/******/
+/******/ 		// add "moreModules" to the modules object,
+/******/ 		// then flag all "chunkIds" as loaded and fire callback
+/******/ 		var moduleId, chunkId, i = 0, resolves = [];
+/******/ 		for(;i < chunkIds.length; i++) {
+/******/ 			chunkId = chunkIds[i];
+/******/ 			if(installedChunks[chunkId]) {
+/******/ 				resolves.push(installedChunks[chunkId][0]);
+/******/ 			}
+/******/ 			installedChunks[chunkId] = 0;
+/******/ 		}
+/******/ 		for(moduleId in moreModules) {
+/******/ 			if(Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
+/******/ 				modules[moduleId] = moreModules[moduleId];
+/******/ 			}
+/******/ 		}
+/******/ 		if(parentJsonpFunction) parentJsonpFunction(data);
+/******/
+/******/ 		while(resolves.length) {
+/******/ 			resolves.shift()();
+/******/ 		}
+/******/
+/******/ 	};
+/******/
+/******/
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// object to store loaded and loading chunks
+/******/ 	// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 	// Promise = chunk loading, 0 = chunk loaded
+/******/ 	var installedChunks = {
+/******/ 		"main": 0
+/******/ 	};
+/******/
+/******/
+/******/
+/******/ 	// script path function
+/******/ 	function jsonpScriptSrc(chunkId) {
+/******/ 		return __webpack_require__.p + "rhodonite-" + ({"webgl":"webgl"}[chunkId]||chunkId) + ".js"
+/******/ 	}
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/ 	// This file contains only the entry chunk.
+/******/ 	// The chunk loading function for additional chunks
+/******/ 	__webpack_require__.e = function requireEnsure(chunkId) {
+/******/ 		var promises = [];
+/******/
+/******/
+/******/ 		// JSONP chunk loading for javascript
+/******/
+/******/ 		var installedChunkData = installedChunks[chunkId];
+/******/ 		if(installedChunkData !== 0) { // 0 means "already installed".
+/******/
+/******/ 			// a Promise means "currently loading".
+/******/ 			if(installedChunkData) {
+/******/ 				promises.push(installedChunkData[2]);
+/******/ 			} else {
+/******/ 				// setup Promise in chunk cache
+/******/ 				var promise = new Promise(function(resolve, reject) {
+/******/ 					installedChunkData = installedChunks[chunkId] = [resolve, reject];
+/******/ 				});
+/******/ 				promises.push(installedChunkData[2] = promise);
+/******/
+/******/ 				// start chunk loading
+/******/ 				var script = document.createElement('script');
+/******/ 				var onScriptComplete;
+/******/
+/******/ 				script.charset = 'utf-8';
+/******/ 				script.timeout = 120;
+/******/ 				if (__webpack_require__.nc) {
+/******/ 					script.setAttribute("nonce", __webpack_require__.nc);
+/******/ 				}
+/******/ 				script.src = jsonpScriptSrc(chunkId);
+/******/
+/******/ 				onScriptComplete = function (event) {
+/******/ 					// avoid mem leaks in IE.
+/******/ 					script.onerror = script.onload = null;
+/******/ 					clearTimeout(timeout);
+/******/ 					var chunk = installedChunks[chunkId];
+/******/ 					if(chunk !== 0) {
+/******/ 						if(chunk) {
+/******/ 							var errorType = event && (event.type === 'load' ? 'missing' : event.type);
+/******/ 							var realSrc = event && event.target && event.target.src;
+/******/ 							var error = new Error('Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')');
+/******/ 							error.type = errorType;
+/******/ 							error.request = realSrc;
+/******/ 							chunk[1](error);
+/******/ 						}
+/******/ 						installedChunks[chunkId] = undefined;
+/******/ 					}
+/******/ 				};
+/******/ 				var timeout = setTimeout(function(){
+/******/ 					onScriptComplete({ type: 'timeout', target: script });
+/******/ 				}, 120000);
+/******/ 				script.onerror = script.onload = onScriptComplete;
+/******/ 				document.head.appendChild(script);
+/******/ 			}
+/******/ 		}
+/******/ 		return Promise.all(promises);
+/******/ 	};
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/dist/";
+/******/
+/******/ 	// on error function for async loading
+/******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
+/******/
+/******/ 	var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];
+/******/ 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);
+/******/ 	jsonpArray.push = webpackJsonpCallback;
+/******/ 	jsonpArray = jsonpArray.slice();
+/******/ 	for(var i = 0; i < jsonpArray.length; i++) webpackJsonpCallback(jsonpArray[i]);
+/******/ 	var parentJsonpFunction = oldJsonpFunction;
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/foundation/main.ts");
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./node_modules/base64-js/index.js":
+/*!*****************************************!*\
+  !*** ./node_modules/base64-js/index.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nexports.byteLength = byteLength\nexports.toByteArray = toByteArray\nexports.fromByteArray = fromByteArray\n\nvar lookup = []\nvar revLookup = []\nvar Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array\n\nvar code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\nfor (var i = 0, len = code.length; i < len; ++i) {\n  lookup[i] = code[i]\n  revLookup[code.charCodeAt(i)] = i\n}\n\n// Support decoding URL-safe base64 strings, as Node.js does.\n// See: https://en.wikipedia.org/wiki/Base64#URL_applications\nrevLookup['-'.charCodeAt(0)] = 62\nrevLookup['_'.charCodeAt(0)] = 63\n\nfunction getLens (b64) {\n  var len = b64.length\n\n  if (len % 4 > 0) {\n    throw new Error('Invalid string. Length must be a multiple of 4')\n  }\n\n  // Trim off extra bytes after placeholder bytes are found\n  // See: https://github.com/beatgammit/base64-js/issues/42\n  var validLen = b64.indexOf('=')\n  if (validLen === -1) validLen = len\n\n  var placeHoldersLen = validLen === len\n    ? 0\n    : 4 - (validLen % 4)\n\n  return [validLen, placeHoldersLen]\n}\n\n// base64 is 4/3 + up to two characters of the original data\nfunction byteLength (b64) {\n  var lens = getLens(b64)\n  var validLen = lens[0]\n  var placeHoldersLen = lens[1]\n  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen\n}\n\nfunction _byteLength (b64, validLen, placeHoldersLen) {\n  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen\n}\n\nfunction toByteArray (b64) {\n  var tmp\n  var lens = getLens(b64)\n  var validLen = lens[0]\n  var placeHoldersLen = lens[1]\n\n  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))\n\n  var curByte = 0\n\n  // if there are placeholders, only get up to the last complete 4 chars\n  var len = placeHoldersLen > 0\n    ? validLen - 4\n    : validLen\n\n  for (var i = 0; i < len; i += 4) {\n    tmp =\n      (revLookup[b64.charCodeAt(i)] << 18) |\n      (revLookup[b64.charCodeAt(i + 1)] << 12) |\n      (revLookup[b64.charCodeAt(i + 2)] << 6) |\n      revLookup[b64.charCodeAt(i + 3)]\n    arr[curByte++] = (tmp >> 16) & 0xFF\n    arr[curByte++] = (tmp >> 8) & 0xFF\n    arr[curByte++] = tmp & 0xFF\n  }\n\n  if (placeHoldersLen === 2) {\n    tmp =\n      (revLookup[b64.charCodeAt(i)] << 2) |\n      (revLookup[b64.charCodeAt(i + 1)] >> 4)\n    arr[curByte++] = tmp & 0xFF\n  }\n\n  if (placeHoldersLen === 1) {\n    tmp =\n      (revLookup[b64.charCodeAt(i)] << 10) |\n      (revLookup[b64.charCodeAt(i + 1)] << 4) |\n      (revLookup[b64.charCodeAt(i + 2)] >> 2)\n    arr[curByte++] = (tmp >> 8) & 0xFF\n    arr[curByte++] = tmp & 0xFF\n  }\n\n  return arr\n}\n\nfunction tripletToBase64 (num) {\n  return lookup[num >> 18 & 0x3F] +\n    lookup[num >> 12 & 0x3F] +\n    lookup[num >> 6 & 0x3F] +\n    lookup[num & 0x3F]\n}\n\nfunction encodeChunk (uint8, start, end) {\n  var tmp\n  var output = []\n  for (var i = start; i < end; i += 3) {\n    tmp =\n      ((uint8[i] << 16) & 0xFF0000) +\n      ((uint8[i + 1] << 8) & 0xFF00) +\n      (uint8[i + 2] & 0xFF)\n    output.push(tripletToBase64(tmp))\n  }\n  return output.join('')\n}\n\nfunction fromByteArray (uint8) {\n  var tmp\n  var len = uint8.length\n  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes\n  var parts = []\n  var maxChunkLength = 16383 // must be multiple of 3\n\n  // go through the array every three bytes, we'll deal with trailing stuff later\n  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {\n    parts.push(encodeChunk(\n      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)\n    ))\n  }\n\n  // pad the end with zeros, but make sure to not forget the extra bytes\n  if (extraBytes === 1) {\n    tmp = uint8[len - 1]\n    parts.push(\n      lookup[tmp >> 2] +\n      lookup[(tmp << 4) & 0x3F] +\n      '=='\n    )\n  } else if (extraBytes === 2) {\n    tmp = (uint8[len - 2] << 8) + uint8[len - 1]\n    parts.push(\n      lookup[tmp >> 10] +\n      lookup[(tmp >> 4) & 0x3F] +\n      lookup[(tmp << 2) & 0x3F] +\n      '='\n    )\n  }\n\n  return parts.join('')\n}\n\n\n//# sourceURL=webpack:///./node_modules/base64-js/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/buffer/index.js":
+/*!**************************************!*\
+  !*** ./node_modules/buffer/index.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("/* WEBPACK VAR INJECTION */(function(global) {/*!\n * The buffer module from node.js, for the browser.\n *\n * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>\n * @license  MIT\n */\n/* eslint-disable no-proto */\n\n\n\nvar base64 = __webpack_require__(/*! base64-js */ \"./node_modules/base64-js/index.js\")\nvar ieee754 = __webpack_require__(/*! ieee754 */ \"./node_modules/ieee754/index.js\")\nvar isArray = __webpack_require__(/*! isarray */ \"./node_modules/isarray/index.js\")\n\nexports.Buffer = Buffer\nexports.SlowBuffer = SlowBuffer\nexports.INSPECT_MAX_BYTES = 50\n\n/**\n * If `Buffer.TYPED_ARRAY_SUPPORT`:\n *   === true    Use Uint8Array implementation (fastest)\n *   === false   Use Object implementation (most compatible, even IE6)\n *\n * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,\n * Opera 11.6+, iOS 4.2+.\n *\n * Due to various browser bugs, sometimes the Object implementation will be used even\n * when the browser supports typed arrays.\n *\n * Note:\n *\n *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,\n *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.\n *\n *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.\n *\n *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of\n *     incorrect length in some situations.\n\n * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they\n * get the Object implementation, which is slower but behaves correctly.\n */\nBuffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined\n  ? global.TYPED_ARRAY_SUPPORT\n  : typedArraySupport()\n\n/*\n * Export kMaxLength after typed array support is determined.\n */\nexports.kMaxLength = kMaxLength()\n\nfunction typedArraySupport () {\n  try {\n    var arr = new Uint8Array(1)\n    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}\n    return arr.foo() === 42 && // typed array instances can be augmented\n        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`\n        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`\n  } catch (e) {\n    return false\n  }\n}\n\nfunction kMaxLength () {\n  return Buffer.TYPED_ARRAY_SUPPORT\n    ? 0x7fffffff\n    : 0x3fffffff\n}\n\nfunction createBuffer (that, length) {\n  if (kMaxLength() < length) {\n    throw new RangeError('Invalid typed array length')\n  }\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    // Return an augmented `Uint8Array` instance, for best performance\n    that = new Uint8Array(length)\n    that.__proto__ = Buffer.prototype\n  } else {\n    // Fallback: Return an object instance of the Buffer class\n    if (that === null) {\n      that = new Buffer(length)\n    }\n    that.length = length\n  }\n\n  return that\n}\n\n/**\n * The Buffer constructor returns instances of `Uint8Array` that have their\n * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of\n * `Uint8Array`, so the returned instances will have all the node `Buffer` methods\n * and the `Uint8Array` methods. Square bracket notation works as expected -- it\n * returns a single octet.\n *\n * The `Uint8Array` prototype remains unmodified.\n */\n\nfunction Buffer (arg, encodingOrOffset, length) {\n  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {\n    return new Buffer(arg, encodingOrOffset, length)\n  }\n\n  // Common case.\n  if (typeof arg === 'number') {\n    if (typeof encodingOrOffset === 'string') {\n      throw new Error(\n        'If encoding is specified then the first argument must be a string'\n      )\n    }\n    return allocUnsafe(this, arg)\n  }\n  return from(this, arg, encodingOrOffset, length)\n}\n\nBuffer.poolSize = 8192 // not used by this implementation\n\n// TODO: Legacy, not needed anymore. Remove in next major version.\nBuffer._augment = function (arr) {\n  arr.__proto__ = Buffer.prototype\n  return arr\n}\n\nfunction from (that, value, encodingOrOffset, length) {\n  if (typeof value === 'number') {\n    throw new TypeError('\"value\" argument must not be a number')\n  }\n\n  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {\n    return fromArrayBuffer(that, value, encodingOrOffset, length)\n  }\n\n  if (typeof value === 'string') {\n    return fromString(that, value, encodingOrOffset)\n  }\n\n  return fromObject(that, value)\n}\n\n/**\n * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError\n * if value is a number.\n * Buffer.from(str[, encoding])\n * Buffer.from(array)\n * Buffer.from(buffer)\n * Buffer.from(arrayBuffer[, byteOffset[, length]])\n **/\nBuffer.from = function (value, encodingOrOffset, length) {\n  return from(null, value, encodingOrOffset, length)\n}\n\nif (Buffer.TYPED_ARRAY_SUPPORT) {\n  Buffer.prototype.__proto__ = Uint8Array.prototype\n  Buffer.__proto__ = Uint8Array\n  if (typeof Symbol !== 'undefined' && Symbol.species &&\n      Buffer[Symbol.species] === Buffer) {\n    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97\n    Object.defineProperty(Buffer, Symbol.species, {\n      value: null,\n      configurable: true\n    })\n  }\n}\n\nfunction assertSize (size) {\n  if (typeof size !== 'number') {\n    throw new TypeError('\"size\" argument must be a number')\n  } else if (size < 0) {\n    throw new RangeError('\"size\" argument must not be negative')\n  }\n}\n\nfunction alloc (that, size, fill, encoding) {\n  assertSize(size)\n  if (size <= 0) {\n    return createBuffer(that, size)\n  }\n  if (fill !== undefined) {\n    // Only pay attention to encoding if it's a string. This\n    // prevents accidentally sending in a number that would\n    // be interpretted as a start offset.\n    return typeof encoding === 'string'\n      ? createBuffer(that, size).fill(fill, encoding)\n      : createBuffer(that, size).fill(fill)\n  }\n  return createBuffer(that, size)\n}\n\n/**\n * Creates a new filled Buffer instance.\n * alloc(size[, fill[, encoding]])\n **/\nBuffer.alloc = function (size, fill, encoding) {\n  return alloc(null, size, fill, encoding)\n}\n\nfunction allocUnsafe (that, size) {\n  assertSize(size)\n  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)\n  if (!Buffer.TYPED_ARRAY_SUPPORT) {\n    for (var i = 0; i < size; ++i) {\n      that[i] = 0\n    }\n  }\n  return that\n}\n\n/**\n * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.\n * */\nBuffer.allocUnsafe = function (size) {\n  return allocUnsafe(null, size)\n}\n/**\n * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.\n */\nBuffer.allocUnsafeSlow = function (size) {\n  return allocUnsafe(null, size)\n}\n\nfunction fromString (that, string, encoding) {\n  if (typeof encoding !== 'string' || encoding === '') {\n    encoding = 'utf8'\n  }\n\n  if (!Buffer.isEncoding(encoding)) {\n    throw new TypeError('\"encoding\" must be a valid string encoding')\n  }\n\n  var length = byteLength(string, encoding) | 0\n  that = createBuffer(that, length)\n\n  var actual = that.write(string, encoding)\n\n  if (actual !== length) {\n    // Writing a hex string, for example, that contains invalid characters will\n    // cause everything after the first invalid character to be ignored. (e.g.\n    // 'abxxcd' will be treated as 'ab')\n    that = that.slice(0, actual)\n  }\n\n  return that\n}\n\nfunction fromArrayLike (that, array) {\n  var length = array.length < 0 ? 0 : checked(array.length) | 0\n  that = createBuffer(that, length)\n  for (var i = 0; i < length; i += 1) {\n    that[i] = array[i] & 255\n  }\n  return that\n}\n\nfunction fromArrayBuffer (that, array, byteOffset, length) {\n  array.byteLength // this throws if `array` is not a valid ArrayBuffer\n\n  if (byteOffset < 0 || array.byteLength < byteOffset) {\n    throw new RangeError('\\'offset\\' is out of bounds')\n  }\n\n  if (array.byteLength < byteOffset + (length || 0)) {\n    throw new RangeError('\\'length\\' is out of bounds')\n  }\n\n  if (byteOffset === undefined && length === undefined) {\n    array = new Uint8Array(array)\n  } else if (length === undefined) {\n    array = new Uint8Array(array, byteOffset)\n  } else {\n    array = new Uint8Array(array, byteOffset, length)\n  }\n\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    // Return an augmented `Uint8Array` instance, for best performance\n    that = array\n    that.__proto__ = Buffer.prototype\n  } else {\n    // Fallback: Return an object instance of the Buffer class\n    that = fromArrayLike(that, array)\n  }\n  return that\n}\n\nfunction fromObject (that, obj) {\n  if (Buffer.isBuffer(obj)) {\n    var len = checked(obj.length) | 0\n    that = createBuffer(that, len)\n\n    if (that.length === 0) {\n      return that\n    }\n\n    obj.copy(that, 0, 0, len)\n    return that\n  }\n\n  if (obj) {\n    if ((typeof ArrayBuffer !== 'undefined' &&\n        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {\n      if (typeof obj.length !== 'number' || isnan(obj.length)) {\n        return createBuffer(that, 0)\n      }\n      return fromArrayLike(that, obj)\n    }\n\n    if (obj.type === 'Buffer' && isArray(obj.data)) {\n      return fromArrayLike(that, obj.data)\n    }\n  }\n\n  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')\n}\n\nfunction checked (length) {\n  // Note: cannot use `length < kMaxLength()` here because that fails when\n  // length is NaN (which is otherwise coerced to zero.)\n  if (length >= kMaxLength()) {\n    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +\n                         'size: 0x' + kMaxLength().toString(16) + ' bytes')\n  }\n  return length | 0\n}\n\nfunction SlowBuffer (length) {\n  if (+length != length) { // eslint-disable-line eqeqeq\n    length = 0\n  }\n  return Buffer.alloc(+length)\n}\n\nBuffer.isBuffer = function isBuffer (b) {\n  return !!(b != null && b._isBuffer)\n}\n\nBuffer.compare = function compare (a, b) {\n  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {\n    throw new TypeError('Arguments must be Buffers')\n  }\n\n  if (a === b) return 0\n\n  var x = a.length\n  var y = b.length\n\n  for (var i = 0, len = Math.min(x, y); i < len; ++i) {\n    if (a[i] !== b[i]) {\n      x = a[i]\n      y = b[i]\n      break\n    }\n  }\n\n  if (x < y) return -1\n  if (y < x) return 1\n  return 0\n}\n\nBuffer.isEncoding = function isEncoding (encoding) {\n  switch (String(encoding).toLowerCase()) {\n    case 'hex':\n    case 'utf8':\n    case 'utf-8':\n    case 'ascii':\n    case 'latin1':\n    case 'binary':\n    case 'base64':\n    case 'ucs2':\n    case 'ucs-2':\n    case 'utf16le':\n    case 'utf-16le':\n      return true\n    default:\n      return false\n  }\n}\n\nBuffer.concat = function concat (list, length) {\n  if (!isArray(list)) {\n    throw new TypeError('\"list\" argument must be an Array of Buffers')\n  }\n\n  if (list.length === 0) {\n    return Buffer.alloc(0)\n  }\n\n  var i\n  if (length === undefined) {\n    length = 0\n    for (i = 0; i < list.length; ++i) {\n      length += list[i].length\n    }\n  }\n\n  var buffer = Buffer.allocUnsafe(length)\n  var pos = 0\n  for (i = 0; i < list.length; ++i) {\n    var buf = list[i]\n    if (!Buffer.isBuffer(buf)) {\n      throw new TypeError('\"list\" argument must be an Array of Buffers')\n    }\n    buf.copy(buffer, pos)\n    pos += buf.length\n  }\n  return buffer\n}\n\nfunction byteLength (string, encoding) {\n  if (Buffer.isBuffer(string)) {\n    return string.length\n  }\n  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&\n      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {\n    return string.byteLength\n  }\n  if (typeof string !== 'string') {\n    string = '' + string\n  }\n\n  var len = string.length\n  if (len === 0) return 0\n\n  // Use a for loop to avoid recursion\n  var loweredCase = false\n  for (;;) {\n    switch (encoding) {\n      case 'ascii':\n      case 'latin1':\n      case 'binary':\n        return len\n      case 'utf8':\n      case 'utf-8':\n      case undefined:\n        return utf8ToBytes(string).length\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return len * 2\n      case 'hex':\n        return len >>> 1\n      case 'base64':\n        return base64ToBytes(string).length\n      default:\n        if (loweredCase) return utf8ToBytes(string).length // assume utf8\n        encoding = ('' + encoding).toLowerCase()\n        loweredCase = true\n    }\n  }\n}\nBuffer.byteLength = byteLength\n\nfunction slowToString (encoding, start, end) {\n  var loweredCase = false\n\n  // No need to verify that \"this.length <= MAX_UINT32\" since it's a read-only\n  // property of a typed array.\n\n  // This behaves neither like String nor Uint8Array in that we set start/end\n  // to their upper/lower bounds if the value passed is out of range.\n  // undefined is handled specially as per ECMA-262 6th Edition,\n  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.\n  if (start === undefined || start < 0) {\n    start = 0\n  }\n  // Return early if start > this.length. Done here to prevent potential uint32\n  // coercion fail below.\n  if (start > this.length) {\n    return ''\n  }\n\n  if (end === undefined || end > this.length) {\n    end = this.length\n  }\n\n  if (end <= 0) {\n    return ''\n  }\n\n  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.\n  end >>>= 0\n  start >>>= 0\n\n  if (end <= start) {\n    return ''\n  }\n\n  if (!encoding) encoding = 'utf8'\n\n  while (true) {\n    switch (encoding) {\n      case 'hex':\n        return hexSlice(this, start, end)\n\n      case 'utf8':\n      case 'utf-8':\n        return utf8Slice(this, start, end)\n\n      case 'ascii':\n        return asciiSlice(this, start, end)\n\n      case 'latin1':\n      case 'binary':\n        return latin1Slice(this, start, end)\n\n      case 'base64':\n        return base64Slice(this, start, end)\n\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return utf16leSlice(this, start, end)\n\n      default:\n        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)\n        encoding = (encoding + '').toLowerCase()\n        loweredCase = true\n    }\n  }\n}\n\n// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect\n// Buffer instances.\nBuffer.prototype._isBuffer = true\n\nfunction swap (b, n, m) {\n  var i = b[n]\n  b[n] = b[m]\n  b[m] = i\n}\n\nBuffer.prototype.swap16 = function swap16 () {\n  var len = this.length\n  if (len % 2 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 16-bits')\n  }\n  for (var i = 0; i < len; i += 2) {\n    swap(this, i, i + 1)\n  }\n  return this\n}\n\nBuffer.prototype.swap32 = function swap32 () {\n  var len = this.length\n  if (len % 4 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 32-bits')\n  }\n  for (var i = 0; i < len; i += 4) {\n    swap(this, i, i + 3)\n    swap(this, i + 1, i + 2)\n  }\n  return this\n}\n\nBuffer.prototype.swap64 = function swap64 () {\n  var len = this.length\n  if (len % 8 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 64-bits')\n  }\n  for (var i = 0; i < len; i += 8) {\n    swap(this, i, i + 7)\n    swap(this, i + 1, i + 6)\n    swap(this, i + 2, i + 5)\n    swap(this, i + 3, i + 4)\n  }\n  return this\n}\n\nBuffer.prototype.toString = function toString () {\n  var length = this.length | 0\n  if (length === 0) return ''\n  if (arguments.length === 0) return utf8Slice(this, 0, length)\n  return slowToString.apply(this, arguments)\n}\n\nBuffer.prototype.equals = function equals (b) {\n  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')\n  if (this === b) return true\n  return Buffer.compare(this, b) === 0\n}\n\nBuffer.prototype.inspect = function inspect () {\n  var str = ''\n  var max = exports.INSPECT_MAX_BYTES\n  if (this.length > 0) {\n    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')\n    if (this.length > max) str += ' ... '\n  }\n  return '<Buffer ' + str + '>'\n}\n\nBuffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {\n  if (!Buffer.isBuffer(target)) {\n    throw new TypeError('Argument must be a Buffer')\n  }\n\n  if (start === undefined) {\n    start = 0\n  }\n  if (end === undefined) {\n    end = target ? target.length : 0\n  }\n  if (thisStart === undefined) {\n    thisStart = 0\n  }\n  if (thisEnd === undefined) {\n    thisEnd = this.length\n  }\n\n  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {\n    throw new RangeError('out of range index')\n  }\n\n  if (thisStart >= thisEnd && start >= end) {\n    return 0\n  }\n  if (thisStart >= thisEnd) {\n    return -1\n  }\n  if (start >= end) {\n    return 1\n  }\n\n  start >>>= 0\n  end >>>= 0\n  thisStart >>>= 0\n  thisEnd >>>= 0\n\n  if (this === target) return 0\n\n  var x = thisEnd - thisStart\n  var y = end - start\n  var len = Math.min(x, y)\n\n  var thisCopy = this.slice(thisStart, thisEnd)\n  var targetCopy = target.slice(start, end)\n\n  for (var i = 0; i < len; ++i) {\n    if (thisCopy[i] !== targetCopy[i]) {\n      x = thisCopy[i]\n      y = targetCopy[i]\n      break\n    }\n  }\n\n  if (x < y) return -1\n  if (y < x) return 1\n  return 0\n}\n\n// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,\n// OR the last index of `val` in `buffer` at offset <= `byteOffset`.\n//\n// Arguments:\n// - buffer - a Buffer to search\n// - val - a string, Buffer, or number\n// - byteOffset - an index into `buffer`; will be clamped to an int32\n// - encoding - an optional encoding, relevant is val is a string\n// - dir - true for indexOf, false for lastIndexOf\nfunction bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {\n  // Empty buffer means no match\n  if (buffer.length === 0) return -1\n\n  // Normalize byteOffset\n  if (typeof byteOffset === 'string') {\n    encoding = byteOffset\n    byteOffset = 0\n  } else if (byteOffset > 0x7fffffff) {\n    byteOffset = 0x7fffffff\n  } else if (byteOffset < -0x80000000) {\n    byteOffset = -0x80000000\n  }\n  byteOffset = +byteOffset  // Coerce to Number.\n  if (isNaN(byteOffset)) {\n    // byteOffset: it it's undefined, null, NaN, \"foo\", etc, search whole buffer\n    byteOffset = dir ? 0 : (buffer.length - 1)\n  }\n\n  // Normalize byteOffset: negative offsets start from the end of the buffer\n  if (byteOffset < 0) byteOffset = buffer.length + byteOffset\n  if (byteOffset >= buffer.length) {\n    if (dir) return -1\n    else byteOffset = buffer.length - 1\n  } else if (byteOffset < 0) {\n    if (dir) byteOffset = 0\n    else return -1\n  }\n\n  // Normalize val\n  if (typeof val === 'string') {\n    val = Buffer.from(val, encoding)\n  }\n\n  // Finally, search either indexOf (if dir is true) or lastIndexOf\n  if (Buffer.isBuffer(val)) {\n    // Special case: looking for empty string/buffer always fails\n    if (val.length === 0) {\n      return -1\n    }\n    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)\n  } else if (typeof val === 'number') {\n    val = val & 0xFF // Search for a byte value [0-255]\n    if (Buffer.TYPED_ARRAY_SUPPORT &&\n        typeof Uint8Array.prototype.indexOf === 'function') {\n      if (dir) {\n        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)\n      } else {\n        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)\n      }\n    }\n    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)\n  }\n\n  throw new TypeError('val must be string, number or Buffer')\n}\n\nfunction arrayIndexOf (arr, val, byteOffset, encoding, dir) {\n  var indexSize = 1\n  var arrLength = arr.length\n  var valLength = val.length\n\n  if (encoding !== undefined) {\n    encoding = String(encoding).toLowerCase()\n    if (encoding === 'ucs2' || encoding === 'ucs-2' ||\n        encoding === 'utf16le' || encoding === 'utf-16le') {\n      if (arr.length < 2 || val.length < 2) {\n        return -1\n      }\n      indexSize = 2\n      arrLength /= 2\n      valLength /= 2\n      byteOffset /= 2\n    }\n  }\n\n  function read (buf, i) {\n    if (indexSize === 1) {\n      return buf[i]\n    } else {\n      return buf.readUInt16BE(i * indexSize)\n    }\n  }\n\n  var i\n  if (dir) {\n    var foundIndex = -1\n    for (i = byteOffset; i < arrLength; i++) {\n      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {\n        if (foundIndex === -1) foundIndex = i\n        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize\n      } else {\n        if (foundIndex !== -1) i -= i - foundIndex\n        foundIndex = -1\n      }\n    }\n  } else {\n    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength\n    for (i = byteOffset; i >= 0; i--) {\n      var found = true\n      for (var j = 0; j < valLength; j++) {\n        if (read(arr, i + j) !== read(val, j)) {\n          found = false\n          break\n        }\n      }\n      if (found) return i\n    }\n  }\n\n  return -1\n}\n\nBuffer.prototype.includes = function includes (val, byteOffset, encoding) {\n  return this.indexOf(val, byteOffset, encoding) !== -1\n}\n\nBuffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {\n  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)\n}\n\nBuffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {\n  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)\n}\n\nfunction hexWrite (buf, string, offset, length) {\n  offset = Number(offset) || 0\n  var remaining = buf.length - offset\n  if (!length) {\n    length = remaining\n  } else {\n    length = Number(length)\n    if (length > remaining) {\n      length = remaining\n    }\n  }\n\n  // must be an even number of digits\n  var strLen = string.length\n  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')\n\n  if (length > strLen / 2) {\n    length = strLen / 2\n  }\n  for (var i = 0; i < length; ++i) {\n    var parsed = parseInt(string.substr(i * 2, 2), 16)\n    if (isNaN(parsed)) return i\n    buf[offset + i] = parsed\n  }\n  return i\n}\n\nfunction utf8Write (buf, string, offset, length) {\n  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)\n}\n\nfunction asciiWrite (buf, string, offset, length) {\n  return blitBuffer(asciiToBytes(string), buf, offset, length)\n}\n\nfunction latin1Write (buf, string, offset, length) {\n  return asciiWrite(buf, string, offset, length)\n}\n\nfunction base64Write (buf, string, offset, length) {\n  return blitBuffer(base64ToBytes(string), buf, offset, length)\n}\n\nfunction ucs2Write (buf, string, offset, length) {\n  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)\n}\n\nBuffer.prototype.write = function write (string, offset, length, encoding) {\n  // Buffer#write(string)\n  if (offset === undefined) {\n    encoding = 'utf8'\n    length = this.length\n    offset = 0\n  // Buffer#write(string, encoding)\n  } else if (length === undefined && typeof offset === 'string') {\n    encoding = offset\n    length = this.length\n    offset = 0\n  // Buffer#write(string, offset[, length][, encoding])\n  } else if (isFinite(offset)) {\n    offset = offset | 0\n    if (isFinite(length)) {\n      length = length | 0\n      if (encoding === undefined) encoding = 'utf8'\n    } else {\n      encoding = length\n      length = undefined\n    }\n  // legacy write(string, encoding, offset, length) - remove in v0.13\n  } else {\n    throw new Error(\n      'Buffer.write(string, encoding, offset[, length]) is no longer supported'\n    )\n  }\n\n  var remaining = this.length - offset\n  if (length === undefined || length > remaining) length = remaining\n\n  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {\n    throw new RangeError('Attempt to write outside buffer bounds')\n  }\n\n  if (!encoding) encoding = 'utf8'\n\n  var loweredCase = false\n  for (;;) {\n    switch (encoding) {\n      case 'hex':\n        return hexWrite(this, string, offset, length)\n\n      case 'utf8':\n      case 'utf-8':\n        return utf8Write(this, string, offset, length)\n\n      case 'ascii':\n        return asciiWrite(this, string, offset, length)\n\n      case 'latin1':\n      case 'binary':\n        return latin1Write(this, string, offset, length)\n\n      case 'base64':\n        // Warning: maxLength not taken into account in base64Write\n        return base64Write(this, string, offset, length)\n\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return ucs2Write(this, string, offset, length)\n\n      default:\n        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)\n        encoding = ('' + encoding).toLowerCase()\n        loweredCase = true\n    }\n  }\n}\n\nBuffer.prototype.toJSON = function toJSON () {\n  return {\n    type: 'Buffer',\n    data: Array.prototype.slice.call(this._arr || this, 0)\n  }\n}\n\nfunction base64Slice (buf, start, end) {\n  if (start === 0 && end === buf.length) {\n    return base64.fromByteArray(buf)\n  } else {\n    return base64.fromByteArray(buf.slice(start, end))\n  }\n}\n\nfunction utf8Slice (buf, start, end) {\n  end = Math.min(buf.length, end)\n  var res = []\n\n  var i = start\n  while (i < end) {\n    var firstByte = buf[i]\n    var codePoint = null\n    var bytesPerSequence = (firstByte > 0xEF) ? 4\n      : (firstByte > 0xDF) ? 3\n      : (firstByte > 0xBF) ? 2\n      : 1\n\n    if (i + bytesPerSequence <= end) {\n      var secondByte, thirdByte, fourthByte, tempCodePoint\n\n      switch (bytesPerSequence) {\n        case 1:\n          if (firstByte < 0x80) {\n            codePoint = firstByte\n          }\n          break\n        case 2:\n          secondByte = buf[i + 1]\n          if ((secondByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)\n            if (tempCodePoint > 0x7F) {\n              codePoint = tempCodePoint\n            }\n          }\n          break\n        case 3:\n          secondByte = buf[i + 1]\n          thirdByte = buf[i + 2]\n          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)\n            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {\n              codePoint = tempCodePoint\n            }\n          }\n          break\n        case 4:\n          secondByte = buf[i + 1]\n          thirdByte = buf[i + 2]\n          fourthByte = buf[i + 3]\n          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)\n            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {\n              codePoint = tempCodePoint\n            }\n          }\n      }\n    }\n\n    if (codePoint === null) {\n      // we did not generate a valid codePoint so insert a\n      // replacement char (U+FFFD) and advance only 1 byte\n      codePoint = 0xFFFD\n      bytesPerSequence = 1\n    } else if (codePoint > 0xFFFF) {\n      // encode to utf16 (surrogate pair dance)\n      codePoint -= 0x10000\n      res.push(codePoint >>> 10 & 0x3FF | 0xD800)\n      codePoint = 0xDC00 | codePoint & 0x3FF\n    }\n\n    res.push(codePoint)\n    i += bytesPerSequence\n  }\n\n  return decodeCodePointsArray(res)\n}\n\n// Based on http://stackoverflow.com/a/22747272/680742, the browser with\n// the lowest limit is Chrome, with 0x10000 args.\n// We go 1 magnitude less, for safety\nvar MAX_ARGUMENTS_LENGTH = 0x1000\n\nfunction decodeCodePointsArray (codePoints) {\n  var len = codePoints.length\n  if (len <= MAX_ARGUMENTS_LENGTH) {\n    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()\n  }\n\n  // Decode in chunks to avoid \"call stack size exceeded\".\n  var res = ''\n  var i = 0\n  while (i < len) {\n    res += String.fromCharCode.apply(\n      String,\n      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)\n    )\n  }\n  return res\n}\n\nfunction asciiSlice (buf, start, end) {\n  var ret = ''\n  end = Math.min(buf.length, end)\n\n  for (var i = start; i < end; ++i) {\n    ret += String.fromCharCode(buf[i] & 0x7F)\n  }\n  return ret\n}\n\nfunction latin1Slice (buf, start, end) {\n  var ret = ''\n  end = Math.min(buf.length, end)\n\n  for (var i = start; i < end; ++i) {\n    ret += String.fromCharCode(buf[i])\n  }\n  return ret\n}\n\nfunction hexSlice (buf, start, end) {\n  var len = buf.length\n\n  if (!start || start < 0) start = 0\n  if (!end || end < 0 || end > len) end = len\n\n  var out = ''\n  for (var i = start; i < end; ++i) {\n    out += toHex(buf[i])\n  }\n  return out\n}\n\nfunction utf16leSlice (buf, start, end) {\n  var bytes = buf.slice(start, end)\n  var res = ''\n  for (var i = 0; i < bytes.length; i += 2) {\n    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)\n  }\n  return res\n}\n\nBuffer.prototype.slice = function slice (start, end) {\n  var len = this.length\n  start = ~~start\n  end = end === undefined ? len : ~~end\n\n  if (start < 0) {\n    start += len\n    if (start < 0) start = 0\n  } else if (start > len) {\n    start = len\n  }\n\n  if (end < 0) {\n    end += len\n    if (end < 0) end = 0\n  } else if (end > len) {\n    end = len\n  }\n\n  if (end < start) end = start\n\n  var newBuf\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    newBuf = this.subarray(start, end)\n    newBuf.__proto__ = Buffer.prototype\n  } else {\n    var sliceLen = end - start\n    newBuf = new Buffer(sliceLen, undefined)\n    for (var i = 0; i < sliceLen; ++i) {\n      newBuf[i] = this[i + start]\n    }\n  }\n\n  return newBuf\n}\n\n/*\n * Need to make sure that buffer isn't trying to write out of bounds.\n */\nfunction checkOffset (offset, ext, length) {\n  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')\n  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')\n}\n\nBuffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) checkOffset(offset, byteLength, this.length)\n\n  var val = this[offset]\n  var mul = 1\n  var i = 0\n  while (++i < byteLength && (mul *= 0x100)) {\n    val += this[offset + i] * mul\n  }\n\n  return val\n}\n\nBuffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) {\n    checkOffset(offset, byteLength, this.length)\n  }\n\n  var val = this[offset + --byteLength]\n  var mul = 1\n  while (byteLength > 0 && (mul *= 0x100)) {\n    val += this[offset + --byteLength] * mul\n  }\n\n  return val\n}\n\nBuffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 1, this.length)\n  return this[offset]\n}\n\nBuffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length)\n  return this[offset] | (this[offset + 1] << 8)\n}\n\nBuffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length)\n  return (this[offset] << 8) | this[offset + 1]\n}\n\nBuffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n\n  return ((this[offset]) |\n      (this[offset + 1] << 8) |\n      (this[offset + 2] << 16)) +\n      (this[offset + 3] * 0x1000000)\n}\n\nBuffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n\n  return (this[offset] * 0x1000000) +\n    ((this[offset + 1] << 16) |\n    (this[offset + 2] << 8) |\n    this[offset + 3])\n}\n\nBuffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) checkOffset(offset, byteLength, this.length)\n\n  var val = this[offset]\n  var mul = 1\n  var i = 0\n  while (++i < byteLength && (mul *= 0x100)) {\n    val += this[offset + i] * mul\n  }\n  mul *= 0x80\n\n  if (val >= mul) val -= Math.pow(2, 8 * byteLength)\n\n  return val\n}\n\nBuffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) checkOffset(offset, byteLength, this.length)\n\n  var i = byteLength\n  var mul = 1\n  var val = this[offset + --i]\n  while (i > 0 && (mul *= 0x100)) {\n    val += this[offset + --i] * mul\n  }\n  mul *= 0x80\n\n  if (val >= mul) val -= Math.pow(2, 8 * byteLength)\n\n  return val\n}\n\nBuffer.prototype.readInt8 = function readInt8 (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 1, this.length)\n  if (!(this[offset] & 0x80)) return (this[offset])\n  return ((0xff - this[offset] + 1) * -1)\n}\n\nBuffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length)\n  var val = this[offset] | (this[offset + 1] << 8)\n  return (val & 0x8000) ? val | 0xFFFF0000 : val\n}\n\nBuffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length)\n  var val = this[offset + 1] | (this[offset] << 8)\n  return (val & 0x8000) ? val | 0xFFFF0000 : val\n}\n\nBuffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n\n  return (this[offset]) |\n    (this[offset + 1] << 8) |\n    (this[offset + 2] << 16) |\n    (this[offset + 3] << 24)\n}\n\nBuffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n\n  return (this[offset] << 24) |\n    (this[offset + 1] << 16) |\n    (this[offset + 2] << 8) |\n    (this[offset + 3])\n}\n\nBuffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n  return ieee754.read(this, offset, true, 23, 4)\n}\n\nBuffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length)\n  return ieee754.read(this, offset, false, 23, 4)\n}\n\nBuffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 8, this.length)\n  return ieee754.read(this, offset, true, 52, 8)\n}\n\nBuffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 8, this.length)\n  return ieee754.read(this, offset, false, 52, 8)\n}\n\nfunction checkInt (buf, value, offset, ext, max, min) {\n  if (!Buffer.isBuffer(buf)) throw new TypeError('\"buffer\" argument must be a Buffer instance')\n  if (value > max || value < min) throw new RangeError('\"value\" argument is out of bounds')\n  if (offset + ext > buf.length) throw new RangeError('Index out of range')\n}\n\nBuffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {\n  value = +value\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) {\n    var maxBytes = Math.pow(2, 8 * byteLength) - 1\n    checkInt(this, value, offset, byteLength, maxBytes, 0)\n  }\n\n  var mul = 1\n  var i = 0\n  this[offset] = value & 0xFF\n  while (++i < byteLength && (mul *= 0x100)) {\n    this[offset + i] = (value / mul) & 0xFF\n  }\n\n  return offset + byteLength\n}\n\nBuffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {\n  value = +value\n  offset = offset | 0\n  byteLength = byteLength | 0\n  if (!noAssert) {\n    var maxBytes = Math.pow(2, 8 * byteLength) - 1\n    checkInt(this, value, offset, byteLength, maxBytes, 0)\n  }\n\n  var i = byteLength - 1\n  var mul = 1\n  this[offset + i] = value & 0xFF\n  while (--i >= 0 && (mul *= 0x100)) {\n    this[offset + i] = (value / mul) & 0xFF\n  }\n\n  return offset + byteLength\n}\n\nBuffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)\n  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)\n  this[offset] = (value & 0xff)\n  return offset + 1\n}\n\nfunction objectWriteUInt16 (buf, value, offset, littleEndian) {\n  if (value < 0) value = 0xffff + value + 1\n  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {\n    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>\n      (littleEndian ? i : 1 - i) * 8\n  }\n}\n\nBuffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value & 0xff)\n    this[offset + 1] = (value >>> 8)\n  } else {\n    objectWriteUInt16(this, value, offset, true)\n  }\n  return offset + 2\n}\n\nBuffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value >>> 8)\n    this[offset + 1] = (value & 0xff)\n  } else {\n    objectWriteUInt16(this, value, offset, false)\n  }\n  return offset + 2\n}\n\nfunction objectWriteUInt32 (buf, value, offset, littleEndian) {\n  if (value < 0) value = 0xffffffff + value + 1\n  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {\n    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff\n  }\n}\n\nBuffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset + 3] = (value >>> 24)\n    this[offset + 2] = (value >>> 16)\n    this[offset + 1] = (value >>> 8)\n    this[offset] = (value & 0xff)\n  } else {\n    objectWriteUInt32(this, value, offset, true)\n  }\n  return offset + 4\n}\n\nBuffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value >>> 24)\n    this[offset + 1] = (value >>> 16)\n    this[offset + 2] = (value >>> 8)\n    this[offset + 3] = (value & 0xff)\n  } else {\n    objectWriteUInt32(this, value, offset, false)\n  }\n  return offset + 4\n}\n\nBuffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) {\n    var limit = Math.pow(2, 8 * byteLength - 1)\n\n    checkInt(this, value, offset, byteLength, limit - 1, -limit)\n  }\n\n  var i = 0\n  var mul = 1\n  var sub = 0\n  this[offset] = value & 0xFF\n  while (++i < byteLength && (mul *= 0x100)) {\n    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {\n      sub = 1\n    }\n    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF\n  }\n\n  return offset + byteLength\n}\n\nBuffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) {\n    var limit = Math.pow(2, 8 * byteLength - 1)\n\n    checkInt(this, value, offset, byteLength, limit - 1, -limit)\n  }\n\n  var i = byteLength - 1\n  var mul = 1\n  var sub = 0\n  this[offset + i] = value & 0xFF\n  while (--i >= 0 && (mul *= 0x100)) {\n    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {\n      sub = 1\n    }\n    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF\n  }\n\n  return offset + byteLength\n}\n\nBuffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)\n  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)\n  if (value < 0) value = 0xff + value + 1\n  this[offset] = (value & 0xff)\n  return offset + 1\n}\n\nBuffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value & 0xff)\n    this[offset + 1] = (value >>> 8)\n  } else {\n    objectWriteUInt16(this, value, offset, true)\n  }\n  return offset + 2\n}\n\nBuffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value >>> 8)\n    this[offset + 1] = (value & 0xff)\n  } else {\n    objectWriteUInt16(this, value, offset, false)\n  }\n  return offset + 2\n}\n\nBuffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value & 0xff)\n    this[offset + 1] = (value >>> 8)\n    this[offset + 2] = (value >>> 16)\n    this[offset + 3] = (value >>> 24)\n  } else {\n    objectWriteUInt32(this, value, offset, true)\n  }\n  return offset + 4\n}\n\nBuffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {\n  value = +value\n  offset = offset | 0\n  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)\n  if (value < 0) value = 0xffffffff + value + 1\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = (value >>> 24)\n    this[offset + 1] = (value >>> 16)\n    this[offset + 2] = (value >>> 8)\n    this[offset + 3] = (value & 0xff)\n  } else {\n    objectWriteUInt32(this, value, offset, false)\n  }\n  return offset + 4\n}\n\nfunction checkIEEE754 (buf, value, offset, ext, max, min) {\n  if (offset + ext > buf.length) throw new RangeError('Index out of range')\n  if (offset < 0) throw new RangeError('Index out of range')\n}\n\nfunction writeFloat (buf, value, offset, littleEndian, noAssert) {\n  if (!noAssert) {\n    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)\n  }\n  ieee754.write(buf, value, offset, littleEndian, 23, 4)\n  return offset + 4\n}\n\nBuffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {\n  return writeFloat(this, value, offset, true, noAssert)\n}\n\nBuffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {\n  return writeFloat(this, value, offset, false, noAssert)\n}\n\nfunction writeDouble (buf, value, offset, littleEndian, noAssert) {\n  if (!noAssert) {\n    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)\n  }\n  ieee754.write(buf, value, offset, littleEndian, 52, 8)\n  return offset + 8\n}\n\nBuffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {\n  return writeDouble(this, value, offset, true, noAssert)\n}\n\nBuffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {\n  return writeDouble(this, value, offset, false, noAssert)\n}\n\n// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)\nBuffer.prototype.copy = function copy (target, targetStart, start, end) {\n  if (!start) start = 0\n  if (!end && end !== 0) end = this.length\n  if (targetStart >= target.length) targetStart = target.length\n  if (!targetStart) targetStart = 0\n  if (end > 0 && end < start) end = start\n\n  // Copy 0 bytes; we're done\n  if (end === start) return 0\n  if (target.length === 0 || this.length === 0) return 0\n\n  // Fatal error conditions\n  if (targetStart < 0) {\n    throw new RangeError('targetStart out of bounds')\n  }\n  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')\n  if (end < 0) throw new RangeError('sourceEnd out of bounds')\n\n  // Are we oob?\n  if (end > this.length) end = this.length\n  if (target.length - targetStart < end - start) {\n    end = target.length - targetStart + start\n  }\n\n  var len = end - start\n  var i\n\n  if (this === target && start < targetStart && targetStart < end) {\n    // descending copy from end\n    for (i = len - 1; i >= 0; --i) {\n      target[i + targetStart] = this[i + start]\n    }\n  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {\n    // ascending copy from start\n    for (i = 0; i < len; ++i) {\n      target[i + targetStart] = this[i + start]\n    }\n  } else {\n    Uint8Array.prototype.set.call(\n      target,\n      this.subarray(start, start + len),\n      targetStart\n    )\n  }\n\n  return len\n}\n\n// Usage:\n//    buffer.fill(number[, offset[, end]])\n//    buffer.fill(buffer[, offset[, end]])\n//    buffer.fill(string[, offset[, end]][, encoding])\nBuffer.prototype.fill = function fill (val, start, end, encoding) {\n  // Handle string cases:\n  if (typeof val === 'string') {\n    if (typeof start === 'string') {\n      encoding = start\n      start = 0\n      end = this.length\n    } else if (typeof end === 'string') {\n      encoding = end\n      end = this.length\n    }\n    if (val.length === 1) {\n      var code = val.charCodeAt(0)\n      if (code < 256) {\n        val = code\n      }\n    }\n    if (encoding !== undefined && typeof encoding !== 'string') {\n      throw new TypeError('encoding must be a string')\n    }\n    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {\n      throw new TypeError('Unknown encoding: ' + encoding)\n    }\n  } else if (typeof val === 'number') {\n    val = val & 255\n  }\n\n  // Invalid ranges are not set to a default, so can range check early.\n  if (start < 0 || this.length < start || this.length < end) {\n    throw new RangeError('Out of range index')\n  }\n\n  if (end <= start) {\n    return this\n  }\n\n  start = start >>> 0\n  end = end === undefined ? this.length : end >>> 0\n\n  if (!val) val = 0\n\n  var i\n  if (typeof val === 'number') {\n    for (i = start; i < end; ++i) {\n      this[i] = val\n    }\n  } else {\n    var bytes = Buffer.isBuffer(val)\n      ? val\n      : utf8ToBytes(new Buffer(val, encoding).toString())\n    var len = bytes.length\n    for (i = 0; i < end - start; ++i) {\n      this[i + start] = bytes[i % len]\n    }\n  }\n\n  return this\n}\n\n// HELPER FUNCTIONS\n// ================\n\nvar INVALID_BASE64_RE = /[^+\\/0-9A-Za-z-_]/g\n\nfunction base64clean (str) {\n  // Node strips out invalid characters like \\n and \\t from the string, base64-js does not\n  str = stringtrim(str).replace(INVALID_BASE64_RE, '')\n  // Node converts strings with length < 2 to ''\n  if (str.length < 2) return ''\n  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not\n  while (str.length % 4 !== 0) {\n    str = str + '='\n  }\n  return str\n}\n\nfunction stringtrim (str) {\n  if (str.trim) return str.trim()\n  return str.replace(/^\\s+|\\s+$/g, '')\n}\n\nfunction toHex (n) {\n  if (n < 16) return '0' + n.toString(16)\n  return n.toString(16)\n}\n\nfunction utf8ToBytes (string, units) {\n  units = units || Infinity\n  var codePoint\n  var length = string.length\n  var leadSurrogate = null\n  var bytes = []\n\n  for (var i = 0; i < length; ++i) {\n    codePoint = string.charCodeAt(i)\n\n    // is surrogate component\n    if (codePoint > 0xD7FF && codePoint < 0xE000) {\n      // last char was a lead\n      if (!leadSurrogate) {\n        // no lead yet\n        if (codePoint > 0xDBFF) {\n          // unexpected trail\n          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)\n          continue\n        } else if (i + 1 === length) {\n          // unpaired lead\n          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)\n          continue\n        }\n\n        // valid lead\n        leadSurrogate = codePoint\n\n        continue\n      }\n\n      // 2 leads in a row\n      if (codePoint < 0xDC00) {\n        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)\n        leadSurrogate = codePoint\n        continue\n      }\n\n      // valid surrogate pair\n      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000\n    } else if (leadSurrogate) {\n      // valid bmp char, but last char was a lead\n      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)\n    }\n\n    leadSurrogate = null\n\n    // encode utf8\n    if (codePoint < 0x80) {\n      if ((units -= 1) < 0) break\n      bytes.push(codePoint)\n    } else if (codePoint < 0x800) {\n      if ((units -= 2) < 0) break\n      bytes.push(\n        codePoint >> 0x6 | 0xC0,\n        codePoint & 0x3F | 0x80\n      )\n    } else if (codePoint < 0x10000) {\n      if ((units -= 3) < 0) break\n      bytes.push(\n        codePoint >> 0xC | 0xE0,\n        codePoint >> 0x6 & 0x3F | 0x80,\n        codePoint & 0x3F | 0x80\n      )\n    } else if (codePoint < 0x110000) {\n      if ((units -= 4) < 0) break\n      bytes.push(\n        codePoint >> 0x12 | 0xF0,\n        codePoint >> 0xC & 0x3F | 0x80,\n        codePoint >> 0x6 & 0x3F | 0x80,\n        codePoint & 0x3F | 0x80\n      )\n    } else {\n      throw new Error('Invalid code point')\n    }\n  }\n\n  return bytes\n}\n\nfunction asciiToBytes (str) {\n  var byteArray = []\n  for (var i = 0; i < str.length; ++i) {\n    // Node's code seems to be doing this and not & 0x7F..\n    byteArray.push(str.charCodeAt(i) & 0xFF)\n  }\n  return byteArray\n}\n\nfunction utf16leToBytes (str, units) {\n  var c, hi, lo\n  var byteArray = []\n  for (var i = 0; i < str.length; ++i) {\n    if ((units -= 2) < 0) break\n\n    c = str.charCodeAt(i)\n    hi = c >> 8\n    lo = c % 256\n    byteArray.push(lo)\n    byteArray.push(hi)\n  }\n\n  return byteArray\n}\n\nfunction base64ToBytes (str) {\n  return base64.toByteArray(base64clean(str))\n}\n\nfunction blitBuffer (src, dst, offset, length) {\n  for (var i = 0; i < length; ++i) {\n    if ((i + offset >= dst.length) || (i >= src.length)) break\n    dst[i + offset] = src[i]\n  }\n  return i\n}\n\nfunction isnan (val) {\n  return val !== val // eslint-disable-line no-self-compare\n}\n\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/buffer/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/ieee754/index.js":
+/*!***************************************!*\
+  !*** ./node_modules/ieee754/index.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("exports.read = function (buffer, offset, isLE, mLen, nBytes) {\n  var e, m\n  var eLen = (nBytes * 8) - mLen - 1\n  var eMax = (1 << eLen) - 1\n  var eBias = eMax >> 1\n  var nBits = -7\n  var i = isLE ? (nBytes - 1) : 0\n  var d = isLE ? -1 : 1\n  var s = buffer[offset + i]\n\n  i += d\n\n  e = s & ((1 << (-nBits)) - 1)\n  s >>= (-nBits)\n  nBits += eLen\n  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}\n\n  m = e & ((1 << (-nBits)) - 1)\n  e >>= (-nBits)\n  nBits += mLen\n  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}\n\n  if (e === 0) {\n    e = 1 - eBias\n  } else if (e === eMax) {\n    return m ? NaN : ((s ? -1 : 1) * Infinity)\n  } else {\n    m = m + Math.pow(2, mLen)\n    e = e - eBias\n  }\n  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)\n}\n\nexports.write = function (buffer, value, offset, isLE, mLen, nBytes) {\n  var e, m, c\n  var eLen = (nBytes * 8) - mLen - 1\n  var eMax = (1 << eLen) - 1\n  var eBias = eMax >> 1\n  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)\n  var i = isLE ? 0 : (nBytes - 1)\n  var d = isLE ? 1 : -1\n  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0\n\n  value = Math.abs(value)\n\n  if (isNaN(value) || value === Infinity) {\n    m = isNaN(value) ? 1 : 0\n    e = eMax\n  } else {\n    e = Math.floor(Math.log(value) / Math.LN2)\n    if (value * (c = Math.pow(2, -e)) < 1) {\n      e--\n      c *= 2\n    }\n    if (e + eBias >= 1) {\n      value += rt / c\n    } else {\n      value += rt * Math.pow(2, 1 - eBias)\n    }\n    if (value * c >= 2) {\n      e++\n      c /= 2\n    }\n\n    if (e + eBias >= eMax) {\n      m = 0\n      e = eMax\n    } else if (e + eBias >= 1) {\n      m = ((value * c) - 1) * Math.pow(2, mLen)\n      e = e + eBias\n    } else {\n      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)\n      e = 0\n    }\n  }\n\n  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}\n\n  e = (e << mLen) | m\n  eLen += mLen\n  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}\n\n  buffer[offset + i - d] |= s * 128\n}\n\n\n//# sourceURL=webpack:///./node_modules/ieee754/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/isarray/index.js":
+/*!***************************************!*\
+  !*** ./node_modules/isarray/index.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("var toString = {}.toString;\n\nmodule.exports = Array.isArray || function (arr) {\n  return toString.call(arr) == '[object Array]';\n};\n\n\n//# sourceURL=webpack:///./node_modules/isarray/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/process/browser.js":
+/*!*****************************************!*\
+  !*** ./node_modules/process/browser.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("// shim for using process in browser\nvar process = module.exports = {};\n\n// cached from whatever global is present so that test runners that stub it\n// don't break things.  But we need to wrap it in a try catch in case it is\n// wrapped in strict mode code which doesn't define any globals.  It's inside a\n// function because try/catches deoptimize in certain engines.\n\nvar cachedSetTimeout;\nvar cachedClearTimeout;\n\nfunction defaultSetTimout() {\n    throw new Error('setTimeout has not been defined');\n}\nfunction defaultClearTimeout () {\n    throw new Error('clearTimeout has not been defined');\n}\n(function () {\n    try {\n        if (typeof setTimeout === 'function') {\n            cachedSetTimeout = setTimeout;\n        } else {\n            cachedSetTimeout = defaultSetTimout;\n        }\n    } catch (e) {\n        cachedSetTimeout = defaultSetTimout;\n    }\n    try {\n        if (typeof clearTimeout === 'function') {\n            cachedClearTimeout = clearTimeout;\n        } else {\n            cachedClearTimeout = defaultClearTimeout;\n        }\n    } catch (e) {\n        cachedClearTimeout = defaultClearTimeout;\n    }\n} ())\nfunction runTimeout(fun) {\n    if (cachedSetTimeout === setTimeout) {\n        //normal enviroments in sane situations\n        return setTimeout(fun, 0);\n    }\n    // if setTimeout wasn't available but was latter defined\n    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {\n        cachedSetTimeout = setTimeout;\n        return setTimeout(fun, 0);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedSetTimeout(fun, 0);\n    } catch(e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally\n            return cachedSetTimeout.call(null, fun, 0);\n        } catch(e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error\n            return cachedSetTimeout.call(this, fun, 0);\n        }\n    }\n\n\n}\nfunction runClearTimeout(marker) {\n    if (cachedClearTimeout === clearTimeout) {\n        //normal enviroments in sane situations\n        return clearTimeout(marker);\n    }\n    // if clearTimeout wasn't available but was latter defined\n    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {\n        cachedClearTimeout = clearTimeout;\n        return clearTimeout(marker);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedClearTimeout(marker);\n    } catch (e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally\n            return cachedClearTimeout.call(null, marker);\n        } catch (e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.\n            // Some versions of I.E. have different rules for clearTimeout vs setTimeout\n            return cachedClearTimeout.call(this, marker);\n        }\n    }\n\n\n\n}\nvar queue = [];\nvar draining = false;\nvar currentQueue;\nvar queueIndex = -1;\n\nfunction cleanUpNextTick() {\n    if (!draining || !currentQueue) {\n        return;\n    }\n    draining = false;\n    if (currentQueue.length) {\n        queue = currentQueue.concat(queue);\n    } else {\n        queueIndex = -1;\n    }\n    if (queue.length) {\n        drainQueue();\n    }\n}\n\nfunction drainQueue() {\n    if (draining) {\n        return;\n    }\n    var timeout = runTimeout(cleanUpNextTick);\n    draining = true;\n\n    var len = queue.length;\n    while(len) {\n        currentQueue = queue;\n        queue = [];\n        while (++queueIndex < len) {\n            if (currentQueue) {\n                currentQueue[queueIndex].run();\n            }\n        }\n        queueIndex = -1;\n        len = queue.length;\n    }\n    currentQueue = null;\n    draining = false;\n    runClearTimeout(timeout);\n}\n\nprocess.nextTick = function (fun) {\n    var args = new Array(arguments.length - 1);\n    if (arguments.length > 1) {\n        for (var i = 1; i < arguments.length; i++) {\n            args[i - 1] = arguments[i];\n        }\n    }\n    queue.push(new Item(fun, args));\n    if (queue.length === 1 && !draining) {\n        runTimeout(drainQueue);\n    }\n};\n\n// v8 likes predictible objects\nfunction Item(fun, array) {\n    this.fun = fun;\n    this.array = array;\n}\nItem.prototype.run = function () {\n    this.fun.apply(null, this.array);\n};\nprocess.title = 'browser';\nprocess.browser = true;\nprocess.env = {};\nprocess.argv = [];\nprocess.version = ''; // empty string to avoid regexp issues\nprocess.versions = {};\n\nfunction noop() {}\n\nprocess.on = noop;\nprocess.addListener = noop;\nprocess.once = noop;\nprocess.off = noop;\nprocess.removeListener = noop;\nprocess.removeAllListeners = noop;\nprocess.emit = noop;\nprocess.prependListener = noop;\nprocess.prependOnceListener = noop;\n\nprocess.listeners = function (name) { return [] }\n\nprocess.binding = function (name) {\n    throw new Error('process.binding is not supported');\n};\n\nprocess.cwd = function () { return '/' };\nprocess.chdir = function (dir) {\n    throw new Error('process.chdir is not supported');\n};\nprocess.umask = function() { return 0; };\n\n\n//# sourceURL=webpack:///./node_modules/process/browser.js?");
+
+/***/ }),
+
+/***/ "./node_modules/webpack/buildin/global.js":
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("var g;\n\n// This works in non-strict mode\ng = (function() {\n\treturn this;\n})();\n\ntry {\n\t// This works if eval is allowed (see CSP)\n\tg = g || new Function(\"return this\")();\n} catch (e) {\n\t// This works if the window reference is available\n\tif (typeof window === \"object\") g = window;\n}\n\n// g can still be undefined, but nothing to do about it...\n// We return undefined, instead of nothing here, so it's\n// easier to handle this case. if(!global) { ...}\n\nmodule.exports = g;\n\n\n//# sourceURL=webpack:///(webpack)/buildin/global.js?");
+
+/***/ }),
+
+/***/ "./src/foundation/components/MeshComponent.ts":
+/*!****************************************************!*\
+  !*** ./src/foundation/components/MeshComponent.ts ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _core_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/Component */ \"./src/foundation/core/Component.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar MeshComponent = /** @class */ (function (_super) {\n    __extends(MeshComponent, _super);\n    function MeshComponent(entityUid, componentSid, entityComponent) {\n        var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;\n        _this.__primitives = [];\n        return _this;\n    }\n    Object.defineProperty(MeshComponent, \"componentTID\", {\n        get: function () {\n            return 3;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MeshComponent.prototype.addPrimitive = function (primitive) {\n        this.__primitives.push(primitive);\n    };\n    MeshComponent.prototype.getPrimitiveAt = function (i) {\n        return this.__primitives[i];\n    };\n    MeshComponent.prototype.getPrimitiveNumber = function () {\n        return this.__primitives.length;\n    };\n    return MeshComponent;\n}(_core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MeshComponent);\n_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].registerComponentClass(MeshComponent.componentTID, MeshComponent);\n\n\n//# sourceURL=webpack:///./src/foundation/components/MeshComponent.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/components/MeshRendererComponent.ts":
+/*!************************************************************!*\
+  !*** ./src/foundation/components/MeshRendererComponent.ts ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _core_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/Component */ \"./src/foundation/core/Component.ts\");\n/* harmony import */ var _MeshComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MeshComponent */ \"./src/foundation/components/MeshComponent.ts\");\n/* harmony import */ var _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/ProcessStage */ \"./src/foundation/definitions/ProcessStage.ts\");\n/* harmony import */ var _SceneGraphComponent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SceneGraphComponent */ \"./src/foundation/components/SceneGraphComponent.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\nvar MeshRendererComponent = /** @class */ (function (_super) {\n    __extends(MeshRendererComponent, _super);\n    function MeshRendererComponent(entityUid, componentSid, entityComponent) {\n        var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;\n        _this.__vertexHandles = [];\n        _this.__currentProcessStage = _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create;\n        var count = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__lengthOfArrayOfProcessStages.get(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create);\n        var array = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__componentsOfProcessStages.get(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create);\n        array[count++] = _this.componentSID;\n        array[count] = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].invalidComponentSID;\n        _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__lengthOfArrayOfProcessStages.set(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create, count);\n        return _this;\n    }\n    Object.defineProperty(MeshRendererComponent, \"componentTID\", {\n        get: function () {\n            return 4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MeshRendererComponent.prototype.__isLoaded = function (index) {\n        if (this.__vertexHandles[index] != null) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    MeshRendererComponent.prototype.$create = function (_a) {\n        var strategy = _a.strategy;\n        if (this.__meshComponent != null) {\n            return;\n        }\n        this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, _MeshComponent__WEBPACK_IMPORTED_MODULE_2__[\"default\"].componentTID);\n        this.__webglRenderingStrategy = strategy;\n        this.moveStageTo(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Load);\n    };\n    MeshRendererComponent.prototype.$load = function () {\n        this.__webglRenderingStrategy.$load(this.__meshComponent);\n        this.moveStageTo(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].PreRender);\n    };\n    MeshRendererComponent.prototype.$prerender = function (_a) {\n        var processApproech = _a.processApproech, instanceIDBufferUid = _a.instanceIDBufferUid;\n        this.__webglRenderingStrategy.$prerender(this.__meshComponent, instanceIDBufferUid);\n        if (this.__webglRenderingStrategy.$render != null) {\n            this.moveStageTo(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Render);\n        }\n    };\n    MeshRendererComponent.prototype.$render = function () {\n        if (this.__webglRenderingStrategy.$render == null) {\n            return;\n        }\n        var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, _SceneGraphComponent__WEBPACK_IMPORTED_MODULE_4__[\"default\"].componentTID);\n        var primitiveNum = this.__meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = this.__meshComponent.getPrimitiveAt(i);\n            this.__webglRenderingStrategy.$render(i, primitive, sceneGraphComponent.worldMatrix);\n        }\n    };\n    MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids = new Map();\n    return MeshRendererComponent;\n}(_core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MeshRendererComponent);\n_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);\n\n\n//# sourceURL=webpack:///./src/foundation/components/MeshRendererComponent.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/components/SceneGraphComponent.ts":
+/*!**********************************************************!*\
+  !*** ./src/foundation/components/SceneGraphComponent.ts ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _core_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/Component */ \"./src/foundation/core/Component.ts\");\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./WellKnownComponentTIDs */ \"./src/foundation/components/WellKnownComponentTIDs.ts\");\n/* harmony import */ var _math_MutableRowMajarMatrix44__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../math/MutableRowMajarMatrix44 */ \"./src/foundation/math/MutableRowMajarMatrix44.ts\");\n/* harmony import */ var _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../definitions/ProcessStage */ \"./src/foundation/definitions/ProcessStage.ts\");\n/* harmony import */ var _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../math/MutableMatrix44 */ \"./src/foundation/math/MutableMatrix44.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\n\n\n\nvar SceneGraphComponent = /** @class */ (function (_super) {\n    __extends(SceneGraphComponent, _super);\n    function SceneGraphComponent(entityUid, componentSid, entityComponent) {\n        var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;\n        _this._worldMatrix = _math_MutableRowMajarMatrix44__WEBPACK_IMPORTED_MODULE_4__[\"default\"].dummy();\n        _this.__isWorldMatrixUpToDate = false;\n        _this.__tmpMatrix = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_7__[\"default\"].identity();\n        var thisClass = SceneGraphComponent;\n        _this.__currentProcessStage = _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_6__[\"ProcessStage\"].Logic;\n        var count = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__lengthOfArrayOfProcessStages.get(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_6__[\"ProcessStage\"].Logic);\n        var array = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__componentsOfProcessStages.get(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_6__[\"ProcessStage\"].Logic);\n        array[count++] = _this.componentSID;\n        array[count] = _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].invalidComponentSID;\n        _core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"].__lengthOfArrayOfProcessStages.set(_definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_6__[\"ProcessStage\"].Logic, count);\n        _this.__isAbleToBeParent = false;\n        _this.beAbleToBeParent(true);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_5__[\"BufferUse\"].GPUInstanceData, 'worldMatrix', _math_MutableRowMajarMatrix44__WEBPACK_IMPORTED_MODULE_4__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_2__[\"ComponentType\"].Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);\n        _this.submitToAllocation();\n        return _this;\n        //this.__updatedProperly = false;\n    }\n    Object.defineProperty(SceneGraphComponent, \"componentTID\", {\n        get: function () {\n            return _WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_3__[\"WellKnownComponentTIDs\"].SceneGraphComponentTID;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    SceneGraphComponent.prototype.beAbleToBeParent = function (flag) {\n        this.__isAbleToBeParent = flag;\n        if (this.__isAbleToBeParent) {\n            this.__children = [];\n        }\n        else {\n            this.__children = void 0;\n        }\n    };\n    SceneGraphComponent.prototype.setWorldMatrixDirty = function () {\n        this.__isWorldMatrixUpToDate = false;\n    };\n    SceneGraphComponent.prototype.addChild = function (sg) {\n        if (this.__children != null) {\n            sg.__parent = this;\n            this.__children.push(sg);\n        }\n        else {\n            console.error('This is not allowed to have children.');\n        }\n    };\n    Object.defineProperty(SceneGraphComponent.prototype, \"worldMatrixInner\", {\n        get: function () {\n            if (!this.__isWorldMatrixUpToDate) {\n                //this._worldMatrix.identity();\n                this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());\n                this.__isWorldMatrixUpToDate = true;\n            }\n            return this._worldMatrix;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(SceneGraphComponent.prototype, \"worldMatrix\", {\n        get: function () {\n            return this.worldMatrixInner.clone();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    SceneGraphComponent.prototype.$logic = function () {\n        if (!this.__isWorldMatrixUpToDate) {\n            //this._worldMatrix.identity();\n            this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());\n            this.__isWorldMatrixUpToDate = true;\n        }\n    };\n    SceneGraphComponent.prototype.calcWorldMatrixRecursively = function () {\n        var entity = this.__entityRepository.getEntity(this.__entityUid);\n        var transform = entity.getTransform();\n        if (this.__isWorldMatrixUpToDate) {\n            return this._worldMatrix;\n        }\n        else {\n            var matrix = transform.matrixInner;\n            if (this.__parent == null) {\n                return matrix;\n            }\n            this.__tmpMatrix.copyComponents(matrix);\n            var matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();\n            this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);\n        }\n        return this.__tmpMatrix;\n    };\n    return SceneGraphComponent;\n}(_core_Component__WEBPACK_IMPORTED_MODULE_1__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (SceneGraphComponent);\n_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);\n\n\n//# sourceURL=webpack:///./src/foundation/components/SceneGraphComponent.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/components/TransformComponent.ts":
+/*!*********************************************************!*\
+  !*** ./src/foundation/components/TransformComponent.ts ***!
+  \*********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _math_Quaternion__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../math/Quaternion */ \"./src/foundation/math/Quaternion.ts\");\n/* harmony import */ var _math_Matrix33__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../math/Matrix33 */ \"./src/foundation/math/Matrix33.ts\");\n/* harmony import */ var _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../math/Matrix44 */ \"./src/foundation/math/Matrix44.ts\");\n/* harmony import */ var _core_Component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../core/Component */ \"./src/foundation/core/Component.ts\");\n/* harmony import */ var _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./WellKnownComponentTIDs */ \"./src/foundation/components/WellKnownComponentTIDs.ts\");\n/* harmony import */ var _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _SceneGraphComponent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SceneGraphComponent */ \"./src/foundation/components/SceneGraphComponent.ts\");\n/* harmony import */ var _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../math/MutableMatrix44 */ \"./src/foundation/math/MutableMatrix44.ts\");\n/* harmony import */ var _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../math/MutableQuaterion */ \"./src/foundation/math/MutableQuaterion.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\n\n\n\n\n\n\n\n// import AnimationComponent from './AnimationComponent';\nvar TransformComponent = /** @class */ (function (_super) {\n    __extends(TransformComponent, _super);\n    function TransformComponent(entityUid, componentSid, entityComponent) {\n        var _this = _super.call(this, entityUid, componentSid, entityComponent) || this;\n        _this._translate = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].dummy();\n        _this._rotate = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].dummy();\n        _this._scale = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].dummy();\n        _this._quaternion = _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"].dummy();\n        _this._matrix = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].dummy();\n        _this._invMatrix = _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"].dummy();\n        _this._normalMatrix = _math_Matrix33__WEBPACK_IMPORTED_MODULE_2__[\"default\"].dummy();\n        _this.__toUpdateAllTransform = true;\n        _this._updateCount = 0;\n        _this.__updateCountAtLastLogic = 0;\n        // dependencies\n        _this._dependentAnimationComponentId = 0;\n        var thisClass = TransformComponent;\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'translate', _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [0, 0, 0]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'rotate', _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [0, 0, 0]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'scale', _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [1, 1, 1]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'quaternion', _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [0, 0, 0, 1]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'matrix', _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'invMatrix', _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);\n        _this.registerMember(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].CPUGeneric, 'normalMatrix', _math_Matrix33__WEBPACK_IMPORTED_MODULE_2__[\"default\"], _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_6__[\"ComponentType\"].Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);\n        _this.submitToAllocation();\n        _this._is_translate_updated = true;\n        _this._is_euler_angles_updated = true;\n        _this._is_scale_updated = true;\n        _this._is_quaternion_updated = true;\n        _this._is_trs_matrix_updated = true;\n        _this._is_inverse_trs_matrix_updated = true;\n        _this._is_normal_trs_matrix_updated = true;\n        return _this;\n    }\n    Object.defineProperty(TransformComponent, \"renderedPropertyCount\", {\n        get: function () {\n            return null;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent, \"componentTID\", {\n        get: function () {\n            return _WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_7__[\"WellKnownComponentTIDs\"].TransformComponentTID;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    TransformComponent.prototype.$logic = function () {\n        if (this.__updateCountAtLastLogic !== this._updateCount) {\n            var sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, _SceneGraphComponent__WEBPACK_IMPORTED_MODULE_9__[\"default\"].componentTID);\n            sceneGraphComponent.setWorldMatrixDirty();\n            this.__updateCountAtLastLogic = this._updateCount;\n        }\n    };\n    Object.defineProperty(TransformComponent.prototype, \"toUpdateAllTransform\", {\n        get: function () {\n            return this.__toUpdateAllTransform;\n        },\n        set: function (flag) {\n            this.__toUpdateAllTransform = flag;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    TransformComponent.prototype._needUpdate = function () {\n        this._updateCount++;\n    };\n    Object.defineProperty(TransformComponent.prototype, \"translate\", {\n        get: function () {\n            return this.translateInner.clone();\n        },\n        set: function (vec) {\n            this._translate.v[0] = vec.v[0];\n            this._translate.v[1] = vec.v[1];\n            this._translate.v[2] = vec.v[2];\n            this._is_translate_updated = true;\n            this._is_trs_matrix_updated = false;\n            this._is_inverse_trs_matrix_updated = false;\n            this._is_normal_trs_matrix_updated = false;\n            this.__updateTransform();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"translateInner\", {\n        get: function () {\n            if (this._is_translate_updated) {\n                return this._translate;\n            }\n            else if (this._is_trs_matrix_updated) {\n                this._translate.v[0] = this._matrix.m03;\n                this._translate.v[1] = this._matrix.m13;\n                this._translate.v[2] = this._matrix.m23;\n                this._is_translate_updated = true;\n            }\n            return this._translate;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"rotate\", {\n        get: function () {\n            return this.rotateInner.clone();\n        },\n        set: function (vec) {\n            this._rotate.v[0] = vec.v[0];\n            this._rotate.v[1] = vec.v[1];\n            this._rotate.v[2] = vec.v[2];\n            this._is_euler_angles_updated = true;\n            this._is_quaternion_updated = false;\n            this._is_trs_matrix_updated = false;\n            this._is_inverse_trs_matrix_updated = false;\n            this._is_normal_trs_matrix_updated = false;\n            this.__updateTransform();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"rotateInner\", {\n        get: function () {\n            if (this._is_euler_angles_updated) {\n                return this._rotate;\n            }\n            else if (this._is_trs_matrix_updated) {\n                this._rotate = this._matrix.toEulerAngles();\n            }\n            else if (this._is_quaternion_updated) {\n                this._rotate = (new _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"](this._quaternion)).toEulerAngles();\n            }\n            this._is_euler_angles_updated = true;\n            return this._rotate;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"scale\", {\n        get: function () {\n            return this.scaleInner.clone();\n        },\n        set: function (vec) {\n            this._scale.v[0] = vec.v[0];\n            this._scale.v[1] = vec.v[1];\n            this._scale.v[2] = vec.v[2];\n            this._is_scale_updated = true;\n            this._is_trs_matrix_updated = false;\n            this._is_inverse_trs_matrix_updated = false;\n            this._is_normal_trs_matrix_updated = false;\n            this.__updateTransform();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"scaleInner\", {\n        get: function () {\n            if (this._is_scale_updated) {\n                return this._scale;\n            }\n            else if (this._is_trs_matrix_updated) {\n                var m = this._matrix;\n                this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);\n                this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);\n                this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);\n                this._is_scale_updated = true;\n            }\n            return this._scale;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"quaternion\", {\n        get: function () {\n            return this.quaternionInner.clone();\n        },\n        set: function (quat) {\n            this._quaternion.v[0] = quat.v[0];\n            this._quaternion.v[1] = quat.v[1];\n            this._quaternion.v[2] = quat.v[2];\n            this._is_quaternion_updated = true;\n            this._is_euler_angles_updated = false;\n            this._is_trs_matrix_updated = false;\n            this._is_inverse_trs_matrix_updated = false;\n            this._is_normal_trs_matrix_updated = false;\n            this.__updateTransform();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"quaternionInner\", {\n        get: function () {\n            if (this._is_quaternion_updated) {\n                return this._quaternion;\n            }\n            else if (!this._is_quaternion_updated) {\n                if (this._is_trs_matrix_updated) {\n                    this._is_quaternion_updated = true;\n                    this._quaternion.fromMatrix(this._matrix);\n                    return this._quaternion;\n                }\n                else if (this._is_euler_angles_updated) {\n                    TransformComponent.__tmpMat_quaternionInner.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);\n                    this._is_quaternion_updated = true;\n                    this._quaternion.fromMatrix(TransformComponent.__tmpMat_quaternionInner);\n                    return this._quaternion;\n                }\n            }\n            return this._quaternion;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"matrix\", {\n        get: function () {\n            return this.matrixInner.clone();\n        },\n        set: function (mat) {\n            this._matrix = new _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"](mat);\n            this._is_trs_matrix_updated = true;\n            this._is_translate_updated = false;\n            this._is_euler_angles_updated = false;\n            this._is_quaternion_updated = false;\n            this._is_scale_updated = false;\n            this._is_inverse_trs_matrix_updated = false;\n            this._is_normal_trs_matrix_updated = false;\n            this.__updateTransform();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"matrixInner\", {\n        get: function () {\n            if (this._is_trs_matrix_updated) {\n                return this._matrix;\n            }\n            // Clear and set Scale\n            var scale = this.scaleInner;\n            var n00 = scale.v[0];\n            // const n01 = 0;\n            // const n02 = 0;\n            // const n03 = 0;\n            // const n10 = 0;\n            var n11 = scale.v[1];\n            // const n12 = 0;\n            // const n13 = 0;\n            // const n20 = 0;\n            // const n21 = 0;\n            var n22 = scale.v[2];\n            // const n23 = 0;\n            // const n30 = 0;\n            // const n31 = 0;\n            // const n32 = 0;\n            // const n33 = 1;\n            var q = this.quaternionInner;\n            var sx = q.v[0] * q.v[0];\n            var sy = q.v[1] * q.v[1];\n            var sz = q.v[2] * q.v[2];\n            var cx = q.v[1] * q.v[2];\n            var cy = q.v[0] * q.v[2];\n            var cz = q.v[0] * q.v[1];\n            var wx = q.v[3] * q.v[0];\n            var wy = q.v[3] * q.v[1];\n            var wz = q.v[3] * q.v[2];\n            var m00 = 1.0 - 2.0 * (sy + sz);\n            var m01 = 2.0 * (cz - wz);\n            var m02 = 2.0 * (cy + wy);\n            // const m03 = 0.0;\n            var m10 = 2.0 * (cz + wz);\n            var m11 = 1.0 - 2.0 * (sx + sz);\n            var m12 = 2.0 * (cx - wx);\n            // const m13 = 0.0;\n            var m20 = 2.0 * (cy - wy);\n            var m21 = 2.0 * (cx + wx);\n            var m22 = 1.0 - 2.0 * (sx + sy);\n            // const m23 = 0.0;\n            // const m30 = 0.0;\n            // const m31 = 0.0;\n            // const m32 = 0.0;\n            // const m33 = 1.0;\n            var translate = this.translateInner;\n            // TranslateMatrix * RotateMatrix * ScaleMatrix\n            this._matrix.m00 = m00 * n00;\n            this._matrix.m01 = m01 * n11;\n            this._matrix.m02 = m02 * n22;\n            this._matrix.m03 = translate.v[0];\n            this._matrix.m10 = m10 * n00;\n            this._matrix.m11 = m11 * n11;\n            this._matrix.m12 = m12 * n22;\n            this._matrix.m13 = translate.v[1];\n            this._matrix.m20 = m20 * n00;\n            this._matrix.m21 = m21 * n11;\n            this._matrix.m22 = m22 * n22;\n            this._matrix.m23 = translate.v[2];\n            this._matrix.m30 = 0;\n            this._matrix.m31 = 0;\n            this._matrix.m32 = 0;\n            this._matrix.m33 = 1;\n            this._is_trs_matrix_updated = true;\n            return this._matrix;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"inverseMatrix\", {\n        get: function () {\n            return this.inverseMatrixInner.clone();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"inverseMatrixInner\", {\n        get: function () {\n            if (!this._is_inverse_trs_matrix_updated) {\n                this._invMatrix = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].invert(this.matrixInner);\n                this._is_inverse_trs_matrix_updated = true;\n            }\n            return this._invMatrix;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"normalMatrix\", {\n        get: function () {\n            return this.normalMatrixInner.clone();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(TransformComponent.prototype, \"normalMatrixInner\", {\n        get: function () {\n            if (!this._is_normal_trs_matrix_updated) {\n                this._normalMatrix = new _math_Matrix33__WEBPACK_IMPORTED_MODULE_2__[\"default\"](_math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"].transpose(_math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"].invert(this.matrix)));\n                this._is_normal_trs_matrix_updated = true;\n            }\n            return this._normalMatrix;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    /**\n     * Set multiple transform information at once. By using this method,\n     * we reduce the cost of automatically updating other transform components inside this class.\n     * This method may be useful for animation processing and so on.\n     *\n     * The transform components of these arguments must not be mutually discrepant.\n     * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)\n     * must be equal to translate, rotate, scale, quaternion arguments.\n     * And both rotate and quaternion arguments must be same rotation.\n     * If there is an argument passed with null or undefined, it is interpreted as unchanged.\n     *\n     * @param {*} translate\n     * @param {*} rotate\n     * @param {*} scale\n     * @param {*} quaternion\n     * @param {*} matrix\n     */\n    TransformComponent.prototype.setTransform = function (translate, rotate, scale, quaternion, matrix) {\n        this._is_trs_matrix_updated = false;\n        this._is_inverse_trs_matrix_updated = false;\n        this._is_normal_trs_matrix_updated = false;\n        // Matrix\n        if (matrix != null) {\n            this._matrix = new _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"](matrix);\n            this._is_trs_matrix_updated = true;\n            this._is_translate_updated = false;\n            this._is_euler_angles_updated = false;\n            this._is_quaternion_updated = false;\n            this._is_scale_updated = false;\n        }\n        // Translate\n        if (translate != null) {\n            this._translate = translate.clone();\n            this._is_translate_updated = true;\n        }\n        // Roatation\n        if (rotate != null && quaternion != null) {\n            this._rotate = rotate.clone();\n            this._quaternion = new _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"](quaternion);\n            this._is_euler_angles_updated = true;\n            this._is_quaternion_updated = true;\n        }\n        else if (rotate != null) {\n            this._rotate = rotate.clone();\n            this._is_euler_angles_updated = true;\n            this._is_quaternion_updated = false;\n        }\n        else if (quaternion != null) {\n            this._quaternion = new _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"](quaternion);\n            this._is_euler_angles_updated = false;\n            this._is_quaternion_updated = true;\n        }\n        // Scale\n        if (scale != null) {\n            this._scale = scale.clone();\n            this._is_scale_updated = true;\n        }\n        this.__updateTransform();\n    };\n    TransformComponent.prototype.__updateTransform = function () {\n        if (this.__toUpdateAllTransform) {\n            this.__updateRotation();\n            this.__updateTranslate();\n            this.__updateScale();\n        }\n        //this.__updateMatrix();\n        this._needUpdate();\n    };\n    TransformComponent.prototype.__updateRotation = function () {\n        if (this._is_euler_angles_updated && !this._is_quaternion_updated) {\n            TransformComponent.__tmpMat_updateRotation.rotateXYZ(this._rotate.x, this._rotate.y, this._rotate.z);\n            this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);\n            this._is_quaternion_updated = true;\n        }\n        else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {\n            this._rotate = (new _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"](this._quaternion)).toEulerAngles();\n            this._is_euler_angles_updated = true;\n        }\n        else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {\n            var m = this._matrix;\n            this._quaternion.fromMatrix(m);\n            this._is_quaternion_updated = true;\n            this._rotate = m.toEulerAngles();\n            this._is_euler_angles_updated = true;\n        }\n    };\n    TransformComponent.prototype.__updateTranslate = function () {\n        if (!this._is_translate_updated && this._is_trs_matrix_updated) {\n            var m = this._matrix;\n            this._translate.v[0] = m.m03;\n            this._translate.v[1] = m.m13;\n            this._translate.v[2] = m.m23;\n            this._is_translate_updated = true;\n        }\n    };\n    TransformComponent.prototype.__updateScale = function () {\n        if (!this._is_scale_updated && this._is_trs_matrix_updated) {\n            var m = this._matrix;\n            this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);\n            this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);\n            this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);\n            this._is_scale_updated = true;\n        }\n    };\n    TransformComponent.prototype.__updateMatrix = function () {\n        if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {\n            var rotationMatrix = new _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"](this._quaternion);\n            var scale = this._scale;\n            this._matrix = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].multiply(rotationMatrix, _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"].scale(scale));\n            var translateVec = this._translate;\n            this._matrix.m03 = translateVec.x;\n            this._matrix.m13 = translateVec.y;\n            this._matrix.m23 = translateVec.z;\n            this._is_trs_matrix_updated = true;\n        }\n    };\n    TransformComponent.prototype.setPropertiesFromJson = function (arg) {\n        var json = arg;\n        if (typeof arg === \"string\") {\n            json = JSON.parse(arg);\n        }\n        for (var key in json) {\n            if (json.hasOwnProperty(key) && key in this) {\n                if (key === \"quaternion\") {\n                    this[key] = new _math_Quaternion__WEBPACK_IMPORTED_MODULE_1__[\"default\"](json[key]);\n                }\n                else if (key === 'matrix') {\n                    this[key] = new _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"](json[key]);\n                }\n                else {\n                    this[key] = new _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](json[key]);\n                }\n            }\n        }\n    };\n    TransformComponent.prototype.setRotationFromNewUpAndFront = function (UpVec, FrontVec) {\n        var yDir = UpVec;\n        var xDir = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].cross(yDir, FrontVec);\n        var zDir = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].cross(xDir, yDir);\n        var rotateMatrix = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].identity();\n        rotateMatrix.m00 = xDir.x;\n        rotateMatrix.m10 = xDir.y;\n        rotateMatrix.m20 = xDir.z;\n        rotateMatrix.m01 = yDir.x;\n        rotateMatrix.m11 = yDir.y;\n        rotateMatrix.m21 = yDir.z;\n        rotateMatrix.m02 = zDir.x;\n        rotateMatrix.m12 = zDir.y;\n        rotateMatrix.m22 = zDir.z;\n        this.rotateMatrix44 = rotateMatrix;\n    };\n    TransformComponent.prototype.headToDirection = function (fromVec, toVec) {\n        var fromDir = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].normalize(fromVec);\n        var toDir = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].normalize(toVec);\n        var rotationDir = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].cross(fromDir, toDir);\n        var cosTheta = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].dotProduct(fromDir, toDir);\n        var theta = Math.acos(cosTheta);\n        this.quaternion = _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"].axisAngle(rotationDir, theta);\n    };\n    Object.defineProperty(TransformComponent.prototype, \"rotateMatrix44\", {\n        get: function () {\n            return new _math_Matrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"](this.quaternion);\n        },\n        set: function (rotateMatrix) {\n            this.quaternion = _math_MutableQuaterion__WEBPACK_IMPORTED_MODULE_11__[\"default\"].fromMatrix(rotateMatrix);\n        },\n        enumerable: true,\n        configurable: true\n    });\n    TransformComponent.__tmpMat_updateRotation = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].identity();\n    TransformComponent.__tmpMat_quaternionInner = _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_10__[\"default\"].identity();\n    return TransformComponent;\n}(_core_Component__WEBPACK_IMPORTED_MODULE_4__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (TransformComponent);\n_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_5__[\"default\"].registerComponentClass(TransformComponent.componentTID, TransformComponent);\n\n\n//# sourceURL=webpack:///./src/foundation/components/TransformComponent.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/components/WellKnownComponentTIDs.ts":
+/*!*************************************************************!*\
+  !*** ./src/foundation/components/WellKnownComponentTIDs.ts ***!
+  \*************************************************************/
+/*! exports provided: WellKnownComponentTIDs */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WellKnownComponentTIDs\", function() { return WellKnownComponentTIDs; });\nvar TransformComponentTID = 1;\nvar SceneGraphComponentTID = 2;\nvar WellKnownComponentTIDs = Object.freeze({\n    TransformComponentTID: TransformComponentTID,\n    SceneGraphComponentTID: SceneGraphComponentTID\n});\n\n\n//# sourceURL=webpack:///./src/foundation/components/WellKnownComponentTIDs.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/Component.ts":
+/*!******************************************!*\
+  !*** ./src/foundation/core/Component.ts ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_MemoryManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _math_Matrix44__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../math/Matrix44 */ \"./src/foundation/math/Matrix44.ts\");\n/* harmony import */ var _math_RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../math/RowMajarMatrix44 */ \"./src/foundation/math/RowMajarMatrix44.ts\");\n/* harmony import */ var _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/ProcessStage */ \"./src/foundation/definitions/ProcessStage.ts\");\n/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ \"./src/foundation/core/Config.ts\");\n/* harmony import */ var _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../math/MutableMatrix44 */ \"./src/foundation/math/MutableMatrix44.ts\");\n/* harmony import */ var _math_MutableRowMajarMatrix44__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../math/MutableRowMajarMatrix44 */ \"./src/foundation/math/MutableRowMajarMatrix44.ts\");\nvar __values = (undefined && undefined.__values) || function (o) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\n    if (m) return m.call(o);\n    return {\n        next: function () {\n            if (o && i >= o.length) o = void 0;\n            return { value: o && o[i++], done: !o };\n        }\n    };\n};\n\n\n\n\n\n\n\nvar Component = /** @class */ (function () {\n    function Component(entityUid, componentSid, entityRepository) {\n        var _this = this;\n        this.__currentProcessStage = _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create;\n        this.__entityUid = entityUid;\n        this._component_sid = componentSid;\n        this.__isAlive = true;\n        this.__currentProcessStage = _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Logic;\n        var stages = [\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Create,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Load,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Mount,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Logic,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].PreRender,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Render,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Unmount,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_3__[\"ProcessStage\"].Discard\n        ];\n        stages.forEach(function (stage) {\n            if (_this.isExistProcessStageMethod(stage)) {\n                if (Component.__componentsOfProcessStages.get(stage) == null) {\n                    Component.__componentsOfProcessStages.set(stage, new Int32Array(_Config__WEBPACK_IMPORTED_MODULE_4__[\"default\"].maxEntityNumber));\n                    Component.__dirtyOfArrayOfProcessStages.set(stage, false);\n                    Component.__lengthOfArrayOfProcessStages.set(stage, 0);\n                }\n            }\n        });\n        this.__memoryManager = _core_MemoryManager__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__entityRepository = entityRepository;\n    }\n    Component.prototype.moveStageTo = function (processStage) {\n        Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);\n        Component.__dirtyOfArrayOfProcessStages.set(processStage, true);\n        this.__currentProcessStage = processStage;\n    };\n    Object.defineProperty(Component, \"componentTID\", {\n        get: function () {\n            return 0;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Component.prototype, \"componentSID\", {\n        get: function () {\n            return this._component_sid;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Component.prototype, \"entityUID\", {\n        get: function () {\n            return this.__entityUid;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Component.isExistProcessStageMethod = function (componentTid, processStage, componentRepository) {\n        var component = componentRepository.getComponent(componentTid, 0);\n        if (component == null) {\n            return false;\n        }\n        if (component[processStage.getMethodName()] == null) {\n            return false;\n        }\n        return true;\n    };\n    Component.prototype.isExistProcessStageMethod = function (processStage) {\n        if (this[processStage.getMethodName()] == null) {\n            return false;\n        }\n        return true;\n    };\n    Component.process = function (_a) {\n        var componentTid = _a.componentTid, processStage = _a.processStage, instanceIDBufferUid = _a.instanceIDBufferUid, processApproach = _a.processApproach, componentRepository = _a.componentRepository, strategy = _a.strategy;\n        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {\n            return;\n        }\n        var array = this.__componentsOfProcessStages.get(processStage);\n        for (var i = 0; i < array.length; ++i) {\n            if (array[i] === Component.invalidComponentSID) {\n                break;\n            }\n            var componentSid = array[i];\n            var component = componentRepository.getComponent(componentTid, componentSid);\n            component[processStage.getMethodName()]({\n                processStage: processStage,\n                instanceIDBufferUid: instanceIDBufferUid,\n                processApproach: processApproach,\n                strategy: strategy\n            });\n        }\n    };\n    Component.updateComponentsOfEachProcessStage = function (componentTid, processStage, componentRepository) {\n        if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {\n            return;\n        }\n        var component = componentRepository.getComponent(this.componentTID, 0);\n        var dirty = Component.__componentsOfProcessStages.get(processStage);\n        if (dirty) {\n            var components = componentRepository.getComponentsWithType(componentTid);\n            var array = Component.__componentsOfProcessStages.get(processStage);\n            var count = 0;\n            for (var i = 0; i < components.length; ++i) {\n                var component_1 = components[i];\n                if (processStage === component_1.__currentProcessStage) {\n                    array[count++] = component_1.componentSID;\n                }\n            }\n            array[count] = Component.invalidComponentSID;\n        }\n    };\n    Component.getByteLengthSumOfMembers = function (bufferUse, componentClass) {\n        var byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass);\n        return byteLengthSumOfMembers.get(bufferUse);\n    };\n    Component.setupBufferView = function () {\n    };\n    Component.prototype.registerDependency = function (component, isMust) {\n    };\n    Component.takeBufferViewer = function (bufferUse, componentClass, byteLengthSumOfMembers) {\n        var buffer = _core_MemoryManager__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance().getBuffer(bufferUse);\n        var count = _Config__WEBPACK_IMPORTED_MODULE_4__[\"default\"].maxEntityNumber;\n        if (!this.__bufferViews.has(componentClass)) {\n            this.__bufferViews.set(componentClass, new Map());\n        }\n        var bufferViews = this.__bufferViews.get(componentClass);\n        if (!bufferViews.has(bufferUse)) {\n            bufferViews.set(bufferUse, buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false }));\n        }\n    };\n    Component.prototype.takeOne = function (memberName, dataClassType, initValues) {\n        if (!this['_' + memberName].isDummy()) {\n            return;\n        }\n        var taken = Component.__accessors.get(this.constructor).get(memberName).takeOne();\n        if (dataClassType === _math_Matrix44__WEBPACK_IMPORTED_MODULE_1__[\"default\"] || dataClassType === _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_5__[\"default\"]) {\n            this['_' + memberName] = new dataClassType(taken, false, true);\n        }\n        else if (dataClassType === _math_RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_2__[\"default\"] || dataClassType === _math_MutableRowMajarMatrix44__WEBPACK_IMPORTED_MODULE_6__[\"default\"]) {\n            this['_' + memberName] = new dataClassType(taken, true);\n        }\n        else {\n            this['_' + memberName] = new dataClassType(taken);\n        }\n        for (var i = 0; i < this['_' + memberName].v.length; ++i) {\n            this['_' + memberName].v[i] = initValues[i];\n        }\n        return null;\n    };\n    Component.getAccessor = function (memberName, componentClass) {\n        return this.__accessors.get(componentClass).get(memberName);\n    };\n    Component.takeAccessor = function (bufferUse, memberName, componentClass, compositionType, componentType) {\n        var count = _Config__WEBPACK_IMPORTED_MODULE_4__[\"default\"].maxEntityNumber;\n        if (!this.__accessors.has(componentClass)) {\n            this.__accessors.set(componentClass, new Map());\n        }\n        var accessors = this.__accessors.get(componentClass);\n        if (!accessors.has(memberName)) {\n            var bufferViews = this.__bufferViews.get(componentClass);\n            accessors.set(memberName, bufferViews.get(bufferUse).takeAccessor({ compositionType: compositionType, componentType: componentType, count: count }));\n        }\n    };\n    Component.getByteOffsetOfThisComponentTypeInBuffer = function (bufferUse, componentClass) {\n        return this.__bufferViews.get(componentClass).get(bufferUse).byteOffset;\n    };\n    Component.getByteOffsetOfFirstOfThisMemberInBuffer = function (memberName, componentClass) {\n        return this.__accessors.get(componentClass).get(memberName).byteOffsetInBuffer;\n    };\n    Component.getByteOffsetOfFirstOfThisMemberInBufferView = function (memberName, componentClass) {\n        return this.__accessors.get(componentClass).get(memberName).byteOffsetInBufferView;\n    };\n    Component.getCompositionTypeOfMember = function (memberName, componentClass) {\n        var memberInfoArray = this.__memberInfo.get(componentClass);\n        var info = memberInfoArray.find(function (info) {\n            return info.memberName === memberName;\n        });\n        if (info != null) {\n            return info.compositionType;\n        }\n        else {\n            return null;\n        }\n    };\n    Component.getComponentTypeOfMember = function (memberName, componentClass) {\n        var memberInfoArray = this.__memberInfo.get(componentClass);\n        var info = memberInfoArray.find(function (info) {\n            return info.memberName === memberName;\n        });\n        if (info != null) {\n            return info.componentType;\n        }\n        else {\n            return null;\n        }\n    };\n    Component.prototype.registerMember = function (bufferUse, memberName, dataClassType, componentType, initValues) {\n        if (!Component.__memberInfo.has(this.constructor)) {\n            Component.__memberInfo.set(this.constructor, []);\n        }\n        var memberInfoArray = Component.__memberInfo.get(this.constructor);\n        memberInfoArray.push({ bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType,\n            compositionType: dataClassType.compositionType, componentType: componentType, initValues: initValues });\n    };\n    Component.prototype.submitToAllocation = function () {\n        var _this = this;\n        var e_1, _a, e_2, _b, e_3, _c;\n        var componentClass = this.constructor;\n        var memberInfoArray = Component.__memberInfo.get(componentClass);\n        if (this._component_sid <= 1) {\n            if (!Component.__members.has(componentClass)) {\n                Component.__members.set(componentClass, new Map());\n            }\n            var member_1 = Component.__members.get(componentClass);\n            memberInfoArray.forEach(function (info) {\n                member_1.set(info.bufferUse, []);\n            });\n            memberInfoArray.forEach(function (info) {\n                member_1.get(info.bufferUse).push(info);\n            });\n            var _loop_1 = function (bufferUse) {\n                var infoArray = member_1.get(bufferUse);\n                var bufferUseName = bufferUse.toString();\n                if (!Component.__byteLengthSumOfMembers.has(componentClass)) {\n                    Component.__byteLengthSumOfMembers.set(componentClass, new Map());\n                }\n                var byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass);\n                if (!byteLengthSumOfMembers.has(bufferUse)) {\n                    byteLengthSumOfMembers.set(bufferUse, 0);\n                }\n                infoArray.forEach(function (info) {\n                    byteLengthSumOfMembers.set(bufferUse, byteLengthSumOfMembers.get(bufferUse) +\n                        info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes());\n                });\n                if (infoArray.length > 0) {\n                    Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse));\n                }\n            };\n            try {\n                for (var _d = __values(member_1.keys()), _e = _d.next(); !_e.done; _e = _d.next()) {\n                    var bufferUse = _e.value;\n                    _loop_1(bufferUse);\n                }\n            }\n            catch (e_1_1) { e_1 = { error: e_1_1 }; }\n            finally {\n                try {\n                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);\n                }\n                finally { if (e_1) throw e_1.error; }\n            }\n            try {\n                for (var _f = __values(member_1.keys()), _g = _f.next(); !_g.done; _g = _f.next()) {\n                    var bufferUse = _g.value;\n                    var infoArray = member_1.get(bufferUse);\n                    infoArray.forEach(function (info) {\n                        Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);\n                    });\n                }\n            }\n            catch (e_2_1) { e_2 = { error: e_2_1 }; }\n            finally {\n                try {\n                    if (_g && !_g.done && (_b = _f.return)) _b.call(_f);\n                }\n                finally { if (e_2) throw e_2.error; }\n            }\n        }\n        var member = Component.__members.get(componentClass);\n        try {\n            // takeOne\n            for (var _h = __values(member.keys()), _j = _h.next(); !_j.done; _j = _h.next()) {\n                var bufferUse = _j.value;\n                var infoArray = member.get(bufferUse);\n                infoArray.forEach(function (info) {\n                    _this.takeOne(info.memberName, info.dataClassType, info.initValues);\n                });\n            }\n        }\n        catch (e_3_1) { e_3 = { error: e_3_1 }; }\n        finally {\n            try {\n                if (_j && !_j.done && (_c = _h.return)) _c.call(_h);\n            }\n            finally { if (e_3) throw e_3.error; }\n        }\n    };\n    Component.invalidComponentSID = -1;\n    Component.__componentsOfProcessStages = new Map();\n    Component.__lengthOfArrayOfProcessStages = new Map();\n    Component.__dirtyOfArrayOfProcessStages = new Map();\n    Component.__bufferViews = new Map();\n    Component.__accessors = new Map();\n    Component.__byteLengthSumOfMembers = new Map();\n    Component.__memberInfo = new Map();\n    Component.__members = new Map();\n    return Component;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Component);\n\n\n//# sourceURL=webpack:///./src/foundation/core/Component.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/ComponentRepository.ts":
+/*!****************************************************!*\
+  !*** ./src/foundation/core/ComponentRepository.ts ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Component */ \"./src/foundation/core/Component.ts\");\n/* harmony import */ var _misc_IsUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../misc/IsUtil */ \"./src/foundation/misc/IsUtil.ts\");\n/* harmony import */ var _system_InitialSetting__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../system/InitialSetting */ \"./src/foundation/system/InitialSetting.ts\");\nvar __values = (undefined && undefined.__values) || function (o) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\n    if (m) return m.call(o);\n    return {\n        next: function () {\n            if (o && i >= o.length) o = void 0;\n            return { value: o && o[i++], done: !o };\n        }\n    };\n};\n\n\n\nvar ComponentRepository = /** @class */ (function () {\n    function ComponentRepository() {\n        this.__component_sid_count_map = new Map();\n        this.__components = new Map();\n    }\n    ComponentRepository.registerComponentClass = function (componentTID, componentClass) {\n        var thisClass = ComponentRepository;\n        thisClass.__componentClasses.set(componentTID, componentClass);\n    };\n    ComponentRepository.unregisterComponentClass = function (componentTID) {\n        var thisClass = ComponentRepository;\n        thisClass.__componentClasses.delete(componentTID);\n    };\n    ComponentRepository.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new ComponentRepository();\n        }\n        return this.__instance;\n    };\n    ComponentRepository.getComponentClass = function (componentTid) {\n        return this.__componentClasses.get(componentTid);\n    };\n    ComponentRepository.prototype.createComponent = function (componentTid, entityUid, entityRepository) {\n        var thisClass = ComponentRepository;\n        var componentClass = thisClass.__componentClasses.get(componentTid);\n        if (componentClass != null) {\n            var component_sid_count = this.__component_sid_count_map.get(componentTid);\n            if (!_misc_IsUtil__WEBPACK_IMPORTED_MODULE_1__[\"default\"].exist(component_sid_count)) {\n                this.__component_sid_count_map.set(componentTid, 0);\n                component_sid_count = _Component__WEBPACK_IMPORTED_MODULE_0__[\"default\"].invalidComponentSID;\n            }\n            this.__component_sid_count_map.set(componentTid, ++component_sid_count);\n            var component = new componentClass(entityUid, component_sid_count, entityRepository);\n            if (!this.__components.has(componentTid)) {\n                this.__components.set(componentTid, []);\n            }\n            var array = this.__components.get(componentTid);\n            if (array != null) {\n                array[component.componentSID] = component;\n                return component;\n            }\n        }\n        return null;\n    };\n    ComponentRepository.prototype.getComponent = function (componentTid, componentSid) {\n        var map = this.__components.get(componentTid);\n        if (map != null) {\n            var component = map[componentSid];\n            if (component != null) {\n                return map[componentSid];\n            }\n            else {\n                return null;\n            }\n        }\n        return null;\n    };\n    ComponentRepository.getMemoryBeginIndex = function (componentTid) {\n        var memoryBeginIndex = 0;\n        for (var i = 0; i < componentTid; i++) {\n            var componentClass = ComponentRepository.__componentClasses.get(i);\n            if (componentClass != null) {\n                var sizeOfComponent = componentClass.sizeOfThisComponent;\n                var maxEntityNumber = _system_InitialSetting__WEBPACK_IMPORTED_MODULE_2__[\"default\"].maxEntityNumber;\n                memoryBeginIndex += sizeOfComponent * maxEntityNumber;\n            }\n        }\n        return memoryBeginIndex;\n    };\n    ComponentRepository.prototype.getComponentsWithType = function (componentTid) {\n        var components = this.__components.get(componentTid);\n        var copyArray = components; //.concat();\n        //copyArray.shift();\n        return copyArray;\n    };\n    ComponentRepository.prototype.getComponentTIDs = function () {\n        var e_1, _a;\n        var indices = [];\n        try {\n            for (var _b = __values(this.__components.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var type = _c.value;\n                indices.push(type);\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n        return indices;\n    };\n    ComponentRepository.__componentClasses = new Map();\n    return ComponentRepository;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (ComponentRepository);\n\n\n//# sourceURL=webpack:///./src/foundation/core/ComponentRepository.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/Config.ts":
+/*!***************************************!*\
+  !*** ./src/foundation/core/Config.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar maxEntityNumber = 5000;\n/* harmony default export */ __webpack_exports__[\"default\"] = (Object.freeze({ maxEntityNumber: maxEntityNumber }));\n\n\n//# sourceURL=webpack:///./src/foundation/core/Config.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/Entity.ts":
+/*!***************************************!*\
+  !*** ./src/foundation/core/Entity.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _components_WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/WellKnownComponentTIDs */ \"./src/foundation/components/WellKnownComponentTIDs.ts\");\n\nvar Entity = /** @class */ (function () {\n    function Entity(entityUID, isAlive, entityComponent) {\n        this.__entity_uid = entityUID;\n        this.__isAlive = isAlive;\n        this.__entityRepository = entityComponent;\n        this.__uniqueName = 'entity_of_uid_' + entityUID;\n        Entity.__uniqueNames[entityUID] = this.__uniqueName;\n    }\n    Object.defineProperty(Entity.prototype, \"entityUID\", {\n        get: function () {\n            return this.__entity_uid;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Entity.prototype.getComponent = function (componentTid) {\n        var map = this.__entityRepository._components[this.entityUID];\n        if (map != null) {\n            var component = map.get(componentTid);\n            if (component != null) {\n                return component;\n            }\n            else {\n                return null;\n            }\n        }\n        return null;\n    };\n    Entity.prototype.getTransform = function () {\n        if (this.__transformComponent == null) {\n            this.__transformComponent = this.getComponent(_components_WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_0__[\"WellKnownComponentTIDs\"].TransformComponentTID);\n        }\n        return this.__transformComponent;\n    };\n    Entity.prototype.getSceneGraph = function () {\n        if (this.__sceneGraphComponent == null) {\n            this.__sceneGraphComponent = this.getComponent(_components_WellKnownComponentTIDs__WEBPACK_IMPORTED_MODULE_0__[\"WellKnownComponentTIDs\"].SceneGraphComponentTID);\n        }\n        return this.__sceneGraphComponent;\n    };\n    Entity.prototype.tryToSetUniqueName = function (name, toAddNameIfConflict) {\n        if (Entity.__uniqueNames.indexOf(name) !== -1) {\n            // Conflict\n            if (toAddNameIfConflict) {\n                var newName = name + '_(' + this.__uniqueName + ')';\n                if (Entity.__uniqueNames.indexOf(newName) === -1) {\n                    this.__uniqueName = newName;\n                    Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;\n                    return true;\n                }\n            }\n            return false;\n        }\n        else {\n            this.__uniqueName = name;\n            Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;\n            return true;\n        }\n    };\n    Object.defineProperty(Entity.prototype, \"uniqueName\", {\n        get: function () {\n            return this.__uniqueName;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Entity.invalidEntityUID = -1;\n    Entity.__uniqueNames = [];\n    return Entity;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Entity);\n\n\n//# sourceURL=webpack:///./src/foundation/core/Entity.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/EntityRepository.ts":
+/*!*************************************************!*\
+  !*** ./src/foundation/core/EntityRepository.ts ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Entity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Entity */ \"./src/foundation/core/Entity.ts\");\n/* harmony import */ var _ComponentRepository__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\nvar __values = (undefined && undefined.__values) || function (o) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\n    if (m) return m.call(o);\n    return {\n        next: function () {\n            if (o && i >= o.length) o = void 0;\n            return { value: o && o[i++], done: !o };\n        }\n    };\n};\n\n\nvar EntityRepository = /** @class */ (function () {\n    function EntityRepository() {\n        this.__entity_uid_count = _Entity__WEBPACK_IMPORTED_MODULE_0__[\"default\"].invalidEntityUID;\n        this.__entities = [];\n        this._components = [];\n        this.__componentRepository = _ComponentRepository__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n    }\n    EntityRepository.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new EntityRepository();\n        }\n        return this.__instance;\n    };\n    EntityRepository.prototype.createEntity = function (componentTidArray) {\n        var e_1, _a;\n        var entity = new _Entity__WEBPACK_IMPORTED_MODULE_0__[\"default\"](++this.__entity_uid_count, true, this);\n        this.__entities[this.__entity_uid_count] = entity;\n        try {\n            for (var componentTidArray_1 = __values(componentTidArray), componentTidArray_1_1 = componentTidArray_1.next(); !componentTidArray_1_1.done; componentTidArray_1_1 = componentTidArray_1.next()) {\n                var componentTid = componentTidArray_1_1.value;\n                var component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);\n                var map = this._components[entity.entityUID];\n                if (map == null) {\n                    map = new Map();\n                    this._components[entity.entityUID] = map;\n                }\n                if (component != null) {\n                    map.set(componentTid, component);\n                }\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (componentTidArray_1_1 && !componentTidArray_1_1.done && (_a = componentTidArray_1.return)) _a.call(componentTidArray_1);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n        return entity;\n    };\n    EntityRepository.prototype.getEntity = function (entityUid) {\n        return this.__entities[entityUid];\n    };\n    EntityRepository.prototype.getComponentOfEntity = function (entityUid, componentTid) {\n        var entity = this._components[entityUid];\n        var component = null;\n        if (entity != null) {\n            component = entity.get(componentTid);\n            if (component != null) {\n                return component;\n            }\n            else {\n                return null;\n            }\n        }\n        return component;\n    };\n    EntityRepository.prototype._getEntities = function () {\n        return this.__entities.concat();\n    };\n    return EntityRepository;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (EntityRepository);\n\n\n//# sourceURL=webpack:///./src/foundation/core/EntityRepository.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/MemoryManager.ts":
+/*!**********************************************!*\
+  !*** ./src/foundation/core/MemoryManager.ts ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _memory_Buffer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../memory/Buffer */ \"./src/foundation/memory/Buffer.ts\");\n/* harmony import */ var _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n\n\n/**\n * Usage\n * const mm = MemoryManager.getInstance();\n * this.translate = new Vector3(\n *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)\n * );\n */\nvar MemoryManager = /** @class */ (function () {\n    function MemoryManager() {\n        //__entityMaxCount: number;\n        this.__buffers = {};\n        // BufferForGPUInstanceData\n        {\n            var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);\n            var buffer = new _memory_Buffer__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n                byteLength: arrayBuffer.byteLength,\n                arrayBuffer: arrayBuffer,\n                name: _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_1__[\"BufferUse\"].GPUInstanceData.toString()\n            });\n            this.__buffers[buffer.name] = buffer;\n        }\n        // BufferForGPUVertexData\n        {\n            var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);\n            var buffer = new _memory_Buffer__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n                byteLength: arrayBuffer.byteLength,\n                arrayBuffer: arrayBuffer,\n                name: _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_1__[\"BufferUse\"].GPUVertexData.toString()\n            });\n            this.__buffers[buffer.name] = buffer;\n        }\n        // BufferForUBO\n        {\n            var arrayBuffer = new ArrayBuffer((MemoryManager.bufferWidthLength - 1) * (MemoryManager.bufferHeightLength - 1) /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);\n            var buffer = new _memory_Buffer__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n                byteLength: arrayBuffer.byteLength,\n                arrayBuffer: arrayBuffer,\n                name: _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_1__[\"BufferUse\"].UBOGeneric.toString()\n            });\n            this.__buffers[buffer.name] = buffer;\n        }\n        // BufferForCP\n        {\n            var arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 8 /*byte*/);\n            var buffer = new _memory_Buffer__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n                byteLength: arrayBuffer.byteLength,\n                arrayBuffer: arrayBuffer,\n                name: _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_1__[\"BufferUse\"].CPUGeneric.toString()\n            });\n            this.__buffers[buffer.name] = buffer;\n        }\n    }\n    MemoryManager.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new MemoryManager();\n        }\n        return this.__instance;\n    };\n    MemoryManager.prototype.getBuffer = function (bufferUse) {\n        return this.__buffers[bufferUse.toString()];\n    };\n    Object.defineProperty(MemoryManager, \"bufferWidthLength\", {\n        get: function () {\n            return MemoryManager.__bufferWidthLength;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MemoryManager, \"bufferHeightLength\", {\n        get: function () {\n            return MemoryManager.__bufferHeightLength;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MemoryManager.__bufferWidthLength = Math.pow(2, 8);\n    MemoryManager.__bufferHeightLength = Math.pow(2, 8);\n    return MemoryManager;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (MemoryManager);\n\n\n//# sourceURL=webpack:///./src/foundation/core/MemoryManager.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/core/Object.ts":
+/*!***************************************!*\
+  !*** ./src/foundation/core/Object.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar RnObject = /** @class */ (function () {\n    function RnObject(needToManage) {\n        if (needToManage === void 0) { needToManage = false; }\n        this.__objectUid = -1;\n        if (needToManage) {\n            this.__objectUid = ++RnObject.currentMaxObjectCount;\n        }\n    }\n    Object.defineProperty(RnObject.prototype, \"objectUid\", {\n        get: function () {\n            return this.__objectUid;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    RnObject.currentMaxObjectCount = -1;\n    RnObject.InvalidObjectUID = -1;\n    return RnObject;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (RnObject);\n\n\n//# sourceURL=webpack:///./src/foundation/core/Object.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/BufferUse.ts":
+/*!*************************************************!*\
+  !*** ./src/foundation/definitions/BufferUse.ts ***!
+  \*************************************************/
+/*! exports provided: BufferUse */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"BufferUse\", function() { return BufferUse; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar BufferUseClass = /** @class */ (function (_super) {\n    __extends(BufferUseClass, _super);\n    function BufferUseClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return BufferUseClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar GPUInstanceData = new BufferUseClass({ index: 0, str: 'GPUInstanceData' });\nvar GPUVertexData = new BufferUseClass({ index: 1, str: 'GPUVertexData' });\nvar UBOGeneric = new BufferUseClass({ index: 2, str: 'UBOGeneric' });\nvar CPUGeneric = new BufferUseClass({ index: 3, str: 'CPUGeneric' });\nvar typeList = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nfunction fromString(str) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_fromString\"])({ typeList: typeList, str: str });\n}\nvar BufferUse = Object.freeze({ GPUInstanceData: GPUInstanceData, GPUVertexData: GPUVertexData, UBOGeneric: UBOGeneric, CPUGeneric: CPUGeneric, from: from, fromString: fromString });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/BufferUse.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/ComponentType.ts":
+/*!*****************************************************!*\
+  !*** ./src/foundation/definitions/ComponentType.ts ***!
+  \*****************************************************/
+/*! exports provided: ComponentType */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ComponentType\", function() { return ComponentType; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar ComponentTypeClass = /** @class */ (function (_super) {\n    __extends(ComponentTypeClass, _super);\n    function ComponentTypeClass(_a) {\n        var index = _a.index, str = _a.str, sizeInBytes = _a.sizeInBytes;\n        var _this = _super.call(this, { index: index, str: str }) || this;\n        _this.__sizeInBytes = sizeInBytes;\n        return _this;\n    }\n    ComponentTypeClass.prototype.getSizeInBytes = function () {\n        return this.__sizeInBytes;\n    };\n    return ComponentTypeClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Unknown = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });\nvar Byte = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });\nvar UnsignedByte = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });\nvar Short = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });\nvar UnsignedShort = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });\nvar Int = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });\nvar UnsingedInt = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });\nvar Float = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });\nvar Double = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });\nvar HalfFloat = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });\nvar typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nfunction fromTypedArray(typedArray) {\n    if (typedArray instanceof Int8Array) {\n        return Byte;\n    }\n    else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {\n        return UnsignedByte;\n    }\n    else if (typedArray instanceof Int16Array) {\n        return Short;\n    }\n    else if (typedArray instanceof Uint16Array) {\n        return UnsignedShort;\n    }\n    else if (typedArray instanceof Int32Array) {\n        return Int;\n    }\n    else if (typedArray instanceof Uint32Array) {\n        return UnsingedInt;\n    }\n    else if (typedArray instanceof Float32Array) {\n        return Float;\n    }\n    else if (typedArray instanceof Float64Array) {\n        return Double;\n    }\n    return Unknown;\n}\nvar ComponentType = Object.freeze({ Unknown: Unknown, Byte: Byte, UnsignedByte: UnsignedByte, Short: Short, UnsignedShort: UnsignedShort, Int: Int, UnsingedInt: UnsingedInt, Float: Float, Double: Double, HalfFloat: HalfFloat, from: from, fromTypedArray: fromTypedArray });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/ComponentType.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/CompositionType.ts":
+/*!*******************************************************!*\
+  !*** ./src/foundation/definitions/CompositionType.ts ***!
+  \*******************************************************/
+/*! exports provided: CompositionType */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"CompositionType\", function() { return CompositionType; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar CompositionTypeClass = /** @class */ (function (_super) {\n    __extends(CompositionTypeClass, _super);\n    function CompositionTypeClass(_a) {\n        var index = _a.index, str = _a.str, numberOfComponents = _a.numberOfComponents;\n        var _this = _super.call(this, { index: index, str: str }) || this;\n        _this.__numberOfComponents = 0;\n        _this.__numberOfComponents = numberOfComponents;\n        return _this;\n    }\n    CompositionTypeClass.prototype.getNumberOfComponents = function () {\n        return this.__numberOfComponents;\n    };\n    return CompositionTypeClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Unknown = new CompositionTypeClass({ index: -1, str: 'UNKNOWN', numberOfComponents: 0 });\nvar Scalar = new CompositionTypeClass({ index: 0, str: 'SCALAR', numberOfComponents: 1 });\nvar Vec2 = new CompositionTypeClass({ index: 1, str: 'VEC2', numberOfComponents: 2 });\nvar Vec3 = new CompositionTypeClass({ index: 2, str: 'VEC3', numberOfComponents: 3 });\nvar Vec4 = new CompositionTypeClass({ index: 3, str: 'VEC4', numberOfComponents: 4 });\nvar Mat2 = new CompositionTypeClass({ index: 4, str: 'MAT2', numberOfComponents: 4 });\nvar Mat3 = new CompositionTypeClass({ index: 5, str: 'MAT3', numberOfComponents: 9 });\nvar Mat4 = new CompositionTypeClass({ index: 6, str: 'MAT4', numberOfComponents: 16 });\nvar typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nfunction fromString(str) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_fromString\"])({ typeList: typeList, str: str });\n}\nvar CompositionType = Object.freeze({ Unknown: Unknown, Scalar: Scalar, Vec2: Vec2, Vec3: Vec3, Vec4: Vec4, Mat2: Mat2, Mat3: Mat3, Mat4: Mat4, from: from, fromString: fromString });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/CompositionType.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/PixelFormat.ts":
+/*!***************************************************!*\
+  !*** ./src/foundation/definitions/PixelFormat.ts ***!
+  \***************************************************/
+/*! exports provided: PixelFormat */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"PixelFormat\", function() { return PixelFormat; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar PixelFormatClass = /** @class */ (function (_super) {\n    __extends(PixelFormatClass, _super);\n    function PixelFormatClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return PixelFormatClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar DepthComponent = new PixelFormatClass({ index: 0x1902, str: 'DEPTH_COMPONENT' });\nvar Alpha = new PixelFormatClass({ index: 0x1906, str: 'ALPHA' });\nvar RGB = new PixelFormatClass({ index: 0x1907, str: 'RGB' });\nvar RGBA = new PixelFormatClass({ index: 0x1908, str: 'RGBA' });\nvar Luminance = new PixelFormatClass({ index: 0x1909, str: 'LUMINANCE' });\nvar LuminanceAlpha = new PixelFormatClass({ index: 0x190A, str: 'LUMINANCE_ALPHA' });\nvar typeList = [DepthComponent, Alpha, RGB, RGBA, Luminance, LuminanceAlpha];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar PixelFormat = Object.freeze({ DepthComponent: DepthComponent, Alpha: Alpha, RGB: RGB, RGBA: RGBA, Luminance: Luminance, LuminanceAlpha: LuminanceAlpha });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/PixelFormat.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/PrimitiveMode.ts":
+/*!*****************************************************!*\
+  !*** ./src/foundation/definitions/PrimitiveMode.ts ***!
+  \*****************************************************/
+/*! exports provided: PrimitiveMode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"PrimitiveMode\", function() { return PrimitiveMode; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar PrimitiveModeClass = /** @class */ (function (_super) {\n    __extends(PrimitiveModeClass, _super);\n    function PrimitiveModeClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return PrimitiveModeClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Unknown = new PrimitiveModeClass({ index: -1, str: 'UNKNOWN' });\nvar Points = new PrimitiveModeClass({ index: 0, str: 'POINTS' });\nvar Lines = new PrimitiveModeClass({ index: 1, str: 'LINES' });\nvar LineLoop = new PrimitiveModeClass({ index: 2, str: 'LINE_LOOP' });\nvar LineStrip = new PrimitiveModeClass({ index: 3, str: 'LINE_STRIP' });\nvar Triangles = new PrimitiveModeClass({ index: 4, str: 'TRIANGLES' });\nvar TriangleStrip = new PrimitiveModeClass({ index: 5, str: 'TRIANGLE_STRIP' });\nvar TriangleFan = new PrimitiveModeClass({ index: 6, str: 'TRIANGLE_FAN' });\nvar typeList = [Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar PrimitiveMode = Object.freeze({ Unknown: Unknown, Points: Points, Lines: Lines, LineLoop: LineLoop, LineStrip: LineStrip, Triangles: Triangles, TriangleStrip: TriangleStrip, TriangleFan: TriangleFan, from: from });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/PrimitiveMode.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/ProcessApproach.ts":
+/*!*******************************************************!*\
+  !*** ./src/foundation/definitions/ProcessApproach.ts ***!
+  \*******************************************************/
+/*! exports provided: ProcessApproach */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ProcessApproach\", function() { return ProcessApproach; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar ProcessApproachClass = /** @class */ (function (_super) {\n    __extends(ProcessApproachClass, _super);\n    function ProcessApproachClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return ProcessApproachClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar None = new ProcessApproachClass({ index: 0, str: 'NONE' });\nvar UniformWebGL1 = new ProcessApproachClass({ index: 1, str: 'UNIFORM_WEBGL1' });\nvar DataTextureWebGL1 = new ProcessApproachClass({ index: 2, str: 'DATA_TEXTURE_WEBGL1' });\nvar DataTextureWebGL2 = new ProcessApproachClass({ index: 3, str: 'DATA_TEXTURE_WEBGL2' });\nvar UBOWebGL2 = new ProcessApproachClass({ index: 4, str: 'UBO_WEBGL2' });\nvar TransformFeedbackWebGL2 = new ProcessApproachClass({ index: 5, str: 'TRNASFORM_FEEDBACK_WEBGL2' });\nvar typeList = [None, UniformWebGL1, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar ProcessApproach = Object.freeze({ None: None, UniformWebGL1: UniformWebGL1, DataTextureWebGL1: DataTextureWebGL1, DataTextureWebGL2: DataTextureWebGL2, UBOWebGL2: UBOWebGL2, TransformFeedbackWebGL2: TransformFeedbackWebGL2 });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/ProcessApproach.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/ProcessStage.ts":
+/*!****************************************************!*\
+  !*** ./src/foundation/definitions/ProcessStage.ts ***!
+  \****************************************************/
+/*! exports provided: ProcessStage */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ProcessStage\", function() { return ProcessStage; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar ProcessStageClass = /** @class */ (function (_super) {\n    __extends(ProcessStageClass, _super);\n    function ProcessStageClass(_a) {\n        var index = _a.index, str = _a.str, methodName = _a.methodName;\n        var _this = _super.call(this, { index: index, str: str }) || this;\n        _this.__methodName = methodName;\n        return _this;\n    }\n    ProcessStageClass.prototype.getMethodName = function () {\n        return this.__methodName;\n    };\n    return ProcessStageClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Unknown = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });\nvar Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });\nvar Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });\nvar Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });\nvar Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });\nvar PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });\nvar Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });\nvar Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });\nvar Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });\nvar typeList = [Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar ProcessStage = Object.freeze({ Unknown: Unknown, Create: Create, Load: Load, Mount: Mount, Logic: Logic, PreRender: PreRender, Render: Render, Unmount: Unmount, Discard: Discard, from: from });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/ProcessStage.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/TextureParameter.ts":
+/*!********************************************************!*\
+  !*** ./src/foundation/definitions/TextureParameter.ts ***!
+  \********************************************************/
+/*! exports provided: TextureParameter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"TextureParameter\", function() { return TextureParameter; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar TextureParameterClass = /** @class */ (function (_super) {\n    __extends(TextureParameterClass, _super);\n    function TextureParameterClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return TextureParameterClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Nearest = new TextureParameterClass({ index: 0x2600, str: 'NEAREST' });\nvar Linear = new TextureParameterClass({ index: 0x2601, str: 'LINEAR' });\nvar TextureMagFilter = new TextureParameterClass({ index: 0x2800, str: 'TEXTURE_MAG_FILTER' });\nvar TextureMinFilter = new TextureParameterClass({ index: 0x2801, str: 'TEXTURE_MIN_FILTER' });\nvar TextureWrapS = new TextureParameterClass({ index: 0x2802, str: 'TEXTURE_WRAP_S' });\nvar TextureWrapT = new TextureParameterClass({ index: 0x2803, str: 'TEXTURE_WRAP_T' });\nvar Texture2D = new TextureParameterClass({ index: 0x0DE1, str: 'TEXTURE_2D' });\nvar Texture = new TextureParameterClass({ index: 0x1702, str: 'TEXTURE' });\nvar Texture0 = new TextureParameterClass({ index: 0x84C0, str: 'TEXTURE0' });\nvar Texture1 = new TextureParameterClass({ index: 0x84C1, str: 'TEXTURE1' });\nvar ActiveTexture = new TextureParameterClass({ index: 0x84E0, str: 'ACTIVE_TEXTURE' });\nvar Repeat = new TextureParameterClass({ index: 0x2901, str: 'REPEAT' });\nvar ClampToEdge = new TextureParameterClass({ index: 0x812F, str: 'CLAMP_TO_EDGE' });\nvar RGB8 = new TextureParameterClass({ index: 0x8051, str: 'RGB8' });\nvar RGBA8 = new TextureParameterClass({ index: 0x8058, str: 'RGBA8' });\nvar RGB10_A2 = new TextureParameterClass({ index: 0x8059, str: 'RGB10_A2' });\nvar RGB16F = new TextureParameterClass({ index: 0x881B, str: 'RGB16F' });\nvar RGB32F = new TextureParameterClass({ index: 0x8815, str: 'RGB32F' });\nvar RGBA16F = new TextureParameterClass({ index: 0x881A, str: 'RGBA16F' });\nvar RGBA32F = new TextureParameterClass({ index: 0x8814, str: 'RGBA32F' });\nvar typeList = [Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,\n    Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar TextureParameter = Object.freeze({ Nearest: Nearest, Linear: Linear, TextureMagFilter: TextureMagFilter, TextureMinFilter: TextureMinFilter, TextureWrapS: TextureWrapS, TextureWrapT: TextureWrapT, Texture2D: Texture2D, Texture: Texture,\n    Texture0: Texture0, Texture1: Texture1, ActiveTexture: ActiveTexture, Repeat: Repeat, ClampToEdge: ClampToEdge, RGB8: RGB8, RGBA8: RGBA8, RGB10_A2: RGB10_A2, RGB16F: RGB16F, RGB32F: RGB32F, RGBA16F: RGBA16F, RGBA32F: RGBA32F });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/TextureParameter.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/VertexAttribute.ts":
+/*!*******************************************************!*\
+  !*** ./src/foundation/definitions/VertexAttribute.ts ***!
+  \*******************************************************/
+/*! exports provided: VertexAttribute */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"VertexAttribute\", function() { return VertexAttribute; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar VertexAttributeClass = /** @class */ (function (_super) {\n    __extends(VertexAttributeClass, _super);\n    function VertexAttributeClass(_a) {\n        var index = _a.index, str = _a.str, attributeSlot = _a.attributeSlot;\n        var _this = _super.call(this, { index: index, str: str }) || this;\n        _this.__attributeSlot = attributeSlot;\n        return _this;\n    }\n    VertexAttributeClass.prototype.getAttributeSlot = function () {\n        return this.__attributeSlot;\n    };\n    return VertexAttributeClass;\n}(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar Unknown = new VertexAttributeClass({ index: -1, str: 'UNKNOWN', attributeSlot: -1 });\nvar Position = new VertexAttributeClass({ index: 0, str: 'POSITION', attributeSlot: 0 });\nvar Normal = new VertexAttributeClass({ index: 1, str: 'NORMAL', attributeSlot: 1 });\nvar Tangent = new VertexAttributeClass({ index: 2, str: 'TANGENT', attributeSlot: 2 });\nvar Texcoord0 = new VertexAttributeClass({ index: 3, str: 'TEXCOORD_0', attributeSlot: 3 });\nvar Texcoord1 = new VertexAttributeClass({ index: 4, str: 'TEXCOORD_1', attributeSlot: 4 });\nvar Color0 = new VertexAttributeClass({ index: 5, str: 'COLOR_0', attributeSlot: 5 });\nvar Joints0 = new VertexAttributeClass({ index: 6, str: 'JOINTS_0', attributeSlot: 6 });\nvar Weights0 = new VertexAttributeClass({ index: 7, str: 'WEIGHTS_0', attributeSlot: 7 });\nvar Instance = new VertexAttributeClass({ index: 8, str: 'INSTANCE', attributeSlot: 4 });\nvar typeList = [Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nfunction fromString(str) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_fromString\"])({ typeList: typeList, str: str });\n}\nvar VertexAttribute = Object.freeze({\n    Unknown: Unknown, Position: Position, Normal: Normal, Tangent: Tangent, Texcoord0: Texcoord0, Texcoord1: Texcoord1, Color0: Color0, Joints0: Joints0, Weights0: Weights0, Instance: Instance, from: from, fromString: fromString\n});\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/VertexAttribute.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/geometry/Primitive.ts":
+/*!**********************************************!*\
+  !*** ./src/foundation/geometry/Primitive.ts ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_Object__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/Object */ \"./src/foundation/core/Object.ts\");\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _definitions_BufferUse__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\nvar Primitive = /** @class */ (function (_super) {\n    __extends(Primitive, _super);\n    function Primitive(attributeAccessors, attributeSemantics, mode, material, indicesAccessor) {\n        var _this = _super.call(this) || this;\n        _this.__primitiveUid = -1; // start ID from zero\n        _this.__indices = indicesAccessor;\n        _this.__attributes = attributeAccessors;\n        _this.__attributeSemantics = attributeSemantics;\n        _this.__material = material;\n        _this.__mode = mode;\n        _this.__primitiveUid = Primitive.__primitiveCount++;\n        if (Primitive.__headerAccessor == null) {\n            // primitive 0\n            // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null\n            //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte\n            //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte\n            //   ...\n            //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte\n            // primitive 1\n            // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null\n            //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte\n            //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte\n            //   ...\n            //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte\n            var buffer = _core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance().getBuffer(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_4__[\"BufferUse\"].UBOGeneric);\n            var bufferView = buffer.takeBufferView({ byteLengthToNeed: ((1 * 4) + (8 * 4)) * 4 /*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS: false });\n            Primitive.__headerAccessor = bufferView.takeAccessor({ compositionType: _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__[\"CompositionType\"].Vec4, componentType: _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_1__[\"ComponentType\"].Float, count: 9 * Primitive.maxPrimitiveCount });\n        }\n        var attributeNumOfPrimitive = 1 /*indices*/ + 8 /*vertexAttributes*/;\n        if (_this.indicesAccessor != null) {\n            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, _this.indicesAccessor.byteOffsetInBuffer, _this.indicesAccessor.componentSizeInBytes, _this.indicesAccessor.byteLength / _this.indicesAccessor.componentSizeInBytes, -1);\n        }\n        else {\n            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + 0 /* 0 means indices */, -1, -1, -1, -1);\n        }\n        _this.attributeAccessors.forEach(function (attributeAccessor, i) {\n            Primitive.__headerAccessor.setVec4(attributeNumOfPrimitive * _this.__primitiveUid + i, attributeAccessor.byteOffsetInBuffer, attributeAccessor.byteStride, attributeAccessor.numberOfComponents, attributeAccessor.componentSizeInBytes);\n        });\n        return _this;\n    }\n    Object.defineProperty(Primitive, \"maxPrimitiveCount\", {\n        get: function () {\n            return 100;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive, \"headerAccessor\", {\n        get: function () {\n            return this.__headerAccessor;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Primitive.createPrimitive = function (_a) {\n        var indices = _a.indices, attributeCompositionTypes = _a.attributeCompositionTypes, attributeSemantics = _a.attributeSemantics, attributes = _a.attributes, material = _a.material, primitiveMode = _a.primitiveMode;\n        var buffer = _core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance().getBuffer(_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_4__[\"BufferUse\"].GPUVertexData);\n        var indicesComponentType;\n        var indicesBufferView;\n        var indicesAccessor;\n        if (indices != null) {\n            indicesComponentType = _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_1__[\"ComponentType\"].fromTypedArray(indices);\n            indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });\n            indicesAccessor = indicesBufferView.takeAccessor({\n                compositionType: _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__[\"CompositionType\"].Scalar,\n                componentType: indicesComponentType,\n                count: indices.byteLength / indicesComponentType.getSizeInBytes()\n            });\n            // copy indices\n            for (var i = 0; i < indices.byteLength / indicesAccessor.componentSizeInBytes; i++) {\n                indicesAccessor.setScalar(i, indices[i]);\n            }\n        }\n        var sumOfAttributesByteSize = 0;\n        attributes.forEach(function (attribute) {\n            sumOfAttributesByteSize += attribute.byteLength;\n        });\n        var attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });\n        var attributeAccessors = [];\n        var attributeComponentTypes = [];\n        attributes.forEach(function (attribute, i) {\n            attributeComponentTypes[i] = _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_1__[\"ComponentType\"].fromTypedArray(attributes[i]);\n            var accessor = attributesBufferView.takeAccessor({\n                compositionType: attributeCompositionTypes[i],\n                componentType: _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_1__[\"ComponentType\"].fromTypedArray(attributes[i]),\n                count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()\n            });\n            accessor.copyFromTypedArray(attribute);\n            attributeAccessors.push(accessor);\n        });\n        return new Primitive(attributeAccessors, attributeSemantics, primitiveMode, material, indicesAccessor);\n    };\n    Object.defineProperty(Primitive.prototype, \"indicesAccessor\", {\n        get: function () {\n            return this.__indices;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Primitive.prototype.hasIndices = function () {\n        return this.__indices != null;\n    };\n    Object.defineProperty(Primitive.prototype, \"attributeAccessors\", {\n        get: function () {\n            return this.__attributes.concat();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive.prototype, \"attributeSemantics\", {\n        get: function () {\n            return this.__attributeSemantics.concat();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive.prototype, \"attributeCompositionTypes\", {\n        get: function () {\n            return this.__attributes.map(function (attribute) { return attribute.compositionType; });\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive.prototype, \"attributeComponentTypes\", {\n        get: function () {\n            return this.__attributes.map(function (attribute) { return attribute.componentType; });\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive.prototype, \"primitiveMode\", {\n        get: function () {\n            return this.__mode;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Primitive.prototype, \"primitiveUid\", {\n        get: function () {\n            return this.__primitiveUid;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Primitive.__primitiveCount = 0;\n    return Primitive;\n}(_core_Object__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (Primitive);\n\n\n//# sourceURL=webpack:///./src/foundation/geometry/Primitive.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/importer/Gltf2Importer.ts":
+/*!**************************************************!*\
+  !*** ./src/foundation/importer/Gltf2Importer.ts ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/DataUtil */ \"./src/foundation/misc/DataUtil.ts\");\nvar __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {\n    return new (P || (P = Promise))(function (resolve, reject) {\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\n        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\n    });\n};\nvar __generator = (undefined && undefined.__generator) || function (thisArg, body) {\n    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;\n    return g = { next: verb(0), \"throw\": verb(1), \"return\": verb(2) }, typeof Symbol === \"function\" && (g[Symbol.iterator] = function() { return this; }), g;\n    function verb(n) { return function (v) { return step([n, v]); }; }\n    function step(op) {\n        if (f) throw new TypeError(\"Generator is already executing.\");\n        while (_) try {\n            if (f = 1, y && (t = op[0] & 2 ? y[\"return\"] : op[0] ? y[\"throw\"] || ((t = y[\"return\"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;\n            if (y = 0, t) op = [op[0] & 2, t.value];\n            switch (op[0]) {\n                case 0: case 1: t = op; break;\n                case 4: _.label++; return { value: op[1], done: false };\n                case 5: _.label++; y = op[1]; op = [0]; continue;\n                case 7: op = _.ops.pop(); _.trys.pop(); continue;\n                default:\n                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }\n                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }\n                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }\n                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }\n                    if (t[2]) _.ops.pop();\n                    _.trys.pop(); continue;\n            }\n            op = body.call(thisArg, _);\n        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }\n        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };\n    }\n};\nvar __values = (undefined && undefined.__values) || function (o) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\n    if (m) return m.call(o);\n    return {\n        next: function () {\n            if (o && i >= o.length) o = void 0;\n            return { value: o && o[i++], done: !o };\n        }\n    };\n};\n\nvar Gltf2Importer = /** @class */ (function () {\n    function Gltf2Importer() {\n    }\n    Gltf2Importer.prototype.import = function (uri, options) {\n        if (options === void 0) { options = {}; }\n        return __awaiter(this, void 0, void 0, function () {\n            var defaultOptions, response, arrayBuffer, dataView, isLittleEndian, magic, result, gotText, json;\n            return __generator(this, function (_a) {\n                switch (_a.label) {\n                    case 0:\n                        defaultOptions = {\n                            files: {\n                            //        \"foo.gltf\": content of file as ArrayBuffer,\n                            //        \"foo.bin\": content of file as ArrayBuffer,\n                            //        \"boo.png\": content of file as ArrayBuffer\n                            },\n                            loaderExtension: null,\n                            defaultShaderClass: null,\n                            statesOfElements: [\n                                {\n                                    targets: [],\n                                    states: {\n                                        enable: [\n                                        // 3042,  // BLEND\n                                        ],\n                                        functions: {\n                                        //\"blendFuncSeparate\": [1, 0, 1, 0],\n                                        }\n                                    },\n                                    isTransparent: true,\n                                    opacity: 1.0,\n                                    isTextureImageToLoadPreMultipliedAlpha: false,\n                                }\n                            ],\n                            extendedJson: null //   URI string / JSON Object / ArrayBuffer\n                        };\n                        return [4 /*yield*/, fetch(uri)];\n                    case 1:\n                        response = _a.sent();\n                        return [4 /*yield*/, response.arrayBuffer()];\n                    case 2:\n                        arrayBuffer = _a.sent();\n                        dataView = new DataView(arrayBuffer, 0, 20);\n                        isLittleEndian = true;\n                        magic = dataView.getUint32(0, isLittleEndian);\n                        if (!(magic !== 0x46546C67)) return [3 /*break*/, 4];\n                        gotText = _misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].arrayBufferToString(arrayBuffer);\n                        json = JSON.parse(gotText);\n                        return [4 /*yield*/, this._loadAsTextJson(json, uri, options, defaultOptions)];\n                    case 3:\n                        result = _a.sent();\n                        return [3 /*break*/, 4];\n                    case 4: return [2 /*return*/, result];\n                }\n            });\n        });\n    };\n    Gltf2Importer.prototype._getOptions = function (defaultOptions, json, options) {\n        if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {\n            for (var optionName in json.asset.extras.loadOptions) {\n                defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];\n            }\n        }\n        for (var optionName in options) {\n            defaultOptions[optionName] = options[optionName];\n        }\n        return defaultOptions;\n    };\n    Gltf2Importer.prototype._loadAsTextJson = function (gltfJson, uri, options, defaultOptions) {\n        return __awaiter(this, void 0, void 0, function () {\n            var basePath, result;\n            return __generator(this, function (_a) {\n                switch (_a.label) {\n                    case 0:\n                        if (uri) {\n                            //Set the location of gltf file as basePath\n                            basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';\n                        }\n                        if (gltfJson.asset.extras === undefined) {\n                            gltfJson.asset.extras = {};\n                        }\n                        options = this._getOptions(defaultOptions, gltfJson, options);\n                        this._mergeExtendedJson(gltfJson, options.extendedJson);\n                        gltfJson.asset.extras.basePath = basePath;\n                        return [4 /*yield*/, this._loadInner(undefined, basePath, gltfJson, options)];\n                    case 1:\n                        result = _a.sent();\n                        return [2 /*return*/, result[0][0]];\n                }\n            });\n        });\n    };\n    Gltf2Importer.prototype._loadInner = function (arrayBufferBinary, basePath, gltfJson, options) {\n        var _this = this;\n        var promises = [];\n        var resources = {\n            shaders: [],\n            buffers: [],\n            images: []\n        };\n        promises.push(this._loadResources(arrayBufferBinary, basePath, gltfJson, options, resources));\n        promises.push(new Promise(function (resolve, reject) {\n            _this._loadJsonContent(gltfJson, options);\n            resolve();\n        }));\n        return Promise.all(promises);\n    };\n    Gltf2Importer.prototype._loadJsonContent = function (gltfJson, options) {\n        // Scene\n        this._loadDependenciesOfScenes(gltfJson);\n        // Node\n        this._loadDependenciesOfNodes(gltfJson);\n        // Node Transformation\n        //    this._loadTransformationsOfNodes(gltfJson);\n        // Mesh\n        this._loadDependenciesOfMeshes(gltfJson);\n        // Material\n        this._loadDependenciesOfMaterials(gltfJson);\n        // Texture\n        this._loadDependenciesOfTextures(gltfJson);\n        // Joint\n        this._loadDependenciesOfJoints(gltfJson);\n        // Animation\n        this._loadDependenciesOfAnimations(gltfJson);\n        // Accessor\n        this._loadDependenciesOfAccessors(gltfJson);\n        // BufferView\n        this._loadDependenciesOfBufferViews(gltfJson);\n        if (gltfJson.asset === void 0) {\n            gltfJson.asset = {};\n        }\n        if (gltfJson.asset.extras === void 0) {\n            gltfJson.asset.extras = {};\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfScenes = function (gltfJson) {\n        var e_1, _a;\n        try {\n            for (var _b = __values(gltfJson.scenes), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var scene = _c.value;\n                scene.nodesIndices = scene.nodes.concat();\n                for (var i in scene.nodesIndices) {\n                    scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];\n                }\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfNodes = function (gltfJson) {\n        var e_2, _a;\n        try {\n            for (var _b = __values(gltfJson.nodes), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var node = _c.value;\n                // Hierarchy\n                if (node.children) {\n                    node.childrenIndices = node.children.concat();\n                    node.children = [];\n                    for (var i in node.childrenIndices) {\n                        node.children[i] = gltfJson.nodes[node.childrenIndices[i]];\n                    }\n                }\n                // Mesh\n                if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {\n                    node.meshIndex = node.mesh;\n                    node.mesh = gltfJson.meshes[node.meshIndex];\n                }\n                // Skin\n                if (node.skin !== void 0 && gltfJson.skins !== void 0) {\n                    node.skinIndex = node.skin;\n                    node.skin = gltfJson.skins[node.skinIndex];\n                    if (node.mesh.extras === void 0) {\n                        node.mesh.extras = {};\n                    }\n                    node.mesh.extras._skin = node.skin;\n                }\n                // Camera\n                if (node.camera !== void 0 && gltfJson.cameras !== void 0) {\n                    node.cameraIndex = node.camera;\n                    node.camera = gltfJson.cameras[node.cameraIndex];\n                }\n            }\n        }\n        catch (e_2_1) { e_2 = { error: e_2_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_2) throw e_2.error; }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfMeshes = function (gltfJson) {\n        var e_3, _a, e_4, _b;\n        try {\n            // Mesh\n            for (var _c = __values(gltfJson.meshes), _d = _c.next(); !_d.done; _d = _c.next()) {\n                var mesh = _d.value;\n                try {\n                    for (var _e = __values(mesh.primitives), _f = _e.next(); !_f.done; _f = _e.next()) {\n                        var primitive = _f.value;\n                        if (primitive.material !== void 0) {\n                            primitive.materialIndex = primitive.material;\n                            primitive.material = gltfJson.materials[primitive.materialIndex];\n                        }\n                        primitive.attributesindex = Object.assign({}, primitive.attributes);\n                        for (var attributeName in primitive.attributesindex) {\n                            if (primitive.attributesindex[attributeName] >= 0) {\n                                var accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];\n                                accessor.extras = {\n                                    toGetAsTypedArray: true,\n                                    attributeName: attributeName\n                                };\n                                primitive.attributes[attributeName] = accessor;\n                            }\n                            else {\n                                primitive.attributes[attributeName] = void 0;\n                            }\n                        }\n                        if (primitive.indices !== void 0) {\n                            primitive.indicesIndex = primitive.indices;\n                            primitive.indices = gltfJson.accessors[primitive.indicesIndex];\n                        }\n                    }\n                }\n                catch (e_4_1) { e_4 = { error: e_4_1 }; }\n                finally {\n                    try {\n                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);\n                    }\n                    finally { if (e_4) throw e_4.error; }\n                }\n            }\n        }\n        catch (e_3_1) { e_3 = { error: e_3_1 }; }\n        finally {\n            try {\n                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);\n            }\n            finally { if (e_3) throw e_3.error; }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfMaterials = function (gltfJson) {\n        var e_5, _a;\n        // Material\n        if (gltfJson.materials) {\n            try {\n                for (var _b = __values(gltfJson.materials), _c = _b.next(); !_c.done; _c = _b.next()) {\n                    var material = _c.value;\n                    if (material.pbrMetallicRoughness) {\n                        var baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;\n                        if (baseColorTexture !== void 0) {\n                            baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];\n                        }\n                        var metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;\n                        if (metallicRoughnessTexture !== void 0) {\n                            metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];\n                        }\n                    }\n                    var normalTexture = material.normalTexture;\n                    if (normalTexture !== void 0) {\n                        normalTexture.texture = gltfJson.textures[normalTexture.index];\n                    }\n                    var occlusionTexture = material.occlusionTexture;\n                    if (occlusionTexture !== void 0) {\n                        occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];\n                    }\n                    var emissiveTexture = material.emissiveTexture;\n                    if (emissiveTexture !== void 0) {\n                        emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];\n                    }\n                }\n            }\n            catch (e_5_1) { e_5 = { error: e_5_1 }; }\n            finally {\n                try {\n                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n                }\n                finally { if (e_5) throw e_5.error; }\n            }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfTextures = function (gltfJson) {\n        var e_6, _a;\n        // Texture\n        if (gltfJson.textures) {\n            try {\n                for (var _b = __values(gltfJson.textures), _c = _b.next(); !_c.done; _c = _b.next()) {\n                    var texture = _c.value;\n                    if (texture.sampler !== void 0) {\n                        texture.samplerIndex = texture.sampler;\n                        texture.sampler = gltfJson.samplers[texture.samplerIndex];\n                    }\n                    if (texture.source !== void 0) {\n                        texture.sourceIndex = texture.source;\n                        texture.image = gltfJson.images[texture.sourceIndex];\n                    }\n                }\n            }\n            catch (e_6_1) { e_6 = { error: e_6_1 }; }\n            finally {\n                try {\n                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n                }\n                finally { if (e_6) throw e_6.error; }\n            }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfJoints = function (gltfJson) {\n        var e_7, _a, e_8, _b;\n        if (gltfJson.skins) {\n            try {\n                for (var _c = __values(gltfJson.skins), _d = _c.next(); !_d.done; _d = _c.next()) {\n                    var skin = _d.value;\n                    skin.skeletonIndex = skin.skeleton;\n                    skin.skeleton = gltfJson.nodes[skin.skeletonIndex];\n                    skin.inverseBindMatricesIndex = skin.inverseBindMatrices;\n                    skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];\n                    skin.jointsIndices = skin.joints;\n                    skin.joints = [];\n                    try {\n                        for (var _e = __values(skin.jointsIndices), _f = _e.next(); !_f.done; _f = _e.next()) {\n                            var jointIndex = _f.value;\n                            skin.joints.push(gltfJson.nodes[jointIndex]);\n                        }\n                    }\n                    catch (e_8_1) { e_8 = { error: e_8_1 }; }\n                    finally {\n                        try {\n                            if (_f && !_f.done && (_b = _e.return)) _b.call(_e);\n                        }\n                        finally { if (e_8) throw e_8.error; }\n                    }\n                }\n            }\n            catch (e_7_1) { e_7 = { error: e_7_1 }; }\n            finally {\n                try {\n                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);\n                }\n                finally { if (e_7) throw e_7.error; }\n            }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfAnimations = function (gltfJson) {\n        var e_9, _a, e_10, _b, e_11, _c;\n        if (gltfJson.animations) {\n            try {\n                for (var _d = __values(gltfJson.animations), _e = _d.next(); !_e.done; _e = _d.next()) {\n                    var animation = _e.value;\n                    try {\n                        for (var _f = __values(animation.channels), _g = _f.next(); !_g.done; _g = _f.next()) {\n                            var channel = _g.value;\n                            channel.samplerIndex = channel.sampler;\n                            channel.sampler = animation.samplers[channel.samplerIndex];\n                            channel.target.nodeIndex = channel.target.node;\n                            channel.target.node = gltfJson.nodes[channel.target.nodeIndex];\n                        }\n                    }\n                    catch (e_10_1) { e_10 = { error: e_10_1 }; }\n                    finally {\n                        try {\n                            if (_g && !_g.done && (_b = _f.return)) _b.call(_f);\n                        }\n                        finally { if (e_10) throw e_10.error; }\n                    }\n                    try {\n                        for (var _h = __values(animation.channels), _j = _h.next(); !_j.done; _j = _h.next()) {\n                            var channel = _j.value;\n                            channel.sampler.inputIndex = channel.sampler.input;\n                            channel.sampler.outputIndex = channel.sampler.output;\n                            channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];\n                            channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];\n                            if (channel.target.path === 'rotation') {\n                                if (channel.sampler.output.extras === void 0) {\n                                    channel.sampler.output.extras = {};\n                                }\n                                channel.sampler.output.extras.quaternionIfVec4 = true;\n                            }\n                        }\n                    }\n                    catch (e_11_1) { e_11 = { error: e_11_1 }; }\n                    finally {\n                        try {\n                            if (_j && !_j.done && (_c = _h.return)) _c.call(_h);\n                        }\n                        finally { if (e_11) throw e_11.error; }\n                    }\n                }\n            }\n            catch (e_9_1) { e_9 = { error: e_9_1 }; }\n            finally {\n                try {\n                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);\n                }\n                finally { if (e_9) throw e_9.error; }\n            }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfAccessors = function (gltfJson) {\n        var e_12, _a;\n        try {\n            // Accessor\n            for (var _b = __values(gltfJson.accessors), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var accessor = _c.value;\n                if (accessor.bufferView !== void 0) {\n                    accessor.bufferViewIndex = accessor.bufferView;\n                    accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];\n                }\n            }\n        }\n        catch (e_12_1) { e_12 = { error: e_12_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_12) throw e_12.error; }\n        }\n    };\n    Gltf2Importer.prototype._loadDependenciesOfBufferViews = function (gltfJson) {\n        var e_13, _a;\n        try {\n            // BufferView\n            for (var _b = __values(gltfJson.bufferViews), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var bufferView = _c.value;\n                if (bufferView.buffer !== void 0) {\n                    bufferView.bufferIndex = bufferView.buffer;\n                    bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];\n                }\n            }\n        }\n        catch (e_13_1) { e_13 = { error: e_13_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_13) throw e_13.error; }\n        }\n    };\n    Gltf2Importer.prototype._mergeExtendedJson = function (gltfJson, extendedData) {\n        var extendedJson = null;\n        if (extendedData instanceof ArrayBuffer) {\n            var extendedJsonStr = _misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].arrayBufferToString(extendedData);\n            extendedJson = JSON.parse(extendedJsonStr);\n        }\n        else if (typeof extendedData === 'string') {\n            extendedJson = JSON.parse(extendedData);\n            extendedJson = extendedJson;\n        }\n        else if (typeof extendedData === 'object') {\n            extendedJson = extendedData;\n        }\n        else {\n        }\n        Object.assign(gltfJson, extendedJson);\n    };\n    Gltf2Importer.prototype._loadResources = function (arrayBufferBinary, basePath, gltfJson, options, resources) {\n        var _this = this;\n        var promisesToLoadResources = [];\n        var _loop_1 = function (i) {\n            var bufferInfo = gltfJson.buffers[i];\n            var splitted = void 0;\n            var filename;\n            if (bufferInfo.uri) {\n                splitted = bufferInfo.uri.split('/');\n                filename = splitted[splitted.length - 1];\n            }\n            if (typeof bufferInfo.uri === 'undefined') {\n                promisesToLoadResources.push(new Promise(function (resolve, rejected) {\n                    resources.buffers[i] = arrayBufferBinary;\n                    bufferInfo.buffer = arrayBufferBinary;\n                    resolve(gltfJson);\n                }));\n            }\n            else if (bufferInfo.uri.match(/^data:application\\/(.*);base64,/)) {\n                promisesToLoadResources.push(new Promise(function (resolve, rejected) {\n                    var arrayBuffer = _misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].base64ToArrayBuffer(bufferInfo.uri);\n                    resources.buffers[i] = arrayBuffer;\n                    bufferInfo.buffer = arrayBuffer;\n                    resolve(gltfJson);\n                }));\n            }\n            else if (options.files && options.files[filename]) {\n                promisesToLoadResources.push(new Promise(function (resolve, rejected) {\n                    var arrayBuffer = options.files[filename];\n                    resources.buffers[i] = arrayBuffer;\n                    bufferInfo.buffer = arrayBuffer;\n                    resolve(gltfJson);\n                }));\n            }\n            else {\n                promisesToLoadResources.push(_misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].loadResourceAsync(basePath + bufferInfo.uri, true, function (resolve, response) {\n                    resources.buffers[i] = response;\n                    bufferInfo.buffer = response;\n                    resolve(gltfJson);\n                }, function (reject, error) {\n                }));\n            }\n        };\n        // Shaders Async load\n        // for (let _i in gltfJson.shaders) {\n        //   const i = _i as any as number;\n        //   resources.shaders[i] = {};\n        //   let shaderJson = gltfJson.shaders[i];\n        //   let shaderType = shaderJson.type;\n        //   if (typeof shaderJson.extensions !== 'undefined' && typeof shaderJson.extensions.KHR_binary_glTF !== 'undefined') {\n        //     resources.shaders[i].shaderText = this._accessBinaryAsShader(shaderJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary);\n        //     resources.shaders[i].shaderType = shaderType;\n        //     continue;\n        //   }\n        //   let shaderUri = shaderJson.uri;\n        //   if (options.files) {\n        //     const splitted = shaderUri.split('/');\n        //     const filename = splitted[splitted.length - 1];\n        //     if (options.files[filename]) {\n        //       const arrayBuffer = options.files[filename];\n        //       resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);\n        //       resources.shaders[i].shaderType = shaderType;\n        //       continue;\n        //     }\n        //   }\n        //   if (shaderUri.match(/^data:/)) {\n        //     promisesToLoadResources.push(\n        //       new Promise((resolve, rejected) => {\n        //         let arrayBuffer = DataUtil.base64ToArrayBuffer(shaderUri);\n        //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);\n        //         resources.shaders[i].shaderType = shaderType;\n        //         resolve();\n        //       })\n        //     );\n        //   } else {\n        //     shaderUri = basePath + shaderUri;\n        //     promisesToLoadResources.push(\n        //       DataUtil.loadResourceAsync(shaderUri, false,\n        //         (resolve:Function, response:any)=>{\n        //           resources.shaders[i].shaderText = response;\n        //           resources.shaders[i].shaderType = shaderType;\n        //           resolve(gltfJson);\n        //         },\n        //         (reject:Function, error:any)=>{\n        //         }\n        //       )\n        //     );\n        //   }\n        // }\n        // Buffers Async load\n        for (var i in gltfJson.buffers) {\n            _loop_1(i);\n        }\n        var _loop_2 = function (_i) {\n            var i = _i;\n            var imageJson = gltfJson.images[i];\n            //let imageJson = gltfJson.images[textureJson.source];\n            //let samplerJson = gltfJson.samplers[textureJson.sampler];\n            var imageUri;\n            if (typeof imageJson.uri === 'undefined') {\n                imageUri = this_1._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);\n            }\n            else {\n                var imageFileStr = imageJson.uri;\n                var splitted = imageFileStr.split('/');\n                var filename = splitted[splitted.length - 1];\n                if (options.files && options.files[filename]) {\n                    var arrayBuffer = options.files[filename];\n                    var splitted_1 = filename.split('.');\n                    var fileExtension = splitted_1[splitted_1.length - 1];\n                    imageUri = this_1._accessArrayBufferAsImage(arrayBuffer, fileExtension);\n                }\n                else if (imageFileStr.match(/^data:/)) {\n                    imageUri = imageFileStr;\n                }\n                else {\n                    imageUri = basePath + imageFileStr;\n                }\n            }\n            // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {\n            //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);\n            // }\n            promisesToLoadResources.push(new Promise(function (resolve, reject) {\n                var img = new Image();\n                img.crossOrigin = 'Anonymous';\n                img.src = imageUri;\n                imageJson.image = img;\n                if (imageUri.match(/^data:/)) {\n                    resolve(gltfJson);\n                }\n                else {\n                    var load_1 = function (img, response) {\n                        var bytes = new Uint8Array(response);\n                        var binaryData = \"\";\n                        for (var i = 0, len = bytes.byteLength; i < len; i++) {\n                            binaryData += String.fromCharCode(bytes[i]);\n                        }\n                        var split = imageUri.split('.');\n                        var ext = split[split.length - 1];\n                        img.src = _this._getImageType(ext) + window.btoa(binaryData);\n                        img.onload = function () {\n                            resolve(gltfJson);\n                        };\n                    };\n                    var loadBinaryImage = function () {\n                        var xhr = new XMLHttpRequest();\n                        xhr.onreadystatechange = (function (_img) {\n                            return function () {\n                                if (xhr.readyState == 4 && xhr.status == 200) {\n                                    load_1(_img, xhr.response);\n                                }\n                            };\n                        })(img);\n                        xhr.open('GET', imageUri);\n                        xhr.responseType = 'arraybuffer';\n                        xhr.send();\n                    };\n                    loadBinaryImage();\n                }\n                resources.images[i] = img;\n            }));\n        };\n        var this_1 = this;\n        // Textures Async load\n        for (var _i in gltfJson.images) {\n            _loop_2(_i);\n        }\n        return Promise.all(promisesToLoadResources);\n    };\n    Gltf2Importer.prototype._accessBinaryAsImage = function (bufferViewStr, json, arrayBuffer, mimeType) {\n        var arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);\n        return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);\n    };\n    Gltf2Importer.prototype._sliceBufferViewToArrayBuffer = function (json, bufferViewStr, arrayBuffer) {\n        var bufferViewJson = json.bufferViews[bufferViewStr];\n        var byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;\n        var byteLength = bufferViewJson.byteLength;\n        var arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);\n        return arrayBufferSliced;\n    };\n    Gltf2Importer.prototype._accessArrayBufferAsImage = function (arrayBuffer, imageType) {\n        var bytes = new Uint8Array(arrayBuffer);\n        var binaryData = '';\n        for (var i = 0, len = bytes.byteLength; i < len; i++) {\n            binaryData += String.fromCharCode(bytes[i]);\n        }\n        var imgSrc = this._getImageType(imageType);\n        var dataUrl = imgSrc + _misc_DataUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].btoa(binaryData);\n        return dataUrl;\n    };\n    Gltf2Importer.prototype._getImageType = function (imageType) {\n        var imgSrc = null;\n        if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {\n            imgSrc = \"data:image/jpeg;base64,\";\n        }\n        else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {\n            imgSrc = \"data:image/png;base64,\";\n        }\n        else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {\n            imgSrc = \"data:image/gif;base64,\";\n        }\n        else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {\n            imgSrc = \"data:image/bmp;base64,\";\n        }\n        else {\n            imgSrc = \"data:image/unknown;base64,\";\n        }\n        return imgSrc;\n    };\n    Gltf2Importer.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new Gltf2Importer();\n        }\n        return this.__instance;\n    };\n    return Gltf2Importer;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Gltf2Importer);\n\n\n//# sourceURL=webpack:///./src/foundation/importer/Gltf2Importer.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/importer/ModelConverter.ts":
+/*!***************************************************!*\
+  !*** ./src/foundation/importer/ModelConverter.ts ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_EntityRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/EntityRepository */ \"./src/foundation/core/EntityRepository.ts\");\n/* harmony import */ var _components_TransformComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/TransformComponent */ \"./src/foundation/components/TransformComponent.ts\");\n/* harmony import */ var _components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/SceneGraphComponent */ \"./src/foundation/components/SceneGraphComponent.ts\");\n/* harmony import */ var _components_MeshComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/MeshComponent */ \"./src/foundation/components/MeshComponent.ts\");\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _math_Quaternion__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../math/Quaternion */ \"./src/foundation/math/Quaternion.ts\");\n/* harmony import */ var _math_Matrix44__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../math/Matrix44 */ \"./src/foundation/math/Matrix44.ts\");\n/* harmony import */ var _components_MeshRendererComponent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../components/MeshRendererComponent */ \"./src/foundation/components/MeshRendererComponent.ts\");\n/* harmony import */ var _geometry_Primitive__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../geometry/Primitive */ \"./src/foundation/geometry/Primitive.ts\");\n/* harmony import */ var _memory_Buffer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../memory/Buffer */ \"./src/foundation/memory/Buffer.ts\");\n/* harmony import */ var _definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../definitions/PrimitiveMode */ \"./src/foundation/definitions/PrimitiveMode.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../definitions/VertexAttribute */ \"./src/foundation/definitions/VertexAttribute.ts\");\nvar __values = (undefined && undefined.__values) || function (o) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\n    if (m) return m.call(o);\n    return {\n        next: function () {\n            if (o && i >= o.length) o = void 0;\n            return { value: o && o[i++], done: !o };\n        }\n    };\n};\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/**\n * A converter class from glTF2 model to Rhodonite Native data\n */\nvar ModelConverter = /** @class */ (function () {\n    function ModelConverter() {\n    }\n    /**\n     * The static method to get singleton instance of this class.\n     * @return The singleton instance of ModelConverter class\n     */\n    ModelConverter.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new ModelConverter();\n        }\n        return this.__instance;\n    };\n    ModelConverter.prototype._getDefaultShader = function (options) {\n        var defaultShader = null;\n        // if (options && typeof options.defaultShaderClass !== \"undefined\") {\n        //   if (typeof options.defaultShaderClass === \"string\") {\n        //     defaultShader = GLBoost[options.defaultShaderClass];\n        //   } else {\n        //     defaultShader = options.defaultShaderClass;\n        //   }\n        // }\n        return defaultShader;\n    };\n    ModelConverter.prototype.__generateGroupEntity = function () {\n        var repo = _core_EntityRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        var entity = repo.createEntity([_components_TransformComponent__WEBPACK_IMPORTED_MODULE_1__[\"default\"].componentTID, _components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_2__[\"default\"].componentTID]);\n        return entity;\n    };\n    ModelConverter.prototype.__generateMeshEntity = function () {\n        var repo = _core_EntityRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        var entity = repo.createEntity([_components_TransformComponent__WEBPACK_IMPORTED_MODULE_1__[\"default\"].componentTID, _components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_2__[\"default\"].componentTID,\n            _components_MeshComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"].componentTID, _components_MeshRendererComponent__WEBPACK_IMPORTED_MODULE_7__[\"default\"].componentTID]);\n        return entity;\n    };\n    ModelConverter.prototype.convertToRhodoniteObject = function (gltfModel) {\n        // load binary data\n        // for (let accessor of gltfModel.accessors) {\n        //   this._accessBinaryWithAccessor(accessor);\n        // }\n        var e_1, _a, e_2, _b;\n        var rnBuffer = this.createRnBuffer(gltfModel);\n        // Mesh data\n        var meshEntities = this._setupMesh(gltfModel, rnBuffer);\n        var groups = [];\n        try {\n            for (var _c = __values(gltfModel.nodes), _d = _c.next(); !_d.done; _d = _c.next()) {\n                var node = _d.value;\n                var group = this.__generateGroupEntity();\n                group.tryToSetUniqueName(node.name, true);\n                groups.push(group);\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n        // Transfrom\n        this._setupTransform(gltfModel, groups);\n        // Skeleton\n        //    this._setupSkeleton(gltfModel, groups, glboostMeshes);\n        // Hierarchy\n        this._setupHierarchy(gltfModel, groups, meshEntities);\n        // Animation\n        //    this._setupAnimation(gltfModel, groups);\n        // Root Group\n        var rootGroup = this.__generateGroupEntity();\n        rootGroup.tryToSetUniqueName('FileRoot', true);\n        if (gltfModel.scenes[0].nodesIndices) {\n            try {\n                for (var _e = __values(gltfModel.scenes[0].nodesIndices), _f = _e.next(); !_f.done; _f = _e.next()) {\n                    var nodesIndex = _f.value;\n                    rootGroup.getSceneGraph().addChild(groups[nodesIndex].getSceneGraph());\n                }\n            }\n            catch (e_2_1) { e_2 = { error: e_2_1 }; }\n            finally {\n                try {\n                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);\n                }\n                finally { if (e_2) throw e_2.error; }\n            }\n        }\n        // Post Skeletal Proccess\n        // for (let glboostMesh of glboostMeshes) {\n        //   if (glboostMesh instanceof M_SkeletalMesh) {\n        //     if (!glboostMesh.jointsHierarchy) {\n        //       glboostMesh.jointsHierarchy = rootGroup;\n        //     }\n        //   }\n        // }\n        // let options = gltfModel.asset.extras.glboostOptions;\n        // if (options.loaderExtension && options.loaderExtension.setAssetPropertiesToRootGroup) {\n        //   options.loaderExtension.setAssetPropertiesToRootGroup(rootGroup, gltfModel.asset);\n        // }\n        // if (options && options.loaderExtension && options.loaderExtension.loadExtensionInfoAndSetToRootGroup) {\n        //   options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel, glBoostContext);\n        // }\n        // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);\n        return rootGroup;\n    };\n    ModelConverter.prototype.createRnBuffer = function (gltfModel) {\n        var buffer = gltfModel.buffers[0];\n        var rnBuffer = new _memory_Buffer__WEBPACK_IMPORTED_MODULE_9__[\"default\"]({\n            byteLength: buffer.byteLength,\n            arrayBuffer: buffer.buffer,\n            name: \"gltf2Buffer_0_(\" + buffer.uri + \")\"\n        });\n        return rnBuffer;\n    };\n    ModelConverter.prototype._setupTransform = function (gltfModel, groups) {\n        for (var node_i in gltfModel.nodes) {\n            var group = groups[node_i];\n            var nodeJson = gltfModel.nodes[node_i];\n            if (nodeJson.translation) {\n                group.getTransform().translate = new _math_Vector3__WEBPACK_IMPORTED_MODULE_4__[\"default\"](nodeJson.translation[0], nodeJson.translation[1], nodeJson.translation[2]);\n            }\n            if (nodeJson.scale) {\n                group.getTransform().scale = new _math_Vector3__WEBPACK_IMPORTED_MODULE_4__[\"default\"](nodeJson.scale[0], nodeJson.scale[1], nodeJson.scale[2]);\n            }\n            if (nodeJson.rotation) {\n                group.getTransform().quaternion = new _math_Quaternion__WEBPACK_IMPORTED_MODULE_5__[\"default\"](nodeJson.rotation[0], nodeJson.rotation[1], nodeJson.rotation[2], nodeJson.rotation[3]);\n            }\n            if (nodeJson.matrix) {\n                group.getTransform().matrix = new _math_Matrix44__WEBPACK_IMPORTED_MODULE_6__[\"default\"](nodeJson.matrix, true);\n            }\n        }\n    };\n    ModelConverter.prototype._setupHierarchy = function (gltfModel, groups, meshEntities) {\n        var e_3, _a;\n        var groupSceneComponents = groups.map(function (group) { return group.getSceneGraph(); });\n        var meshSceneComponents = meshEntities.map(function (mesh) { return mesh.getSceneGraph(); });\n        for (var node_i in gltfModel.nodes) {\n            var node = gltfModel.nodes[parseInt(node_i)];\n            var parentGroup = groupSceneComponents[node_i];\n            if (node.mesh) {\n                parentGroup.addChild(meshSceneComponents[node.meshIndex]);\n            }\n            if (node.childrenIndices) {\n                try {\n                    for (var _b = __values(node.childrenIndices), _c = _b.next(); !_c.done; _c = _b.next()) {\n                        var childNode_i = _c.value;\n                        var childGroup = groupSceneComponents[childNode_i];\n                        parentGroup.addChild(childGroup);\n                    }\n                }\n                catch (e_3_1) { e_3 = { error: e_3_1 }; }\n                finally {\n                    try {\n                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n                    }\n                    finally { if (e_3) throw e_3.error; }\n                }\n            }\n        }\n    };\n    // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {\n    //   if (gltfModel.animations) {\n    //     for (let animation of gltfModel.animations) {\n    //       for (let channel of animation.channels) {\n    //         let animInputArray = channel.sampler.input.extras.vertexAttributeArray;\n    //         let animOutputArray = channel.sampler.output.extras.vertexAttributeArray;;\n    //         let animationAttributeName = '';\n    //         if (channel.target.path === 'translation') {\n    //           animationAttributeName = 'translate';\n    //         } else if (channel.target.path === 'rotation') {\n    //           animationAttributeName = 'quaternion';\n    //         } else {\n    //           animationAttributeName = channel.target.path;\n    //         }\n    //         let group = groups[channel.target.nodeIndex];\n    //         if (group) {\n    //           group.setAnimationAtLine('time', animationAttributeName, animInputArray, animOutputArray);\n    //           group.setActiveAnimationLine('time');\n    //         }\n    //       }\n    //     }\n    //   }\n    // }\n    // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {\n    //   for (let node_i in gltfModel.nodes) {\n    //     let node = gltfModel.nodes[node_i];\n    //     let group = groups[node_i];\n    //     if (node.skin && node.skin.skeleton) {\n    //       group._isRootJointGroup = true;\n    //       if (node.mesh) {\n    //         let glboostMesh = glboostMeshes[node.meshIndex];\n    //         glboostMesh.jointsHierarchy = groups[node.skin.skeletonIndex];\n    //       }\n    //     }\n    //     if (node.skin && node.skin.joints) {\n    //       for (let joint_i of node.skin.jointsIndices) {\n    //         let joint = node.skin.joints[joint_i];\n    //         let options = gltfModel.asset.extras.glboostOptions;\n    //         let glboostJoint = glBoostContext.createJoint(options.isExistJointGizmo);\n    //         glboostJoint._glTFJointIndex = joint_i;\n    //         let group = groups[joint_i];\n    //         group.addChild(glboostJoint, true);\n    //       }\n    //     }\n    //   }\n    // }\n    ModelConverter.prototype._setupMesh = function (gltfModel, rnBuffer) {\n        var e_4, _a;\n        var meshEntities = [];\n        try {\n            for (var _b = __values(gltfModel.meshes), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var mesh = _c.value;\n                var meshEntity = this.__generateMeshEntity();\n                meshEntities.push(meshEntity);\n                var rnPrimitiveMode = _definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_10__[\"PrimitiveMode\"].from(4);\n                for (var i in mesh.primitives) {\n                    var primitive = mesh.primitives[i];\n                    if (primitive.mode != null) {\n                        rnPrimitiveMode = _definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_10__[\"PrimitiveMode\"].from(primitive.mode);\n                    }\n                    var indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);\n                    var attributeRnAccessors = [];\n                    var attributeSemantics = [];\n                    for (var attributeName in primitive.attributes) {\n                        var attributeAccessor = primitive.attributes[attributeName];\n                        var attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);\n                        attributeRnAccessors.push(attributeRnAccessor);\n                        attributeSemantics.push(_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_13__[\"VertexAttribute\"].fromString(attributeAccessor.extras.attributeName));\n                    }\n                    var rnPrimitive = new _geometry_Primitive__WEBPACK_IMPORTED_MODULE_8__[\"default\"](attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);\n                    var meshComponent = meshEntity.getComponent(_components_MeshComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"].componentTID);\n                    meshComponent.addPrimitive(rnPrimitive);\n                }\n            }\n        }\n        catch (e_4_1) { e_4 = { error: e_4_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_4) throw e_4.error; }\n        }\n        return meshEntities;\n    };\n    ModelConverter.prototype.__getRnAccessor = function (accessor, rnBuffer) {\n        var bufferView = accessor.bufferView;\n        var rnBufferView = rnBuffer.takeBufferViewWithByteOffset({\n            byteLengthToNeed: bufferView.byteLength,\n            byteStride: bufferView.byteStride,\n            byteOffset: bufferView.byteOffset,\n            isAoS: false\n        });\n        var rnAccessor = rnBufferView.takeAccessorWithByteOffset({\n            compositionType: _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_11__[\"CompositionType\"].fromString(accessor.type),\n            componentType: _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_12__[\"ComponentType\"].from(accessor.componentType),\n            count: accessor.count,\n            byteOffset: accessor.byteOffset\n        });\n        return rnAccessor;\n    };\n    return ModelConverter;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (ModelConverter);\n\n\n//# sourceURL=webpack:///./src/foundation/importer/ModelConverter.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/main.ts":
+/*!********************************!*\
+  !*** ./src/foundation/main.ts ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_EntityRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./core/EntityRepository */ \"./src/foundation/core/EntityRepository.ts\");\n/* harmony import */ var _components_TransformComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/TransformComponent */ \"./src/foundation/components/TransformComponent.ts\");\n/* harmony import */ var _components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/SceneGraphComponent */ \"./src/foundation/components/SceneGraphComponent.ts\");\n/* harmony import */ var _components_MeshComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/MeshComponent */ \"./src/foundation/components/MeshComponent.ts\");\n/* harmony import */ var _components_MeshRendererComponent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/MeshRendererComponent */ \"./src/foundation/components/MeshRendererComponent.ts\");\n/* harmony import */ var _geometry_Primitive__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./geometry/Primitive */ \"./src/foundation/geometry/Primitive.ts\");\n/* harmony import */ var _definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./definitions/PrimitiveMode */ \"./src/foundation/definitions/PrimitiveMode.ts\");\n/* harmony import */ var _definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./definitions/VertexAttribute */ \"./src/foundation/definitions/VertexAttribute.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _system_System__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./system/System */ \"./src/foundation/system/System.ts\");\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _math_Vector4__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./math/Vector4 */ \"./src/foundation/math/Vector4.ts\");\n/* harmony import */ var _math_MutableVector3__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./math/MutableVector3 */ \"./src/foundation/math/MutableVector3.ts\");\n/* harmony import */ var _math_MutableVector4__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./math/MutableVector4 */ \"./src/foundation/math/MutableVector4.ts\");\n/* harmony import */ var _math_Matrix33__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./math/Matrix33 */ \"./src/foundation/math/Matrix33.ts\");\n/* harmony import */ var _math_Matrix44__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./math/Matrix44 */ \"./src/foundation/math/Matrix44.ts\");\n/* harmony import */ var _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./math/MutableMatrix44 */ \"./src/foundation/math/MutableMatrix44.ts\");\n/* harmony import */ var _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./definitions/ProcessApproach */ \"./src/foundation/definitions/ProcessApproach.ts\");\n/* harmony import */ var _importer_Gltf2Importer__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./importer/Gltf2Importer */ \"./src/foundation/importer/Gltf2Importer.ts\");\n/* harmony import */ var _importer_ModelConverter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./importer/ModelConverter */ \"./src/foundation/importer/ModelConverter.ts\");\n/* harmony import */ var _system_ModuleManager__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./system/ModuleManager */ \"./src/foundation/system/ModuleManager.ts\");\n/* harmony import */ var _core_MemoryManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nvar Rn = {\n    EntityRepository: _core_EntityRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"],\n    TransformComponent: _components_TransformComponent__WEBPACK_IMPORTED_MODULE_1__[\"default\"],\n    SceneGraphComponent: _components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_2__[\"default\"],\n    MeshComponent: _components_MeshComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"],\n    MeshRendererComponent: _components_MeshRendererComponent__WEBPACK_IMPORTED_MODULE_4__[\"default\"],\n    Primitive: _geometry_Primitive__WEBPACK_IMPORTED_MODULE_5__[\"default\"],\n    CompositionType: _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_8__[\"CompositionType\"],\n    ComponentType: _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_9__[\"ComponentType\"],\n    VertexAttribute: _definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_7__[\"VertexAttribute\"],\n    PrimitiveMode: _definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_6__[\"PrimitiveMode\"],\n    System: _system_System__WEBPACK_IMPORTED_MODULE_10__[\"default\"],\n    Vector3: _math_Vector3__WEBPACK_IMPORTED_MODULE_11__[\"default\"],\n    Vector4: _math_Vector4__WEBPACK_IMPORTED_MODULE_12__[\"default\"],\n    MutableVector3: _math_MutableVector3__WEBPACK_IMPORTED_MODULE_13__[\"default\"],\n    MutableVector4: _math_MutableVector4__WEBPACK_IMPORTED_MODULE_14__[\"default\"],\n    Matrix33: _math_Matrix33__WEBPACK_IMPORTED_MODULE_15__[\"default\"],\n    Matrix44: _math_Matrix44__WEBPACK_IMPORTED_MODULE_16__[\"default\"],\n    MutableMatrix44: _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_17__[\"default\"],\n    ProcessApproach: _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_18__[\"ProcessApproach\"],\n    Gltf2Importer: _importer_Gltf2Importer__WEBPACK_IMPORTED_MODULE_19__[\"default\"],\n    ModelConverter: _importer_ModelConverter__WEBPACK_IMPORTED_MODULE_20__[\"default\"],\n    ModuleManager: _system_ModuleManager__WEBPACK_IMPORTED_MODULE_21__[\"default\"],\n    MemoryManager: _core_MemoryManager__WEBPACK_IMPORTED_MODULE_22__[\"default\"],\n};\n/* harmony default export */ __webpack_exports__[\"default\"] = (Rn);\nwindow['Rn'] = Rn;\n\n\n//# sourceURL=webpack:///./src/foundation/main.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MathUtil.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/math/MathUtil.ts ***!
+  \*****************************************/
+/*! exports provided: MathUtil */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"MathUtil\", function() { return MathUtil; });\n//import GLBoost from '../../globals';\nfunction radianToDegree(rad) {\n    return rad * 180 / Math.PI;\n}\nfunction degreeToRadian(deg) {\n    return deg * Math.PI / 180;\n}\n// https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410\nvar toHalfFloat = (function () {\n    var floatView = new Float32Array(1);\n    var int32View = new Int32Array(floatView.buffer);\n    /* This method is faster than the OpenEXR implementation (very often\n      * used, eg. in Ogre), with the additional benefit of rounding, inspired\n      * by James Tursa?s half-precision code. */\n    return function toHalf(val) {\n        floatView[0] = val;\n        var x = int32View[0];\n        var bits = (x >> 16) & 0x8000; /* Get the sign */\n        var m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */\n        var e = (x >> 23) & 0xff; /* Using int is faster here */\n        /* If zero, or denormal, or exponent underflows too much for a denormal\n          * half, return signed zero. */\n        if (e < 103) {\n            return bits;\n        }\n        /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */\n        if (e > 142) {\n            bits |= 0x7c00;\n            /* If exponent was 0xff and one mantissa bit was set, it means NaN,\n                  * not Inf, so make sure we set one mantissa bit too. */\n            bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);\n            return bits;\n        }\n        /* If exponent underflows but not too much, return a denormal */\n        if (e < 113) {\n            m |= 0x0800;\n            /* Extra rounding may overflow and set mantissa to 0 and exponent\n              * to 1, which is OK. */\n            bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);\n            return bits;\n        }\n        bits |= ((e - 112) << 10) | (m >> 1);\n        /* Extra rounding. An overflow will set mantissa to 0 and increment\n          * the exponent, which is OK. */\n        bits += m & 1;\n        return bits;\n    };\n}());\nvar MathUtil = Object.freeze({ radianToDegree: radianToDegree, degreeToRadian: degreeToRadian, toHalfFloat: toHalfFloat });\n\n\n//# sourceURL=webpack:///./src/foundation/math/MathUtil.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Matrix33.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/math/Matrix33.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n// import GLBoost from '../../globals';\n\n\nvar Matrix33 = /** @class */ (function () {\n    function Matrix33(m0, m1, m2, m3, m4, m5, m6, m7, m8, isColumnMajor, notCopyFloatArray) {\n        if (isColumnMajor === void 0) { isColumnMajor = false; }\n        if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }\n        var _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;\n        var _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;\n        var m = m0;\n        if (m == null) {\n            this.v = new Float32Array(0);\n            return;\n        }\n        if (arguments.length === 9) {\n            this.v = new Float32Array(9);\n            if (_isColumnMajor === true) {\n                var m_1 = arguments;\n                this.v[0] = m_1[0];\n                this.v[3] = m_1[3];\n                this.v[6] = m_1[6];\n                this.v[1] = m_1[1];\n                this.v[4] = m_1[4];\n                this.v[7] = m_1[7];\n                this.v[2] = m_1[2];\n                this.v[5] = m_1[5];\n                this.v[8] = m_1[8];\n            }\n            else {\n                // arguments[0-8] must be row major values if isColumnMajor is false\n                this.v[0] = m[0];\n                this.v[3] = m[1];\n                this.v[6] = m[2];\n                this.v[1] = m[3];\n                this.v[4] = m[4];\n                this.v[7] = m[5];\n                this.v[2] = m[6];\n                this.v[5] = m[7];\n                this.v[8] = m[8];\n            }\n        }\n        else if (Array.isArray(m)) {\n            this.v = new Float32Array(9);\n            if (_isColumnMajor === true) {\n                this.v[0] = m[0];\n                this.v[3] = m[3];\n                this.v[6] = m[6];\n                this.v[1] = m[1];\n                this.v[4] = m[4];\n                this.v[7] = m[7];\n                this.v[2] = m[2];\n                this.v[5] = m[5];\n                this.v[8] = m[8];\n            }\n            else {\n                // 'm' must be row major array if isColumnMajor is false\n                this.v[0] = m[0];\n                this.v[3] = m[1];\n                this.v[6] = m[2];\n                this.v[1] = m[3];\n                this.v[4] = m[4];\n                this.v[7] = m[5];\n                this.v[2] = m[6];\n                this.v[5] = m[7];\n                this.v[8] = m[8];\n            }\n        }\n        else if (m instanceof Float32Array) {\n            if (_notCopyFloatArray) {\n                this.v = m;\n            }\n            else {\n                this.v = new Float32Array(9);\n                if (_isColumnMajor === true) {\n                    this.v[0] = m[0];\n                    this.v[3] = m[3];\n                    this.v[6] = m[6];\n                    this.v[1] = m[1];\n                    this.v[4] = m[4];\n                    this.v[7] = m[7];\n                    this.v[2] = m[2];\n                    this.v[5] = m[5];\n                    this.v[8] = m[8];\n                }\n                else {\n                    // 'm' must be row major array if isColumnMajor is false\n                    this.v[0] = m[0];\n                    this.v[3] = m[1];\n                    this.v[6] = m[2];\n                    this.v[1] = m[3];\n                    this.v[4] = m[4];\n                    this.v[7] = m[5];\n                    this.v[2] = m[6];\n                    this.v[5] = m[7];\n                    this.v[8] = m[8];\n                }\n            }\n        }\n        else if (!!m && typeof m.m22 !== 'undefined') {\n            if (_notCopyFloatArray) {\n                this.v = m.v;\n            }\n            else {\n                this.v = new Float32Array(9);\n                if (_isColumnMajor === true) {\n                    var v = m.v;\n                    this.v[0] = v[0];\n                    this.v[3] = v[3];\n                    this.v[6] = v[6];\n                    this.v[1] = v[1];\n                    this.v[4] = v[4];\n                    this.v[7] = v[7];\n                    this.v[2] = v[2];\n                    this.v[5] = v[5];\n                    this.v[8] = v[8];\n                }\n                else {\n                    var v = m.v;\n                    // 'm' must be row major array if isColumnMajor is false\n                    this.v[0] = v[0];\n                    this.v[3] = v[1];\n                    this.v[6] = v[2];\n                    this.v[1] = v[3];\n                    this.v[4] = v[4];\n                    this.v[7] = v[5];\n                    this.v[2] = v[6];\n                    this.v[5] = v[7];\n                    this.v[8] = v[8];\n                }\n            }\n        }\n        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {\n            this.v = new Float32Array(9);\n            var q = m;\n            var sx = q.x * q.x;\n            var sy = q.y * q.y;\n            var sz = q.z * q.z;\n            var cx = q.y * q.z;\n            var cy = q.x * q.z;\n            var cz = q.x * q.y;\n            var wx = q.w * q.x;\n            var wy = q.w * q.y;\n            var wz = q.w * q.z;\n            this.v[0] = 1.0 - 2.0 * (sy + sz);\n            this.v[3] = 2.0 * (cz - wz);\n            this.v[6] = 2.0 * (cy + wy);\n            this.v[1] = 2.0 * (cz + wz);\n            this.v[4] = 1.0 - 2.0 * (sx + sz);\n            this.v[7] = 2.0 * (cx - wx);\n            this.v[2] = 2.0 * (cy - wy);\n            this.v[5] = 2.0 * (cx + wx);\n            this.v[8] = 1.0 - 2.0 * (sx + sy);\n        }\n        else {\n            this.v = new Float32Array(9);\n            this.v[0] = 1;\n            this.v[3] = 0;\n            this.v[6] = 0;\n            this.v[1] = 0;\n            this.v[4] = 1;\n            this.v[7] = 0;\n            this.v[2] = 0;\n            this.v[5] = 0;\n            this.v[8] = 1;\n        }\n    }\n    Object.defineProperty(Matrix33.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Mat3;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    /**\n     * Make this identity matrix（static method version）\n     */\n    Matrix33.identity = function () {\n        return new Matrix33(1, 0, 0, 0, 1, 0, 0, 0, 1);\n    };\n    Matrix33.dummy = function () {\n        return new Matrix33(null);\n    };\n    Matrix33.prototype.isDummy = function () {\n        if (this.v.length === 0) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Matrix33.prototype.clone = function () {\n        return new Matrix33(this.v[0], this.v[3], this.v[6], this.v[1], this.v[4], this.v[7], this.v[2], this.v[5], this.v[8]);\n    };\n    /**\n     * Create X oriented Rotation Matrix\n     */\n    Matrix33.rotateX = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix33(1, 0, 0, 0, cos, -sin, 0, sin, cos);\n    };\n    /**\n     * Create Y oriented Rotation Matrix\n     */\n    Matrix33.rotateY = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix33(cos, 0, sin, 0, 1, 0, -sin, 0, cos);\n    };\n    /**\n     * Create Z oriented Rotation Matrix\n     */\n    Matrix33.rotateZ = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix33(cos, -sin, 0, sin, cos, 0, 0, 0, 1);\n    };\n    Matrix33.rotateXYZ = function (x, y, z) {\n        return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(z), Matrix33.rotateY(y)), Matrix33.rotateX(x));\n    };\n    Matrix33.rotate = function (vec3) {\n        return Matrix33.multiply(Matrix33.multiply(Matrix33.rotateZ(vec3.z), Matrix33.rotateY(vec3.y)), Matrix33.rotateX(vec3.x));\n    };\n    Matrix33.scale = function (vec) {\n        return new Matrix33(vec.x, 0, 0, 0, vec.y, 0, 0, 0, vec.z);\n    };\n    /**\n     * zero matrix(static version)\n     */\n    Matrix33.zero = function () {\n        return new Matrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);\n    };\n    /**\n     * transpose(static version)\n     */\n    Matrix33.transpose = function (mat) {\n        var mat_t = new Matrix33(mat.m00, mat.m10, mat.m20, mat.m01, mat.m11, mat.m21, mat.m02, mat.m12, mat.m22);\n        return mat_t;\n    };\n    /**\n     * multiply matrixs (static version)\n     */\n    Matrix33.multiply = function (l_m, r_m) {\n        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20;\n        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20;\n        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20;\n        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21;\n        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21;\n        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21;\n        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22;\n        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22;\n        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22;\n        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);\n    };\n    Matrix33.prototype.determinant = function () {\n        return this.m00 * this.m11 * this.m22 + this.m10 * this.m21 * this.m02 + this.m20 * this.m01 * this.m12\n            - this.m00 * this.m21 * this.m12 - this.m20 * this.m11 * this.m02 - this.m10 * this.m01 * this.m22;\n    };\n    Matrix33.determinant = function (mat) {\n        return mat.m00 * mat.m11 * mat.m22 + mat.m10 * mat.m21 * mat.m02 + mat.m20 * mat.m01 * mat.m12\n            - mat.m00 * mat.m21 * mat.m12 - mat.m20 * mat.m11 * mat.m02 - mat.m10 * mat.m01 * mat.m22;\n    };\n    Matrix33.invert = function (mat) {\n        var det = mat.determinant();\n        var m00 = (mat.m11 * mat.m22 - mat.m12 * mat.m21) / det;\n        var m01 = (mat.m02 * mat.m21 - mat.m01 * mat.m22) / det;\n        var m02 = (mat.m01 * mat.m12 - mat.m02 * mat.m11) / det;\n        var m10 = (mat.m12 * mat.m20 - mat.m10 * mat.m22) / det;\n        var m11 = (mat.m00 * mat.m22 - mat.m02 * mat.m20) / det;\n        var m12 = (mat.m02 * mat.m10 - mat.m00 * mat.m12) / det;\n        var m20 = (mat.m10 * mat.m21 - mat.m11 * mat.m20) / det;\n        var m21 = (mat.m01 * mat.m20 - mat.m00 * mat.m21) / det;\n        var m22 = (mat.m00 * mat.m11 - mat.m01 * mat.m10) / det;\n        return new Matrix33(m00, m01, m02, m10, m11, m12, m20, m21, m22);\n    };\n    Object.defineProperty(Matrix33.prototype, \"m00\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m10\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m20\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m01\", {\n        get: function () {\n            return this.v[3];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m11\", {\n        get: function () {\n            return this.v[4];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m21\", {\n        get: function () {\n            return this.v[5];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m02\", {\n        get: function () {\n            return this.v[6];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m12\", {\n        get: function () {\n            return this.v[7];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix33.prototype, \"m22\", {\n        get: function () {\n            return this.v[8];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Matrix33.prototype.toString = function () {\n        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\\n' +\n            this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\\n' +\n            this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\\n';\n    };\n    Matrix33.prototype.nearZeroToZero = function (value) {\n        if (Math.abs(value) < 0.00001) {\n            value = 0;\n        }\n        else if (0.99999 < value && value < 1.00001) {\n            value = 1;\n        }\n        else if (-1.00001 < value && value < -0.99999) {\n            value = -1;\n        }\n        return value;\n    };\n    Matrix33.prototype.toStringApproximately = function () {\n        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\\n' +\n            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \\n' +\n            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\\n';\n    };\n    Matrix33.prototype.getScale = function () {\n        return new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));\n    };\n    Matrix33.prototype.isEqual = function (mat, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(mat.v[0] - this.v[0]) < delta &&\n            Math.abs(mat.v[1] - this.v[1]) < delta &&\n            Math.abs(mat.v[2] - this.v[2]) < delta &&\n            Math.abs(mat.v[3] - this.v[3]) < delta &&\n            Math.abs(mat.v[4] - this.v[4]) < delta &&\n            Math.abs(mat.v[5] - this.v[5]) < delta &&\n            Math.abs(mat.v[6] - this.v[6]) < delta &&\n            Math.abs(mat.v[7] - this.v[7]) < delta &&\n            Math.abs(mat.v[8] - this.v[8]) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    return Matrix33;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Matrix33);\n\n\n//# sourceURL=webpack:///./src/foundation/math/Matrix33.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Matrix44.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/math/Matrix44.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _Quaternion__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Quaternion */ \"./src/foundation/math/Quaternion.ts\");\n/* harmony import */ var _Vector4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Vector4 */ \"./src/foundation/math/Vector4.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n//import GLBoost from '../../globals';\n\n\n\n\nvar FloatArray = Float32Array;\nvar Matrix44 = /** @class */ (function () {\n    function Matrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {\n        if (isColumnMajor === void 0) { isColumnMajor = false; }\n        if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }\n        var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;\n        var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;\n        var m = m0;\n        if (m == null) {\n            this.v = new FloatArray(0);\n            return;\n        }\n        if (arguments.length >= 16 && arguments[3] != null) {\n            this.v = new FloatArray(16); // Data order is column major\n            var m_1 = arguments;\n            if (_isColumnMajor === true) {\n                this.v[0] = m_1[0];\n                this.v[4] = m_1[4];\n                this.v[8] = m_1[8];\n                this.v[12] = m_1[12];\n                this.v[1] = m_1[1];\n                this.v[5] = m_1[5];\n                this.v[9] = m_1[9];\n                this.v[13] = m_1[13];\n                this.v[2] = m_1[2];\n                this.v[6] = m_1[6];\n                this.v[10] = m_1[10];\n                this.v[14] = m_1[14];\n                this.v[3] = m_1[3];\n                this.v[7] = m_1[7];\n                this.v[11] = m_1[11];\n                this.v[15] = m_1[15];\n            }\n            else {\n                // arguments[0-15] must be row major values if isColumnMajor is false\n                this.v[0] = m_1[0];\n                this.v[4] = m_1[1];\n                this.v[8] = m_1[2];\n                this.v[12] = m_1[3];\n                this.v[1] = m_1[4];\n                this.v[5] = m_1[5];\n                this.v[9] = m_1[6];\n                this.v[13] = m_1[7];\n                this.v[2] = m_1[8];\n                this.v[6] = m_1[9];\n                this.v[10] = m_1[10];\n                this.v[14] = m_1[11];\n                this.v[3] = m_1[12];\n                this.v[7] = m_1[13];\n                this.v[11] = m_1[14];\n                this.v[15] = m_1[15];\n            }\n        }\n        else if (Array.isArray(m)) {\n            this.v = new FloatArray(16);\n            if (_isColumnMajor === true) {\n                this.v[0] = m[0];\n                this.v[4] = m[4];\n                this.v[8] = m[8];\n                this.v[12] = m[12];\n                this.v[1] = m[1];\n                this.v[5] = m[5];\n                this.v[9] = m[9];\n                this.v[13] = m[13];\n                this.v[2] = m[2];\n                this.v[6] = m[6];\n                this.v[10] = m[10];\n                this.v[14] = m[14];\n                this.v[3] = m[3];\n                this.v[7] = m[7];\n                this.v[11] = m[11];\n                this.v[15] = m[15];\n            }\n            else {\n                // 'm' must be row major values if isColumnMajor is false\n                this.v[0] = m[0];\n                this.v[4] = m[1];\n                this.v[8] = m[2];\n                this.v[12] = m[3];\n                this.v[1] = m[4];\n                this.v[5] = m[5];\n                this.v[9] = m[6];\n                this.v[13] = m[7];\n                this.v[2] = m[8];\n                this.v[6] = m[9];\n                this.v[10] = m[10];\n                this.v[14] = m[11];\n                this.v[3] = m[12];\n                this.v[7] = m[13];\n                this.v[11] = m[14];\n                this.v[15] = m[15];\n            }\n        }\n        else if (m instanceof FloatArray) {\n            if (_notCopyFloatArray) {\n                this.v = m;\n            }\n            else {\n                this.v = new FloatArray(16);\n                if (_isColumnMajor === true) {\n                    this.v[0] = m[0];\n                    this.v[4] = m[4];\n                    this.v[8] = m[8];\n                    this.v[12] = m[12];\n                    this.v[1] = m[1];\n                    this.v[5] = m[5];\n                    this.v[9] = m[9];\n                    this.v[13] = m[13];\n                    this.v[2] = m[2];\n                    this.v[6] = m[6];\n                    this.v[10] = m[10];\n                    this.v[14] = m[14];\n                    this.v[3] = m[3];\n                    this.v[7] = m[7];\n                    this.v[11] = m[11];\n                    this.v[15] = m[15];\n                }\n                else {\n                    // 'm' must be row major values if isColumnMajor is false\n                    this.v[0] = m[0];\n                    this.v[4] = m[1];\n                    this.v[8] = m[2];\n                    this.v[12] = m[3];\n                    this.v[1] = m[4];\n                    this.v[5] = m[5];\n                    this.v[9] = m[6];\n                    this.v[13] = m[7];\n                    this.v[2] = m[8];\n                    this.v[6] = m[9];\n                    this.v[10] = m[10];\n                    this.v[14] = m[11];\n                    this.v[3] = m[12];\n                    this.v[7] = m[13];\n                    this.v[11] = m[14];\n                    this.v[15] = m[15];\n                }\n            }\n        }\n        else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {\n            if (_notCopyFloatArray) {\n                this.v = m.v;\n            }\n            else {\n                this.v = new FloatArray(16);\n                var v = m.v;\n                if (_isColumnMajor === true) {\n                    this.v[0] = v[0];\n                    this.v[4] = v[4];\n                    this.v[8] = v[8];\n                    this.v[12] = v[12];\n                    this.v[1] = v[1];\n                    this.v[5] = v[5];\n                    this.v[9] = v[9];\n                    this.v[13] = v[13];\n                    this.v[2] = v[2];\n                    this.v[6] = v[6];\n                    this.v[10] = v[10];\n                    this.v[14] = v[14];\n                    this.v[3] = v[3];\n                    this.v[7] = v[7];\n                    this.v[11] = v[11];\n                    this.v[15] = v[15];\n                }\n                else {\n                    // 'm' must be row major values if isColumnMajor is false\n                    this.v[0] = v[0];\n                    this.v[4] = v[1];\n                    this.v[8] = v[2];\n                    this.v[12] = v[3];\n                    this.v[1] = v[4];\n                    this.v[5] = v[5];\n                    this.v[9] = v[6];\n                    this.v[13] = v[7];\n                    this.v[2] = v[8];\n                    this.v[6] = v[9];\n                    this.v[10] = v[10];\n                    this.v[14] = v[11];\n                    this.v[3] = v[12];\n                    this.v[7] = v[13];\n                    this.v[11] = v[14];\n                    this.v[15] = v[15];\n                }\n            }\n        }\n        else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {\n            if (_notCopyFloatArray) {\n                this.v = m.v;\n            }\n            else {\n                this.v = new FloatArray(16);\n                var v = m.v;\n                if (_isColumnMajor === true) {\n                    this.v[0] = v[0];\n                    this.v[4] = v[3];\n                    this.v[8] = v[6];\n                    this.v[12] = 0;\n                    this.v[1] = v[1];\n                    this.v[5] = v[4];\n                    this.v[9] = v[7];\n                    this.v[13] = 0;\n                    this.v[2] = v[2];\n                    this.v[6] = v[5];\n                    this.v[10] = v[8];\n                    this.v[14] = 0;\n                    this.v[3] = 0;\n                    this.v[7] = 0;\n                    this.v[11] = 0;\n                    this.v[15] = 1;\n                }\n                else {\n                    // 'm' must be row major values if isColumnMajor is false\n                    this.v[0] = v[0];\n                    this.v[4] = v[1];\n                    this.v[8] = v[2];\n                    this.v[12] = 0;\n                    this.v[1] = v[3];\n                    this.v[5] = v[4];\n                    this.v[9] = v[5];\n                    this.v[13] = 0;\n                    this.v[2] = v[6];\n                    this.v[6] = v[7];\n                    this.v[10] = v[8];\n                    this.v[14] = 0;\n                    this.v[3] = 0;\n                    this.v[7] = 0;\n                    this.v[11] = 0;\n                    this.v[15] = 1;\n                }\n            }\n        }\n        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {\n            this.v = new FloatArray(16);\n            var sx = m.x * m.x;\n            var sy = m.y * m.y;\n            var sz = m.z * m.z;\n            var cx = m.y * m.z;\n            var cy = m.x * m.z;\n            var cz = m.x * m.y;\n            var wx = m.w * m.x;\n            var wy = m.w * m.y;\n            var wz = m.w * m.z;\n            this.v[0] = 1.0 - 2.0 * (sy + sz);\n            this.v[4] = 2.0 * (cz - wz);\n            this.v[8] = 2.0 * (cy + wy);\n            this.v[12] = 0;\n            this.v[1] = 2.0 * (cz + wz);\n            this.v[5] = 1.0 - 2.0 * (sx + sz);\n            this.v[9] = 2.0 * (cx - wx);\n            this.v[13] = 0;\n            this.v[2] = 2.0 * (cy - wy);\n            this.v[6] = 2.0 * (cx + wx);\n            this.v[10] = 1.0 - 2.0 * (sx + sy);\n            this.v[14] = 0;\n            this.v[3] = 0;\n            this.v[7] = 0;\n            this.v[11] = 0;\n            this.v[15] = 1;\n        }\n        else {\n            this.v = new FloatArray(16);\n            this.v[0] = 1;\n            this.v[4] = 0;\n            this.v[8] = 0;\n            this.v[12] = 0;\n            this.v[1] = 0;\n            this.v[5] = 1;\n            this.v[9] = 0;\n            this.v[13] = 0;\n            this.v[2] = 0;\n            this.v[6] = 0;\n            this.v[10] = 1;\n            this.v[14] = 0;\n            this.v[3] = 0;\n            this.v[7] = 0;\n            this.v[11] = 0;\n            this.v[15] = 1;\n        }\n    }\n    Matrix44.dummy = function () {\n        return new Matrix44(null);\n    };\n    Object.defineProperty(Matrix44, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__[\"CompositionType\"].Mat4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Matrix44.prototype.isDummy = function () {\n        if (this.v.length === 0) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Object.defineProperty(Matrix44.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Matrix44.prototype.clone = function () {\n        return new Matrix44(this.v[0], this.v[4], this.v[8], this.v[12], this.v[1], this.v[5], this.v[9], this.v[13], this.v[2], this.v[6], this.v[10], this.v[14], this.v[3], this.v[7], this.v[11], this.v[15]);\n    };\n    /**\n     * to the identity matrix（static版）\n     */\n    Matrix44.identity = function () {\n        return new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    Matrix44.prototype.isEqual = function (mat, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(mat.v[0] - this.v[0]) < delta &&\n            Math.abs(mat.v[1] - this.v[1]) < delta &&\n            Math.abs(mat.v[2] - this.v[2]) < delta &&\n            Math.abs(mat.v[3] - this.v[3]) < delta &&\n            Math.abs(mat.v[4] - this.v[4]) < delta &&\n            Math.abs(mat.v[5] - this.v[5]) < delta &&\n            Math.abs(mat.v[6] - this.v[6]) < delta &&\n            Math.abs(mat.v[7] - this.v[7]) < delta &&\n            Math.abs(mat.v[8] - this.v[8]) < delta &&\n            Math.abs(mat.v[9] - this.v[9]) < delta &&\n            Math.abs(mat.v[10] - this.v[10]) < delta &&\n            Math.abs(mat.v[11] - this.v[11]) < delta &&\n            Math.abs(mat.v[12] - this.v[12]) < delta &&\n            Math.abs(mat.v[13] - this.v[13]) < delta &&\n            Math.abs(mat.v[14] - this.v[14]) < delta &&\n            Math.abs(mat.v[15] - this.v[15]) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Matrix44.prototype.getTranslate = function () {\n        return new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](this.m03, this.m13, this.m23);\n    };\n    Matrix44.translate = function (vec) {\n        return new Matrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);\n    };\n    Matrix44.scale = function (vec) {\n        return new Matrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create X oriented Rotation Matrix\n    */\n    Matrix44.rotateX = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Y oriented Rotation Matrix\n     */\n    Matrix44.rotateY = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Z oriented Rotation Matrix\n     */\n    Matrix44.rotateZ = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new Matrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    /**\n     * @return Euler Angles Rotation (x, y, z)\n     */\n    Matrix44.prototype.toEulerAngles = function () {\n        var rotate = null;\n        if (Math.abs(this.m20) != 1.0) {\n            var y = -Math.asin(this.m20);\n            var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));\n            var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](x, y, z);\n        }\n        else if (this.m20 === -1.0) {\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);\n        }\n        else {\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);\n        }\n        return rotate;\n    };\n    Matrix44.zero = function () {\n        return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\n    };\n    Matrix44.prototype.flattenAsArray = function () {\n        return [this.v[0], this.v[1], this.v[2], this.v[3],\n            this.v[4], this.v[5], this.v[6], this.v[7],\n            this.v[8], this.v[9], this.v[10], this.v[11],\n            this.v[12], this.v[13], this.v[14], this.v[15]];\n    };\n    /**\n     * transpose(static version)\n     */\n    Matrix44.transpose = function (mat) {\n        var mat_t = new Matrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);\n        return mat_t;\n    };\n    Matrix44.prototype.multiplyVector = function (vec) {\n        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;\n        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;\n        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;\n        var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;\n        return new _Vector4__WEBPACK_IMPORTED_MODULE_2__[\"default\"](x, y, z, w);\n    };\n    /**\n     * multiply zero matrix and zero matrix(static version)\n     */\n    Matrix44.multiply = function (l_m, r_m) {\n        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;\n        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;\n        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;\n        var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;\n        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;\n        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;\n        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;\n        var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;\n        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;\n        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;\n        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;\n        var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;\n        var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;\n        var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;\n        var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;\n        var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;\n        return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    Matrix44.prototype.determinant = function () {\n        return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +\n            this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +\n            this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +\n            this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -\n            this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -\n            this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -\n            this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -\n            this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;\n    };\n    Matrix44.determinant = function (mat) {\n        return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +\n            mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +\n            mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +\n            mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -\n            mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -\n            mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -\n            mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -\n            mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;\n    };\n    Matrix44.invert = function (mat) {\n        var det = mat.determinant();\n        var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;\n        var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;\n        var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;\n        var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;\n        var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;\n        var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;\n        var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;\n        var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;\n        var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;\n        var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;\n        var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;\n        var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;\n        var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;\n        var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;\n        var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;\n        var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;\n        return new Matrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    Object.defineProperty(Matrix44.prototype, \"m00\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m10\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m20\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m30\", {\n        get: function () {\n            return this.v[3];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m01\", {\n        get: function () {\n            return this.v[4];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m11\", {\n        get: function () {\n            return this.v[5];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m21\", {\n        get: function () {\n            return this.v[6];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m31\", {\n        get: function () {\n            return this.v[7];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m02\", {\n        get: function () {\n            return this.v[8];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m12\", {\n        get: function () {\n            return this.v[9];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m22\", {\n        get: function () {\n            return this.v[10];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m32\", {\n        get: function () {\n            return this.v[11];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m03\", {\n        get: function () {\n            return this.v[12];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m13\", {\n        get: function () {\n            return this.v[13];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m23\", {\n        get: function () {\n            return this.v[14];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Matrix44.prototype, \"m33\", {\n        get: function () {\n            return this.v[15];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Matrix44.prototype.toString = function () {\n        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \\n' +\n            this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \\n' +\n            this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \\n' +\n            this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \\n';\n    };\n    Matrix44.prototype.nearZeroToZero = function (value) {\n        if (Math.abs(value) < 0.00001) {\n            value = 0;\n        }\n        else if (0.99999 < value && value < 1.00001) {\n            value = 1;\n        }\n        else if (-1.00001 < value && value < -0.99999) {\n            value = -1;\n        }\n        return value;\n    };\n    Matrix44.prototype.toStringApproximately = function () {\n        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \\n' +\n            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \\n' +\n            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \\n' +\n            this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \\n';\n    };\n    Matrix44.prototype.getScale = function () {\n        return new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));\n    };\n    Matrix44.prototype.getRotate = function () {\n        var quat = _Quaternion__WEBPACK_IMPORTED_MODULE_1__[\"default\"].fromMatrix(this);\n        var rotateMat = new Matrix44(quat);\n        return rotateMat;\n    };\n    return Matrix44;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Matrix44);\n\n\n//# sourceURL=webpack:///./src/foundation/math/Matrix44.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MutableMatrix44.ts":
+/*!************************************************!*\
+  !*** ./src/foundation/math/MutableMatrix44.ts ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Matrix44__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Matrix44 */ \"./src/foundation/math/Matrix44.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar FloatArray = Float32Array;\nvar MutableMatrix44 = /** @class */ (function (_super) {\n    __extends(MutableMatrix44, _super);\n    function MutableMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, isColumnMajor, notCopyFloatArray) {\n        if (isColumnMajor === void 0) { isColumnMajor = false; }\n        if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }\n        var _this = this;\n        var _isColumnMajor = (arguments.length >= 16) ? isColumnMajor : m1;\n        var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m2;\n        if (arguments.length >= 16) {\n            _this = _super.call(this, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, _isColumnMajor, _notCopyFloatArray) || this;\n        }\n        else {\n            _this = _super.call(this, m0, _isColumnMajor, _notCopyFloatArray) || this;\n        }\n        return _this;\n    }\n    MutableMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {\n        this.v[0] = m00;\n        this.v[4] = m01;\n        this.v[8] = m02;\n        this.v[12] = m03;\n        this.v[1] = m10;\n        this.v[5] = m11;\n        this.v[9] = m12;\n        this.v[13] = m13;\n        this.v[2] = m20;\n        this.v[6] = m21;\n        this.v[10] = m22;\n        this.v[14] = m23;\n        this.v[3] = m30;\n        this.v[7] = m31;\n        this.v[11] = m32;\n        this.v[15] = m33;\n        return this;\n    };\n    MutableMatrix44.prototype.copyComponents = function (mat4) {\n        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false\n        var m = mat4.v;\n        this.v[0] = m[0];\n        this.v[1] = m[1];\n        this.v[2] = m[2];\n        this.v[3] = m[3];\n        this.v[4] = m[4];\n        this.v[5] = m[5];\n        this.v[6] = m[6];\n        this.v[7] = m[7];\n        this.v[8] = m[8];\n        this.v[9] = m[9];\n        this.v[10] = m[10];\n        this.v[11] = m[11];\n        this.v[12] = m[12];\n        this.v[13] = m[13];\n        this.v[14] = m[14];\n        this.v[15] = m[15];\n    };\n    Object.defineProperty(MutableMatrix44, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Mat4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MutableMatrix44.dummy = function () {\n        return new MutableMatrix44(null);\n    };\n    /**\n     * to the identity matrix（static版）\n     */\n    MutableMatrix44.identity = function () {\n        return new MutableMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    MutableMatrix44.prototype.translate = function (vec) {\n        return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);\n    };\n    MutableMatrix44.prototype.putTranslate = function (vec) {\n        this.m03 = vec.x;\n        this.m13 = vec.y;\n        this.m23 = vec.z;\n    };\n    MutableMatrix44.prototype.scale = function (vec) {\n        return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);\n    };\n    MutableMatrix44.prototype.addScale = function (vec) {\n        this.m00 *= vec.x;\n        this.m11 *= vec.y;\n        this.m22 *= vec.z;\n        return this;\n    };\n    /**\n     * Create X oriented Rotation Matrix\n     */\n    MutableMatrix44.prototype.rotateX = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Y oriented Rotation Matrix\n     */\n    MutableMatrix44.prototype.rotateY = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n   * Create Z oriented Rotation Matrix\n   */\n    MutableMatrix44.prototype.rotateZ = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    MutableMatrix44.prototype.rotateXYZ = function (x, y, z) {\n        var cosX = Math.cos(x);\n        var sinX = Math.sin(x);\n        var cosY = Math.cos(y);\n        var sinY = Math.sin(y);\n        var cosZ = Math.cos(z);\n        var sinZ = Math.sin(z);\n        var xm00 = 1;\n        //const xm01 = 0;\n        //const xm02 = 0;\n        //const xm10 = 0;\n        var xm11 = cosX;\n        var xm12 = -sinX;\n        //const xm20 = 0;\n        var xm21 = sinX;\n        var xm22 = cosX;\n        var ym00 = cosY;\n        //const ym01 = 0;\n        var ym02 = sinY;\n        //const ym10 = 0;\n        var ym11 = 1;\n        //const ym12 = 0;\n        var ym20 = -sinY;\n        //const ym21 = 0;\n        var ym22 = cosY;\n        var zm00 = cosZ;\n        var zm01 = -sinZ;\n        //const zm02 = 0;\n        var zm10 = sinZ;\n        var zm11 = cosZ;\n        //const zm12 = 0;\n        //const zm20 = 0;\n        //const zm21 = 0;\n        var zm22 = 1;\n        var yxm00 = ym00 * xm00;\n        var yxm01 = ym02 * xm21;\n        var yxm02 = ym02 * xm22;\n        //const yxm10 = 0;\n        var yxm11 = ym11 * xm11;\n        var yxm12 = ym11 * xm12;\n        var yxm20 = ym20 * xm00;\n        var yxm21 = ym22 * xm21;\n        var yxm22 = ym22 * xm22;\n        this.v[0] = zm00 * yxm00;\n        this.v[4] = zm00 * yxm01 + zm01 * yxm11;\n        this.v[8] = zm00 * yxm02 + zm01 * yxm12;\n        this.v[12] = 0;\n        this.v[1] = zm10 * yxm00;\n        this.v[5] = zm10 * yxm01 + zm11 * yxm11;\n        this.v[9] = zm10 * yxm02 + zm11 * yxm12;\n        this.v[13] = 0;\n        this.v[2] = zm22 * yxm20;\n        this.v[6] = zm22 * yxm21;\n        this.v[10] = zm22 * yxm22;\n        this.v[14] = 0;\n        this.v[3] = 0;\n        this.v[7] = 0;\n        this.v[11] = 0;\n        this.v[15] = 1;\n        return this;\n    };\n    /**\n     * to the identity matrix\n     */\n    MutableMatrix44.prototype.identity = function () {\n        this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n        return this;\n    };\n    MutableMatrix44.prototype._swap = function (l, r) {\n        this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap\n    };\n    /**\n     * transpose\n     */\n    MutableMatrix44.prototype.transpose = function () {\n        this._swap(1, 4);\n        this._swap(2, 8);\n        this._swap(3, 12);\n        this._swap(6, 9);\n        this._swap(7, 13);\n        this._swap(11, 14);\n        return this;\n    };\n    /**\n   * multiply zero matrix and zero matrix\n   */\n    MutableMatrix44.prototype.multiply = function (mat) {\n        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;\n        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;\n        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;\n        var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;\n        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;\n        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;\n        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;\n        var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;\n        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;\n        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;\n        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;\n        var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;\n        var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;\n        var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;\n        var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;\n        var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    MutableMatrix44.prototype.multiplyByLeft = function (mat) {\n        var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;\n        var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;\n        var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;\n        var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;\n        var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;\n        var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;\n        var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;\n        var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;\n        var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;\n        var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;\n        var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;\n        var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;\n        var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;\n        var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;\n        var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;\n        var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    MutableMatrix44.prototype.invert = function () {\n        var det = this.determinant();\n        var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;\n        var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;\n        var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;\n        var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;\n        var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;\n        var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;\n        var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;\n        var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;\n        var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;\n        var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;\n        var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;\n        var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;\n        var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;\n        var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;\n        var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;\n        var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    /**\n     * multiply zero matrix and zero matrix(static version)\n     */\n    MutableMatrix44.multiply = function (l_m, r_m) {\n        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;\n        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;\n        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;\n        var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;\n        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;\n        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;\n        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;\n        var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;\n        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;\n        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;\n        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;\n        var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;\n        var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;\n        var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;\n        var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;\n        var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;\n        return new MutableMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    /**\n     * zero matrix\n     */\n    MutableMatrix44.prototype.zero = function () {\n        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\n        return this;\n    };\n    Object.defineProperty(MutableMatrix44.prototype, \"m00\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (val) {\n            this.v[0] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m10\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (val) {\n            this.v[1] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m20\", {\n        get: function () {\n            return this.v[2];\n        },\n        set: function (val) {\n            this.v[2] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m30\", {\n        get: function () {\n            return this.v[3];\n        },\n        set: function (val) {\n            this.v[3] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m01\", {\n        get: function () {\n            return this.v[4];\n        },\n        set: function (val) {\n            this.v[4] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m11\", {\n        get: function () {\n            return this.v[5];\n        },\n        set: function (val) {\n            this.v[5] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m21\", {\n        get: function () {\n            return this.v[6];\n        },\n        set: function (val) {\n            this.v[6] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m31\", {\n        get: function () {\n            return this.v[7];\n        },\n        set: function (val) {\n            this.v[7] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m02\", {\n        get: function () {\n            return this.v[8];\n        },\n        set: function (val) {\n            this.v[8] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m12\", {\n        get: function () {\n            return this.v[9];\n        },\n        set: function (val) {\n            this.v[9] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m22\", {\n        get: function () {\n            return this.v[10];\n        },\n        set: function (val) {\n            this.v[10] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m32\", {\n        get: function () {\n            return this.v[11];\n        },\n        set: function (val) {\n            this.v[11] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m03\", {\n        get: function () {\n            return this.v[12];\n        },\n        set: function (val) {\n            this.v[12] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m13\", {\n        get: function () {\n            return this.v[13];\n        },\n        set: function (val) {\n            this.v[13] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m23\", {\n        get: function () {\n            return this.v[14];\n        },\n        set: function (val) {\n            this.v[14] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableMatrix44.prototype, \"m33\", {\n        get: function () {\n            return this.v[15];\n        },\n        set: function (val) {\n            this.v[15] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return MutableMatrix44;\n}(_Matrix44__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MutableMatrix44);\n\n\n//# sourceURL=webpack:///./src/foundation/math/MutableMatrix44.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MutableQuaterion.ts":
+/*!*************************************************!*\
+  !*** ./src/foundation/math/MutableQuaterion.ts ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _Quaternion__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Quaternion */ \"./src/foundation/math/Quaternion.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\nvar MutableQuaternion = /** @class */ (function (_super) {\n    __extends(MutableQuaternion, _super);\n    function MutableQuaternion(x, y, z, w) {\n        return _super.call(this, x, y, z, w) || this;\n    }\n    MutableQuaternion.dummy = function () {\n        return new MutableQuaternion(null);\n    };\n    MutableQuaternion.prototype.clone = function () {\n        return new MutableQuaternion(this.x, this.y, this.z, this.w);\n    };\n    MutableQuaternion.prototype.axisAngle = function (axisVec3, radian) {\n        var halfAngle = 0.5 * radian;\n        var sin = Math.sin(halfAngle);\n        var axis = _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].normalize(axisVec3);\n        this.w = Math.cos(halfAngle);\n        this.x = sin * axis.x;\n        this.y = sin * axis.y;\n        this.z = sin * axis.z;\n        return this;\n    };\n    MutableQuaternion.prototype.add = function (q) {\n        this.x += q.x;\n        this.y += q.y;\n        this.z += q.z;\n        this.w += q.w;\n        return this;\n    };\n    MutableQuaternion.prototype.multiply = function (q) {\n        var result = new _Quaternion__WEBPACK_IMPORTED_MODULE_1__[\"default\"](0, 0, 0, 1);\n        result.v[0] = q.w * this.x + q.z * this.y + q.y * this.z - q.x * this.w;\n        result.v[1] = -q.z * this.x + q.w * this.y + q.x * this.z - q.y * this.w;\n        result.v[2] = q.y * this.x + q.x * this.y + q.w * this.z - q.z * this.w;\n        result.v[3] = -q.x * this.x - q.y * this.y - q.z * this.z - q.w * this.w;\n        this.x = result.x;\n        this.y = result.y;\n        this.z = result.z;\n        this.w = result.w;\n        return this;\n    };\n    MutableQuaternion.prototype.fromMatrix = function (m) {\n        var tr = m.m00 + m.m11 + m.m22;\n        if (tr > 0) {\n            var S = 0.5 / Math.sqrt(tr + 1.0);\n            this.v[0] = (m.m21 - m.m12) * S;\n            this.v[1] = (m.m02 - m.m20) * S;\n            this.v[2] = (m.m10 - m.m01) * S;\n            this.v[3] = 0.25 / S;\n        }\n        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {\n            var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;\n            this.v[0] = 0.25 * S;\n            this.v[1] = (m.m01 + m.m10) / S;\n            this.v[2] = (m.m02 + m.m20) / S;\n            this.v[3] = (m.m21 - m.m12) / S;\n        }\n        else if (m.m11 > m.m22) {\n            var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;\n            this.v[0] = (m.m01 + m.m10) / S;\n            this.v[1] = 0.25 * S;\n            this.v[2] = (m.m12 + m.m21) / S;\n            this.v[3] = (m.m02 - m.m20) / S;\n        }\n        else {\n            var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;\n            this.v[0] = (m.m02 + m.m20) / S;\n            this.v[1] = (m.m12 + m.m21) / S;\n            this.v[2] = 0.25 * S;\n            this.v[3] = (m.m10 - m.m01) / S;\n        }\n        return this;\n    };\n    Object.defineProperty(MutableQuaternion, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_2__[\"CompositionType\"].Vec4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MutableQuaternion.prototype.setAt = function (i, val) {\n        switch (i % 4) {\n            case 0:\n                this.x = val;\n                break;\n            case 1:\n                this.y = val;\n                break;\n            case 2:\n                this.z = val;\n                break;\n            case 3:\n                this.w = val;\n                break;\n        }\n    };\n    MutableQuaternion.prototype.normalize = function () {\n        var norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);\n        this.x /= norm;\n        this.y /= norm;\n        this.z /= norm;\n        this.w /= norm;\n        return this;\n    };\n    MutableQuaternion.prototype.identity = function () {\n        this.x = 0;\n        this.y = 0;\n        this.x = 0;\n        this.w = 1;\n    };\n    Object.defineProperty(MutableQuaternion.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (x) {\n            this.v[0] = x;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableQuaternion.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (y) {\n            this.v[1] = y;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableQuaternion.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        set: function (z) {\n            this.v[2] = z;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableQuaternion.prototype, \"w\", {\n        get: function () {\n            return this.v[3];\n        },\n        set: function (w) {\n            this.v[3] = w;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableQuaternion.prototype, \"raw\", {\n        get: function () {\n            return this.v;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return MutableQuaternion;\n}(_Quaternion__WEBPACK_IMPORTED_MODULE_1__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MutableQuaternion);\n\n\n//# sourceURL=webpack:///./src/foundation/math/MutableQuaterion.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MutableRowMajarMatrix44.ts":
+/*!********************************************************!*\
+  !*** ./src/foundation/math/MutableRowMajarMatrix44.ts ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RowMajarMatrix44 */ \"./src/foundation/math/RowMajarMatrix44.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar FloatArray = Float32Array;\nvar MutableRowMajarMatrix44 = /** @class */ (function (_super) {\n    __extends(MutableRowMajarMatrix44, _super);\n    function MutableRowMajarMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray) {\n        if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }\n        var _this = this;\n        var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;\n        if (arguments.length >= 16) {\n            _this = _super.call(this, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, _notCopyFloatArray) || this;\n        }\n        else {\n            _this = _super.call(this, m0, _notCopyFloatArray) || this;\n        }\n        return _this;\n    }\n    Object.defineProperty(MutableRowMajarMatrix44, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Mat4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MutableRowMajarMatrix44.dummy = function () {\n        return new MutableRowMajarMatrix44(null);\n    };\n    MutableRowMajarMatrix44.prototype.setComponents = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {\n        this.v[0] = m00;\n        this.v[4] = m10;\n        this.v[8] = m20;\n        this.v[12] = m30;\n        this.v[1] = m01;\n        this.v[5] = m11;\n        this.v[9] = m21;\n        this.v[13] = m31;\n        this.v[2] = m02;\n        this.v[6] = m12;\n        this.v[10] = m22;\n        this.v[14] = m32;\n        this.v[3] = m03;\n        this.v[7] = m13;\n        this.v[11] = m23;\n        this.v[15] = m33;\n        return this;\n    };\n    MutableRowMajarMatrix44.prototype.copyComponents = function (mat4) {\n        //this.setComponents.apply(this, mat4.m); // 'm' must be row major array if isColumnMajor is false\n        var m = mat4;\n        this.m00 = m.m00;\n        this.m01 = m.m01;\n        this.m02 = m.m02;\n        this.m03 = m.m03;\n        this.m10 = m.m10;\n        this.m11 = m.m11;\n        this.m12 = m.m12;\n        this.m13 = m.m13;\n        this.m20 = m.m20;\n        this.m21 = m.m21;\n        this.m22 = m.m22;\n        this.m23 = m.m23;\n        this.m30 = m.m30;\n        this.m31 = m.m31;\n        this.m32 = m.m32;\n        this.m33 = m.m33;\n    };\n    /**\n     * to the identity matrix\n     */\n    MutableRowMajarMatrix44.prototype.identity = function () {\n        this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n        return this;\n    };\n    MutableRowMajarMatrix44.prototype.translate = function (vec) {\n        return this.setComponents(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);\n    };\n    MutableRowMajarMatrix44.prototype.putTranslate = function (vec) {\n        this.m03 = vec.x;\n        this.m13 = vec.y;\n        this.m23 = vec.z;\n    };\n    MutableRowMajarMatrix44.prototype.scale = function (vec) {\n        return this.setComponents(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);\n    };\n    MutableRowMajarMatrix44.prototype.addScale = function (vec) {\n        this.m00 *= vec.x;\n        this.m11 *= vec.y;\n        this.m22 *= vec.z;\n        return this;\n    };\n    /**\n     * Create X oriented Rotation Matrix\n     */\n    MutableRowMajarMatrix44.prototype.rotateX = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n   * Create Y oriented Rotation Matrix\n   */\n    MutableRowMajarMatrix44.prototype.rotateY = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Z oriented Rotation Matrix\n     */\n    MutableRowMajarMatrix44.prototype.rotateZ = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    MutableRowMajarMatrix44.prototype.rotateXYZ = function (x, y, z) {\n        var cosX = Math.cos(x);\n        var sinX = Math.sin(x);\n        var cosY = Math.cos(y);\n        var sinY = Math.sin(y);\n        var cosZ = Math.cos(z);\n        var sinZ = Math.sin(z);\n        var xm00 = 1;\n        //const xm01 = 0;\n        //const xm02 = 0;\n        //const xm10 = 0;\n        var xm11 = cosX;\n        var xm12 = -sinX;\n        //const xm20 = 0;\n        var xm21 = sinX;\n        var xm22 = cosX;\n        var ym00 = cosY;\n        //const ym01 = 0;\n        var ym02 = sinY;\n        //const ym10 = 0;\n        var ym11 = 1;\n        //const ym12 = 0;\n        var ym20 = -sinY;\n        //const ym21 = 0;\n        var ym22 = cosY;\n        var zm00 = cosZ;\n        var zm01 = -sinZ;\n        //const zm02 = 0;\n        var zm10 = sinZ;\n        var zm11 = cosZ;\n        //const zm12 = 0;\n        //const zm20 = 0;\n        //const zm21 = 0;\n        var zm22 = 1;\n        var yxm00 = ym00 * xm00;\n        var yxm01 = ym02 * xm21;\n        var yxm02 = ym02 * xm22;\n        //const yxm10 = 0;\n        var yxm11 = ym11 * xm11;\n        var yxm12 = ym11 * xm12;\n        var yxm20 = ym20 * xm00;\n        var yxm21 = ym22 * xm21;\n        var yxm22 = ym22 * xm22;\n        this.v[0] = zm00 * yxm00;\n        this.v[1] = zm00 * yxm01 + zm01 * yxm11;\n        this.v[2] = zm00 * yxm02 + zm01 * yxm12;\n        this.v[3] = 0;\n        this.v[4] = zm10 * yxm00;\n        this.v[5] = zm10 * yxm01 + zm11 * yxm11;\n        this.v[6] = zm10 * yxm02 + zm11 * yxm12;\n        this.v[7] = 0;\n        this.v[8] = zm22 * yxm20;\n        this.v[9] = zm22 * yxm21;\n        this.v[10] = zm22 * yxm22;\n        this.v[11] = 0;\n        this.v[12] = 0;\n        this.v[13] = 0;\n        this.v[14] = 0;\n        this.v[15] = 1;\n        return this;\n        //return new RowMajarMatrix44(Matrix33.rotateXYZ(x, y, z));\n    };\n    /**\n     * Zero Matrix\n     */\n    MutableRowMajarMatrix44.prototype.zero = function () {\n        this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\n        return this;\n    };\n    MutableRowMajarMatrix44.prototype._swap = function (l, r) {\n        this.v[r] = [this.v[l], this.v[l] = this.v[r]][0]; // Swap\n    };\n    /**\n     * transpose\n     */\n    MutableRowMajarMatrix44.prototype.transpose = function () {\n        this._swap(1, 4);\n        this._swap(2, 8);\n        this._swap(3, 12);\n        this._swap(6, 9);\n        this._swap(7, 13);\n        this._swap(11, 14);\n        return this;\n    };\n    /**\n     * multiply zero matrix and zero matrix\n     */\n    MutableRowMajarMatrix44.prototype.multiply = function (mat) {\n        var m00 = this.m00 * mat.m00 + this.m01 * mat.m10 + this.m02 * mat.m20 + this.m03 * mat.m30;\n        var m01 = this.m00 * mat.m01 + this.m01 * mat.m11 + this.m02 * mat.m21 + this.m03 * mat.m31;\n        var m02 = this.m00 * mat.m02 + this.m01 * mat.m12 + this.m02 * mat.m22 + this.m03 * mat.m32;\n        var m03 = this.m00 * mat.m03 + this.m01 * mat.m13 + this.m02 * mat.m23 + this.m03 * mat.m33;\n        var m10 = this.m10 * mat.m00 + this.m11 * mat.m10 + this.m12 * mat.m20 + this.m13 * mat.m30;\n        var m11 = this.m10 * mat.m01 + this.m11 * mat.m11 + this.m12 * mat.m21 + this.m13 * mat.m31;\n        var m12 = this.m10 * mat.m02 + this.m11 * mat.m12 + this.m12 * mat.m22 + this.m13 * mat.m32;\n        var m13 = this.m10 * mat.m03 + this.m11 * mat.m13 + this.m12 * mat.m23 + this.m13 * mat.m33;\n        var m20 = this.m20 * mat.m00 + this.m21 * mat.m10 + this.m22 * mat.m20 + this.m23 * mat.m30;\n        var m21 = this.m20 * mat.m01 + this.m21 * mat.m11 + this.m22 * mat.m21 + this.m23 * mat.m31;\n        var m22 = this.m20 * mat.m02 + this.m21 * mat.m12 + this.m22 * mat.m22 + this.m23 * mat.m32;\n        var m23 = this.m20 * mat.m03 + this.m21 * mat.m13 + this.m22 * mat.m23 + this.m23 * mat.m33;\n        var m30 = this.m30 * mat.m00 + this.m31 * mat.m10 + this.m32 * mat.m20 + this.m33 * mat.m30;\n        var m31 = this.m30 * mat.m01 + this.m31 * mat.m11 + this.m32 * mat.m21 + this.m33 * mat.m31;\n        var m32 = this.m30 * mat.m02 + this.m31 * mat.m12 + this.m32 * mat.m22 + this.m33 * mat.m32;\n        var m33 = this.m30 * mat.m03 + this.m31 * mat.m13 + this.m32 * mat.m23 + this.m33 * mat.m33;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    MutableRowMajarMatrix44.prototype.multiplyByLeft = function (mat) {\n        var m00 = mat.m00 * this.m00 + mat.m01 * this.m10 + mat.m02 * this.m20 + mat.m03 * this.m30;\n        var m01 = mat.m00 * this.m01 + mat.m01 * this.m11 + mat.m02 * this.m21 + mat.m03 * this.m31;\n        var m02 = mat.m00 * this.m02 + mat.m01 * this.m12 + mat.m02 * this.m22 + mat.m03 * this.m32;\n        var m03 = mat.m00 * this.m03 + mat.m01 * this.m13 + mat.m02 * this.m23 + mat.m03 * this.m33;\n        var m10 = mat.m10 * this.m00 + mat.m11 * this.m10 + mat.m12 * this.m20 + mat.m13 * this.m30;\n        var m11 = mat.m10 * this.m01 + mat.m11 * this.m11 + mat.m12 * this.m21 + mat.m13 * this.m31;\n        var m12 = mat.m10 * this.m02 + mat.m11 * this.m12 + mat.m12 * this.m22 + mat.m13 * this.m32;\n        var m13 = mat.m10 * this.m03 + mat.m11 * this.m13 + mat.m12 * this.m23 + mat.m13 * this.m33;\n        var m20 = mat.m20 * this.m00 + mat.m21 * this.m10 + mat.m22 * this.m20 + mat.m23 * this.m30;\n        var m21 = mat.m20 * this.m01 + mat.m21 * this.m11 + mat.m22 * this.m21 + mat.m23 * this.m31;\n        var m22 = mat.m20 * this.m02 + mat.m21 * this.m12 + mat.m22 * this.m22 + mat.m23 * this.m32;\n        var m23 = mat.m20 * this.m03 + mat.m21 * this.m13 + mat.m22 * this.m23 + mat.m23 * this.m33;\n        var m30 = mat.m30 * this.m00 + mat.m31 * this.m10 + mat.m32 * this.m20 + mat.m33 * this.m30;\n        var m31 = mat.m30 * this.m01 + mat.m31 * this.m11 + mat.m32 * this.m21 + mat.m33 * this.m31;\n        var m32 = mat.m30 * this.m02 + mat.m31 * this.m12 + mat.m32 * this.m22 + mat.m33 * this.m32;\n        var m33 = mat.m30 * this.m03 + mat.m31 * this.m13 + mat.m32 * this.m23 + mat.m33 * this.m33;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    MutableRowMajarMatrix44.prototype.invert = function () {\n        var det = this.determinant();\n        var m00 = (this.m11 * this.m22 * this.m33 + this.m12 * this.m23 * this.m31 + this.m13 * this.m21 * this.m32 - this.m11 * this.m23 * this.m32 - this.m12 * this.m21 * this.m33 - this.m13 * this.m22 * this.m31) / det;\n        var m01 = (this.m01 * this.m23 * this.m32 + this.m02 * this.m21 * this.m33 + this.m03 * this.m22 * this.m31 - this.m01 * this.m22 * this.m33 - this.m02 * this.m23 * this.m31 - this.m03 * this.m21 * this.m32) / det;\n        var m02 = (this.m01 * this.m12 * this.m33 + this.m02 * this.m13 * this.m31 + this.m03 * this.m11 * this.m32 - this.m01 * this.m13 * this.m32 - this.m02 * this.m11 * this.m33 - this.m03 * this.m12 * this.m31) / det;\n        var m03 = (this.m01 * this.m13 * this.m22 + this.m02 * this.m11 * this.m23 + this.m03 * this.m12 * this.m21 - this.m01 * this.m12 * this.m23 - this.m02 * this.m13 * this.m21 - this.m03 * this.m11 * this.m22) / det;\n        var m10 = (this.m10 * this.m23 * this.m32 + this.m12 * this.m20 * this.m33 + this.m13 * this.m22 * this.m30 - this.m10 * this.m22 * this.m33 - this.m12 * this.m23 * this.m30 - this.m13 * this.m20 * this.m32) / det;\n        var m11 = (this.m00 * this.m22 * this.m33 + this.m02 * this.m23 * this.m30 + this.m03 * this.m20 * this.m32 - this.m00 * this.m23 * this.m32 - this.m02 * this.m20 * this.m33 - this.m03 * this.m22 * this.m30) / det;\n        var m12 = (this.m00 * this.m13 * this.m32 + this.m02 * this.m10 * this.m33 + this.m03 * this.m12 * this.m30 - this.m00 * this.m12 * this.m33 - this.m02 * this.m13 * this.m30 - this.m03 * this.m10 * this.m32) / det;\n        var m13 = (this.m00 * this.m12 * this.m23 + this.m02 * this.m13 * this.m20 + this.m03 * this.m10 * this.m22 - this.m00 * this.m13 * this.m22 - this.m02 * this.m10 * this.m23 - this.m03 * this.m12 * this.m20) / det;\n        var m20 = (this.m10 * this.m21 * this.m33 + this.m11 * this.m23 * this.m30 + this.m13 * this.m20 * this.m31 - this.m10 * this.m23 * this.m31 - this.m11 * this.m20 * this.m33 - this.m13 * this.m21 * this.m30) / det;\n        var m21 = (this.m00 * this.m23 * this.m31 + this.m01 * this.m20 * this.m33 + this.m03 * this.m21 * this.m30 - this.m00 * this.m21 * this.m33 - this.m01 * this.m23 * this.m30 - this.m03 * this.m20 * this.m31) / det;\n        var m22 = (this.m00 * this.m11 * this.m33 + this.m01 * this.m13 * this.m30 + this.m03 * this.m10 * this.m31 - this.m00 * this.m13 * this.m31 - this.m01 * this.m10 * this.m33 - this.m03 * this.m11 * this.m30) / det;\n        var m23 = (this.m00 * this.m13 * this.m21 + this.m01 * this.m10 * this.m23 + this.m03 * this.m11 * this.m20 - this.m00 * this.m11 * this.m23 - this.m01 * this.m13 * this.m20 - this.m03 * this.m10 * this.m21) / det;\n        var m30 = (this.m10 * this.m22 * this.m31 + this.m11 * this.m20 * this.m32 + this.m12 * this.m21 * this.m30 - this.m10 * this.m21 * this.m32 - this.m11 * this.m22 * this.m30 - this.m12 * this.m20 * this.m31) / det;\n        var m31 = (this.m00 * this.m21 * this.m32 + this.m01 * this.m22 * this.m30 + this.m02 * this.m20 * this.m31 - this.m00 * this.m22 * this.m31 - this.m01 * this.m20 * this.m32 - this.m02 * this.m21 * this.m30) / det;\n        var m32 = (this.m00 * this.m12 * this.m31 + this.m01 * this.m10 * this.m32 + this.m02 * this.m11 * this.m30 - this.m00 * this.m11 * this.m32 - this.m01 * this.m12 * this.m30 - this.m02 * this.m10 * this.m31) / det;\n        var m33 = (this.m00 * this.m11 * this.m22 + this.m01 * this.m12 * this.m20 + this.m02 * this.m10 * this.m21 - this.m00 * this.m12 * this.m21 - this.m01 * this.m10 * this.m22 - this.m02 * this.m11 * this.m20) / det;\n        return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m00\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (val) {\n            this.v[0] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m01\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (val) {\n            this.v[1] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m02\", {\n        get: function () {\n            return this.v[2];\n        },\n        set: function (val) {\n            this.v[2] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m03\", {\n        get: function () {\n            return this.v[3];\n        },\n        set: function (val) {\n            this.v[3] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m10\", {\n        get: function () {\n            return this.v[4];\n        },\n        set: function (val) {\n            this.v[4] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m11\", {\n        get: function () {\n            return this.v[5];\n        },\n        set: function (val) {\n            this.v[5] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m12\", {\n        get: function () {\n            return this.v[6];\n        },\n        set: function (val) {\n            this.v[6] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m13\", {\n        get: function () {\n            return this.v[7];\n        },\n        set: function (val) {\n            this.v[7] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m20\", {\n        get: function () {\n            return this.v[8];\n        },\n        set: function (val) {\n            this.v[8] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m21\", {\n        get: function () {\n            return this.v[9];\n        },\n        set: function (val) {\n            this.v[9] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m22\", {\n        get: function () {\n            return this.v[10];\n        },\n        set: function (val) {\n            this.v[10] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m23\", {\n        get: function () {\n            return this.v[11];\n        },\n        set: function (val) {\n            this.v[11] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m30\", {\n        get: function () {\n            return this.v[12];\n        },\n        set: function (val) {\n            this.v[12] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m31\", {\n        get: function () {\n            return this.v[13];\n        },\n        set: function (val) {\n            this.v[13] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m32\", {\n        get: function () {\n            return this.v[14];\n        },\n        set: function (val) {\n            this.v[14] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableRowMajarMatrix44.prototype, \"m33\", {\n        get: function () {\n            return this.v[15];\n        },\n        set: function (val) {\n            this.v[15] = val;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return MutableRowMajarMatrix44;\n}(_RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MutableRowMajarMatrix44);\n\n\n//# sourceURL=webpack:///./src/foundation/math/MutableRowMajarMatrix44.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MutableVector3.ts":
+/*!***********************************************!*\
+  !*** ./src/foundation/math/MutableVector3.ts ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar MutableVector3 = /** @class */ (function (_super) {\n    __extends(MutableVector3, _super);\n    function MutableVector3(x, y, z) {\n        return _super.call(this, x, y, z) || this;\n    }\n    Object.defineProperty(MutableVector3, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Vec3;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MutableVector3.prototype.zero = function () {\n        this.x = 0;\n        this.y = 0;\n        this.z = 0;\n        return this;\n    };\n    MutableVector3.prototype.one = function () {\n        this.x = 1;\n        this.y = 1;\n        this.z = 1;\n        return this;\n    };\n    /**\n     * to square length\n     */\n    MutableVector3.prototype.lengthSquared = function () {\n        return this.x * this.x + this.y * this.y + this.z * this.z;\n    };\n    /**\n     * cross product\n     */\n    MutableVector3.prototype.cross = function (v) {\n        var x = this.y * v.z - this.z * v.y;\n        var y = this.z * v.x - this.x * v.z;\n        var z = this.x * v.y - this.y * v.x;\n        this.x = x;\n        this.y = y;\n        this.z = z;\n        return this;\n    };\n    /**\n   * normalize\n   */\n    MutableVector3.prototype.normalize = function () {\n        var length = this.length();\n        this.divide(length);\n        return this;\n    };\n    /**\n   * add value\n   */\n    MutableVector3.prototype.add = function (v) {\n        this.x += v.x;\n        this.y += v.y;\n        this.z += v.z;\n        return this;\n    };\n    /**\n   * subtract\n   */\n    MutableVector3.prototype.subtract = function (v) {\n        this.x -= v.x;\n        this.y -= v.y;\n        this.z -= v.z;\n        return this;\n    };\n    /**\n     * divide\n     */\n    MutableVector3.prototype.divide = function (val) {\n        if (val !== 0) {\n            this.x /= val;\n            this.y /= val;\n            this.z /= val;\n        }\n        else {\n            console.error(\"0 division occured!\");\n            this.x = Infinity;\n            this.y = Infinity;\n            this.z = Infinity;\n        }\n        return this;\n    };\n    /**\n     * multiply\n     */\n    MutableVector3.prototype.multiply = function (val) {\n        this.x *= val;\n        this.y *= val;\n        this.z *= val;\n        return this;\n    };\n    /**\n     * multiply vector\n     */\n    MutableVector3.prototype.multiplyVector = function (vec) {\n        this.x *= vec.x;\n        this.y *= vec.y;\n        this.z *= vec.z;\n        return this;\n    };\n    /**\n   * divide vector\n   */\n    MutableVector3.prototype.divideVector = function (vec3) {\n        this.x /= vec3.x;\n        this.y /= vec3.y;\n        this.z /= vec3.z;\n        return this;\n    };\n    Object.defineProperty(MutableVector3.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (x) {\n            this.v[0] = x;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector3.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (y) {\n            this.v[1] = y;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector3.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        set: function (z) {\n            this.v[2] = z;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector3.prototype, \"raw\", {\n        get: function () {\n            return this.v;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return MutableVector3;\n}(_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MutableVector3);\n\n\n//# sourceURL=webpack:///./src/foundation/math/MutableVector3.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/MutableVector4.ts":
+/*!***********************************************!*\
+  !*** ./src/foundation/math/MutableVector4.ts ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector4 */ \"./src/foundation/math/Vector4.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar MutableVector4 = /** @class */ (function (_super) {\n    __extends(MutableVector4, _super);\n    function MutableVector4(x, y, z, w) {\n        return _super.call(this, x, y, z, w) || this;\n    }\n    Object.defineProperty(MutableVector4, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Vec4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    MutableVector4.prototype.normalize = function () {\n        var length = this.length();\n        this.divide(length);\n        return this;\n    };\n    /**\n     * add value\n     */\n    MutableVector4.prototype.add = function (v) {\n        this.x += v.x;\n        this.y += v.y;\n        this.z += v.z;\n        this.w += v.w;\n        return this;\n    };\n    /**\n   * add value except w component\n   */\n    MutableVector4.prototype.addWithOutW = function (v) {\n        this.x += v.x;\n        this.y += v.y;\n        this.z += v.z;\n        return this;\n    };\n    MutableVector4.prototype.subtract = function (v) {\n        this.x -= v.x;\n        this.y -= v.y;\n        this.z -= v.z;\n        this.w -= v.w;\n        return this;\n    };\n    MutableVector4.prototype.multiply = function (val) {\n        this.x *= val;\n        this.y *= val;\n        this.z *= val;\n        this.w *= val;\n        return this;\n    };\n    MutableVector4.prototype.multiplyVector = function (vec) {\n        this.x *= vec.x;\n        this.y *= vec.y;\n        this.z *= vec.z;\n        this.w *= vec.w;\n        return this;\n    };\n    MutableVector4.prototype.divide = function (val) {\n        if (val !== 0) {\n            this.x /= val;\n            this.y /= val;\n            this.z /= val;\n            this.w /= val;\n        }\n        else {\n            console.error(\"0 division occured!\");\n            this.x = Infinity;\n            this.y = Infinity;\n            this.z = Infinity;\n            this.w = Infinity;\n        }\n        return this;\n    };\n    MutableVector4.prototype.divideVector = function (vec4) {\n        this.x /= vec4.x;\n        this.y /= vec4.y;\n        this.z /= vec4.z;\n        this.w /= vec4.w;\n        return this;\n    };\n    Object.defineProperty(MutableVector4.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (x) {\n            this.v[0] = x;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector4.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (y) {\n            this.v[1] = y;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector4.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        set: function (z) {\n            this.v[2] = z;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector4.prototype, \"w\", {\n        get: function () {\n            return this.v[3];\n        },\n        set: function (w) {\n            this.v[3] = w;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(MutableVector4.prototype, \"raw\", {\n        get: function () {\n            return this.v;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    // set w(w:number) {\n    //   this.__Error();\n    // }\n    // get w(): number {\n    //   return this.v[3];\n    // }\n    // get raw(): TypedArray {\n    //   this.__Error();\n    //   return new Float32Array(0);\n    // }\n    MutableVector4.prototype.__Error = function () {\n        //console.error('Not avavailabe because this Vector class is immutable.');\n        throw new Error('Not avavailabe because this Vector class is immutable.');\n    };\n    return MutableVector4;\n}(_Vector4__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (MutableVector4);\n\n\n//# sourceURL=webpack:///./src/foundation/math/MutableVector4.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Quaternion.ts":
+/*!*******************************************!*\
+  !*** ./src/foundation/math/Quaternion.ts ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n//import GLBoost from '../../globals';\n\n\nvar Quaternion = /** @class */ (function () {\n    function Quaternion(x, y, z, w) {\n        if (ArrayBuffer.isView(x)) {\n            this.v = x;\n            return;\n        }\n        else if (x == null) {\n            this.v = new Float32Array(0);\n        }\n        else {\n            this.v = new Float32Array(4);\n        }\n        if (!(x != null)) {\n            this.v[0] = 0;\n            this.v[1] = 0;\n            this.v[2] = 0;\n            this.v[3] = 1;\n        }\n        else if (Array.isArray(x)) {\n            this.v[0] = x[0];\n            this.v[1] = x[1];\n            this.v[2] = x[2];\n            this.v[3] = x[3];\n        }\n        else if (typeof x.w !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n            this.v[3] = x.w;\n        }\n        else if (typeof x.z !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n            this.v[3] = 1;\n        }\n        else if (typeof x.y !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = 0;\n            this.v[3] = 1;\n        }\n        else {\n            this.v[0] = x;\n            this.v[1] = y;\n            this.v[2] = z;\n            this.v[3] = w;\n        }\n    }\n    Quaternion.prototype.isEqual = function (quat) {\n        if (this.x === quat.x && this.y === quat.y && this.z === quat.z && this.w === quat.w) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Object.defineProperty(Quaternion, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Vec4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Quaternion.dummy = function () {\n        return new Quaternion(null);\n    };\n    Quaternion.prototype.isDummy = function () {\n        if (this.v.length === 0) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Object.defineProperty(Quaternion.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Quaternion.prototype.clone = function () {\n        return new Quaternion(this.x, this.y, this.z, this.w);\n    };\n    Quaternion.invert = function (quat) {\n        quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);\n        var inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);\n        quat.v[0] *= inorm2;\n        quat.v[1] *= inorm2;\n        quat.v[2] *= inorm2;\n        quat.v[3] *= inorm2;\n        return quat;\n    };\n    Quaternion.qlerp = function (lhq, rhq, ratio) {\n        var q = new Quaternion(0, 0, 0, 1);\n        var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;\n        var ss = 1.0 - qr * qr;\n        if (ss === 0.0) {\n            q.v[3] = lhq.w;\n            q.v[0] = lhq.x;\n            q.v[1] = lhq.y;\n            q.v[2] = lhq.z;\n            return q;\n        }\n        else {\n            if (qr > 1) {\n                qr = 0.999;\n            }\n            else if (qr < -1) {\n                qr = -0.999;\n            }\n            var ph = Math.acos(qr);\n            var s2 = void 0;\n            if (qr < 0.0 && ph > Math.PI / 2.0) {\n                qr = -lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;\n                ph = Math.acos(qr);\n                s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);\n            }\n            else {\n                s2 = Math.sin(ph * ratio) / Math.sin(ph);\n            }\n            var s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);\n            q.v[0] = lhq.x * s1 + rhq.x * s2;\n            q.v[1] = lhq.y * s1 + rhq.y * s2;\n            q.v[2] = lhq.z * s1 + rhq.z * s2;\n            q.v[3] = lhq.w * s1 + rhq.w * s2;\n            return q;\n        }\n    };\n    Quaternion.axisAngle = function (axisVec3, radian) {\n        var halfAngle = 0.5 * radian;\n        var sin = Math.sin(halfAngle);\n        var axis = _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].normalize(axisVec3);\n        return new Quaternion(sin * axis.x, sin * axis.y, sin * axis.z, Math.cos(halfAngle));\n    };\n    Quaternion.multiply = function (q1, q2) {\n        var result = new Quaternion(0, 0, 0, 1);\n        result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;\n        result.v[1] = -q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;\n        result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;\n        result.v[3] = -q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;\n        return result;\n    };\n    Quaternion.fromMatrix = function (m) {\n        var q = new Quaternion();\n        var tr = m.m00 + m.m11 + m.m22;\n        if (tr > 0) {\n            var S = 0.5 / Math.sqrt(tr + 1.0);\n            q.v[3] = 0.25 / S;\n            q.v[0] = (m.m21 - m.m12) * S;\n            q.v[1] = (m.m02 - m.m20) * S;\n            q.v[2] = (m.m10 - m.m01) * S;\n        }\n        else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {\n            var S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;\n            q.v[3] = (m.m21 - m.m12) / S;\n            q.v[0] = 0.25 * S;\n            q.v[1] = (m.m01 + m.m10) / S;\n            q.v[2] = (m.m02 + m.m20) / S;\n        }\n        else if (m.m11 > m.m22) {\n            var S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;\n            q.v[3] = (m.m02 - m.m20) / S;\n            q.v[0] = (m.m01 + m.m10) / S;\n            q.v[1] = 0.25 * S;\n            q.v[2] = (m.m12 + m.m21) / S;\n        }\n        else {\n            var S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;\n            q.v[3] = (m.m10 - m.m01) / S;\n            q.v[0] = (m.m02 + m.m20) / S;\n            q.v[1] = (m.m12 + m.m21) / S;\n            q.v[2] = 0.25 * S;\n        }\n        return q;\n    };\n    Quaternion.fromPosition = function (vec3) {\n        var q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);\n        return q;\n    };\n    Quaternion.prototype.at = function (i) {\n        switch (i % 4) {\n            case 0: return this.x;\n            case 1: return this.y;\n            case 2: return this.z;\n            case 3: return this.w;\n        }\n    };\n    Quaternion.prototype.toString = function () {\n        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';\n    };\n    Object.defineProperty(Quaternion.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Quaternion.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Quaternion.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Quaternion.prototype, \"w\", {\n        get: function () {\n            return this.v[3];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return Quaternion;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Quaternion);\n\n\n//# sourceURL=webpack:///./src/foundation/math/Quaternion.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/RowMajarMatrix44.ts":
+/*!*************************************************!*\
+  !*** ./src/foundation/math/RowMajarMatrix44.ts ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _Quaternion__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Quaternion */ \"./src/foundation/math/Quaternion.ts\");\n/* harmony import */ var _Vector4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Vector4 */ \"./src/foundation/math/Vector4.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n//import GLBoost from '../../globals';\n\n\n\n\nvar FloatArray = Float32Array;\nvar RowMajarMatrix44 = /** @class */ (function () {\n    function RowMajarMatrix44(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, notCopyFloatArray) {\n        if (notCopyFloatArray === void 0) { notCopyFloatArray = false; }\n        var _notCopyFloatArray = (arguments.length >= 16) ? notCopyFloatArray : m1;\n        var m = m0;\n        if (m == null) {\n            this.v = new FloatArray(0);\n            return;\n        }\n        if (arguments.length >= 16) {\n            var m_1 = arguments;\n            this.v = new FloatArray(16); // Data order is row major\n            this.v[0] = m_1[0];\n            this.v[4] = m_1[4];\n            this.v[8] = m_1[8];\n            this.v[12] = m_1[12];\n            this.v[1] = m_1[1];\n            this.v[5] = m_1[5];\n            this.v[9] = m_1[9];\n            this.v[13] = m_1[13];\n            this.v[2] = m_1[2];\n            this.v[6] = m_1[6];\n            this.v[10] = m_1[10];\n            this.v[14] = m_1[14];\n            this.v[3] = m_1[3];\n            this.v[7] = m_1[7];\n            this.v[11] = m_1[11];\n            this.v[15] = m_1[15];\n        }\n        else if (Array.isArray(m)) {\n            this.v = new FloatArray(16);\n            this.v[0] = m[0];\n            this.v[4] = m[4];\n            this.v[8] = m[8];\n            this.v[12] = m[12];\n            this.v[1] = m[1];\n            this.v[5] = m[5];\n            this.v[9] = m[9];\n            this.v[13] = m[13];\n            this.v[2] = m[2];\n            this.v[6] = m[6];\n            this.v[10] = m[10];\n            this.v[14] = m[14];\n            this.v[3] = m[3];\n            this.v[7] = m[7];\n            this.v[11] = m[11];\n            this.v[15] = m[15];\n        }\n        else if (m instanceof FloatArray) {\n            if (_notCopyFloatArray) {\n                this.v = m;\n            }\n            else {\n                this.v = new FloatArray(16);\n                this.v[0] = m[0];\n                this.v[4] = m[4];\n                this.v[8] = m[8];\n                this.v[12] = m[12];\n                this.v[1] = m[1];\n                this.v[5] = m[5];\n                this.v[9] = m[9];\n                this.v[13] = m[13];\n                this.v[2] = m[2];\n                this.v[6] = m[6];\n                this.v[10] = m[10];\n                this.v[14] = m[14];\n                this.v[3] = m[3];\n                this.v[7] = m[7];\n                this.v[11] = m[11];\n                this.v[15] = m[15];\n            }\n        }\n        else if (!!m && typeof m.m33 !== 'undefined' && typeof m.m22 !== 'undefined') {\n            if (_notCopyFloatArray) {\n                this.v = m.v;\n            }\n            else {\n                this.v = new FloatArray(16);\n                this.v[0] = m.m00;\n                this.v[4] = m.m10;\n                this.v[8] = m.m20;\n                this.v[12] = m.m30;\n                this.v[1] = m.m01;\n                this.v[5] = m.m11;\n                this.v[9] = m.m21;\n                this.v[13] = m.m31;\n                this.v[2] = m.m02;\n                this.v[6] = m.m12;\n                this.v[10] = m.m22;\n                this.v[14] = m.m32;\n                this.v[3] = m.m03;\n                this.v[7] = m.m13;\n                this.v[11] = m.m23;\n                this.v[15] = m.m33;\n            }\n        }\n        else if (!!m && typeof m.m33 === 'undefined' && typeof m.m22 !== 'undefined') {\n            if (_notCopyFloatArray) {\n                this.v = m.v;\n            }\n            else {\n                this.v = new FloatArray(16);\n                this.v[0] = m.m00;\n                this.v[4] = m.m10;\n                this.v[8] = m.m20;\n                this.v[12] = 0;\n                this.v[1] = m.m01;\n                this.v[5] = m.m11;\n                this.v[9] = m.m21;\n                this.v[13] = 0;\n                this.v[2] = m.m02;\n                this.v[6] = m.m12;\n                this.v[10] = m.m22;\n                this.v[14] = 0;\n                this.v[3] = 0;\n                this.v[7] = 0;\n                this.v[11] = 0;\n                this.v[15] = 1;\n            }\n        }\n        else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {\n            this.v = new FloatArray(16);\n            var sx = m.x * m.x;\n            var sy = m.y * m.y;\n            var sz = m.z * m.z;\n            var cx = m.y * m.z;\n            var cy = m.x * m.z;\n            var cz = m.x * m.y;\n            var wx = m.w * m.x;\n            var wy = m.w * m.y;\n            var wz = m.w * m.z;\n            this.v[0] = 1.0 - 2.0 * (sy + sz);\n            this.v[1] = 2.0 * (cz - wz);\n            this.v[2] = 2.0 * (cy + wy);\n            this.v[3] = 0;\n            this.v[4] = 2.0 * (cz + wz);\n            this.v[5] = 1.0 - 2.0 * (sx + sz);\n            this.v[6] = 2.0 * (cx - wx);\n            this.v[7] = 0;\n            this.v[8] = 2.0 * (cy - wy);\n            this.v[9] = 2.0 * (cx + wx);\n            this.v[10] = 1.0 - 2.0 * (sx + sy);\n            this.v[11] = 0;\n            this.v[12] = 0;\n            this.v[13] = 0;\n            this.v[14] = 0;\n            this.v[15] = 1;\n        }\n        else {\n            this.v = new FloatArray(16);\n            this.v[0] = 1;\n            this.v[4] = 0;\n            this.v[8] = 0;\n            this.v[12] = 0;\n            this.v[1] = 0;\n            this.v[5] = 1;\n            this.v[9] = 0;\n            this.v[13] = 0;\n            this.v[2] = 0;\n            this.v[6] = 0;\n            this.v[10] = 1;\n            this.v[14] = 0;\n            this.v[3] = 0;\n            this.v[7] = 0;\n            this.v[11] = 0;\n            this.v[15] = 1;\n        }\n    }\n    RowMajarMatrix44.dummy = function () {\n        return new RowMajarMatrix44(null);\n    };\n    Object.defineProperty(RowMajarMatrix44, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__[\"CompositionType\"].Mat4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    RowMajarMatrix44.prototype.isDummy = function () {\n        if (this.v.length === 0) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Object.defineProperty(RowMajarMatrix44.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    RowMajarMatrix44.prototype.clone = function () {\n        return new RowMajarMatrix44(this.v[0], this.v[1], this.v[2], this.v[3], this.v[4], this.v[5], this.v[6], this.v[7], this.v[8], this.v[9], this.v[10], this.v[11], this.v[12], this.v[13], this.v[14], this.v[15]);\n    };\n    /**\n     * to the identity matrix（static版）\n     */\n    RowMajarMatrix44.identity = function () {\n        return new RowMajarMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    RowMajarMatrix44.prototype.isEqual = function (mat, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(mat.v[0] - this.v[0]) < delta &&\n            Math.abs(mat.v[1] - this.v[1]) < delta &&\n            Math.abs(mat.v[2] - this.v[2]) < delta &&\n            Math.abs(mat.v[3] - this.v[3]) < delta &&\n            Math.abs(mat.v[4] - this.v[4]) < delta &&\n            Math.abs(mat.v[5] - this.v[5]) < delta &&\n            Math.abs(mat.v[6] - this.v[6]) < delta &&\n            Math.abs(mat.v[7] - this.v[7]) < delta &&\n            Math.abs(mat.v[8] - this.v[8]) < delta &&\n            Math.abs(mat.v[9] - this.v[9]) < delta &&\n            Math.abs(mat.v[10] - this.v[10]) < delta &&\n            Math.abs(mat.v[11] - this.v[11]) < delta &&\n            Math.abs(mat.v[12] - this.v[12]) < delta &&\n            Math.abs(mat.v[13] - this.v[13]) < delta &&\n            Math.abs(mat.v[14] - this.v[14]) < delta &&\n            Math.abs(mat.v[15] - this.v[15]) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    RowMajarMatrix44.prototype.getTranslate = function () {\n        return new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](this.m03, this.m13, this.m23);\n    };\n    RowMajarMatrix44.translate = function (vec) {\n        return new RowMajarMatrix44(1, 0, 0, vec.x, 0, 1, 0, vec.y, 0, 0, 1, vec.z, 0, 0, 0, 1);\n    };\n    RowMajarMatrix44.scale = function (vec) {\n        return new RowMajarMatrix44(vec.x, 0, 0, 0, 0, vec.y, 0, 0, 0, 0, vec.z, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create X oriented Rotation Matrix\n    */\n    RowMajarMatrix44.rotateX = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new RowMajarMatrix44(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Y oriented Rotation Matrix\n     */\n    RowMajarMatrix44.rotateY = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new RowMajarMatrix44(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);\n    };\n    /**\n     * Create Z oriented Rotation Matrix\n     */\n    RowMajarMatrix44.rotateZ = function (radian) {\n        var cos = Math.cos(radian);\n        var sin = Math.sin(radian);\n        return new RowMajarMatrix44(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n    };\n    /**\n     * @return Euler Angles Rotation (x, y, z)\n     */\n    RowMajarMatrix44.prototype.toEulerAngles = function () {\n        var rotate = null;\n        if (Math.abs(this.m20) != 1.0) {\n            var y = -Math.asin(this.m20);\n            var x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));\n            var z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](x, y, z);\n        }\n        else if (this.m20 === -1.0) {\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.atan2(this.m01, this.m02), Math.PI / 2.0, 0.0);\n        }\n        else {\n            rotate = new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.atan2(-this.m01, -this.m02), -Math.PI / 2.0, 0.0);\n        }\n        return rotate;\n    };\n    RowMajarMatrix44.zero = function () {\n        return new RowMajarMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\n    };\n    RowMajarMatrix44.prototype.raw = function () {\n        return this.v;\n    };\n    RowMajarMatrix44.prototype.flattenAsArray = function () {\n        return [this.v[0], this.v[1], this.v[2], this.v[3],\n            this.v[4], this.v[5], this.v[6], this.v[7],\n            this.v[8], this.v[9], this.v[10], this.v[11],\n            this.v[12], this.v[13], this.v[14], this.v[15]];\n    };\n    /**\n     * transpose(static version)\n     */\n    RowMajarMatrix44.transpose = function (mat) {\n        var mat_t = new RowMajarMatrix44(mat.m00, mat.m10, mat.m20, mat.m30, mat.m01, mat.m11, mat.m21, mat.m31, mat.m02, mat.m12, mat.m22, mat.m32, mat.m03, mat.m13, mat.m23, mat.m33);\n        return mat_t;\n    };\n    RowMajarMatrix44.prototype.multiplyVector = function (vec) {\n        var x = this.m00 * vec.x + this.m01 * vec.y + this.m02 * vec.z + this.m03 * vec.w;\n        var y = this.m10 * vec.x + this.m11 * vec.y + this.m12 * vec.z + this.m13 * vec.w;\n        var z = this.m20 * vec.x + this.m21 * vec.y + this.m22 * vec.z + this.m23 * vec.w;\n        var w = this.m30 * vec.x + this.m31 * vec.y + this.m32 * vec.z + this.m33 * vec.w;\n        return new _Vector4__WEBPACK_IMPORTED_MODULE_2__[\"default\"](x, y, z, w);\n    };\n    /**\n     * multiply zero matrix and zero matrix(static version)\n     */\n    RowMajarMatrix44.multiply = function (l_m, r_m) {\n        var m00 = l_m.m00 * r_m.m00 + l_m.m01 * r_m.m10 + l_m.m02 * r_m.m20 + l_m.m03 * r_m.m30;\n        var m10 = l_m.m10 * r_m.m00 + l_m.m11 * r_m.m10 + l_m.m12 * r_m.m20 + l_m.m13 * r_m.m30;\n        var m20 = l_m.m20 * r_m.m00 + l_m.m21 * r_m.m10 + l_m.m22 * r_m.m20 + l_m.m23 * r_m.m30;\n        var m30 = l_m.m30 * r_m.m00 + l_m.m31 * r_m.m10 + l_m.m32 * r_m.m20 + l_m.m33 * r_m.m30;\n        var m01 = l_m.m00 * r_m.m01 + l_m.m01 * r_m.m11 + l_m.m02 * r_m.m21 + l_m.m03 * r_m.m31;\n        var m11 = l_m.m10 * r_m.m01 + l_m.m11 * r_m.m11 + l_m.m12 * r_m.m21 + l_m.m13 * r_m.m31;\n        var m21 = l_m.m20 * r_m.m01 + l_m.m21 * r_m.m11 + l_m.m22 * r_m.m21 + l_m.m23 * r_m.m31;\n        var m31 = l_m.m30 * r_m.m01 + l_m.m31 * r_m.m11 + l_m.m32 * r_m.m21 + l_m.m33 * r_m.m31;\n        var m02 = l_m.m00 * r_m.m02 + l_m.m01 * r_m.m12 + l_m.m02 * r_m.m22 + l_m.m03 * r_m.m32;\n        var m12 = l_m.m10 * r_m.m02 + l_m.m11 * r_m.m12 + l_m.m12 * r_m.m22 + l_m.m13 * r_m.m32;\n        var m22 = l_m.m20 * r_m.m02 + l_m.m21 * r_m.m12 + l_m.m22 * r_m.m22 + l_m.m23 * r_m.m32;\n        var m32 = l_m.m30 * r_m.m02 + l_m.m31 * r_m.m12 + l_m.m32 * r_m.m22 + l_m.m33 * r_m.m32;\n        var m03 = l_m.m00 * r_m.m03 + l_m.m01 * r_m.m13 + l_m.m02 * r_m.m23 + l_m.m03 * r_m.m33;\n        var m13 = l_m.m10 * r_m.m03 + l_m.m11 * r_m.m13 + l_m.m12 * r_m.m23 + l_m.m13 * r_m.m33;\n        var m23 = l_m.m20 * r_m.m03 + l_m.m21 * r_m.m13 + l_m.m22 * r_m.m23 + l_m.m23 * r_m.m33;\n        var m33 = l_m.m30 * r_m.m03 + l_m.m31 * r_m.m13 + l_m.m32 * r_m.m23 + l_m.m33 * r_m.m33;\n        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    RowMajarMatrix44.prototype.determinant = function () {\n        return this.m00 * this.m11 * this.m22 * this.m33 + this.m00 * this.m12 * this.m23 * this.m31 + this.m00 * this.m13 * this.m21 * this.m32 +\n            this.m01 * this.m10 * this.m23 * this.m32 + this.m01 * this.m12 * this.m20 * this.m33 + this.m01 * this.m13 * this.m22 * this.m30 +\n            this.m02 * this.m10 * this.m21 * this.m33 + this.m02 * this.m11 * this.m23 * this.m30 + this.m02 * this.m13 * this.m20 * this.m31 +\n            this.m03 * this.m10 * this.m22 * this.m31 + this.m03 * this.m11 * this.m20 * this.m32 + this.m03 * this.m12 * this.m21 * this.m30 -\n            this.m00 * this.m11 * this.m23 * this.m32 - this.m00 * this.m12 * this.m21 * this.m33 - this.m00 * this.m13 * this.m22 * this.m31 -\n            this.m01 * this.m10 * this.m22 * this.m33 - this.m01 * this.m12 * this.m23 * this.m30 - this.m01 * this.m13 * this.m20 * this.m32 -\n            this.m02 * this.m10 * this.m23 * this.m31 - this.m02 * this.m11 * this.m20 * this.m33 - this.m02 * this.m13 * this.m21 * this.m30 -\n            this.m03 * this.m10 * this.m21 * this.m32 - this.m03 * this.m11 * this.m22 * this.m30 - this.m03 * this.m12 * this.m20 * this.m31;\n    };\n    RowMajarMatrix44.determinant = function (mat) {\n        return mat.m00 * mat.m11 * mat.m22 * mat.m33 + mat.m00 * mat.m12 * mat.m23 * mat.m31 + mat.m00 * mat.m13 * mat.m21 * mat.m32 +\n            mat.m01 * mat.m10 * mat.m23 * mat.m32 + mat.m01 * mat.m12 * mat.m20 * mat.m33 + mat.m01 * mat.m13 * mat.m22 * mat.m30 +\n            mat.m02 * mat.m10 * mat.m21 * mat.m33 + mat.m02 * mat.m11 * mat.m23 * mat.m30 + mat.m02 * mat.m13 * mat.m20 * mat.m31 +\n            mat.m03 * mat.m10 * mat.m22 * mat.m31 + mat.m03 * mat.m11 * mat.m20 * mat.m32 + mat.m03 * mat.m12 * mat.m21 * mat.m30 -\n            mat.m00 * mat.m11 * mat.m23 * mat.m32 - mat.m00 * mat.m12 * mat.m21 * mat.m33 - mat.m00 * mat.m13 * mat.m22 * mat.m31 -\n            mat.m01 * mat.m10 * mat.m22 * mat.m33 - mat.m01 * mat.m12 * mat.m23 * mat.m30 - mat.m01 * mat.m13 * mat.m20 * mat.m32 -\n            mat.m02 * mat.m10 * mat.m23 * mat.m31 - mat.m02 * mat.m11 * mat.m20 * mat.m33 - mat.m02 * mat.m13 * mat.m21 * mat.m30 -\n            mat.m03 * mat.m10 * mat.m21 * mat.m32 - mat.m03 * mat.m11 * mat.m22 * mat.m30 - mat.m03 * mat.m12 * mat.m20 * mat.m31;\n    };\n    RowMajarMatrix44.invert = function (mat) {\n        var det = mat.determinant();\n        var m00 = (mat.m11 * mat.m22 * mat.m33 + mat.m12 * mat.m23 * mat.m31 + mat.m13 * mat.m21 * mat.m32 - mat.m11 * mat.m23 * mat.m32 - mat.m12 * mat.m21 * mat.m33 - mat.m13 * mat.m22 * mat.m31) / det;\n        var m01 = (mat.m01 * mat.m23 * mat.m32 + mat.m02 * mat.m21 * mat.m33 + mat.m03 * mat.m22 * mat.m31 - mat.m01 * mat.m22 * mat.m33 - mat.m02 * mat.m23 * mat.m31 - mat.m03 * mat.m21 * mat.m32) / det;\n        var m02 = (mat.m01 * mat.m12 * mat.m33 + mat.m02 * mat.m13 * mat.m31 + mat.m03 * mat.m11 * mat.m32 - mat.m01 * mat.m13 * mat.m32 - mat.m02 * mat.m11 * mat.m33 - mat.m03 * mat.m12 * mat.m31) / det;\n        var m03 = (mat.m01 * mat.m13 * mat.m22 + mat.m02 * mat.m11 * mat.m23 + mat.m03 * mat.m12 * mat.m21 - mat.m01 * mat.m12 * mat.m23 - mat.m02 * mat.m13 * mat.m21 - mat.m03 * mat.m11 * mat.m22) / det;\n        var m10 = (mat.m10 * mat.m23 * mat.m32 + mat.m12 * mat.m20 * mat.m33 + mat.m13 * mat.m22 * mat.m30 - mat.m10 * mat.m22 * mat.m33 - mat.m12 * mat.m23 * mat.m30 - mat.m13 * mat.m20 * mat.m32) / det;\n        var m11 = (mat.m00 * mat.m22 * mat.m33 + mat.m02 * mat.m23 * mat.m30 + mat.m03 * mat.m20 * mat.m32 - mat.m00 * mat.m23 * mat.m32 - mat.m02 * mat.m20 * mat.m33 - mat.m03 * mat.m22 * mat.m30) / det;\n        var m12 = (mat.m00 * mat.m13 * mat.m32 + mat.m02 * mat.m10 * mat.m33 + mat.m03 * mat.m12 * mat.m30 - mat.m00 * mat.m12 * mat.m33 - mat.m02 * mat.m13 * mat.m30 - mat.m03 * mat.m10 * mat.m32) / det;\n        var m13 = (mat.m00 * mat.m12 * mat.m23 + mat.m02 * mat.m13 * mat.m20 + mat.m03 * mat.m10 * mat.m22 - mat.m00 * mat.m13 * mat.m22 - mat.m02 * mat.m10 * mat.m23 - mat.m03 * mat.m12 * mat.m20) / det;\n        var m20 = (mat.m10 * mat.m21 * mat.m33 + mat.m11 * mat.m23 * mat.m30 + mat.m13 * mat.m20 * mat.m31 - mat.m10 * mat.m23 * mat.m31 - mat.m11 * mat.m20 * mat.m33 - mat.m13 * mat.m21 * mat.m30) / det;\n        var m21 = (mat.m00 * mat.m23 * mat.m31 + mat.m01 * mat.m20 * mat.m33 + mat.m03 * mat.m21 * mat.m30 - mat.m00 * mat.m21 * mat.m33 - mat.m01 * mat.m23 * mat.m30 - mat.m03 * mat.m20 * mat.m31) / det;\n        var m22 = (mat.m00 * mat.m11 * mat.m33 + mat.m01 * mat.m13 * mat.m30 + mat.m03 * mat.m10 * mat.m31 - mat.m00 * mat.m13 * mat.m31 - mat.m01 * mat.m10 * mat.m33 - mat.m03 * mat.m11 * mat.m30) / det;\n        var m23 = (mat.m00 * mat.m13 * mat.m21 + mat.m01 * mat.m10 * mat.m23 + mat.m03 * mat.m11 * mat.m20 - mat.m00 * mat.m11 * mat.m23 - mat.m01 * mat.m13 * mat.m20 - mat.m03 * mat.m10 * mat.m21) / det;\n        var m30 = (mat.m10 * mat.m22 * mat.m31 + mat.m11 * mat.m20 * mat.m32 + mat.m12 * mat.m21 * mat.m30 - mat.m10 * mat.m21 * mat.m32 - mat.m11 * mat.m22 * mat.m30 - mat.m12 * mat.m20 * mat.m31) / det;\n        var m31 = (mat.m00 * mat.m21 * mat.m32 + mat.m01 * mat.m22 * mat.m30 + mat.m02 * mat.m20 * mat.m31 - mat.m00 * mat.m22 * mat.m31 - mat.m01 * mat.m20 * mat.m32 - mat.m02 * mat.m21 * mat.m30) / det;\n        var m32 = (mat.m00 * mat.m12 * mat.m31 + mat.m01 * mat.m10 * mat.m32 + mat.m02 * mat.m11 * mat.m30 - mat.m00 * mat.m11 * mat.m32 - mat.m01 * mat.m12 * mat.m30 - mat.m02 * mat.m10 * mat.m31) / det;\n        var m33 = (mat.m00 * mat.m11 * mat.m22 + mat.m01 * mat.m12 * mat.m20 + mat.m02 * mat.m10 * mat.m21 - mat.m00 * mat.m12 * mat.m21 - mat.m01 * mat.m10 * mat.m22 - mat.m02 * mat.m11 * mat.m20) / det;\n        return new RowMajarMatrix44(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);\n    };\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m00\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m01\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m02\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m03\", {\n        get: function () {\n            return this.v[3];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m10\", {\n        get: function () {\n            return this.v[4];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m11\", {\n        get: function () {\n            return this.v[5];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m12\", {\n        get: function () {\n            return this.v[6];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m13\", {\n        get: function () {\n            return this.v[7];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m20\", {\n        get: function () {\n            return this.v[8];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m21\", {\n        get: function () {\n            return this.v[9];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m22\", {\n        get: function () {\n            return this.v[10];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m23\", {\n        get: function () {\n            return this.v[11];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m30\", {\n        get: function () {\n            return this.v[12];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m31\", {\n        get: function () {\n            return this.v[13];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m32\", {\n        get: function () {\n            return this.v[14];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(RowMajarMatrix44.prototype, \"m33\", {\n        get: function () {\n            return this.v[15];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    RowMajarMatrix44.prototype.toString = function () {\n        return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \\n' +\n            this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \\n' +\n            this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \\n' +\n            this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \\n';\n    };\n    RowMajarMatrix44.prototype.nearZeroToZero = function (value) {\n        if (Math.abs(value) < 0.00001) {\n            value = 0;\n        }\n        else if (0.99999 < value && value < 1.00001) {\n            value = 1;\n        }\n        else if (-1.00001 < value && value < -0.99999) {\n            value = -1;\n        }\n        return value;\n    };\n    RowMajarMatrix44.prototype.toStringApproximately = function () {\n        return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \\n' +\n            this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \\n' +\n            this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \\n' +\n            this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \\n';\n    };\n    RowMajarMatrix44.prototype.getScale = function () {\n        return new _Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"](Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02), Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12), Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22));\n    };\n    RowMajarMatrix44.prototype.getRotate = function () {\n        var quat = _Quaternion__WEBPACK_IMPORTED_MODULE_1__[\"default\"].fromMatrix(this);\n        var rotateMat = new RowMajarMatrix44(quat);\n        return rotateMat;\n    };\n    return RowMajarMatrix44;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (RowMajarMatrix44);\n\n\n//# sourceURL=webpack:///./src/foundation/math/RowMajarMatrix44.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Vector2.ts":
+/*!****************************************!*\
+  !*** ./src/foundation/math/Vector2.ts ***!
+  \****************************************/
+/*! exports provided: Vector2_F64, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"Vector2_F64\", function() { return Vector2_F64; });\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\nvar _Vector2 = /** @class */ (function () {\n    function _Vector2(typedArray, x, y) {\n        this.__typedArray = typedArray;\n        if (ArrayBuffer.isView(x)) {\n            this.v = x;\n            return;\n        }\n        else {\n            this.v = new typedArray(2);\n        }\n        this.x = x;\n        this.y = y;\n    }\n    Object.defineProperty(_Vector2.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    _Vector2.prototype.clone = function () {\n        return new _Vector2(this.__typedArray, this.x, this.y);\n    };\n    _Vector2.prototype.multiply = function (val) {\n        this.x *= val;\n        this.y *= val;\n        return this;\n    };\n    _Vector2.prototype.isStrictEqual = function (vec) {\n        if (this.x === vec.x && this.y === vec.y) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    _Vector2.prototype.isEqual = function (vec, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(vec.x - this.x) < delta &&\n            Math.abs(vec.y - this.y) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    _Vector2.multiply = function (typedArray, vec2, val) {\n        return new _Vector2(typedArray, vec2.x * val, vec2.y * val);\n    };\n    Object.defineProperty(_Vector2.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        set: function (x) {\n            this.v[0] = x;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(_Vector2.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        set: function (y) {\n            this.v[1] = y;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(_Vector2.prototype, \"raw\", {\n        get: function () {\n            return this.v;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return _Vector2;\n}());\nvar Vector2_F64 = /** @class */ (function (_super) {\n    __extends(Vector2_F64, _super);\n    function Vector2_F64(x, y) {\n        return _super.call(this, Float64Array, x, y) || this;\n    }\n    return Vector2_F64;\n}(_Vector2));\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (Vector2_F64); // Use as `import Vector2 from '**/Vector2';`\n\n\n//# sourceURL=webpack:///./src/foundation/math/Vector2.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Vector3.ts":
+/*!****************************************!*\
+  !*** ./src/foundation/math/Vector3.ts ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _misc_IsUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/IsUtil */ \"./src/foundation/misc/IsUtil.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n\n\nvar Vector3 = /** @class */ (function () {\n    function Vector3(x, y, z) {\n        if (ArrayBuffer.isView(x)) {\n            this.v = x;\n            return;\n        }\n        else if (x == null) {\n            this.v = new Float32Array(0);\n            return;\n        }\n        else {\n            this.v = new Float32Array(3);\n        }\n        if (_misc_IsUtil__WEBPACK_IMPORTED_MODULE_0__[\"default\"].not.exist(x)) {\n            this.v[0] = 0;\n            this.v[1] = 0;\n            this.v[2] = 0;\n        }\n        else if (Array.isArray(x)) {\n            this.v[0] = x[0];\n            this.v[1] = x[1];\n            this.v[2] = x[2];\n        }\n        else if (typeof x.w !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n        }\n        else if (typeof x.z !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n        }\n        else if (typeof x.y !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = 0;\n        }\n        else {\n            this.v[0] = x;\n            this.v[1] = y;\n            this.v[2] = z;\n        }\n    }\n    Object.defineProperty(Vector3.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector3, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Vec3;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Vector3.prototype.isStrictEqual = function (vec) {\n        if (this.x === vec.x && this.y === vec.y && this.z === vec.z) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Vector3.prototype.isEqual = function (vec, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(vec.x - this.x) < delta &&\n            Math.abs(vec.y - this.y) < delta &&\n            Math.abs(vec.z - this.z) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    /**\n     * Zero Vector\n     */\n    Vector3.zero = function () {\n        return new Vector3(0, 0, 0);\n    };\n    Vector3.one = function () {\n        return new Vector3(1, 1, 1);\n    };\n    Vector3.dummy = function () {\n        return new Vector3(null);\n    };\n    Vector3.prototype.isDummy = function () {\n        if (this.v.length === 0) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Vector3.prototype.clone = function () {\n        return new Vector3(this.x, this.y, this.z);\n    };\n    Vector3.prototype.length = function () {\n        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);\n    };\n    /**\n     * to square length(static verison)\n     */\n    Vector3.lengthSquared = function (vec3) {\n        return vec3.x * vec3.x + vec3.y * vec3.y + vec3.z * vec3.z;\n    };\n    Vector3.prototype.lengthTo = function (vec3) {\n        var deltaX = vec3.x - this.x;\n        var deltaY = vec3.y - this.y;\n        var deltaZ = vec3.z - this.z;\n        return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);\n    };\n    Vector3.lengthBtw = function (lhv, rhv) {\n        var deltaX = rhv.x - lhv.x;\n        var deltaY = rhv.y - lhv.y;\n        var deltaZ = rhv.z - lhv.z;\n        return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);\n    };\n    /**\n     * dot product\n     */\n    Vector3.prototype.dotProduct = function (vec3) {\n        return this.x * vec3.x + this.y * vec3.y + this.z * vec3.z;\n    };\n    /**\n     * dot product(static version)\n     */\n    Vector3.dotProduct = function (lv, rv) {\n        return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z;\n    };\n    /**\n    * cross product(static version)\n    */\n    Vector3.cross = function (lv, rv) {\n        var x = lv.y * rv.z - lv.z * rv.y;\n        var y = lv.z * rv.x - lv.x * rv.z;\n        var z = lv.x * rv.y - lv.y * rv.x;\n        return new Vector3(x, y, z);\n    };\n    /**\n     * normalize(static version)\n     */\n    Vector3.normalize = function (vec3) {\n        var length = vec3.length();\n        var newVec = new Vector3(vec3.x, vec3.y, vec3.z);\n        newVec = Vector3.divide(newVec, length);\n        return newVec;\n    };\n    /**\n     * add value（static version）\n     */\n    Vector3.add = function (lv, rv) {\n        return new Vector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);\n    };\n    /**\n     * subtract(subtract)\n     */\n    Vector3.subtract = function (lv, rv) {\n        return new Vector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);\n    };\n    /**\n     * divide(static version)\n     */\n    Vector3.divide = function (vec3, val) {\n        if (val !== 0) {\n            return new Vector3(vec3.x / val, vec3.y / val, vec3.z / val);\n        }\n        else {\n            console.error(\"0 division occured!\");\n            return new Vector3(Infinity, Infinity, Infinity);\n        }\n    };\n    /**\n     * multiply(static version)\n     */\n    Vector3.multiply = function (vec3, val) {\n        return new Vector3(vec3.x * val, vec3.y * val, vec3.z * val);\n    };\n    /**\n     * multiply vector(static version)\n     */\n    Vector3.multiplyVector = function (vec3, vec) {\n        return new Vector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);\n    };\n    Vector3.angleOfVectors = function (lhv, rhv) {\n        var cos_sita = Vector3.dotProduct(lhv, rhv) / (lhv.length() * rhv.length());\n        var sita = Math.acos(cos_sita);\n        return sita;\n    };\n    /**\n     * divide vector(static version)\n     */\n    Vector3.divideVector = function (lvec3, rvec3) {\n        return new Vector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);\n    };\n    /**\n     * change to string\n     */\n    Vector3.prototype.toString = function () {\n        return '(' + this.x + ', ' + this.y + ', ' + this.z + ')';\n    };\n    Object.defineProperty(Vector3.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector3.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector3.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector3.prototype, \"raw\", {\n        get: function () {\n            return this.v;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return Vector3;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Vector3);\n//GLBoost['Vector3'] = Vector3;\n\n\n//# sourceURL=webpack:///./src/foundation/math/Vector3.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/math/Vector4.ts":
+/*!****************************************!*\
+  !*** ./src/foundation/math/Vector4.ts ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n\nvar Vector4 = /** @class */ (function () {\n    function Vector4(x, y, z, w) {\n        if (ArrayBuffer.isView(x)) {\n            this.v = x;\n            return;\n        }\n        else {\n            this.v = new Float32Array(4);\n        }\n        if (!(x != null)) {\n            this.v[0] = 0;\n            this.v[1] = 0;\n            this.v[2] = 0;\n            this.v[3] = 1;\n        }\n        else if (Array.isArray(x)) {\n            this.v[0] = x[0];\n            this.v[1] = x[1];\n            this.v[2] = x[2];\n            this.v[3] = x[3];\n        }\n        else if (typeof x.w !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n            this.v[3] = x.w;\n        }\n        else if (typeof x.z !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = x.z;\n            this.v[3] = 1;\n        }\n        else if (typeof x.y !== 'undefined') {\n            this.v[0] = x.x;\n            this.v[1] = x.y;\n            this.v[2] = 0;\n            this.v[3] = 1;\n        }\n        else {\n            this.v[0] = x;\n            this.v[1] = y;\n            this.v[2] = z;\n            this.v[3] = w;\n        }\n    }\n    Object.defineProperty(Vector4.prototype, \"className\", {\n        get: function () {\n            return this.constructor.name;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector4, \"compositionType\", {\n        get: function () {\n            return _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_0__[\"CompositionType\"].Vec4;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Vector4.prototype.isStrictEqual = function (vec) {\n        if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Vector4.prototype.isEqual = function (vec, delta) {\n        if (delta === void 0) { delta = Number.EPSILON; }\n        if (Math.abs(vec.v[0] - this.v[0]) < delta &&\n            Math.abs(vec.v[1] - this.v[1]) < delta &&\n            Math.abs(vec.v[2] - this.v[2]) < delta &&\n            Math.abs(vec.v[3] - this.v[3]) < delta) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Vector4.prototype.clone = function () {\n        return new Vector4(this.x, this.y, this.z, this.w);\n    };\n    /**\n     * Zero Vector\n     */\n    Vector4.zero = function () {\n        return new Vector4(0, 0, 0, 1);\n    };\n    Vector4.prototype.length = function () {\n        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);\n    };\n    Vector4.normalize = function (vec4) {\n        var length = vec4.length();\n        var newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);\n        newVec = Vector4.divide(newVec, length);\n        return newVec;\n    };\n    /**\n     * add value（static version）\n     */\n    Vector4.add = function (lv, rv) {\n        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);\n    };\n    Vector4.subtract = function (lv, rv) {\n        return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w - rv.w);\n    };\n    /**\n     * add value except w component（static version）\n     */\n    Vector4.addWithOutW = function (lv, rv) {\n        return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);\n    };\n    Vector4.multiply = function (vec4, val) {\n        return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);\n    };\n    Vector4.multiplyVector = function (vec4, vec) {\n        return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);\n    };\n    Vector4.divide = function (vec4, val) {\n        if (val !== 0) {\n            return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);\n        }\n        else {\n            console.warn(\"0 division occured!\");\n            return new Vector4(Infinity, Infinity, Infinity, Infinity);\n        }\n    };\n    Vector4.divideVector = function (lvec4, rvec4) {\n        return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);\n    };\n    Vector4.prototype.toString = function () {\n        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';\n    };\n    Object.defineProperty(Vector4.prototype, \"x\", {\n        get: function () {\n            return this.v[0];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector4.prototype, \"y\", {\n        get: function () {\n            return this.v[1];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector4.prototype, \"z\", {\n        get: function () {\n            return this.v[2];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(Vector4.prototype, \"w\", {\n        get: function () {\n            return this.v[3];\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return Vector4;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (Vector4);\n// GLBoost[\"Vector4\"] = Vector4;\n\n\n//# sourceURL=webpack:///./src/foundation/math/Vector4.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/memory/AccessorBase.ts":
+/*!***********************************************!*\
+  !*** ./src/foundation/memory/AccessorBase.ts ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _core_Object__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/Object */ \"./src/foundation/core/Object.ts\");\n/* harmony import */ var _math_Vector2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../math/Vector2 */ \"./src/foundation/math/Vector2.ts\");\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _math_Vector4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../math/Vector4 */ \"./src/foundation/math/Vector4.ts\");\n/* harmony import */ var _math_Matrix33__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../math/Matrix33 */ \"./src/foundation/math/Matrix33.ts\");\n/* harmony import */ var _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../math/MutableMatrix44 */ \"./src/foundation/math/MutableMatrix44.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\n\n\n\nvar AccessorBase = /** @class */ (function (_super) {\n    __extends(AccessorBase, _super);\n    function AccessorBase(_a) {\n        var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;\n        var _this = _super.call(this, true) || this;\n        _this.__compositionType = _definitions_CompositionType__WEBPACK_IMPORTED_MODULE_1__[\"CompositionType\"].Unknown;\n        _this.__componentType = _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Unknown;\n        _this.__count = 0;\n        _this.__takenCount = 0;\n        _this.__byteStride = 0;\n        _this.__bufferView = bufferView;\n        _this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;\n        _this.__compositionType = compositionType;\n        _this.__componentType = componentType;\n        _this.__count = count;\n        _this.__raw = raw.buffer;\n        _this.__byteStride = byteStride;\n        if (_this.__byteStride === 0) {\n            _this.__byteStride = _this.__compositionType.getNumberOfComponents() * _this.__componentType.getSizeInBytes();\n        }\n        _this.prepare();\n        return _this;\n    }\n    AccessorBase.prototype.prepare = function () {\n        var typedArrayClass = this.getTypedArrayClass(this.__componentType);\n        this.__typedArrayClass = typedArrayClass;\n        if (this.__componentType.getSizeInBytes() === 8) {\n            if (this.__byteOffsetInBuffer % 8 !== 0) {\n                console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');\n                this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;\n            }\n        }\n        if (this.__bufferView.isSoA) {\n            this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);\n        }\n        else {\n            this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);\n        }\n        this.__typedArray = new typedArrayClass(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);\n        this.__dataViewGetter = this.__dataView[this.getDataViewGetter(this.__componentType)].bind(this.__dataView);\n        this.__dataViewSetter = this.__dataView[this.getDataViewSetter(this.__componentType)].bind(this.__dataView);\n    };\n    AccessorBase.prototype.getTypedArrayClass = function (componentType) {\n        switch (componentType) {\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Byte: return Int8Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedByte: return Uint8Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Short: return Int16Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedShort: return Uint16Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Int: return Int32Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsingedInt: return Uint32Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Float: return Float32Array;\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Double: return Float64Array;\n            default: console.error('Unexpected ComponentType!');\n        }\n    };\n    AccessorBase.prototype.getDataViewGetter = function (componentType) {\n        switch (componentType) {\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Byte: return 'getInt8';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedByte: return 'getUint8';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Short: return 'getInt16';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedShort: return 'getUint16';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Int: return 'getInt32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsingedInt: return 'getUint32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Float: return 'getFloat32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Double: return 'getFloat64';\n            default: console.error('Unexpected ComponentType!');\n        }\n    };\n    AccessorBase.prototype.getDataViewSetter = function (componentType) {\n        switch (componentType) {\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Byte: return 'setInt8';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedByte: return 'setUint8';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Short: return 'setInt16';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsignedShort: return 'setUint16';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Int: return 'setInt32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].UnsingedInt: return 'setUint32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Float: return 'setFloat32';\n            case _definitions_ComponentType__WEBPACK_IMPORTED_MODULE_0__[\"ComponentType\"].Double: return 'setFloat64';\n            default: console.error('Unexpected ComponentType!');\n        }\n        return undefined;\n    };\n    AccessorBase.prototype.takeOne = function () {\n        var arrayBufferOfBufferView = this.__raw;\n        // let stride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();\n        // if (this.__bufferView.isAoS) {\n        //   stride = this.__bufferView.byteStride;\n        // }\n        var subTypedArray = new this.__typedArrayClass(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents());\n        this.__takenCount += 1;\n        return subTypedArray;\n    };\n    Object.defineProperty(AccessorBase.prototype, \"numberOfComponents\", {\n        get: function () {\n            return this.__compositionType.getNumberOfComponents();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"componentSizeInBytes\", {\n        get: function () {\n            return this.__componentType.getSizeInBytes();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"elementSizeInBytes\", {\n        get: function () {\n            return this.numberOfComponents * this.componentSizeInBytes;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"elementCount\", {\n        get: function () {\n            return this.__dataView.byteLength / (this.numberOfComponents * this.componentSizeInBytes);\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"byteLength\", {\n        get: function () {\n            return this.__byteStride * this.__count;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"componentType\", {\n        get: function () {\n            return this.__componentType;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"compositionType\", {\n        get: function () {\n            return this.__compositionType;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    AccessorBase.prototype.getTypedArray = function () {\n        if (this.__bufferView.isAoS) {\n            console.warn('Be careful. this referance bufferView is AoS(Array on Structure), it means Interleaved Data. So you can not access your data properly by this TypedArray.');\n        }\n        return this.__typedArray;\n    };\n    Object.defineProperty(AccessorBase.prototype, \"isAoS\", {\n        get: function () {\n            return this.__bufferView.isAoS;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"isSoA\", {\n        get: function () {\n            return this.__bufferView.isSoA;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"byteStride\", {\n        get: function () {\n            return this.__byteStride;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    AccessorBase.prototype.getScalar = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return this.__dataViewGetter(this.__byteStride * index, endian);\n    };\n    AccessorBase.prototype.getScalarAt = function (index, compositionOffset, endian) {\n        if (endian === void 0) { endian = true; }\n        return this.__dataViewGetter(this.__byteStride * index + compositionOffset, endian);\n    };\n    AccessorBase.prototype.getVec2AsArray = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian)];\n    };\n    AccessorBase.prototype.getVec3AsArray = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian)];\n    };\n    AccessorBase.prototype.getVec4AsArray = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return [this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian)];\n    };\n    AccessorBase.prototype.getMat3AsArray = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return [\n            this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian),\n            this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian),\n            this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian),\n        ];\n    };\n    AccessorBase.prototype.getMat4AsArray = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return [\n            this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian),\n            this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian),\n            this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian),\n            this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian),\n        ];\n    };\n    AccessorBase.prototype.getVec2 = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return new _math_Vector2__WEBPACK_IMPORTED_MODULE_3__[\"default\"](this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian));\n    };\n    AccessorBase.prototype.getVec3 = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return new _math_Vector3__WEBPACK_IMPORTED_MODULE_4__[\"default\"](this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian));\n    };\n    AccessorBase.prototype.getVec4 = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return new _math_Vector4__WEBPACK_IMPORTED_MODULE_5__[\"default\"](this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian));\n    };\n    AccessorBase.prototype.getMat3 = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return new _math_Matrix33__WEBPACK_IMPORTED_MODULE_6__[\"default\"](this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian));\n    };\n    AccessorBase.prototype.getMat4 = function (index, endian) {\n        if (endian === void 0) { endian = true; }\n        return new _math_MutableMatrix44__WEBPACK_IMPORTED_MODULE_7__[\"default\"](this.__dataViewGetter(this.__byteStride * index, endian), this.__dataViewGetter(this.__byteStride * index + 1, endian), this.__dataViewGetter(this.__byteStride * index + 2, endian), this.__dataViewGetter(this.__byteStride * index + 3, endian), this.__dataViewGetter(this.__byteStride * index + 4, endian), this.__dataViewGetter(this.__byteStride * index + 5, endian), this.__dataViewGetter(this.__byteStride * index + 6, endian), this.__dataViewGetter(this.__byteStride * index + 7, endian), this.__dataViewGetter(this.__byteStride * index + 8, endian), this.__dataViewGetter(this.__byteStride * index + 9, endian), this.__dataViewGetter(this.__byteStride * index + 10, endian), this.__dataViewGetter(this.__byteStride * index + 11, endian), this.__dataViewGetter(this.__byteStride * index + 12, endian), this.__dataViewGetter(this.__byteStride * index + 13, endian), this.__dataViewGetter(this.__byteStride * index + 14, endian), this.__dataViewGetter(this.__byteStride * index + 15, endian));\n    };\n    AccessorBase.prototype.setScalar = function (index, value, endian) {\n        if (endian === void 0) { endian = true; }\n        this.__dataViewSetter(this.__byteStride * index, value, endian);\n    };\n    AccessorBase.prototype.setVec2 = function (index, x, y, endian) {\n        if (endian === void 0) { endian = true; }\n        var sizeInBytes = this.componentSizeInBytes;\n        this.__dataViewSetter(this.__byteStride * index, x, endian);\n        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);\n    };\n    AccessorBase.prototype.setVec3 = function (index, x, y, z, endian) {\n        if (endian === void 0) { endian = true; }\n        var sizeInBytes = this.componentSizeInBytes;\n        this.__dataViewSetter(this.__byteStride * index, x, endian);\n        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);\n        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);\n    };\n    AccessorBase.prototype.setVec4 = function (index, x, y, z, w, endian) {\n        if (endian === void 0) { endian = true; }\n        var sizeInBytes = this.componentSizeInBytes;\n        this.__dataViewSetter(this.__byteStride * index, x, endian);\n        this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);\n        this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);\n        this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);\n    };\n    AccessorBase.prototype.copyFromTypedArray = function (typedArray) {\n        var componentN = this.numberOfComponents;\n        var setter = this['setVec' + componentN];\n        for (var j = 0; j < (typedArray.byteLength / this.componentSizeInBytes); j++) {\n            var idx = Math.floor(j / componentN);\n            var idxN = idx * componentN;\n            switch (componentN) {\n                case 1:\n                    setter.call(this, idx, typedArray[idxN + 0]);\n                    break;\n                case 2:\n                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1]);\n                    break;\n                case 3:\n                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2]);\n                    break;\n                case 4:\n                    setter.call(this, idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], typedArray[idxN + 3]);\n                    break;\n                default: throw new Error('Other than vectors are currently not supported.');\n            }\n        }\n    };\n    AccessorBase.prototype.setScalarAt = function (index, conpositionOffset, value, endian) {\n        if (endian === void 0) { endian = true; }\n        this.__dataViewSetter(this.__byteStride * index + conpositionOffset, value, endian);\n    };\n    Object.defineProperty(AccessorBase.prototype, \"arrayBufferOfBufferView\", {\n        get: function () {\n            return this.__raw;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"dataViewOfBufferView\", {\n        get: function () {\n            return this.__dataView;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"byteOffsetInBufferView\", {\n        get: function () {\n            return this.__byteOffsetInBuffer - this.__bufferView.byteOffset;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"byteOffsetInBuffer\", {\n        get: function () {\n            return this.__byteOffsetInBuffer;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(AccessorBase.prototype, \"bufferView\", {\n        get: function () {\n            return this.__bufferView;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return AccessorBase;\n}(_core_Object__WEBPACK_IMPORTED_MODULE_2__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (AccessorBase);\n\n\n//# sourceURL=webpack:///./src/foundation/memory/AccessorBase.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/memory/Buffer.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/memory/Buffer.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_Object__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/Object */ \"./src/foundation/core/Object.ts\");\n/* harmony import */ var _BufferView__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BufferView */ \"./src/foundation/memory/BufferView.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\nvar Buffer = /** @class */ (function (_super) {\n    __extends(Buffer, _super);\n    function Buffer(_a) {\n        var byteLength = _a.byteLength, arrayBuffer = _a.arrayBuffer, name = _a.name;\n        var _this = _super.call(this, true) || this;\n        _this.__byteLength = 0;\n        _this.__name = '';\n        _this.__takenBytesIndex = 0;\n        _this.__bufferViews = [];\n        _this.__name = name;\n        _this.__byteLength = byteLength;\n        _this.__raw = arrayBuffer;\n        return _this;\n    }\n    Object.defineProperty(Buffer.prototype, \"name\", {\n        get: function () {\n            return this.__name;\n        },\n        set: function (str) {\n            this.__name = str;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Buffer.prototype.getArrayBuffer = function () {\n        return this.__raw;\n    };\n    Buffer.prototype.takeBufferView = function (_a) {\n        var byteLengthToNeed = _a.byteLengthToNeed, byteStride = _a.byteStride, isAoS = _a.isAoS;\n        if (byteLengthToNeed % 4 !== 0) {\n            console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');\n            byteLengthToNeed += 4 - (byteLengthToNeed % 4);\n        }\n        if (byteStride % 4 !== 0) {\n            console.info('Padding bytes added, byteStride must be a multiple of 4.');\n            byteStride += 4 - (byteStride % 4);\n        }\n        var array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);\n        var bufferView = new _BufferView__WEBPACK_IMPORTED_MODULE_1__[\"default\"]({ buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });\n        bufferView.byteStride = byteStride;\n        this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;\n        this.__bufferViews.push(bufferView);\n        return bufferView;\n    };\n    Buffer.prototype.takeBufferViewWithByteOffset = function (_a) {\n        var byteLengthToNeed = _a.byteLengthToNeed, byteStride = _a.byteStride, byteOffset = _a.byteOffset, isAoS = _a.isAoS;\n        if (byteLengthToNeed % 4 !== 0) {\n            console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');\n            byteLengthToNeed += 4 - (byteLengthToNeed % 4);\n        }\n        if (byteStride % 4 !== 0) {\n            console.info('Padding bytes added, byteStride must be a multiple of 4.');\n            byteStride += 4 - (byteStride % 4);\n        }\n        var array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);\n        var bufferView = new _BufferView__WEBPACK_IMPORTED_MODULE_1__[\"default\"]({ buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS });\n        bufferView.byteStride = byteStride;\n        this.__bufferViews.push(bufferView);\n        return bufferView;\n    };\n    Object.defineProperty(Buffer.prototype, \"byteSizeInUse\", {\n        get: function () {\n            return this.__byteLength;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    return Buffer;\n}(_core_Object__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (Buffer);\n\n\n//# sourceURL=webpack:///./src/foundation/memory/Buffer.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/memory/BufferView.ts":
+/*!*********************************************!*\
+  !*** ./src/foundation/memory/BufferView.ts ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _core_Object__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/Object */ \"./src/foundation/core/Object.ts\");\n/* harmony import */ var _AccessorBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AccessorBase */ \"./src/foundation/memory/AccessorBase.ts\");\n/* harmony import */ var _FlexibleAccessor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FlexibleAccessor */ \"./src/foundation/memory/FlexibleAccessor.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\nvar BufferView = /** @class */ (function (_super) {\n    __extends(BufferView, _super);\n    function BufferView(_a) {\n        var buffer = _a.buffer, byteOffset = _a.byteOffset, byteLength = _a.byteLength, raw = _a.raw, isAoS = _a.isAoS;\n        var _this = _super.call(this, true) || this;\n        _this.__byteStride = 0;\n        _this.__target = 0;\n        _this.__takenByteIndex = 0;\n        _this.__takenByteOffsetOfFirstElement = 0;\n        _this.__accessors = [];\n        _this.__buffer = buffer;\n        _this.__byteOffset = byteOffset;\n        _this.__byteLength = byteLength;\n        _this.__raw = raw;\n        _this.__isAoS = isAoS;\n        return _this;\n    }\n    Object.defineProperty(BufferView.prototype, \"byteStride\", {\n        get: function () {\n            return this.__byteStride;\n        },\n        set: function (stride) {\n            this.__byteStride = stride;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(BufferView.prototype, \"byteLength\", {\n        get: function () {\n            return this.__byteLength;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(BufferView.prototype, \"byteOffset\", {\n        get: function () {\n            return this.__byteOffset;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(BufferView.prototype, \"buffer\", {\n        get: function () {\n            return this.__buffer;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(BufferView.prototype, \"isSoA\", {\n        get: function () {\n            return !this.__isAoS;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    BufferView.prototype.recheckIsSoA = function () {\n        if (this.__accessors.length <= 1) {\n            return true;\n        }\n        var firstStrideBytes = this.__accessors[0].byteStride;\n        var secondStrideBytes = this.__accessors[1].byteStride;\n        var firstElementSizeInBytes = this.__accessors[0].elementSizeInBytes;\n        var secondElementSizeInBytes = this.__accessors[1].elementSizeInBytes;\n        if (firstStrideBytes === secondStrideBytes &&\n            (firstElementSizeInBytes + secondElementSizeInBytes) < firstElementSizeInBytes) {\n            return true;\n        }\n    };\n    Object.defineProperty(BufferView.prototype, \"isAoS\", {\n        get: function () {\n            return this.__isAoS;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    BufferView.prototype.getUint8Array = function () {\n        return this.__raw;\n    };\n    BufferView.prototype.takeAccessor = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count;\n        var byteStride = this.byteStride;\n        var accessor = this.__takeAccessorInner({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, accessorClass: _AccessorBase__WEBPACK_IMPORTED_MODULE_1__[\"default\"] });\n        return accessor;\n    };\n    BufferView.prototype.takeFlexibleAccessor = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride;\n        var accessor = this.__takeAccessorInner({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, accessorClass: _FlexibleAccessor__WEBPACK_IMPORTED_MODULE_2__[\"default\"] });\n        return accessor;\n    };\n    BufferView.prototype.takeAccessorWithByteOffset = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteOffset = _a.byteOffset;\n        var byteStride = this.byteStride;\n        var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: _AccessorBase__WEBPACK_IMPORTED_MODULE_1__[\"default\"] });\n        return accessor;\n    };\n    BufferView.prototype.takeFlexibleAccessorWithByteOffset = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset;\n        var accessor = this.__takeAccessorInnerWithByteOffset({ compositionType: compositionType, componentType: componentType, count: count, byteStride: byteStride, byteOffset: byteOffset, accessorClass: _FlexibleAccessor__WEBPACK_IMPORTED_MODULE_2__[\"default\"] });\n        return accessor;\n    };\n    BufferView.prototype.__takeAccessorInner = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, accessorClass = _a.accessorClass;\n        var byteOffset = 0;\n        if (this.isSoA) {\n            byteOffset = this.__takenByteIndex;\n            this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;\n        }\n        else {\n            byteOffset = this.__takenByteIndex;\n            this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();\n        }\n        if (byteOffset % 4 !== 0) {\n            console.info('Padding bytes added because byteOffset is not 4byte aligned.');\n            byteOffset += 4 - byteOffset % 4;\n        }\n        if (this.__byteOffset % 4 !== 0) {\n            console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');\n            this.__byteOffset += 4 - this.__byteOffset % 4;\n        }\n        var accessor = new accessorClass({\n            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw\n        });\n        this.__accessors.push(accessor);\n        return accessor;\n    };\n    BufferView.prototype.__takeAccessorInnerWithByteOffset = function (_a) {\n        var compositionType = _a.compositionType, componentType = _a.componentType, count = _a.count, byteStride = _a.byteStride, byteOffset = _a.byteOffset, accessorClass = _a.accessorClass;\n        if (byteOffset % 4 !== 0) {\n            console.info('Padding bytes added because byteOffset is not 4byte aligned.');\n            byteOffset += 4 - byteOffset % 4;\n        }\n        if (this.__byteOffset % 4 !== 0) {\n            console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');\n            this.__byteOffset += 4 - this.__byteOffset % 4;\n        }\n        var accessor = new accessorClass({\n            bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw\n        });\n        this.__accessors.push(accessor);\n        return accessor;\n    };\n    return BufferView;\n}(_core_Object__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (BufferView);\n\n\n//# sourceURL=webpack:///./src/foundation/memory/BufferView.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/memory/FlexibleAccessor.ts":
+/*!***************************************************!*\
+  !*** ./src/foundation/memory/FlexibleAccessor.ts ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _AccessorBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccessorBase */ \"./src/foundation/memory/AccessorBase.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar FlexibleAccessor = /** @class */ (function (_super) {\n    __extends(FlexibleAccessor, _super);\n    function FlexibleAccessor(_a) {\n        var bufferView = _a.bufferView, byteOffset = _a.byteOffset, compositionType = _a.compositionType, componentType = _a.componentType, byteStride = _a.byteStride, count = _a.count, raw = _a.raw;\n        return _super.call(this, { bufferView: bufferView, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: raw }) || this;\n    }\n    return FlexibleAccessor;\n}(_AccessorBase__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (FlexibleAccessor);\n\n\n//# sourceURL=webpack:///./src/foundation/memory/FlexibleAccessor.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/misc/DataUtil.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/misc/DataUtil.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* WEBPACK VAR INJECTION */(function(process, Buffer) {var DataUtil = /** @class */ (function () {\n    function DataUtil() {\n    }\n    DataUtil.isNode = function () {\n        var isNode = (window === void 0 && typeof process !== \"undefined\" && \"function\" !== \"undefined\");\n        return isNode;\n    };\n    DataUtil.btoa = function (str) {\n        var isNode = DataUtil.isNode();\n        if (isNode) {\n            var buffer = void 0;\n            if (Buffer.isBuffer(str)) {\n                buffer = str;\n            }\n            else {\n                buffer = new Buffer(str.toString(), 'binary');\n            }\n            return buffer.toString('base64');\n        }\n        else {\n            return btoa(str);\n        }\n    };\n    DataUtil.atob = function (str) {\n        var isNode = DataUtil.isNode();\n        if (isNode) {\n            return new Buffer(str, 'base64').toString('binary');\n        }\n        else {\n            return atob(str);\n        }\n    };\n    DataUtil.base64ToArrayBuffer = function (dataUri) {\n        var splittedDataUri = dataUri.split(',');\n        var type = splittedDataUri[0].split(':')[1].split(';')[0];\n        var byteString = DataUtil.atob(splittedDataUri[1]);\n        var byteStringLength = byteString.length;\n        var arrayBuffer = new ArrayBuffer(byteStringLength);\n        var uint8Array = new Uint8Array(arrayBuffer);\n        for (var i = 0; i < byteStringLength; i++) {\n            uint8Array[i] = byteString.charCodeAt(i);\n        }\n        return arrayBuffer;\n    };\n    DataUtil.arrayBufferToString = function (arrayBuffer) {\n        if (typeof TextDecoder !== 'undefined') {\n            var textDecoder = new TextDecoder();\n            return textDecoder.decode(arrayBuffer);\n        }\n        else {\n            var bytes = new Uint8Array(arrayBuffer);\n            var result = \"\";\n            var length_1 = bytes.length;\n            for (var i = 0; i < length_1; i++) {\n                result += String.fromCharCode(bytes[i]);\n            }\n            return result;\n        }\n    };\n    DataUtil.stringToBase64 = function (str) {\n        var b64 = null;\n        b64 = DataUtil.btoa(str);\n        return b64;\n    };\n    DataUtil.UInt8ArrayToDataURL = function (uint8array, width, height) {\n        var canvas = document.createElement('canvas');\n        canvas.width = width;\n        canvas.height = height;\n        var ctx = canvas.getContext(\"2d\");\n        var imageData = ctx.createImageData(width, height);\n        for (var i = 0; i < imageData.data.length; i += 4) {\n            imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 0];\n            imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 1];\n            imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 2];\n            imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + i % (4 * width) + 3];\n        }\n        ctx.putImageData(imageData, 0, 0);\n        canvas.remove();\n        return canvas.toDataURL(\"image/png\");\n    };\n    DataUtil.loadResourceAsync = function (resourceUri, isBinary, resolveCallback, rejectCallback) {\n        return new Promise(function (resolve, reject) {\n            var isNode = DataUtil.isNode();\n            if (isNode) {\n                // let fs = require('fs');\n                // let args: any[] = [resourceUri];\n                // let func: Function = (err:any, response: any) => {\n                //   if (err) {\n                //     if (rejectCallback) {\n                //       rejectCallback(reject, err);\n                //     }\n                //     return;\n                //   }\n                //   if (isBinary) {\n                //     let buffer = new Buffer(response, 'binary');\n                //     let uint8Buffer = new Uint8Array(buffer);\n                //     response = uint8Buffer.buffer;\n                //   }\n                //   resolveCallback(resolve, response);\n                // };\n                // if (isBinary) {\n                //   args.push(func);\n                // } else {\n                //   args.push('utf8');\n                //   args.push(func);\n                // }\n                // fs.readFile.apply(fs, args);\n            }\n            else {\n                var xmlHttp_1 = new XMLHttpRequest();\n                if (isBinary) {\n                    xmlHttp_1.responseType = \"arraybuffer\";\n                    xmlHttp_1.onload = function (oEvent) {\n                        var response = null;\n                        if (isBinary) {\n                            response = xmlHttp_1.response;\n                        }\n                        else {\n                            response = xmlHttp_1.responseText;\n                        }\n                        resolveCallback(resolve, response);\n                    };\n                }\n                else {\n                    xmlHttp_1.onreadystatechange = function () {\n                        if (xmlHttp_1.readyState === 4 && (Math.floor(xmlHttp_1.status / 100) === 2 || xmlHttp_1.status === 0)) {\n                            var response = null;\n                            if (isBinary) {\n                                response = xmlHttp_1.response;\n                            }\n                            else {\n                                response = xmlHttp_1.responseText;\n                            }\n                            resolveCallback(resolve, response);\n                        }\n                        else {\n                            if (rejectCallback) {\n                                rejectCallback(reject, xmlHttp_1.status);\n                            }\n                        }\n                    };\n                }\n                xmlHttp_1.open(\"GET\", resourceUri, true);\n                xmlHttp_1.send(null);\n            }\n        });\n    };\n    return DataUtil;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (DataUtil);\n\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../node_modules/process/browser.js */ \"./node_modules/process/browser.js\"), __webpack_require__(/*! ./../../../node_modules/buffer/index.js */ \"./node_modules/buffer/index.js\").Buffer))\n\n//# sourceURL=webpack:///./src/foundation/misc/DataUtil.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/misc/EnumIO.ts":
+/*!***************************************!*\
+  !*** ./src/foundation/misc/EnumIO.ts ***!
+  \***************************************/
+/*! exports provided: EnumClass, _from, _fromString */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"EnumClass\", function() { return EnumClass; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_from\", function() { return _from; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_fromString\", function() { return _fromString; });\n// This code idea is from https://qiita.com/junkjunctions/items/5a6d8bed8df8eb3acceb\nvar EnumClass = /** @class */ (function () {\n    function EnumClass(_a) {\n        var index = _a.index, str = _a.str;\n        if (EnumClass.__indices.get(this.constructor) == null) {\n            EnumClass.__indices.set(this.constructor, []);\n        }\n        if (EnumClass.__strings.get(this.constructor) == null) {\n            EnumClass.__strings.set(this.constructor, []);\n        }\n        if (EnumClass.__indices.get(this.constructor).indexOf(index) !== -1) {\n            throw new Error('Dont use duplicate index.');\n        }\n        if (EnumClass.__strings.get(this.constructor).indexOf(str) !== -1) {\n            throw new Error('Dont use duplicate str.');\n        }\n        this.index = index;\n        this.str = str;\n        EnumClass.__indices.get(this.constructor).push(index);\n        EnumClass.__strings.get(this.constructor).push(str);\n    }\n    EnumClass.prototype.toString = function () {\n        return this.str;\n    };\n    EnumClass.prototype.toJSON = function () {\n        return this.index;\n    };\n    EnumClass.__indices = new Map();\n    EnumClass.__strings = new Map();\n    return EnumClass;\n}());\n\nfunction _from(_a) {\n    var typeList = _a.typeList, index = _a.index;\n    var match = typeList.find(function (type) { return type.index === index; });\n    if (!match) {\n        throw new Error(\"Invalid PrimitiveMode index: [\" + index + \"]\");\n    }\n    return match;\n}\nfunction _fromString(_a) {\n    var typeList = _a.typeList, str = _a.str;\n    var match = typeList.find(function (type) { return type.str === str; });\n    if (!match) {\n        throw new Error(\"Invalid PrimitiveMode index: [\" + str + \"]\");\n    }\n    return match;\n}\n\n\n//# sourceURL=webpack:///./src/foundation/misc/EnumIO.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/misc/IsUtil.ts":
+/*!***************************************!*\
+  !*** ./src/foundation/misc/IsUtil.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar __read = (undefined && undefined.__read) || function (o, n) {\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator];\n    if (!m) return o;\n    var i = m.call(o), r, ar = [], e;\n    try {\n        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);\n    }\n    catch (error) { e = { error: error }; }\n    finally {\n        try {\n            if (r && !r.done && (m = i[\"return\"])) m.call(i);\n        }\n        finally { if (e) throw e.error; }\n    }\n    return ar;\n};\nvar __spread = (undefined && undefined.__spread) || function () {\n    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));\n    return ar;\n};\nvar IsUtil = {\n    not: {},\n    all: {},\n    any: {},\n    _not: function (fn) {\n        return function () {\n            return !fn.apply(null, __spread(arguments));\n        };\n    },\n    _all: function (fn) {\n        return function () {\n            if (Array.isArray(arguments[0])) {\n                return arguments[0].every(fn);\n            }\n            return __spread(arguments).every(fn);\n        };\n    },\n    _any: function (fn) {\n        return function () {\n            if (Array.isArray(arguments[0])) {\n                return arguments[0].some(fn);\n            }\n            return __spread(arguments).some(fn);\n        };\n    },\n    defined: function (val) {\n        return val !== void 0;\n    },\n    undefined: function (val) {\n        return val === void 0;\n    },\n    null: function (val) {\n        return val === null;\n    },\n    // is NOT null or undefined\n    exist: function (val) {\n        return val != null;\n    },\n    function: function (val) {\n        return typeof val === 'function';\n    }\n};\nvar _loop_1 = function (fn) {\n    if (IsUtil.hasOwnProperty(fn)) {\n        var interfaces = ['not', 'all', 'any'];\n        if (fn.indexOf('_') === -1 && !interfaces.includes(fn)) {\n            interfaces.forEach(function (itf) {\n                var op = '_' + itf;\n                IsUtil[itf][fn] = IsUtil[op](IsUtil[fn]);\n            });\n        }\n    }\n};\nfor (var fn in IsUtil) {\n    _loop_1(fn);\n}\n/* harmony default export */ __webpack_exports__[\"default\"] = (IsUtil);\n\n\n//# sourceURL=webpack:///./src/foundation/misc/IsUtil.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/renderer/CGAPIResourceRepository.ts":
+/*!************************************************************!*\
+  !*** ./src/foundation/renderer/CGAPIResourceRepository.ts ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar CGAPIResourceRepository = /** @class */ (function () {\n    function CGAPIResourceRepository() {\n    }\n    CGAPIResourceRepository.InvalidCGAPIResourceUid = -1;\n    return CGAPIResourceRepository;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (CGAPIResourceRepository);\n\n\n//# sourceURL=webpack:///./src/foundation/renderer/CGAPIResourceRepository.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/system/InitialSetting.ts":
+/*!*************************************************!*\
+  !*** ./src/foundation/system/InitialSetting.ts ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar InitialSetting = /** @class */ (function () {\n    function InitialSetting() {\n    }\n    InitialSetting.maxEntityNumber = 10000;\n    return InitialSetting;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (InitialSetting);\n\n\n//# sourceURL=webpack:///./src/foundation/system/InitialSetting.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/system/ModuleManager.ts":
+/*!************************************************!*\
+  !*** ./src/foundation/system/ModuleManager.ts ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\nvar __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {\n    return new (P || (P = Promise))(function (resolve, reject) {\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\n        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\n    });\n};\nvar __generator = (undefined && undefined.__generator) || function (thisArg, body) {\n    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;\n    return g = { next: verb(0), \"throw\": verb(1), \"return\": verb(2) }, typeof Symbol === \"function\" && (g[Symbol.iterator] = function() { return this; }), g;\n    function verb(n) { return function (v) { return step([n, v]); }; }\n    function step(op) {\n        if (f) throw new TypeError(\"Generator is already executing.\");\n        while (_) try {\n            if (f = 1, y && (t = op[0] & 2 ? y[\"return\"] : op[0] ? y[\"throw\"] || ((t = y[\"return\"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;\n            if (y = 0, t) op = [op[0] & 2, t.value];\n            switch (op[0]) {\n                case 0: case 1: t = op; break;\n                case 4: _.label++; return { value: op[1], done: false };\n                case 5: _.label++; y = op[1]; op = [0]; continue;\n                case 7: op = _.ops.pop(); _.trys.pop(); continue;\n                default:\n                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }\n                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }\n                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }\n                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }\n                    if (t[2]) _.ops.pop();\n                    _.trys.pop(); continue;\n            }\n            op = body.call(thisArg, _);\n        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }\n        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };\n    }\n};\nvar ModuleManager = /** @class */ (function () {\n    function ModuleManager() {\n        this.__modules = new Map();\n    }\n    ModuleManager.prototype.loadModule = function (moduleName) {\n        return __awaiter(this, void 0, void 0, function () {\n            var module;\n            return __generator(this, function (_a) {\n                switch (_a.label) {\n                    case 0:\n                        if (!(moduleName.toLowerCase() === 'webgl')) return [3 /*break*/, 2];\n                        return [4 /*yield*/, __webpack_require__.e(/*! import() | webgl */ \"webgl\").then(__webpack_require__.bind(null, /*! ../../webgl/main */ \"./src/webgl/main.ts\"))];\n                    case 1:\n                        module = _a.sent();\n                        _a.label = 2;\n                    case 2:\n                        this.__modules.set(moduleName, module);\n                        console.log('Module Loaded:', module);\n                        return [2 /*return*/];\n                }\n            });\n        });\n    };\n    ModuleManager.prototype.getModule = function (moduleName) {\n        return this.__modules.get(moduleName);\n    };\n    ModuleManager.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new ModuleManager();\n        }\n        return this.__instance;\n    };\n    return ModuleManager;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (ModuleManager);\n\n\n//# sourceURL=webpack:///./src/foundation/system/ModuleManager.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/system/System.ts":
+/*!*****************************************!*\
+  !*** ./src/foundation/system/System.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../definitions/ProcessStage */ \"./src/foundation/definitions/ProcessStage.ts\");\n/* harmony import */ var _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _webgl_WebGLRenderingPipeline__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../webgl/WebGLRenderingPipeline */ \"./src/webgl/WebGLRenderingPipeline.ts\");\n/* harmony import */ var _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../definitions/ProcessApproach */ \"./src/foundation/definitions/ProcessApproach.ts\");\n/* harmony import */ var _renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n/* harmony import */ var _ModuleManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ModuleManager */ \"./src/foundation/system/ModuleManager.ts\");\n\n\n\n\n\n\nvar System = /** @class */ (function () {\n    function System() {\n        this.__processStages = [\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Create,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Load,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Mount,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Logic,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].PreRender,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Render,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Unmount,\n            _definitions_ProcessStage__WEBPACK_IMPORTED_MODULE_0__[\"ProcessStage\"].Discard\n        ];\n        this.__componentRepository = _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n        this.__renderingPipeline = _webgl_WebGLRenderingPipeline__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n        this.__processApproach = _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__[\"ProcessApproach\"].None;\n    }\n    System.prototype.process = function () {\n        var _this = this;\n        if (this.__processApproach === _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__[\"ProcessApproach\"].None) {\n            throw new Error('Choose a process approach first.');\n        }\n        this.__processStages.forEach(function (stage) {\n            var methodName = stage.getMethodName();\n            var instanceIDBufferUid = _renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_4__[\"default\"].InvalidCGAPIResourceUid;\n            var componentTids = _this.__componentRepository.getComponentTIDs();\n            var commonMethod = _this.__renderingPipeline['common_' + methodName];\n            if (commonMethod != null) {\n                instanceIDBufferUid = commonMethod.call(_this.__renderingPipeline, _this.__processApproach);\n            }\n            componentTids.forEach(function (componentTid) {\n                var componentClass = _core_ComponentRepository__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getComponentClass(componentTid);\n                componentClass.updateComponentsOfEachProcessStage(componentTid, stage, _this.__componentRepository);\n                componentClass.process({\n                    componentTid: componentTid,\n                    processStage: stage,\n                    instanceIDBufferUid: instanceIDBufferUid,\n                    processApproach: _this.__processApproach,\n                    componentRepository: _this.__componentRepository,\n                    strategy: _this.__webglStrategy\n                });\n            });\n        });\n    };\n    System.prototype.setProcessApproachAndCanvas = function (approach, canvas) {\n        var moduleManager = _ModuleManager__WEBPACK_IMPORTED_MODULE_5__[\"default\"].getInstance();\n        var moduleName = 'webgl';\n        var webglModule = moduleManager.getModule(moduleName).default;\n        this.__webglStrategy = webglModule.getRenderingStrategy(approach);\n        var repo = webglModule.WebGLResourceRepository.getInstance();\n        var gl;\n        if (approach === _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__[\"ProcessApproach\"].DataTextureWebGL2 ||\n            approach === _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__[\"ProcessApproach\"].UBOWebGL2 ||\n            approach === _definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_3__[\"ProcessApproach\"].TransformFeedbackWebGL2) {\n            gl = canvas.getContext('webgl2');\n        }\n        else {\n            gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');\n        }\n        repo.addWebGLContext(gl, true);\n        this.__processApproach = approach;\n        return gl;\n    };\n    Object.defineProperty(System.prototype, \"processApproach\", {\n        get: function () {\n            return this.__processApproach;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    System.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new System();\n        }\n        return this.__instance;\n    };\n    return System;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (System);\n\n\n//# sourceURL=webpack:///./src/foundation/system/System.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/GLSLShader.ts":
+/*!*********************************!*\
+  !*** ./src/webgl/GLSLShader.ts ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../foundation/definitions/VertexAttribute */ \"./src/foundation/definitions/VertexAttribute.ts\");\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n\n\nvar GLSLShader = /** @class */ (function () {\n    function GLSLShader() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n        this.vertexShaderBody = \"\\n\\nvoid main ()\\n{\\n  mat4 matrix = getMatrix(a_instanceID);\\n  //mat4 matrix = getMatrix(gl_InstanceID);\\n\\n  gl_Position = matrix * vec4(a_position, 1.0);\\n  // gl_Position = vec4(a_position, 1.0);\\n  // gl_Position.xyz /= 10.0;\\n  // gl_Position.x += a_instanceID / 20.0;\\n//  gl_Position.x += col0.x / 5.0;\\n\\n  v_color = a_color;\\n}\\n  \";\n    }\n    GLSLShader.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new GLSLShader();\n        }\n        return this.__instance;\n    };\n    Object.defineProperty(GLSLShader.prototype, \"glsl_rt0\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return 'layout(location = 0) out vec4 rt0;\\n';\n            }\n            else {\n                return 'vec4 rt0;\\n';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_fragColor\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return '';\n            }\n            else {\n                return 'gl_FragColor = rt0;\\n';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_vertex_in\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return 'in';\n            }\n            else {\n                return 'attribute';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_fragment_in\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return 'in';\n            }\n            else {\n                return 'varying';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_vertex_out\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return 'out';\n            }\n            else {\n                return 'varying';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_texture\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return 'texture';\n            }\n            else {\n                return 'texture2D';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"glsl_versionText\", {\n        get: function () {\n            var repo = this.__webglResourceRepository;\n            if (repo.currentWebGLContextWrapper.isWebGL2) {\n                return '#version 300 es\\n';\n            }\n            else {\n                return '';\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"vertexShaderVariableDefinitions\", {\n        get: function () {\n            var _version = this.glsl_versionText;\n            var _in = this.glsl_vertex_in;\n            var _out = this.glsl_vertex_out;\n            return _version + \"\\nprecision highp float;\\n\" + _in + \" vec3 a_position;\\n\" + _in + \" vec3 a_color;\\n\" + _in + \" float a_instanceID;\\n\" + _out + \" vec3 v_color;\";\n        },\n        enumerable: true,\n        configurable: true\n    });\n    ;\n    Object.defineProperty(GLSLShader.prototype, \"fragmentShaderSimple\", {\n        get: function () {\n            var _version = this.glsl_versionText;\n            var _in = this.glsl_fragment_in;\n            var _def_rt0 = this.glsl_rt0;\n            var _def_fragColor = this.glsl_fragColor;\n            return _version + \"\\nprecision highp float;\\n\" + _in + \" vec3 v_color;\\n\" + _def_rt0 + \"\\nvoid main ()\\n{\\n  rt0 = vec4(v_color, 1.0);\\n  \" + _def_fragColor + \"\\n}\\n\";\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(GLSLShader.prototype, \"fragmentShader\", {\n        get: function () {\n            return this.fragmentShaderSimple;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    GLSLShader.attributeNames = ['a_position', 'a_color', 'a_instanceID'];\n    GLSLShader.attributeSemantics = [_foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_0__[\"VertexAttribute\"].Position, _foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_0__[\"VertexAttribute\"].Color0, _foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_0__[\"VertexAttribute\"].Instance];\n    return GLSLShader;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (GLSLShader);\n\n\n//# sourceURL=webpack:///./src/webgl/GLSLShader.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLContextWrapper.ts":
+/*!******************************************!*\
+  !*** ./src/webgl/WebGLContextWrapper.ts ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLExtension__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLExtension */ \"./src/webgl/WebGLExtension.ts\");\n\nvar WebGLContextWrapper = /** @class */ (function () {\n    function WebGLContextWrapper(gl) {\n        this.__webglVersion = 1;\n        this.__extensions = new Map();\n        this.__gl = gl;\n        if (this.__gl.constructor.name === 'WebGL2RenderingContext') {\n            this.__webglVersion = 2;\n        }\n        else {\n            this.__webgl1ExtVAO = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].VertexArrayObject);\n            this.__webgl1ExtIA = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].InstancedArrays);\n            this.__webgl1ExtTF = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].TextureFloat);\n            this.__webgl1ExtTHF = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].TextureHalfFloat);\n            this.__webgl1ExtTFL = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].TextureFloatLinear);\n            this.__webgl1ExtTHFL = this.__getExtension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_0__[\"WebGLExtension\"].TextureHalfFloatLinear);\n        }\n    }\n    WebGLContextWrapper.prototype.getRawContext = function () {\n        return this.__gl;\n    };\n    WebGLContextWrapper.prototype.isSupportWebGL1Extension = function (webGLExtension) {\n        if (this.__getExtension(webGLExtension)) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    Object.defineProperty(WebGLContextWrapper.prototype, \"isWebGL2\", {\n        get: function () {\n            if (this.__webglVersion === 2) {\n                return true;\n            }\n            else {\n                return false;\n            }\n        },\n        enumerable: true,\n        configurable: true\n    });\n    WebGLContextWrapper.prototype.createVertexArray = function () {\n        if (this.isWebGL2) {\n            return this.__gl.createVertexArray();\n        }\n        else {\n            if (this.__webgl1ExtVAO != null) {\n                return this.__webgl1ExtVAO.createVertexArrayOES();\n            }\n        }\n    };\n    WebGLContextWrapper.prototype.bindVertexArray = function (vao) {\n        if (this.isWebGL2) {\n            this.__gl.bindVertexArray(vao);\n        }\n        else {\n            if (this.__webgl1ExtVAO != null) {\n                this.__webgl1ExtVAO.bindVertexArrayOES(vao);\n            }\n        }\n    };\n    WebGLContextWrapper.prototype.vertexAttribDivisor = function (index, divisor) {\n        if (this.isWebGL2) {\n            this.__gl.vertexAttribDivisor(index, divisor);\n        }\n        else {\n            this.__webgl1ExtIA.vertexAttribDivisorANGLE(index, divisor);\n        }\n    };\n    WebGLContextWrapper.prototype.drawElementsInstanced = function (primitiveMode, indexCount, type, offset, instanceCount) {\n        if (this.isWebGL2) {\n            this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);\n        }\n        else {\n            this.__webgl1ExtIA.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);\n        }\n    };\n    WebGLContextWrapper.prototype.__getExtension = function (extension) {\n        var gl = this.__gl;\n        if (!this.__extensions.has(extension)) {\n            var extObj = gl.getExtension(extension.toString());\n            if (extObj == null) {\n                var text = \"The library does not support this environment because the \" + extension.toString() + \" is not available\";\n                if (console.error != null) {\n                    console.error(text);\n                }\n                else {\n                    console.log(text);\n                }\n            }\n            this.__extensions.set(extension, extObj);\n            return extObj;\n        }\n        return this.__extensions.get(extension);\n    };\n    return WebGLContextWrapper;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLContextWrapper);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLContextWrapper.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLExtension.ts":
+/*!*************************************!*\
+  !*** ./src/webgl/WebGLExtension.ts ***!
+  \*************************************/
+/*! exports provided: WebGLExtension */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WebGLExtension\", function() { return WebGLExtension; });\n/* harmony import */ var _foundation_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../foundation/misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\nvar WebGLExtensionClass = /** @class */ (function (_super) {\n    __extends(WebGLExtensionClass, _super);\n    function WebGLExtensionClass(_a) {\n        var index = _a.index, str = _a.str;\n        return _super.call(this, { index: index, str: str }) || this;\n    }\n    return WebGLExtensionClass;\n}(_foundation_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"]));\nvar VertexArrayObject = new WebGLExtensionClass({ index: 1, str: 'OES_vertex_array_object' });\nvar TextureFloat = new WebGLExtensionClass({ index: 2, str: 'OES_texture_float' });\nvar TextureHalfFloat = new WebGLExtensionClass({ index: 3, str: 'OES_texture_half_float' });\nvar TextureFloatLinear = new WebGLExtensionClass({ index: 4, str: 'OES_texture_float_linear' });\nvar TextureHalfFloatLinear = new WebGLExtensionClass({ index: 5, str: 'OES_texture_half_float_linear' });\nvar InstancedArrays = new WebGLExtensionClass({ index: 6, str: 'ANGLE_instanced_arrays' });\nvar typeList = [VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays];\nfunction from(_a) {\n    var index = _a.index;\n    return Object(_foundation_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList: typeList, index: index });\n}\nvar WebGLExtension = Object.freeze({ VertexArrayObject: VertexArrayObject, TextureFloat: TextureFloat, TextureHalfFloat: TextureHalfFloat, TextureFloatLinear: TextureFloatLinear, TextureHalfFloatLinear: TextureHalfFloatLinear, InstancedArrays: InstancedArrays });\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLExtension.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLRenderingPipeline.ts":
+/*!*********************************************!*\
+  !*** ./src/webgl/WebGLRenderingPipeline.ts ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n/* harmony import */ var _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../foundation/core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _foundation_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../foundation/core/ComponentRepository */ \"./src/foundation/core/ComponentRepository.ts\");\n/* harmony import */ var _foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../foundation/components/MeshComponent */ \"./src/foundation/components/MeshComponent.ts\");\n/* harmony import */ var _foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../foundation/definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _getRenderingStrategy__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./getRenderingStrategy */ \"./src/webgl/getRenderingStrategy.ts\");\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n/* harmony import */ var _foundation_core_Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../foundation/core/Config */ \"./src/foundation/core/Config.ts\");\n\n\n\n\n\n\n\n\n\n\nvar WebGLRenderingPipeline = /** @class */ (function () {\n    function WebGLRenderingPipeline() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__componentRepository = _foundation_core_ComponentRepository__WEBPACK_IMPORTED_MODULE_4__[\"default\"].getInstance();\n        this.__instanceIDBufferUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_8__[\"default\"].InvalidCGAPIResourceUid;\n    }\n    ;\n    WebGLRenderingPipeline.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new WebGLRenderingPipeline();\n        }\n        return this.__instance;\n    };\n    WebGLRenderingPipeline.prototype.common_$load = function (processApproach) {\n        // Strategy\n        this.__webGLStrategy = Object(_getRenderingStrategy__WEBPACK_IMPORTED_MODULE_7__[\"default\"])(processApproach);\n        // Shader setup\n        this.__webGLStrategy.setupShaderProgram();\n    };\n    WebGLRenderingPipeline.prototype.common_$prerender = function () {\n        var gl = this.__webglResourceRepository.currentWebGLContextWrapper;\n        if (gl == null) {\n            throw new Error('No WebGLRenderingContext!');\n        }\n        this.__webGLStrategy.common_$prerender();\n        if (this.__isReady()) {\n            return 0;\n        }\n        this.__instanceIDBufferUid = this.__setupInstanceIDBuffer();\n        return this.__instanceIDBufferUid;\n    };\n    WebGLRenderingPipeline.prototype.__isReady = function () {\n        if (this.__instanceIDBufferUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_8__[\"default\"].InvalidCGAPIResourceUid) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    WebGLRenderingPipeline.prototype.__setupInstanceIDBuffer = function () {\n        if (this.__instanceIdAccessor == null) {\n            var buffer = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance().getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_6__[\"BufferUse\"].CPUGeneric);\n            var count = _foundation_core_Config__WEBPACK_IMPORTED_MODULE_9__[\"default\"].maxEntityNumber;\n            var bufferView = buffer.takeBufferView({ byteLengthToNeed: 4 /*byte*/ * count, byteStride: 0, isAoS: false });\n            this.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_3__[\"CompositionType\"].Scalar, componentType: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_2__[\"ComponentType\"].Float, count: count });\n        }\n        var meshComponents = this.__componentRepository.getComponentsWithType(_foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_5__[\"default\"].componentTID);\n        if (meshComponents == null) {\n            return _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_8__[\"default\"].InvalidCGAPIResourceUid;\n        }\n        for (var i = 0; i < meshComponents.length; i++) {\n            this.__instanceIdAccessor.setScalar(i, meshComponents[i].entityUID);\n        }\n        return this.__webglResourceRepository.createVertexBuffer(this.__instanceIdAccessor);\n    };\n    WebGLRenderingPipeline.prototype.common_$render = function () {\n        if (!this.__webGLStrategy.common_$render()) {\n            return;\n        }\n        var meshComponents = this.__componentRepository.getComponentsWithType(_foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_5__[\"default\"].componentTID);\n        var meshComponent = meshComponents[0];\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            this.__webGLStrategy.attachVertexData(i, primitive, glw, this.__instanceIDBufferUid);\n            this.__webGLStrategy.attatchShaderProgram();\n            this.__webGLStrategy.attachGPUData();\n            var meshComponents_1 = this.__componentRepository.getComponentsWithType(_foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_5__[\"default\"].componentTID);\n            glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, meshComponents_1.length);\n        }\n    };\n    return WebGLRenderingPipeline;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLRenderingPipeline);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLRenderingPipeline.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLResourceRepository.ts":
+/*!**********************************************!*\
+  !*** ./src/webgl/WebGLResourceRepository.ts ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n/* harmony import */ var _foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../foundation/definitions/VertexAttribute */ \"./src/foundation/definitions/VertexAttribute.ts\");\n/* harmony import */ var _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _WebGLContextWrapper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./WebGLContextWrapper */ \"./src/webgl/WebGLContextWrapper.ts\");\nvar __extends = (undefined && undefined.__extends) || (function () {\n    var extendStatics = function (d, b) {\n        extendStatics = Object.setPrototypeOf ||\n            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\n            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\n        return extendStatics(d, b);\n    };\n    return function (d, b) {\n        extendStatics(d, b);\n        function __() { this.constructor = d; }\n        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\n    };\n})();\n\n\n\n\n\nvar WebGLResourceRepository = /** @class */ (function (_super) {\n    __extends(WebGLResourceRepository, _super);\n    function WebGLResourceRepository() {\n        var _this = _super.call(this) || this;\n        _this.__webglContexts = new Map();\n        _this.__resourceCounter = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].InvalidCGAPIResourceUid;\n        _this.__webglResources = new Map();\n        return _this;\n    }\n    WebGLResourceRepository.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new (WebGLResourceRepository)();\n        }\n        return this.__instance;\n    };\n    WebGLResourceRepository.prototype.addWebGLContext = function (gl, asCurrent) {\n        var glw = new (_WebGLContextWrapper__WEBPACK_IMPORTED_MODULE_4__[\"default\"])(gl);\n        this.__webglContexts.set('default', glw);\n        if (asCurrent) {\n            this.__glw = glw;\n        }\n    };\n    Object.defineProperty(WebGLResourceRepository.prototype, \"currentWebGLContextWrapper\", {\n        get: function () {\n            return this.__glw;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    WebGLResourceRepository.prototype.getResourceNumber = function () {\n        return ++this.__resourceCounter;\n    };\n    WebGLResourceRepository.prototype.getWebGLResource = function (WebGLResourceHandle) {\n        return this.__webglResources.get(WebGLResourceHandle);\n    };\n    WebGLResourceRepository.prototype.createIndexBuffer = function (accsessor) {\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var ibo = gl.createBuffer();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, ibo);\n        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);\n        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);\n        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.createVertexBuffer = function (accessor) {\n        var gl = this.__glw.getRawContext();\n        ;\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var vbo = gl.createBuffer();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, vbo);\n        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);\n        gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);\n        gl.bindBuffer(gl.ARRAY_BUFFER, null);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.createVertexArray = function () {\n        var gl = this.__glw;\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var vao = this.__glw.createVertexArray();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, vao);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.createVertexDataResources = function (primitive) {\n        var _this = this;\n        var gl = this.__glw.getRawContext();\n        var vaoHandle = this.createVertexArray();\n        var iboHandle;\n        if (primitive.hasIndices) {\n            iboHandle = this.createIndexBuffer(primitive.indicesAccessor);\n        }\n        var vboHandles = [];\n        primitive.attributeAccessors.forEach(function (accessor) {\n            var vboHandle = _this.createVertexBuffer(accessor);\n            vboHandles.push(vboHandle);\n        });\n        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);\n        return { vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles };\n    };\n    WebGLResourceRepository.prototype.createShaderProgram = function (_a) {\n        var vertexShaderStr = _a.vertexShaderStr, fragmentShaderStr = _a.fragmentShaderStr, attributeNames = _a.attributeNames, attributeSemantics = _a.attributeSemantics;\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var vertexShader = gl.createShader(gl.VERTEX_SHADER);\n        gl.shaderSource(vertexShader, vertexShaderStr);\n        gl.compileShader(vertexShader);\n        this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);\n        var shaderProgram = gl.createProgram();\n        gl.attachShader(shaderProgram, vertexShader);\n        var fragmentShader;\n        if (fragmentShaderStr != null) {\n            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);\n            gl.shaderSource(fragmentShader, fragmentShaderStr);\n            gl.compileShader(fragmentShader);\n            this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);\n            gl.attachShader(shaderProgram, fragmentShader);\n        }\n        attributeNames.forEach(function (attributeName, i) {\n            gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);\n        });\n        gl.linkProgram(shaderProgram);\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, shaderProgram);\n        this.__checkShaderProgramLinkStatus(shaderProgram);\n        gl.deleteShader(vertexShader);\n        if (fragmentShaderStr != null) {\n            gl.deleteShader(fragmentShader);\n        }\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.__addLineNumber = function (shaderString) {\n        var shaderTextLines = shaderString.split(/\\r\\n|\\r|\\n/);\n        var shaderTextWithLineNumber = '';\n        for (var i = 0; i < shaderTextLines.length; i++) {\n            var lineIndex = i + 1;\n            var splitter = ' : ';\n            if (lineIndex < 10) {\n                splitter = '  : ';\n            }\n            else if (lineIndex >= 100) {\n                splitter = ': ';\n            }\n            shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\\n';\n        }\n        return shaderTextWithLineNumber;\n    };\n    WebGLResourceRepository.prototype.__checkShaderCompileStatus = function (shader, shaderText) {\n        var gl = this.__glw.getRawContext();\n        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {\n            console.log(this.__addLineNumber(shaderText));\n            throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));\n        }\n    };\n    WebGLResourceRepository.prototype.__checkShaderProgramLinkStatus = function (shaderProgram) {\n        var gl = this.__glw.getRawContext();\n        ;\n        // If creating the shader program failed, alert\n        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {\n            throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));\n        }\n    };\n    WebGLResourceRepository.prototype.setVertexDataToPipeline = function (_a, primitive, instanceIDBufferUid) {\n        var _this = this;\n        var vaoHandle = _a.vaoHandle, iboHandle = _a.iboHandle, vboHandles = _a.vboHandles;\n        if (instanceIDBufferUid === void 0) { instanceIDBufferUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].InvalidCGAPIResourceUid; }\n        var gl = this.__glw.getRawContext();\n        ;\n        var vao = this.getWebGLResource(vaoHandle);\n        // VAO bind\n        this.__glw.bindVertexArray(vao);\n        // IBO bind\n        if (iboHandle != null) {\n            var ibo = this.getWebGLResource(iboHandle);\n            if (ibo != null) {\n                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);\n            }\n            else {\n                throw new Error('Nothing Element Array Buffer!');\n            }\n        }\n        // bind vertex attributes to VBO's\n        vboHandles.forEach(function (vboHandle, i) {\n            var vbo = _this.getWebGLResource(vboHandle);\n            if (vbo != null) {\n                gl.bindBuffer(gl.ARRAY_BUFFER, vbo);\n            }\n            else {\n                throw new Error('Nothing Element Array Buffer at index ' + i);\n            }\n            gl.enableVertexAttribArray(primitive.attributeSemantics[i].getAttributeSlot());\n            gl.vertexAttribPointer(primitive.attributeSemantics[i].getAttributeSlot(), primitive.attributeCompositionTypes[i].getNumberOfComponents(), primitive.attributeComponentTypes[i].index, false, primitive.attributeAccessors[i].byteStride, 0);\n        });\n        /// for InstanceIDBuffer\n        if (instanceIDBufferUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].InvalidCGAPIResourceUid) {\n            var instanceIDBuffer = this.getWebGLResource(instanceIDBufferUid);\n            if (instanceIDBuffer != null) {\n                gl.bindBuffer(gl.ARRAY_BUFFER, instanceIDBuffer);\n            }\n            else {\n                throw new Error('Nothing Element Array Buffer at index');\n            }\n            gl.enableVertexAttribArray(_foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_1__[\"VertexAttribute\"].Instance.getAttributeSlot());\n            gl.vertexAttribPointer(_foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_1__[\"VertexAttribute\"].Instance.getAttributeSlot(), _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_2__[\"CompositionType\"].Scalar.getNumberOfComponents(), _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_3__[\"ComponentType\"].Float.index, false, 0, 0);\n            this.__glw.vertexAttribDivisor(_foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_1__[\"VertexAttribute\"].Instance.getAttributeSlot(), 1);\n        }\n        gl.bindBuffer(gl.ARRAY_BUFFER, null);\n        this.__glw.bindVertexArray(null);\n        if (vao == null) {\n            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);\n        }\n    };\n    WebGLResourceRepository.prototype.createTexture = function (typedArray, _a) {\n        var level = _a.level, internalFormat = _a.internalFormat, width = _a.width, height = _a.height, border = _a.border, format = _a.format, type = _a.type, magFilter = _a.magFilter, minFilter = _a.minFilter, wrapS = _a.wrapS, wrapT = _a.wrapT;\n        var gl = this.__glw.getRawContext();\n        ;\n        var dataTexture = gl.createTexture();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, dataTexture);\n        gl.bindTexture(gl.TEXTURE_2D, dataTexture);\n        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border, format.index, type.index, typedArray);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.updateTexture = function (textureUid, typedArray, _a) {\n        var level = _a.level, width = _a.width, height = _a.height, format = _a.format, type = _a.type;\n        var gl = this.__glw.getRawContext();\n        ;\n        var texture = this.getWebGLResource(textureUid);\n        gl.bindTexture(gl.TEXTURE_2D, texture);\n        gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);\n    };\n    WebGLResourceRepository.prototype.deleteTexture = function (textureHandle) {\n        var texture = this.getWebGLResource(textureHandle);\n        var gl = this.__glw.getRawContext();\n        if (texture != null) {\n            gl.deleteTexture(texture);\n            this.__webglResources.delete(textureHandle);\n        }\n    };\n    WebGLResourceRepository.prototype.createUniformBuffer = function (bufferView) {\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var ubo = gl.createBuffer();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, ubo);\n        gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);\n        gl.bufferData(gl.UNIFORM_BUFFER, bufferView, gl.DYNAMIC_DRAW);\n        gl.bindBuffer(gl.UNIFORM_BUFFER, null);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.updateUniformBuffer = function (uboUid, bufferView) {\n        var gl = this.__glw.getRawContext();\n        var ubo = this.getWebGLResource(uboUid);\n        gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);\n        void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);\n        gl.bindBuffer(gl.UNIFORM_BUFFER, null);\n    };\n    WebGLResourceRepository.prototype.bindUniformBlock = function (shaderProgramUid, blockName, blockIndex) {\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var shaderProgram = this.getWebGLResource(shaderProgramUid);\n        var block = gl.getUniformBlockIndex(shaderProgram, blockName);\n        gl.uniformBlockBinding(shaderProgram, block, blockIndex);\n    };\n    WebGLResourceRepository.prototype.bindUniformBufferBase = function (blockIndex, uboUid) {\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            throw new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var ubo = this.getWebGLResource(uboUid);\n        gl.bindBufferBase(gl.UNIFORM_BUFFER, blockIndex, ubo);\n    };\n    WebGLResourceRepository.prototype.deleteUniformBuffer = function (uboUid) {\n        var gl = this.__glw.getRawContext();\n        if (gl == null) {\n            new Error(\"No WebGLRenderingContext set as Default.\");\n        }\n        var ubo = this.getWebGLResource(uboUid);\n        gl.deleteBuffer(ubo);\n    };\n    WebGLResourceRepository.prototype.createTransformFeedback = function () {\n        var gl = this.__glw.getRawContext();\n        var transformFeedback = gl.createTransformFeedback();\n        var resourceHandle = this.getResourceNumber();\n        this.__webglResources.set(resourceHandle, transformFeedback);\n        gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);\n        return resourceHandle;\n    };\n    WebGLResourceRepository.prototype.deleteTransformFeedback = function (transformFeedbackUid) {\n        var gl = this.__glw.getRawContext();\n        var transformFeedback = this.getWebGLResource(transformFeedbackUid);\n        gl.deleteTransformFeedback(transformFeedback);\n    };\n    return WebGLResourceRepository;\n}(_foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"]));\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLResourceRepository);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLResourceRepository.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLStrategyDataTexture.ts":
+/*!***********************************************!*\
+  !*** ./src/webgl/WebGLStrategyDataTexture.ts ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n/* harmony import */ var _WebGLExtension__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WebGLExtension */ \"./src/webgl/WebGLExtension.ts\");\n/* harmony import */ var _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/math/MathUtil */ \"./src/foundation/math/MathUtil.ts\");\n/* harmony import */ var _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../foundation/definitions/PixelFormat */ \"./src/foundation/definitions/PixelFormat.ts\");\n/* harmony import */ var _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../foundation/definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../foundation/definitions/TextureParameter */ \"./src/foundation/definitions/TextureParameter.ts\");\n/* harmony import */ var _GLSLShader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./GLSLShader */ \"./src/webgl/GLSLShader.ts\");\n/* harmony import */ var _foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../foundation/definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n\n\n\n\n\n\n\n\n\n\nvar WebGLStrategyDataTexture = /** @class */ (function () {\n    function WebGLStrategyDataTexture() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__dataTextureUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_9__[\"default\"].InvalidCGAPIResourceUid;\n        this.__shaderProgramUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_9__[\"default\"].InvalidCGAPIResourceUid;\n        this.__vertexHandles = [];\n        this.__isVAOSet = false;\n    }\n    Object.defineProperty(WebGLStrategyDataTexture.prototype, \"vertexShaderMethodDefinitions_dataTexture\", {\n        get: function () {\n            var _texture = _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].getInstance().glsl_texture;\n            return \"\\n  uniform sampler2D u_dataTexture;\\n  /*\\n   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885\\n   * arg = vec2(1. / size.x, 1. / size.x / size.y);\\n   */\\n  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)\\n  // {\\n  //   return \" + _texture + \"( tex, arg * (index + 0.5) );\\n  // }\\n\\n  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)\\n  {\\n    float t = (index + 0.5) * invSize.x;\\n    float x = fract(t);\\n    float y = (floor(t) + 0.5) * invSize.y;\\n    return \" + _texture + \"( tex, vec2(x, y) );\\n  }\\n\\n  mat4 getMatrix(float instanceId)\\n  {\\n    float index = instanceId;\\n    float powWidthVal = \" + _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength + \".0;\\n    float powHeightVal = \" + _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength + \".0;\\n    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);\\n  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);\\n\\n    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);\\n   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);\\n   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);\\n\\n    mat4 matrix = mat4(\\n      col0.x, col1.x, col2.x, 0.0,\\n      col0.y, col1.y, col2.y, 0.0,\\n      col0.z, col1.z, col2.z, 0.0,\\n      col0.w, col1.w, col2.w, 1.0\\n      );\\n\\n    return matrix;\\n  }\\n  \";\n        },\n        enumerable: true,\n        configurable: true\n    });\n    WebGLStrategyDataTexture.prototype.setupShaderProgram = function () {\n        if (this.__shaderProgramUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_9__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        // Shader Setup\n        var glslShader = _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].getInstance();\n        var vertexShader = glslShader.vertexShaderVariableDefinitions +\n            this.vertexShaderMethodDefinitions_dataTexture +\n            glslShader.vertexShaderBody;\n        var fragmentShader = glslShader.fragmentShader;\n        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({\n            vertexShaderStr: vertexShader,\n            fragmentShaderStr: fragmentShader,\n            attributeNames: _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].attributeNames,\n            attributeSemantics: _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].attributeSemantics\n        });\n    };\n    WebGLStrategyDataTexture.prototype.__isLoaded = function (index) {\n        if (this.__vertexHandles[index] != null) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    WebGLStrategyDataTexture.prototype.$load = function (meshComponent) {\n        if (this.__isLoaded(0)) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);\n            this.__vertexHandles[i] = vertexHandles;\n            WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);\n        }\n    };\n    WebGLStrategyDataTexture.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {\n        if (this.__isVAOSet) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            // if (this.__isLoaded(i) && this.__isVAOSet) {\n            this.__vertexHandles[i] = WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);\n            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;\n            //  continue;\n            // }\n            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);\n        }\n        this.__isVAOSet = true;\n    };\n    WebGLStrategyDataTexture.prototype.common_$prerender = function () {\n        var isHalfFloatMode = false;\n        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||\n            this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_1__[\"WebGLExtension\"].TextureHalfFloat)) {\n            isHalfFloatMode = true;\n        }\n        var memoryManager = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n        var buffer = memoryManager.getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_8__[\"BufferUse\"].GPUInstanceData);\n        var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());\n        var halfFloatDataTextureBuffer;\n        if (isHalfFloatMode) {\n            halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);\n            var convertLength = buffer.byteSizeInUse / 4; //components\n            convertLength /= 2; // bytes\n            for (var i = 0; i < convertLength; i++) {\n                halfFloatDataTextureBuffer[i] = _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_3__[\"MathUtil\"].toHalfFloat(floatDataTextureBuffer[i]);\n            }\n        }\n        if (this.__dataTextureUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_9__[\"default\"].InvalidCGAPIResourceUid) {\n            if (isHalfFloatMode) {\n                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n                else {\n                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].HalfFloat\n                    });\n                }\n            }\n            else {\n                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n                else {\n                    this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n            }\n            return;\n        }\n        if (isHalfFloatMode) {\n            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].RGBA16F, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n            else {\n                this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].HalfFloat, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n        }\n        else {\n            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].RGBA32F, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n            else {\n                this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n        }\n    };\n    ;\n    WebGLStrategyDataTexture.prototype.attachGPUData = function () {\n        var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();\n        var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid);\n        gl.bindTexture(gl.TEXTURE_2D, dataTexture);\n        var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);\n        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');\n        gl.uniform1i(uniform_dataTexture, 0);\n    };\n    ;\n    WebGLStrategyDataTexture.prototype.attatchShaderProgram = function () {\n        var shaderProgramUid = this.__shaderProgramUid;\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        var gl = glw.getRawContext();\n        var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);\n        gl.useProgram(shaderProgram);\n    };\n    WebGLStrategyDataTexture.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {\n        var vaoHandles = this.__vertexHandles[i];\n        var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);\n        var gl = glw.getRawContext();\n        if (vao != null) {\n            glw.bindVertexArray(vao);\n        }\n        else {\n            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);\n            var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);\n            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);\n        }\n    };\n    WebGLStrategyDataTexture.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new (WebGLStrategyDataTexture)();\n        }\n        return this.__instance;\n    };\n    WebGLStrategyDataTexture.prototype.common_$render = function () {\n        return true;\n    };\n    WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids = new Map();\n    return WebGLStrategyDataTexture;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLStrategyDataTexture);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLStrategyDataTexture.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLStrategyTransformFeedback.ts":
+/*!*****************************************************!*\
+  !*** ./src/webgl/WebGLStrategyTransformFeedback.ts ***!
+  \*****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n/* harmony import */ var _WebGLExtension__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WebGLExtension */ \"./src/webgl/WebGLExtension.ts\");\n/* harmony import */ var _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/math/MathUtil */ \"./src/foundation/math/MathUtil.ts\");\n/* harmony import */ var _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../foundation/definitions/PixelFormat */ \"./src/foundation/definitions/PixelFormat.ts\");\n/* harmony import */ var _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../foundation/definitions/ComponentType */ \"./src/foundation/definitions/ComponentType.ts\");\n/* harmony import */ var _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../foundation/definitions/TextureParameter */ \"./src/foundation/definitions/TextureParameter.ts\");\n/* harmony import */ var _GLSLShader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./GLSLShader */ \"./src/webgl/GLSLShader.ts\");\n/* harmony import */ var _foundation_core_EntityRepository__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../foundation/core/EntityRepository */ \"./src/foundation/core/EntityRepository.ts\");\n/* harmony import */ var _foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../foundation/definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../foundation/components/MeshComponent */ \"./src/foundation/components/MeshComponent.ts\");\n/* harmony import */ var _foundation_geometry_Primitive__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../foundation/geometry/Primitive */ \"./src/foundation/geometry/Primitive.ts\");\n/* harmony import */ var _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../foundation/definitions/CompositionType */ \"./src/foundation/definitions/CompositionType.ts\");\n/* harmony import */ var _foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../foundation/definitions/VertexAttribute */ \"./src/foundation/definitions/VertexAttribute.ts\");\n/* harmony import */ var _foundation_definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../foundation/definitions/PrimitiveMode */ \"./src/foundation/definitions/PrimitiveMode.ts\");\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nvar WebGLStrategyTransformFeedback = /** @class */ (function () {\n    function WebGLStrategyTransformFeedback() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__instanceDataTextureUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__vertexDataTextureUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__shaderProgramUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__primitiveHeaderUboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__indexCountToSubtractUboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__entitiesUidUboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__primitiveUidUboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid;\n        this.__isVertexReady = false;\n    }\n    Object.defineProperty(WebGLStrategyTransformFeedback.prototype, \"__transformFeedbackShaderText\", {\n        get: function () {\n            var _in = _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].getInstance().glsl_vertex_in;\n            var _texture = _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].getInstance().glsl_texture;\n            return \"#version 300 es\\n\\n    layout (std140) uniform indexCountsToSubtract {\\n      ivec4 counts[256];\\n    } u_indexCountsToSubtract;\\n    layout (std140) uniform entityUids {\\n      ivec4 ids[256];\\n    } u_entityData;\\n    layout (std140) uniform primitiveUids {\\n      ivec4 ids[256];\\n    } u_primitiveData;\\n    layout (std140) uniform primitiveHeader {\\n      ivec4 data[256];\\n    } u_primitiveHeader;\\n\\n    out vec4 position;\\n    //out vec3 colors;\\n\\n    uniform sampler2D u_instanceDataTexture;\\n    uniform sampler2D u_vertexDataTexture;\\n\\n    void main(){\\n      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;\\n\\n      int entityUidMinusOne = 0;\\n      int primitiveUid = 0;\\n      for (int i=0; i<=indexOfVertices; i++) {\\n        for (int j=0; j<1024; j++) {\\n          int value = u_indexCountsToSubtract.counts[j/4][j%4];\\n          int result = int(step(float(value), float(i)));\\n          if (result > 0) {\\n            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;\\n            primitiveUid = result * u_primitiveData.ids[j/4][j%4];\\n          } else {\\n            break;\\n          }\\n        }\\n      }\\n\\n      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];\\n      int primIndicesByteOffset = indicesMeta.x;\\n      int primIndicesComponentSizeInByte = indicesMeta.y;\\n      int primIndicesLength = indicesMeta.z;\\n\\n      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;\\n\\n      // get Indices\\n      int texelLength = \" + _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength + \";\\n      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\\n      int index = int(indexVec4[idx%4]);\\n\\n      // get Positions\\n      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];\\n      int primPositionsByteOffset = indicesData.x;\\n      idx = primPositionsByteOffset/4 + index;\\n      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);\\n\\n      position = posVec4;\\n    }\\n\";\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(WebGLStrategyTransformFeedback.prototype, \"__transformFeedbackFragmentShaderText\", {\n        get: function () {\n            return \"#version 300 es\\nprecision highp float;\\n\\nout vec4 outColor;\\n\\nvoid main(){\\n    outColor = vec4(1.0);\\n}\\n    \";\n        },\n        enumerable: true,\n        configurable: true\n    });\n    WebGLStrategyTransformFeedback.prototype.setupShaderProgram = function () {\n        if (this.__shaderProgramUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        // Shader Setup\n        var vertexShader = this.__transformFeedbackShaderText;\n        var fragmentShader = this.__transformFeedbackFragmentShaderText;\n        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({\n            vertexShaderStr: vertexShader,\n            fragmentShaderStr: fragmentShader,\n            attributeNames: _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].attributeNames,\n            attributeSemantics: _GLSLShader__WEBPACK_IMPORTED_MODULE_7__[\"default\"].attributeSemantics\n        });\n    };\n    WebGLStrategyTransformFeedback.prototype.$load = function (meshComponent) {\n        if (this.__isVertexReady) {\n            return;\n        }\n        var buffer = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance().getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_9__[\"BufferUse\"].CPUGeneric);\n        var indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: 4 * 3, byteStride: 4, isAoS: false });\n        var indicesAccessor = indicesBufferView.takeAccessor({ compositionType: _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_12__[\"CompositionType\"].Scalar, componentType: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].UnsingedInt, count: 3 });\n        var attributeBufferView = buffer.takeBufferView({ byteLengthToNeed: 16 * 3, byteStride: 16, isAoS: false });\n        var attributeAccessor = attributeBufferView.takeAccessor({ compositionType: _foundation_definitions_CompositionType__WEBPACK_IMPORTED_MODULE_12__[\"CompositionType\"].Vec4, componentType: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, count: 3 });\n        var indicesUint16Array = indicesAccessor.getTypedArray();\n        indicesUint16Array[0] = 0;\n        indicesUint16Array[1] = 1;\n        indicesUint16Array[2] = 2;\n        var primitive = _foundation_geometry_Primitive__WEBPACK_IMPORTED_MODULE_11__[\"default\"].createPrimitive({\n            indices: indicesUint16Array,\n            attributeCompositionTypes: [attributeAccessor.compositionType],\n            attributeSemantics: [_foundation_definitions_VertexAttribute__WEBPACK_IMPORTED_MODULE_13__[\"VertexAttribute\"].Position],\n            attributes: [attributeAccessor.getTypedArray()],\n            primitiveMode: _foundation_definitions_PrimitiveMode__WEBPACK_IMPORTED_MODULE_14__[\"PrimitiveMode\"].Triangles,\n            material: 0\n        });\n        this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);\n        this.__isVertexReady = true;\n    };\n    WebGLStrategyTransformFeedback.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {\n    };\n    WebGLStrategyTransformFeedback.prototype.__setupUBOPrimitiveHeaderData = function () {\n        var memoryManager = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n        var buffer = memoryManager.getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_9__[\"BufferUse\"].UBOGeneric);\n        var floatDataTextureBuffer = new Int32Array(buffer.getArrayBuffer());\n        if (this.__primitiveHeaderUboUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid) {\n            //      this.__webglResourceRepository.updateUniformBuffer(this.__primitiveHeaderUboUid, floatDataTextureBuffer);\n            return;\n        }\n        this.__primitiveHeaderUboUid = this.__webglResourceRepository.createUniformBuffer(floatDataTextureBuffer);\n        this.__webglResourceRepository.bindUniformBufferBase(3, this.__primitiveHeaderUboUid);\n    };\n    WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceMetaData = function () {\n        if (this.__primitiveUidUboUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        var entities = _foundation_core_EntityRepository__WEBPACK_IMPORTED_MODULE_8__[\"default\"].getInstance()._getEntities();\n        var entityIds = new Int32Array(entities.length);\n        var primitiveIds = new Int32Array(entities.length);\n        var indexCountToSubtract = new Int32Array(entities.length);\n        var tmpSumIndexCount = 0;\n        entities.forEach(function (entity, i) {\n            var meshComponent = entity.getComponent(_foundation_components_MeshComponent__WEBPACK_IMPORTED_MODULE_10__[\"default\"].componentTID);\n            if (meshComponent) {\n                primitiveIds[i] = meshComponent.getPrimitiveAt(0).primitiveUid;\n                entityIds[i] = entity.entityUID;\n                var indexCountOfPrimitive = meshComponent.getPrimitiveAt(0).indicesAccessor.elementCount;\n                indexCountToSubtract[i] = tmpSumIndexCount + indexCountOfPrimitive;\n                tmpSumIndexCount += indexCountOfPrimitive;\n            }\n        });\n        this.__indexCountToSubtractUboUid = this.__webglResourceRepository.createUniformBuffer(indexCountToSubtract);\n        this.__webglResourceRepository.bindUniformBufferBase(0, this.__indexCountToSubtractUboUid);\n        this.__entitiesUidUboUid = this.__webglResourceRepository.createUniformBuffer(entityIds);\n        this.__webglResourceRepository.bindUniformBufferBase(1, this.__entitiesUidUboUid);\n        this.__primitiveUidUboUid = this.__webglResourceRepository.createUniformBuffer(primitiveIds);\n        this.__webglResourceRepository.bindUniformBufferBase(2, this.__primitiveUidUboUid);\n    };\n    WebGLStrategyTransformFeedback.prototype.__setupGPUInstanceData = function () {\n        var isHalfFloatMode = false;\n        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2 ||\n            this.__webglResourceRepository.currentWebGLContextWrapper.isSupportWebGL1Extension(_WebGLExtension__WEBPACK_IMPORTED_MODULE_1__[\"WebGLExtension\"].TextureHalfFloat)) {\n            isHalfFloatMode = true;\n        }\n        var memoryManager = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n        var buffer = memoryManager.getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_9__[\"BufferUse\"].GPUInstanceData);\n        var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());\n        var halfFloatDataTextureBuffer;\n        if (isHalfFloatMode) {\n            halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);\n            var convertLength = buffer.byteSizeInUse / 4; //components\n            convertLength /= 2; // bytes\n            for (var i = 0; i < convertLength; i++) {\n                halfFloatDataTextureBuffer[i] = _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_3__[\"MathUtil\"].toHalfFloat(floatDataTextureBuffer[i]);\n            }\n        }\n        if (this.__instanceDataTextureUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid) {\n            if (isHalfFloatMode) {\n                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                    this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n                else {\n                    this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, halfFloatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].HalfFloat\n                    });\n                }\n            }\n            else {\n                if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                    this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n                else {\n                    this.__webglResourceRepository.updateTexture(this.__instanceDataTextureUid, floatDataTextureBuffer, {\n                        level: 0, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                        format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float\n                    });\n                }\n            }\n            return;\n        }\n        if (isHalfFloatMode) {\n            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].RGBA16F, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n            else {\n                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].HalfFloat, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n        }\n        else {\n            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].RGBA32F, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n            else {\n                this.__instanceDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                    level: 0, internalFormat: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                    border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                    wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n                });\n            }\n        }\n    };\n    WebGLStrategyTransformFeedback.prototype.__setupGPUVertexData = function () {\n        if (this.__vertexDataTextureUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_15__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        var memoryManager = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n        var buffer = memoryManager.getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_9__[\"BufferUse\"].GPUVertexData);\n        var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());\n        if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n            this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                level: 0, internalFormat: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].RGBA32F, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n            });\n        }\n        else {\n            this.__vertexDataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {\n                level: 0, internalFormat: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, width: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferWidthLength, height: _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_2__[\"default\"].bufferHeightLength,\n                border: 0, format: _foundation_definitions_PixelFormat__WEBPACK_IMPORTED_MODULE_4__[\"PixelFormat\"].RGBA, type: _foundation_definitions_ComponentType__WEBPACK_IMPORTED_MODULE_5__[\"ComponentType\"].Float, magFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest, minFilter: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Nearest,\n                wrapS: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat, wrapT: _foundation_definitions_TextureParameter__WEBPACK_IMPORTED_MODULE_6__[\"TextureParameter\"].Repeat\n            });\n        }\n    };\n    WebGLStrategyTransformFeedback.prototype.common_$prerender = function () {\n        this.__setupUBOPrimitiveHeaderData();\n        this.__setupGPUInstanceMetaData();\n        this.__setupGPUInstanceData();\n        this.__setupGPUVertexData();\n    };\n    ;\n    WebGLStrategyTransformFeedback.prototype.attachGPUData = function () {\n        {\n            var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();\n            var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid);\n            gl.activeTexture(gl.TEXTURE0);\n            gl.bindTexture(gl.TEXTURE_2D, dataTexture);\n            var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);\n            var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');\n            gl.uniform1i(uniform_instanceDataTexture, 0);\n        }\n        {\n            var gl = this.__webglResourceRepository.currentWebGLContextWrapper.getRawContext();\n            var dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid);\n            gl.activeTexture(gl.TEXTURE1);\n            gl.bindTexture(gl.TEXTURE_2D, dataTexture);\n            var shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);\n            var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');\n            gl.uniform1i(uniform_vertexDataTexture, 1);\n        }\n        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'indexCountsToSubtract', 0);\n        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'entityUids', 1);\n        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveUids', 2);\n        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveHeader', 3);\n    };\n    ;\n    WebGLStrategyTransformFeedback.prototype.attatchShaderProgram = function () {\n        var shaderProgramUid = this.__shaderProgramUid;\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        var gl = glw.getRawContext();\n        var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);\n        gl.useProgram(shaderProgram);\n    };\n    WebGLStrategyTransformFeedback.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {\n    };\n    WebGLStrategyTransformFeedback.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new WebGLStrategyTransformFeedback();\n        }\n        return this.__instance;\n    };\n    WebGLStrategyTransformFeedback.prototype.common_$render = function () {\n        return true;\n    };\n    return WebGLStrategyTransformFeedback;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLStrategyTransformFeedback);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLStrategyTransformFeedback.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLStrategyUBO.ts":
+/*!***************************************!*\
+  !*** ./src/webgl/WebGLStrategyUBO.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n/* harmony import */ var _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../foundation/core/MemoryManager */ \"./src/foundation/core/MemoryManager.ts\");\n/* harmony import */ var _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/math/MathUtil */ \"./src/foundation/math/MathUtil.ts\");\n/* harmony import */ var _foundation_components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/components/SceneGraphComponent */ \"./src/foundation/components/SceneGraphComponent.ts\");\n/* harmony import */ var _GLSLShader__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./GLSLShader */ \"./src/webgl/GLSLShader.ts\");\n/* harmony import */ var _foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../foundation/definitions/BufferUse */ \"./src/foundation/definitions/BufferUse.ts\");\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n\n\n\n\n\n\n\nvar WebGLStrategyUBO = /** @class */ (function () {\n    function WebGLStrategyUBO() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__uboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__[\"default\"].InvalidCGAPIResourceUid;\n        this.__shaderProgramUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__[\"default\"].InvalidCGAPIResourceUid;\n        this.__vertexHandles = [];\n        this.__isVAOSet = false;\n        this.vertexShaderMethodDefinitions_UBO = \"layout (std140) uniform matrix {\\n    mat4 world[1024];\\n  } u_matrix;\\n\\n  mat4 getMatrix(float instanceId) {\\n    float index = instanceId;\\n    return transpose(u_matrix.world[int(index)]);\\n  }\\n  \";\n    }\n    WebGLStrategyUBO.prototype.setupShaderProgram = function () {\n        if (this.__shaderProgramUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        // Shader Setup\n        var glslShader = _GLSLShader__WEBPACK_IMPORTED_MODULE_4__[\"default\"].getInstance();\n        var vertexShader = glslShader.vertexShaderVariableDefinitions +\n            this.vertexShaderMethodDefinitions_UBO +\n            glslShader.vertexShaderBody;\n        var fragmentShader = glslShader.fragmentShader;\n        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({\n            vertexShaderStr: vertexShader,\n            fragmentShaderStr: fragmentShader,\n            attributeNames: _GLSLShader__WEBPACK_IMPORTED_MODULE_4__[\"default\"].attributeNames,\n            attributeSemantics: _GLSLShader__WEBPACK_IMPORTED_MODULE_4__[\"default\"].attributeSemantics\n        });\n    };\n    WebGLStrategyUBO.prototype.__isLoaded = function (index) {\n        if (this.__vertexHandles[index] != null) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    WebGLStrategyUBO.prototype.$load = function (meshComponent) {\n        if (this.__isLoaded(0)) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);\n            this.__vertexHandles[i] = vertexHandles;\n            WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);\n        }\n    };\n    WebGLStrategyUBO.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {\n        if (this.__isVAOSet) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            // if (this.__isLoaded(i) && this.__isVAOSet) {\n            this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);\n            //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;\n            //  continue;\n            // }\n            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);\n        }\n        this.__isVAOSet = true;\n    };\n    WebGLStrategyUBO.prototype.common_$prerender = function () {\n        var isHalfFloatMode = false;\n        var memoryManager = _foundation_core_MemoryManager__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n        var buffer = memoryManager.getBuffer(_foundation_definitions_BufferUse__WEBPACK_IMPORTED_MODULE_5__[\"BufferUse\"].GPUInstanceData);\n        var floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());\n        var halfFloatDataTextureBuffer;\n        if (isHalfFloatMode) {\n            if (this.__webglResourceRepository.currentWebGLContextWrapper.isWebGL2) {\n                halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);\n                var convertLength = buffer.byteSizeInUse / 4; //components\n                convertLength /= 2; // bytes\n                for (var i = 0; i < convertLength; i++) {\n                    halfFloatDataTextureBuffer[i] = _foundation_math_MathUtil__WEBPACK_IMPORTED_MODULE_2__[\"MathUtil\"].toHalfFloat(floatDataTextureBuffer[i]);\n                }\n            }\n            if (this.__uboUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__[\"default\"].InvalidCGAPIResourceUid) {\n                this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, halfFloatDataTextureBuffer);\n                return;\n            }\n            this.__uboUid = this.__webglResourceRepository.createUniformBuffer(halfFloatDataTextureBuffer);\n        }\n        else {\n            if (this.__uboUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_6__[\"default\"].InvalidCGAPIResourceUid) {\n                this.__webglResourceRepository.updateUniformBuffer(this.__uboUid, _foundation_components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"].getAccessor('worldMatrix', _foundation_components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"]).dataViewOfBufferView);\n                return;\n            }\n            this.__uboUid = this.__webglResourceRepository.createUniformBuffer(_foundation_components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"].getAccessor('worldMatrix', _foundation_components_SceneGraphComponent__WEBPACK_IMPORTED_MODULE_3__[\"default\"]).dataViewOfBufferView);\n        }\n        this.__webglResourceRepository.bindUniformBufferBase(0, this.__uboUid);\n    };\n    ;\n    WebGLStrategyUBO.prototype.attachGPUData = function () {\n        this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'matrix', 0);\n    };\n    ;\n    WebGLStrategyUBO.prototype.attatchShaderProgram = function () {\n        var shaderProgramUid = this.__shaderProgramUid;\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        var gl = glw.getRawContext();\n        var shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid);\n        gl.useProgram(shaderProgram);\n    };\n    WebGLStrategyUBO.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {\n        var vaoHandles = this.__vertexHandles[i];\n        var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);\n        var gl = glw.getRawContext();\n        if (vao != null) {\n            glw.bindVertexArray(vao);\n        }\n        else {\n            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);\n            var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);\n            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);\n        }\n    };\n    WebGLStrategyUBO.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new WebGLStrategyUBO();\n        }\n        return this.__instance;\n    };\n    WebGLStrategyUBO.prototype.common_$render = function () {\n        return true;\n    };\n    WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids = new Map();\n    return WebGLStrategyUBO;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLStrategyUBO);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLStrategyUBO.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/WebGLStrategyUniform.ts":
+/*!*******************************************!*\
+  !*** ./src/webgl/WebGLStrategyUniform.ts ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WebGLResourceRepository */ \"./src/webgl/WebGLResourceRepository.ts\");\n/* harmony import */ var _GLSLShader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GLSLShader */ \"./src/webgl/GLSLShader.ts\");\n/* harmony import */ var _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../foundation/renderer/CGAPIResourceRepository */ \"./src/foundation/renderer/CGAPIResourceRepository.ts\");\n/* harmony import */ var _foundation_math_RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../foundation/math/RowMajarMatrix44 */ \"./src/foundation/math/RowMajarMatrix44.ts\");\n\n\n\n\nvar WebGLStrategyUniform = /** @class */ (function () {\n    function WebGLStrategyUniform() {\n        this.__webglResourceRepository = _WebGLResourceRepository__WEBPACK_IMPORTED_MODULE_0__[\"default\"].getInstance();\n        this.__uboUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_2__[\"default\"].InvalidCGAPIResourceUid;\n        this.__shaderProgramUid = _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_2__[\"default\"].InvalidCGAPIResourceUid;\n        this.__vertexHandles = [];\n        this.__isVAOSet = false;\n        this.vertexShaderMethodDefinitions_uniform = \"\\n  uniform mat4 worldMatrix;\\n\\n  mat4 getMatrix(float instanceId) {\\n    return worldMatrix;\\n  }\\n  \";\n    }\n    WebGLStrategyUniform.prototype.setupShaderProgram = function () {\n        if (this.__shaderProgramUid !== _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_2__[\"default\"].InvalidCGAPIResourceUid) {\n            return;\n        }\n        // Shader Setup\n        var glslShader = _GLSLShader__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n        var vertexShader = glslShader.vertexShaderVariableDefinitions +\n            this.vertexShaderMethodDefinitions_uniform +\n            glslShader.vertexShaderBody;\n        var fragmentShader = glslShader.fragmentShader;\n        this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram({\n            vertexShaderStr: vertexShader,\n            fragmentShaderStr: fragmentShader,\n            attributeNames: _GLSLShader__WEBPACK_IMPORTED_MODULE_1__[\"default\"].attributeNames,\n            attributeSemantics: _GLSLShader__WEBPACK_IMPORTED_MODULE_1__[\"default\"].attributeSemantics\n        });\n        this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        var gl = glw.getRawContext();\n        this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'worldMatrix');\n    };\n    WebGLStrategyUniform.prototype.__isLoaded = function (index) {\n        if (this.__vertexHandles[index] != null) {\n            return true;\n        }\n        else {\n            return false;\n        }\n    };\n    WebGLStrategyUniform.prototype.$load = function (meshComponent) {\n        if (this.__isLoaded(0)) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            var vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);\n            this.__vertexHandles[i] = vertexHandles;\n            WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);\n        }\n    };\n    WebGLStrategyUniform.prototype.$prerender = function (meshComponent, instanceIDBufferUid) {\n        if (this.__isVAOSet) {\n            return;\n        }\n        var primitiveNum = meshComponent.getPrimitiveNumber();\n        for (var i = 0; i < primitiveNum; i++) {\n            var primitive = meshComponent.getPrimitiveAt(i);\n            this.__vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid);\n            this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);\n        }\n        this.__isVAOSet = true;\n    };\n    WebGLStrategyUniform.prototype.common_$prerender = function () {\n    };\n    ;\n    WebGLStrategyUniform.prototype.attachGPUData = function () {\n    };\n    ;\n    WebGLStrategyUniform.prototype.attatchShaderProgram = function () {\n        var shaderProgramUid = this.__shaderProgramUid;\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        var gl = glw.getRawContext();\n        gl.useProgram(this.__shaderProgram);\n    };\n    WebGLStrategyUniform.prototype.attachVertexData = function (i, primitive, glw, instanceIDBufferUid) {\n        var vaoHandles = this.__vertexHandles[i];\n        var vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);\n        var gl = glw.getRawContext();\n        if (vao != null) {\n            glw.bindVertexArray(vao);\n        }\n        else {\n            this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);\n            var ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle);\n            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);\n        }\n    };\n    WebGLStrategyUniform.getInstance = function () {\n        if (!this.__instance) {\n            this.__instance = new WebGLStrategyUniform();\n        }\n        return this.__instance;\n    };\n    WebGLStrategyUniform.prototype.common_$render = function () {\n        return false;\n    };\n    WebGLStrategyUniform.prototype.$render = function (primitive_i, primitive, worldMatrix) {\n        var glw = this.__webglResourceRepository.currentWebGLContextWrapper;\n        this.attatchShaderProgram();\n        var gl = glw.getRawContext();\n        this.attachVertexData(primitive_i, primitive, glw, _foundation_renderer_CGAPIResourceRepository__WEBPACK_IMPORTED_MODULE_2__[\"default\"].InvalidCGAPIResourceUid);\n        gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, _foundation_math_RowMajarMatrix44__WEBPACK_IMPORTED_MODULE_3__[\"default\"].transpose(worldMatrix).raw());\n        //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);\n        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);\n    };\n    WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids = new Map();\n    return WebGLStrategyUniform;\n}());\n/* harmony default export */ __webpack_exports__[\"default\"] = (WebGLStrategyUniform);\n\n\n//# sourceURL=webpack:///./src/webgl/WebGLStrategyUniform.ts?");
+
+/***/ }),
+
+/***/ "./src/webgl/getRenderingStrategy.ts":
+/*!*******************************************!*\
+  !*** ./src/webgl/getRenderingStrategy.ts ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _foundation_definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../foundation/definitions/ProcessApproach */ \"./src/foundation/definitions/ProcessApproach.ts\");\n/* harmony import */ var _WebGLStrategyUBO__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WebGLStrategyUBO */ \"./src/webgl/WebGLStrategyUBO.ts\");\n/* harmony import */ var _WebGLStrategyTransformFeedback__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./WebGLStrategyTransformFeedback */ \"./src/webgl/WebGLStrategyTransformFeedback.ts\");\n/* harmony import */ var _WebGLStrategyDataTexture__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./WebGLStrategyDataTexture */ \"./src/webgl/WebGLStrategyDataTexture.ts\");\n/* harmony import */ var _WebGLStrategyUniform__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./WebGLStrategyUniform */ \"./src/webgl/WebGLStrategyUniform.ts\");\n\n\n\n\n\nvar getRenderingStrategy = function (processApproach) {\n    // Strategy\n    if (processApproach.index === _foundation_definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_0__[\"ProcessApproach\"].UBOWebGL2.index) {\n        return _WebGLStrategyUBO__WEBPACK_IMPORTED_MODULE_1__[\"default\"].getInstance();\n    }\n    else if (processApproach.index === _foundation_definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_0__[\"ProcessApproach\"].TransformFeedbackWebGL2.index) {\n        return _WebGLStrategyTransformFeedback__WEBPACK_IMPORTED_MODULE_2__[\"default\"].getInstance();\n    }\n    else if (processApproach.index === _foundation_definitions_ProcessApproach__WEBPACK_IMPORTED_MODULE_0__[\"ProcessApproach\"].UniformWebGL1.index) {\n        return _WebGLStrategyUniform__WEBPACK_IMPORTED_MODULE_4__[\"default\"].getInstance();\n    }\n    else {\n        return _WebGLStrategyDataTexture__WEBPACK_IMPORTED_MODULE_3__[\"default\"].getInstance();\n    }\n};\n/* harmony default export */ __webpack_exports__[\"default\"] = (getRenderingStrategy);\n\n\n//# sourceURL=webpack:///./src/webgl/getRenderingStrategy.ts?");
+
+/***/ })
+
+/******/ });
+(0,eval)('this').Rn.VERSION='version: UKNOWN branch: feature/refactoring';

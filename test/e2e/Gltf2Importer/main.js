@@ -1,9 +1,8 @@
-import Rn from "../../../dist/rhodonite.mjs";
 
 let p = null;
 
 const load = async function(time){
-
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
   const importer = Rn.Gltf2Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));

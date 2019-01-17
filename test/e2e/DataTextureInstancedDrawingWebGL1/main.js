@@ -1,110 +1,112 @@
-
-    import Rn from '../../../dist/rhodonite.mjs';
-    function generateEntity() {
-      const repo = Rn.EntityRepository.getInstance();
-      const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
-      return entity;
-    }
-    function generateGroupEntity() {
-      const repo = Rn.EntityRepository.getInstance();
-      const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID]);
-  //    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
-      return entity;
-    }
-    function readyBasicVerticesData() {
-      const indices = new Uint16Array([
+(function() {
+//    import Rn from '../../../dist/rhodonite.mjs';
+  function generateEntity() {
+    const repo = Rn.EntityRepository.getInstance();
+    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    return entity;
+  }
+  function generateGroupEntity() {
+    const repo = Rn.EntityRepository.getInstance();
+    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID]);
+//    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    return entity;
+  }
+  function readyBasicVerticesData() {
+    const indices = new Uint16Array([
 //        0, 1, 2, 2, 3, 0
 
-        3, 1, 0, 2, 1, 3,
-        4, 5, 7, 7, 5, 6,
-        8, 9, 11, 11, 9, 10,
-        15, 13, 12, 14, 13, 15,
-        19, 17, 16, 18, 17, 19,
-        20, 21, 23, 23, 21, 22
-      ]);
+      3, 1, 0, 2, 1, 3,
+      4, 5, 7, 7, 5, 6,
+      8, 9, 11, 11, 9, 10,
+      15, 13, 12, 14, 13, 15,
+      19, 17, 16, 18, 17, 19,
+      20, 21, 23, 23, 21, 22
+    ]);
 
-      const positions = new Float32Array([
-        // -1, -1, 0.0,
-        //  1, -1, 0.0,
-        //  1, 1, 0.0,
-        // -1, 1, 0.0
+    const positions = new Float32Array([
+      // -1, -1, 0.0,
+      //  1, -1, 0.0,
+      //  1, 1, 0.0,
+      // -1, 1, 0.0
 
-        // upper
-        -1, 1, -1,
-        1,  1, -1,
-        1,  1, 1,
-        -1, 1, 1,
-        // lower
-        -1, -1, -1,
-        1,  -1, -1,
-        1,  -1, 1,
-        -1, -1, 1,
-        // front
-        -1, -1, 1,
-        1,  -1, 1,
-        1,  1, 1,
-        -1, 1, 1,
-        // back
-        -1, -1, -1,
-        1,  -1, -1,
-        1,  1, -1,
-        -1, 1, -1,
-        // right
-        1, -1, -1,
-        1,  -1, 1,
-        1,  1, 1,
-        1, 1, -1,
-        // left
-        -1, -1, -1,
-        -1,  -1, 1,
-        -1,  1, 1,
-        -1, 1, -1
-      ]);
+      // upper
+      -1, 1, -1,
+      1,  1, -1,
+      1,  1, 1,
+      -1, 1, 1,
+      // lower
+      -1, -1, -1,
+      1,  -1, -1,
+      1,  -1, 1,
+      -1, -1, 1,
+      // front
+      -1, -1, 1,
+      1,  -1, 1,
+      1,  1, 1,
+      -1, 1, 1,
+      // back
+      -1, -1, -1,
+      1,  -1, -1,
+      1,  1, -1,
+      -1, 1, -1,
+      // right
+      1, -1, -1,
+      1,  -1, 1,
+      1,  1, 1,
+      1, 1, -1,
+      // left
+      -1, -1, -1,
+      -1,  -1, 1,
+      -1,  1, 1,
+      -1, 1, -1
+    ]);
 
-      const colors = new Float32Array([
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0,
+    const colors = new Float32Array([
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
 
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0,
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
 
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0,
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
 
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0,
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
 
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0,
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
 
-        0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0
-      ]);
+      0.0, 1.0, 1.0,
+      1.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0
+    ]);
 
-      const primitive = Rn.Primitive.createPrimitive({
-        indices: indices,
-        attributeCompositionTypes: [Rn.CompositionType.Vec3, Rn.CompositionType.Vec3],
-        attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
-        attributes: [positions, colors],
-        material: 0,
-        primitiveMode: Rn.PrimitiveMode.Triangles
-      });
+    const primitive = Rn.Primitive.createPrimitive({
+      indices: indices,
+      attributeCompositionTypes: [Rn.CompositionType.Vec3, Rn.CompositionType.Vec3],
+      attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
+      attributes: [positions, colors],
+      material: 0,
+      primitiveMode: Rn.PrimitiveMode.Triangles
+    });
 
-      return primitive;
-    }
+    return primitive;
+  }
 
+  const promise = Rn.ModuleManager.getInstance().loadModule('webgl');
+  promise.then(function(){
     const system = Rn.System.getInstance();
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.DataTextureWebGL1, document.getElementById('world'));
 
@@ -177,5 +179,7 @@
       requestAnimationFrame(draw);
     }
 
-    document.body.onload = draw;
+    draw();
 
+  });
+})();
