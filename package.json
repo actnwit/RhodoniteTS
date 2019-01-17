@@ -1,0 +1,42 @@
+{
+  "name": "rhodonite-ts",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/emadurandal/RhodoniteTS.git",
+  "author": "Yuki Shimada <emadurandal@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "setup": "cp ./pre-commit ./.git/hooks",
+    "build": "yarn build-dev && yarn build-prod && bash versioning.sh",
+    "build-dev": "webpack --config webpack.config.development.js",
+    "build-prod": "webpack --config webpack.config.production.js",
+    "serv": "node server.js",
+    "test": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest",
+    "test-update": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest --updateSnapshot",
+    "test-coverage": "jest --coverage",
+    "doc": "typedoc --includeDeclarations --exclude '**/*.test.ts' --out ./docs/ ./src/"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.18",
+    "@types/webgl-ext": "^0.0.30",
+    "@types/webgl2": "^0.0.4",
+    "express": "^4.16.4",
+    "gl": "^4.1.1",
+    "http-server": "^0.11.1",
+    "jest": "^23.6.0",
+    "jest-image-snapshot": "^2.7.0",
+    "jest-puppeteer": "^3.7.0",
+    "puppeteer": "^1.11.0",
+    "reflect-metadata": "^0.1.12",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.4",
+    "ts-loader": "^5.3.3",
+    "typedoc": "^0.13.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1",
+    "webpack-merge": "^4.2.1"
+  },
+  "dependencies": {}
+}
