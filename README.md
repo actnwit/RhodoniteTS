@@ -14,6 +14,13 @@ Rhodonite is a WebGL library written in TypeScript.
 * Node.js 8.x or later
 * yarn package manager
 
+### Setup Project
+
+```
+$ yarn install
+$ yarn setup
+```
+
 ### Build command
 
 ```
