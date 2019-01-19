@@ -259,7 +259,7 @@ export default class ModelConverter {
 
         const material = this.__setupMaterial(gltfModel, primitive.material, )
 
-        const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, void 0, indicesRnAccessor);
+        const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
         const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
         meshComponent.addPrimitive(rnPrimitive);
       }
@@ -268,7 +268,7 @@ export default class ModelConverter {
       return meshEntities;
    }
 
-  private __setupMaterial(gltfModel: glTF2, materialJson:any) {
+  private __setupMaterial(gltfModel: glTF2, materialJson:any) : Material{
     const material = new Material();
     if (materialJson.pbrMetallicRoughness != null) {
 

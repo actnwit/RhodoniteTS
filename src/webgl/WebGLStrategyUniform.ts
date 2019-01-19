@@ -16,7 +16,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
+
   private __uniformLocation_worldMatrix?: WebGLUniformLocation;
+  private __uniformLocation_material?: WebGLUniformLocation;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -53,6 +55,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'worldMatrix')!;
+    this.__uniformLocation_material = gl.getUniformLocation(this.__shaderProgram, 'uMaterial.baseColor')!;
   }
 
   private __isLoaded(index: Index) {
@@ -138,7 +141,20 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
     gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).raw());
-    //gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, ImmutableMatrix44.identity().v);
+    const material = primitive.material;
+    const baseColor = [];
+    if (material) {
+      baseColor[0] = material.baseColor.r;
+      baseColor[1] = material.baseColor.g;
+      baseColor[2] = material.baseColor.b;
+      baseColor[3] = material.alpha;
+    } else {
+      baseColor[0] = 1;
+      baseColor[1] = 1;
+      baseColor[2] = 1;
+      baseColor[3] = 1;
+    }
+    gl.uniform4fv(this.__uniformLocation_material, baseColor);
 
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);
   }

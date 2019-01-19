@@ -8,7 +8,7 @@ import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
-import Material from '../../../dist/foundation/materials/Material';
+import Material from '../materials/Material';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;

@@ -4,7 +4,7 @@ import Accessor from '../memory/Accessor';
 import RnObject from '../core/Object';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { CompositionTypeEnum } from '../definitions/CompositionType';
-import Material from '../../../dist/foundation/materials/Material';
+import Material from '../materials/Material';
 export default class Primitive extends RnObject {
     private __mode;
     private __attributes;
