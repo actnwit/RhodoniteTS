@@ -7,6 +7,7 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraphComponent';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -26,7 +27,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
-    return 4;
+    return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
   private __isLoaded(index: Index) {

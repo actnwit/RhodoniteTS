@@ -7,7 +7,7 @@ import { CompositionType } from '../definitions/CompositionType';
 export default class Vector4 implements IVector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|IVector4, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|Vector3|IVector4|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -54,6 +54,18 @@ export default class Vector4 implements IVector4 {
 
   static get compositionType() {
     return CompositionType.Vec4;
+  }
+
+  static dummy() {
+    return new Vector4(null);
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   isStrictEqual(vec:Vector4): boolean {
