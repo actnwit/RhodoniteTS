@@ -855,4 +855,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _def
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-2-gbfc7-mod branch: feature/material';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-5-g22fa-mod branch: master';
