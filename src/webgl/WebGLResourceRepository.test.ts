@@ -47,7 +47,7 @@ function readyBasicVerticesData() {
     attributeCompositionTypes: [CompositionType.Vec3, CompositionType.Vec3],
     attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
     attributes: [positions, colors],
-    material: 0,
+    material: void 0,
     primitiveMode: PrimitiveMode.Triangles
   });
 

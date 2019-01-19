@@ -19,9 +19,9 @@ export default class ColorRgb implements IVector3, IColorRgb {
     }
 
     if (r == null) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
+      this.v[0] = 1;
+      this.v[1] = 1;
+      this.v[2] = 1;
     } else if (Array.isArray(r)) {
       this.v[0] = r[0];
       this.v[1] = r[1];

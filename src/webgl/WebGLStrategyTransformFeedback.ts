@@ -153,7 +153,7 @@ void main(){
       attributeSemantics: [VertexAttribute.Position],
       attributes: [attributeAccessor.getTypedArray()],
       primitiveMode: PrimitiveMode.Triangles,
-      material: 0
+      material: void 0
     });
 
     this.__vertexHandle = this.__webglResourceRepository.createVertexDataResources(primitive);

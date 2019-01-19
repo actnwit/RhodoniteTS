@@ -4,16 +4,17 @@ import Accessor from '../memory/Accessor';
 import RnObject from '../core/Object';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { CompositionTypeEnum } from '../definitions/CompositionType';
+import Material from '../../../dist/foundation/materials/Material';
 export default class Primitive extends RnObject {
     private __mode;
     private __attributes;
-    private __material;
+    material?: Material;
     private __attributeSemantics;
     private __indices?;
     private static __primitiveCount;
     private __primitiveUid;
     private static __headerAccessor?;
-    constructor(attributeAccessors: Array<Accessor>, attributeSemantics: Array<VertexAttributeEnum>, mode: PrimitiveModeEnum, material: ObjectUID, indicesAccessor?: Accessor);
+    constructor(attributeAccessors: Array<Accessor>, attributeSemantics: Array<VertexAttributeEnum>, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor);
     static readonly maxPrimitiveCount: number;
     static readonly headerAccessor: Accessor | undefined;
     static createPrimitive({ indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }: {
@@ -22,7 +23,7 @@ export default class Primitive extends RnObject {
         attributeSemantics: Array<VertexAttributeEnum>;
         attributes: Array<TypedArray>;
         primitiveMode: PrimitiveModeEnum;
-        material: ObjectUID;
+        material?: Material;
     }): Primitive;
     readonly indicesAccessor: Accessor | undefined;
     hasIndices(): boolean;
