@@ -19,4 +19,4 @@ function from( index : number ): CameraTypeEnum {
   return _from({typeList, index}) as CameraTypeEnum;
 }
 
-export const ComponentType = Object.freeze({ Perspective, Orthographic, Frustom });
+export const CameraType = Object.freeze({ Perspective, Orthographic, Frustom });

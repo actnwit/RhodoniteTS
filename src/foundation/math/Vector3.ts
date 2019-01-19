@@ -103,6 +103,11 @@ export default class Vector3 implements IVector3 {
     return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
   }
 
+  copyComponents(vec: Vector3) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
+    this.v[2] = vec.v[2];
+  }
   /**
    * to square length(static verison)
    */

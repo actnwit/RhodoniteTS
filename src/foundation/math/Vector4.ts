@@ -103,6 +103,14 @@ export default class Vector4 implements IVector4 {
   }
 
 
+  copyComponents(vec: Vector4) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
+    this.v[2] = vec.v[2];
+    this.v[3] = vec.v[3];
+  }
+
+
   static normalize(vec4:Vector4) {
     const length = vec4.length();
     let newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
