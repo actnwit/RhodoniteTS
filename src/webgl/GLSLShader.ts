@@ -117,11 +117,29 @@ void main ()
 
     return `${_version}
 precision highp float;
+
+struct Material {
+  vec4 baseColor;
+};
+
+uniform Material uMaterial;
+
 ${_in} vec3 v_color;
 ${_def_rt0}
 void main ()
 {
-  rt0 = vec4(v_color, 1.0);
+
+  vec3 color = vec3(0.0, 0.0, 0.0);
+  if (v_color != color && uMaterial.baseColor.rgb != color) {
+    color = v_color * uMaterial.baseColor.rgb;
+  } else if (v_color == color) {
+    color = uMaterial.baseColor.rgb;
+  } else if (uMaterial.baseColor.rgb == color) {
+    color = v_color;
+  } else {
+    color = vec3(1.0, 1.0, 1.0);
+  }
+  rt0 = vec4(color, 1.0);
   ${_def_fragColor}
 }
 `;

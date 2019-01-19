@@ -19,5 +19,6 @@ export default class ModelConverter {
     _setupTransform(gltfModel: glTF2, groups: Entity[]): void;
     _setupHierarchy(gltfModel: glTF2, groups: Entity[], meshEntities: Entity[]): void;
     _setupMesh(gltfModel: glTF2, rnBuffer: Buffer): Entity[];
+    private __setupMaterial;
     private __getRnAccessor;
 }

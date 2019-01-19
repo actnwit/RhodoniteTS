@@ -14,6 +14,8 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import Material from "../materials/Material";
+import ColorRgb from "../math/ColorRgb";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -255,7 +257,9 @@ export default class ModelConverter {
           attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
         }
 
-        const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, 0, indicesRnAccessor);
+        const material = this.__setupMaterial(gltfModel, primitive.material, )
+
+        const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
         const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
         meshComponent.addPrimitive(rnPrimitive);
       }
@@ -264,23 +268,20 @@ export default class ModelConverter {
       return meshEntities;
    }
 
+  private __setupMaterial(gltfModel: glTF2, materialJson:any) : Material{
+    const material = new Material();
+    if (materialJson.pbrMetallicRoughness != null) {
 
-  private __getRnAccessor(accessor: any, rnBuffer: Buffer) {
-    const bufferView = accessor.bufferView;
-    const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: bufferView.byteLength,
-      byteStride: bufferView.byteStride,
-      byteOffset: bufferView.byteOffset,
-      isAoS: false
-    });
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteOffset: accessor.byteOffset
-    });
+      const baseColorFactor = materialJson.pbrMetallicRoughness.baseColorFactor;
+      if (baseColorFactor != null) {
+        material.baseColor.r = baseColorFactor[0];
+        material.baseColor.g = baseColorFactor[1];
+        material.baseColor.b = baseColorFactor[2];
+        material.alpha = baseColorFactor[3];
+      }
+    }
 
-    return rnAccessor;
+    return material;
   }
 //   _setupMaterial(glBoostContext, gltfModel, gltfMaterial, materialJson, accessor, additional, vertexData, dataViewMethodDic, _positions, indices, geometry, i) {
 //     let options = gltfModel.asset.extras.glboostOptions;
@@ -719,4 +720,22 @@ export default class ModelConverter {
 
   //   return vertexAttributeArray;
   // }
+
+  private __getRnAccessor(accessor: any, rnBuffer: Buffer) {
+    const bufferView = accessor.bufferView;
+    const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
+      byteLengthToNeed: bufferView.byteLength,
+      byteStride: bufferView.byteStride,
+      byteOffset: bufferView.byteOffset,
+      isAoS: false
+    });
+    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+      compositionType: CompositionType.fromString(accessor.type),
+      componentType: ComponentType.from(accessor.componentType),
+      count: accessor.count,
+      byteOffset: accessor.byteOffset
+    });
+
+    return rnAccessor;
+  }
 }

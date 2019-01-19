@@ -119,9 +119,6 @@ export default class Gltf2Importer {
     // Node
     this._loadDependenciesOfNodes(gltfJson);
 
-    // Node Transformation
-//    this._loadTransformationsOfNodes(gltfJson);
-
     // Mesh
     this._loadDependenciesOfMeshes(gltfJson);
 
