@@ -6,7 +6,7 @@ import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ProcessStage } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraphComponent';
-import { VertexHandles } from '../../../dist/webgl/WebGLResourceRepository';
+import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
