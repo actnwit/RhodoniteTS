@@ -98,7 +98,7 @@ void main ()
 {
   mat4 worldMatrix = getMatrix(a_instanceID);
   mat4 viewMatrix = getViewMatrix(a_instanceID);
-  mat4 projectionMatrix = getViewMatrix(a_instanceID);
+  mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
 

@@ -5,9 +5,8 @@ import {IVector4, IMutableVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableVector4 extends Vector4 implements IMutableVector4 {
-  constructor(x: number|TypedArray|Vector2|Vector3|IVector4, y?: number, z?: number, w?: number) {
+  constructor(x: number|TypedArray|Vector2|Vector3|IVector4|null, y?: number, z?: number, w?: number) {
     super(x, y, z, w);
-
   }
 
   static get compositionType() {
@@ -19,6 +18,10 @@ export default class MutableVector4 extends Vector4 implements IMutableVector4 {
     this.divide(length);
 
     return this;
+  }
+
+  static dummy() {
+    return new MutableVector4(null);
   }
 
   /**

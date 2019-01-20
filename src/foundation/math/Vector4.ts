@@ -11,16 +11,14 @@ export default class Vector4 implements IVector4 {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
+    } else if (x == null) {
+      this.v = new Float32Array(0);
+      return;
     } else {
       this.v = new Float32Array(4);
     }
 
-    if (!(x != null)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-      this.v[3] = 1;
-    } else if (Array.isArray(x)) {
+    if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
       this.v[2] = x[2];

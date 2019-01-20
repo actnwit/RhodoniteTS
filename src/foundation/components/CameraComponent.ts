@@ -14,6 +14,8 @@ import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import { ProcessStage } from '../definitions/ProcessStage';
+import MutableVector4 from '../math/MutableVector4';
 
 export default class CameraComponent extends Component {
   private _direction: Vector3 = Vector3.dummy();
@@ -25,8 +27,8 @@ export default class CameraComponent extends Component {
   // x: zNear, y: zFar,
   // if perspective, z: fovy, w: aspect
   // if ortho, z: xmag, w: ymag
-  private _parameters: Vector4 = Vector4.dummy();
-  public type?: CameraTypeEnum;
+  private _parameters: MutableVector4 = MutableVector4.dummy();
+  public type: CameraTypeEnum = CameraType.Perspective;
   private __sceneGraphComponent?: SceneGraphComponent;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
@@ -43,7 +45,7 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'parameters', Vector4, ComponentType.Float, [0.1, 10000, 1, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 1, 1]);
 
     this.registerMember(BufferUse.CPUGeneric, 'projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -51,8 +53,12 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
-    
+
     this.submitToAllocation(20);
+
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+
+    this.moveStageTo(ProcessStage.PreRender);
   }
 
   set up(vec: Vector3) {
@@ -101,6 +107,54 @@ export default class CameraComponent extends Component {
 
   get parametersInner() {
     return this._parameters;
+  }
+
+  set zNear(val: number) {
+    this._parameters.x = val;
+  }
+
+  get zNear() {
+    return this._parameters.x;
+  }
+
+  set zFar(val: number) {
+    this._parameters.y = val;
+  }
+
+  get zFar() {
+    return this._parameters.y;
+  }
+
+  set fovy(val: number) {
+    this._parameters.z = val;
+  }
+
+  get fovy() {
+    return this._parameters.z;
+  }
+
+  set aspect(val: number) {
+    this._parameters.w = val;
+  }
+
+  get aspect() {
+    return this._parameters.w;
+  }
+
+  set xmag(val: number) {
+    this._parameters.z = val;
+  }
+
+  get xmag() {
+    return this._parameters.z;
+  }
+
+  set ymag(val: number) {
+    this._parameters.w = val;
+  }
+
+  get ymag() {
+    return this._parameters.w;
   }
 
   static get componentTID(): ComponentTID {
@@ -194,5 +248,9 @@ export default class CameraComponent extends Component {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
   }
 
+  $prerender() {
+    this.calcProjectionMatrix();
+    this.calcViewMatrix();
+  }
 }
 ComponentRepository.registerComponentClass(CameraComponent.componentTID, CameraComponent);
