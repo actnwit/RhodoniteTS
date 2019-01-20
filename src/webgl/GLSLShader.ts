@@ -97,13 +97,10 @@ ${_out} vec3 v_color;`;
 void main ()
 {
   mat4 matrix = getMatrix(a_instanceID);
-  //mat4 matrix = getMatrix(gl_InstanceID);
+  mat4 viewMatrix = getViewMatrix(a_instanceID);
+  mat4 projectionMatrix = getViewMatrix(a_instanceID);
 
   gl_Position = matrix * vec4(a_position, 1.0);
-  // gl_Position = vec4(a_position, 1.0);
-  // gl_Position.xyz /= 10.0;
-  // gl_Position.x += a_instanceID / 20.0;
-//  gl_Position.x += col0.x / 5.0;
 
   v_color = a_color;
 }

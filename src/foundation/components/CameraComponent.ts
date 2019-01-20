@@ -13,6 +13,7 @@ import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
+import MutableMatrix44 from '../math/MutableMatrix44';
 
 export default class CameraComponent extends Component {
   private _direction: Vector3 = Vector3.dummy();
@@ -28,8 +29,8 @@ export default class CameraComponent extends Component {
   public type?: CameraTypeEnum;
   private __sceneGraphComponent?: SceneGraphComponent;
 
-  private _projectionMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
-  private _viewMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
+  private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
 
   private _tmp_f: Vector3 = Vector3.dummy();
   private _tmp_s: Vector3 = Vector3.dummy();
@@ -44,8 +45,8 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, '_corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
     this.registerMember(BufferUse.CPUGeneric, '_parameters', Vector4, ComponentType.Float, [0.1, 10000, 1, 1]);
 
-    this.registerMember(BufferUse.CPUGeneric, '_projectionMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, '_viewMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, '_projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, '_viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
     this.registerMember(BufferUse.CPUGeneric, '_tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, '_tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);

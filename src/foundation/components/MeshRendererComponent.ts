@@ -19,7 +19,6 @@ export default class MeshRendererComponent extends Component {
   private __webglRenderingStrategy?: WebGLStrategy;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __cameraComponent?: CameraComponent;
-  private __tmp_indentityMatrix: RowMajarMatrix44 = RowMajarMatrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -88,16 +87,10 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    let viewMatrix = this.__tmp_indentityMatrix;
-    let projectionMatrix = this.__tmp_indentityMatrix;
-    if (this.__cameraComponent) {
-      viewMatrix = this.__cameraComponent.viewMatrix;
-      projectionMatrix = this.__cameraComponent.projectionMatrix;
-    }
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, viewMatrix, projectionMatrix);
+      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix);
       }
     }
 

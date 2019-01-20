@@ -18,6 +18,7 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import { VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import { PrimitiveMode } from "../foundation/definitions/PrimitiveMode";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
+import Matrix44 from "../foundation/math/Matrix44";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -29,6 +30,8 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private __indexCountToSubtractUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __entitiesUidUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __primitiveUidUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __uniformLocation_viewMatrix?: WebGLUniformLocation;
+  private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
   private __isVertexReady: boolean = false;
   private __vertexHandle?: VertexHandles;
 
@@ -128,6 +131,12 @@ void main(){
         attributeSemantics: GLSLShader.attributeSemantics
       }
     );
+
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
+    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'uViewMatrix')!;
+    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')!;
   }
 
 
@@ -368,7 +377,14 @@ void main(){
     return this.__instance;
   }
 
-  common_$render() {
+  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    this.attatchShaderProgram();
+    const gl = glw.getRawContext();
+
+    gl.uniformMatrix4fv(this.__uniformLocation_viewMatrix, false, viewMatrix.v);
+    gl.uniformMatrix4fv(this.__uniformLocation_projectionMatrix, false, projectionMatrix.v);
+
     return true;
   }
 
