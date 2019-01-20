@@ -21,6 +21,7 @@ import Gltf2Importer from './importer/Gltf2Importer';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
 import MemoryManager from './core/MemoryManager';
+import CameraComponent from './components/CameraComponent';
 
 const Rn = {
   EntityRepository,
@@ -46,6 +47,7 @@ const Rn = {
   ModelConverter,
   ModuleManager,
   MemoryManager,
+  CameraComponent
 };
 export default Rn;
 

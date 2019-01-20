@@ -94,7 +94,6 @@ export default class WebGLRenderingPipeline implements RenderingPipeline {
 
   common_$render(){
     const cameraComponents  = this.__componentRepository.getComponentsWithType(CameraComponent.componentTID) as CameraComponent[];
-    
     if (cameraComponents) {
       this.__cameraComponent = cameraComponents[0];
     }

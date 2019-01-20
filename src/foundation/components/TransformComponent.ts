@@ -20,6 +20,7 @@ import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableQuaternion from '../math/MutableQuaterion';
+import Config from '../core/Config';
 
 // import AnimationComponent from './AnimationComponent';
 

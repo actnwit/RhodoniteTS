@@ -40,19 +40,19 @@ export default class CameraComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
-    this.registerMember(BufferUse.CPUGeneric, '_direction', Vector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, '_up', Vector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, '_corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, '_parameters', Vector4, ComponentType.Float, [0.1, 10000, 1, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'parameters', Vector4, ComponentType.Float, [0.1, 10000, 1, 1]);
 
-    this.registerMember(BufferUse.CPUGeneric, '_projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, '_viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
-    this.registerMember(BufferUse.CPUGeneric, '_tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, '_tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, '_tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
-
-
+    this.registerMember(BufferUse.CPUGeneric, 'tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
+    
+    this.submitToAllocation(20);
   }
 
   set up(vec: Vector3) {

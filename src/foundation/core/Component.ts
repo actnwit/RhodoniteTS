@@ -174,9 +174,8 @@ export default class Component {
 
   }
 
-  static takeBufferViewer(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte) {
+  static takeBufferViewer(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte, count: Count) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
-    const count = Config.maxEntityNumber;
 
     if (!this.__bufferViews.has(componentClass)) {
       this.__bufferViews.set(componentClass, new Map())
@@ -215,8 +214,7 @@ export default class Component {
     return this.__accessors.get(componentClass)!.get(memberName)!;
   }
 
-  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    const count = Config.maxEntityNumber;
+  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count) {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
     }
@@ -278,7 +276,7 @@ export default class Component {
       compositionType:(dataClassType as any).compositionType, componentType:componentType, initValues:initValues});
   }
 
-  submitToAllocation() {
+  submitToAllocation(count: Count = Config.maxEntityNumber) {
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
@@ -312,14 +310,14 @@ export default class Component {
           );
         });
         if (infoArray.length > 0) {
-          Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!);
+          Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
         }
       }
 
       for (let bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
         infoArray.forEach(info=>{
-          Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType);
+          Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType, count);
         });
       }
     }
