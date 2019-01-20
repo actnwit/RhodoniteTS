@@ -8,12 +8,18 @@ import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraphComponent';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
+import CameraComponent from './CameraComponent';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import Matrix44 from '../math/Matrix44';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
   __vertexHandles: Array<VertexHandles> = [];
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
   private __webglRenderingStrategy?: WebGLStrategy;
+  private __sceneGraphComponent?: SceneGraphComponent;
+  private __cameraComponent?: CameraComponent;
+  private __tmp_indentityMatrix: RowMajarMatrix44 = RowMajarMatrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -24,6 +30,14 @@ export default class MeshRendererComponent extends Component {
     array[count++] = this.componentSID;
     array[count] = Component.invalidComponentSID;
     Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count)!;
+
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+    const componentRepository = ComponentRepository.getInstance();
+    const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent.componentTID) as CameraComponent[];
+
+    if (cameraComponents) {
+      this.__cameraComponent = cameraComponents[0];
+    }
   }
 
   static get componentTID(): ComponentTID {
@@ -74,13 +88,16 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    const sceneGraphComponent =
-      this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
-
+    let viewMatrix = this.__tmp_indentityMatrix;
+    let projectionMatrix = this.__tmp_indentityMatrix;
+    if (this.__cameraComponent) {
+      viewMatrix = this.__cameraComponent.viewMatrix;
+      projectionMatrix = this.__cameraComponent.projectionMatrix;
+    }
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(i, primitive, sceneGraphComponent.worldMatrix);
+      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, viewMatrix, projectionMatrix);
       }
     }
 

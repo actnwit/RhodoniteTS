@@ -11,10 +11,14 @@ import { WebGLStrategy } from '../../webgl/main';
 import SceneGraphComponent from './SceneGraphComponent';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
+import { BufferUse } from '../definitions/BufferUse';
+import { ComponentType } from '../definitions/ComponentType';
 
 export default class CameraComponent extends Component {
   private _direction: Vector3 = Vector3.dummy();
   private _up: Vector3 = Vector3.dummy();
+
+  // x: left, y:right, z:top, w: bottom
   private _corner: Vector4 = Vector4.dummy();
 
   // x: zNear, y: zFar,
@@ -27,8 +31,27 @@ export default class CameraComponent extends Component {
   private _projectionMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
   private _viewMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
 
+  private _tmp_f: Vector3 = Vector3.dummy();
+  private _tmp_s: Vector3 = Vector3.dummy();
+  private _tmp_u: Vector3 = Vector3.dummy();
+  private __mainCameraOfSceneGraphSid: ComponentSID = -1;
+
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
+
+    this.registerMember(BufferUse.CPUGeneric, '_direction', Vector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, '_up', Vector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, '_corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, '_parameters', Vector4, ComponentType.Float, [0.1, 10000, 1, 1]);
+
+    this.registerMember(BufferUse.CPUGeneric, '_projectionMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, '_viewMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
+    this.registerMember(BufferUse.CPUGeneric, '_tmp_f', Vector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, '_tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, '_tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
+
+
   }
 
   set up(vec: Vector3) {
@@ -83,7 +106,7 @@ export default class CameraComponent extends Component {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
-  get projectionMatrix() {
+  calcProjectionMatrix() {
     const zNear = this._parameters.x;
     const zFar = this._parameters.y;
 
@@ -119,11 +142,45 @@ export default class CameraComponent extends Component {
       );
     }
 
-    return new Matrix44(null);
+    return this._projectionMatrix;
+  }
+
+  get projectionMatrix() {
+    return this._projectionMatrix;
+  }
+
+  calcViewMatrix() {
+    const eye = Vector3.zero();
+    const f = Vector3.normalize(Vector3.subtract(this._direction, eye));
+    const s = Vector3.normalize(Vector3.cross(f, this._up));
+    const u = Vector3.cross(s, f);
+
+    this._viewMatrix.setComponents(
+      s.x,
+      s.y,
+      s.z,
+      -Vector3.dotProduct(s, eye),
+      u.x,
+      u.y,
+      u.z,
+      -Vector3.dotProduct(u, eye),
+      -f.x,
+      -f.y,
+      -f.z,
+      Vector3.dotProduct(f, eye),
+      0,
+      0,
+      0,
+      1);
+
+    const invertWorldMatrix = RowMajarMatrix44.invert(this.__sceneGraphComponent!.worldMatrix);
+    this._viewMatrix.multiply(invertWorldMatrix);
+
+    return this._viewMatrix;
   }
 
   get viewMatrix() {
-    return new Matrix44(null);
+    return this._viewMatrix;
   }
 
   $create({strategy}: {

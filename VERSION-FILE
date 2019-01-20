@@ -1,6 +1,6 @@
-version: 0.1.1-7-ga7c3-mod
+version: 0.1.1-8-g1b6f-mod
 branch: feature/camera
-76898eedfc1887da73e993d66c0e7e63a790ee889da2bab8e95881e582418686 ./dist/rhodonite.js
-38376b39c341eccf6fab0f1ad33f003bf780a86108cb152d484de3adc26e883f ./dist/rhodonite.min.js
-7fb33a7367da568725ae5df00ba5e5fd88ff3a6b84040bed590873efc4fb09d1 ./dist/rhodonite-webgl.js
-ec9765b2cd0f278c881ae62d7aabc1872dd53b20b06d997d375df07518bd04a1 ./dist/rhodonite-webgl.min.js
+e413eb14e3b09676142a1195b0842912f6e8134be9ddb5747fecd6983187a285 ./dist/rhodonite.js
+0f31cd9f4c6ce6c7b9c2185934e645045d3f224389af3c48983902145364d60d ./dist/rhodonite.min.js
+194550ac13d8080add04a36000e9ee032d45aaa1370d224b8c04c9025d510e01 ./dist/rhodonite-webgl.js
+00b0b68c70eef673edb90948646ae528640471ab751c2b2a812eeae4996016f5 ./dist/rhodonite-webgl.min.js

@@ -134,7 +134,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return false;
   }
 
-  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44) {
+  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44, viewMatrix: RowMajarMatrix44, projectionMatrix: RowMajarMatrix44) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
