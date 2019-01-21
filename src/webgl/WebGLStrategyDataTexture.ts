@@ -33,8 +33,9 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
     return `
   uniform sampler2D u_dataTexture;
-  uniform mat4 uViewMatrix;
-  uniform mat4 uProjectionMatrix;
+  uniform mat4 u_viewMatrix;
+  uniform mat4 u_projectionMatrix;
+  uniform mat3 u_normalMatrix;
 
   /*
    * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
@@ -76,11 +77,15 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   }
 
   mat4 getViewMatrix(float instanceId) {
-    return uViewMatrix;
+    return u_viewMatrix;
   }
 
   mat4 getProjectionMatrix(float instanceId) {
-    return uProjectionMatrix;
+    return u_projectionMatrix;
+  }
+
+  mat3 getNormalMatrix(float instanceId) {
+    return u_normalMatrix;
   }
 
   `;
@@ -109,8 +114,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'uViewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')!;
+    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
+    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
   }
 
 

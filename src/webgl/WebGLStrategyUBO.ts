@@ -28,8 +28,9 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     mat4 world[1024];
   } u_matrix;
 
-  uniform mat4 uViewMatrix;
-  uniform mat4 uProjectionMatrix;
+  uniform mat4 u_viewMatrix;
+  uniform mat4 u_projectionMatrix;
+  uniform mat3 u_normalMatrix;
 
   mat4 getMatrix(float instanceId) {
     float index = instanceId;
@@ -37,11 +38,15 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   }
 
   mat4 getViewMatrix(float instanceId) {
-    return uViewMatrix;
+    return u_viewMatrix;
   }
 
   mat4 getProjectionMatrix(float instanceId) {
-    return uProjectionMatrix;
+    return u_projectionMatrix;
+  }
+
+  mat3 getNormalMatrix(float instanceId) {
+    return u_normalMatrix;
   }
 
   `;
@@ -71,8 +76,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'uViewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')!;
+    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
+    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
   }
 
   private __isLoaded(index: Index) {

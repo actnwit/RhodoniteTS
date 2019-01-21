@@ -90,7 +90,7 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix);
+      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix);
       }
     }
 

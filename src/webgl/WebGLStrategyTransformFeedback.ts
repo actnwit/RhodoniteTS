@@ -135,8 +135,8 @@ void main(){
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'uViewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')!;
+    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
+    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
   }
 
 

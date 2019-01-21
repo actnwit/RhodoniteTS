@@ -44,6 +44,7 @@ export default class Matrix33 implements IMatrix33 {
         this.v[1] = m[1]; this.v[4] = m[4]; this.v[7] = m[7];
         this.v[2] = m[2]; this.v[5] = m[5]; this.v[8] = m[8];
       } else {
+        let m = arguments;
         // arguments[0-8] must be row major values if isColumnMajor is false
         this.v[0] = m[0]; this.v[3] = m[1]; this.v[6] = m[2];
         this.v[1] = m[3]; this.v[4] = m[4]; this.v[7] = m[5];

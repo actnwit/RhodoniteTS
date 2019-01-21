@@ -16,7 +16,8 @@ const load = async function(time){
   const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
-//  rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+  rootGroup.getTransform().rotate = new Rn.Vector3(1.0, 1.0, 1.0);
 
   Rn.CameraComponent.main = 0;
 
