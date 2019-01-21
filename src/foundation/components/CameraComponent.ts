@@ -37,7 +37,7 @@ export default class CameraComponent extends Component {
   private _tmp_f: Vector3 = Vector3.dummy();
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
-  private __mainCameraOfSceneGraphSid: ComponentSID = -1;
+  public static main: ComponentSID = -1;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -59,6 +59,8 @@ export default class CameraComponent extends Component {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.PreRender);
+
+    CameraComponent.main = componentSid;
   }
 
   set up(vec: Vector3) {

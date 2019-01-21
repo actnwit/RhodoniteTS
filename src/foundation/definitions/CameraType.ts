@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 
 export interface CameraTypeEnum extends EnumIO {
 }
@@ -19,4 +19,8 @@ function from( index : number ): CameraTypeEnum {
   return _from({typeList, index}) as CameraTypeEnum;
 }
 
-export const CameraType = Object.freeze({ Perspective, Orthographic, Frustom });
+function fromString( str: string ): CameraTypeEnum {
+  return _fromString({typeList, str}) as CameraTypeEnum;
+}
+
+export const CameraType = Object.freeze({ Perspective, Orthographic, Frustom, from, fromString });

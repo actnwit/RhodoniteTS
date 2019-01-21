@@ -18,6 +18,8 @@ const load = async function(time){
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
 //  rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
 
+  Rn.CameraComponent.main = 0;
+
   const draw = function(time) {
 
     if (p == null) {

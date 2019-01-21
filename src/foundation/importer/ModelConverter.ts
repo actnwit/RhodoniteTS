@@ -16,6 +16,8 @@ import { VertexAttribute } from "../definitions/VertexAttribute";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import Material from "../materials/Material";
 import ColorRgb from "../math/ColorRgb";
+import CameraComponent from "../components/CameraComponent";
+import { CameraType } from "../definitions/CameraType";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -61,6 +63,13 @@ export default class ModelConverter {
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
       MeshComponent.componentTID, MeshRendererComponent.componentTID]);
+    return entity;
+  }
+  
+  private __generateCameraEntity() {
+    const repo = EntityRepository.getInstance();
+    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+      CameraComponent.componentTID]);
     return entity;
   }
 
@@ -235,8 +244,11 @@ export default class ModelConverter {
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
       if (node.mesh != null) {
-        const mesh = node.mesh;
-        this.__setupMesh(rnEntities, mesh, rnBuffer, gltfModel);
+        const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
+        rnEntities.push(meshEntity);
+      } else if (node.camera != null) {
+        const cameraEntity = this.__setupCamera(node.camera);
+        rnEntities.push(cameraEntity);
       } else {
         const group = this.__generateGroupEntity();
         group.tryToSetUniqueName(node.name, true);
@@ -247,9 +259,26 @@ export default class ModelConverter {
     return rnEntities;
    }
 
-  private __setupMesh(rnEntities: Entity[], mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
+  private __setupCamera(camera: any) {
+    const cameraEntity = this.__generateCameraEntity();
+    const cameraComponent = cameraEntity.getComponent(CameraComponent.componentTID)! as CameraComponent;
+    cameraComponent.type = CameraType.fromString(camera.type);
+    if (cameraComponent.type === CameraType.Perspective) {
+      cameraComponent.aspect = camera.perspective.aspectRatio;
+      cameraComponent.fovy = camera.perspective.yfov;
+      cameraComponent.zNear = camera.perspective.znear;
+      cameraComponent.zFar = camera.perspective.zfar;
+    } else if (cameraComponent.type === CameraType.Orthographic) {
+      cameraComponent.xmag = camera.orthographic.zmag;
+      cameraComponent.ymag = camera.orthographic.ymag;
+      cameraComponent.zNear = camera.orthographic.znear;
+      cameraComponent.zFar = camera.orthographic.zfar;
+    }
+    return cameraEntity;
+  }
+
+  private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity();
-    rnEntities.push(meshEntity);
     let rnPrimitiveMode = PrimitiveMode.from(4);
     for (let i in mesh.primitives) {
       let primitive = mesh.primitives[i];
@@ -265,14 +294,19 @@ export default class ModelConverter {
         attributeRnAccessors.push(attributeRnAccessor);
         attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
       }
-      const material = this.__setupMaterial(gltfModel, primitive.material);
+      const material = this.__setupMaterial(primitive.material);
       const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
       const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
     }
+
+    return meshEntity;
   }
 
-  private __setupMaterial(gltfModel: glTF2, materialJson:any) : Material{
+  private __setupMaterial(materialJson:any) : Material|undefined {
+    if (materialJson == null) {
+      return void 0;
+    }
     const material = new Material();
     if (materialJson.pbrMetallicRoughness != null) {
 
