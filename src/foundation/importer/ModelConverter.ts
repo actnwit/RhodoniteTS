@@ -74,24 +74,20 @@ export default class ModelConverter {
     const rnBuffer = this.createRnBuffer(gltfModel);
 
 
-    // Mesh data
-    const meshEntities = this._setupMesh(gltfModel, rnBuffer);
-
-    let groups: Entity[] = [];
-    for (let node of gltfModel.nodes) {
-      const group = this.__generateGroupEntity();
-      group.tryToSetUniqueName(node.name, true);
-      groups.push(group);
-    }
+    // Mesh, Camera, Group, ...
+    const rnEntities = this.__setupObjects(gltfModel, rnBuffer);
 
     // Transfrom
-    this._setupTransform(gltfModel, groups);
+    this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
 //    this._setupSkeleton(gltfModel, groups, glboostMeshes);
 
     // Hierarchy
-    this._setupHierarchy(gltfModel, groups, meshEntities);
+    this._setupHierarchy(gltfModel, rnEntities);
+
+    // Camera
+    //this._setupCamera(gltfModel, groups);
 
     // Animation
 //    this._setupAnimation(gltfModel, groups);
@@ -101,7 +97,7 @@ export default class ModelConverter {
     rootGroup.tryToSetUniqueName('FileRoot', true);
     if (gltfModel.scenes[0].nodesIndices) {
       for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
-        rootGroup.getSceneGraph().addChild(groups[nodesIndex].getSceneGraph());
+        rootGroup.getSceneGraph().addChild(rnEntities[nodesIndex].getSceneGraph());
       }
     }
 
@@ -125,6 +121,10 @@ export default class ModelConverter {
     // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
 
     return rootGroup;
+  }
+
+  _setupCamera(gltfModel: glTF2) {
+
   }
 
   private createRnBuffer(gltfModel: glTF2) {
@@ -158,16 +158,13 @@ export default class ModelConverter {
     }
   }
 
-  _setupHierarchy(gltfModel: glTF2, groups: Entity[], meshEntities: Entity[]) {
-    const groupSceneComponents = groups.map(group=>{return group.getSceneGraph();});
-    const meshSceneComponents = meshEntities.map(mesh=>{return mesh.getSceneGraph();});
+  _setupHierarchy(gltfModel: glTF2, rnEntities: Entity[]) {
+    const groupSceneComponents = rnEntities.map(group=>{return group.getSceneGraph();});
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
       let parentGroup = groupSceneComponents[node_i];
-      if (node.mesh) {
-        parentGroup.addChild(meshSceneComponents[node.meshIndex]);
-      }
+
       if (node.childrenIndices) {
         for (let childNode_i of node.childrenIndices) {
           let childGroup = groupSceneComponents[childNode_i];
@@ -231,42 +228,49 @@ export default class ModelConverter {
   // }
 
 
-  _setupMesh(gltfModel: glTF2, rnBuffer: Buffer) {
-    const meshEntities: Entity[] = [];
-    for (let mesh of gltfModel.meshes) {
-      const meshEntity = this.__generateMeshEntity();
-      meshEntities.push(meshEntity);
+  __setupObjects(gltfModel: glTF2, rnBuffer: Buffer) {
+    //const meshEntities: Entity[] = [];
+    const rnEntities: Entity[] = [];
 
-      let rnPrimitiveMode = PrimitiveMode.from(4);
-
-      for (let i in mesh.primitives) {
-
-        let primitive = mesh.primitives[i];
-        if (primitive.mode != null) {
-          rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
-        }
-
-        const indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
-
-        const attributeRnAccessors = [];
-        const attributeSemantics = [];
-        for (let attributeName in primitive.attributes) {
-          let attributeAccessor = primitive.attributes[attributeName];
-          const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-          attributeRnAccessors.push(attributeRnAccessor);
-          attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
-        }
-
-        const material = this.__setupMaterial(gltfModel, primitive.material, )
-
-        const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
-        const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
-        meshComponent.addPrimitive(rnPrimitive);
+    for (let node_i in gltfModel.nodes) {
+      let node = gltfModel.nodes[parseInt(node_i)];
+      if (node.mesh != null) {
+        const mesh = node.mesh;
+        this.__setupMesh(rnEntities, mesh, rnBuffer, gltfModel);
+      } else {
+        const group = this.__generateGroupEntity();
+        group.tryToSetUniqueName(node.name, true);
+        rnEntities.push(group);
       }
     }
 
-      return meshEntities;
+    return rnEntities;
    }
+
+  private __setupMesh(rnEntities: Entity[], mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
+    const meshEntity = this.__generateMeshEntity();
+    rnEntities.push(meshEntity);
+    let rnPrimitiveMode = PrimitiveMode.from(4);
+    for (let i in mesh.primitives) {
+      let primitive = mesh.primitives[i];
+      if (primitive.mode != null) {
+        rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
+      }
+      const indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+      const attributeRnAccessors = [];
+      const attributeSemantics = [];
+      for (let attributeName in primitive.attributes) {
+        let attributeAccessor = primitive.attributes[attributeName];
+        const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+        attributeRnAccessors.push(attributeRnAccessor);
+        attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
+      }
+      const material = this.__setupMaterial(gltfModel, primitive.material);
+      const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
+      const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
+      meshComponent.addPrimitive(rnPrimitive);
+    }
+  }
 
   private __setupMaterial(gltfModel: glTF2, materialJson:any) : Material{
     const material = new Material();

@@ -169,4 +169,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-12-g59c8-mod branch: feature/camera';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-13-g9964-mod branch: feature/camera';
