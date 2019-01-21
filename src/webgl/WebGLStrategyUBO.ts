@@ -10,6 +10,7 @@ import MeshComponent from "../foundation/components/MeshComponent";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../foundation/geometry/Primitive";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
+import Matrix44 from "../foundation/math/Matrix44";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -18,6 +19,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
+  private __uniformLocation_viewMatrix?: WebGLUniformLocation;
+  private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
   private __isVAOSet = false;
 
   private vertexShaderMethodDefinitions_UBO:string =
@@ -25,10 +28,27 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     mat4 world[1024];
   } u_matrix;
 
+  uniform mat4 u_viewMatrix;
+  uniform mat4 u_projectionMatrix;
+  uniform mat3 u_normalMatrix;
+
   mat4 getMatrix(float instanceId) {
     float index = instanceId;
     return transpose(u_matrix.world[int(index)]);
   }
+
+  mat4 getViewMatrix(float instanceId) {
+    return u_viewMatrix;
+  }
+
+  mat4 getProjectionMatrix(float instanceId) {
+    return u_projectionMatrix;
+  }
+
+  mat3 getNormalMatrix(float instanceId) {
+    return u_normalMatrix;
+  }
+
   `;
 
   private constructor(){}
@@ -52,6 +72,12 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
         attributeSemantics: GLSLShader.attributeSemantics
       }
     );
+
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
+    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
+    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
   }
 
   private __isLoaded(index: Index) {
@@ -164,7 +190,14 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render() {
+  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    this.attatchShaderProgram();
+    const gl = glw.getRawContext();
+
+    gl.uniformMatrix4fv(this.__uniformLocation_viewMatrix, false, viewMatrix.v);
+    gl.uniformMatrix4fv(this.__uniformLocation_projectionMatrix, false, projectionMatrix.v);
+
     return true;
   }
 }

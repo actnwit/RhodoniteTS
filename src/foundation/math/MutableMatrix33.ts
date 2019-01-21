@@ -4,6 +4,7 @@ import {IMutableMatrix33} from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
+import RowMajarMatrix44 from "./RowMajarMatrix44";
 
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
 
@@ -41,8 +42,26 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     return this;
   }
 
+  copyComponents(mat4: Matrix33) {
+    const m = mat4;
+
+    this.m00 = m.m00;
+    this.m01 = m.m01;
+    this.m02 = m.m02;
+    this.m10 = m.m10;
+    this.m11 = m.m11;
+    this.m12 = m.m12;
+    this.m20 = m.m20;
+    this.m21 = m.m21;
+    this.m22 = m.m22;
+  }
+
   static get compositionType() {
     return CompositionType.Mat3;
+  }
+
+  static dummy() {
+    return new MutableMatrix33(null);
   }
 
   identity() {

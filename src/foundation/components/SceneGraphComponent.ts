@@ -9,12 +9,15 @@ import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import MutableMatrix33 from '../math/MutableMatrix33';
+import Matrix33 from '../math/Matrix33';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   private __isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
   private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
+  private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
 
@@ -36,6 +39,7 @@ export default class SceneGraphComponent extends Component {
     this.__isAbleToBeParent = false;
     this.beAbleToBeParent(true);
     this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
     this.submitToAllocation();
 
     //this.__updatedProperly = false;
@@ -79,6 +83,15 @@ export default class SceneGraphComponent extends Component {
 
   get worldMatrix() {
     return this.worldMatrixInner.clone();
+  }
+
+  get normalMatrixInner() {
+    this._normalMatrix.copyComponents(new Matrix33(Matrix44.invert(Matrix44.transpose(this.worldMatrix))));
+    return this._normalMatrix;
+  }
+
+  get normalMatrix() {
+    return this.normalMatrixInner.clone();
   }
 
   $logic() {

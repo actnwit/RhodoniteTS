@@ -2,6 +2,7 @@ import ComponentRepository from '../core/ComponentRepository';
 import Component from '../core/Component';
 import Primitive from '../geometry/Primitive';
 import EntityRepository from '../core/EntityRepository';
+import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
@@ -12,7 +13,7 @@ export default class MeshComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
-    return 3;
+    return WellKnownComponentTIDs.MeshComponentTID;
   }
 
   addPrimitive(primitive: Primitive) {

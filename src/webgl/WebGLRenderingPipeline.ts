@@ -12,6 +12,8 @@ import WebGLStrategy from "./WebGLStrategy";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Config from "../foundation/core/Config";
 import Accessor from "../foundation/memory/Accessor";
+import CameraComponent from "../foundation/components/CameraComponent";
+import Matrix44 from "../foundation/math/Matrix44";
 
 export default class WebGLRenderingPipeline implements RenderingPipeline {
   private static __instance: WebGLRenderingPipeline;
@@ -20,6 +22,8 @@ export default class WebGLRenderingPipeline implements RenderingPipeline {
   private __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGLStrategy?: WebGLStrategy;
   private __instanceIdAccessor?: Accessor;
+  private __cameraComponent?: CameraComponent;
+  private __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
 
   private constructor(){
 
@@ -89,7 +93,14 @@ export default class WebGLRenderingPipeline implements RenderingPipeline {
   }
 
   common_$render(){
-    if (!this.__webGLStrategy!.common_$render()) {
+    this.__cameraComponent = this.__componentRepository.getComponent(CameraComponent.componentTID, CameraComponent.main) as CameraComponent;
+    let viewMatrix = this.__tmp_indentityMatrix;
+    let projectionMatrix = this.__tmp_indentityMatrix;
+    if (this.__cameraComponent) {
+      viewMatrix = this.__cameraComponent.viewMatrix;
+      projectionMatrix = this.__cameraComponent.projectionMatrix;
+    }
+    if (!this.__webGLStrategy!.common_$render(viewMatrix, projectionMatrix)) {
       return;
     }
 

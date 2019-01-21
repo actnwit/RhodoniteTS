@@ -7,20 +7,18 @@ import { CompositionType } from '../definitions/CompositionType';
 export default class Vector4 implements IVector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|IVector4, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|Vector3|IVector4|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
+      return;
+    } else if (x == null) {
+      this.v = new Float32Array(0);
       return;
     } else {
       this.v = new Float32Array(4);
     }
 
-    if (!(x != null)) {
-      this.v[0] = 0;
-      this.v[1] = 0;
-      this.v[2] = 0;
-      this.v[3] = 1;
-    } else if (Array.isArray(x)) {
+    if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
       this.v[2] = x[2];
@@ -56,6 +54,18 @@ export default class Vector4 implements IVector4 {
     return CompositionType.Vec4;
   }
 
+  static dummy() {
+    return new Vector4(null);
+  }
+
+  isDummy() {
+    if (this.v.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   isStrictEqual(vec:Vector4): boolean {
     if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
@@ -88,6 +98,14 @@ export default class Vector4 implements IVector4 {
 
   length() {
     return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z + this.w*this.w);
+  }
+
+
+  copyComponents(vec: Vector4) {
+    this.v[0] = vec.v[0];
+    this.v[1] = vec.v[1];
+    this.v[2] = vec.v[2];
+    this.v[3] = vec.v[3];
   }
 
 

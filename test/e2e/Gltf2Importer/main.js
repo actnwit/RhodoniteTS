@@ -7,9 +7,19 @@ const load = async function(time){
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
+  const entityRepository = Rn.EntityRepository.getInstance();
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.CameraComponent.componentTID])
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent.componentTID);
+  cameraComponent.type = Rn.CameraType.Orthographic;
+  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 100);
+
   const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
+  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+  rootGroup.getTransform().rotate = new Rn.Vector3(1.0, 1.0, 1.0);
+
+  Rn.CameraComponent.main = 0;
 
   const draw = function(time) {
 
