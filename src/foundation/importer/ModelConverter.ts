@@ -18,6 +18,7 @@ import Material from "../materials/Material";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
+import Texture from "../textures/Texture";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -308,14 +309,24 @@ export default class ModelConverter {
       return void 0;
     }
     const material = new Material();
-    if (materialJson.pbrMetallicRoughness != null) {
+    const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
+    if (pbrMetallicRoughness != null) {
 
-      const baseColorFactor = materialJson.pbrMetallicRoughness.baseColorFactor;
+      const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
         material.baseColor.r = baseColorFactor[0];
         material.baseColor.g = baseColorFactor[1];
         material.baseColor.b = baseColorFactor[2];
         material.alpha = baseColorFactor[3];
+      }
+
+      const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
+      if (baseColorTexture != null) {
+        const texture = baseColorTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTExtureFromImage(image);
+        material.baseColorTexture = rnTexture;
       }
     }
 

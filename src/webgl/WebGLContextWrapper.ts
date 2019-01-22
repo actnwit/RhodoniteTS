@@ -3,12 +3,14 @@ import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;
   __webglVersion: number = 1;
-  __webgl1ExtVAO?: WebGLObject|any;
-  __webgl1ExtIA?: WebGLObject|any;
-  __webgl1ExtTF?: WebGLObject|any;
-  __webgl1ExtTHF?: WebGLObject|any;
-  __webgl1ExtTFL?: WebGLObject|any;
-  __webgl1ExtTHFL?: WebGLObject|any;
+  public readonly webgl1ExtVAO?: OES_vertex_array_object;
+  public readonly webgl1ExtIA?: ANGLE_instanced_arrays;
+  public readonly webgl1ExtTF?: OES_texture_float;
+  public readonly webgl1ExtTHF?: OES_texture_half_float;
+  public readonly webgl1ExtTFL?: OES_texture_float_linear;
+  public readonly webgl1ExtTHFL?: OES_texture_half_float_linear;
+  public readonly webgl1ExtTFA?: EXT_texture_filter_anisotropic;
+
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
   constructor(gl: WebGLRenderingContext) {
@@ -17,12 +19,13 @@ export default class WebGLContextWrapper {
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
     } else {
-      this.__webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
-      this.__webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
-      this.__webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
-      this.__webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
-      this.__webgl1ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
-      this.__webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear)
+      this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
+      this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
+      this.webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
+      this.webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
+      this.webgl1ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
+      this.webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear)
+      this.webgl1ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic)
     }
   }
 
@@ -50,18 +53,18 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       return this.__gl.createVertexArray();
     } else {
-      if (this.__webgl1ExtVAO != null) {
-        return this.__webgl1ExtVAO.createVertexArrayOES();
+      if (this.webgl1ExtVAO != null) {
+        return this.webgl1ExtVAO.createVertexArrayOES();
       }
     }
   }
 
-  bindVertexArray(vao: WebGLObject|null) {
+  bindVertexArray(vao: WebGLVertexArrayObjectOES|null) {
     if (this.isWebGL2) {
       this.__gl.bindVertexArray(vao);
     } else {
-      if (this.__webgl1ExtVAO != null) {
-        this.__webgl1ExtVAO.bindVertexArrayOES(vao);
+      if (this.webgl1ExtVAO != null) {
+        this.webgl1ExtVAO.bindVertexArrayOES(vao);
       }
     }
   }
@@ -70,7 +73,7 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       this.__gl.vertexAttribDivisor(index, divisor);
     } else {
-      this.__webgl1ExtIA!.vertexAttribDivisorANGLE(index, divisor);
+      this.webgl1ExtIA!.vertexAttribDivisorANGLE(index, divisor);
     }
   }
 
@@ -78,7 +81,7 @@ export default class WebGLContextWrapper {
     if (this.isWebGL2) {
       this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
     } else {
-      this.__webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
+      this.webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
     }
   }
 

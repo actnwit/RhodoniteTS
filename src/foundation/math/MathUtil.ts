@@ -60,4 +60,18 @@ const toHalfFloat = (function() {
 
 }());
 
-export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat});
+/**
+ * check whether or not this texture size is power of two.
+ *
+ * @param x texture size.
+ * @returns check whether or not the size x is power of two.
+ */
+function isPowerOfTwo(x: number): boolean {
+  return (x & (x - 1)) == 0;
+}
+
+function isPowerOfTwoTexture(width: Size, height: Size) {
+  return isPowerOfTwo(width) && isPowerOfTwo(height);
+}
+
+export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture});

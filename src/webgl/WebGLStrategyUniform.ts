@@ -24,6 +24,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __uniformLocation_viewMatrix?: WebGLUniformLocation;
   private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
   private __uniformLocation_normalMatrix?: WebGLUniformLocation;
+  private __uniformLocation_baseColorTexture?: WebGLUniformLocation;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -76,10 +77,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_worldMatrix')!;
-    this.__uniformLocation_material = gl.getUniformLocation(this.__shaderProgram, 'uMaterial.baseColor')!;
+    this.__uniformLocation_material = gl.getUniformLocation(this.__shaderProgram, 'u_material.baseColor')!;
     this.__uniformLocation_viewMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_viewMatrix')!;
     this.__uniformLocation_projectionMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_projectionMatrix')!;
     this.__uniformLocation_normalMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_normalMatrix')!;
+    this.__uniformLocation_baseColorTexture = gl.getUniformLocation(this.__shaderProgram, 'u_material.baseColorTexture')!;
   }
 
   private __isLoaded(index: Index) {
@@ -133,7 +135,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vaoHandles = this.__vertexHandles[i];
-    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
@@ -187,8 +189,15 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       baseColor[3] = 1;
     }
     gl.uniform4fv(this.__uniformLocation_material, baseColor);
+    gl.uniform1i(this.__uniformLocation_baseColorTexture, 0);
+
+    if (material && material!.baseColorTexture) {
+      const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
 
     glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);
+
   }
 
 }

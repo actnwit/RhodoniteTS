@@ -3,13 +3,13 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 import Primitive from "../foundation/geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import { WebGLExtension, WebGLExtensionEnum } from "./WebGLExtension";
 import { TextureParameterEnum } from "../foundation/definitions/TextureParameter";
 import { PixelFormatEnum } from "../foundation/definitions/PixelFormat";
 import { ComponentTypeEnum } from "../foundation/definitions/ComponentType";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
+import { MathUtil } from "../foundation/math/MathUtil"
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
@@ -219,7 +219,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   {
     const gl = this.__glw!.getRawContext();;
 
-    const vao = this.getWebGLResource(vaoHandle);
+    const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
 
     // VAO bind
     this.__glw!.bindVertexArray(vao!);
@@ -281,9 +281,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  createTexture(typedArray: TypedArray, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT}:
+  createTexture(data: TypedArray|HTMLImageElement|HTMLCanvasElement, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
-      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum}) {
+      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}) {
     const gl = this.__glw!.getRawContext();;
 
     const dataTexture = gl.createTexture();
@@ -292,13 +292,25 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, dataTexture!);
 
     gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
-                  format.index, type.index, typedArray);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index,
+        format.index, type.index, data);
+    } else {
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
+                  format.index, type.index, data);
+    }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy && this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      }
+      if (generateMipmap) {
+        gl.generateMipmap(gl.TEXTURE_2D);
+      }
+    }
     return resourceHandle;
   }
 

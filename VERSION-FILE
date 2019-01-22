@@ -1,6 +1,6 @@
-version: 0.1.1-15-gf91a-mod
-branch: feature/camera
-6e0eb6ca44454a0874c1f9364be61085eb512d7d20a06fa1e7a00b7e2bc9fcc3 ./dist/rhodonite.js
-5b15536081d8c289a66c0d75378ae7b5a9018e19edfe347c005cb1282fff349b ./dist/rhodonite.min.js
-c518dea48531c582e7e8b7f3e103e14d281f07a047dec5ede87395a0587a6c32 ./dist/rhodonite-webgl.js
-48bc6d227a913f6ede92c399307d3a208c327bdfd05ed00dd86a07740c1bb9f4 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-18-gd1c6-mod
+branch: feature/light
+5d6fcf545913ddf8d3ff1a814d3533934fbaa625f73cd0a07996d6f50b9df33b ./dist/rhodonite.js
+dd89742937d3ad5e36fd304ec6d6ecb2482eb4add7c9679c6ad18296deb4eb27 ./dist/rhodonite.min.js
+eb08cac141be887142d2c03f9f175180eec2fd9c232137b3965cfe4b2dc60139 ./dist/rhodonite-webgl.js
+1fd2b2dd642de87101bcf36a1c79eb1f70e64d0f90a7349814cf826994f1ed4b ./dist/rhodonite-webgl.min.js
