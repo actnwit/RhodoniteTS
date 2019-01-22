@@ -133,7 +133,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vaoHandles = this.__vertexHandles[i];
-    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle);
+    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {

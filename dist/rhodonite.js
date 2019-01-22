@@ -891,4 +891,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _def
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-15-gf91a-mod branch: feature/camera';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-17-g26df-mod branch: master';
