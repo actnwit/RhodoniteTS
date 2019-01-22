@@ -13,6 +13,7 @@ export default class Texture extends RnObject {
   private __textureUid: TextureUID;
   private __img?: HTMLImageElement;
   private __isTextureReady = true;
+  public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
 
   constructor() {
     super(true);
@@ -52,6 +53,22 @@ export default class Texture extends RnObject {
     return canvas;
   }
 
+  generateTExtureFromImage(image: HTMLImageElement) {
+    let imgCanvas = this._getResizedCanvas(image);
+    this.__width = imgCanvas.width;
+    this.__height = imgCanvas.height;
+
+    let texture = WebGLResourceRepository.getInstance().createTexture(
+      imgCanvas, {
+        level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
+        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
+      });
+
+    this.texture3DAPIResourseUid = texture;
+    this.__isTextureReady = true;
+  }
+
   generateTextureFromUri(imageUri: string) {
     return new Promise((resolve, reject)=> {
       this.__img = new Image();
@@ -70,7 +87,7 @@ export default class Texture extends RnObject {
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
           });
 
-        this.__textureUid = texture;
+        this.texture3DAPIResourseUid = texture;
         this.__isTextureReady = true;
 
         resolve();

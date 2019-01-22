@@ -293,7 +293,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindTexture(gl.TEXTURE_2D, dataTexture);
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
-      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, border,
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index,
         format.index, type.index, data);
     } else {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,

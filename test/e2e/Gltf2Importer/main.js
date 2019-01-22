@@ -13,7 +13,8 @@ const load = async function(time){
   cameraComponent.type = Rn.CameraType.Orthographic;
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 100);
 
-  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
+  const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
