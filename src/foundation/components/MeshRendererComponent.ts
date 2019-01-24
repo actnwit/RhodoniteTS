@@ -20,8 +20,8 @@ export default class MeshRendererComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __cameraComponent?: CameraComponent;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+    super(entityUid, componentSid, entityRepository);
     this.__currentProcessStage = ProcessStage.Create;
 
     let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;

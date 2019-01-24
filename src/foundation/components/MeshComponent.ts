@@ -7,8 +7,8 @@ import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+    super(entityUid, componentSid, entityRepository);
 
   }
 

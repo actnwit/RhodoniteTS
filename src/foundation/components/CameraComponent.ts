@@ -39,8 +39,8 @@ export default class CameraComponent extends Component {
   private _tmp_u: Vector3 = Vector3.dummy();
   public static main: ComponentSID = -1;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+    super(entityUid, componentSid, entityRepository);
 
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
