@@ -112,10 +112,9 @@ export default class Component {
     return true;
   }
 
-  static process({componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository, strategy}: {
+  static process({componentTid, processStage, processApproach, componentRepository, strategy}: {
     componentTid: ComponentTID,
     processStage: ProcessStageEnum,
-    instanceIDBufferUid: CGAPIResourceHandle,
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
     strategy: WebGLStrategy
@@ -134,7 +133,6 @@ export default class Component {
       const component = componentRepository.getComponent(componentTid, componentSid)!;
       (component as any)[processStage.getMethodName()]({
         processStage,
-        instanceIDBufferUid,
         processApproach,
         strategy
       });
@@ -359,9 +357,9 @@ export default class Component {
 
 export interface ComponentConstructor {
   new(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository): Component;
-  process({componentTid, processStage, instanceIDBufferUid, processApproach, componentRepository}:
+  process({componentTid, processStage, processApproach, componentRepository}:
     {componentTid: ComponentTID, processStage: ProcessStageEnum,
-      instanceIDBufferUid: CGAPIResourceHandle, processApproach: ProcessApproachEnum,
+      processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
     strategy: WebGLStrategy
     }): void;

@@ -20,7 +20,6 @@ export default class System {
     ProcessStage.Discard
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
-  private __renderingPipeline?: RenderingPipeline;
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private __webglStrategy?: WebGLStrategy;
 
@@ -34,25 +33,19 @@ export default class System {
 
     this.__processStages.forEach(stage=>{
       const methodName = stage.getMethodName();
-      let instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       const componentTids = this.__componentRepository.getComponentTIDs();
-      const commonMethod = (this.__renderingPipeline as any)['common_'+methodName];
-      if (commonMethod != null) {
-        instanceIDBufferUid = commonMethod.call(this.__renderingPipeline, this.__processApproach);
-      }
       componentTids.forEach(componentTid=>{
         const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
 
         const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
         if (componentClass_commonMethod) {
-          componentClass_commonMethod();
+          componentClass_commonMethod(this.__processApproach);
         }
 
         componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
         componentClass.process({
           componentTid:componentTid,
           processStage:stage,
-          instanceIDBufferUid:instanceIDBufferUid,
           processApproach:this.__processApproach,
           componentRepository: this.__componentRepository,
           strategy: this.__webglStrategy!
@@ -66,7 +59,6 @@ export default class System {
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any).default;
     this.__webglStrategy = webglModule.getRenderingStrategy(approach);
-    this.__renderingPipeline = webglModule.WebGLRenderingPipeline.getInstance();
     const repo = webglModule.WebGLResourceRepository.getInstance();
 
     let gl;
