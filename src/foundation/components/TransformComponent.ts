@@ -229,7 +229,7 @@ export default class TransformComponent extends Component {
   }
 
   set matrix(mat: Matrix44) {
-    this._matrix = new MutableMatrix44(mat);
+    this._matrix = new MutableMatrix44(mat, true);
     this._is_trs_matrix_updated = true;
     this._is_translate_updated = false;
     this._is_euler_angles_updated = false;
