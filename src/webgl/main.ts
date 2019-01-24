@@ -1,7 +1,6 @@
 import getRenderingStrategy from './getRenderingStrategy';
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import WebGLContextWrapper from './WebGLContextWrapper';
-import WebGLRenderingPipeline from './WebGLRenderingPipeline';
 import WebGLResourceRepository, {VertexHandles} from './WebGLResourceRepository';
 import WebGLStrategy from './WebGLStrategy';
 import WebGLStrategyDataTexture from './WebGLStrategyDataTexture';
@@ -13,7 +12,6 @@ const WebGL = Object.freeze({
   getRenderingStrategy,
   GLSLShader,
   WebGLContextWrapper,
-  WebGLRenderingPipeline,
   WebGLResourceRepository,
   WebGLStrategyDataTexture,
   WebGLStrategyTransformFeedback,

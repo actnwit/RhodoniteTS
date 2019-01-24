@@ -24,8 +24,8 @@ export default class SceneGraphComponent extends Component {
 
   private static __bufferView: BufferView;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+    super(entityUid, componentSid, entityRepository);
 
     const thisClass = SceneGraphComponent;
 
