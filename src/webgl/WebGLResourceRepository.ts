@@ -12,7 +12,10 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 
 export type VertexHandles = {
-  vaoHandle: CGAPIResourceHandle, iboHandle?: CGAPIResourceHandle, vboHandles: Array<CGAPIResourceHandle>
+  vaoHandle: CGAPIResourceHandle,
+  iboHandle?: CGAPIResourceHandle,
+  vboHandles: Array<CGAPIResourceHandle>,
+  setComplete: boolean;
 };
 
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
@@ -65,6 +68,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, ibo!);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+//    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.bufferView.buffer.getArrayBuffer(), gl.STATIC_DRAW);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accsessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
@@ -83,6 +87,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+//    gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.buffer.getArrayBuffer(), gl.STATIC_DRAW);
     gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -105,15 +110,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  createVertexDataResources(primitive: Primitive): {
-    vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>
-  } {
+  createVertexDataResources(primitive: Primitive): VertexHandles
+   {
     const gl = this.__glw!.getRawContext();
 
     const vaoHandle = this.createVertexArray();
 
     let iboHandle;
-    if (primitive.hasIndices) {
+    if (primitive.hasIndices()) {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
 
@@ -125,7 +129,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-    return {vaoHandle, iboHandle, vboHandles};
+    return {vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles, setComplete: false};
   }
 
   createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
@@ -249,7 +253,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         primitive.attributeComponentTypes[i].index,
         false,
         primitive.attributeAccessors[i].byteStride,
-        0
+        0, //primitive.attributeAccessors[i].byteOffsetInBuffer
         );
     });
 

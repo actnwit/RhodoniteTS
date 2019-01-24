@@ -15,7 +15,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __uboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __shaderProgram?: WebGLShader;
-  private __vertexHandles: Array<VertexHandles> = [];
+  //private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
 
@@ -84,40 +84,48 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__uniformLocation_baseColorTexture = gl.getUniformLocation(this.__shaderProgram, 'u_material.baseColorTexture')!;
   }
 
-  private __isLoaded(index: Index) {
-    if (this.__vertexHandles[index] != null) {
-      return true;
-    } else {
-      return false
-    }
-  }
+  // private __isLoaded(index: Index) {
+  //   if (this.__vertexHandles[index] != null) {
+  //     return true;
+  //   } else {
+  //     return false
+  //   }
+  // }
 
   $load(meshComponent: MeshComponent) {
-    if (this.__isLoaded(0)) {
-      return;
-    }
+    // if (this.__isLoaded(0)) {
+    //   return;
+    // }
 
     const primitiveNum = meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-      this.__vertexHandles[i] = vertexHandles;
+      //this.__vertexHandles[i] = vertexHandles;
       WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
 
     }
+
   }
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
-    if (this.__isVAOSet) {
-      return;
-    }
+//    if (this.__isVAOSet) {
+//      return;
+//    }
+    const vertexHandles = [];
     const primitiveNum = meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
+
       const primitive = meshComponent!.getPrimitiveAt(i);
-      this.__vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-      this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
-    }
-    this.__isVAOSet = true;
+      vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+      if (!vertexHandles[i].setComplete) {
+
+        //continue;
+      }
+      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles[i], primitive, instanceIDBufferUid);
+      vertexHandles[i].setComplete = true;
+  }
+//    this.__isVAOSet = true;
   }
 
   common_$prerender(): void {
@@ -134,7 +142,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
-    const vaoHandles = this.__vertexHandles[i];
+    const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+    const vaoHandles = vertexHandle;
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
@@ -196,7 +205,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
-    glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, 1);
+//    gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer);
+    gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
 
   }
 

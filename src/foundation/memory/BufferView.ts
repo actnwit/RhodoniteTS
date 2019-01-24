@@ -121,15 +121,15 @@ export default class BufferView extends RnObject {
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
     }
 
-    if (byteOffset % 4 !== 0) {
-      console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-      byteOffset += 4 - byteOffset % 4;
-    }
+    // if (byteOffset % 4 !== 0) {
+    //   console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+    //   byteOffset += 4 - byteOffset % 4;
+    // }
 
-    if (this.__byteOffset % 4 !== 0) {
-      console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-      this.__byteOffset += 4 - this.__byteOffset % 4;
-    }
+    // if (this.__byteOffset % 4 !== 0) {
+    //   console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+    //   this.__byteOffset += 4 - this.__byteOffset % 4;
+    // }
 
     const accessor = new accessorClass({
       bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
@@ -144,15 +144,15 @@ export default class BufferView extends RnObject {
   private __takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass}:
     {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, accessorClass:any}): AccessorBase {
 
-    if (byteOffset % 4 !== 0) {
-      console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-      byteOffset += 4 - byteOffset % 4;
-    }
+    // if (byteOffset % 4 !== 0) {
+    //   console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+    //   byteOffset += 4 - byteOffset % 4;
+    // }
 
-    if (this.__byteOffset % 4 !== 0) {
-      console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-      this.__byteOffset += 4 - this.__byteOffset % 4;
-    }
+    // if (this.__byteOffset % 4 !== 0) {
+    //   console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+    //   this.__byteOffset += 4 - this.__byteOffset % 4;
+    // }
 
     const accessor = new accessorClass({
       bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw

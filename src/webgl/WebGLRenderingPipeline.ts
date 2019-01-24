@@ -117,6 +117,7 @@ export default class WebGLRenderingPipeline implements RenderingPipeline {
       this.__webGLStrategy!.attachGPUData();
 
       const meshComponents = this.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
+//      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);
       glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
 
     }

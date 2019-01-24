@@ -15,6 +15,9 @@ const load = async function(time){
 
 //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);

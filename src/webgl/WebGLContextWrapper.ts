@@ -1,4 +1,5 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
+import { K } from "handlebars";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;
@@ -10,6 +11,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtTFL?: OES_texture_float_linear;
   public readonly webgl1ExtTHFL?: OES_texture_half_float_linear;
   public readonly webgl1ExtTFA?: EXT_texture_filter_anisotropic;
+  public readonly webgl1ExtEIUI?: OES_element_index_uint;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -24,8 +26,9 @@ export default class WebGLContextWrapper {
       this.webgl1ExtTF = this.__getExtension(WebGLExtension.TextureFloat);
       this.webgl1ExtTHF = this.__getExtension(WebGLExtension.TextureHalfFloat);
       this.webgl1ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
-      this.webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear)
-      this.webgl1ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic)
+      this.webgl1ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear);
+      this.webgl1ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
+      this.webgl1ExtEIUI = this.__getExtension(WebGLExtension.ElementIndexUint);
     }
   }
 
