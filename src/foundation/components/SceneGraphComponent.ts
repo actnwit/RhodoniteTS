@@ -20,6 +20,7 @@ export default class SceneGraphComponent extends Component {
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
+  private static _isAllUpdate = false;
 
   private static __bufferView: BufferView;
 
@@ -60,6 +61,7 @@ export default class SceneGraphComponent extends Component {
 
   setWorldMatrixDirty() {
     this.__isWorldMatrixUpToDate = false;
+    SceneGraphComponent._isAllUpdate = false;
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -102,6 +104,10 @@ export default class SceneGraphComponent extends Component {
     //}
   }
 
+  static common_$prerender() {
+    SceneGraphComponent._isAllUpdate = true;
+  }
+
   isWorldMatrixUpToDateRecursively() {
     if (this.__isWorldMatrixUpToDate) {
       if (this.__parent) {
@@ -121,7 +127,7 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.isWorldMatrixUpToDateRecursively()) {
+    if (SceneGraphComponent._isAllUpdate || this.isWorldMatrixUpToDateRecursively()) {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;
