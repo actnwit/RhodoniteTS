@@ -87,8 +87,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-//    gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.buffer.getArrayBuffer(), gl.STATIC_DRAW);
-    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.getUint8Array(), gl.STATIC_DRAW);
+//    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     return resourceHandle;
@@ -253,7 +253,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         primitive.attributeComponentTypes[i].index,
         false,
         primitive.attributeAccessors[i].byteStride,
-        0, //primitive.attributeAccessors[i].byteOffsetInBuffer
+        primitive.attributeAccessors[i].byteOffsetInBufferView
         );
     });
 
@@ -322,7 +322,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     {level:Index, width:Size, height:Size, format:PixelFormatEnum, type:ComponentTypeEnum}) {
     const gl = this.__glw!.getRawContext();;
     const texture = this.getWebGLResource(textureUid);
- 
+
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
 

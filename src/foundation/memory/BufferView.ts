@@ -131,6 +131,7 @@ export default class BufferView extends RnObject {
     //   this.__byteOffset += 4 - this.__byteOffset % 4;
     // }
 
+
     const accessor = new accessorClass({
       bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw
     });

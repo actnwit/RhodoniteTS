@@ -323,6 +323,15 @@ export default class TransformComponent extends Component {
     this._matrix.m32 = 0;
     this._matrix.m33 = 1;
 
+
+    // const rotateMatrix = new Matrix44(this.quaternion);
+    // const matrix = MutableMatrix44.multiply(rotateMatrix, Matrix44.scale(this.scale));
+    // matrix.m03 = this.translate.x;
+    // matrix.m13 = this.translate.y;
+    // matrix.m23 = this.translate.z;
+
+    //this._matrix.copyComponents(matrix);
+
     this._is_trs_matrix_updated = true;
 
     return this._matrix;

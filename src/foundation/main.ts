@@ -23,6 +23,7 @@ import ModuleManager from './system/ModuleManager';
 import MemoryManager from './core/MemoryManager';
 import CameraComponent from './components/CameraComponent';
 import { CameraType } from './definitions/CameraType';
+import RowMajarMatrix44 from './math/RowMajarMatrix44';
 
 const Rn = {
   EntityRepository,
@@ -49,7 +50,8 @@ const Rn = {
   ModuleManager,
   MemoryManager,
   CameraComponent,
-  CameraType
+  CameraType,
+  RowMajarMatrix44
 };
 export default Rn;
 

@@ -116,9 +116,18 @@ export default class SceneGraphComponent extends Component {
       this.__tmpMatrix.copyComponents(matrix);
       const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
       this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
-   }
+    }
 
     return this.__tmpMatrix;
+
+    // let matrix;
+    // let currentMatrix = transform.matrixInner;
+    // if (this.__parent == null) {
+    //   return currentMatrix;
+    // }
+    // matrix = Matrix44.multiply(this.__parent!.calcWorldMatrixRecursively(), currentMatrix);
+
+    // return matrix;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);

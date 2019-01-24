@@ -172,10 +172,10 @@ export default class ModelConverter {
     const groupSceneComponents = rnEntities.map(group=>{return group.getSceneGraph();});
 
     for (let node_i in gltfModel.nodes) {
-      let node = gltfModel.nodes[parseInt(node_i)];
-      let parentGroup = groupSceneComponents[node_i];
-
+      const parentNode_i = parseInt(node_i);
+      let node = gltfModel.nodes[parentNode_i];
       if (node.childrenIndices) {
+        let parentGroup = groupSceneComponents[parentNode_i];
         for (let childNode_i of node.childrenIndices) {
           let childGroup = groupSceneComponents[childNode_i];
           parentGroup.addChild(childGroup);
