@@ -72,11 +72,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-    if (!this.__isWorldMatrixUpToDate) {
+//    if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
       this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
-    }
+  //  }
 
     return this._worldMatrix;
   }
@@ -95,10 +95,25 @@ export default class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    if (!this.__isWorldMatrixUpToDate) {
+   // if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
       this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
+    //}
+  }
+
+  isWorldMatrixUpToDateRecursively() {
+    if (this.__isWorldMatrixUpToDate) {
+      if (this.__parent) {
+        let result = this.__parent.isWorldMatrixUpToDateRecursively();
+        if (result) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -106,7 +121,7 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__isWorldMatrixUpToDate) {
+    if (this.isWorldMatrixUpToDateRecursively()) {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;
