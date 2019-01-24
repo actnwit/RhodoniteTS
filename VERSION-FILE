@@ -1,6 +1,6 @@
-version: 0.1.1-23-gf6f8-mod
+version: 0.1.1-26-ga707-mod
 branch: feature/gltf
-4a0a0bf82f1a11712c71c710b09387e1bccc55b4d53cb587075d5cfd63d2321f ./dist/rhodonite.js
-b1e8ae8c3b34964577e3c37e12f730fefe224b106360b3ec505fda3fb5380e1b ./dist/rhodonite.min.js
-732d6e52fdc9d748c268c76d411e218f93c027ec4ddf2da7bb438b7d84280c42 ./dist/rhodonite-webgl.js
-dcab30251111f556df11962c1c7904900938179dd4e7037534d0d45044b8090c ./dist/rhodonite-webgl.min.js
+b8d9aed26422e9add13069497d99a943a6ab836b890b50c58c5189693102c1cc ./dist/rhodonite.js
+e98ba353777491673a537cf4a220b10753b835daab2ecd1042f56baed484bbe7 ./dist/rhodonite.min.js
+b3336734ba0054b4ab82b12c463027bb69afd90d368c254880f4fbc0e593a116 ./dist/rhodonite-webgl.js
+17986a3f87caa2ef90a31aa6bdd9d1204874f25e4fff90c5dedd565c736477de ./dist/rhodonite-webgl.min.js
