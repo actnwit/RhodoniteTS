@@ -13,8 +13,8 @@ export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: {[s: string]: Buffer} = {};
-  private static __bufferWidthLength: Size = Math.pow(2,8);
-  private static __bufferHeightLength: Size = Math.pow(2,8);
+  private static __bufferWidthLength: Size = Math.pow(2,10);
+  private static __bufferHeightLength: Size = Math.pow(2,10);
 
   private constructor() {
 

@@ -143,7 +143,7 @@ ${_def_rt0}
 void main ()
 {
   // Light
-  vec3 lightPosition = vec3(10000.0, 10000.0, 10000.0);
+  vec3 lightPosition = vec3(1.0, 100.0, 1.0);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -169,7 +169,7 @@ void main ()
   // Lighting
   if (length(v_normal_inWorld) > 0.5) {
     vec3 lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
-    float diffuse = 1.0 * dot(normal_inWorld, lightDirection);
+    float diffuse = 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
     color *= diffuse;
   }
 

@@ -128,7 +128,7 @@ export default class Matrix44 implements IMatrix44 {
           this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
         }
       }
-    } else if (!!m && typeof m.className !== 'undefined' && m.className === 'Quaternion') {
+    } else if (!!m && typeof m.className !== 'undefined' && m instanceof Quaternion) {
       this.v = new FloatArray(16);
 
       const sx = m.x * m.x;

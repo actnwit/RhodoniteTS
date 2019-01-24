@@ -172,10 +172,10 @@ export default class ModelConverter {
     const groupSceneComponents = rnEntities.map(group=>{return group.getSceneGraph();});
 
     for (let node_i in gltfModel.nodes) {
-      let node = gltfModel.nodes[parseInt(node_i)];
-      let parentGroup = groupSceneComponents[node_i];
-
+      const parentNode_i = parseInt(node_i);
+      let node = gltfModel.nodes[parentNode_i];
       if (node.childrenIndices) {
+        let parentGroup = groupSceneComponents[parentNode_i];
         for (let childNode_i of node.childrenIndices) {
           let childGroup = groupSceneComponents[childNode_i];
           parentGroup.addChild(childGroup);
@@ -774,15 +774,15 @@ export default class ModelConverter {
     const bufferView = accessor.bufferView;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: bufferView.byteLength,
-      byteStride: bufferView.byteStride,
-      byteOffset: bufferView.byteOffset,
+      byteStride: (bufferView.byteStride != null) ? bufferView.byteStride : 0,
+      byteOffset: (bufferView.byteOffset != null) ? bufferView.byteOffset : 0,
       isAoS: false
     });
     const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
       compositionType: CompositionType.fromString(accessor.type),
       componentType: ComponentType.from(accessor.componentType),
       count: accessor.count,
-      byteOffset: accessor.byteOffset
+      byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0
     });
 
     return rnAccessor;

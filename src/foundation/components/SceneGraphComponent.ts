@@ -20,6 +20,7 @@ export default class SceneGraphComponent extends Component {
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
+  private static _isAllUpdate = false;
 
   private static __bufferView: BufferView;
 
@@ -60,6 +61,7 @@ export default class SceneGraphComponent extends Component {
 
   setWorldMatrixDirty() {
     this.__isWorldMatrixUpToDate = false;
+    SceneGraphComponent._isAllUpdate = false;
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -72,11 +74,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-    if (!this.__isWorldMatrixUpToDate) {
+//    if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
       this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
-    }
+  //  }
 
     return this._worldMatrix;
   }
@@ -95,10 +97,29 @@ export default class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    if (!this.__isWorldMatrixUpToDate) {
+   // if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
       this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
+    //}
+  }
+
+  static common_$prerender() {
+    SceneGraphComponent._isAllUpdate = true;
+  }
+
+  isWorldMatrixUpToDateRecursively() {
+    if (this.__isWorldMatrixUpToDate) {
+      if (this.__parent) {
+        let result = this.__parent.isWorldMatrixUpToDateRecursively();
+        if (result) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -106,7 +127,7 @@ export default class SceneGraphComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (this.__isWorldMatrixUpToDate) {
+    if (SceneGraphComponent._isAllUpdate || this.isWorldMatrixUpToDateRecursively()) {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;
@@ -116,9 +137,18 @@ export default class SceneGraphComponent extends Component {
       this.__tmpMatrix.copyComponents(matrix);
       const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
       this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
-   }
+    }
 
     return this.__tmpMatrix;
+
+    // let matrix;
+    // let currentMatrix = transform.matrixInner;
+    // if (this.__parent == null) {
+    //   return currentMatrix;
+    // }
+    // matrix = Matrix44.multiply(this.__parent!.calcWorldMatrixRecursively(), currentMatrix);
+
+    // return matrix;
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);

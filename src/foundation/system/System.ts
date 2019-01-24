@@ -42,6 +42,12 @@ export default class System {
       }
       componentTids.forEach(componentTid=>{
         const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
+
+        const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
+        if (componentClass_commonMethod) {
+          componentClass_commonMethod();
+        }
+
         componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
         componentClass.process({
           componentTid:componentTid,

@@ -229,7 +229,7 @@ export default class TransformComponent extends Component {
   }
 
   set matrix(mat: Matrix44) {
-    this._matrix = new MutableMatrix44(mat);
+    this._matrix = new MutableMatrix44(mat, true);
     this._is_trs_matrix_updated = true;
     this._is_translate_updated = false;
     this._is_euler_angles_updated = false;
@@ -322,6 +322,15 @@ export default class TransformComponent extends Component {
     this._matrix.m31 = 0;
     this._matrix.m32 = 0;
     this._matrix.m33 = 1;
+
+
+    // const rotateMatrix = new Matrix44(this.quaternion);
+    // const matrix = MutableMatrix44.multiply(rotateMatrix, Matrix44.scale(this.scale));
+    // matrix.m03 = this.translate.x;
+    // matrix.m13 = this.translate.y;
+    // matrix.m23 = this.translate.z;
+
+    //this._matrix.copyComponents(matrix);
 
     this._is_trs_matrix_updated = true;
 
