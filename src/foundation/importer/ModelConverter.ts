@@ -325,7 +325,7 @@ export default class ModelConverter {
         const texture = baseColorTexture.texture;
         const image = texture.image.image;
         const rnTexture = new Texture();
-        rnTexture.generateTExtureFromImage(image);
+        rnTexture.generateTextureFromImage(image);
         material.baseColorTexture = rnTexture;
       }
     }
