@@ -174,12 +174,11 @@ void main ()
   }
 
   // Lighting
-//  if (length(v_normal_inWorld) > 0.0) {
-    //vec3 lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
+  if (length(v_normal_inWorld) > 0.02) {
     vec3 lightDirection = normalize(v_lightDirection);
     float diffuse = 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
     color *= diffuse;
-//  }
+  }
 
   rt0 = vec4(color, 1.0);
 
