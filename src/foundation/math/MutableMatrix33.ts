@@ -42,8 +42,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     return this;
   }
 
-  copyComponents(mat4: Matrix33) {
-    const m = mat4;
+  copyComponents(mat3: Matrix33) {
+    const m = mat3;
 
     this.m00 = m.m00;
     this.m01 = m.m01;
