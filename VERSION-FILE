@@ -1,6 +1,6 @@
-version: 0.1.1-44-gaf11-mod
-branch: master
-a610493d5e6ede4a78859b42de3f49a60d3f2e6115aa1043d81014ce66ea691a ./dist/rhodonite.js
-9852f63f5998e53547abd960fe6db0c85fca0893f9f822b397ddf96032ae3a68 ./dist/rhodonite.min.js
-dea2dd70ef12c97e6daf3954e1a75bd27057d18dbb391b91c11226d1b40f147f ./dist/rhodonite-webgl.js
-650f8736ed658a36d8ea5a9649a14738cabab87d376b68d709fae68e31d9851f ./dist/rhodonite-webgl.min.js
+version: 0.1.1-46-gfa5b-mod
+branch: feature/skeletal-animation
+7649a5f0c692c2886a74823ad38507a35cfca3c561f7cd733bd0b721eecd8989 ./dist/rhodonite.js
+f9d3c4b561b62ce0c9543b7806d25c7fc3dc25c2da87dc344a9d304e8dbeb101 ./dist/rhodonite.min.js
+cbc15b87a2214170b2881b7b5fc06f10b7e03a5f3603e75424bbd84a6f555e85 ./dist/rhodonite-webgl.js
+d7e77cb44a365a63f0780945a749059660982dfd15d2e256aa262419e9fe353e ./dist/rhodonite-webgl.min.js
