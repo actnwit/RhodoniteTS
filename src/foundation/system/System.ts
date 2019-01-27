@@ -2,10 +2,10 @@ import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
 import ComponentRepository from "../core/ComponentRepository";
 import RenderingPipeline from "../renderer/RenderingPipeline";
 import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
-import Component, { ComponentConstructor } from "../core/Component";
 import ModuleManager from "./ModuleManager";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import WebGLStrategy from "../../webgl/WebGLStrategy";
+import Component from "../core/Component";
 
 export default class System {
   private static __instance: System;
@@ -35,16 +35,16 @@ export default class System {
       const methodName = stage.getMethodName();
       const componentTids = this.__componentRepository.getComponentTIDs();
       componentTids.forEach(componentTid=>{
-        const componentClass: ComponentConstructor = ComponentRepository.getComponentClass(componentTid)!;
+        const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
         const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
         if (componentClass_commonMethod) {
           componentClass_commonMethod(this.__processApproach);
         }
 
-        componentClass.updateComponentsOfEachProcessStage(componentTid, stage, this.__componentRepository);
+        componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
         componentClass.process({
-          componentTid:componentTid,
+          componentType: componentClass,
           processStage:stage,
           processApproach:this.__processApproach,
           componentRepository: this.__componentRepository,

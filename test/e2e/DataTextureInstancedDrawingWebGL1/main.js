@@ -135,7 +135,7 @@
       // entity1.getTransform().scale = new Rn.Vector3(2, 1, 1);
       entities.push(entity);
 
-      const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
+      const meshComponent = entity.getComponent(Rn.MeshComponent);
       meshComponent.addPrimitive(primitive);
       //entity.getTransform().toUpdateAllTransform = false;
       entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);

@@ -56,7 +56,7 @@ export default class CameraComponent extends Component {
 
     this.submitToAllocation(20);
 
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.PreRender);
 
@@ -247,7 +247,7 @@ export default class CameraComponent extends Component {
       return;
     }
 
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
   }
 
   $prerender() {
@@ -255,4 +255,4 @@ export default class CameraComponent extends Component {
     this.calcViewMatrix();
   }
 }
-ComponentRepository.registerComponentClass(CameraComponent.componentTID, CameraComponent);
+ComponentRepository.registerComponentClass(CameraComponent);

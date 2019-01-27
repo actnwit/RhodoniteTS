@@ -153,4 +153,4 @@ export default class SceneGraphComponent extends Component {
     // return matrix;
   }
 }
-ComponentRepository.registerComponentClass(SceneGraphComponent.componentTID, SceneGraphComponent);
+ComponentRepository.registerComponentClass(SceneGraphComponent);

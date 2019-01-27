@@ -47,9 +47,9 @@ export default class MeshRendererComponent extends Component {
     array[count] = Component.invalidComponentSID;
     Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count)!;
 
-    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent.componentTID) as SceneGraphComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     const componentRepository = ComponentRepository.getInstance();
-    const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent.componentTID) as CameraComponent[];
+    const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
 
     if (cameraComponents) {
       this.__cameraComponent = cameraComponents[0];
@@ -74,7 +74,7 @@ export default class MeshRendererComponent extends Component {
     if (this.__meshComponent != null) {
       return;
     }
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent.componentTID) as MeshComponent;
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
 
     this.__webglRenderingStrategy = strategy;
 
@@ -154,7 +154,7 @@ export default class MeshRendererComponent extends Component {
       MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
     }
 
-    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent.componentTID);
+    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent);
     if (meshComponents == null) {
       return CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
@@ -167,7 +167,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   static common_$render(){
-    MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent.componentTID, CameraComponent.main) as CameraComponent;
+    MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     let viewMatrix = MeshRendererComponent.__tmp_indentityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_indentityMatrix;
     if (MeshRendererComponent.__cameraComponent) {
@@ -178,7 +178,7 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
-    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
+    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
 
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
@@ -190,7 +190,7 @@ export default class MeshRendererComponent extends Component {
       MeshRendererComponent.__webGLStrategy!.attatchShaderProgram();
       MeshRendererComponent.__webGLStrategy!.attachGPUData();
 
-      const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent.componentTID)!;
+      const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
 //      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);
       glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
 
@@ -198,4 +198,4 @@ export default class MeshRendererComponent extends Component {
 
   }
 }
-ComponentRepository.registerComponentClass(MeshRendererComponent.componentTID, MeshRendererComponent);
+ComponentRepository.registerComponentClass(MeshRendererComponent);

@@ -198,7 +198,7 @@ void main(){
     const indexCountToSubtract = new Int32Array(entities.length);
     let tmpSumIndexCount = 0;
     entities.forEach((entity:Entity, i)=>{
-      const meshComponent = entity.getComponent(MeshComponent.componentTID) as MeshComponent;
+      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
       if (meshComponent) {
         primitiveIds[i] = meshComponent.getPrimitiveAt(0)!.primitiveUid;
         entityIds[i] = entity.entityUID;
