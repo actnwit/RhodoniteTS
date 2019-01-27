@@ -118,7 +118,7 @@ void main ()
 //v_position_inWorld = vec4(a_position, 1.0);
 
 // Light
-vec3 lightPosition = vec3(0.0, 100000.0, 0.0);
+vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
 v_lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
 
 }

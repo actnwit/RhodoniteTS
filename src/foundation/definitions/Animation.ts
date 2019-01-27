@@ -26,4 +26,4 @@ function fromString( str: string ): AnimationEnum {
   return _fromString({typeList, str}) as AnimationEnum;
 }
 
-export const Animation = Object.freeze({ Linear, Step, CubicSpline });
+export const Animation = Object.freeze({ Linear, Step, CubicSpline, from, fromString });

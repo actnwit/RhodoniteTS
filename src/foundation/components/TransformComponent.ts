@@ -51,8 +51,8 @@ export default class TransformComponent extends Component {
   // dependencies
   private _dependentAnimationComponentId: number = 0;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
-    super(entityUid, componentSid, entityRepository);
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
+    super(entityUid, componentSid, entityComponent);
 
     const thisClass = TransformComponent;
 
@@ -197,6 +197,7 @@ export default class TransformComponent extends Component {
     this._quaternion.v[0] = quat.v[0];
     this._quaternion.v[1] = quat.v[1];
     this._quaternion.v[2] = quat.v[2];
+    this._quaternion.v[3] = quat.v[3];
     this._is_quaternion_updated = true;
     this._is_euler_angles_updated = false;
     this._is_trs_matrix_updated = false;
@@ -360,26 +361,26 @@ export default class TransformComponent extends Component {
     }
     return this._normalMatrix;
   }
-  
+
 
   /**
    * Set multiple transform information at once. By using this method,
    * we reduce the cost of automatically updating other transform components inside this class.
    * This method may be useful for animation processing and so on.
-   * 
+   *
    * The transform components of these arguments must not be mutually discrepant.
    * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
    * must be equal to translate, rotate, scale, quaternion arguments.
    * And both rotate and quaternion arguments must be same rotation.
    * If there is an argument passed with null or undefined, it is interpreted as unchanged.
-   * 
-   * @param {*} translate 
-   * @param {*} rotate 
-   * @param {*} scale 
-   * @param {*} quaternion 
-   * @param {*} matrix 
+   *
+   * @param {*} translate
+   * @param {*} rotate
+   * @param {*} scale
+   * @param {*} quaternion
+   * @param {*} matrix
    */
-  
+
   setTransform(translate: Vector3, rotate: Vector3, scale: Vector3, quaternion: Quaternion, matrix: Matrix44) {
     this._is_trs_matrix_updated = false;
     this._is_inverse_trs_matrix_updated = false;
@@ -416,7 +417,7 @@ export default class TransformComponent extends Component {
       this._is_euler_angles_updated = false;
       this._is_quaternion_updated = true;
     }
-    
+
     // Scale
     if (scale != null) {
       this._scale = scale.clone();
@@ -477,19 +478,19 @@ export default class TransformComponent extends Component {
   __updateMatrix() {
     if (!this._is_trs_matrix_updated && this._is_translate_updated && this._is_quaternion_updated && this._is_scale_updated) {
       const rotationMatrix = new Matrix44(this._quaternion);
-  
+
       let scale = this._scale;
-  
+
       this._matrix = MutableMatrix44.multiply(rotationMatrix, Matrix44.scale(scale));
       let translateVec = this._translate;
       this._matrix.m03 = translateVec.x;
       this._matrix.m13 = translateVec.y;
       this._matrix.m23 = translateVec.z;
-  
+
       this._is_trs_matrix_updated = true;
     }
   }
-  
+
 
   setPropertiesFromJson(arg: JSON) {
     let json = arg;
@@ -513,21 +514,21 @@ export default class TransformComponent extends Component {
     let yDir = UpVec;
     let xDir = Vector3.cross(yDir, FrontVec);
     let zDir = Vector3.cross(xDir, yDir);
-    
+
     let rotateMatrix = MutableMatrix44.identity();
 
     rotateMatrix.m00 = xDir.x;
     rotateMatrix.m10 = xDir.y;
     rotateMatrix.m20 = xDir.z;
-  
+
     rotateMatrix.m01 = yDir.x;
     rotateMatrix.m11 = yDir.y;
     rotateMatrix.m21 = yDir.z;
-  
+
     rotateMatrix.m02 = zDir.x;
     rotateMatrix.m12 = zDir.y;
     rotateMatrix.m22 = zDir.z;
-  
+
     this.rotateMatrix44 = rotateMatrix;
   }
 

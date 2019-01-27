@@ -22,6 +22,8 @@ import Texture from "../textures/Texture";
 import Vector4 from "../math/Vector4";
 import Vector2_F64 from "../math/Vector2";
 import AnimationComponent from "../components/AnimationComponent";
+import { Animation } from "../definitions/Animation";
+import { MathUtil } from "../math/MathUtil";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -59,20 +61,20 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
       MeshComponent.componentTID, MeshRendererComponent.componentTID]);
     return entity;
   }
-  
+
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
       CameraComponent.componentTID]);
     return entity;
   }
@@ -202,8 +204,9 @@ export default class ModelConverter {
       for (let animation of gltfModel.animations) {
 
         for (let channel of animation.channels) {
-          let animInputArray = channel.sampler.input.extras.typedDataArray;
-          let animOutputArray = channel.sampler.output.extras.typedDataArray;;
+          const animInputArray = channel.sampler.input.extras.typedDataArray;
+          const animOutputArray = channel.sampler.output.extras.typedDataArray;
+          const interpolation = channel.sampler.interpolation;
 
           let animationAttributeName = '';
           if (channel.target.path === 'translation') {
@@ -218,7 +221,7 @@ export default class ModelConverter {
           if (rnEntity) {
             const animationComponent = rnEntity.getComponent(AnimationComponent.componentTID) as AnimationComponent;
             if (animationComponent) {
-              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray);
+              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
             }
           }
         }
@@ -277,12 +280,14 @@ export default class ModelConverter {
   private __setupCamera(camera: any) {
     const cameraEntity = this.__generateCameraEntity();
     const cameraComponent = cameraEntity.getComponent(CameraComponent.componentTID)! as CameraComponent;
+    cameraComponent.direction = new Vector3(0, 0, -1);
+    cameraComponent.up = new Vector3(0, 1, 0);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
-      cameraComponent.aspect = camera.perspective.aspectRatio;
-      cameraComponent.fovy = camera.perspective.yfov;
+      cameraComponent.aspect = camera.perspective.aspectRatio ? camera.perspective.aspectRatio : 1;
+      cameraComponent.fovy = MathUtil.radianToDegree(camera.perspective.yfov);
       cameraComponent.zNear = camera.perspective.znear;
-      cameraComponent.zFar = camera.perspective.zfar;
+      cameraComponent.zFar = camera.perspective.zfar ? camera.perspective.zfar : 100000;
     } else if (cameraComponent.type === CameraType.Orthographic) {
       cameraComponent.xmag = camera.orthographic.zmag;
       cameraComponent.ymag = camera.orthographic.ymag;
