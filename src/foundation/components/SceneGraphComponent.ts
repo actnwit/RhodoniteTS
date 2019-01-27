@@ -110,26 +110,23 @@ export default class SceneGraphComponent extends Component {
     SceneGraphComponent._isAllUpdate = true;
   }
 
-  isWorldMatrixUpToDateRecursively() {
+  isWorldMatrixUpToDateRecursively() : boolean {
     if (this.__isWorldMatrixUpToDate) {
       if (this.__parent) {
         let result = this.__parent.isWorldMatrixUpToDateRecursively();
-        if (result) {
-          return true;
-        }
+        return result;
       } else {
         return true;
       }
-    } else {
-      return false;
     }
+    return false;
   }
 
   calcWorldMatrixRecursively(): Matrix44 | MutableRowMajarMatrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (SceneGraphComponent._isAllUpdate || this.isWorldMatrixUpToDateRecursively()) {
+    if (SceneGraphComponent._isAllUpdate) {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;
@@ -137,7 +134,12 @@ export default class SceneGraphComponent extends Component {
         return matrix;
       }
       this.__tmpMatrix.copyComponents(matrix);
-      const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+      let matrixFromAncestorToParent;
+      if (this.isWorldMatrixUpToDateRecursively()) {
+        matrixFromAncestorToParent = this.__parent._worldMatrix;
+      } else {
+        matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+      }
       this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
     }
 

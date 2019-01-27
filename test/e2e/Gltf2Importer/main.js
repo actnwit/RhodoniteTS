@@ -19,7 +19,7 @@ const load = async function(time){
 //  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
+ // const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
@@ -31,9 +31,9 @@ const load = async function(time){
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
-  Rn.CameraComponent.main = 0;
+  Rn.CameraComponent.main = 4;
   let startTime = Date.now();
-  const rotationVec3 = Rn.MutableVector3.zero();
+  const rotationVec3 = Rn.MutableVector3.one();
   const draw = function(time) {
 
     if (p == null) {
@@ -64,7 +64,8 @@ const load = async function(time){
         startTime = date.getTime();
       }
       //console.log(time);
-      rootGroup.getTransform().rotate = rotationVec3;
+//      rootGroup.getTransform().scale = rotationVec3;
+      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
     system.process();

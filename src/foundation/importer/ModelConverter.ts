@@ -263,6 +263,9 @@ export default class ModelConverter {
       let node = gltfModel.nodes[parseInt(node_i)];
       if (node.mesh != null) {
         const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
+        if (node.mesh.name) {
+          meshEntity.tryToSetUniqueName(node.mesh.name, true);
+        }
         rnEntities.push(meshEntity);
       } else if (node.camera != null) {
         const cameraEntity = this.__setupCamera(node.camera);
