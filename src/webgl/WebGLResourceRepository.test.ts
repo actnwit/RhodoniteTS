@@ -19,7 +19,7 @@ beforeAll(async () => {
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID, MeshComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent, SceneGraphComponent, MeshComponent]);
   return entity;
 }
 

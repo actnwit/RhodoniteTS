@@ -2,7 +2,7 @@
 (async function(){
   function generateEntity() {
     const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
 

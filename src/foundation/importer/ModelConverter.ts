@@ -61,21 +61,21 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
-      MeshComponent.componentTID, MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+      MeshComponent, MeshRendererComponent]);
     return entity;
   }
 
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
-      CameraComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+      CameraComponent]);
     return entity;
   }
 

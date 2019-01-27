@@ -27,18 +27,18 @@ export default class EntityRepository {
 
   }
 
-  createEntity(componentTidArray: Array<ComponentTID>): Entity {
+  createEntity(componentArray: Array<typeof Component>): Entity {
     const entity = new Entity(++this.__entity_uid_count, true, this);
     this.__entities[this.__entity_uid_count] = entity;
-    for (let componentTid of componentTidArray) {
-      const component = this.__componentRepository.createComponent(componentTid, entity.entityUID, this);
+    for (let componentType of componentArray) {
+      const component = this.__componentRepository.createComponent(componentType.componentTID, entity.entityUID, this);
       let map = this._components[entity.entityUID];
       if (map == null) {
         map = new Map();
         this._components[entity.entityUID] = map;
       }
       if (component != null) {
-        map.set(componentTid, component);
+        map.set(componentType.componentTID, component);
       }
     }
 

@@ -2,13 +2,13 @@
 //    import Rn from '../../../dist/rhodonite.mjs';
   function generateEntity() {
     const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
   function generateGroupEntity() {
     const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID]);
-//    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent]);
+//    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
   function readyBasicVerticesData() {
