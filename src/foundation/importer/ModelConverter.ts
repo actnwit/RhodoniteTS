@@ -61,20 +61,20 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent]);
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
       MeshComponent, MeshRendererComponent]);
     return entity;
   }
 
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
       CameraComponent]);
     return entity;
   }
@@ -200,6 +200,8 @@ export default class ModelConverter {
       }
     }
 
+    const entityRepository = EntityRepository.getInstance();
+
     if (gltfModel.animations) {
       for (let animation of gltfModel.animations) {
 
@@ -219,6 +221,7 @@ export default class ModelConverter {
 
           let rnEntity = rnEntities[channel.target.nodeIndex];
           if (rnEntity) {
+            entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
               animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
