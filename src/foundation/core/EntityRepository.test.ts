@@ -7,14 +7,14 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
   return entity;
 }
 
 test('The entity repository can provide the component corresponding to the specified entityUID and componentTID', () => {
   const firstEntity = generateEntity();
   const entityRepository = EntityRepository.getInstance();
-  const sceneGraphComponent = entityRepository.getComponentOfEntity(firstEntity.entityUID, SceneGraphComponent.componentTID);
+  const sceneGraphComponent = entityRepository.getComponentOfEntity(firstEntity.entityUID, SceneGraphComponent);
   
   expect(sceneGraphComponent instanceof SceneGraphComponent).toBe(true);
 });

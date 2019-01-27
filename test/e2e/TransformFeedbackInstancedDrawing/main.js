@@ -2,7 +2,7 @@
 
   function generateEntity() {
     const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.MeshComponent.componentTID, Rn.MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
 
@@ -121,7 +121,7 @@
     const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
     const entity = generateEntity();
     entities.push(entity);
-    const meshComponent = entity.getComponent(Rn.MeshComponent.componentTID);
+    const meshComponent = entity.getComponent(Rn.MeshComponent);
     meshComponent.addPrimitive(primitive);
     entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);
     entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);

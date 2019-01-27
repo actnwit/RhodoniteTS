@@ -8,8 +8,8 @@ const load = async function(time){
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent.componentTID, Rn.SceneGraphComponent.componentTID, Rn.CameraComponent.componentTID])
-  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent.componentTID);
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(1, 10000, 90, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 5);

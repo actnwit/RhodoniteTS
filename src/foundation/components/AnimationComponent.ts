@@ -127,7 +127,7 @@ export default class AnimationComponent extends Component {
   }
 
   static get startInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent.componentTID) as AnimationComponent[];
+    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
     components!.forEach(component => {
       component.getStartInputValueOfAnimation();
     });
@@ -135,7 +135,7 @@ export default class AnimationComponent extends Component {
   }
 
   static get endInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent.componentTID) as AnimationComponent[];
+    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
     components!.forEach(component => {
       component.getEndInputValueOfAnimation();
     });
@@ -143,7 +143,7 @@ export default class AnimationComponent extends Component {
   }
 
   $create() {
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent.componentTID) as TransformComponent;
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -162,4 +162,4 @@ export default class AnimationComponent extends Component {
     }
   }
 }
-ComponentRepository.registerComponentClass(AnimationComponent.componentTID, AnimationComponent);
+ComponentRepository.registerComponentClass(AnimationComponent);

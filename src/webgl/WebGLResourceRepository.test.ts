@@ -19,7 +19,7 @@ beforeAll(async () => {
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID, MeshComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent, SceneGraphComponent, MeshComponent]);
   return entity;
 }
 
@@ -66,7 +66,7 @@ test('Create WebGL resources.', async () => {
   const firstEntity = generateEntity();
 
   const primitive = readyBasicVerticesData();
-  const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
+  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
   meshComponent.addPrimitive(primitive);
 
 
@@ -99,7 +99,7 @@ test('Create WebGL resources. 2', async () => {
   const firstEntity = generateEntity();
 
   const primitive = readyBasicVerticesData();
-  const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
+  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
   meshComponent.addPrimitive(primitive);
 
 });

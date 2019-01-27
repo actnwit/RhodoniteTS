@@ -7,7 +7,7 @@ import Vector3 from '../math/Vector3';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent]);
   return entity;
 }
 

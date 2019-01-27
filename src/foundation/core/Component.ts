@@ -92,8 +92,8 @@ export default class Component {
     return this.__entityUid;
   }
 
-  static isExistProcessStageMethod(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
-    const component = componentRepository.getComponent(componentTid, 0)!;
+  static isExistProcessStageMethod(componentType: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
+    const component = componentRepository.getComponent(componentType, 0)!;
     if (component == null) {
       return false;
     }
@@ -112,15 +112,15 @@ export default class Component {
     return true;
   }
 
-  static process({componentTid, processStage, processApproach, componentRepository, strategy}: {
-    componentTid: ComponentTID,
+  static process({componentType, processStage, processApproach, componentRepository, strategy}: {
+    componentType: typeof Component,
     processStage: ProcessStageEnum,
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
     strategy: WebGLStrategy
   }
     ) {
-    if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
+    if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
       return;
     }
 
@@ -130,7 +130,7 @@ export default class Component {
         break;
       }
       const componentSid = array[i];
-      const component = componentRepository.getComponent(componentTid, componentSid)!;
+      const component = componentRepository.getComponent(componentType, componentSid)!;
       (component as any)[processStage.getMethodName()]({
         processStage,
         processApproach,
@@ -139,15 +139,15 @@ export default class Component {
     }
   }
 
-  static updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
-    if (!Component.isExistProcessStageMethod(componentTid, processStage, componentRepository)) {
+  static updateComponentsOfEachProcessStage(componentClass: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
+    if (!Component.isExistProcessStageMethod(componentClass, processStage, componentRepository)) {
       return;
     }
 
-    const component = componentRepository.getComponent(this.componentTID, 0)!;
+    const component = componentRepository.getComponentFromComponentTID(this.componentTID, 0)!;
     const dirty = Component.__componentsOfProcessStages.get(processStage)!
     if (dirty) {
-      const components = componentRepository.getComponentsWithType(componentTid)!;
+      const components = componentRepository.getComponentsWithType(componentClass)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
       let count = 0;
       for (let i=0; i<components.length; ++i) {
@@ -355,13 +355,3 @@ export default class Component {
   // $discard() {}
 }
 
-export interface ComponentConstructor {
-  new(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository): Component;
-  process({componentTid, processStage, processApproach, componentRepository}:
-    {componentTid: ComponentTID, processStage: ProcessStageEnum,
-      processApproach: ProcessApproachEnum,
-    componentRepository: ComponentRepository,
-    strategy: WebGLStrategy
-    }): void;
-  updateComponentsOfEachProcessStage(componentTid: ComponentTID, processStage: ProcessStageEnum, componentRepository: ComponentRepository): void;
-}

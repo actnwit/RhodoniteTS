@@ -9,7 +9,7 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID, MeshComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent, SceneGraphComponent, MeshComponent]);
   return entity;
 }
 
@@ -43,7 +43,7 @@ test('Use translate simply', () => {
     primitiveMode: PrimitiveMode.Triangles
   });
 
-  const meshComponent = firstEntity.getComponent(MeshComponent.componentTID) as MeshComponent;
+  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
   meshComponent.addPrimitive(primitive);
 
  // expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);

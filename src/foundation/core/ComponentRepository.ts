@@ -1,5 +1,4 @@
 import Component from './Component';
-import {ComponentConstructor} from './Component';
 import is from '../misc/IsUtil';
 import InitialSetting from '../system/InitialSetting';
 import EntityRepository from './EntityRepository';
@@ -8,7 +7,7 @@ export default class ComponentRepository {
   private static __instance: ComponentRepository;
   private __component_sid_count_map: Map<ComponentTID, number>;
   private __components: Map<ComponentTID, Array<Component>>; // index of array is ComponentSID
-  static __componentClasses: Map<ComponentTID, ComponentConstructor> = new Map();
+  static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
 
 
   constructor() {
@@ -16,9 +15,9 @@ export default class ComponentRepository {
     this.__components = new Map();
   }
 
-  static registerComponentClass(componentTID: ComponentTID, componentClass: ComponentConstructor) {
+  static registerComponentClass(componentClass: typeof Component) {
     const thisClass = ComponentRepository;
-    thisClass.__componentClasses.set(componentTID, componentClass);
+    thisClass.__componentClasses.set(componentClass.componentTID, componentClass);
   }
 
   static unregisterComponentClass(componentTID: ComponentTID) {
@@ -66,7 +65,11 @@ export default class ComponentRepository {
     return null;
   }
 
-  getComponent(componentTid: ComponentTID, componentSid: ComponentSID) {
+  getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
+    return this.getComponentFromComponentTID(componentClass.componentTID, componentSid);
+  }
+
+  getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID) {
     const map = this.__components.get(componentTid);
     if (map != null) {
       const component = map[componentSid];
@@ -92,8 +95,8 @@ export default class ComponentRepository {
     return memoryBeginIndex;
   }
 
-  getComponentsWithType(componentTid: ComponentTID): Array<Component> | undefined {
-    const components = this.__components.get(componentTid);
+  getComponentsWithType(componentType: typeof Component): Array<Component> | undefined {
+    const components = this.__components.get(componentType.componentTID);
     const copyArray = components!;//.concat();
     //copyArray.shift();
     return copyArray;
@@ -104,6 +107,11 @@ export default class ComponentRepository {
     for (let type of this.__components.keys()) {
       indices.push(type);
     }
+    indices.sort(function(a,b){
+      if( a < b ) return -1;
+      if( a > b ) return 1;
+      return 0;
+    });
     return indices;
   }
 }

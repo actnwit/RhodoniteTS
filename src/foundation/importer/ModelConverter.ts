@@ -61,21 +61,21 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
-      MeshComponent.componentTID, MeshRendererComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+      MeshComponent, MeshRendererComponent]);
     return entity;
   }
 
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
-      CameraComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+      CameraComponent]);
     return entity;
   }
 
@@ -219,7 +219,7 @@ export default class ModelConverter {
 
           let rnEntity = rnEntities[channel.target.nodeIndex];
           if (rnEntity) {
-            const animationComponent = rnEntity.getComponent(AnimationComponent.componentTID) as AnimationComponent;
+            const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
               animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
             }
@@ -279,7 +279,7 @@ export default class ModelConverter {
 
   private __setupCamera(camera: any) {
     const cameraEntity = this.__generateCameraEntity();
-    const cameraComponent = cameraEntity.getComponent(CameraComponent.componentTID)! as CameraComponent;
+    const cameraComponent = cameraEntity.getComponent(CameraComponent)! as CameraComponent;
     cameraComponent.direction = new Vector3(0, 0, -1);
     cameraComponent.up = new Vector3(0, 1, 0);
     cameraComponent.type = CameraType.fromString(camera.type);
@@ -316,7 +316,7 @@ export default class ModelConverter {
       }
       const material = this.__setupMaterial(primitive.material);
       const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
-      const meshComponent = meshEntity.getComponent(MeshComponent.componentTID)! as MeshComponent;
+      const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
     }
 

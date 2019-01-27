@@ -30,10 +30,10 @@ export default class Entity {
     return this.__entity_uid;
   }
 
-  getComponent(componentTid: ComponentTID): Component | null {
+  getComponent(componentType: typeof Component): Component | null {
     const map = this.__entityRepository._components[this.entityUID];
     if (map != null) {
-      const component = map.get(componentTid);
+      const component = map.get(componentType.componentTID);
       if (component != null) {
         return component;
       } else {
@@ -45,14 +45,14 @@ export default class Entity {
 
   getTransform(): TransformComponent {
     if (this.__transformComponent == null) {
-      this.__transformComponent = this.getComponent(WellKnownComponentTIDs.TransformComponentTID) as TransformComponent;
+      this.__transformComponent = this.getComponent(TransformComponent) as TransformComponent;
     }
     return this.__transformComponent;
   }
 
   getSceneGraph(): SceneGraphComponent {
     if (this.__sceneGraphComponent == null) {
-      this.__sceneGraphComponent = this.getComponent(WellKnownComponentTIDs.SceneGraphComponentTID) as SceneGraphComponent;
+      this.__sceneGraphComponent = this.getComponent(SceneGraphComponent) as SceneGraphComponent;
     }
     return this.__sceneGraphComponent;
   }

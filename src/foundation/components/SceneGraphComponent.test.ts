@@ -8,7 +8,7 @@ import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+  const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
   return entity;
 }
 

@@ -28,4 +28,4 @@ export default class MeshComponent extends Component {
   }
 
 }
-ComponentRepository.registerComponentClass(MeshComponent.componentTID, MeshComponent);
+ComponentRepository.registerComponentClass(MeshComponent);
