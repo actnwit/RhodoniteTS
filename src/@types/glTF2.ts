@@ -14,7 +14,10 @@ type glTF2 = {
   cameras: any[],
   shaders?: any[],
   images: any[],
-  animations: any[],
+  animations: Array<{
+    channels: any[],
+    samplers: any[]
+  }>,
   textures: any[],
   samplers: any[],
   accessors: any[],

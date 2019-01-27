@@ -383,43 +383,66 @@ export default class Matrix44 implements IMatrix44 {
       this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
   }
 
-  static determinant(mat:Matrix44) {
-    return mat.m00*mat.m11*mat.m22*mat.m33 + mat.m00*mat.m12*mat.m23*mat.m31 + mat.m00*mat.m13*mat.m21*mat.m32 +
-      mat.m01*mat.m10*mat.m23*mat.m32 + mat.m01*mat.m12*mat.m20*mat.m33 + mat.m01*mat.m13*mat.m22*mat.m30 +
-      mat.m02*mat.m10*mat.m21*mat.m33 + mat.m02*mat.m11*mat.m23*mat.m30 + mat.m02*mat.m13*mat.m20*mat.m31 +
-      mat.m03*mat.m10*mat.m22*mat.m31 + mat.m03*mat.m11*mat.m20*mat.m32 + mat.m03*mat.m12*mat.m21*mat.m30 -
+  static determinant(m:Matrix44) {
 
-      mat.m00*mat.m11*mat.m23*mat.m32 - mat.m00*mat.m12*mat.m21*mat.m33 - mat.m00*mat.m13*mat.m22*mat.m31 -
-      mat.m01*mat.m10*mat.m22*mat.m33 - mat.m01*mat.m12*mat.m23*mat.m30 - mat.m01*mat.m13*mat.m20*mat.m32 -
-      mat.m02*mat.m10*mat.m23*mat.m31 - mat.m02*mat.m11*mat.m20*mat.m33 - mat.m02*mat.m13*mat.m21*mat.m30 -
-      mat.m03*mat.m10*mat.m21*mat.m32 - mat.m03*mat.m11*mat.m22*mat.m30 - mat.m03*mat.m12*mat.m20*mat.m31;
+    let n00 = m.m00 * m.m11 - m.m01 * m.m10;
+    let n01 = m.m00 * m.m12 - m.m02 * m.m10;
+    let n02 = m.m00 * m.m13 - m.m03 * m.m10;
+    let n03 = m.m01 * m.m12 - m.m02 * m.m11;
+    let n04 = m.m01 * m.m13 - m.m03 * m.m11;
+    let n05 = m.m02 * m.m13 - m.m03 * m.m12;
+    let n06 = m.m20 * m.m31 - m.m21 * m.m30;
+    let n07 = m.m20 * m.m32 - m.m22 * m.m30;
+    let n08 = m.m20 * m.m33 - m.m23 * m.m30;
+    let n09 = m.m21 * m.m32 - m.m22 * m.m31;
+    let n10 = m.m21 * m.m33 - m.m23 * m.m31;
+    let n11 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    return det;
   }
 
 
-  static invert(mat:Matrix44) {
-    var det = mat.determinant();
-    var m00 = (mat.m11*mat.m22*mat.m33 + mat.m12*mat.m23*mat.m31 + mat.m13*mat.m21*mat.m32 - mat.m11*mat.m23*mat.m32 - mat.m12*mat.m21*mat.m33 - mat.m13*mat.m22*mat.m31) / det;
-    var m01 = (mat.m01*mat.m23*mat.m32 + mat.m02*mat.m21*mat.m33 + mat.m03*mat.m22*mat.m31 - mat.m01*mat.m22*mat.m33 - mat.m02*mat.m23*mat.m31 - mat.m03*mat.m21*mat.m32) / det;
-    var m02 = (mat.m01*mat.m12*mat.m33 + mat.m02*mat.m13*mat.m31 + mat.m03*mat.m11*mat.m32 - mat.m01*mat.m13*mat.m32 - mat.m02*mat.m11*mat.m33 - mat.m03*mat.m12*mat.m31) / det;
-    var m03 = (mat.m01*mat.m13*mat.m22 + mat.m02*mat.m11*mat.m23 + mat.m03*mat.m12*mat.m21 - mat.m01*mat.m12*mat.m23 - mat.m02*mat.m13*mat.m21 - mat.m03*mat.m11*mat.m22) / det;
-    var m10 = (mat.m10*mat.m23*mat.m32 + mat.m12*mat.m20*mat.m33 + mat.m13*mat.m22*mat.m30 - mat.m10*mat.m22*mat.m33 - mat.m12*mat.m23*mat.m30 - mat.m13*mat.m20*mat.m32) / det;
-    var m11 = (mat.m00*mat.m22*mat.m33 + mat.m02*mat.m23*mat.m30 + mat.m03*mat.m20*mat.m32 - mat.m00*mat.m23*mat.m32 - mat.m02*mat.m20*mat.m33 - mat.m03*mat.m22*mat.m30) / det;
-    var m12 = (mat.m00*mat.m13*mat.m32 + mat.m02*mat.m10*mat.m33 + mat.m03*mat.m12*mat.m30 - mat.m00*mat.m12*mat.m33 - mat.m02*mat.m13*mat.m30 - mat.m03*mat.m10*mat.m32) / det;
-    var m13 = (mat.m00*mat.m12*mat.m23 + mat.m02*mat.m13*mat.m20 + mat.m03*mat.m10*mat.m22 - mat.m00*mat.m13*mat.m22 - mat.m02*mat.m10*mat.m23 - mat.m03*mat.m12*mat.m20) / det;
-    var m20 = (mat.m10*mat.m21*mat.m33 + mat.m11*mat.m23*mat.m30 + mat.m13*mat.m20*mat.m31 - mat.m10*mat.m23*mat.m31 - mat.m11*mat.m20*mat.m33 - mat.m13*mat.m21*mat.m30) / det;
-    var m21 = (mat.m00*mat.m23*mat.m31 + mat.m01*mat.m20*mat.m33 + mat.m03*mat.m21*mat.m30 - mat.m00*mat.m21*mat.m33 - mat.m01*mat.m23*mat.m30 - mat.m03*mat.m20*mat.m31) / det;
-    var m22 = (mat.m00*mat.m11*mat.m33 + mat.m01*mat.m13*mat.m30 + mat.m03*mat.m10*mat.m31 - mat.m00*mat.m13*mat.m31 - mat.m01*mat.m10*mat.m33 - mat.m03*mat.m11*mat.m30) / det;
-    var m23 = (mat.m00*mat.m13*mat.m21 + mat.m01*mat.m10*mat.m23 + mat.m03*mat.m11*mat.m20 - mat.m00*mat.m11*mat.m23 - mat.m01*mat.m13*mat.m20 - mat.m03*mat.m10*mat.m21) / det;
-    var m30 = (mat.m10*mat.m22*mat.m31 + mat.m11*mat.m20*mat.m32 + mat.m12*mat.m21*mat.m30 - mat.m10*mat.m21*mat.m32 - mat.m11*mat.m22*mat.m30 - mat.m12*mat.m20*mat.m31) / det;
-    var m31 = (mat.m00*mat.m21*mat.m32 + mat.m01*mat.m22*mat.m30 + mat.m02*mat.m20*mat.m31 - mat.m00*mat.m22*mat.m31 - mat.m01*mat.m20*mat.m32 - mat.m02*mat.m21*mat.m30) / det;
-    var m32 = (mat.m00*mat.m12*mat.m31 + mat.m01*mat.m10*mat.m32 + mat.m02*mat.m11*mat.m30 - mat.m00*mat.m11*mat.m32 - mat.m01*mat.m12*mat.m30 - mat.m02*mat.m10*mat.m31) / det;
-    var m33 = (mat.m00*mat.m11*mat.m22 + mat.m01*mat.m12*mat.m20 + mat.m02*mat.m10*mat.m21 - mat.m00*mat.m12*mat.m21 - mat.m01*mat.m10*mat.m22 - mat.m02*mat.m11*mat.m20) / det;
+  static invert(m:Matrix44) {
+
+    let n00 = m.m00 * m.m11 - m.m01 * m.m10;
+    let n01 = m.m00 * m.m12 - m.m02 * m.m10;
+    let n02 = m.m00 * m.m13 - m.m03 * m.m10;
+    let n03 = m.m01 * m.m12 - m.m02 * m.m11;
+    let n04 = m.m01 * m.m13 - m.m03 * m.m11;
+    let n05 = m.m02 * m.m13 - m.m03 * m.m12;
+    let n06 = m.m20 * m.m31 - m.m21 * m.m30;
+    let n07 = m.m20 * m.m32 - m.m22 * m.m30;
+    let n08 = m.m20 * m.m33 - m.m23 * m.m30;
+    let n09 = m.m21 * m.m32 - m.m22 * m.m31;
+    let n10 = m.m21 * m.m33 - m.m23 * m.m31;
+    let n11 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    det = 1.0/det;
+
+    const out0 = (m.m11 * n11 - m.m12 * n10 + m.m13 * n09) * det;
+    const out1 = (m.m02 * n10 - m.m01 * n11 - m.m03 * n09) * det;
+    const out2 = (m.m31 * n05 - m.m32 * n04 + m.m33 * n03) * det;
+    const out3 = (m.m22 * n04 - m.m21 * n05 - m.m23 * n03) * det;
+    const out4 = (m.m12 * n08 - m.m10 * n11 - m.m13 * n07) * det;
+    const out5 = (m.m00 * n11 - m.m02 * n08 + m.m03 * n07) * det;
+    const out6 = (m.m32 * n02 - m.m30 * n05 - m.m33 * n01) * det;
+    const out7 = (m.m20 * n05 - m.m22 * n02 + m.m23 * n01) * det;
+    const out8 = (m.m10 * n10 - m.m11 * n08 + m.m13 * n06) * det;
+    const out9 = (m.m01 * n08 - m.m00 * n10 - m.m03 * n06) * det;
+    const out10 = (m.m30 * n04 - m.m31 * n02 + m.m33 * n00) * det;
+    const out11 = (m.m21 * n02 - m.m20 * n04 - m.m23 * n00) * det;
+    const out12 = (m.m11 * n07 - m.m10 * n09 - m.m12 * n06) * det;
+    const out13 = (m.m00 * n09 - m.m01 * n07 + m.m02 * n06) * det;
+    const out14 = (m.m31 * n01 - m.m30 * n03 - m.m32 * n00) * det;
+    const out15 = (m.m20 * n03 - m.m21 * n01 + m.m22 * n00) * det;
 
     return new Matrix44(
-      m00, m01, m02, m03,
-      m10, m11, m12, m13,
-      m20, m21, m22, m23,
-      m30, m31, m32, m33
+      out0, out1, out2, out3,
+      out4, out5, out6, out7,
+      out8, out9, out10, out11,
+      out12, out13, out14, out15, true
     );
   }
 

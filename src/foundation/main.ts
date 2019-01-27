@@ -24,6 +24,7 @@ import MemoryManager from './core/MemoryManager';
 import CameraComponent from './components/CameraComponent';
 import { CameraType } from './definitions/CameraType';
 import RowMajarMatrix44 from './math/RowMajarMatrix44';
+import AnimationComponent from './components/AnimationComponent';
 
 const Rn = {
   EntityRepository,
@@ -51,7 +52,8 @@ const Rn = {
   MemoryManager,
   CameraComponent,
   CameraType,
-  RowMajarMatrix44
+  RowMajarMatrix44,
+  AnimationComponent
 };
 export default Rn;
 

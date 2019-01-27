@@ -19,6 +19,11 @@ import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
 import Texture from "../textures/Texture";
+import Vector4 from "../math/Vector4";
+import Vector2_F64 from "../math/Vector2";
+import AnimationComponent from "../components/AnimationComponent";
+import { Animation } from "../definitions/Animation";
+import { MathUtil } from "../math/MathUtil";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -56,20 +61,20 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID]);
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
       MeshComponent.componentTID, MeshRendererComponent.componentTID]);
     return entity;
   }
-  
+
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent.componentTID, SceneGraphComponent.componentTID,
+    const entity = repo.createEntity([AnimationComponent.componentTID, TransformComponent.componentTID, SceneGraphComponent.componentTID,
       CameraComponent.componentTID]);
     return entity;
   }
@@ -100,7 +105,7 @@ export default class ModelConverter {
     //this._setupCamera(gltfModel, groups);
 
     // Animation
-//    this._setupAnimation(gltfModel, groups);
+    this.__setupAnimation(gltfModel, rnEntities);
 
     // Root Group
     const rootGroup = this.__generateGroupEntity();
@@ -184,33 +189,45 @@ export default class ModelConverter {
     }
   }
 
-  // _setupAnimation(gltfModel: glTF2, groups: Entity[]) {
-  //   if (gltfModel.animations) {
-  //     for (let animation of gltfModel.animations) {
+  __setupAnimation(gltfModel: glTF2, rnEntities: Entity[]) {
+    if (gltfModel.animations) {
 
-  //       for (let channel of animation.channels) {
-  //         let animInputArray = channel.sampler.input.extras.vertexAttributeArray;
+      for (let animation of gltfModel.animations) {
+        for (let sampler of animation.samplers) {
+          this._accessBinaryWithAccessor(sampler.input);
+          this._accessBinaryWithAccessor(sampler.output);
+        }
+      }
+    }
 
-  //         let animOutputArray = channel.sampler.output.extras.vertexAttributeArray;;
+    if (gltfModel.animations) {
+      for (let animation of gltfModel.animations) {
 
-  //         let animationAttributeName = '';
-  //         if (channel.target.path === 'translation') {
-  //           animationAttributeName = 'translate';
-  //         } else if (channel.target.path === 'rotation') {
-  //           animationAttributeName = 'quaternion';
-  //         } else {
-  //           animationAttributeName = channel.target.path;
-  //         }
+        for (let channel of animation.channels) {
+          const animInputArray = channel.sampler.input.extras.typedDataArray;
+          const animOutputArray = channel.sampler.output.extras.typedDataArray;
+          const interpolation = channel.sampler.interpolation;
 
-  //         let group = groups[channel.target.nodeIndex];
-  //         if (group) {
-  //           group.setAnimationAtLine('time', animationAttributeName, animInputArray, animOutputArray);
-  //           group.setActiveAnimationLine('time');
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+          let animationAttributeName = '';
+          if (channel.target.path === 'translation') {
+            animationAttributeName = 'translate';
+          } else if (channel.target.path === 'rotation') {
+            animationAttributeName = 'quaternion';
+          } else {
+            animationAttributeName = channel.target.path;
+          }
+
+          let rnEntity = rnEntities[channel.target.nodeIndex];
+          if (rnEntity) {
+            const animationComponent = rnEntity.getComponent(AnimationComponent.componentTID) as AnimationComponent;
+            if (animationComponent) {
+              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+            }
+          }
+        }
+      }
+    }
+  }
 
   // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
   //   for (let node_i in gltfModel.nodes) {
@@ -263,12 +280,14 @@ export default class ModelConverter {
   private __setupCamera(camera: any) {
     const cameraEntity = this.__generateCameraEntity();
     const cameraComponent = cameraEntity.getComponent(CameraComponent.componentTID)! as CameraComponent;
+    cameraComponent.direction = new Vector3(0, 0, -1);
+    cameraComponent.up = new Vector3(0, 1, 0);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
-      cameraComponent.aspect = camera.perspective.aspectRatio;
-      cameraComponent.fovy = camera.perspective.yfov;
+      cameraComponent.aspect = camera.perspective.aspectRatio ? camera.perspective.aspectRatio : 1;
+      cameraComponent.fovy = MathUtil.radianToDegree(camera.perspective.yfov);
       cameraComponent.zNear = camera.perspective.znear;
-      cameraComponent.zFar = camera.perspective.zfar;
+      cameraComponent.zFar = camera.perspective.zfar ? camera.perspective.zfar : 100000;
     } else if (cameraComponent.type === CameraType.Orthographic) {
       cameraComponent.xmag = camera.orthographic.zmag;
       cameraComponent.ymag = camera.orthographic.ymag;
@@ -325,7 +344,7 @@ export default class ModelConverter {
         const texture = baseColorTexture.texture;
         const image = texture.image.image;
         const rnTexture = new Texture();
-        rnTexture.generateTExtureFromImage(image);
+        rnTexture.generateTextureFromImage(image);
         material.baseColorTexture = rnTexture;
       }
     }
@@ -336,7 +355,7 @@ export default class ModelConverter {
 //     let options = gltfModel.asset.extras.glboostOptions;
 
 //     if (accessor) {
-//       additional['texcoord'][i] =  accessor.extras.vertexAttributeArray;
+//       additional['texcoord'][i] =  accessor.extras.typedDataArray;
 //       vertexData.components.texcoord = accessor.extras.componentN;
 //       vertexData.componentBytes.texcoord = accessor.extras.componentBytes;
 //       vertexData.componentType.texcoord = accessor.componentType;
@@ -535,240 +554,240 @@ export default class ModelConverter {
 //     }
 //   }
 
-  // _adjustByteAlign(typedArrayClass, arrayBuffer, alignSize, byteOffset, length) {
-  //   if (( byteOffset % alignSize ) != 0) {
-  //     return new typedArrayClass(arrayBuffer.slice(byteOffset), 0, length);
-  //   } else {
-  //     return new typedArrayClass(arrayBuffer, byteOffset, length);
-  //   }
-  // }
+  _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
+    if (( byteOffset % alignSize ) != 0) {
+      return new typedArrayClass(arrayBuffer.slice(byteOffset), 0, length);
+    } else {
+      return new typedArrayClass(arrayBuffer, byteOffset, length);
+    }
+  }
 
-  // _checkBytesPerComponent(accessor) {
+  _checkBytesPerComponent(accessor: any) {
 
-  //   var bytesPerComponent = 0;
-  //   switch (accessor.componentType) {
-  //     case 5120: // gl.BYTE
-  //       bytesPerComponent = 1;
-  //       break;
-  //     case 5121: // gl.UNSIGNED_BYTE
-  //       bytesPerComponent = 1;
-  //       break;
-  //     case 5122: // gl.SHORT
-  //       bytesPerComponent = 2;
-  //       break;
-  //     case 5123: // gl.UNSIGNED_SHORT
-  //       bytesPerComponent = 2;
-  //       break;
-  //     case 5124: // gl.INT
-  //       bytesPerComponent = 4;
-  //       break;
-  //     case 5125: // gl.UNSIGNED_INT
-  //       bytesPerComponent = 4;
-  //       break;
-  //     case 5126: // gl.FLOAT
-  //       bytesPerComponent = 4;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   return bytesPerComponent;
-  // }
+    var bytesPerComponent = 0;
+    switch (accessor.componentType) {
+      case 5120: // gl.BYTE
+        bytesPerComponent = 1;
+        break;
+      case 5121: // gl.UNSIGNED_BYTE
+        bytesPerComponent = 1;
+        break;
+      case 5122: // gl.SHORT
+        bytesPerComponent = 2;
+        break;
+      case 5123: // gl.UNSIGNED_SHORT
+        bytesPerComponent = 2;
+        break;
+      case 5124: // gl.INT
+        bytesPerComponent = 4;
+        break;
+      case 5125: // gl.UNSIGNED_INT
+        bytesPerComponent = 4;
+        break;
+      case 5126: // gl.FLOAT
+        bytesPerComponent = 4;
+        break;
+      default:
+        break;
+    }
+    return bytesPerComponent;
+  }
 
-  // _checkComponentNumber(accessor) {
+  _checkComponentNumber(accessor: any) {
 
-  //   var componentN = 0;
-  //   switch (accessor.type) {
-  //     case 'SCALAR':
-  //       componentN = 1;
-  //       break;
-  //     case 'VEC2':
-  //       componentN = 2;
-  //       break;
-  //     case 'VEC3':
-  //       componentN = 3;
-  //       break;
-  //     case 'VEC4':
-  //       componentN = 4;
-  //       break;
-  //     case 'MAT4':
-  //       componentN = 16;
-  //       break;
-  //   }
+    var componentN = 0;
+    switch (accessor.type) {
+      case 'SCALAR':
+        componentN = 1;
+        break;
+      case 'VEC2':
+        componentN = 2;
+        break;
+      case 'VEC3':
+        componentN = 3;
+        break;
+      case 'VEC4':
+        componentN = 4;
+        break;
+      case 'MAT4':
+        componentN = 16;
+        break;
+    }
 
-  //   return componentN;
-  // }
+    return componentN;
+  }
 
-  // _checkDataViewMethod(accessor) {
-  //   var dataViewMethod = '';
-  //   switch (accessor.componentType) {
-  //     case 5120: // gl.BYTE
-  //       dataViewMethod = 'getInt8';
-  //       break;
-  //     case 5121: // gl.UNSIGNED_BYTE
-  //       dataViewMethod = 'getUint8';
-  //       break;
-  //     case 5122: // gl.SHORT
-  //       dataViewMethod = 'getInt16';
-  //       break;
-  //     case 5123: // gl.UNSIGNED_SHORT
-  //       dataViewMethod = 'getUint16';
-  //       break;
-  //     case 5124: // gl.INT
-  //       dataViewMethod = 'getInt32';
-  //       break;
-  //     case 5125: // gl.UNSIGNED_INT
-  //       dataViewMethod = 'getUint32';
-  //       break;
-  //     case 5126: // gl.FLOAT
-  //       dataViewMethod = 'getFloat32';
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   return dataViewMethod;
-  // }
+  _checkDataViewMethod(accessor: any) {
+    var dataViewMethod = '';
+    switch (accessor.componentType) {
+      case 5120: // gl.BYTE
+        dataViewMethod = 'getInt8';
+        break;
+      case 5121: // gl.UNSIGNED_BYTE
+        dataViewMethod = 'getUint8';
+        break;
+      case 5122: // gl.SHORT
+        dataViewMethod = 'getInt16';
+        break;
+      case 5123: // gl.UNSIGNED_SHORT
+        dataViewMethod = 'getUint16';
+        break;
+      case 5124: // gl.INT
+        dataViewMethod = 'getInt32';
+        break;
+      case 5125: // gl.UNSIGNED_INT
+        dataViewMethod = 'getUint32';
+        break;
+      case 5126: // gl.FLOAT
+        dataViewMethod = 'getFloat32';
+        break;
+      default:
+        break;
+    }
+    return dataViewMethod;
+  }
 
-  // static _isSystemLittleEndian() {
-  //   return !!(new Uint8Array((new Uint16Array([0x00ff])).buffer))[0];
-  // }
+  static _isSystemLittleEndian() {
+    return !!(new Uint8Array((new Uint16Array([0x00ff])).buffer))[0];
+  }
 
-  // _accessBinaryWithAccessor(accessor) {
-  //   var bufferView = accessor.bufferView;
-  //   const byteOffset = bufferView.byteOffset + (accessor.byteOffset !== void 0 ? accessor.byteOffset : 0);
-  //   var buffer = bufferView.buffer;
-  //   var arrayBuffer = buffer.buffer;
+  _accessBinaryWithAccessor(accessor: any) {
+    var bufferView = accessor.bufferView;
+    const byteOffset = bufferView.byteOffset + (accessor.byteOffset !== void 0 ? accessor.byteOffset : 0);
+    var buffer = bufferView.buffer;
+    var arrayBuffer = buffer.buffer;
 
-  //   let componentN = this._checkComponentNumber(accessor);
-  //   let componentBytes = this._checkBytesPerComponent(accessor);
-  //   let dataViewMethod = this._checkDataViewMethod(accessor);
-  //   if (accessor.extras === void 0) {
-  //     accessor.extras = {};
-  //   }
+    let componentN = this._checkComponentNumber(accessor);
+    let componentBytes = this._checkBytesPerComponent(accessor);
+    let dataViewMethod = this._checkDataViewMethod(accessor);
+    if (accessor.extras === void 0) {
+      accessor.extras = {};
+    }
 
-  //   accessor.extras.componentN = componentN;
-  //   accessor.extras.componentBytes = componentBytes;
-  //   accessor.extras.dataViewMethod = dataViewMethod;
+    accessor.extras.componentN = componentN;
+    accessor.extras.componentBytes = componentBytes;
+    accessor.extras.dataViewMethod = dataViewMethod;
 
-  //   var byteLength = componentBytes * componentN * accessor.count;
+    var byteLength = componentBytes * componentN * accessor.count;
 
-  //   var vertexAttributeArray = [];
+    var typedDataArray: any = [];
 
-  //   if (accessor.extras && accessor.extras.toGetAsTypedArray) {
-  //     if (ModelConverter._isSystemLittleEndian()) {
-  //       if (dataViewMethod === 'getFloat32') {
-  //         vertexAttributeArray = this._adjustByteAlign(Float32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getInt8') {
-  //         vertexAttributeArray = new Int8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getUint8') {
-  //         vertexAttributeArray = new Uint8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getInt16') {
-  //         vertexAttributeArray = this._adjustByteAlign(Int16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getUint16') {
-  //         vertexAttributeArray = this._adjustByteAlign(Uint16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getInt32') {
-  //         vertexAttributeArray = this._adjustByteAlign(Int32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
-  //       } else if (dataViewMethod === 'getUint32') {
-  //         vertexAttributeArray = this._adjustByteAlign(Uint32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
-  //       }
+    if (accessor.extras && accessor.extras.toGetAsTypedArray) {
+      if (ModelConverter._isSystemLittleEndian()) {
+        if (dataViewMethod === 'getFloat32') {
+          typedDataArray = this._adjustByteAlign(Float32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getInt8') {
+          typedDataArray = new Int8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getUint8') {
+          typedDataArray = new Uint8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getInt16') {
+          typedDataArray = this._adjustByteAlign(Int16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getUint16') {
+          typedDataArray = this._adjustByteAlign(Uint16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getInt32') {
+          typedDataArray = this._adjustByteAlign(Int32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+        } else if (dataViewMethod === 'getUint32') {
+          typedDataArray = this._adjustByteAlign(Uint32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+        }
 
-  //     } else {
-  //       let dataView = new DataView(arrayBuffer, byteOffset, byteLength);
-  //       let byteDelta = componentBytes * componentN;
-  //       let littleEndian = true;
-  //       for (let pos = 0; pos < byteLength; pos += byteDelta) {
-  //         switch (accessor.type) {
-  //           case 'SCALAR':
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos, littleEndian));
-  //             break;
-  //           case 'VEC2':
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
-  //             break;
-  //           case 'VEC3':
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes * 2, littleEndian));
-  //             break;
-  //           case 'VEC4':
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes * 2, littleEndian));
-  //             vertexAttributeArray.push(dataView[dataViewMethod](pos + componentBytes * 3, littleEndian));
-  //             break;
-  //         }
-  //       }
-  //       if (dataViewMethod === 'getInt8') {
-  //         vertexAttributeArray = new Int8Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getUint8') {
-  //         vertexAttributeArray = new Uint8Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getInt16') {
-  //         vertexAttributeArray = new Int16Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getUint16') {
-  //         vertexAttributeArray = new Uint16Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getInt32') {
-  //         vertexAttributeArray = new Int32Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getUint32') {
-  //         vertexAttributeArray = new Uint32Array(vertexAttributeArray);
-  //       } else if (dataViewMethod === 'getFloat32') {
-  //         vertexAttributeArray = new Float32Array(vertexAttributeArray);
-  //       }
-  //     }
-  //   } else {
-  //     let dataView = new DataView(arrayBuffer, byteOffset, byteLength);
-  //     let byteDelta = componentBytes * componentN;
-  //     let littleEndian = true;
-  //     for (let pos = 0; pos < byteLength; pos += byteDelta) {
+      } else {
+        let dataView:any = new DataView(arrayBuffer, byteOffset, byteLength);
+        let byteDelta = componentBytes * componentN;
+        let littleEndian = true;
+        for (let pos = 0; pos < byteLength; pos += byteDelta) {
+          switch (accessor.type) {
+            case 'SCALAR':
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+              break;
+            case 'VEC2':
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
+              break;
+            case 'VEC3':
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes * 2, littleEndian));
+              break;
+            case 'VEC4':
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes * 2, littleEndian));
+              typedDataArray.push(dataView[dataViewMethod](pos + componentBytes * 3, littleEndian));
+              break;
+          }
+        }
+        if (dataViewMethod === 'getInt8') {
+          typedDataArray = new Int8Array(typedDataArray);
+        } else if (dataViewMethod === 'getUint8') {
+          typedDataArray = new Uint8Array(typedDataArray);
+        } else if (dataViewMethod === 'getInt16') {
+          typedDataArray = new Int16Array(typedDataArray);
+        } else if (dataViewMethod === 'getUint16') {
+          typedDataArray = new Uint16Array(typedDataArray);
+        } else if (dataViewMethod === 'getInt32') {
+          typedDataArray = new Int32Array(typedDataArray);
+        } else if (dataViewMethod === 'getUint32') {
+          typedDataArray = new Uint32Array(typedDataArray);
+        } else if (dataViewMethod === 'getFloat32') {
+          typedDataArray = new Float32Array(typedDataArray);
+        }
+      }
+    } else {
+      let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
+      let byteDelta = componentBytes * componentN;
+      let littleEndian = true;
+      for (let pos = 0; pos < byteLength; pos += byteDelta) {
 
-  //       switch (accessor.type) {
-  //         case 'SCALAR':
-  //           vertexAttributeArray.push(dataView[dataViewMethod](pos, littleEndian));
-  //           break;
-  //         case 'VEC2':
-  //           vertexAttributeArray.push(new Vector2(
-  //             dataView[dataViewMethod](pos, littleEndian),
-  //             dataView[dataViewMethod](pos+componentBytes, littleEndian)
-  //           ));
-  //           break;
-  //         case 'VEC3':
-  //           vertexAttributeArray.push(new Vector3(
-  //             dataView[dataViewMethod](pos, littleEndian),
-  //             dataView[dataViewMethod](pos+componentBytes, littleEndian),
-  //             dataView[dataViewMethod](pos+componentBytes*2, littleEndian)
-  //           ));
-  //           break;
-  //         case 'VEC4':
-  //           if (accessor.extras && accessor.extras.quaternionIfVec4) {
-  //             vertexAttributeArray.push(new Quaternion(
-  //               dataView[dataViewMethod](pos, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
-  //             ));
-  //           } else {
-  //             vertexAttributeArray.push(new Vector4(
-  //               dataView[dataViewMethod](pos, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
-  //               dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
-  //             ));
-  //           }
-  //           break;
-  //         case 'MAT4':
-  //           let matrixComponents = [];
-  //           for (let i=0; i<16; i++) {
-  //             matrixComponents[i] = dataView[dataViewMethod](pos+componentBytes*i, littleEndian);
-  //           }
-  //           vertexAttributeArray.push(new Matrix44(matrixComponents, true));
-  //           break;
-  //       }
+        switch (accessor.type) {
+          case 'SCALAR':
+            typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+            break;
+          case 'VEC2':
+            typedDataArray.push(new Vector2_F64(
+              dataView[dataViewMethod](pos, littleEndian),
+              dataView[dataViewMethod](pos+componentBytes, littleEndian)
+            ));
+            break;
+          case 'VEC3':
+            typedDataArray.push(new Vector3(
+              dataView[dataViewMethod](pos, littleEndian),
+              dataView[dataViewMethod](pos+componentBytes, littleEndian),
+              dataView[dataViewMethod](pos+componentBytes*2, littleEndian)
+            ));
+            break;
+          case 'VEC4':
+            if (accessor.extras && accessor.extras.quaternionIfVec4) {
+              typedDataArray.push(new Quaternion(
+                dataView[dataViewMethod](pos, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
+              ));
+            } else {
+              typedDataArray.push(new Vector4(
+                dataView[dataViewMethod](pos, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
+                dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
+              ));
+            }
+            break;
+          case 'MAT4':
+            let matrixComponents = [];
+            for (let i=0; i<16; i++) {
+              matrixComponents[i] = dataView[dataViewMethod](pos+componentBytes*i, littleEndian);
+            }
+            typedDataArray.push(new Matrix44(matrixComponents, true));
+            break;
+        }
 
-  //     }
-  //   }
+      }
+    }
 
-  //   accessor.extras.vertexAttributeArray = vertexAttributeArray;
+    accessor.extras.typedDataArray = typedDataArray;
 
-  //   return vertexAttributeArray;
-  // }
+    return typedDataArray;
+  }
 
   private __getRnAccessor(accessor: any, rnBuffer: Buffer) {
     const bufferView = accessor.bufferView;

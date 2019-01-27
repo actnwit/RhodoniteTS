@@ -11,6 +11,7 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import Matrix33 from '../math/Matrix33';
+import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -88,7 +89,8 @@ export default class SceneGraphComponent extends Component {
   }
 
   get normalMatrixInner() {
-    this._normalMatrix.copyComponents(new Matrix33(Matrix44.invert(Matrix44.transpose(this.worldMatrix))));
+    this._normalMatrix.copyComponents(RowMajarMatrix44.transpose(RowMajarMatrix44.invert(this.worldMatrix)));
+    //this._normalMatrix.copyComponents(this.worldMatrix);
     return this._normalMatrix;
   }
 

@@ -93,6 +93,7 @@ ${_in} vec2 a_texcoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
+${_out} vec3 v_lightDirection;
 ${_out} vec2 v_texcoord;
 `;
 
@@ -113,8 +114,13 @@ void main ()
 
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
-
   v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+//v_position_inWorld = vec4(a_position, 1.0);
+
+// Light
+vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
+v_lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
+
 }
   `;
 
@@ -138,12 +144,13 @@ uniform Material u_material;
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
+${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
   // Light
-  vec3 lightPosition = vec3(1.0, 100.0, 1.0);
+  //vec3 lightPosition = vec3(0.0, 0.0, 50000.0);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -167,8 +174,8 @@ void main ()
   }
 
   // Lighting
-  if (length(v_normal_inWorld) > 0.5) {
-    vec3 lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
+  if (length(v_normal_inWorld) > 0.02) {
+    vec3 lightDirection = normalize(v_lightDirection);
     float diffuse = 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
     color *= diffuse;
   }

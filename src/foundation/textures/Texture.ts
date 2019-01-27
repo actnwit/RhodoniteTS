@@ -53,7 +53,7 @@ export default class Texture extends RnObject {
     return canvas;
   }
 
-  generateTExtureFromImage(image: HTMLImageElement) {
+  generateTextureFromImage(image: HTMLImageElement) {
     let imgCanvas = this._getResizedCanvas(image);
     this.__width = imgCanvas.width;
     this.__height = imgCanvas.height;

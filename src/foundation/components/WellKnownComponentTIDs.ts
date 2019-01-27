@@ -1,11 +1,13 @@
-const TransformComponentTID = 1;
-const SceneGraphComponentTID = 2;
-const MeshComponentTID = 3;
-const MeshRendererComponentTID = 4;
-const CameraComponentTID = 5;
+const AnimationComponentTID = 1;
+const TransformComponentTID = 2;
+const SceneGraphComponentTID = 3;
+const MeshComponentTID = 4;
+const MeshRendererComponentTID = 5;
+const CameraComponentTID = 6;
 
 
 export const WellKnownComponentTIDs = Object.freeze({
+  AnimationComponentTID,
   TransformComponentTID,
   SceneGraphComponentTID,
   MeshComponentTID,
