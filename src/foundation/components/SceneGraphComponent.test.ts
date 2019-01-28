@@ -48,3 +48,20 @@ test('create Parents and children.', () => {
       0, 0, 1, 0,
       0, 0, 0, 1), 0.00001)).toBe(true);
 });
+
+test('flatten hierarchy', () => {
+  // generate entities
+  const sceneEntity = generateEntity();
+  const parentEntity = generateEntity();
+  const childEntity = generateEntity();
+  const child2Entity = generateEntity();
+
+  // setup scene graph
+  parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
+  parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
+  sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
+
+  const result = SceneGraphComponent.flattenHierarchy(sceneEntity.getSceneGraph());
+
+  expect(result.length).toBe(4);
+});

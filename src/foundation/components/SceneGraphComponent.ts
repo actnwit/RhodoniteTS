@@ -15,13 +15,15 @@ import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
-  private __isAbleToBeParent: boolean;
+  public isAbleToBeParent: boolean;
   private __children?: Array<SceneGraphComponent>
   private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
   private static _isAllUpdate = false;
+  public isRootJoint = false;
+  public jointIndex = -1;
 
   private static __bufferView: BufferView;
 
@@ -38,7 +40,7 @@ export default class SceneGraphComponent extends Component {
 
     Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
 
-    this.__isAbleToBeParent = false;
+    this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
     this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
@@ -52,8 +54,8 @@ export default class SceneGraphComponent extends Component {
   }
 
   beAbleToBeParent(flag: boolean) {
-    this.__isAbleToBeParent = flag;
-    if (this.__isAbleToBeParent) {
+    this.isAbleToBeParent = flag;
+    if (this.isAbleToBeParent) {
       this.__children = [];
     } else {
       this.__children = void 0;
@@ -72,6 +74,10 @@ export default class SceneGraphComponent extends Component {
     } else {
       console.error('This is not allowed to have children.');
     }
+  }
+
+  get children() {
+    return this.__children;
   }
 
   get worldMatrixInner() {
@@ -154,5 +160,22 @@ export default class SceneGraphComponent extends Component {
 
     // return matrix;
   }
+
+  static flattenHierarchy(sceneGraphComponent: SceneGraphComponent): SceneGraphComponent[] {
+
+    const results: SceneGraphComponent[] = [];
+    results.push(sceneGraphComponent);
+    if (sceneGraphComponent.isAbleToBeParent) {
+      const children = sceneGraphComponent.children!;
+      for (let i=0; i<children.length; i++) {
+        const hitChildren = this.flattenHierarchy(children[i]);
+        Array.prototype.push.apply(results, hitChildren);
+      }
+    }
+
+    return results;
+  }
+
+
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);
