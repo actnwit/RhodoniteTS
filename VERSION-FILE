@@ -1,6 +1,6 @@
-version: 0.1.1-48-g7047-mod
+version: 0.1.1-50-g4396-mod
 branch: feature/skeletal-animation
-e02ad15d6c6c6155e7bb6bfa6b6f129802058f5c626ef199c94a92addecd58ed ./dist/rhodonite.js
-2c0201755a3fe506c8c27c2103d9b40cc7490fbda44da4fd6f351369babeaf7a ./dist/rhodonite.min.js
-aa69af9de529ad23e0738a1ad3bd6a9278902f8d61ac09affa12a6410d09621f ./dist/rhodonite-webgl.js
-2136891bf7d403cd7e4bc6803015c50a09050b25fb7f01d0340feffa2934885e ./dist/rhodonite-webgl.min.js
+0d62060e3e567d80911e11881bac02a9a8880df3ac16858cab82b1465908328b ./dist/rhodonite.js
+a357ea20bea1e928d257ea3376d72f09963b77d656feaa0439611118ba10dba1 ./dist/rhodonite.min.js
+b3b19d737f3b1fe3c59b4220f9b1394716f52074530588debed2a4891eec3465 ./dist/rhodonite-webgl.js
+c436c0c2b1740ded58e8614aedc61eb07ccea01b90d43d4bfae8a41fc044d638 ./dist/rhodonite-webgl.min.js

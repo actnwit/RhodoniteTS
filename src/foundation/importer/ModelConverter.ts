@@ -235,17 +235,26 @@ export default class ModelConverter {
 
   _setupSkeleton(gltfModel: glTF2, rnEntities: Entity[]) {
     const entityRepository = EntityRepository.getInstance();
+    for (let skin of gltfModel.skins) {
+      this._accessBinaryWithAccessor(skin.inverseBindMatrices);
+    }
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[node_i];
       let sg = rnEntities[node_i].getSceneGraph();
+      let skeletalComponent: SkeletalComponent;
+      if (node.skin) {
+        let rnEntity = rnEntities[node.meshIndex];
+        entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
+        skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
+
+        skeletalComponent._jointIndices = node.skin.jointIndices;
+      }
+
       if (node.skin && node.skin.skeleton) {
         sg.isRootJoint = true;
         if (node.mesh) {
-          let rnEntity = rnEntities[node.meshIndex];
-          entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
-          const skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
-          skeletalComponent.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+          skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
         }
       }
 
@@ -254,6 +263,9 @@ export default class ModelConverter {
           let sg = rnEntities[joint_i].getSceneGraph();
           sg.jointIndex = joint_i;
         }
+      }
+      if (node.skin && node.skin.inverseBindMatrices != null) {
+        skeletalComponent!._inverseBindMatrices = node.skin.inverseBindMatrices.extras.typedDataArray;
       }
     }
   }

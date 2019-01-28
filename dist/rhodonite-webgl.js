@@ -13,4 +13,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-48-g7047-mod branch: feature/skeletal-animation';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-50-g4396-mod branch: feature/skeletal-animation';

@@ -16,14 +16,19 @@ import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
   public isAbleToBeParent: boolean;
-  private __children?: Array<SceneGraphComponent>
+  private __children: Array<SceneGraphComponent> = [];
   private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
   private static _isAllUpdate = false;
+
+  // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
+  public _inverseBindMatrix?: Matrix44;
+  public _bindMatrix?: Matrix44;
+  public _jointsOfParentHierarchies: SceneGraphComponent[] = [];
 
   private static __bufferView: BufferView;
 
@@ -49,17 +54,20 @@ export default class SceneGraphComponent extends Component {
     //this.__updatedProperly = false;
   }
 
+  isJoint() {
+    if (this.jointIndex >= 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
   beAbleToBeParent(flag: boolean) {
     this.isAbleToBeParent = flag;
-    if (this.isAbleToBeParent) {
-      this.__children = [];
-    } else {
-      this.__children = void 0;
-    }
   }
 
   setWorldMatrixDirty() {
@@ -78,6 +86,10 @@ export default class SceneGraphComponent extends Component {
 
   get children() {
     return this.__children;
+  }
+
+  get parent() {
+    return this.__parent;
   }
 
   get worldMatrixInner() {
