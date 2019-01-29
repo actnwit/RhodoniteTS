@@ -133,7 +133,7 @@
   let count = 0
   const draw = function(time){
 
-    if (p == null) {
+    if (p == null && count > 0) {
       p = document.createElement('p');
       p.setAttribute("id", "rendered");
       p.innerText = 'Rendered.';
@@ -153,6 +153,8 @@
 
 //      console.log(date.getTime());
     system.process();
+
+    count++;
     requestAnimationFrame(draw);
   }
 

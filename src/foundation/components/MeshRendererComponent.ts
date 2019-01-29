@@ -103,10 +103,12 @@ export default class MeshRendererComponent extends Component {
       return;
     }
 
+    const entity = this.__entityRepository.getEntity(this.__entityUid);
+
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix);
+      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix, entity);
     }
   }
 
@@ -179,7 +181,6 @@ export default class MeshRendererComponent extends Component {
     }
 
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
-
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
     const glw = MeshRendererComponent.__webglResourceRepository.currentWebGLContextWrapper!;

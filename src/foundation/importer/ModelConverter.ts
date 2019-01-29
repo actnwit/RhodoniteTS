@@ -24,6 +24,7 @@ import Vector2_F64 from "../math/Vector2";
 import AnimationComponent from "../components/AnimationComponent";
 import { Animation } from "../definitions/Animation";
 import { MathUtil } from "../math/MathUtil";
+import SkeletalComponent from "../components/SkeletalComponent";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -61,20 +62,20 @@ export default class ModelConverter {
 
   private __generateGroupEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent]);
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
     return entity;
   }
 
   private __generateMeshEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
       MeshComponent, MeshRendererComponent]);
     return entity;
   }
 
   private __generateCameraEntity() {
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([AnimationComponent, TransformComponent, SceneGraphComponent,
+    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
       CameraComponent]);
     return entity;
   }
@@ -96,7 +97,7 @@ export default class ModelConverter {
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
-//    this._setupSkeleton(gltfModel, groups, glboostMeshes);
+    this._setupSkeleton(gltfModel, rnEntities);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -200,6 +201,8 @@ export default class ModelConverter {
       }
     }
 
+    const entityRepository = EntityRepository.getInstance();
+
     if (gltfModel.animations) {
       for (let animation of gltfModel.animations) {
 
@@ -219,6 +222,7 @@ export default class ModelConverter {
 
           let rnEntity = rnEntities[channel.target.nodeIndex];
           if (rnEntity) {
+            entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
               animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
@@ -229,30 +233,42 @@ export default class ModelConverter {
     }
   }
 
-  // _setupSkeleton(gltfModel: glTF2, groups: Entity[], glboostMeshes) {
-  //   for (let node_i in gltfModel.nodes) {
-  //     let node = gltfModel.nodes[node_i];
-  //     let group = groups[node_i];
-  //     if (node.skin && node.skin.skeleton) {
-  //       group._isRootJointGroup = true;
-  //       if (node.mesh) {
-  //         let glboostMesh = glboostMeshes[node.meshIndex];
-  //         glboostMesh.jointsHierarchy = groups[node.skin.skeletonIndex];
-  //       }
-  //     }
+  _setupSkeleton(gltfModel: glTF2, rnEntities: Entity[]) {
+    const entityRepository = EntityRepository.getInstance();
+    for (let skin of gltfModel.skins) {
+      this._accessBinaryWithAccessor(skin.inverseBindMatrices);
+    }
 
-  //     if (node.skin && node.skin.joints) {
-  //       for (let joint_i of node.skin.jointsIndices) {
-  //         let joint = node.skin.joints[joint_i];
-  //         let options = gltfModel.asset.extras.glboostOptions;
-  //         let glboostJoint = glBoostContext.createJoint(options.isExistJointGizmo);
-  //         glboostJoint._glTFJointIndex = joint_i;
-  //         let group = groups[joint_i];
-  //         group.addChild(glboostJoint, true);
-  //       }
-  //     }
-  //   }
-  // }
+    for (let node_i in gltfModel.nodes) {
+      let node = gltfModel.nodes[node_i];
+      let sg = rnEntities[node_i].getSceneGraph();
+      let skeletalComponent: SkeletalComponent;
+      if (node.skin != null) {
+        let rnEntity = rnEntities[node_i];
+        entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
+        skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
+
+        skeletalComponent._jointIndices = node.skin.jointsIndices;
+      }
+
+      if (node.skin && node.skin.skeleton) {
+        sg.isRootJoint = true;
+        if (node.mesh) {
+          skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+        }
+      }
+
+      if (node.skin && node.skin.joints) {
+        for (let joint_i of node.skin.jointsIndices) {
+          let sg = rnEntities[joint_i].getSceneGraph();
+          sg.jointIndex = joint_i;
+        }
+      }
+      if (node.skin && node.skin.inverseBindMatrices != null) {
+        skeletalComponent!._inverseBindMatrices = node.skin.inverseBindMatrices.extras.typedDataArray;
+      }
+    }
+  }
 
 
   __setupObjects(gltfModel: glTF2, rnBuffer: Buffer) {

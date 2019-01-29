@@ -4,8 +4,9 @@ const SceneGraphComponentTID = 3;
 const MeshComponentTID = 4;
 const MeshRendererComponentTID = 5;
 const CameraComponentTID = 6;
+const SkeletalComponentTID = 7;
 
-const maxWellKnownTidNumber = 6;
+const maxWellKnownTidNumber = 7;
 
 export const WellKnownComponentTIDs = Object.freeze({
   AnimationComponentTID,
@@ -14,5 +15,6 @@ export const WellKnownComponentTIDs = Object.freeze({
   MeshComponentTID,
   MeshRendererComponentTID,
   CameraComponentTID,
+  SkeletalComponentTID,
   maxWellKnownTidNumber
 });
