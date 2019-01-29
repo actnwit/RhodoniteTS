@@ -95,7 +95,7 @@ export default class SceneGraphComponent extends Component {
   get worldMatrixInner() {
 //    if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(this.isJoint()));
       this.__isWorldMatrixUpToDate = true;
   //  }
 
@@ -119,7 +119,7 @@ export default class SceneGraphComponent extends Component {
   $logic() {
    // if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively());
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(this.isJoint()));
       this.__isWorldMatrixUpToDate = true;
     //}
   }
@@ -140,7 +140,7 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(): Matrix44 | MutableRowMajarMatrix44 {
+  calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableRowMajarMatrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
@@ -148,7 +148,7 @@ export default class SceneGraphComponent extends Component {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;
-      if (this.__parent == null) {
+      if (this.__parent == null || (isJointMode && this.__parent != null && !this.__parent.isJoint())) {
         return matrix;
       }
       this.__tmpMatrix.copyComponents(matrix);
@@ -156,7 +156,7 @@ export default class SceneGraphComponent extends Component {
       if (this.isWorldMatrixUpToDateRecursively()) {
         matrixFromAncestorToParent = this.__parent._worldMatrix;
       } else {
-        matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively();
+        matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(isJointMode);
       }
       this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
     }
@@ -176,7 +176,9 @@ export default class SceneGraphComponent extends Component {
   static flattenHierarchy(sceneGraphComponent: SceneGraphComponent): SceneGraphComponent[] {
 
     const results: SceneGraphComponent[] = [];
-    results.push(sceneGraphComponent);
+    if (sceneGraphComponent.isJoint()) {
+      results.push(sceneGraphComponent);
+    }
     if (sceneGraphComponent.isAbleToBeParent) {
       const children = sceneGraphComponent.children!;
       for (let i=0; i<children.length; i++) {

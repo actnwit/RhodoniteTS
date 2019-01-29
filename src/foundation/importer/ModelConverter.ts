@@ -97,7 +97,7 @@ export default class ModelConverter {
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
-//    this._setupSkeleton(gltfModel, groups, glboostMeshes);
+    this._setupSkeleton(gltfModel, rnEntities);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -243,12 +243,12 @@ export default class ModelConverter {
       let node = gltfModel.nodes[node_i];
       let sg = rnEntities[node_i].getSceneGraph();
       let skeletalComponent: SkeletalComponent;
-      if (node.skin) {
-        let rnEntity = rnEntities[node.meshIndex];
+      if (node.skin != null) {
+        let rnEntity = rnEntities[node_i];
         entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
         skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
 
-        skeletalComponent._jointIndices = node.skin.jointIndices;
+        skeletalComponent._jointIndices = node.skin.jointsIndices;
       }
 
       if (node.skin && node.skin.skeleton) {

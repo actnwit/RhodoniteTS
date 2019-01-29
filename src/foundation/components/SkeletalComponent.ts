@@ -5,6 +5,7 @@ import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -16,7 +17,7 @@ export default class SkeletalComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-
+    this.__currentProcessStage = ProcessStage.Create;
   }
 
   static get componentTID(): ComponentTID {
@@ -25,6 +26,7 @@ export default class SkeletalComponent extends Component {
 
   $create() {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.moveStageTo(ProcessStage.Load);
   }
 
   $load() {
@@ -49,13 +51,7 @@ export default class SkeletalComponent extends Component {
     }
 
     const calcParentJointsMatricesRecursively = (joint: SceneGraphComponent)=> {
-      let children = joint.children;
-      let parentJoint = null;
-      for (let i=0; i<children.length; i++) {
-        if (children[i].isJoint()) {
-          parentJoint = children[i];
-        }
-      }
+      let parentJoint = joint.parent;
 
       let results: SceneGraphComponent[] = [];
       if (parentJoint) {
@@ -85,9 +81,11 @@ export default class SkeletalComponent extends Component {
         this.__joints[i]._jointsOfParentHierarchies = jointsParentHierarchies;
       }
     }
+
+    this.moveStageTo(ProcessStage.PreRender);
   }
 
-  $logic() {
+  $prerender() {
     const worldMatrix = this.__sceneGraphComponent!.worldMatrix;
     const inverseWorldMatrix = Matrix44.invert(this.__sceneGraphComponent!.worldMatrix);
     let skeletalMeshWorldMatrix;
@@ -96,7 +94,7 @@ export default class SkeletalComponent extends Component {
     for (let i=this.__joints.length-1; i>=0; i--) {
       let globalJointTransform = null;
       let inverseBindMatrix = this.__joints[i]._inverseBindMatrix!;
-      globalJointTransform = this.__joints[i].worldMatrix;
+      globalJointTransform = new Matrix44(this.__joints[i].worldMatrix);
       skeletalMeshWorldMatrix = globalJointTransform;
 
       if (i === 0) {
