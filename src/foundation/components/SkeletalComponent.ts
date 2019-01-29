@@ -82,10 +82,10 @@ export default class SkeletalComponent extends Component {
       }
     }
 
-    this.moveStageTo(ProcessStage.PreRender);
+    this.moveStageTo(ProcessStage.Logic);
   }
 
-  $prerender() {
+  $logic() {
     const worldMatrix = this.__sceneGraphComponent!.worldMatrix;
     const inverseWorldMatrix = Matrix44.invert(this.__sceneGraphComponent!.worldMatrix);
     let skeletalMeshWorldMatrix;

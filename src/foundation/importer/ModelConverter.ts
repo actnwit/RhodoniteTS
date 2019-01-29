@@ -234,6 +234,9 @@ export default class ModelConverter {
   }
 
   _setupSkeleton(gltfModel: glTF2, rnEntities: Entity[]) {
+    if (gltfModel.skins == null) {
+      return;
+    }
     const entityRepository = EntityRepository.getInstance();
     for (let skin of gltfModel.skins) {
       this._accessBinaryWithAccessor(skin.inverseBindMatrices);
