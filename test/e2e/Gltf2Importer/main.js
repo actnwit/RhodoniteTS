@@ -36,7 +36,7 @@ const load = async function(time){
   const rotationVec3 = Rn.MutableVector3.one();
   const draw = function(time) {
 
-    if (p == null) {
+    if (p == null && count > 0) {
       if (response != null) {
 
         gl.enable(gl.DEPTH_TEST);
@@ -69,6 +69,7 @@ const load = async function(time){
     }
 
     system.process();
+    count++;
 
     requestAnimationFrame(draw);
   }
