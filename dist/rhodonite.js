@@ -358,7 +358,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _mat
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WellKnownComponentTIDs\", function() { return WellKnownComponentTIDs; });\nvar AnimationComponentTID = 1;\nvar TransformComponentTID = 2;\nvar SceneGraphComponentTID = 3;\nvar MeshComponentTID = 4;\nvar MeshRendererComponentTID = 5;\nvar CameraComponentTID = 6;\nvar SkeletalComponentTID = 7;\nvar maxWellKnownTidNumber = 7;\nvar WellKnownComponentTIDs = Object.freeze({\n    AnimationComponentTID: AnimationComponentTID,\n    TransformComponentTID: TransformComponentTID,\n    SceneGraphComponentTID: SceneGraphComponentTID,\n    MeshComponentTID: MeshComponentTID,\n    MeshRendererComponentTID: MeshRendererComponentTID,\n    CameraComponentTID: CameraComponentTID,\n    SkeletalComponentTID: SkeletalComponentTID,\n    maxWellKnownTidNumber: maxWellKnownTidNumber\n});\n\n\n//# sourceURL=webpack:///./src/foundation/components/WellKnownComponentTIDs.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WellKnownComponentTIDs\", function() { return WellKnownComponentTIDs; });\nvar AnimationComponentTID = 1;\nvar TransformComponentTID = 2;\nvar SceneGraphComponentTID = 3;\nvar MeshComponentTID = 4;\nvar MeshRendererComponentTID = 5;\nvar CameraComponentTID = 6;\nvar SkeletalComponentTID = 7;\nvar SparkGearComponentTID = 8;\nvar maxWellKnownTidNumber = 8;\nvar WellKnownComponentTIDs = Object.freeze({\n    AnimationComponentTID: AnimationComponentTID,\n    TransformComponentTID: TransformComponentTID,\n    SceneGraphComponentTID: SceneGraphComponentTID,\n    MeshComponentTID: MeshComponentTID,\n    MeshRendererComponentTID: MeshRendererComponentTID,\n    CameraComponentTID: CameraComponentTID,\n    SkeletalComponentTID: SkeletalComponentTID,\n    SparkGearComponentTID: SparkGearComponentTID,\n    maxWellKnownTidNumber: maxWellKnownTidNumber\n});\n\n\n//# sourceURL=webpack:///./src/foundation/components/WellKnownComponentTIDs.ts?");
 
 /***/ }),
 
@@ -1083,4 +1083,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _fou
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-54-g5cc2-mod branch: feature/refactor';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-56-gfee5-mod branch: master';
