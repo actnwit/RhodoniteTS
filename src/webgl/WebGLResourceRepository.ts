@@ -280,9 +280,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     this.__glw!.bindVertexArray(null);
 
-    if (vao == null) {
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
   createTexture(data: TypedArray|HTMLImageElement|HTMLCanvasElement, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:

@@ -92,9 +92,7 @@ export default class MeshRendererComponent extends Component {
 
     this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, MeshRendererComponent.__instanceIDBufferUid);
 
-    if (this.__webglRenderingStrategy!.$render != null) {
-      this.moveStageTo(ProcessStage.Render);
-    }
+    this.moveStageTo(ProcessStage.Render);
   }
 
   $render() {
@@ -109,6 +107,8 @@ export default class MeshRendererComponent extends Component {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
       this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix, entity);
     }
+
+
   }
 
   static common_$load(processApproach: ProcessApproachEnum) {

@@ -6,6 +6,8 @@ import Matrix44 from "../math/Matrix44";
 import CameraComponent from "./CameraComponent";
 import ComponentRepository from "../core/ComponentRepository";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
+import TransformComponent from "./TransformComponent";
+import SceneGraphComponent from "./SceneGraphComponent";
 
 declare var window: any;
 declare var Module: any;
@@ -20,6 +22,7 @@ declare var _SPARK_Instance_KickTrigger: Function;
 declare var _SPARK_InitializeFor3D: Function;
 declare var _SPARK_Uninitialize: Function;
 declare var _SPARK_SetMatrix: Function;
+declare var _SPARK_Instance_SetTransformFor3D: Function;
 declare var _SPARK_Update: Function;
 declare var _SPARK_DrawAll: Function;
 declare var _SPARK_DrawDebugInfo: Function;
@@ -28,7 +31,8 @@ export default class SparkGearComponent extends Component {
   public url?: string;
   private __hSPFXInst: any;
   private static __isInitialized = false;
-
+  private __sceneGraphComponent?: SceneGraphComponent;
+  
   private static SPFX_WebGLResourceRepository: WebGLResourceRepository;
   private static SPFX_TempVAO: any;
   private static SPFX_CurrentVAO: any;
@@ -37,13 +41,18 @@ export default class SparkGearComponent extends Component {
   private static SPFX_ElementArrayBuffer: any;
   private static SPFX_CurrentProgram: any;
   private static SPFX_FrontFace: any;
+  private static SPFX_DepthFunc: any;
+  private static SPFX_DepthWriteMask: any;
   private static SPFX_StencilTestEnabled: any;
   private static SPFX_DepthTestEnabled: any;
   private static SPFX_CullFaceEnabled: any;
   private static SPFX_BlendEnabled: any;
+  private static SPFX_BlendSrcRgb: any;
+  private static SPFX_BlendDstRgb: any;
+  private static SPFX_BlendSrcAlpha: any;
+  private static SPFX_BlendDstAlpha: any;
   private static SPFX_ActiveTexture: any;
   private static SPFX_Texture: any[] = [];
-
   private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
@@ -79,6 +88,13 @@ export default class SparkGearComponent extends Component {
     SparkGearComponent.SPARK_SetCameraMatrix(viewMatrix, projectionMatrix);
 
     SparkGearComponent.SPFX_Update(1.0);
+
+    const m = this.__sceneGraphComponent!.worldMatrixInner;
+    _SPARK_Instance_SetTransformFor3D(this.__hSPFXInst,
+      m.v[0], m.v[4], m.v[8], m.v[12],
+      m.v[1], m.v[5], m.v[9], m.v[13],
+      m.v[2], m.v[6], m.v[10], m.v[14],
+      m.v[3], m.v[7], m.v[11], m.v[15]);
 
     this.moveStageTo(ProcessStage.Render);
   }
@@ -128,6 +144,7 @@ export default class SparkGearComponent extends Component {
   }
 
   $create() {
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     this.moveStageTo(ProcessStage.Load);
   }
 
@@ -167,10 +184,16 @@ export default class SparkGearComponent extends Component {
     ThisClass.SPFX_CurrentProgram     = gl.getParameter(gl.CURRENT_PROGRAM);
 
     ThisClass.SPFX_FrontFace          = gl.getParameter(gl.FRONT_FACE);
+    ThisClass.SPFX_DepthFunc          = gl.getParameter(gl.DEPTH_FUNC);
+    ThisClass.SPFX_DepthWriteMask     = gl.getParameter(gl.DEPTH_WRITEMASK);
     ThisClass.SPFX_StencilTestEnabled = gl.isEnabled(gl.STENCIL_TEST);
     ThisClass.SPFX_DepthTestEnabled   = gl.isEnabled(gl.DEPTH_TEST);
     ThisClass.SPFX_CullFaceEnabled    = gl.isEnabled(gl.CULL_FACE);
     ThisClass.SPFX_BlendEnabled       = gl.isEnabled(gl.BLEND);
+    ThisClass.SPFX_BlendSrcRgb        = gl.getParameter(gl.BLEND_SRC_RGB);
+    ThisClass.SPFX_BlendDstRgb        = gl.getParameter(gl.BLEND_DST_RGB);
+    ThisClass.SPFX_BlendSrcAlpha        = gl.getParameter(gl.BLEND_SRC_ALPHA);
+    ThisClass.SPFX_BlendDstAlpha        = gl.getParameter(gl.BLEND_DST_ALPHA);
 
     ThisClass.SPFX_ActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE);
     for (let i = 0; i < 8; i++)
@@ -193,6 +216,10 @@ export default class SparkGearComponent extends Component {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ThisClass.SPFX_ElementArrayBuffer);
 
     gl.frontFace(ThisClass.SPFX_FrontFace);
+    gl.depthFunc(ThisClass.SPFX_DepthFunc);
+    gl.depthMask(ThisClass.SPFX_DepthWriteMask);
+    gl.blendFuncSeparate(ThisClass.SPFX_BlendSrcRgb, ThisClass.SPFX_BlendDstRgb, ThisClass.SPFX_BlendSrcAlpha, ThisClass.SPFX_BlendDstAlpha);
+
     ThisClass.SPFX_StencilTestEnabled ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST);
     ThisClass.SPFX_DepthTestEnabled   ? gl.enable(gl.DEPTH_TEST)   : gl.disable(gl.DEPTH_TEST);
     ThisClass.SPFX_CullFaceEnabled    ? gl.enable(gl.CULL_FACE)    : gl.disable(gl.CULL_FACE);

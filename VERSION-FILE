@@ -1,6 +1,6 @@
-version: 0.1.1-57-g694d-mod
+version: 0.1.1-58-gb529-mod
 branch: feature/sparkgear
-bc6e555362cfd71faf8258103d160fe7bc12bc8a0e390e071e7a26ed334fdb6f ./dist/rhodonite.js
-a6eeccef3daa409fbc90ef390f5f85330122eed20769984cfd8a61b0b550fe57 ./dist/rhodonite.min.js
-fe952f00ab39d7e36234d32c8239166b55e5423e34a2c95e69d52237aa5b996f ./dist/rhodonite-webgl.js
-903b33817e82e09577dac3aaadc0f430ca1e5ab94de5f174f8081846d5a782e6 ./dist/rhodonite-webgl.min.js
+8392b7d57dd4f0542e50bae3305f9bc7f1153ea080d50b6190998e3dfd8f4e86 ./dist/rhodonite.js
+44c90e53c78d393800dd39ea19f22b138ff6c403cdb37897d57246d73f9f3b33 ./dist/rhodonite.min.js
+df53ce8684c2b8286208bb7fecea416716485c7c0efda4e880c3700e3fd3d59c ./dist/rhodonite-webgl.js
+d3ceedf30b64199653add684d78111cfb023f9a539e8e6b8a65b78a0f3bf46c6 ./dist/rhodonite-webgl.min.js

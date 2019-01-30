@@ -159,6 +159,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
   }
 
+  dettachVertexData(glw: WebGLContextWrapper) {
+    const gl = glw.getRawContext();
+    if (glw.bindVertexArray) {
+      glw.bindVertexArray(null);
+    }
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
   static getInstance() {
     if (!this.__instance) {
      this.__instance = new WebGLStrategyUniform();
@@ -217,6 +227,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.useProgram(null);
+    this.dettachVertexData(glw);
 
   }
 
