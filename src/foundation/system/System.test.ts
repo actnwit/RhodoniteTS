@@ -22,7 +22,7 @@ test('The system does processes', () => {
   var height  = 64
   var gl = require('gl')(width, height)
 
-  repo.addWebGLContext(gl, true);
+  repo.addWebGLContext(gl, width, height, true);
 
 
   //system.process();

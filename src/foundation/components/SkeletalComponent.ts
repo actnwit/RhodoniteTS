@@ -17,7 +17,6 @@ export default class SkeletalComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    this.__currentProcessStage = ProcessStage.Create;
   }
 
   static get componentTID(): ComponentTID {
@@ -86,15 +85,13 @@ export default class SkeletalComponent extends Component {
   }
 
   $logic() {
-    const worldMatrix = this.__sceneGraphComponent!.worldMatrix;
-    const inverseWorldMatrix = Matrix44.invert(this.__sceneGraphComponent!.worldMatrix);
     let skeletalMeshWorldMatrix;
     let jointZeroWorldMatrix;
     const matrices = [];
     for (let i=this.__joints.length-1; i>=0; i--) {
       let globalJointTransform = null;
       let inverseBindMatrix = this.__joints[i]._inverseBindMatrix!;
-      globalJointTransform = new Matrix44(this.__joints[i].worldMatrix);
+      globalJointTransform = new Matrix44(this.__joints[i].worldMatrixInner);
       skeletalMeshWorldMatrix = globalJointTransform;
 
       if (i === 0) {

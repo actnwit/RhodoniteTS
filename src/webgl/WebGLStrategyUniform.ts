@@ -159,6 +159,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
   }
 
+  dettachVertexData(glw: WebGLContextWrapper) {
+    const gl = glw.getRawContext();
+    if (glw.bindVertexArray) {
+      glw.bindVertexArray(null);
+    }
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
   static getInstance() {
     if (!this.__instance) {
      this.__instance = new WebGLStrategyUniform();
@@ -185,8 +195,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
     gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).v);
-
-//    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().v);
 
     gl.uniformMatrix3fv(this.__uniformLocation_normalMatrix, false, normalMatrix.v);
     const material = primitive.material;
@@ -217,7 +225,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
-    //gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.useProgram(null);
+    this.dettachVertexData(glw);
 
   }
 

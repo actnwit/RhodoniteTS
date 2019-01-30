@@ -39,7 +39,6 @@ export default class MeshRendererComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    this.__currentProcessStage = ProcessStage.Create;
 
     let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;
     const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Create)!;
@@ -93,9 +92,7 @@ export default class MeshRendererComponent extends Component {
 
     this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, MeshRendererComponent.__instanceIDBufferUid);
 
-    if (this.__webglRenderingStrategy!.$render != null) {
-      this.moveStageTo(ProcessStage.Render);
-    }
+    this.moveStageTo(ProcessStage.Render);
   }
 
   $render() {
@@ -110,6 +107,8 @@ export default class MeshRendererComponent extends Component {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
       this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix, entity);
     }
+
+
   }
 
   static common_$load(processApproach: ProcessApproachEnum) {

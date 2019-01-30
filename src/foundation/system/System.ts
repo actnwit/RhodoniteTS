@@ -71,7 +71,7 @@ export default class System {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     }
 
-    repo.addWebGLContext(gl!, true);
+    repo.addWebGLContext(gl!, canvas.width, canvas.height, true);
     this.__processApproach = approach;
 
     return gl;

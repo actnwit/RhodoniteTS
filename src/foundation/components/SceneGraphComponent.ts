@@ -52,6 +52,8 @@ export default class SceneGraphComponent extends Component {
     this.submitToAllocation();
 
     //this.__updatedProperly = false;
+
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   isJoint() {
