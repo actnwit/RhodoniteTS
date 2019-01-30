@@ -17,7 +17,6 @@ export default class SkeletalComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    this.__currentProcessStage = ProcessStage.Create;
   }
 
   static get componentTID(): ComponentTID {

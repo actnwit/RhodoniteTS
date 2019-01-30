@@ -48,8 +48,6 @@ export default class Component {
     this._component_sid = componentSid;
     this.__isAlive = true;
 
-    this.__currentProcessStage = ProcessStage.Logic;
-
     const stages = [
       ProcessStage.Create,
       ProcessStage.Load,

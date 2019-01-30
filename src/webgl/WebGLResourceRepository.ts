@@ -36,8 +36,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.__instance;
   }
 
-  addWebGLContext(gl: WebGLRenderingContext, asCurrent: boolean) {
-    const glw = new (WebGLContextWrapper)(gl);
+  addWebGLContext(gl: WebGLRenderingContext, width: Size, height: Size, asCurrent: boolean) {
+    const glw = new WebGLContextWrapper(gl, width, height);
     this.__webglContexts.set('default', glw);
     if (asCurrent) {
       this.__glw = glw;

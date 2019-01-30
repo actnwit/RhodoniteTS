@@ -39,7 +39,6 @@ export default class MeshRendererComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    this.__currentProcessStage = ProcessStage.Create;
 
     let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;
     const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Create)!;

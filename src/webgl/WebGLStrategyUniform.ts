@@ -186,8 +186,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).v);
 
-//    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, Matrix44.identity().v);
-
     gl.uniformMatrix3fv(this.__uniformLocation_normalMatrix, false, normalMatrix.v);
     const material = primitive.material;
     const baseColor = [];
@@ -217,7 +215,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
-    //gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.useProgram(null);
 
   }
 

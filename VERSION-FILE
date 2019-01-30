@@ -1,6 +1,6 @@
-version: 0.1.1-56-gfee5-mod
-branch: master
-5fd9bae3eab60ac383803ab0f771af7381bb88c09a5003ec3add7241197fd1ce ./dist/rhodonite.js
-576ac08a67c8f320ba0295ca189c439b093047df608f006273e1b46cb37351d5 ./dist/rhodonite.min.js
-e2fd077089b4b34b926e3469d1dd70988eb84360732b79581ba44b7349ceac29 ./dist/rhodonite-webgl.js
-9ce2074a5e0ab2d0a41e15b5968df724cf6d24be153a52dbdf2a197ea8ff5e2a ./dist/rhodonite-webgl.min.js
+version: 0.1.1-57-g694d-mod
+branch: feature/sparkgear
+bc6e555362cfd71faf8258103d160fe7bc12bc8a0e390e071e7a26ed334fdb6f ./dist/rhodonite.js
+a6eeccef3daa409fbc90ef390f5f85330122eed20769984cfd8a61b0b550fe57 ./dist/rhodonite.min.js
+fe952f00ab39d7e36234d32c8239166b55e5423e34a2c95e69d52237aa5b996f ./dist/rhodonite-webgl.js
+903b33817e82e09577dac3aaadc0f430ca1e5ab94de5f174f8081846d5a782e6 ./dist/rhodonite-webgl.min.js

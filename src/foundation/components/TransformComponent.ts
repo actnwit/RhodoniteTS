@@ -21,6 +21,7 @@ import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableQuaternion from '../math/MutableQuaterion';
 import Config from '../core/Config';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -73,6 +74,8 @@ export default class TransformComponent extends Component {
     this._is_trs_matrix_updated = true;
     this._is_inverse_trs_matrix_updated = true;
     this._is_normal_trs_matrix_updated = true;
+
+    this.moveStageTo(ProcessStage.Logic);
 
   }
 
