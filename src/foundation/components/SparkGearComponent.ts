@@ -6,7 +6,6 @@ import Matrix44 from "../math/Matrix44";
 import CameraComponent from "./CameraComponent";
 import ComponentRepository from "../core/ComponentRepository";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import TransformComponent from "./TransformComponent";
 import SceneGraphComponent from "./SceneGraphComponent";
 
 declare var window: any;
