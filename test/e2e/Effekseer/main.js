@@ -16,13 +16,13 @@ const load = async function(time){
   effekseerComponent.playJustAfterLoaded = true;
   //effekseerComponent.isLoop = true;
   effekseerComponent.uri = "https://cdn.rawgit.com/effekseer/EffekseerForWebGL/7a1b035c/Release/Sample/Resource/Laser01.efk";
-
+  effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
-  //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-  cameraComponent.parameters = new Rn.Vector4(1, 10000, 90, 1);
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 5);
+  //cameraComponent.type = Rn.CameraType.Orthographic;
+  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
+  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 7);
 
 
   // glTF Model
@@ -36,12 +36,12 @@ const load = async function(time){
 //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  // const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
-  // //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
-  // const modelConverter = Rn.ModelConverter.getInstance();
-  // const rootGroup = modelConverter.convertToRhodoniteObject(response);
-  // //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  // rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
+  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
+  const modelConverter = Rn.ModelConverter.getInstance();
+  const rootGroup = modelConverter.convertToRhodoniteObject(response);
+  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
@@ -49,21 +49,17 @@ const load = async function(time){
   let count = 0;
   const draw = function(time) {
 
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.viewport(0, 0, 600, 600);
+    gl.clearColor(0.5, 0.2, 0., 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
     if (p == null && count > 0) {
-//       if (response != null) {
-
-//         gl.enable(gl.DEPTH_TEST);
-//         gl.viewport(0, 0, 600, 600);
-//         gl.clearColor(0.8, 0.8, 0.8, 1.0);
-// //        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-//         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-//       }
-
       p = document.createElement('p');
       p.setAttribute("id", "rendered");
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
-
     }
 
     if (window.isAnimating) {
