@@ -60,7 +60,7 @@ export default class Texture extends RnObject {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
     let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
       imgCanvas, {
         level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
@@ -85,7 +85,7 @@ export default class Texture extends RnObject {
 
         const moduleManager = ModuleManager.getInstance();
         const moduleName = 'webgl';
-        const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+        const webglModule = (moduleManager.getModule(moduleName)! as any);
         let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
           imgCanvas, {
             level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,

@@ -1,13 +1,13 @@
-import Component from "../core/Component";
-import EntityRepository from "../core/EntityRepository";
-import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
-import { ProcessStage } from "../definitions/ProcessStage";
-import Matrix44 from "../math/Matrix44";
-import CameraComponent from "./CameraComponent";
-import ComponentRepository from "../core/ComponentRepository";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import SceneGraphComponent from "./SceneGraphComponent";
-import ModuleManager from "../system/ModuleManager";
+import Component from "../foundation/core/Component";
+import EntityRepository from "../foundation/core/EntityRepository";
+import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
+import { ProcessStage } from "../foundation/definitions/ProcessStage";
+import Matrix44 from "../foundation/math/Matrix44";
+import CameraComponent from "../foundation/components/CameraComponent";
+import ComponentRepository from "../foundation/core/ComponentRepository";
+import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
+import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import ModuleManager from "../foundation/system/ModuleManager";
 
 declare var window: any;
 declare var Module: any;
@@ -32,7 +32,7 @@ export default class SparkGearComponent extends Component {
   private __hSPFXInst: any;
   private static __isInitialized = false;
   private __sceneGraphComponent?: SceneGraphComponent;
-  
+
   private static SPFX_WebGLResourceRepository: WebGLResourceRepository;
   private static SPFX_TempVAO: any;
   private static SPFX_CurrentVAO: any;
@@ -71,7 +71,7 @@ export default class SparkGearComponent extends Component {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
 
     // Initialize SPARKGEAR
     SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());

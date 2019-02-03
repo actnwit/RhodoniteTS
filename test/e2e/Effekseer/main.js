@@ -2,7 +2,10 @@
 let p = null;
 
 const load = async function(time){
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
+  const moduleManager = Rn.ModuleManager.getInstance();
+  await moduleManager.loadModule('webgl');
+  const effekseerModule = await moduleManager.loadModule('effekseer');
+
   const importer = Rn.Gltf2Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
@@ -10,9 +13,8 @@ const load = async function(time){
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Effekseer
-
-  const effekseerEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.EffekseerComponent]);
-  const effekseerComponent = effekseerEntity.getComponent(Rn.EffekseerComponent);
+  const effekseerEntity = effekseerModule.createEffekseerEntity();
+  const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent);
   effekseerComponent.playJustAfterLoaded = true;
   //effekseerComponent.isLoop = true;
   effekseerComponent.uri = "https://cdn.rawgit.com/effekseer/EffekseerForWebGL/7a1b035c/Release/Sample/Resource/Laser01.efk";
