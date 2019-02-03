@@ -8,6 +8,7 @@ import Vector3 from "../math/Vector3";
 import CameraComponent from "./CameraComponent";
 import ComponentRepository from "../core/ComponentRepository";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
+import ModuleManager from "../system/ModuleManager";
 
 declare var effekseer:any;
 
@@ -40,7 +41,10 @@ export default class EffekseerComponent extends Component {
       return;
     }
 
-    const glw = WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const glw = webglModule.WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
 
     if (glw) {
       effekseer.init(glw.getRawContext());

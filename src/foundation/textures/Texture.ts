@@ -1,8 +1,8 @@
 import RnObject from "../core/Object";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";
+import ModuleManager from "../system/ModuleManager";
 
 export default class Texture extends RnObject {
   private __width: Size = 0;
@@ -58,7 +58,10 @@ export default class Texture extends RnObject {
     this.__width = imgCanvas.width;
     this.__height = imgCanvas.height;
 
-    let texture = WebGLResourceRepository.getInstance().createTexture(
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
       imgCanvas, {
         level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
         border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
@@ -80,7 +83,10 @@ export default class Texture extends RnObject {
         this.__width = imgCanvas.width;
         this.__height = imgCanvas.height;
 
-        let texture = WebGLResourceRepository.getInstance().createTexture(
+        const moduleManager = ModuleManager.getInstance();
+        const moduleName = 'webgl';
+        const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+        let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
           imgCanvas, {
             level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
