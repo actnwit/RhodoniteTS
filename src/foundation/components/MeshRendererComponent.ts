@@ -9,7 +9,6 @@ import SceneGraphComponent from './SceneGraphComponent';
 import WebGLResourceRepository, { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import CameraComponent from './CameraComponent';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Matrix44 from '../math/Matrix44';
 import Accessor from '../memory/Accessor';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
@@ -18,7 +17,7 @@ import Config from '../core/Config';
 import { BufferUse } from '../definitions/BufferUse';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
-import getRenderingStrategy from '../../webgl/getRenderingStrategy';
+import ModuleManager from '../system/ModuleManager';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -26,10 +25,10 @@ export default class MeshRendererComponent extends Component {
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
   private __webglRenderingStrategy?: WebGLStrategy;
   private __sceneGraphComponent?: SceneGraphComponent;
-  private __cameraComponent?: CameraComponent;
+  private __webglModule?: any;
+  private static __staticWebglModule?: any;
 
-
-  private static __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private static __webglResourceRepository?: WebGLResourceRepository;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private static __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webGLStrategy?: WebGLStrategy;
@@ -51,7 +50,7 @@ export default class MeshRendererComponent extends Component {
     const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
 
     if (cameraComponents) {
-      this.__cameraComponent = cameraComponents[0];
+      MeshRendererComponent.__cameraComponent = cameraComponents[0];
     }
   }
 
@@ -67,28 +66,31 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  $create({strategy}: {
-    strategy: WebGLStrategy}
+  $create({processApproach}: {
+    processApproach: ProcessApproachEnum
+  }
     ) {
     if (this.__meshComponent != null) {
       return;
     }
     this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
 
-    this.__webglRenderingStrategy = strategy;
+
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
 
     this.moveStageTo(ProcessStage.Load);
   }
 
   $load() {
+
     this.__webglRenderingStrategy!.$load(this.__meshComponent!);
     this.moveStageTo(ProcessStage.PreRender);
   }
 
-  $prerender(
-    {processApproech}:{
-      processApproech: ProcessApproachEnum,
-    }) {
+  $prerender() {
 
     this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, MeshRendererComponent.__instanceIDBufferUid);
 
@@ -112,9 +114,16 @@ export default class MeshRendererComponent extends Component {
   }
 
   static common_$load(processApproach: ProcessApproachEnum) {
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    MeshRendererComponent.__staticWebglModule = webglModule;
 
     // Strategy
-    MeshRendererComponent.__webGLStrategy = getRenderingStrategy(processApproach);
+    MeshRendererComponent.__webGLStrategy = webglModule.getRenderingStrategy(processApproach);
+
+    // ResourceRepository
+    MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
 
     // Shader setup
     MeshRendererComponent.__webGLStrategy!.setupShaderProgram();
@@ -122,7 +131,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   static common_$prerender(): CGAPIResourceHandle {
-    const gl = MeshRendererComponent.__webglResourceRepository.currentWebGLContextWrapper;
+    const gl = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper;
 
     if (gl == null) {
       throw new Error('No WebGLRenderingContext!');
@@ -164,7 +173,7 @@ export default class MeshRendererComponent extends Component {
       MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID);
     }
 
-    return MeshRendererComponent.__webglResourceRepository.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
+    return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
   }
 
   static common_$render(){
@@ -182,7 +191,7 @@ export default class MeshRendererComponent extends Component {
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
     const meshComponent = meshComponents[0] as MeshComponent;
     const primitiveNum = meshComponent.getPrimitiveNumber();
-    const glw = MeshRendererComponent.__webglResourceRepository.currentWebGLContextWrapper!;
+    const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
