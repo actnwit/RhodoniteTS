@@ -1,14 +1,14 @@
-import Component from "../core/Component";
-import EntityRepository from "../core/EntityRepository";
-import SceneGraphComponent from "./SceneGraphComponent";
-import { ProcessStage } from "../definitions/ProcessStage";
-import Matrix44 from "../math/Matrix44";
-import TransformComponent from "./TransformComponent";
-import Vector3 from "../math/Vector3";
-import CameraComponent from "./CameraComponent";
-import ComponentRepository from "../core/ComponentRepository";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import ModuleManager from "../system/ModuleManager";
+import Component from "../foundation/core/Component";
+import EntityRepository from "../foundation/core/EntityRepository";
+import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import { ProcessStage } from "../foundation/definitions/ProcessStage";
+import Matrix44 from "../foundation/math/Matrix44";
+import TransformComponent from "../foundation/components/TransformComponent";
+import Vector3 from "../foundation/math/Vector3";
+import CameraComponent from "../foundation/components/CameraComponent";
+import ComponentRepository from "../foundation/core/ComponentRepository";
+import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
+import ModuleManager from "../foundation/system/ModuleManager";
 
 declare var effekseer:any;
 
@@ -43,7 +43,7 @@ export default class EffekseerComponent extends Component {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
     const glw = webglModule.WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
 
     if (glw) {

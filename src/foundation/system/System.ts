@@ -57,7 +57,7 @@ export default class System {
   setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
     this.__webglStrategy = webglModule.getRenderingStrategy(approach);
     const repo = webglModule.WebGLResourceRepository.getInstance();
 

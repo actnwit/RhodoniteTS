@@ -71,7 +71,7 @@ export default class SparkGearComponent extends Component {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
 
     // Initialize SPARKGEAR
     SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());

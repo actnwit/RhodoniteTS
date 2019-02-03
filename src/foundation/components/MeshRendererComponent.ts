@@ -78,7 +78,7 @@ export default class MeshRendererComponent extends Component {
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
     this.__webglRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
 
     this.moveStageTo(ProcessStage.Load);
@@ -116,7 +116,7 @@ export default class MeshRendererComponent extends Component {
   static common_$load(processApproach: ProcessApproachEnum) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
     MeshRendererComponent.__staticWebglModule = webglModule;
 
     // Strategy

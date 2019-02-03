@@ -26,7 +26,6 @@ import { CameraType } from './definitions/CameraType';
 import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
 import SparkGearComponent from './components/SparkGearComponent';
-import EffekseerComponent from './components/EffekseerComponent';
 
 
 const Rn = {
@@ -57,8 +56,7 @@ const Rn = {
   CameraType,
   RowMajarMatrix44,
   AnimationComponent,
-  SparkGearComponent,
-  EffekseerComponent
+  SparkGearComponent
 };
 export default Rn;
 
