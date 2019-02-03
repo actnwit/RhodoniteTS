@@ -7,6 +7,7 @@ import CameraComponent from "./CameraComponent";
 import ComponentRepository from "../core/ComponentRepository";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import SceneGraphComponent from "./SceneGraphComponent";
+import ModuleManager from "../system/ModuleManager";
 
 declare var window: any;
 declare var Module: any;
@@ -67,8 +68,13 @@ export default class SparkGearComponent extends Component {
     if (SparkGearComponent.__isInitialized) {
       return;
     }
+
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any).default;
+
     // Initialize SPARKGEAR
-    SparkGearComponent.SPFX_Initialize(WebGLResourceRepository.getInstance());
+    SparkGearComponent.SPFX_Initialize(webglModule.WebGLResourceRepository.getInstance());
   }
 
   $logic() {
