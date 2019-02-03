@@ -4,8 +4,7 @@ let p = null;
 const load = async function(time){
   const moduleManager = Rn.ModuleManager.getInstance();
   await moduleManager.loadModule('webgl');
-  await moduleManager.loadModule('effekseer');
-  const effekseerModule = moduleManager.getModule('effekseer');
+  const effekseerModule = await moduleManager.loadModule('effekseer');
 
   const importer = Rn.Gltf2Importer.getInstance();
   const system = Rn.System.getInstance();

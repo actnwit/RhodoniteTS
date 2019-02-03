@@ -1,13 +1,11 @@
 var Module = {
   // asm.jsの初期化完了タイミング
   onRuntimeInitialized: async function () {
-    function generateEntity() {
-      const repo = Rn.EntityRepository.getInstance();
-      const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.SparkGearComponent]);
-      return entity;
-    }
 
-    await Rn.ModuleManager.getInstance().loadModule('webgl');
+    const moduleManager = Rn.ModuleManager.getInstance();
+    await moduleManager.loadModule('webgl');
+    const sparkgearModule = await moduleManager.loadModule('sparkgear');
+
     const system = Rn.System.getInstance();
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
@@ -36,8 +34,8 @@ var Module = {
 //    const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
     const rootGroup = modelConverter.convertToRhodoniteObject(response);
 
-    const entity = generateEntity();
-    const sparkGearComponent = entity.getComponent(Rn.SparkGearComponent);
+    const entity = sparkgearModule.createSparkGearEntity();
+    const sparkGearComponent = entity.getComponent(sparkgearModule.SparkGearComponent);
     sparkGearComponent.url = '../../../assets/vfxb/sample.vfxb';
     entity.getTransform().translate = new Rn.Vector3(1, 1, 0);
 
