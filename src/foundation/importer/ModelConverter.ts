@@ -369,6 +369,24 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image);
         material.baseColorTexture = rnTexture;
       }
+
+      const metallicFactor = pbrMetallicRoughness.metallicFactor;
+      if (metallicFactor != null) {
+        material.metallicFactor = metallicFactor;
+      }
+      const roughnessFactor = pbrMetallicRoughness.roughnessFactor;
+      if (roughnessFactor != null) {
+        material.roughnessFactor = roughnessFactor;
+      }
+
+      const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
+      if (metallicRoughnessTexture != null) {
+        const texture = metallicRoughnessTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTextureFromImage(image);
+        material.metallicRoughnessTexture = rnTexture;
+      }
     }
 
     return material;
