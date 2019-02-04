@@ -32,7 +32,7 @@ export default class SkeletalComponent extends Component {
     if (this.jointsHierarchy == null) {
       return;
     }
-    const joints = SceneGraphComponent.flattenHierarchy(this.jointsHierarchy);
+    const joints = SceneGraphComponent.flattenHierarchy(this.jointsHierarchy, true);
     let jointCount = 0;
 
     for (let i=0; i<this._jointIndices.length; i++) {
