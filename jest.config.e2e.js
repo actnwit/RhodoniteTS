@@ -1,4 +1,5 @@
 module.exports = {
+  "preset": "jest-puppeteer",
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
@@ -11,5 +12,6 @@ module.exports = {
     "json",
     "node"
   ],
+  "setupTestFrameworkScriptFile": require.resolve("./setup.js"),
   "rootDir": process.cwd(),
 };

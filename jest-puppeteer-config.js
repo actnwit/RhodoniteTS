@@ -7,7 +7,7 @@ module.exports = {
   },
   launch: {
     // デバッグ時は以下をuncommentします
-    // headless: false,
+    headless: false,
     devtools: false,
 
     // デフォルトのChromiumで動かない機能がある場合はChromeの実行ファイルパスを渡すこともできます

@@ -121,4 +121,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-77-g9374-mod branch: feature/refactor';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-79-gbf63-mod branch: master';

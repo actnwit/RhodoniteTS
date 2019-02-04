@@ -165,6 +165,8 @@
 
     stats.end();
 
+    count++;
+
     requestAnimationFrame(draw);
   }
 

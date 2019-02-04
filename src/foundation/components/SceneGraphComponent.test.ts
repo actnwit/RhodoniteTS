@@ -61,7 +61,7 @@ test('flatten hierarchy', () => {
   parentEntity.getSceneGraph().addChild(child2Entity.getSceneGraph());
   sceneEntity.getSceneGraph().addChild(parentEntity.getSceneGraph());
 
-  const result = SceneGraphComponent.flattenHierarchy(sceneEntity.getSceneGraph());
+  const result = SceneGraphComponent.flattenHierarchy(sceneEntity.getSceneGraph(), false);
 
   expect(result.length).toBe(4);
 });

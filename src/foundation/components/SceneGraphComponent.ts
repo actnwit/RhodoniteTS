@@ -175,16 +175,16 @@ export default class SceneGraphComponent extends Component {
     // return matrix;
   }
 
-  static flattenHierarchy(sceneGraphComponent: SceneGraphComponent): SceneGraphComponent[] {
+  static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: Boolean): SceneGraphComponent[] {
 
     const results: SceneGraphComponent[] = [];
-    if (sceneGraphComponent.isJoint()) {
+    if (!isJointMode || sceneGraphComponent.isJoint()) {
       results.push(sceneGraphComponent);
     }
     if (sceneGraphComponent.isAbleToBeParent) {
       const children = sceneGraphComponent.children!;
       for (let i=0; i<children.length; i++) {
-        const hitChildren = this.flattenHierarchy(children[i]);
+        const hitChildren = this.flattenHierarchy(children[i], isJointMode);
         Array.prototype.push.apply(results, hitChildren);
       }
     }
