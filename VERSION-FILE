@@ -1,6 +1,6 @@
-version: 0.1.1-79-gbf63-mod
-branch: master
-b800452bc1ff38d3173c7b74c90f4952c030d98810242bbbe69fe1252a7deb09 ./dist/rhodonite.js
-d6fb88e6ca830207e65f355cea2839b8009ac1ea5d87b748c6b4699d5781c2bf ./dist/rhodonite.min.js
-118ff62be17f5ff85798cf82ac0a6654583c0484e7a7fab2ee4b7d46b5c6ffbe ./dist/rhodonite-webgl.js
-d209d780c7a4e017cb85a644dcc4abf5cd052e4295e10ca240722a6bf9f55f77 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-86-gd745-mod
+branch: feature/glTF
+4b6c780e185dc703039939898001f719bcf22231f0758bc4e0fa431d2b375913 ./dist/rhodonite.js
+90b17bfd382d0a7daf29a8f38fecb25c54ffe09ddd6d1a2e4391e75f730171f9 ./dist/rhodonite.min.js
+a5a9724c46c534e193c507962385fa362ff192c82ce25ea0e900dff6e145009a ./dist/rhodonite-webgl.js
+896e43792b5f3dd585a2a976b1adddde2f6555f7efe621294383cf24d3970fa8 ./dist/rhodonite-webgl.min.js

@@ -3,13 +3,14 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 import Primitive from "../foundation/geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import { TextureParameterEnum } from "../foundation/definitions/TextureParameter";
-import { PixelFormatEnum } from "../foundation/definitions/PixelFormat";
+import { TextureParameterEnum, TextureParameter } from "../foundation/definitions/TextureParameter";
+import { PixelFormatEnum, PixelFormat } from "../foundation/definitions/PixelFormat";
 import { ComponentTypeEnum } from "../foundation/definitions/ComponentType";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
+import Component from "../foundation/core/Component";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -333,6 +334,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
     }
+  }
+
+  createDummyTexture() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    ctx.fillRect( 0, 0, 1, 1 );
+
+    return this.createTexture(canvas, {
+      level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false});
   }
 
   createUniformBuffer(bufferView: TypedArray| DataView) {

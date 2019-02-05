@@ -30,6 +30,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __uniformLocation_normalMatrix?: WebGLUniformLocation;
   private __uniformLocation_baseColorTexture?: WebGLUniformLocation;
   private __uniformLocation_skinMatrices?: WebGLUniformLocation;
+  private __dummyTextureUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -111,6 +112,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.primitiveUid, vertexHandles);
 //      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, void 0);
     }
+
+    this.__dummyTextureUid = this.__webglResourceRepository.createDummyTexture();
 
   }
 
@@ -221,6 +224,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     if (material && material!.baseColorTexture) {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
