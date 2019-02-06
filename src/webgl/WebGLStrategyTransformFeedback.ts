@@ -20,7 +20,8 @@ import { PrimitiveMode } from "../foundation/definitions/PrimitiveMode";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import PBRShader from "./PBRShader";
+import ClassicShaderader from "./ClassicShader";
+import ClassicShader from "./ClassicShader";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -38,8 +39,8 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private constructor(){}
 
   private get __transformFeedbackShaderText() {
-    const _in = PBRShader.getInstance().glsl_vertex_in;
-    const _texture = PBRShader.getInstance().glsl_texture;
+    const _in = ClassicShader.getInstance().glsl_vertex_in;
+    const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `#version 300 es
 
@@ -127,8 +128,8 @@ void main(){
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: PBRShader.attributeNames,
-        attributeSemantics: PBRShader.attributeSemantics
+        attributeNames: ClassicShader.attributeNames,
+        attributeSemantics: ClassicShader.attributeSemantics
       }
     );
 

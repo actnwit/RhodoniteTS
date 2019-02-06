@@ -129,6 +129,37 @@ export default abstract class GLSLShader {
 
   }
 
+  get pbrUniformDefinition() {
+    let shaderText = '';
+    shaderText += 'uniform vec2 uMetallicRoughnessFactors;\n';
+    shaderText += 'uniform vec3 uBaseColorFactor;\n';
+    shaderText += 'uniform vec2 uOcclusionFactors;'
+    shaderText += 'uniform vec3 uEmissiveFactor;'
+    shaderText += 'uniform sampler2D uMetallicRoughnessTexture;\n';
+
+    const occlusionTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_OCCLUSION);
+    if (occlusionTexture) {
+      shaderText += 'uniform sampler2D uOcclusionTexture;\n';
+    }
+
+    const emissiveTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_EMISSIVE);
+    if (emissiveTexture) {
+      shaderText += 'uniform sampler2D uEmissiveTexture;\n';
+    }
+
+    const diffuseEnvCubeTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_IBL_DIFFUSE_ENV_CUBE);
+    if (diffuseEnvCubeTexture) {
+      shaderText += 'uniform sampler2D uBrdfLUTTexture;\n';
+      shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
+      shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
+      shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
+    }
+
+    shaderText += 'uniform vec4 ambient;\n'; // Ka * amount of ambient lights
+
+    return shaderText;
+  }
+
   get pbrMethodDefinition() {
     let accessIBLTexture: string;
     const repo = this.__webglResourceRepository!;

@@ -975,4 +975,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-91-gad19-mod branch: feature/shader';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-92-g5842-mod branch: feature/shader';

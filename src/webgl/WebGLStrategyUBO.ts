@@ -12,7 +12,7 @@ import Primitive from "../foundation/geometry/Primitive";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import PBRShader from "./PBRShader";
+import ClassicShader from "./ClassicShader";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -59,7 +59,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     }
 
     // Shader Setup
-    const glslShader = PBRShader.getInstance();
+    const glslShader = ClassicShader.getInstance();
     let vertexShader = glslShader.vertexShaderVariableDefinitions +
       this.vertexShaderMethodDefinitions_UBO +
       glslShader.vertexShaderBody
@@ -68,8 +68,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: PBRShader.attributeNames,
-        attributeSemantics: PBRShader.attributeSemantics
+        attributeNames: ClassicShader.attributeNames,
+        attributeSemantics: ClassicShader.attributeSemantics
       }
     );
 

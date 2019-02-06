@@ -96,6 +96,8 @@ ${_in} vec4 v_position_inWorld;
 ${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
+
+
 void main ()
 {
   // Light
@@ -104,31 +106,50 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  // baseColor
-  vec3 color = vec3(0.0, 0.0, 0.0);
-  if (v_color != color && u_material.baseColorFactor.rgb != color) {
-    color = v_color * u_material.baseColorFactor.rgb;
-  } else if (v_color == color) {
-    color = u_material.baseColorFactor.rgb;
-  } else if (u_material.baseColorFactor.rgb == color) {
-    color = v_color;
+  // BaseColorFactor
+  vec3 baseColor = vec3(0.0, 0.0, 0.0);
+  if (v_color != baseColor && u_material.baseColorFactor.rgb != baseColor) {
+    baseColor = v_color * u_material.baseColorFactor.rgb;
+  } else if (v_color == baseColor) {
+    baseColor = u_material.baseColorFactor.rgb;
+  } else if (u_material.baseColorFactor.rgb == baseColor) {
+    baseColor = v_color;
   } else {
-    color = vec3(1.0, 1.0, 1.0);
+    baseColor = vec3(1.0, 1.0, 1.0);
   }
-  //color = v_color;
 
-  // baseColorTexture
+
+  // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_material.baseColorTexture, v_texcoord);
   if (textureColor.r > 0.05) {
-    color *= textureColor.rgb;
+    baseColor *= srgbToLinear(textureColor.rgb);
   }
 
-  // Lighting
-  if (length(v_normal_inWorld) > 0.02) {
-    vec3 lightDirection = normalize(v_lightDirection);
-    float diffuse = 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
-    color *= diffuse;
-  }
+  // Metallic & Roughness
+  float userRoughness = uMetallicRoughnessFactors.y;
+  float metallic = uMetallicRoughnessFactors.x;
+
+  vec4 ormTexel = texture2D(uMetallicRoughnessTexture, texcoord);
+  userRoughness = ormTexel.g * userRoughness;
+  metallic = ormTexel.b * metallic;
+
+  userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
+  metallic = clamp(metallic, 0.0, 1.0);
+  float alphaRoughness = userRoughness * userRoughness;
+
+  // F0
+  vec3 diffuseMatAverageF0 = vec3(0.04);
+  vec3 F0 = mix(diffuseMatAverageF0, baseColor.rgb, metallic);
+
+  // Albedo
+  vec3 albedo = baseColor.rgb * (vec3(1.0) - diffuseMatAverageF0);
+  albedo.rgb *= (1.0 - metallic);
+
+  // ViewDirection
+  vec3 viewDirection = normalize(viewPosition_world - v_position_world);
+
+  // NV
+  float NV = clamp(dot(normal, viewDirection), 0.001, 1.0);
 
   rt0 = vec4(color, 1.0);
 
