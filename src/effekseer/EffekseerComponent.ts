@@ -9,6 +9,7 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
 import ModuleManager from "../foundation/system/ModuleManager";
+import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 
 declare var effekseer:any;
 
@@ -34,6 +35,10 @@ export default class EffekseerComponent extends Component {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
     this.moveStageTo(ProcessStage.Load);
+  }
+
+  static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.EffekseerComponentTID;
   }
 
   static common_$load() {

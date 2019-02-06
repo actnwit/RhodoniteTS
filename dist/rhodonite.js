@@ -358,7 +358,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WellKnownComponentTIDs\", function() { return WellKnownComponentTIDs; });\nconst AnimationComponentTID = 1;\nconst TransformComponentTID = 2;\nconst SceneGraphComponentTID = 3;\nconst MeshComponentTID = 4;\nconst MeshRendererComponentTID = 5;\nconst CameraComponentTID = 6;\nconst SkeletalComponentTID = 7;\nconst SparkGearComponentTID = 8;\nconst maxWellKnownTidNumber = 8;\nconst WellKnownComponentTIDs = Object.freeze({\n    AnimationComponentTID,\n    TransformComponentTID,\n    SceneGraphComponentTID,\n    MeshComponentTID,\n    MeshRendererComponentTID,\n    CameraComponentTID,\n    SkeletalComponentTID,\n    SparkGearComponentTID,\n    maxWellKnownTidNumber\n});\n\n\n//# sourceURL=webpack:///./src/foundation/components/WellKnownComponentTIDs.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"WellKnownComponentTIDs\", function() { return WellKnownComponentTIDs; });\nconst AnimationComponentTID = 1;\nconst TransformComponentTID = 2;\nconst SceneGraphComponentTID = 3;\nconst MeshComponentTID = 4;\nconst MeshRendererComponentTID = 5;\nconst CameraComponentTID = 6;\nconst LightComponentTID = 7;\nconst SkeletalComponentTID = 8;\nconst SparkGearComponentTID = 9;\nconst EffekseerComponentTID = 10;\nconst maxWellKnownTidNumber = 9;\nconst WellKnownComponentTIDs = Object.freeze({\n    AnimationComponentTID,\n    TransformComponentTID,\n    SceneGraphComponentTID,\n    MeshComponentTID,\n    MeshRendererComponentTID,\n    CameraComponentTID,\n    LightComponentTID,\n    SkeletalComponentTID,\n    SparkGearComponentTID,\n    EffekseerComponentTID,\n    maxWellKnownTidNumber\n});\n\n\n//# sourceURL=webpack:///./src/foundation/components/WellKnownComponentTIDs.ts?");
 
 /***/ }),
 
@@ -975,4 +975,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-92-g5842-mod branch: feature/shader';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-94-gd0f0-mod branch: master';
