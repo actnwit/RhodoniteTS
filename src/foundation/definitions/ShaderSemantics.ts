@@ -28,13 +28,17 @@ const BaseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:6,
 const NormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:7, singularStr:'normalTexture', pluralStr: 'normalTextures'});
 const MetallicRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:8, singularStr:'metallicRoughnessTexture', pluralStr: 'metallicRoughnessTextures'});
 const OcclusionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:9, singularStr:'occlusionTexture', pluralStr: 'occlusionTextures'});
+const LightNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({index:10, singularStr:'lightNumber', pluralStr: 'lightNumbers'});
+const LightPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({index:11, singularStr:'lightPosition', pluralStr: 'lightPositions'});
+const LightDirection: ShaderSemanticsEnum = new ShaderSemanticsClass({index:12, singularStr:'lightDirection', pluralStr: 'lightDirections'});
+const LightIntensity: ShaderSemanticsEnum = new ShaderSemanticsClass({index:13, singularStr:'lightIntensity', pluralStr: 'intensityOfLights'});
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
-                  NormalTexture, MetallicRoughnessTexture, OcclusionTexture ];
+                  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity ];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
 }
 
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
-  NormalTexture, MetallicRoughnessTexture, OcclusionTexture });
+  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity });

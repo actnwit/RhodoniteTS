@@ -8,11 +8,21 @@ const load = async function(time){
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
+
+  // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(1, 10000, 90, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 5);
+
+  // Lights
+  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  lightEntity.getTransform().translate = new Rn.Vector3(100000.0, 100000.0, 100000.0);
+  const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  lightEntity2.getTransform().translate = new Rn.Vector3(-100000.0, 100000.0, 100000.0);
+  //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');

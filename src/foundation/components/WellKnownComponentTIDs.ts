@@ -4,10 +4,12 @@ const SceneGraphComponentTID = 3;
 const MeshComponentTID = 4;
 const MeshRendererComponentTID = 5;
 const CameraComponentTID = 6;
-const SkeletalComponentTID = 7;
-const SparkGearComponentTID = 8;
+const LightComponentTID = 7;
+const SkeletalComponentTID = 8;
+const SparkGearComponentTID = 9;
+const EffekseerComponentTID = 10;
 
-const maxWellKnownTidNumber = 8;
+const maxWellKnownTidNumber = 9;
 
 export const WellKnownComponentTIDs = Object.freeze({
   AnimationComponentTID,
@@ -16,7 +18,9 @@ export const WellKnownComponentTIDs = Object.freeze({
   MeshComponentTID,
   MeshRendererComponentTID,
   CameraComponentTID,
+  LightComponentTID,
   SkeletalComponentTID,
   SparkGearComponentTID,
+  EffekseerComponentTID,
   maxWellKnownTidNumber
 });

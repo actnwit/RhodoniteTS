@@ -1,6 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import GLSLShader from "./GLSLShader";
+import Config from "../foundation/core/Config";
 
 export type AttributeNames = Array<string>;
 
@@ -35,7 +36,6 @@ ${_in} vec4 a_weight;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
-${_out} vec3 v_lightDirection;
 ${_out} vec2 v_texcoord;
 uniform mat4 u_boneMatrices[100];
 
@@ -63,13 +63,8 @@ void main ()
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  // Light
-  vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
-  v_lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
-
   // Skeletal
   ${this.processSkinningIfNeed}
-
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 }
@@ -89,19 +84,23 @@ struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
 };
-
 uniform Material u_material;
+
+struct Light {
+  vec4 lightPosition;
+  vec4 lightDirection;
+  vec4 lightIntensity;
+};
+uniform Light u_lights[${Config.maxLightNumberInShader}];
+uniform int u_lightNumber;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
-${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
-  // Light
-  //vec3 lightPosition = vec3(0.0, 0.0, 50000.0);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -127,12 +126,41 @@ void main ()
 
   // Lighting
   if (length(v_normal_inWorld) > 0.02) {
-    vec3 lightDirection = normalize(v_lightDirection);
-    float diffuse = 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
+    vec3 diffuse = vec3(0.0, 0.0, 0.0);
+    for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
+      if (i >= u_lightNumber) {
+        break;
+      }
+
+      vec3 lightDirection = u_lights[i].lightDirection.xyz;
+      float lightType = u_lights[i].lightPosition.w;
+      float spotCosCutoff = u_lights[i].lightDirection.w;
+      float spotExponent = u_lights[i].lightIntensity.w;
+
+      if (0.75 < lightType) { // is pointlight or spotlight
+        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+      }
+      float spotEffect = 1.0;
+      if (lightType > 1.75) { // is spotlight
+        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        if (spotEffect > spotCosCutoff) {
+          spotEffect = pow(spotEffect, spotExponent);
+        } else {
+          spotEffect = 0.0;
+        }
+      }
+
+      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
+//      incidentLight *= M_PI;
+
+      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
+    }
+
     color *= diffuse;
   }
 
   rt0 = vec4(color, 1.0);
+  //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 
   ${_def_fragColor}

@@ -58,14 +58,6 @@ export default class MeshRendererComponent extends Component {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
-  private __isLoaded(index: Index) {
-    if (this.__vertexHandles[index] != null) {
-      return true;
-    } else {
-      return false
-    }
-  }
-
   $create({processApproach}: {
     processApproach: ProcessApproachEnum
   }

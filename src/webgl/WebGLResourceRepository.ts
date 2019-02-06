@@ -219,24 +219,40 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic: ShaderSemanticsEnum, isPlural: boolean, prefix? :string}>) {
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix? :string, semanticStr?: string, index?: Count}>) {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+
     for (let data of dataArray) {
-    let prefix = '';
-    if (data.prefix != null) {
-      prefix = data.prefix;
-    }
-    if (data.isPlural) {
-        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.pluralStr);
+      let prefix = '';
+      if (data.prefix != null) {
+        prefix = data.prefix;
+      }
+      let semanticSingular: string;
+      let semanticPlural: string;
+      if (data.semantic) {
+        semanticSingular = data.semantic.singularStr;
+        semanticPlural = data.semantic.pluralStr;
       } else {
-        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.singularStr);
+        semanticSingular = data.semanticStr!;
+        semanticPlural = data.semanticStr!;
+      }
+
+      let identifier = semanticSingular;
+      if (data.index != null) {
+        identifier += '_' + data.index;
+      }
+
+      if (data.isPlural) {
+        shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticPlural);
+      } else {
+        shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticSingular);
       }
     }
   }
 
-  setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, x: number|TypedArray|Array<number>, y?: number, z?: number, w?: number) {
+  setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>, y?: number, z?: number, w?: number}, index?: Count) {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
     let funcName = 'uniform';
@@ -250,7 +266,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const args = [];
-    args.push(shaderProgram[uniformSemantic.str]);
+    let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
+    if (index != null) {
+      identifier += '_' + index;
+    }
+    args.push(shaderProgram[identifier]);
     if (isMatrix) {
       args.push(false);
     }
