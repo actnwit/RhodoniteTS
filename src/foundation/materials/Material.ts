@@ -1,6 +1,7 @@
 import RnObject from "../core/Object";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
+import Vector3 from "../math/Vector3";
 
 
 export default class Material extends RnObject {
@@ -10,6 +11,16 @@ export default class Material extends RnObject {
   public baseColor: MutableColorRgb = new MutableColorRgb(1, 1, 1);
   public alpha: number = 1;
   public baseColorTexture?: Texture
+  public metallicFactor = 1.0;
+  public roughnessFactor = 1.0;
+  public metallicRoughnessTexture?: Texture;
+  public normalTexture?: Texture;
+  public occlusionTexture? :Texture;
+  public emissiveTexture?: Texture;
+  public emissiveFactor = Vector3.zero();
+  public alphaMode = 'OPAQUE';
+  public alphaCutoff = 0.5;
+  public doubleSided = false;
 
   constructor() {
     super(true);

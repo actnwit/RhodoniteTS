@@ -14,6 +14,8 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
+import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import ClassicShader from "./ClassicShader";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -23,13 +25,11 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
-  private __uniformLocation_viewMatrix?: WebGLUniformLocation;
-  private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
 
   private constructor(){}
 
   get vertexShaderMethodDefinitions_dataTexture() {
-    const _texture = GLSLShader.getInstance().glsl_texture;
+    const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `
   uniform sampler2D u_dataTexture;
@@ -97,7 +97,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
     // Shader Setup
-    const glslShader = GLSLShader.getInstance();
+    const glslShader = ClassicShader.getInstance();
     let vertexShader = glslShader.vertexShaderVariableDefinitions +
       this.vertexShaderMethodDefinitions_dataTexture +
       glslShader.vertexShaderBody
@@ -106,16 +106,16 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: GLSLShader.attributeNames,
-        attributeSemantics: GLSLShader.attributeSemantics
+        attributeNames: ClassicShader.attributeNames,
+        attributeSemantics: ClassicShader.attributeSemantics
       }
     );
 
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
+    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
+      [
+        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
+        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false}
+      ]);
   }
 
 
@@ -286,8 +286,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
-    gl.uniformMatrix4fv(this.__uniformLocation_viewMatrix, false, viewMatrix.v);
-    gl.uniformMatrix4fv(this.__uniformLocation_projectionMatrix, false, projectionMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, viewMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, projectionMatrix.v);
 
     return true;
   }

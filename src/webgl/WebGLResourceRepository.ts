@@ -3,13 +3,15 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 import Primitive from "../foundation/geometry/Primitive";
 import GLSLShader, {AttributeNames} from "./GLSLShader";
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import { TextureParameterEnum } from "../foundation/definitions/TextureParameter";
-import { PixelFormatEnum } from "../foundation/definitions/PixelFormat";
+import { TextureParameterEnum, TextureParameter } from "../foundation/definitions/TextureParameter";
+import { PixelFormatEnum, PixelFormat } from "../foundation/definitions/PixelFormat";
 import { ComponentTypeEnum } from "../foundation/definitions/ComponentType";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
+import Component from "../foundation/core/Component";
+import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -209,7 +211,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram) {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
@@ -217,11 +219,59 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic: ShaderSemanticsEnum, isPlural: boolean, prefix? :string}>) {
+    const gl = this.__glw!.getRawContext();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+    for (let data of dataArray) {
+    let prefix = '';
+    if (data.prefix != null) {
+      prefix = data.prefix;
+    }
+    if (data.isPlural) {
+        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.pluralStr);
+      } else {
+        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.singularStr);
+      }
+    }
+  }
+
+  setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum, isMatrix: boolean, componentNumber: number,
+    componentType: string, isVector: boolean, x: number|TypedArray|Array<number>, y?: number, z?: number, w?: number) {
+    const gl = this.__glw!.getRawContext();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+    let funcName = 'uniform';
+    if (isMatrix) {
+      funcName = 'uniformMatrix';
+    }
+    funcName += componentNumber;
+    funcName += componentType;
+    if (isVector) {
+      funcName += 'v';
+    }
+
+    const args = [];
+    args.push(shaderProgram[uniformSemantic.str]);
+    if (isMatrix) {
+      args.push(false);
+    }
+    args.push(x);
+    if (y != null) {
+      args.push(y);
+    }
+    if (z != null) {
+      args.push(z);
+    }
+    if (w != null) {
+      args.push(w);
+    }
+    gl[funcName].apply(gl, args);
+  }
+
   setVertexDataToPipeline(
     {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
     primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid)
   {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
 
@@ -333,6 +383,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
     }
+  }
+
+  createDummyTexture() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    ctx.fillRect( 0, 0, 1, 1 );
+
+    return this.createTexture(canvas, {
+      level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false});
   }
 
   createUniformBuffer(bufferView: TypedArray| DataView) {
