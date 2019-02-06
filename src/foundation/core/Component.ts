@@ -149,7 +149,7 @@ export default class Component {
     if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
       return;
     }
-    
+
     const array = this.__componentsOfProcessStages.get(processStage)!;
     for (let i=0; i<array.length; ++i) {
       if (array[i] === Component.invalidComponentSID) {
@@ -369,6 +369,10 @@ export default class Component {
       });
     }
 
+  }
+
+  get entity() {
+    return this.__entityRepository.getEntity(this.__entityUid);
   }
 
   // $create() {

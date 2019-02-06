@@ -25,6 +25,7 @@ import CameraComponent from './components/CameraComponent';
 import { CameraType } from './definitions/CameraType';
 import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
+import LightComponent from './components/LightComponent';
 
 
 const Rn = {
@@ -54,7 +55,8 @@ const Rn = {
   CameraComponent,
   CameraType,
   RowMajarMatrix44,
-  AnimationComponent
+  AnimationComponent,
+  LightComponent
 };
 export default Rn;
 

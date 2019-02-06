@@ -12,6 +12,8 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import Matrix33 from '../math/Matrix33';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import Vector4 from '../math/Vector4';
+import Vector3 from '../math/Vector3';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -190,6 +192,13 @@ export default class SceneGraphComponent extends Component {
     }
 
     return results;
+  }
+
+  get worldPosition() {
+    const zeroVector = new Vector4(0, 0, 0, 1);
+    const worldPosition = new Vector3(this.worldMatrixInner.multiplyVector(zeroVector));
+
+    return worldPosition;
   }
 
 

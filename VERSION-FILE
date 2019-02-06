@@ -1,6 +1,6 @@
-version: 0.1.1-95-gfff70-mod
+version: 0.1.1-96-g7c74-mod
 branch: feature/light
-4a39e272327d66064435fbe81c2323b5429994f973bc098d30b770a0fc3b802b ./dist/rhodonite.js
-141cbda5a7c89ab78cf70b5cdbc007d5cf4f7052fc2b55e4fdb36181a14c2fd9 ./dist/rhodonite.min.js
-50309e48a691f90c2bdd4adf8796ff18822746b257592bb3641bde550b3d7fc1 ./dist/rhodonite-webgl.js
-6a24af5a4472b189d485f188f35c0618f5a8262b41b6def3d2d2f7a7faa4e1fd ./dist/rhodonite-webgl.min.js
+95411bfcd2482a9720b72bfe29570226acb50d8f2639e3c9bf6862210c4f1d15 ./dist/rhodonite.js
+eaa9085d2191ed369e4922d1307926193fa9370e24061bb267036c358ed90fab ./dist/rhodonite.min.js
+b5f8526525c9af6e9aa8b4cd615d8544d1c6fadc764470f23807fb2caf667325 ./dist/rhodonite-webgl.js
+2c7d4da66754a4c96b3c716b5e41f23c31e0c0110a57d1b9f32c6575dcc283fa ./dist/rhodonite-webgl.min.js

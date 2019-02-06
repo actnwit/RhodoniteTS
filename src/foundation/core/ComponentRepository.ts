@@ -95,11 +95,12 @@ export default class ComponentRepository {
     return memoryBeginIndex;
   }
 
-  getComponentsWithType(componentType: typeof Component): Array<Component> | undefined {
+  getComponentsWithType(componentType: typeof Component): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
-    const copyArray = components!;//.concat();
-    //copyArray.shift();
-    return copyArray;
+    let result: Component[] = [];
+    Array.prototype.push.apply(result, components!);
+
+    return result;
   }
 
   getComponentTIDs(): Array<ComponentTID> {

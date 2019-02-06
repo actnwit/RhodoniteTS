@@ -14,6 +14,10 @@ import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./ClassicShader";
+import EntityRepository from "../foundation/core/EntityRepository";
+import ComponentRepository from "../foundation/core/ComponentRepository";
+import LightComponent from "../foundation/components/LightComponent";
+import Config from "../foundation/core/Config";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -23,8 +27,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __shaderProgram?: WebGLShader;
   //private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
-  private __isVAOSet = false;
-
+  private __lightComponents?: LightComponent[];
   private __dummyTextureUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
@@ -75,18 +78,23 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const args: any = [
+      {semantic: ShaderSemantics.WorldMatrix, isPlural: false},
+      {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.'},
+      {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
+      {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false},
+      {semantic: ShaderSemantics.NormalMatrix, isPlural: false},
+      {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
+      {semantic: ShaderSemantics.BoneMatrix, isPlural: true},
+      {semantic: ShaderSemantics.LightNumber, isPlural: false},
+    ];
+    const lights = [];
+    for (let i=0; i<Config.maxLightNumberInShader; i++) {
+      lights.push({semanticStr: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i});
+    }
 
-    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
-      [
-        {semantic: ShaderSemantics.WorldMatrix, isPlural: false},
-        {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.'},
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false},
-        {semantic: ShaderSemantics.NormalMatrix, isPlural: false},
-        {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
-        {semantic: ShaderSemantics.BoneMatrix, isPlural: true}
-      ]);
+    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid, args.concat(lights));
+
   }
 
   $load(meshComponent: MeshComponent) {
@@ -124,6 +132,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   common_$prerender(): void {
+    const componentRepository = ComponentRepository.getInstance();
+    this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
   };
 
   attachGPUData(): void {
@@ -175,8 +185,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, viewMatrix.v);
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, projectionMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v});
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v});
 
     return false;
   }
@@ -187,10 +197,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const gl = glw.getRawContext();
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, RowMajarMatrix44.transpose(worldMatrix).v);
 
+    // Set Uniforms
+    /// Matrices
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:RowMajarMatrix44.transpose(worldMatrix).v});
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, {x:normalMatrix.v});
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, normalMatrix.v);
+    /// Material
     const material = primitive.material;
     const baseColor = [];
     if (material) {
@@ -204,16 +217,29 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       baseColor[2] = 1;
       baseColor[3] = 1;
     }
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, baseColor);
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, 0);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
 
+    // Lights
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, {x:this.__lightComponents!.length});
+    for (let i=0; i<this.__lightComponents!.length; i++) {
+      if (i >= Config.maxLightNumberInShader) {
+        break;
+      }
+      const lightComponent = this.__lightComponents![i];
+      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+      const worldLightPosition = sceneGraphComponent.worldPosition;
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, {x:worldLightPosition.x, y:worldLightPosition.y, z:worldLightPosition.z, w:0}, i);
+    }
 
+    /// Skinning
     const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
     if (skeletalComponent) {
       const jointMatrices = skeletalComponent.jointMatrices;
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, jointMatrices!);
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, {x:jointMatrices!});
     }
 
+    // Bind BaseTexture
     if (material && material!.baseColorTexture) {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
       gl.bindTexture(gl.TEXTURE_2D, texture);
