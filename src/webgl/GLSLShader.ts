@@ -71,6 +71,11 @@ export default abstract class GLSLShader {
     }
   }
 
+  get glsl1ShaderTextureLodExt() {
+    const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
+    return (ext != null)? '#extension GL_EXT_shader_texture_lod : require\n' : '';
+  }
+
   get toNormalMatrix() {
     return `
     mat3 toNormalMatrix(mat4 m) {
@@ -245,8 +250,16 @@ export default abstract class GLSLShader {
       return pow(srgbColor, vec3(2.2));
     }
 
+    float srgbToLinear(float value) {
+      return pow(value, 2.2);
+    }
+
     vec3 linearToSrgb(vec3 linearColor) {
       return pow(linearColor, vec3(1.0/2.2));
+    }
+
+    float linearToSrgb(float value) {
+      return pow(value, 1.0/2.2);
     }
 
     vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)

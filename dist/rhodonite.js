@@ -999,4 +999,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-98-gf8d8-mod branch: feature/light';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-100-gfdf5-mod branch: master';

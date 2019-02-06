@@ -13,7 +13,7 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import ClassicShader from "./ClassicShader";
+import PBRShader from "./PBRShader";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";
@@ -63,7 +63,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     // Shader Setup
-    const glslShader = ClassicShader.getInstance();
+    const glslShader = PBRShader.getInstance();
     let vertexShader = glslShader.vertexShaderVariableDefinitions +
       this.vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderBody
@@ -72,8 +72,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: ClassicShader.attributeNames,
-        attributeSemantics: ClassicShader.attributeSemantics
+        attributeNames: PBRShader.attributeNames,
+        attributeSemantics: PBRShader.attributeSemantics
       }
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;

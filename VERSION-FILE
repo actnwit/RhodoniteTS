@@ -1,6 +1,6 @@
-version: 0.1.1-98-gf8d8-mod
-branch: feature/light
-eb651d33702d4810fe50dcb714f5984026d6233bb37ed9a3b7ce93ee3e285ed9 ./dist/rhodonite.js
-417271a9c65e7f2df9f73075feb3a6c60e6adceb14226e3adfe952ebe719f294 ./dist/rhodonite.min.js
-c18a184530ebef7056b10f0d47bb2e5a3e1e26fb5ce49f1aacbb99f86b8fe7ee ./dist/rhodonite-webgl.js
-90da4ea684412e17ac44f2c2588a62a9d2700fa4a37eb2b0c3aca8dc06b61eeb ./dist/rhodonite-webgl.min.js
+version: 0.1.1-100-gfdf5-mod
+branch: master
+86c3259fd8f60d17ed2715b45161f6ca5197425ee971056ea2594c377dcd1175 ./dist/rhodonite.js
+0d3b6c610bbf746a32d9b0849ad3445352ff05f0eaf87dd85d3ce5976f2759ee ./dist/rhodonite.min.js
+f36ef883377bc63563b03cdb90d2cb24811badcca545525141c3af58bf518f30 ./dist/rhodonite-webgl.js
+23cf22b57ce2529cdd62af7ef67603e4fb70f0b2c37761e6e1dec7a591d710d7 ./dist/rhodonite-webgl.min.js

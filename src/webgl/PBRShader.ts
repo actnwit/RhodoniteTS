@@ -82,6 +82,7 @@ void main ()
     const _texture = this.glsl_texture;
 
     return `${_version}
+${this.glsl1ShaderTextureLodExt}
 precision highp float;
 
 struct Material {
@@ -98,6 +99,7 @@ struct Light {
 uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 
+uniform vec3 viewPosition_inWorld;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -118,10 +120,13 @@ void main ()
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
+  float alpha = 1.0;
   if (v_color != baseColor && u_material.baseColorFactor.rgb != baseColor) {
     baseColor = v_color * u_material.baseColorFactor.rgb;
+    alpha = u_material.baseColorFactor.a;
   } else if (v_color == baseColor) {
     baseColor = u_material.baseColorFactor.rgb;
+    alpha = u_material.baseColorFactor.a;
   } else if (u_material.baseColorFactor.rgb == baseColor) {
     baseColor = v_color;
   } else {
@@ -133,13 +138,14 @@ void main ()
   vec4 textureColor = ${_texture}(u_material.baseColorTexture, v_texcoord);
   if (textureColor.r > 0.05) {
     baseColor *= srgbToLinear(textureColor.rgb);
+    alpha *= srgbToLinear(textureColor.a);
   }
 
   // Metallic & Roughness
   float userRoughness = uMetallicRoughnessFactors.y;
   float metallic = uMetallicRoughnessFactors.x;
 
-  vec4 ormTexel = texture2D(uMetallicRoughnessTexture, texcoord);
+  vec4 ormTexel = texture2D(uMetallicRoughnessTexture, v_texcoord);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
 
@@ -156,12 +162,12 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewDirection = normalize(viewPosition_world - v_position_world);
+  vec3 viewDirection = normalize(viewPosition_inWorld - v_position_inWorld.xyz);
 
   // NV
-  float NV = clamp(dot(normal, viewDirection), 0.001, 1.0);
+  float NV = clamp(dot(normal_inWorld, viewDirection), 0.001, 1.0);
 
-  rt0 = vec4(0.0, 0.0, 0.0, baseColor.w);
+  rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Lighting
   if (length(v_normal_inWorld) > 0.02) {
@@ -204,8 +210,8 @@ void main ()
       vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
       // Specular
-      float NL = clamp(dot(normal, lightDirection), 0.001, 1.0);
-      float NH = clamp(dot(normal, halfVector), 0.0, 1.0);
+      float NL = clamp(dot(normal_inWorld, lightDirection), 0.001, 1.0);
+      float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
       float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
       vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
       vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
