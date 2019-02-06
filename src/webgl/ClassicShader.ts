@@ -84,6 +84,7 @@ struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
 };
+uniform Material u_material;
 
 struct Light {
   vec4 lightPosition;
@@ -91,8 +92,6 @@ struct Light {
   vec4 lightIntensity;
 };
 uniform Light u_lights[${Config.maxLightNumberInShader}];
-
-uniform Material u_material;
 uniform int u_lightNumber;
 
 ${_in} vec3 v_color;
@@ -102,8 +101,6 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
-  // Light
-  //vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -152,7 +149,11 @@ void main ()
           spotEffect = 0.0;
         }
       }
-      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * u_lights[i].lightIntensity.xyz;
+
+      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
+//      incidentLight *= M_PI;
+
+      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
     }
 
     color *= diffuse;

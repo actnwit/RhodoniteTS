@@ -1,6 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import GLSLShader from "./GLSLShader";
+import Config from "../foundation/core/Config";
 
 export type AttributeNames = Array<string>;
 
@@ -87,8 +88,16 @@ struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
 };
-
 uniform Material u_material;
+
+struct Light {
+  vec4 lightPosition;
+  vec4 lightDirection;
+  vec4 lightIntensity;
+};
+uniform Light u_lights[${Config.maxLightNumberInShader}];
+uniform int u_lightNumber;
+
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -97,11 +106,12 @@ ${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 
+${this.pbrUniformDefinition}
+
+${this.pbrMethodDefinition}
 
 void main ()
 {
-  // Light
-  //vec3 lightPosition = vec3(0.0, 0.0, 50000.0);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -151,8 +161,59 @@ void main ()
   // NV
   float NV = clamp(dot(normal, viewDirection), 0.001, 1.0);
 
-  rt0 = vec4(color, 1.0);
+  rt0 = vec4(0.0, 0.0, 0.0, baseColor.w);
 
+  // Lighting
+  if (length(v_normal_inWorld) > 0.02) {
+    vec3 diffuse = vec3(0.0, 0.0, 0.0);
+    for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
+      if (i >= u_lightNumber) {
+        break;
+      }
+
+      // Light
+      vec3 lightDirection = u_lights[i].lightDirection.xyz;
+      float lightType = u_lights[i].lightPosition.w;
+      float spotCosCutoff = u_lights[i].lightDirection.w;
+      float spotExponent = u_lights[i].lightIntensity.w;
+
+      if (0.75 < lightType) { // is pointlight or spotlight
+        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+      }
+      float spotEffect = 1.0;
+      if (lightType > 1.75) { // is spotlight
+        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        if (spotEffect > spotCosCutoff) {
+          spotEffect = pow(spotEffect, spotExponent);
+        } else {
+          spotEffect = 0.0;
+        }
+      }
+      //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * u_lights[i].lightIntensity.xyz;
+
+      // IncidentLight
+      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
+      incidentLight *= M_PI;
+
+      // Fresnel
+      vec3 halfVector = normalize(lightDirection + viewDirection);
+      float LH = clamp(dot(lightDirection, halfVector), 0.0, 1.0);
+      vec3 F = fresnel(F0, LH);
+
+      // Diffuse
+      vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
+
+      // Specular
+      float NL = clamp(dot(normal, lightDirection), 0.001, 1.0);
+      float NH = clamp(dot(normal, halfVector), 0.0, 1.0);
+      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+      vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
+      vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
+
+      rt0.xyz += diffuseAndSpecular;
+    }
+
+  }
 
   ${_def_fragColor}
 }
