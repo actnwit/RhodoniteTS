@@ -17,11 +17,16 @@ const TextureHalfFloatLinear: WebGLExtensionEnum = new WebGLExtensionClass({inde
 const InstancedArrays: WebGLExtensionEnum = new WebGLExtensionClass({index:6, str:'ANGLE_instanced_arrays'});
 const TextureFilterAnisotropic: WebGLExtensionEnum = new WebGLExtensionClass({index:7, str:'EXT_texture_filter_anisotropic'});
 const ElementIndexUint: WebGLExtensionEnum = new WebGLExtensionClass({index:8, str:'OES_element_index_uint'});
+const ShaderTextureLod: WebGLExtensionEnum = new WebGLExtensionClass({index:9, str:'EXT_shader_texture_lod'});
 
-const typeList = [ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays, TextureFilterAnisotropic, ElementIndexUint ];
+
+const typeList = [ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear,
+  TextureHalfFloatLinear, InstancedArrays, TextureFilterAnisotropic, ElementIndexUint, ShaderTextureLod ];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
   return _from({typeList, index}) as WebGLExtensionEnum;
 }
 
-export const WebGLExtension = Object.freeze({ VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear, InstancedArrays, TextureFilterAnisotropic, ElementIndexUint });
+export const WebGLExtension = Object.freeze({
+  VertexArrayObject, TextureFloat, TextureHalfFloat, TextureFloatLinear, TextureHalfFloatLinear,
+  InstancedArrays, TextureFilterAnisotropic, ElementIndexUint, ShaderTextureLod });

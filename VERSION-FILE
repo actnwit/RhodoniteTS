@@ -1,6 +1,6 @@
-version: 0.1.1-90-g446f-mod
+version: 0.1.1-91-gad19-mod
 branch: feature/shader
-cdb8bc96084ae250f676297640c7877224f54ca2dc7a968e769e2be82292767b ./dist/rhodonite.js
-0decbc40d0c389cc7164cae2b2e942507eb93487a226bc5c632bdb2086bb113c ./dist/rhodonite.min.js
-de54da175bf37088c911ab6dbd9842b0ad465a8d4ed824d8a9e28e5e400dd6de ./dist/rhodonite-webgl.js
-6512919f308b3325a7da8c0702ea234c86182e8b072d5308bef9c053f384f24d ./dist/rhodonite-webgl.min.js
+ce3e96583485005d63c2e529786114d7113919900d8b813c5620f9260b68f6ac ./dist/rhodonite.js
+e9c75de54f9c271ee77d2abf06b2f8b099876476111349a3b2bcdd83023ec39e ./dist/rhodonite.min.js
+72e07c9c5480965bb1824f37bf182fc0ad55eb78de8f9b9762211ff0b54857e9 ./dist/rhodonite-webgl.js
+10282c989da0c297129c719720e0d4631f43c79551152f1a7fdbe0701ee2ae91 ./dist/rhodonite-webgl.min.js
