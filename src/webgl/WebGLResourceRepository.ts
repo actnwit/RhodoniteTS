@@ -11,6 +11,7 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 import Component from "../foundation/core/Component";
+import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -210,7 +211,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram) {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
@@ -218,11 +219,59 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic: ShaderSemanticsEnum, isPlural: boolean, prefix? :string}>) {
+    const gl = this.__glw!.getRawContext();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+    for (let data of dataArray) {
+    let prefix = '';
+    if (data.prefix != null) {
+      prefix = data.prefix;
+    }
+    if (data.isPlural) {
+        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.pluralStr);
+      } else {
+        shaderProgram[data.semantic.str] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+data.semantic.singularStr);
+      }
+    }
+  }
+
+  setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum, isMatrix: boolean, componentNumber: number,
+    componentType: string, isVector: boolean, x: number|TypedArray|Array<number>, y?: number, z?: number, w?: number) {
+    const gl = this.__glw!.getRawContext();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+    let funcName = 'uniform';
+    if (isMatrix) {
+      funcName = 'uniformMatrix';
+    }
+    funcName += componentNumber;
+    funcName += componentType;
+    if (isVector) {
+      funcName += 'v';
+    }
+
+    const args = [];
+    args.push(shaderProgram[uniformSemantic.str]);
+    if (isMatrix) {
+      args.push(false);
+    }
+    args.push(x);
+    if (y != null) {
+      args.push(y);
+    }
+    if (z != null) {
+      args.push(z);
+    }
+    if (w != null) {
+      args.push(w);
+    }
+    gl[funcName].apply(gl, args);
+  }
+
   setVertexDataToPipeline(
     {vaoHandle, iboHandle, vboHandles} : {vaoHandle: WebGLResourceHandle, iboHandle?: WebGLResourceHandle, vboHandles: Array<WebGLResourceHandle>},
     primitive: Primitive, instanceIDBufferUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid)
   {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
 

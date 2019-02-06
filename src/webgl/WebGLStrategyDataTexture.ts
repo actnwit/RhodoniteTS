@@ -14,6 +14,7 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
+import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -23,8 +24,6 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
-  private __uniformLocation_viewMatrix?: WebGLUniformLocation;
-  private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
 
   private constructor(){}
 
@@ -111,11 +110,11 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       }
     );
 
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(shaderProgram, 'u_viewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(shaderProgram, 'u_projectionMatrix')!;
+    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
+      [
+        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
+        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false}
+      ]);
   }
 
 
@@ -286,8 +285,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
-    gl.uniformMatrix4fv(this.__uniformLocation_viewMatrix, false, viewMatrix.v);
-    gl.uniformMatrix4fv(this.__uniformLocation_projectionMatrix, false, projectionMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, viewMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, projectionMatrix.v);
 
     return true;
   }

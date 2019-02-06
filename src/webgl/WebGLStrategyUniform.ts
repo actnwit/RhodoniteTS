@@ -12,6 +12,7 @@ import SkeletalComponent from "../foundation/components/SkeletalComponent";
 import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -23,13 +24,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
 
-  private __uniformLocation_worldMatrix?: WebGLUniformLocation;
-  private __uniformLocation_material?: WebGLUniformLocation;
-  private __uniformLocation_viewMatrix?: WebGLUniformLocation;
-  private __uniformLocation_projectionMatrix?: WebGLUniformLocation;
-  private __uniformLocation_normalMatrix?: WebGLUniformLocation;
-  private __uniformLocation_baseColorTexture?: WebGLUniformLocation;
-  private __uniformLocation_skinMatrices?: WebGLUniformLocation;
   private __dummyTextureUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
@@ -81,23 +75,18 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    this.__uniformLocation_worldMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_worldMatrix')!;
-    this.__uniformLocation_material = gl.getUniformLocation(this.__shaderProgram, 'u_material.baseColor')!;
-    this.__uniformLocation_viewMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_viewMatrix')!;
-    this.__uniformLocation_projectionMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_projectionMatrix')!;
-    this.__uniformLocation_normalMatrix = gl.getUniformLocation(this.__shaderProgram, 'u_normalMatrix')!;
-    this.__uniformLocation_baseColorTexture = gl.getUniformLocation(this.__shaderProgram, 'u_material.baseColorTexture')!;
-    this.__uniformLocation_skinMatrices = gl.getUniformLocation(this.__shaderProgram, 'u_skinMatrices')!;
-  }
 
-  // private __isLoaded(index: Index) {
-  //   if (this.__vertexHandles[index] != null) {
-  //     return true;
-  //   } else {
-  //     return false
-  //   }
-  // }
+    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
+      [
+        {semantic: ShaderSemantics.WorldMatrix, isPlural: false},
+        {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.'},
+        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
+        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false},
+        {semantic: ShaderSemantics.NormalMatrix, isPlural: false},
+        {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
+        {semantic: ShaderSemantics.BoneMatrix, isPlural: true}
+      ]);
+  }
 
   $load(meshComponent: MeshComponent) {
     // if (this.__isLoaded(0)) {
@@ -185,8 +174,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
-    gl.uniformMatrix4fv(this.__uniformLocation_viewMatrix, false, viewMatrix.v);
-    gl.uniformMatrix4fv(this.__uniformLocation_projectionMatrix, false, projectionMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, viewMatrix.v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, projectionMatrix.v);
 
     return false;
   }
@@ -197,9 +186,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const gl = glw.getRawContext();
     this.attachVertexData(primitive_i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-    gl.uniformMatrix4fv(this.__uniformLocation_worldMatrix, false, RowMajarMatrix44.transpose(worldMatrix).v);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, RowMajarMatrix44.transpose(worldMatrix).v);
 
-    gl.uniformMatrix3fv(this.__uniformLocation_normalMatrix, false, normalMatrix.v);
+
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, normalMatrix.v);
     const material = primitive.material;
     const baseColor = [];
     if (material) {
@@ -213,13 +203,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       baseColor[2] = 1;
       baseColor[3] = 1;
     }
-    gl.uniform4fv(this.__uniformLocation_material, baseColor);
-    gl.uniform1i(this.__uniformLocation_baseColorTexture, 0);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, baseColor);
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, 0);
+
 
     const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
     if (skeletalComponent) {
       const jointMatrices = skeletalComponent.jointMatrices;
-      gl.uniformMatrix4fv(this.__uniformLocation_skinMatrices, false, jointMatrices);
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, jointMatrices!);
     }
 
     if (material && material!.baseColorTexture) {

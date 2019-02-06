@@ -97,7 +97,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec3 v_lightDirection;
 ${_out} vec2 v_texcoord;
-uniform mat4 u_skinMatrices[100];
+uniform mat4 u_boneMatrices[100];
 
 mat3 toNormalMatrix(mat4 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
@@ -153,17 +153,17 @@ void main ()
   // Skeletal
 
   if (length(a_weight.xyz) > 0.01) {
-    mat4 skinMat = a_weight.x * u_skinMatrices[int(a_joint.x)];
-    skinMat += a_weight.y * u_skinMatrices[int(a_joint.y)];
-    skinMat += a_weight.z * u_skinMatrices[int(a_joint.z)];
-    skinMat += a_weight.w * u_skinMatrices[int(a_joint.w)];
+    mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
+    skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
+    skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
+    skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
     v_position_inWorld = skinMat * vec4(a_position, 1.0);
     normalMatrix = toNormalMatrix(skinMat);
     v_normal_inWorld = normalize(normalMatrix * a_normal);
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   }
 
-//  v_color = vec3(u_skinMatrices[int(a_joint.x)][1].xyz);
+//  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 }
   `;
 
@@ -178,7 +178,7 @@ void main ()
 precision highp float;
 
 struct Material {
-  vec4 baseColor;
+  vec4 baseColorFactor;
   sampler2D baseColorTexture;
 };
 
@@ -200,11 +200,11 @@ void main ()
 
   // baseColor
   vec3 color = vec3(0.0, 0.0, 0.0);
-  if (v_color != color && u_material.baseColor.rgb != color) {
-    color = v_color * u_material.baseColor.rgb;
+  if (v_color != color && u_material.baseColorFactor.rgb != color) {
+    color = v_color * u_material.baseColorFactor.rgb;
   } else if (v_color == color) {
-    color = u_material.baseColor.rgb;
-  } else if (u_material.baseColor.rgb == color) {
+    color = u_material.baseColorFactor.rgb;
+  } else if (u_material.baseColorFactor.rgb == color) {
     color = v_color;
   } else {
     color = vec3(1.0, 1.0, 1.0);
