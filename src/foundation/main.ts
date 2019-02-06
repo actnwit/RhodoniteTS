@@ -26,7 +26,7 @@ import { CameraType } from './definitions/CameraType';
 import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
 import LightComponent from './components/LightComponent';
-
+import { LightType } from './definitions/LightType';
 
 const Rn = {
   EntityRepository,
@@ -56,7 +56,8 @@ const Rn = {
   CameraType,
   RowMajarMatrix44,
   AnimationComponent,
-  LightComponent
+  LightComponent,
+  LightType
 };
 export default Rn;
 

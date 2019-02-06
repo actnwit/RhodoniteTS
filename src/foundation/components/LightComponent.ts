@@ -5,13 +5,17 @@ import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { LightType } from '../definitions/LightType';
 import Vector3 from '../math/Vector3';
+import SceneGraphComponent from './SceneGraphComponent';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
   public intensity = new Vector3(1, 1, 1);
-  public direction = new Vector3(0, -1, 0);
+  private readonly __initialdirection = new Vector3(0, 1, 0);
+  private __direction = new Vector3(0, 1, 0);
   public spotExponent = 1.0;
   public spotCutoff = 30; // in degree
+  private __sceneGraphComponent?: SceneGraphComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -20,6 +24,19 @@ export default class LightComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.LightComponentTID;
+  }
+
+  $create() {
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+    this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(this.__initialdirection);
+  }
+
+  get direction() {
+    return this.__direction;
   }
 
 }

@@ -87,7 +87,8 @@ struct Material {
 
 struct Light {
   vec4 lightPosition;
-  vec3 intensity;
+  vec4 lightDirection;
+  vec4 lightIntensity;
 };
 uniform Light u_lights[${Config.maxLightNumberInShader}];
 
@@ -128,14 +129,30 @@ void main ()
 
   // Lighting
   if (length(v_normal_inWorld) > 0.02) {
-    float diffuse = 0.0;
+    vec3 diffuse = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
       if (i >= u_lightNumber) {
         break;
       }
 
-      vec3 lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
-      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection));
+      vec3 lightDirection = u_lights[i].lightDirection.xyz;
+      float lightType = u_lights[i].lightPosition.w;
+      float spotCosCutoff = u_lights[i].lightDirection.w;
+      float spotExponent = u_lights[i].lightIntensity.w;
+
+      if (0.75 < lightType) { // is pointlight or spotlight
+        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+      }
+      float spotEffect = 1.0;
+      if (lightType > 1.75) { // is spotlight
+        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        if (spotEffect > spotCosCutoff) {
+          spotEffect = pow(spotEffect, spotExponent);
+        } else {
+          spotEffect = 0.0;
+        }
+      }
+      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * u_lights[i].lightIntensity.xyz;
     }
 
     color *= diffuse;

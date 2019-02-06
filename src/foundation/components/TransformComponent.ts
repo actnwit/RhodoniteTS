@@ -1,26 +1,16 @@
-import Vector2 from '../math/Vector2';
 import Vector3 from '../math/Vector3';
-import Vector4 from '../math/Vector4';
 import Quaternion from '../math/Quaternion';
 import Matrix33 from '../math/Matrix33';
 import Matrix44 from '../math/Matrix44';
-import MathClassUtil from '../math/MathClassUtil';
-import is from '../misc/IsUtil';
 import Component from '../core/Component';
 import ComponentRepository from '../core/ComponentRepository';
-import MemoryManager from '../core/MemoryManager';
-import BufferView from '../memory/BufferView';
-import Accessor from '../memory/Accessor';
-import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import EntityRepository from '../core/EntityRepository';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
-import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableQuaternion from '../math/MutableQuaterion';
-import Config from '../core/Config';
 import { ProcessStage } from '../definitions/ProcessStage';
 
 // import AnimationComponent from './AnimationComponent';

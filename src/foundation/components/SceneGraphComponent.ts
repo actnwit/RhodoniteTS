@@ -201,6 +201,5 @@ export default class SceneGraphComponent extends Component {
     return worldPosition;
   }
 
-
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);

@@ -9,8 +9,8 @@ class LightTypeClass extends EnumClass implements LightTypeEnum {
   }
 }
 
-const Point: LightTypeEnum = new LightTypeClass({index:0, str:'Point'});
-const Directional: LightTypeEnum = new LightTypeClass({index:1, str:'Directional'});
+const Directional: LightTypeEnum = new LightTypeClass({index:0, str:'Directional'});
+const Point: LightTypeEnum = new LightTypeClass({index:1, str:'Point'});
 const Spot: LightTypeEnum = new LightTypeClass({index:2, str:'Spot'});
 const Ambient: LightTypeEnum = new LightTypeClass({index:3, str:'Ambient'});
 

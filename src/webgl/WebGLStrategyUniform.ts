@@ -91,6 +91,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
       lights.push({semanticStr: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semanticStr: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semanticStr: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i});
     }
 
     this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid, args.concat(lights));
@@ -229,7 +231,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const lightComponent = this.__lightComponents![i];
       const sceneGraphComponent = lightComponent.entity.getSceneGraph();
       const worldLightPosition = sceneGraphComponent.worldPosition;
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, {x:worldLightPosition.x, y:worldLightPosition.y, z:worldLightPosition.z, w:0}, i);
+      const worldLightDirection = lightComponent.direction;
+      const worldLightIntensity = lightComponent.intensity;
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, {x:worldLightPosition.x, y:worldLightPosition.y, z:worldLightPosition.z, w: lightComponent.type.index}, i);
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightDirection, false, 4, 'f', false, {x:worldLightDirection.x, y:worldLightDirection.y, z:worldLightDirection.z, w:0}, i);
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightIntensity, false, 4, 'f', false, {x:worldLightIntensity.x, y:worldLightIntensity.y, z:worldLightIntensity.z, w:0}, i);
     }
 
     /// Skinning

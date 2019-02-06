@@ -21,6 +21,8 @@ const load = async function(time){
   lightEntity.getTransform().translate = new Rn.Vector3(100000.0, 100000.0, 100000.0);
   const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   lightEntity2.getTransform().translate = new Rn.Vector3(-100000.0, 100000.0, 100000.0);
+  //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
