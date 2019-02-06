@@ -15,6 +15,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import PBRShader from "./PBRShader";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -28,7 +29,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private constructor(){}
 
   get vertexShaderMethodDefinitions_dataTexture() {
-    const _texture = GLSLShader.getInstance().glsl_texture;
+    const _texture = PBRShader.getInstance().glsl_texture;
 
     return `
   uniform sampler2D u_dataTexture;
@@ -96,7 +97,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
     // Shader Setup
-    const glslShader = GLSLShader.getInstance();
+    const glslShader = PBRShader.getInstance();
     let vertexShader = glslShader.vertexShaderVariableDefinitions +
       this.vertexShaderMethodDefinitions_dataTexture +
       glslShader.vertexShaderBody
@@ -105,8 +106,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: GLSLShader.attributeNames,
-        attributeSemantics: GLSLShader.attributeSemantics
+        attributeNames: PBRShader.attributeNames,
+        attributeSemantics: PBRShader.attributeSemantics
       }
     );
 
