@@ -103,6 +103,10 @@ uniform int u_lightNumber;
 
 uniform vec3 viewPosition_inWorld;
 
+uniform samplerCube u_diffuseEnvTexture;
+uniform samplerCube u_specularEnvTexture;
+uniform vec3 u_IblParameters;
+
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;

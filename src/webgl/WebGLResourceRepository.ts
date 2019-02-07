@@ -20,6 +20,8 @@ export type VertexHandles = {
   setComplete: boolean;
 };
 
+type DirectTextureData = TypedArray|HTMLImageElement|HTMLCanvasElement;
+
 export default class WebGLResourceRepository extends CGAPIResourceRepository {
   private static __instance:WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
@@ -353,17 +355,17 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
-  createTexture(data: TypedArray|HTMLImageElement|HTMLCanvasElement, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
+  createTexture(data: DirectTextureData, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();;
 
-    const dataTexture = gl.createTexture();
+    const texture = gl.createTexture();
 
     const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, dataTexture!);
+    this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index,
         format.index, type.index, data);
@@ -384,6 +386,133 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     }
     return resourceHandle;
+  }
+
+  createCubeTexture(mipLevelCount: Count,
+    images: Array<{posX: DirectTextureData, negX: DirectTextureData, posY: DirectTextureData,
+      negY: DirectTextureData, posZ: DirectTextureData, negZ: DirectTextureData}>,
+      width?: Size, height?: Size) {
+    const gl = this.__glw!.getRawContext();
+
+    const texture = gl.createTexture();
+
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, texture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    if (mipLevelCount >= 2) {
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    } else {
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    }
+
+    const loadImageToGPU = (image: DirectTextureData, cubemapSide: number, i: Index) => {
+        if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
+          gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[i]);
+        } else {
+          gl.texImage2D(cubemapSide, i, gl.RGBA, width!/(i+1),
+            height!/(i+1), 0, gl.RGBA, gl.UNSIGNED_BYTE, images[i]);
+        }
+    }
+
+    for (let i=0; i<images.length; i++) {
+      const image = images[i];
+      loadImageToGPU(image.posX, gl.TEXTURE_CUBE_MAP_POSITIVE_X, i);
+      loadImageToGPU(image.negX, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, i);
+      loadImageToGPU(image.posY, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, i);
+      loadImageToGPU(image.negY, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, i);
+      loadImageToGPU(image.posZ, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, i);
+      loadImageToGPU(image.negZ, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, i);
+    }
+
+    return resourceHandle;
+  }
+
+  /**
+   * Create Cube Texture from image files.
+   * @param baseUri the base uri to load images;
+   * @param mipLevelCount the number of mip levels (include root level). if no mipmap, the value should be 1;
+   * @returns the WebGLResourceHandle for the generated Cube Texture
+   */
+  async createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count) {
+    const gl = this.__glw!.getRawContext();
+
+    const imageArgs:Array<{posX: DirectTextureData, negX: DirectTextureData, posY: DirectTextureData,
+      negY: DirectTextureData, posZ: DirectTextureData, negZ: DirectTextureData}> = [];
+    let width = 0;
+    let height = 0;
+    for (let i = 0; i < mipLevelCount; i++) {
+
+      const loadOneLevel = ()=>{
+        return new Promise<HTMLImageElement[]>((resolve, reject)=>{
+          let loadedCount = 0;
+          const images: HTMLImageElement[] = [];
+          let faces = [
+            [baseUri + "_right_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+            [baseUri + "_left_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+            [baseUri + "_top_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+            [baseUri + "_bottom_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+            [baseUri + "_front_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+            [baseUri + "_back_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+          ];
+          for (var j = 0; j < faces.length; j++) {
+            const face = faces[j][1];
+            const image = new Image();
+            (image as any).side = face;
+            (image as any).uri = faces[j][0];
+            image.crossOrigin = "Anonymous";
+            image.onload = ()=>{
+              loadedCount++;
+              images.push(image);
+              if (loadedCount === 6) {
+                resolve(images);
+              }
+            }
+            image.onerror = ()=>{
+              reject((image as any).uri);
+            }
+            image.src = faces[j][0];
+          }
+        });
+      }
+
+      let images: HTMLImageElement[];
+      try {
+        images = await loadOneLevel();
+      } catch(e) {
+        // Try again once
+        try {
+          images = await loadOneLevel();
+        } catch(uri) {
+          // Give up
+          console.error(`failed to load ${uri}`);
+        }
+      }
+      const imageObj: {posX?: DirectTextureData, negX?: DirectTextureData, posY?: DirectTextureData,
+        negY?: DirectTextureData, posZ?: DirectTextureData, negZ?: DirectTextureData} = {};
+      for (let image of images!) {
+        switch((image as any).side) {
+          case gl.TEXTURE_CUBE_MAP_POSITIVE_X: imageObj.posX = image; break;
+          case gl.TEXTURE_CUBE_MAP_POSITIVE_Y: imageObj.posY = image; break;
+          case gl.TEXTURE_CUBE_MAP_POSITIVE_Z: imageObj.posZ = image; break;
+          case gl.TEXTURE_CUBE_MAP_NEGATIVE_X: imageObj.negX = image; break;
+          case gl.TEXTURE_CUBE_MAP_NEGATIVE_Y: imageObj.negY = image; break;
+          case gl.TEXTURE_CUBE_MAP_NEGATIVE_Z: imageObj.negZ = image; break;
+        }
+        if (i === 0) {
+          width = image.width;
+          height = image.height;
+        }
+      }
+      imageArgs.push(imageObj as {posX: DirectTextureData, negX: DirectTextureData, posY: DirectTextureData,
+        negY: DirectTextureData, posZ: DirectTextureData, negZ: DirectTextureData});
+    }
+
+    return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
   }
 
   async createTextureFromDataUri(dataUri: string, {level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
