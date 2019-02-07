@@ -88,6 +88,8 @@ precision highp float;
 struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
+  vec2 metallicRoughnessFactor;
+  sampler2D metallicRoughnessTexture;
 };
 uniform Material u_material;
 
@@ -142,10 +144,10 @@ void main ()
   }
 
   // Metallic & Roughness
-  float userRoughness = uMetallicRoughnessFactors.y;
-  float metallic = uMetallicRoughnessFactors.x;
+  float userRoughness = u_material.metallicRoughnessFactor.y;
+  float metallic = u_material.metallicRoughnessFactor.x;
 
-  vec4 ormTexel = texture2D(uMetallicRoughnessTexture, v_texcoord);
+  vec4 ormTexel = texture2D(u_material.metallicRoughnessTexture, v_texcoord);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
 

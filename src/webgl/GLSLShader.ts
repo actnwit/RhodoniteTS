@@ -154,7 +154,7 @@ export default abstract class GLSLShader {
 
     const diffuseEnvCubeTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_IBL_DIFFUSE_ENV_CUBE);
     if (diffuseEnvCubeTexture) {
-      shaderText += 'uniform sampler2D uBrdfLUTTexture;\n';
+      shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
       shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
       shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
@@ -267,7 +267,7 @@ export default abstract class GLSLShader {
       float mipCount = uIBLParameters.x;
       float lod = (userRoughness * mipCount);
 
-      vec3 brdf = srgbToLinear(texture2D(uBrdfLUTTexture, vec2(NV, 1.0 - userRoughness)).rgb);
+      vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
       vec3 diffuseLight = srgbToLinear(textureCube(uDiffuseEnvTexture, n).rgb);
       ${accessIBLTexture}
       vec3 diffuse = diffuseLight * albedo;

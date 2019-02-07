@@ -355,7 +355,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   createTexture(data: TypedArray|HTMLImageElement|HTMLCanvasElement, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
-      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}) {
+      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();;
 
     const dataTexture = gl.createTexture();
@@ -384,6 +384,27 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
     }
     return resourceHandle;
+  }
+
+  async createTextureFromDataUri(dataUri: string, {level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
+    {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, border:Size, format:PixelFormatEnum,
+      type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}): Promise<WebGLResourceHandle> {
+    return new Promise<WebGLResourceHandle>((resolve)=> {
+      const img = new Image();
+      if (!dataUri.match(/^data:/)) {
+        img.crossOrigin = 'Anonymous';
+      }
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+
+        let texture = this.createTexture(img, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy});
+
+        resolve(texture);
+      };
+
+      img.src = dataUri;
+    });
   }
 
   updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, {level, width, height, format, type}:

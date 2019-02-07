@@ -11,6 +11,8 @@ export default class ModuleManager {
       module = await import(/* webpackChunkName: "effekseer" */'../../effekseer/main');
     } else if (moduleName.toLowerCase() === 'sparkgear') {
       module = await import(/* webpackChunkName: "sparkgear" */'../../sparkgear/main');
+    } else if (moduleName.toLowerCase() === 'pbr') {
+      module = await import(/* webpackChunkName: "pbr" */'../../pbr/main');
     }
     this.__modules.set(moduleName, module);
     console.log('Module Loaded:', module);

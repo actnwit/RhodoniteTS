@@ -18,6 +18,10 @@ import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
+import ModuleManager from "../foundation/system/ModuleManager";
+import { PixelFormat } from "../foundation/definitions/PixelFormat";
+import { ComponentType } from "../foundation/definitions/ComponentType";
+import { TextureParameter } from "../foundation/definitions/TextureParameter";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -29,6 +33,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __lightComponents?: LightComponent[];
   private __dummyTextureUid?: CGAPIResourceHandle;
+  private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -87,6 +92,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
       {semantic: ShaderSemantics.BoneMatrix, isPlural: true},
       {semantic: ShaderSemantics.LightNumber, isPlural: false},
+      {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.'},
+      {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false},
     ];
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -99,7 +106,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   }
 
-  $load(meshComponent: MeshComponent) {
+  async $load(meshComponent: MeshComponent) {
     // if (this.__isLoaded(0)) {
     //   return;
     // }
@@ -114,6 +121,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     this.__dummyTextureUid = this.__webglResourceRepository.createDummyTexture();
+    const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
+    this.__pbrCookTorranceBrdfLutDataUrlUid = await this.__webglResourceRepository.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
+      {
+        level: 0, internalFormat: PixelFormat.RGBA,
+          border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+        }
+      );
 
   }
 
@@ -208,19 +223,24 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     /// Material
     const material = primitive.material;
     const baseColor = [];
+    const metallicRoughnessFactor = [];
     if (material) {
       baseColor[0] = material.baseColor.r;
       baseColor[1] = material.baseColor.g;
       baseColor[2] = material.baseColor.b;
       baseColor[3] = material.alpha;
+      metallicRoughnessFactor[0] = material.metallicFactor;
+      metallicRoughnessFactor[1] = material.roughnessFactor;
     } else {
       baseColor[0] = 1;
       baseColor[1] = 1;
       baseColor[2] = 1;
       baseColor[3] = 1;
+      metallicRoughnessFactor[0] = 1;
+      metallicRoughnessFactor[1] = 1;
     }
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessFactor, false, 2, 'f', true, {x:metallicRoughnessFactor});
 
     // Lights
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, {x:this.__lightComponents!.length});
@@ -246,11 +266,31 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     // Bind BaseTexture
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
+    gl.activeTexture(gl.TEXTURE0);
     if (material && material!.baseColorTexture) {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     } else {
       const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    // Bind MetallicRoughnessTexture
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessTexture, false, 1, 'i', false, {x:1});
+    gl.activeTexture(gl.TEXTURE1);
+    if (material && material!.metallicRoughnessTexture) {
+      const texture = this.__webglResourceRepository.getWebGLResource(material!.metallicRoughnessTexture!.texture3DAPIResourseUid);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    // BRDF LUT
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, {x:2});
+    if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 

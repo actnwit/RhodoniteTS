@@ -3,6 +3,7 @@ let p = null;
 
 const load = async function(time){
   await Rn.ModuleManager.getInstance().loadModule('webgl');
+  await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf2Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
