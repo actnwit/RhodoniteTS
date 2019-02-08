@@ -83,10 +83,10 @@ export default class MeshRendererComponent extends Component {
 
     this.__webglRenderingStrategy!.$load(this.__meshComponent!);
 
-    if (this.diffuseCubeMap) {
+    if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
       this.diffuseCubeMap.loadTextureImagesAsync();
     }
-    if (this.specularCubeMap) {
+    if (this.specularCubeMap && !this.specularCubeMap.startedToLoad) {
       this.specularCubeMap.loadTextureImagesAsync();
     }
 

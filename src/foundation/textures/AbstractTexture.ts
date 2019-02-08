@@ -14,6 +14,7 @@ export default abstract class AbstractTexture extends RnObject {
   private __img?: HTMLImageElement;
   public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
   protected __isTextureReady = false;
+  protected __startedToLoad = false;
 
   constructor() {
     super(true);
@@ -34,6 +35,10 @@ export default abstract class AbstractTexture extends RnObject {
 
   get isTextureReady() {
     return this.__isTextureReady;
+  }
+
+  get startedToLoad() {
+    return this.__startedToLoad;
   }
 
   /**
@@ -58,6 +63,7 @@ export default abstract class AbstractTexture extends RnObject {
   }
 
   generateTextureFromImage(image: HTMLImageElement) {
+    this.__startedToLoad = true;
     let imgCanvas = this._getResizedCanvas(image);
     this.__width = imgCanvas.width;
     this.__height = imgCanvas.height;
@@ -77,6 +83,7 @@ export default abstract class AbstractTexture extends RnObject {
   }
 
   generateTextureFromUri(imageUri: string) {
+    this.__startedToLoad = true;
     return new Promise((resolve, reject)=> {
       this.__img = new Image();
       if (!imageUri.match(/^data:/)) {

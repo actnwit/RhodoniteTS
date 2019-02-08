@@ -136,7 +136,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
         }
       );
-
   }
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
@@ -324,6 +323,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     }
+
+    let mipmapLevelNumber = 1;
+    if (specularCube) {
+      mipmapLevelNumber = specularCube.mipmapLevelNumber;
+    }
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, {x: mipmapLevelNumber, y: 1, z: 1});
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
     gl.bindTexture(gl.TEXTURE_2D, null);
