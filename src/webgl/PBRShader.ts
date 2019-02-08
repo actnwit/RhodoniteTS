@@ -105,7 +105,7 @@ uniform vec3 viewPosition_inWorld;
 
 uniform samplerCube u_diffuseEnvTexture;
 uniform samplerCube u_specularEnvTexture;
-uniform vec3 u_IblParameters;
+uniform vec3 u_iblParameter;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -225,6 +225,10 @@ void main ()
       rt0.xyz += diffuseAndSpecular;
     }
 
+    vec3 reflection = reflect(-viewDirection, normal_inWorld);
+    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
+
+    rt0.xyz += ibl;
   }
 
   ${_def_fragColor}

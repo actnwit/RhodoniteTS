@@ -22,6 +22,7 @@ import ModuleManager from "../foundation/system/ModuleManager";
 import { PixelFormat } from "../foundation/definitions/PixelFormat";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import { TextureParameter } from "../foundation/definitions/TextureParameter";
+import CubeTexture from "../foundation/textures/CubeTexture";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -32,7 +33,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   //private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __lightComponents?: LightComponent[];
-  private __dummyTextureUid?: CGAPIResourceHandle;
+  private __dummyWhiteTextureUid?: CGAPIResourceHandle;
+  private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
+
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
@@ -94,6 +97,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.LightNumber, isPlural: false},
       {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.'},
       {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false},
+      {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false},
+      {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false},
+      {semantic: ShaderSemantics.IBLParameter, isPlural: false},
     ];
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -120,7 +126,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 //      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, void 0);
     }
 
-    this.__dummyTextureUid = this.__webglResourceRepository.createDummyTexture();
+    this.__dummyWhiteTextureUid = this.__webglResourceRepository.createDummyTexture();
+    this.__dummyBlackCubeTextureUid = this.__webglResourceRepository.createDummyCubeTexture();
     const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
     this.__pbrCookTorranceBrdfLutDataUrlUid = await this.__webglResourceRepository.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
       {
@@ -208,7 +215,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return false;
   }
 
-  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity) {
+  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
@@ -272,7 +279,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     } else {
-      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
@@ -283,15 +290,39 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.metallicRoughnessTexture!.texture3DAPIResourseUid);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     } else {
-      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
     // BRDF LUT
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, {x:2});
+    gl.activeTexture(gl.TEXTURE2);
     if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
       const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    // Env map
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, {x:3});
+    gl.activeTexture(gl.TEXTURE3);
+    if (diffuseCube && diffuseCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    }
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, {x:4});
+    gl.activeTexture(gl.TEXTURE4);
+    if (specularCube && specularCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     }
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);

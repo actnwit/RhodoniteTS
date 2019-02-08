@@ -166,12 +166,12 @@ export default abstract class GLSLShader {
   }
 
   get pbrMethodDefinition() {
-    let accessIBLTexture: string;
+    let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(uSpecularEnvTexture, reflection, lod).rgb);`;
+      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(u_specularEnvTexture, reflection, lod).rgb);`;
     } else {
-      accessIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(uSpecularEnvTexture, reflection).rgb);`;
+      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(u_specularEnvTexture, reflection).rgb);`;
     }
 
     return `
@@ -264,17 +264,18 @@ export default abstract class GLSLShader {
 
     vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
     {
-      float mipCount = uIBLParameters.x;
+      float mipCount = u_iblParameter.x;
       float lod = (userRoughness * mipCount);
 
       vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
-      vec3 diffuseLight = srgbToLinear(textureCube(uDiffuseEnvTexture, n).rgb);
-      ${accessIBLTexture}
+      vec3 diffuseLight = srgbToLinear(textureCube(u_diffuseEnvTexture, n).rgb);
+      ${accessSpecularIBLTexture}
+
       vec3 diffuse = diffuseLight * albedo;
       vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
 
-      float IBLDiffuseContribution = uIBLParameters.y;
-      float IBLSpecularContribution = uIBLParameters.z;
+      float IBLDiffuseContribution = u_iblParameter.y;
+      float IBLSpecularContribution = u_iblParameter.z;
       diffuse *= IBLDiffuseContribution;
       specular *= IBLSpecularContribution;
       return diffuse + specular;

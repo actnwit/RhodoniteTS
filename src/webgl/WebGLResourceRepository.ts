@@ -399,7 +399,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     if (mipLevelCount >= 2) {
@@ -412,10 +412,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const loadImageToGPU = (image: DirectTextureData, cubemapSide: number, i: Index) => {
         if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
-          gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[i]);
+          gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         } else {
           gl.texImage2D(cubemapSide, i, gl.RGBA, width!/(i+1),
-            height!/(i+1), 0, gl.RGBA, gl.UNSIGNED_BYTE, images[i]);
+            height!/(i+1), 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
         }
     }
 
@@ -515,6 +515,17 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
   }
 
+  createDummyCubeTexture(rgbaStr = 'rgba(0,0,0,1)') {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = rgbaStr;
+    ctx.fillRect( 0, 0, 1, 1 );
+
+    return this.createCubeTexture(1, [{posX: canvas, negX: canvas, posY: canvas, negY: canvas, posZ: canvas, negZ: canvas}], 1, 1);
+  }
+
   async createTextureFromDataUri(dataUri: string, {level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}): Promise<WebGLResourceHandle> {
@@ -555,12 +566,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  createDummyTexture() {
+  createDummyTexture(rgbaStr: string = "rgba(255,255,255,1)") {
     var canvas = document.createElement("canvas");
     canvas.width = 1;
     canvas.height = 1;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = "rgba(255,255,255,1)";
+    ctx.fillStyle = rgbaStr;
     ctx.fillRect( 0, 0, 1, 1 );
 
     return this.createTexture(canvas, {
