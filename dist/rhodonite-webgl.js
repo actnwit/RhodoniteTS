@@ -121,4 +121,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-104-g5af8-mod branch: feature/pbr';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-108-g62be-mod branch: feature/pbr';

@@ -1,6 +1,6 @@
-version: 0.1.1-104-g5af8-mod
+version: 0.1.1-108-g62be-mod
 branch: feature/pbr
-b82bf182e624dcff042bff4c4d1977f07a7528c5d024f7a93abb51289e75b16a ./dist/rhodonite.js
-c4e8c1c1fc066a2193c26b60fa672dfe45700e8f8dd5dfe0011ea748da0f4bc2 ./dist/rhodonite.min.js
-e3de34159f17ec6b4d660865cd82778a249df7d6c81b1e206a36d45b17536155 ./dist/rhodonite-webgl.js
-c89144cbb456e5e7b708840626474517139dea5a7a04a39b38ba11a6a4fdccf6 ./dist/rhodonite-webgl.min.js
+f27207f3899bb9a3adf5c83705b7df9522d745e6b1e6099149450065d72a1ceb ./dist/rhodonite.js
+1575452f8d1498b93e9bf81ff21627b1f7ce0617a908fc8264e7b5761832075c ./dist/rhodonite.min.js
+3ebabe37044d5b03c0b9f157c0242767578a46b211599cc5ca733d27c6d05029 ./dist/rhodonite-webgl.js
+fdb84092537bd51072257474b4f9519dda827aec06ca927736d70ceedf0f8232 ./dist/rhodonite-webgl.min.js
