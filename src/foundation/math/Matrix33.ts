@@ -254,7 +254,7 @@ export default class Matrix33 implements IMatrix33 {
     var m12 = l_m.m10*r_m.m02 + l_m.m11*r_m.m12 + l_m.m12*r_m.m22;
     var m22 = l_m.m20*r_m.m02 + l_m.m21*r_m.m12 + l_m.m22*r_m.m22;
 
-    return l_m.constructor(
+    return new Matrix33(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
@@ -284,7 +284,7 @@ export default class Matrix33 implements IMatrix33 {
     var m21 = (mat.m01*mat.m20 - mat.m00*mat.m21) / det;
     var m22 = (mat.m00*mat.m11 - mat.m01*mat.m10) / det;
 
-    return mat.constructor(
+    return new Matrix33(
       m00, m01, m02,
       m10, m11, m12,
       m20, m21, m22
