@@ -22,7 +22,7 @@ export default class CameraComponent extends Component {
   private _up: Vector3 = Vector3.dummy();
 
   // x: left, y:right, z:top, w: bottom
-  private _corner: Vector4 = Vector4.dummy();
+  private _corner: MutableVector4 = MutableVector4.dummy();
 
   // x: zNear, y: zFar,
   // if perspective, z: fovy, w: aspect
@@ -63,6 +63,10 @@ export default class CameraComponent extends Component {
     CameraComponent.main = componentSid;
   }
 
+  get eye() {
+    return Vector3.zero();
+  }
+
   set up(vec: Vector3) {
     this._up.copyComponents(vec);
   }
@@ -93,6 +97,38 @@ export default class CameraComponent extends Component {
 
   get corner() {
     return this._corner.clone();
+  }
+
+  set left(value: number) {
+    this._corner.x = value;
+  }
+
+  get left() {
+    return this._corner.x;
+  }
+
+  set right(value: number) {
+    this._corner.y = value;
+  }
+
+  get right() {
+    return this._corner.y;
+  }
+
+  set top(value: number) {
+    this._corner.z = value;
+  }
+
+  get top() {
+    return this._corner.z;
+  }
+
+  set bottom(value: number) {
+    this._corner.w = value;
+  }
+
+  get bottom() {
+    return this._corner.w;
   }
 
   get cornerInner() {
