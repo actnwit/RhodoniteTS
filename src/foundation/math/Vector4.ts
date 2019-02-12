@@ -121,40 +121,40 @@ export default class Vector4 implements IVector4 {
    * add value（static version）
    */
   static add(lv:IVector4, rv:IVector4) {
-    return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
   }
 
 
   static subtract(lv:IVector4, rv:IVector4) {
-    return new Vector4(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
+    return new (lv.constructor as any)(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
   }
   /**
    * add value except w component（static version）
    */
   static addWithOutW(lv:IVector4, rv:IVector4) {
-    return new Vector4(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
   }
 
   static multiply(vec4:IVector4, val:number) {
-    return new Vector4(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+    return new (vec4.constructor as any)(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
   }
 
   static multiplyVector(vec4:IVector4, vec:IVector4) {
-    return new Vector4(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+    return new (vec4.constructor as any)(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
   }
 
 
   static divide(vec4:IVector4, val:number) {
     if (val !== 0) {
-      return new Vector4(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+      return new (vec4.constructor as any)(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
     } else {
       console.warn("0 division occured!");
-      return new Vector4(Infinity, Infinity, Infinity, Infinity);
+      return new (vec4.constructor as any)(Infinity, Infinity, Infinity, Infinity);
     }
   }
 
   static divideVector(lvec4:IVector4, rvec4:IVector4) {
-    return new Vector4(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+    return new (lvec4.constructor as any)(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
   }
 
   toString() {

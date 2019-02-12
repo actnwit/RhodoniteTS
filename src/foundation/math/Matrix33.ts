@@ -130,6 +130,14 @@ export default class Matrix33 implements IMatrix33 {
     return CompositionType.Mat3;
   }
 
+  multiplyVector(vec:Vector3) {
+    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
+    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
+    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
+
+    return new (vec.constructor as any)(x, y, z);
+  }
+
   /**
    * Make this identity matrix（static method version）
    */
