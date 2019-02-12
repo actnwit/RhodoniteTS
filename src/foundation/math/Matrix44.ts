@@ -320,7 +320,7 @@ export default class Matrix44 implements IMatrix44 {
    */
   static transpose(mat:Matrix44) {
 
-    var mat_t = new Matrix44(
+    var mat_t = mat.constructor(
       mat.m00, mat.m10, mat.m20, mat.m30,
       mat.m01, mat.m11, mat.m21, mat.m31,
       mat.m02, mat.m12, mat.m22, mat.m32,
@@ -363,7 +363,7 @@ export default class Matrix44 implements IMatrix44 {
     var m23 = l_m.m20*r_m.m03 + l_m.m21*r_m.m13 + l_m.m22*r_m.m23 + l_m.m23*r_m.m33;
     var m33 = l_m.m30*r_m.m03 + l_m.m31*r_m.m13 + l_m.m32*r_m.m23 + l_m.m33*r_m.m33;
 
-    return new Matrix44(
+    return l_m.constructor(
         m00, m01, m02, m03,
         m10, m11, m12, m13,
         m20, m21, m22, m23,
@@ -438,7 +438,7 @@ export default class Matrix44 implements IMatrix44 {
     const out14 = (m.m31 * n01 - m.m30 * n03 - m.m32 * n00) * det;
     const out15 = (m.m20 * n03 - m.m21 * n01 + m.m22 * n00) * det;
 
-    return new Matrix44(
+    return m.constructor(
       out0, out1, out2, out3,
       out4, out5, out6, out7,
       out8, out9, out10, out11,

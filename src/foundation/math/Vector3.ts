@@ -151,7 +151,7 @@ export default class Vector3 implements IVector3 {
     var y = lv.z*rv.x - lv.x*rv.z;
     var z = lv.x*rv.y - lv.y*rv.x;
 
-    return new Vector3(x, y, z);
+    return lv.constructor(x, y, z);
   }
 
 
@@ -160,7 +160,7 @@ export default class Vector3 implements IVector3 {
    */
   static normalize(vec3:Vector3) {
     var length = vec3.length();
-    var newVec = new Vector3(vec3.x, vec3.y, vec3.z);
+    var newVec = vec3.constructor(vec3.x, vec3.y, vec3.z);
     newVec = Vector3.divide(newVec, length);
 
     return newVec;
@@ -171,7 +171,7 @@ export default class Vector3 implements IVector3 {
    * add value（static version）
    */
   static add(lv:Vector3, rv:Vector3) {
-    return new Vector3(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
+    return lv.constructor(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z);
   }
 
 
@@ -179,7 +179,7 @@ export default class Vector3 implements IVector3 {
    * subtract(subtract)
    */
   static subtract(lv:Vector3, rv:Vector3) {
-    return new Vector3(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
+    return lv.constructor(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z);
   }
 
 
@@ -189,10 +189,10 @@ export default class Vector3 implements IVector3 {
    */
   static divide(vec3:Vector3, val:number) {
     if (val !== 0) {
-      return new Vector3(vec3.x / val, vec3.y / val, vec3.z / val);
+      return vec3.constructor(vec3.x / val, vec3.y / val, vec3.z / val);
     } else {
       console.error("0 division occured!");
-      return new Vector3(Infinity, Infinity, Infinity);
+      return vec3.constructor(Infinity, Infinity, Infinity);
     }
   }
 
@@ -200,14 +200,14 @@ export default class Vector3 implements IVector3 {
    * multiply(static version)
    */
   static multiply(vec3:Vector3, val:number) {
-    return new Vector3(vec3.x * val, vec3.y * val, vec3.z * val);
+    return vec3.constructor(vec3.x * val, vec3.y * val, vec3.z * val);
   }
 
   /**
    * multiply vector(static version)
    */
   static multiplyVector(vec3:Vector3, vec:Vector3) {
-    return new Vector3(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
+    return vec3.constructor(vec3.x * vec.x, vec3.y * vec.y, vec3.z * vec.z);
   }
 
   static angleOfVectors(lhv:Vector3, rhv:Vector3) {
@@ -222,7 +222,7 @@ export default class Vector3 implements IVector3 {
    * divide vector(static version)
    */
   static divideVector(lvec3:Vector3, rvec3:Vector3) {
-    return new Vector3(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
+    return lvec3.constructor(lvec3.x / rvec3.x, lvec3.y / rvec3.y, lvec3.z / rvec3.z);
   }
 
   /**
