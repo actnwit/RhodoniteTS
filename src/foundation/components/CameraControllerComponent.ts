@@ -12,6 +12,9 @@ import CameraComponent from "./CameraComponent";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import TransformComponent from "./TransformComponent";
 import { ProcessStage } from "../definitions/ProcessStage";
+import Entity from "../core/Entity";
+import Vector4 from "../math/Vector4";
+import Matrix44 from "../math/Matrix44";
 
 export default class CameraControllerComponent extends Component {
   private __isKeyUp = false;
@@ -22,9 +25,9 @@ export default class CameraControllerComponent extends Component {
   private __mouse_translate_y = 0;
   private __mouse_translate_x = 0;
   private __efficiency = 1;
-  private __lengthOfCenterToEye = 0;
-  private __foyvBias = 0;
-  private __scaleOfTraslation = 0;
+  private __lengthOfCenterToEye = 1;
+  private __foyvBias = 1.0;
+  private __scaleOfTraslation = 5.0;
   private __mouseTranslateVec = MutableVector3.zero();
   private __newEyeToCenterVec = MutableVector3.zero();
   private __newUpVec = MutableVector3.zero();
@@ -35,9 +38,6 @@ export default class CameraControllerComponent extends Component {
   private __isSymmetryMode = false;
   public eventTargetDom?: HTMLElement;
   private __doResetWhenCameraSettingChanged = false;
-  private __onMouseUp?: Function;
-  private __onMouseDown?: Function;
-  private __onMouseMove?: Function;
   private __rot_bgn_x = 0;
   private __rot_bgn_y = 0;
   private __rot_x = 0;
@@ -47,14 +47,26 @@ export default class CameraControllerComponent extends Component {
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
   private __shiftCameraTo = MutableVector3.zero();
-  private __lengthCenterToCorner = 0;
+  private __lengthCenterToCorner = 0.5;
   private __cameraComponent?: CameraComponent;
   private __transformComponent?: TransformComponent;
+  private __targetEntity?:Entity;
+  private __lengthCameraToObject = 1;
+  private __scaleOfLengthCameraToCenter = 1;
+  private __zFarAdjustingFactorBasedOnAABB = 2.0;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
     this.registerEventListeners();
+  }
+
+  setTarget(targetEntity: Entity) {
+    this.__targetEntity = targetEntity;
+  }
+
+  getTarget(): Entity|undefined {
+    return this.__targetEntity;
   }
 
   $create() {
@@ -258,7 +270,13 @@ export default class CameraControllerComponent extends Component {
   }
 
   $logic() {
-    const data = this.__convert(this.__cameraComponent!);
+    const data0 = this.__updateTargeting(this.__cameraComponent!);
+    const eye = data0.newEyeVec;
+    const center = data0.newCenterVec;
+    const up = data0.newUpVec;
+
+
+    const data = this.__convert(this.__cameraComponent!, eye, center, up);
     const cc = this.__cameraComponent!;
     cc.eyeInner = data.newEyeVec;
     cc.directionInner = data.newCenterVec;
@@ -271,7 +289,7 @@ export default class CameraControllerComponent extends Component {
     cc.bottomInner = data.newBottom;
   }
 
-  __convert(camera: CameraComponent) {
+  __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
     let newEyeVec = null;
     let newCenterVec: MutableVector3;
     let newUpVec = null;
@@ -280,13 +298,13 @@ export default class CameraControllerComponent extends Component {
       this.__eyeVec =
         this.__shiftCameraTo != null
           ? Vector3.add(
-              Vector3.subtract(this.__shiftCameraTo, camera.direction),
-              camera.eye
+              Vector3.subtract(this.__shiftCameraTo, center),
+              eye
             )
-          : camera.eye;
+          : eye;
       this.__centerVec =
-        this.__shiftCameraTo != null ? this.__shiftCameraTo : new MutableVector3(camera.direction);
-      this.__upVec = new MutableVector3(camera.up);
+        this.__shiftCameraTo != null ? this.__shiftCameraTo : new MutableVector3(center);
+      this.__upVec = new MutableVector3(up);
     }
 
     let fovy = this.__getFovyFromCamera(camera);
@@ -428,6 +446,64 @@ export default class CameraControllerComponent extends Component {
       newTop,
       newBottom
     };
+  }
+
+  __updateTargeting(camera: CameraComponent) {
+
+    const eyeVec = camera.eye;
+    const centerVec = camera.direction;
+    const upVec = camera.up;
+    const fovy = camera.fovy;
+
+    if (this.__targetEntity == null) {
+      return {newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec};
+    }
+
+    // let targetAABB = this._getTargetAABB();
+
+    // const cameraZNearPlaneHeight = camera.top - camera.bottom;
+    // this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
+    // this.__lengthCameraToObject =
+    //   (targetAABB.lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) *
+    //   this.__scaleOfLengthCameraToCenter;
+
+    // if (!(targetAABB.centerPoint != null)) {
+    //   targetAABB.updateAllInfo();
+    // }
+    // let newCenterVec = targetAABB.centerPoint;
+
+    let newCenterVec = this.__targetEntity!.getSceneGraph().worldPosition;
+
+    let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
+    let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);
+
+    let newEyeVec = Vector3.add(Vector3.multiply(
+      centerToCameraVecNormalized,
+      this.__lengthCameraToObject
+    ), newCenterVec);
+
+    let newUpVec = null;
+    if (camera.entity.getSceneGraph()) {
+      const sg = camera.entity.getSceneGraph();
+      let mat = Matrix44.invert(sg.worldMatrixInner);
+      newEyeVec = new Vector3(
+        mat.multiplyVector(
+          new Vector4(newEyeVec.x, newEyeVec.y, newEyeVec.z, 1)
+        )
+      );
+      newCenterVec = new Vector3(
+        mat.multiplyVector(
+          new Vector4(newCenterVec.x, newCenterVec.y, newCenterVec.z, 1)
+        )
+      );
+      newUpVec = new Vector3(
+        mat.multiplyVector(new Vector4(upVec.x, upVec.y, upVec.z, 1))
+      );
+    } else {
+      newUpVec = upVec;
+    }
+
+    return {newEyeVec, newCenterVec, newUpVec};
   }
 
   static get componentTID(): ComponentTID {

@@ -11,11 +11,12 @@ const load = async function(time){
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+
 
   // Lights
   const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -43,6 +44,10 @@ const load = async function(time){
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
+
+  // CameraComponent
+  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
+  cameraControllerComponent.setTarget(rootGroup);
 
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
