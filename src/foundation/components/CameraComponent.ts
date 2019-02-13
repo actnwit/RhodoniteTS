@@ -19,15 +19,19 @@ import MutableVector4 from '../math/MutableVector4';
 
 export default class CameraComponent extends Component {
   private _direction: Vector3 = Vector3.dummy();
+  private _directionInner: Vector3 = Vector3.dummy();
   private _up: Vector3 = Vector3.dummy();
+  private _upInner: Vector3 = Vector3.dummy();
 
   // x: left, y:right, z:top, w: bottom
   private _corner: MutableVector4 = MutableVector4.dummy();
+  private _cornerInner: MutableVector4 = MutableVector4.dummy();
 
   // x: zNear, y: zFar,
   // if perspective, z: fovy, w: aspect
   // if ortho, z: xmag, w: ymag
   private _parameters: MutableVector4 = MutableVector4.dummy();
+  private _parametersInner: MutableVector4 = MutableVector4.dummy();
   public type: CameraTypeEnum = CameraType.Perspective;
   private __sceneGraphComponent?: SceneGraphComponent;
 
@@ -44,8 +48,12 @@ export default class CameraComponent extends Component {
 
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'corner', Vector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'directionInner', Vector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'upInner', Vector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
+    this.registerMember(BufferUse.CPUGeneric, 'parametersInner', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
 
     this.registerMember(BufferUse.CPUGeneric, 'projectionMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'viewMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -67,6 +75,10 @@ export default class CameraComponent extends Component {
     return Vector3.zero();
   }
 
+  set upInner(vec: Vector3) {
+    this._upInner.copyComponents(vec);
+  }
+
   set up(vec: Vector3) {
     this._up.copyComponents(vec);
   }
@@ -83,12 +95,16 @@ export default class CameraComponent extends Component {
     this._direction.copyComponents(vec);
   }
 
+  set directionInner(vec: Vector3) {
+    this._directionInner.copyComponents(vec);
+  }
+
   get direction() {
     return this._direction.clone();
   }
 
   get directionInner() {
-    return this._direction;
+    return this._directionInner;
   }
 
   set corner(vec: Vector4) {
@@ -103,12 +119,20 @@ export default class CameraComponent extends Component {
     this._corner.x = value;
   }
 
+  set leftInner(value: number) {
+    this._cornerInner.x = value;
+  }
+
   get left() {
     return this._corner.x;
   }
 
   set right(value: number) {
     this._corner.y = value;
+  }
+
+  set rightInner(value: number) {
+    this._cornerInner.y = value;
   }
 
   get right() {
@@ -119,12 +143,20 @@ export default class CameraComponent extends Component {
     this._corner.z = value;
   }
 
+  set topInner(value: number) {
+    this._cornerInner.z = value;
+  }
+
   get top() {
     return this._corner.z;
   }
 
   set bottom(value: number) {
     this._corner.w = value;
+  }
+
+  set bottomInner(value: number) {
+    this._cornerInner.w = value;
   }
 
   get bottom() {
@@ -143,12 +175,12 @@ export default class CameraComponent extends Component {
     return this._parameters.clone();
   }
 
-  get parametersInner() {
-    return this._parameters;
-  }
-
   set zNear(val: number) {
     this._parameters.x = val;
+  }
+
+  set zNearInner(val: number) {
+    this._parametersInner.x = val;
   }
 
   get zNear() {
@@ -157,6 +189,10 @@ export default class CameraComponent extends Component {
 
   set zFar(val: number) {
     this._parameters.y = val;
+  }
+
+  set zFarInner(val: number) {
+    this._parametersInner.y = val;
   }
 
   get zFar() {
