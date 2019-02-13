@@ -86,14 +86,14 @@ export default class Vector4 implements IVector4 {
   }
 
   clone() {
-    return new Vector4(this.x, this.y, this.z, this.w);
+    return new (this.constructor as any)(this.x, this.y, this.z, this.w);
   }
 
   /**
    * Zero Vector
    */
   static zero() {
-    return new Vector4(0, 0, 0, 1);
+    return new (this.constructor as any)(0, 0, 0, 1);
   }
 
   length() {

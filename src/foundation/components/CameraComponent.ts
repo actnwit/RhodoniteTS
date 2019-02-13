@@ -16,6 +16,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableVector4 from '../math/MutableVector4';
+import CameraControllerComponent from './CameraControllerComponent';
 
 export default class CameraComponent extends Component {
   private _direction: Vector3 = Vector3.dummy();
@@ -111,7 +112,7 @@ export default class CameraComponent extends Component {
     this._corner.copyComponents(vec);
   }
 
-  get corner() {
+  get corner(): Vector4 {
     return this._corner.clone();
   }
 
@@ -163,6 +164,10 @@ export default class CameraComponent extends Component {
     return this._corner.w;
   }
 
+  set cornerInner(vec: Vector4) {
+    this._corner = new MutableVector4(vec);
+  }
+
   get cornerInner() {
     return this._corner;
   }
@@ -171,7 +176,11 @@ export default class CameraComponent extends Component {
     this._parameters.copyComponents(vec);
   }
 
-  get parameters() {
+  set parametersInner(vec: Vector4) {
+    this._parametersInner.copyComponents(vec);
+  }
+
+  get parameters(): Vector4 {
     return this._parameters.clone();
   }
 
@@ -235,13 +244,23 @@ export default class CameraComponent extends Component {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
+  $logic() {
+    const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
+   if (cameraControllerComponent == null) {
+     this.directionInner = this.direction;
+     this.upInner = this.up;
+     this.cornerInner = this.corner;
+     this.parametersInner = this.parameters;
+   }
+  }
+
   calcProjectionMatrix() {
-    const zNear = this._parameters.x;
-    const zFar = this._parameters.y;
+    const zNear = this._parametersInner.x;
+    const zFar = this._parametersInner.y;
 
     if (this.type === CameraType.Perspective) {
-      const fovy = this._parameters.z;
-      const aspect = this._parameters.w;
+      const fovy = this._parametersInner.z;
+      const aspect = this._parametersInner.w;
       var yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
       var xscale = yscale / aspect;
       this._projectionMatrix.setComponents(
@@ -250,8 +269,8 @@ export default class CameraComponent extends Component {
         0, 0,  -(zFar + zNear) / (zFar - zNear), -(2.0 * zFar * zNear) / (zFar - zNear),
         0, 0, -1, 0);
     } else if (this.type === CameraType.Orthographic) {
-      const xmag = this._parameters.z;
-      const ymag = this._parameters.w;
+      const xmag = this._parametersInner.z;
+      const ymag = this._parametersInner.w;
       this._projectionMatrix.setComponents(
         1/xmag, 0.0, 0.0, 0,
         0.0, 1/ymag, 0.0, 0,
@@ -259,10 +278,10 @@ export default class CameraComponent extends Component {
         0.0, 0.0, 0.0, 1.0
       );
     } else {
-      const left = this._corner.x;
-      const right = this._corner.y;
-      const top = this._corner.z;
-      const bottom = this._corner.w;
+      const left = this._cornerInner.x;
+      const right = this._cornerInner.y;
+      const top = this._cornerInner.z;
+      const bottom = this._cornerInner.w;
       this._projectionMatrix.setComponents(
         2*zNear/(right-left), 0.0, (right+left)/(right-left), 0.0,
         0.0, 2*zNear/(top-bottom), (top+bottom)/(top-bottom), 0.0,
@@ -280,8 +299,8 @@ export default class CameraComponent extends Component {
 
   calcViewMatrix() {
     const eye = Vector3.zero();
-    const f = Vector3.normalize(Vector3.subtract(this._direction, eye));
-    const s = Vector3.normalize(Vector3.cross(f, this._up));
+    const f = Vector3.normalize(Vector3.subtract(this._directionInner, eye));
+    const s = Vector3.normalize(Vector3.cross(f, this._upInner));
     const u = Vector3.cross(s, f);
 
     this._viewMatrix.setComponents(
@@ -320,6 +339,8 @@ export default class CameraComponent extends Component {
     }
 
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
+
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   $prerender() {
