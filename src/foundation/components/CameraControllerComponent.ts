@@ -10,6 +10,8 @@ import { MathUtil } from "../math/MathUtil";
 import Matrix33 from "../math/Matrix33";
 import CameraComponent from "./CameraComponent";
 import MutableMatrix33 from "../math/MutableMatrix33";
+import TransformComponent from "./TransformComponent";
+import { ProcessStage } from "../definitions/ProcessStage";
 
 export default class CameraControllerComponent extends Component {
   private __isKeyUp = false;
@@ -47,6 +49,7 @@ export default class CameraControllerComponent extends Component {
   private __shiftCameraTo = MutableVector3.zero();
   private __lengthCenterToCorner = 0;
   private __cameraComponent?: CameraComponent;
+  private __transformComponent?: TransformComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -56,6 +59,9 @@ export default class CameraControllerComponent extends Component {
 
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   __mouseUp(evt: any) {
@@ -253,7 +259,16 @@ export default class CameraControllerComponent extends Component {
 
   $logic() {
     const data = this.__convert(this.__cameraComponent!);
-    this.__cameraComponent;
+    const cc = this.__cameraComponent!;
+    cc.eyeInner = data.newEyeVec;
+    cc.directionInner = data.newCenterVec;
+    cc.upInner = data.newUpVec;
+    cc.zNearInner = data.newZNear;
+    cc.zFarInner = data.newZFar;
+    cc.leftInner = data.newLeft;
+    cc.rightInner = data.newRight;
+    cc.topInner = data.newTop;
+    cc.bottomInner = data.newBottom;
   }
 
   __convert(camera: CameraComponent) {
@@ -299,10 +314,10 @@ export default class CameraControllerComponent extends Component {
         horizontalSign = -1;
       }
       horizontalAngleOfVectors *= horizontalSign;
-      let rotateM_Reset = MutableMatrix33.rotateY(horizontalAngleOfVectors);
-      let rotateM_X = MutableMatrix33.rotateX(this.__rot_y);
-      let rotateM_Y = MutableMatrix33.rotateY(this.__rot_x);
-      let rotateM_Revert = MutableMatrix33.rotateY(-horizontalAngleOfVectors);
+      let rotateM_Reset = MutableMatrix33.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
+      let rotateM_X = MutableMatrix33.rotateX(MathUtil.degreeToRadian(this.__rot_y));
+      let rotateM_Y = MutableMatrix33.rotateY(MathUtil.degreeToRadian(this.__rot_x));
+      let rotateM_Revert = MutableMatrix33.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
       let rotateM = MutableMatrix33.multiply(
         rotateM_Revert,
         MutableMatrix33.multiply(
@@ -344,8 +359,8 @@ export default class CameraControllerComponent extends Component {
       centerToEyeVec = Vector3.multiply(centerToEyeVec,
         (this.__wheel_y * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
       );
-      let rotateM_X = Matrix33.rotateX(this.__rot_y);
-      let rotateM_Y = Matrix33.rotateY(this.__rot_x);
+      let rotateM_X = Matrix33.rotateX(MathUtil.degreeToRadian(this.__rot_y));
+      let rotateM_Y = Matrix33.rotateY(MathUtil.degreeToRadian(this.__rot_x));
       let rotateM = Matrix33.multiply(rotateM_Y, rotateM_X);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);

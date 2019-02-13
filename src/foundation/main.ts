@@ -29,6 +29,7 @@ import AnimationComponent from './components/AnimationComponent';
 import LightComponent from './components/LightComponent';
 import { LightType } from './definitions/LightType';
 import CubeTexture from './textures/CubeTexture';
+import CameraControllerComponent from './components/CameraControllerComponent';
 
 const Rn = {
   EntityRepository,
@@ -61,7 +62,8 @@ const Rn = {
   AnimationComponent,
   LightComponent,
   LightType,
-  CubeTexture
+  CubeTexture,
+  CameraControllerComponent
 };
 export default Rn;
 

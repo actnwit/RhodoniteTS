@@ -19,6 +19,8 @@ import MutableVector4 from '../math/MutableVector4';
 import CameraControllerComponent from './CameraControllerComponent';
 
 export default class CameraComponent extends Component {
+  private readonly _eye: Vector3 = Vector3.zero();
+  private _eyeInner: Vector3 = Vector3.dummy();
   private _direction: Vector3 = Vector3.dummy();
   private _directionInner: Vector3 = Vector3.dummy();
   private _up: Vector3 = Vector3.dummy();
@@ -47,6 +49,7 @@ export default class CameraComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
+    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'up', Vector3, ComponentType.Float, [0, 1, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'directionInner', Vector3, ComponentType.Float, [0, 0, -1]);
@@ -74,6 +77,14 @@ export default class CameraComponent extends Component {
 
   get eye() {
     return Vector3.zero();
+  }
+
+  get eyeInner() {
+    return this._eyeInner;
+  }
+
+  set eyeInner(vec: Vector3) {
+    this._eyeInner = vec;
   }
 
   set upInner(vec: Vector3) {
@@ -247,6 +258,7 @@ export default class CameraComponent extends Component {
   $logic() {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
    if (cameraControllerComponent == null) {
+     this.eyeInner = this.eye;
      this.directionInner = this.direction;
      this.upInner = this.up;
      this.cornerInner = this.corner;
@@ -298,7 +310,7 @@ export default class CameraComponent extends Component {
   }
 
   calcViewMatrix() {
-    const eye = Vector3.zero();
+    const eye = this.eyeInner;
     const f = Vector3.normalize(Vector3.subtract(this._directionInner, eye));
     const s = Vector3.normalize(Vector3.cross(f, this._upInner));
     const u = Vector3.cross(s, f);
