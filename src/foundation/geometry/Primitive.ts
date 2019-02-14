@@ -109,7 +109,7 @@ export default class Primitive extends RnObject {
       });
       // copy indices
       for (let i=0; i<indices!.byteLength/indicesAccessor!.componentSizeInBytes; i++) {
-        indicesAccessor!.setScalar(i, indices![i]);
+        indicesAccessor!.setScalar(i, indices![i], {});
       }
     }
 
@@ -175,5 +175,9 @@ export default class Primitive extends RnObject {
 
   get primitiveUid(): PrimitiveUID {
     return this.__primitiveUid;
+  }
+
+  getVertexAttributeAt(i: Index, vertexAttributeType: VertexAttributeEnum) {
+
   }
 }

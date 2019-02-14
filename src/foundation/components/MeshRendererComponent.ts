@@ -175,7 +175,7 @@ export default class MeshRendererComponent extends Component {
     }
 
     for (var i = 0; i < meshComponents.length; i++) {
-      MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID);
+      MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID, {});
     }
 
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
