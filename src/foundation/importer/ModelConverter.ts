@@ -370,6 +370,15 @@ export default class ModelConverter {
         material.baseColorTexture = rnTexture;
       }
 
+      const normalTexture = materialJson.normalTexture;
+      if (normalTexture != null) {
+        const texture = normalTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTextureFromImage(image);
+        material.normalTexture = rnTexture;
+      }
+
       const metallicFactor = pbrMetallicRoughness.metallicFactor;
       if (metallicFactor != null) {
         material.metallicFactor = metallicFactor;

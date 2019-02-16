@@ -1,6 +1,6 @@
-version: 0.1.1-118-g7515-mod
-branch: feature/fix-Vector2
-4c44a635e097cc9342265daab2fd87726e54eb672f1750f8a35ec25c5c2989dc ./dist/rhodonite.js
-9c698c8377d1dd62f1b541806d5e13193513bd49e73cab0a5d7ffdc29ef5845c ./dist/rhodonite.min.js
-f3779774e936d4a597ebbc18fca3272182ac8e598f0b95b29bad2ff1b7545d70 ./dist/rhodonite-webgl.js
-36c72121eacd8238f50c193ae090cd3b3e14025a3c9877dc113ce9b8a3349baa ./dist/rhodonite-webgl.min.js
+version: 0.1.1-127-gfcf7-mod
+branch: feature/normal-mapping
+5d8bee4bf2a960b5bfb0ff4a8bc5ab4159332809556ee03f8723ae4a8d150617 ./dist/rhodonite.js
+085d2b666d8db5c46a8975156b113fe3c4aaf9b8b56584fc609ba4126ece3229 ./dist/rhodonite.min.js
+1691c4245679ad730fe058786fdb39a13b4060b7547b8d974c84cfeee6aa2e8e ./dist/rhodonite-webgl.js
+3c752bb54a74fb8d20aba599ad995d9896848df4ac7de594fcbae34757413a63 ./dist/rhodonite-webgl.min.js

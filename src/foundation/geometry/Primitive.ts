@@ -149,6 +149,20 @@ export default class Primitive extends RnObject {
     return this.__indices;
   }
 
+  getVertexCountAsIndicesBased() {
+    if (this.indicesAccessor) {
+      return this.indicesAccessor.elementCount;
+    } else {
+      return this.getVertexCountAsVerticesBased();
+    }
+  }
+
+  getVertexCountAsVerticesBased() {
+    const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
+    const positionAccessor = this.__attributes[positionIdx];
+    return positionAccessor.elementCount;
+  }
+
   getTriangleCountAsIndicesBased() {
     if (this.indicesAccessor) {
       switch (this.__mode) {

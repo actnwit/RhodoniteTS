@@ -37,10 +37,11 @@ const BrdfLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:15, 
 const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:16, singularStr:'diffuseEnvTexture', pluralStr: 'diffuseEnvTextures'});
 const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:17, singularStr:'specularEnvTexture', pluralStr: 'specularEnvTextures'});
 const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({index:18, singularStr:'iblParameter', pluralStr: 'iblParameter'});
+const ViewPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({index:19, singularStr:'viewPosition', pluralStr: 'viewPositions'});
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
                   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
-                  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter ];
+                  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition ];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
@@ -48,4 +49,4 @@ function from( index : number ): ShaderSemanticsEnum {
 
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
-  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter });
+  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition });

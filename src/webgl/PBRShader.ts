@@ -28,14 +28,16 @@ precision highp float;
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
+${_in} vec3 a_tangent;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
+${_out} vec3 v_tangent_inWorld;
+${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
-${_out} vec3 v_lightDirection;
 ${_out} vec2 v_texcoord;
 uniform mat4 u_boneMatrices[100];
 
@@ -63,12 +65,21 @@ void main ()
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  // Light
-  vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
-  v_lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
-
   // Skeletal
   ${this.processSkinningIfNeed}
+
+  if (length(a_normal) > 0.01) {
+    // if normal exist
+    vec3 tangent_inWorld;
+    if (!isSkinning) {
+      tangent_inWorld = normalMatrix * a_tangent;
+    }
+
+    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
+    v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
+
+  }
+
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 }
@@ -88,6 +99,7 @@ precision highp float;
 struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
+  sampler2D normalTexture;
   vec2 metallicRoughnessFactor;
   sampler2D metallicRoughnessTexture;
 };
@@ -101,7 +113,7 @@ struct Light {
 uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 
-uniform vec3 viewPosition_inWorld;
+uniform vec3 u_viewPosition;
 
 uniform samplerCube u_diffuseEnvTexture;
 uniform samplerCube u_specularEnvTexture;
@@ -109,8 +121,9 @@ uniform vec3 u_iblParameter;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
+${_in} vec3 v_tangent_inWorld;
+${_in} vec3 v_binormal_inWorld;
 ${_in} vec4 v_position_inWorld;
-${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 
@@ -123,6 +136,24 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+
+  if (length(v_tangent_inWorld) > 0.01) {
+    vec3 normal = ${_texture}(u_material.normalTexture, v_texcoord).xyz*2.0 - 1.0;
+    if (length(normal) > 0.01) {
+      vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+      vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+      vec3 normal_inWorld = normalize(v_normal_inWorld);
+
+      mat3 tbnMat_tangent_to_world = mat3(
+        tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
+        binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
+        normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
+      );
+
+      normal = normalize(tbnMat_tangent_to_world * normal);
+      normal_inWorld = normal;
+    }
+  }
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
@@ -142,9 +173,9 @@ void main ()
 
   // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_material.baseColorTexture, v_texcoord);
-  if (textureColor.r > 0.05) {
+  if (length(textureColor) > 0.01) {
     baseColor *= srgbToLinear(textureColor.rgb);
-    alpha *= srgbToLinear(textureColor.a);
+    alpha *= textureColor.a;
   }
 
   // Metallic & Roughness
@@ -168,7 +199,7 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewDirection = normalize(viewPosition_inWorld - v_position_inWorld.xyz);
+  vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
 
   // NV
   float NV = clamp(dot(normal_inWorld, viewDirection), 0.001, 1.0);
@@ -223,6 +254,9 @@ void main ()
       vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
       rt0.xyz += diffuseAndSpecular;
+//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
+  //    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
+  //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
@@ -230,6 +264,8 @@ void main ()
 
     rt0.xyz += ibl;
   }
+
+  rt0.xyz = linearToSrgb(rt0.xyz);
 
   ${_def_fragColor}
 }
@@ -241,7 +277,7 @@ void main ()
     return this.fragmentShaderSimple;
   }
 
-  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
+  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_instanceID'];
   static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-    VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+    VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
 }

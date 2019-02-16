@@ -10,6 +10,7 @@ import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttrib
 import { CompositionType, CompositionTypeEnum } from './definitions/CompositionType';
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
 import System from './system/System';
+import Vector2 from './math/Vector2';
 import Vector3 from './math/Vector3';
 import Vector4 from './math/Vector4';
 import MutableVector3 from './math/MutableVector3';
@@ -44,6 +45,7 @@ const Rn = {
   VertexAttribute,
   PrimitiveMode,
   System,
+  Vector2,
   Vector3,
   Vector4,
   MutableVector3,

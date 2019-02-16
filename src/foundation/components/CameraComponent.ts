@@ -359,5 +359,11 @@ export default class CameraComponent extends Component {
     this.calcProjectionMatrix();
     this.calcViewMatrix();
   }
+
+  get worldPosition() {
+    const worldPosition = new Vector3(this.__sceneGraphComponent!.worldMatrixInner.multiplyVector(new Vector4(this.eyeInner)));
+
+    return worldPosition;
+  }
 }
 ComponentRepository.registerComponentClass(CameraComponent);
