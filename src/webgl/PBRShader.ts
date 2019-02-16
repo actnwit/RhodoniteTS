@@ -99,6 +99,7 @@ precision highp float;
 struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
+  sampler2D normalTexture;
   vec2 metallicRoughnessFactor;
   sampler2D metallicRoughnessTexture;
 };
@@ -135,6 +136,23 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+
+  if (length(v_tangent_inWorld) > 0.01) {
+    vec3 normal = ${_texture}(u_material.normalTexture, v_texcoord).xyz*2.0 - 1.0;
+    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+    vec3 normal_inWorld = normalize(v_normal_inWorld);
+
+    mat3 tbnMat_tangent_to_world = mat3(
+      tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
+      binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
+      normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
+    );
+
+    normal = normalize(tbnMat_tangent_to_world * normal);
+    normal_inWorld = normal;
+
+  }
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);

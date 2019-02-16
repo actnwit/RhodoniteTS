@@ -1,6 +1,6 @@
-version: 0.1.1-124-g544d-mod
+version: 0.1.1-126-g8df9-mod
 branch: feature/normal-mapping
-f30c5f1f5ac641b5ad252f00a32bd7b6f6b8c954ee3aa42eeb63e7c4c687da2e ./dist/rhodonite.js
-bf46e8c7ec200de47bc1ab7f659f0ac52a91a9cfe9459915bb4c192f1228b845 ./dist/rhodonite.min.js
-8e76ff7c0445a8c64f97c8e691d4da5ac88c3211617b484cc86485fb7ba9e873 ./dist/rhodonite-webgl.js
-b68d92518953d1636a84167aca668a6de5ca813cd36f410d4f1ab59149affc32 ./dist/rhodonite-webgl.min.js
+cd356734e4366d8094699849541fcff86780538b82711a2a2459e0a3d2dc3682 ./dist/rhodonite.js
+36cf1a314de78786f83a04322f323edc64dc7bee627e84713305c389812091e4 ./dist/rhodonite.min.js
+7260bbd1a6886f0c5041ab1a369b9e895d6ba5d58ecc6a1bb7df24e480038687 ./dist/rhodonite-webgl.js
+d79e9815155752080c57591cba8f6a314e38376253053e81f969a065a58b171c ./dist/rhodonite-webgl.min.js
