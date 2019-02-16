@@ -35,7 +35,6 @@ ${_in} vec4 a_weight;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
-${_out} vec3 v_lightDirection;
 ${_out} vec2 v_texcoord;
 uniform mat4 u_boneMatrices[100];
 
@@ -62,10 +61,6 @@ void main ()
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
-
-  // Light
-  vec3 lightPosition = vec3(10000.0, 100000.0, 100000.0);
-  v_lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
 
   // Skeletal
   ${this.processSkinningIfNeed}
@@ -110,7 +105,6 @@ uniform vec3 u_iblParameter;
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
-${_in} vec3 v_lightDirection;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 
