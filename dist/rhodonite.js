@@ -1083,4 +1083,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-123-g662b-mod branch: feature/normal-mapping';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-124-g544d-mod branch: feature/normal-mapping';
