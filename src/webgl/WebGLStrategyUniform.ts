@@ -13,11 +13,16 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import ClassicShader from "./ClassicShader";
+import PBRShader from "./PBRShader";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
+import ModuleManager from "../foundation/system/ModuleManager";
+import { PixelFormat } from "../foundation/definitions/PixelFormat";
+import { ComponentType } from "../foundation/definitions/ComponentType";
+import { TextureParameter } from "../foundation/definitions/TextureParameter";
+import CubeTexture from "../foundation/textures/CubeTexture";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -28,7 +33,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   //private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __lightComponents?: LightComponent[];
-  private __dummyTextureUid?: CGAPIResourceHandle;
+  private __dummyWhiteTextureUid?: CGAPIResourceHandle;
+  private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
+
+  private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -63,7 +71,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     // Shader Setup
-    const glslShader = ClassicShader.getInstance();
+    const glslShader = PBRShader.getInstance();
     let vertexShader = glslShader.vertexShaderVariableDefinitions +
       this.vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderBody
@@ -72,8 +80,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {
         vertexShaderStr: vertexShader,
         fragmentShaderStr: fragmentShader,
-        attributeNames: ClassicShader.attributeNames,
-        attributeSemantics: ClassicShader.attributeSemantics
+        attributeNames: PBRShader.attributeNames,
+        attributeSemantics: PBRShader.attributeSemantics
       }
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
@@ -87,6 +95,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
       {semantic: ShaderSemantics.BoneMatrix, isPlural: true},
       {semantic: ShaderSemantics.LightNumber, isPlural: false},
+      {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.'},
+      {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false},
+      {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false},
+      {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false},
+      {semantic: ShaderSemantics.IBLParameter, isPlural: false},
     ];
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -99,7 +112,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   }
 
-  $load(meshComponent: MeshComponent) {
+  async $load(meshComponent: MeshComponent) {
     // if (this.__isLoaded(0)) {
     //   return;
     // }
@@ -113,8 +126,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 //      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, void 0);
     }
 
-    this.__dummyTextureUid = this.__webglResourceRepository.createDummyTexture();
-
+    this.__dummyWhiteTextureUid = this.__webglResourceRepository.createDummyTexture();
+    this.__dummyBlackCubeTextureUid = this.__webglResourceRepository.createDummyCubeTexture();
+    const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
+    this.__pbrCookTorranceBrdfLutDataUrlUid = await this.__webglResourceRepository.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
+      {
+        level: 0, internalFormat: PixelFormat.RGBA,
+          border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+        }
+      );
   }
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
@@ -193,7 +214,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return false;
   }
 
-  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity) {
+  $render(primitive_i:number, primitive: Primitive, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram();
     const gl = glw.getRawContext();
@@ -208,19 +229,24 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     /// Material
     const material = primitive.material;
     const baseColor = [];
+    const metallicRoughnessFactor = [];
     if (material) {
       baseColor[0] = material.baseColor.r;
       baseColor[1] = material.baseColor.g;
       baseColor[2] = material.baseColor.b;
       baseColor[3] = material.alpha;
+      metallicRoughnessFactor[0] = material.metallicFactor;
+      metallicRoughnessFactor[1] = material.roughnessFactor;
     } else {
       baseColor[0] = 1;
       baseColor[1] = 1;
       baseColor[2] = 1;
       baseColor[3] = 1;
+      metallicRoughnessFactor[0] = 1;
+      metallicRoughnessFactor[1] = 1;
     }
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessFactor, false, 2, 'f', true, {x:metallicRoughnessFactor});
 
     // Lights
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, {x:this.__lightComponents!.length});
@@ -246,13 +272,63 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     // Bind BaseTexture
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
+    gl.activeTexture(gl.TEXTURE0);
     if (material && material!.baseColorTexture) {
       const texture = this.__webglResourceRepository.getWebGLResource(material!.baseColorTexture!.texture3DAPIResourseUid);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     } else {
-      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyTextureUid!);
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
       gl.bindTexture(gl.TEXTURE_2D, texture);
     }
+
+    // Bind MetallicRoughnessTexture
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessTexture, false, 1, 'i', false, {x:1});
+    gl.activeTexture(gl.TEXTURE1);
+    if (material && material!.metallicRoughnessTexture) {
+      const texture = this.__webglResourceRepository.getWebGLResource(material!.metallicRoughnessTexture!.texture3DAPIResourseUid);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    // BRDF LUT
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, {x:2});
+    gl.activeTexture(gl.TEXTURE2);
+    if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    // Env map
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, {x:3});
+    gl.activeTexture(gl.TEXTURE3);
+    if (diffuseCube && diffuseCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    }
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, {x:4});
+    gl.activeTexture(gl.TEXTURE4);
+    if (specularCube && specularCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    }
+
+    let mipmapLevelNumber = 1;
+    if (specularCube) {
+      mipmapLevelNumber = specularCube.mipmapLevelNumber;
+    }
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, {x: mipmapLevelNumber, y: 1, z: 1});
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
     gl.bindTexture(gl.TEXTURE_2D, null);

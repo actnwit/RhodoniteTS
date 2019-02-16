@@ -32,13 +32,20 @@ const LightNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({index:10, sin
 const LightPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({index:11, singularStr:'lightPosition', pluralStr: 'lightPositions'});
 const LightDirection: ShaderSemanticsEnum = new ShaderSemanticsClass({index:12, singularStr:'lightDirection', pluralStr: 'lightDirections'});
 const LightIntensity: ShaderSemanticsEnum = new ShaderSemanticsClass({index:13, singularStr:'lightIntensity', pluralStr: 'intensityOfLights'});
+const MetallicRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({index:14, singularStr:'metallicRoughnessFactor', pluralStr: 'metallicRoughnessFactors'});
+const BrdfLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:15, singularStr:'brdfLutTexture', pluralStr: 'brdfLutTexture'});
+const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:16, singularStr:'diffuseEnvTexture', pluralStr: 'diffuseEnvTextures'});
+const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:17, singularStr:'specularEnvTexture', pluralStr: 'specularEnvTextures'});
+const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({index:18, singularStr:'iblParameter', pluralStr: 'iblParameter'});
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
-                  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity ];
+                  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
+                  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter ];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
 }
 
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
-  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity });
+  NormalTexture, MetallicRoughnessTexture, OcclusionTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
+  MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter });

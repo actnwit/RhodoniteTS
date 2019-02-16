@@ -8,6 +8,7 @@ import Vector4 from "../math/Vector4";
 import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import Accessor from "./Accessor";
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;
@@ -170,27 +171,51 @@ export default class AccessorBase extends RnObject {
     return this.__byteStride;
   }
 
-  getScalar(index: Index, endian: boolean = true): number {
+  getScalar(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): number {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return this.__dataViewGetter(this.__byteStride*index, endian);
   }
 
-  getScalarAt(index: Index, compositionOffset: Index, endian: boolean = true): number {
+  getScalarAt(i: Index, compositionOffset: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): number {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return this.__dataViewGetter(this.__byteStride*index + compositionOffset, endian);
   }
 
-  getVec2AsArray(index: Index, endian: boolean = true): Array<number> {
+  getVec2AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian)];
   }
 
-  getVec3AsArray(index: Index, endian: boolean = true): Array<number> {
+  getVec3AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian)];
   }
 
-  getVec4AsArray(index: Index, endian: boolean = true): Array<number> {
+  getVec4AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian)];
   }
 
-  getMat3AsArray(index: Index, endian: boolean = true): Array<number> {
+  getMat3AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return [
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
       this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
@@ -198,7 +223,11 @@ export default class AccessorBase extends RnObject {
     ];
   }
 
-  getMat4AsArray(index: Index, endian: boolean = true): Array<number> {
+  getMat4AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return [
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
       this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
@@ -207,19 +236,35 @@ export default class AccessorBase extends RnObject {
     ];
   }
 
-  getVec2(index: Index, endian: boolean = true): Vector2 {
+  getVec2(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Vector2 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return new Vector2(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian));
   }
 
-  getVec3(index: Index, endian: boolean = true): Vector3 {
+  getVec3(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Vector3 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return new Vector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian));
   }
 
-  getVec4(index: Index, endian: boolean = true): Vector4 {
+  getVec4(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Vector4 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return new Vector4(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian));
   }
 
-  getMat3(index: Index, endian: boolean = true): Matrix33 {
+  getMat3(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Matrix33 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return new Matrix33(
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
       this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
@@ -227,7 +272,11 @@ export default class AccessorBase extends RnObject {
     );
   }
 
-  getMat4(index: Index, endian: boolean = true): MutableMatrix44 {
+  getMat4(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): MutableMatrix44 {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     return new MutableMatrix44(
       this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
       this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
@@ -236,24 +285,40 @@ export default class AccessorBase extends RnObject {
     );
   }
 
-  setScalar(index: Index, value: number, endian: boolean = true) {
+  setScalar(i: Index, value: number, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     this.__dataViewSetter(this.__byteStride*index, value, endian);
   }
 
-  setVec2(index: Index, x: number, y: number, endian: boolean = true) {
+  setVec2(i: Index, x: number, y: number, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
     this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
   }
 
-  setVec3(index: Index, x: number, y: number, z: number, endian: boolean = true) {
+  setVec3(i: Index, x: number, y: number, z: number, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
     this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
     this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, z, endian);
   }
 
-  setVec4(index: Index, x: number, y: number, z: number, w: number, endian: boolean = true) {
+  setVec4(i: Index, x: number, y: number, z: number, w: number, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     const sizeInBytes = this.componentSizeInBytes;
     this.__dataViewSetter(this.__byteStride*index, x, endian);
     this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, y, endian);
@@ -268,16 +333,20 @@ export default class AccessorBase extends RnObject {
       const idx = Math.floor(j/componentN);
       const idxN = idx * componentN;
       switch(componentN) {
-        case 1: setter.call(this, idx, typedArray[idxN+0]); break;
-        case 2: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1]); break;
-        case 3: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2]); break;
-        case 4: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2], typedArray[idxN+3]); break;
+        case 1: setter.call(this, idx, typedArray[idxN+0], {}); break;
+        case 2: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], {}); break;
+        case 3: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2], {}); break;
+        case 4: setter.call(this, idx, typedArray[idxN+0], typedArray[idxN+1], typedArray[idxN+2], typedArray[idxN+3], {}); break;
         default: throw new Error('Other than vectors are currently not supported.');
       }
     }
   }
 
-  setScalarAt(index: Index, conpositionOffset: Index, value: number, endian: boolean = true) {
+  setScalarAt(i: Index, conpositionOffset: Index, value: number, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
     this.__dataViewSetter(this.__byteStride*index + conpositionOffset, value, endian);
   }
 

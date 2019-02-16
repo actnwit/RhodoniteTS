@@ -71,6 +71,11 @@ export default abstract class GLSLShader {
     }
   }
 
+  get glsl1ShaderTextureLodExt() {
+    const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
+    return (ext != null)? '#extension GL_EXT_shader_texture_lod : require\n' : '';
+  }
+
   get toNormalMatrix() {
     return `
     mat3 toNormalMatrix(mat4 m) {
@@ -149,7 +154,7 @@ export default abstract class GLSLShader {
 
     const diffuseEnvCubeTexture = true;//material.getTextureFromPurpose(GLBoost.TEXTURE_PURPOSE_IBL_DIFFUSE_ENV_CUBE);
     if (diffuseEnvCubeTexture) {
-      shaderText += 'uniform sampler2D uBrdfLUTTexture;\n';
+      shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
       shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
       shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
@@ -161,12 +166,12 @@ export default abstract class GLSLShader {
   }
 
   get pbrMethodDefinition() {
-    let accessIBLTexture: string;
+    let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(uSpecularEnvTexture, reflection, lod).rgb);`;
+      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(u_specularEnvTexture, reflection, lod).rgb);`;
     } else {
-      accessIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(uSpecularEnvTexture, reflection).rgb);`;
+      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(u_specularEnvTexture, reflection).rgb);`;
     }
 
     return `
@@ -245,23 +250,32 @@ export default abstract class GLSLShader {
       return pow(srgbColor, vec3(2.2));
     }
 
+    float srgbToLinear(float value) {
+      return pow(value, 2.2);
+    }
+
     vec3 linearToSrgb(vec3 linearColor) {
       return pow(linearColor, vec3(1.0/2.2));
     }
 
+    float linearToSrgb(float value) {
+      return pow(value, 1.0/2.2);
+    }
+
     vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
     {
-      float mipCount = uIBLParameters.x;
+      float mipCount = u_iblParameter.x;
       float lod = (userRoughness * mipCount);
 
-      vec3 brdf = srgbToLinear(texture2D(uBrdfLUTTexture, vec2(NV, 1.0 - userRoughness)).rgb);
-      vec3 diffuseLight = srgbToLinear(textureCube(uDiffuseEnvTexture, n).rgb);
-      ${accessIBLTexture}
+      vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
+      vec3 diffuseLight = srgbToLinear(textureCube(u_diffuseEnvTexture, n).rgb);
+      ${accessSpecularIBLTexture}
+
       vec3 diffuse = diffuseLight * albedo;
       vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
 
-      float IBLDiffuseContribution = uIBLParameters.y;
-      float IBLSpecularContribution = uIBLParameters.z;
+      float IBLDiffuseContribution = u_iblParameter.y;
+      float IBLSpecularContribution = u_iblParameter.z;
       diffuse *= IBLDiffuseContribution;
       specular *= IBLSpecularContribution;
       return diffuse + specular;

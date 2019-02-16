@@ -41,9 +41,9 @@ test('In SoA mode, data can be written in the correct position.', () => {
   let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
   let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
 
-  accessor0.setScalar(0, 100);
-  accessor0.setScalar(1, 150);
-  accessor1.setScalar(0, 200);
+  accessor0.setScalar(0, 100, {});
+  accessor0.setScalar(1, 150, {});
+  accessor1.setScalar(0, 200, {});
 
   const arrayBuffer = buffer.getArrayBuffer();
   const dataView = new DataView(arrayBuffer);
@@ -61,9 +61,9 @@ test('In AoS mode, data can be written in the correct position.', () => {
   let accessor1 = bufferView!.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: 2});
   let accessor2 = bufferView!.takeAccessor({compositionType: CompositionType.Vec2, componentType: ComponentType.Float, count: 2});
 
-  accessor0.setScalar(0, 100);
-  accessor0.setScalar(1, 150);
-  accessor1.setScalar(0, 200);
+  accessor0.setScalar(0, 100, {});
+  accessor0.setScalar(1, 150, {});
+  accessor1.setScalar(0, 200, {});
 
   const arrayBuffer = buffer.getArrayBuffer();
   const dataView = new DataView(arrayBuffer);

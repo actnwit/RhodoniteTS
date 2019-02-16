@@ -1,4 +1,5 @@
 import EntityRepository from './core/EntityRepository';
+import ComponentRepository from './core/ComponentRepository';
 import TransformComponent from './components/TransformComponent';
 import SceneGraphComponent from './components/SceneGraphComponent';
 import MeshComponent from './components/MeshComponent';
@@ -27,9 +28,12 @@ import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
 import LightComponent from './components/LightComponent';
 import { LightType } from './definitions/LightType';
+import CubeTexture from './textures/CubeTexture';
+import CameraControllerComponent from './components/CameraControllerComponent';
 
 const Rn = {
   EntityRepository,
+  ComponentRepository,
   TransformComponent,
   SceneGraphComponent,
   MeshComponent,
@@ -57,7 +61,9 @@ const Rn = {
   RowMajarMatrix44,
   AnimationComponent,
   LightComponent,
-  LightType
+  LightType,
+  CubeTexture,
+  CameraControllerComponent
 };
 export default Rn;
 

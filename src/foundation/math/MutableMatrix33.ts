@@ -42,8 +42,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     return this;
   }
 
-  copyComponents(mat3: Matrix33) {
-    const m = mat3;
+  copyComponents(mat: Matrix33|Matrix44) {
+    const m = mat;
 
     this.m00 = m.m00;
     this.m01 = m.m01;
@@ -201,15 +201,6 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     this._swap(5, 8);
 
     return this;
-  }
-
-
-  multiplyVector(vec:Vector3) {
-    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
-    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
-    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
-
-    return new Vector3(x, y, z);
   }
 
   /**

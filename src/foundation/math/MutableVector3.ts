@@ -4,7 +4,7 @@ import {IVector3, IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
 export default class MutableVector3 extends Vector3 implements IVector3 {
-  constructor(x: number|TypedArray|Vector2|IVector3|IVector4, y?: number, z?: number) {
+  constructor(x: number|TypedArray|Vector2|IVector3|IVector4|null, y?: number, z?: number) {
     super(x as any, y, z);
   }
 
@@ -29,6 +29,24 @@ export default class MutableVector3 extends Vector3 implements IVector3 {
     return this;
   }
 
+  clone() {
+    return new MutableVector3(this.x, this.y, this.z);
+  }
+
+  /**
+   * Zero Vector
+   */
+  static zero() {
+    return new MutableVector3(0, 0, 0);
+  }
+
+  static one() {
+    return new MutableVector3(1, 1, 1);
+  }
+
+  static dummy() {
+    return new MutableVector3(null);
+  }
 
 
   /**

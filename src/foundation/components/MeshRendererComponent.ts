@@ -18,6 +18,7 @@ import { BufferUse } from '../definitions/BufferUse';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import ModuleManager from '../system/ModuleManager';
+import CubeTexture from '../textures/CubeTexture';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -27,6 +28,8 @@ export default class MeshRendererComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __webglModule?: any;
   private static __staticWebglModule?: any;
+  public diffuseCubeMap?: CubeTexture;
+  public specularCubeMap?: CubeTexture;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
@@ -79,7 +82,16 @@ export default class MeshRendererComponent extends Component {
   $load() {
 
     this.__webglRenderingStrategy!.$load(this.__meshComponent!);
+
+    if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
+      this.diffuseCubeMap.loadTextureImagesAsync();
+    }
+    if (this.specularCubeMap && !this.specularCubeMap.startedToLoad) {
+      this.specularCubeMap.loadTextureImagesAsync();
+    }
+
     this.moveStageTo(ProcessStage.PreRender);
+
   }
 
   $prerender() {
@@ -99,7 +111,8 @@ export default class MeshRendererComponent extends Component {
     const primitiveNum = this.__meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = this.__meshComponent!.getPrimitiveAt(i);
-      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix, entity);
+      this.__webglRenderingStrategy!.$render!(i, primitive, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix,
+        entity, this.diffuseCubeMap, this.specularCubeMap);
     }
 
 
@@ -162,7 +175,7 @@ export default class MeshRendererComponent extends Component {
     }
 
     for (var i = 0; i < meshComponents.length; i++) {
-      MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID);
+      MeshRendererComponent.__instanceIdAccessor!.setScalar(i, meshComponents[i].entityUID, {});
     }
 
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
