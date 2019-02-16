@@ -1,5 +1,5 @@
 import { PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
-import { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import { VertexAttributeEnum, VertexAttribute } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/Object';
 import BufferView from '../memory/BufferView';
@@ -149,6 +149,38 @@ export default class Primitive extends RnObject {
     return this.__indices;
   }
 
+  getTriangleCountAsIndicesBased() {
+    if (this.indicesAccessor) {
+      switch (this.__mode) {
+        case PrimitiveMode.Triangles:
+          return this.indicesAccessor.elementCount / 3;
+        case PrimitiveMode.TriangleStrip:
+          return this.indicesAccessor.elementCount - 2;
+        case PrimitiveMode.TriangleFan:
+          return this.indicesAccessor.elementCount - 2;
+        default:
+          return 0;
+      }
+    } else {
+      return this.getTriangleCountAsVerticesBased();
+    }
+  }
+
+  getTriangleCountAsVerticesBased() {
+    const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
+    const positionAccessor = this.__attributes[positionIdx];
+    switch (this.__mode) {
+      case PrimitiveMode.Triangles:
+        return positionAccessor.elementCount / 3;
+      case PrimitiveMode.TriangleStrip:
+        return positionAccessor.elementCount - 2;
+      case PrimitiveMode.TriangleFan:
+        return positionAccessor.elementCount - 2;
+      default:
+        return 0;
+    }
+  }
+
   hasIndices() {
     return this.__indices != null;
   }
@@ -177,7 +209,4 @@ export default class Primitive extends RnObject {
     return this.__primitiveUid;
   }
 
-  getVertexAttributeAt(i: Index, vertexAttributeType: VertexAttributeEnum) {
-
-  }
 }

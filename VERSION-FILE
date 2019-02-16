@@ -1,6 +1,6 @@
-version: 0.1.1-115-g9344-mod
+version: 0.1.1-116-g36f6-mod
 branch: feature/pbr
-d07962a791503ca569d069f25f19959a5c91aed9e4461dad31625034ef03a385 ./dist/rhodonite.js
-eecdbf8f766e9d513a87a3ac9f61381c6ef56618bea0f1294602d568203a1130 ./dist/rhodonite.min.js
-d853b514527577af60d98873eeb06561b139128dfc0490ffbacd9826ba06fe29 ./dist/rhodonite-webgl.js
-563ed41a5f42c539d3f6fdd8d2cce6702405509bcd9c0d06d6958f7ea22525a4 ./dist/rhodonite-webgl.min.js
+b7ed128dc4d9510cf7fea4f3aff57cd33c64b3a58d583e110456ab7300f45152 ./dist/rhodonite.js
+d88bef577d60e166e2c11f011b6069775e8296b721e724d990dbbbfbefcde9f6 ./dist/rhodonite.min.js
+770d48c2d85f3c10eb8e90306e4787f9e86536d3468cc8c561b3c49ce33794ea ./dist/rhodonite-webgl.js
+f31b93822bc528fe43864a84eda34c4a233bf91400f5e48997197bcca3760a33 ./dist/rhodonite-webgl.min.js
