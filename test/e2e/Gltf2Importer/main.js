@@ -19,10 +19,12 @@ const load = async function(time){
 
 
   // Lights
-  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
+  // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
+  // lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
   const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  lightEntity2.getTransform().translate = new Rn.Vector3(-100000.0, 100000.0, 100000.0);
+  lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
+  lightEntity2.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
   //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
   //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 

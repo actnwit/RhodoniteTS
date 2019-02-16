@@ -102,6 +102,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false},
       {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false},
       {semantic: ShaderSemantics.IBLParameter, isPlural: false},
+      {semantic: ShaderSemantics.ViewPosition, isPlural: false},
     ];
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -343,6 +344,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       mipmapLevelNumber = specularCube.mipmapLevelNumber;
     }
     this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, {x: mipmapLevelNumber, y: 1, z: 1});
+
+
+    // ViewPosition
+    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+//    const cameraPosition = cameraComponent.entity.getSceneGraph().worldPosition;
+    const cameraPosition = cameraComponent.worldPosition;
+    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, {x:cameraPosition.v});
+
 
     gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
     gl.bindTexture(gl.TEXTURE_2D, null);

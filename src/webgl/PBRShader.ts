@@ -113,7 +113,7 @@ struct Light {
 uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 
-uniform vec3 viewPosition_inWorld;
+uniform vec3 u_viewPosition;
 
 uniform samplerCube u_diffuseEnvTexture;
 uniform samplerCube u_specularEnvTexture;
@@ -139,19 +139,20 @@ void main ()
 
   if (length(v_tangent_inWorld) > 0.01) {
     vec3 normal = ${_texture}(u_material.normalTexture, v_texcoord).xyz*2.0 - 1.0;
-    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-    vec3 normal_inWorld = normalize(v_normal_inWorld);
+    if (length(normal) > 0.01) {
+      vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+      vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+      vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-    mat3 tbnMat_tangent_to_world = mat3(
-      tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
-      binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
-      normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
-    );
+      mat3 tbnMat_tangent_to_world = mat3(
+        tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
+        binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
+        normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
+      );
 
-    normal = normalize(tbnMat_tangent_to_world * normal);
-    normal_inWorld = normal;
-
+      normal = normalize(tbnMat_tangent_to_world * normal);
+      normal_inWorld = normal;
+    }
   }
 
   // BaseColorFactor
@@ -172,9 +173,9 @@ void main ()
 
   // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_material.baseColorTexture, v_texcoord);
-  if (textureColor.r > 0.05) {
+  if (length(textureColor) > 0.01) {
     baseColor *= srgbToLinear(textureColor.rgb);
-    alpha *= srgbToLinear(textureColor.a);
+    alpha *= textureColor.a;
   }
 
   // Metallic & Roughness
@@ -198,7 +199,7 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewDirection = normalize(viewPosition_inWorld - v_position_inWorld.xyz);
+  vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
 
   // NV
   float NV = clamp(dot(normal_inWorld, viewDirection), 0.001, 1.0);
@@ -253,6 +254,9 @@ void main ()
       vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
       rt0.xyz += diffuseAndSpecular;
+//      rt0.xyz += specularContrib * vec3(NL) * incidentLight.rgb;
+  //    rt0.xyz += diffuseContrib * vec3(NL) * incidentLight.rgb;
+  //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
@@ -260,6 +264,8 @@ void main ()
 
     rt0.xyz += ibl;
   }
+
+  rt0.xyz = linearToSrgb(rt0.xyz);
 
   ${_def_fragColor}
 }

@@ -74,7 +74,7 @@ export default abstract class AbstractTexture extends RnObject {
     let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
       imgCanvas, {
         level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
-        border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
       });
 
@@ -100,7 +100,7 @@ export default abstract class AbstractTexture extends RnObject {
         let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
           imgCanvas, {
             level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
           });
 
