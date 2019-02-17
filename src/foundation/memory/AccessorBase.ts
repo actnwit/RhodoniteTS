@@ -24,9 +24,11 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
+  protected __max: number = -Number.MAX_VALUE;
+  protected __min: number = Number.MAX_VALUE;
 
-  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array}) {
+  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min} :
+    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number}) {
     super(true);
 
     this.__bufferView = bufferView;
@@ -35,6 +37,13 @@ export default class AccessorBase extends RnObject {
     this.__componentType = componentType;
     this.__count = count;
     this.__raw = raw.buffer;
+
+    if (max != null) {
+      this.__max = max;
+    }
+    if (min != null) {
+      this.__min = min;
+    }
 
     this.__byteStride = byteStride;
 

@@ -850,7 +850,9 @@ export default class ModelConverter {
       compositionType: CompositionType.fromString(accessor.type),
       componentType: ComponentType.from(accessor.componentType),
       count: accessor.count,
-      byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0
+      byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+      max: accessor.max,
+      min: accessor.min
     });
 
     return rnAccessor;
