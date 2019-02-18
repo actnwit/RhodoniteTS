@@ -142,7 +142,7 @@ void main ()
     if (length(normal) > 0.01) {
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-      vec3 normal_inWorld = normalize(v_normal_inWorld);
+      normal_inWorld = normalize(v_normal_inWorld);
 
       mat3 tbnMat_tangent_to_world = mat3(
         tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,

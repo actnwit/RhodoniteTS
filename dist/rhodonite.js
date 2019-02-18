@@ -1095,4 +1095,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-132-geaa4-mod branch: feature/aabb';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-134-gf4a9-mod branch: fix/normal-mapping';
