@@ -49,9 +49,9 @@ export default class MeshComponent extends Component {
   __calcTangents() {
     for (let primitive of this.__primitives) {
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
-      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       if (texcoordIdx !== -1) {
-        const positionAccessor = primitive.attributeAccessors[texcoordIdx];
+        const positionAccessor = primitive.attributeAccessors[positionIdx];
         const texcoordAccessor = primitive.attributeAccessors[texcoordIdx];
         const indicesAccessor = primitive.indicesAccessor;
 
