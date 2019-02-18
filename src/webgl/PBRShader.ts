@@ -100,6 +100,8 @@ struct Material {
   vec4 baseColorFactor;
   sampler2D baseColorTexture;
   sampler2D normalTexture;
+  sampler2D occlusionTexture;
+  sampler2D emissiveTexture;
   vec2 metallicRoughnessFactor;
   sampler2D metallicRoughnessTexture;
 };
@@ -262,8 +264,17 @@ void main ()
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
     vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
 
-    rt0.xyz += ibl;
+    float occlusion = texture2D(u_material.occlusionTexture, v_texcoord).r;
+
+    // Occlution to Indirect Lights
+    rt0.xyz += ibl * occlusion;
+
   }
+
+  // Emissive
+  vec3 emissive = srgbToLinear(texture2D(u_material.emissiveTexture, v_texcoord).xyz);
+
+  rt0.xyz += emissive;
 
   rt0.xyz = linearToSrgb(rt0.xyz);
 

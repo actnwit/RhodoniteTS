@@ -379,6 +379,24 @@ export default class ModelConverter {
         material.normalTexture = rnTexture;
       }
 
+      const occlusionTexture = materialJson.occlusionTexture;
+      if (occlusionTexture != null) {
+        const texture = occlusionTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTextureFromImage(image);
+        material.occlusionTexture = rnTexture;
+      }
+
+      const emissiveTexture = materialJson.emissiveTexture;
+      if (emissiveTexture != null) {
+        const texture = emissiveTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTextureFromImage(image);
+        material.emissiveTexture = rnTexture;
+      }
+
       const metallicFactor = pbrMetallicRoughness.metallicFactor;
       if (metallicFactor != null) {
         material.metallicFactor = metallicFactor;
@@ -400,208 +418,6 @@ export default class ModelConverter {
 
     return material;
   }
-//   _setupMaterial(glBoostContext, gltfModel, gltfMaterial, materialJson, accessor, additional, vertexData, dataViewMethodDic, _positions, indices, geometry, i) {
-//     let options = gltfModel.asset.extras.glboostOptions;
-
-//     if (accessor) {
-//       additional['texcoord'][i] =  accessor.extras.typedDataArray;
-//       vertexData.components.texcoord = accessor.extras.componentN;
-//       vertexData.componentBytes.texcoord = accessor.extras.componentBytes;
-//       vertexData.componentType.texcoord = accessor.componentType;
-//       dataViewMethodDic.texcoord = accessor.extras.dataViewMethod;
-
-//       let setTextures = (materialJson)=> {
-//         if (materialJson.pbrMetallicRoughness) {
-//           let baseColorTexture = materialJson.pbrMetallicRoughness.baseColorTexture;
-//           if (baseColorTexture) {
-//             let sampler = baseColorTexture.texture.sampler;
-
-//             let isNeededToMultiplyAlphaToColorOfTexture = false;
-
-//             if (options.isNeededToMultiplyAlphaToColorOfPixelOutput) {
-//               if (options.isTextureImageToLoadPreMultipliedAlphaAsDefault) {
-//                 // Nothing to do because premultipling alpha is already done.
-//               } else {
-//                 isNeededToMultiplyAlphaToColorOfTexture = true;
-//               }
-//             } else { // if is NOT Needed To Multiply AlphaToColor Of PixelOutput
-//               if (options.isTextureImageToLoadPreMultipliedAlphaAsDefault) {
-//                 // TODO: Implement to Make Texture Straight.
-//               } else {
-//                 // Nothing to do because the texture is straight.
-//               }
-//             }
-
-//             if (options && options.statesOfElements) {
-//               for (let statesInfo of options.statesOfElements) {
-//                 if (statesInfo.targets) {
-//                   for (let target of statesInfo.targets) {
-//                     let isMatch = false;
-//                     let specifyMethod = statesInfo.specifyMethod !== void 0 ? statesInfo.specifyMethod : GLBoost.QUERY_TYPE_USER_FLAVOR_NAME;
-//                     switch (specifyMethod) {
-//                       case GLBoost.QUERY_TYPE_USER_FLAVOR_NAME:
-//                         isMatch = group.userFlavorName === target; break;
-//                       case GLBoost.QUERY_TYPE_INSTANCE_NAME:
-//                         isMatch = group.instanceName === target; break;
-//                       case GLBoost.QUERY_TYPE_INSTANCE_NAME_WITH_USER_FLAVOR:
-//                         isMatch = group.instanceNameWithUserFlavor === target; break;
-//                     }
-
-//                     if (isMatch) {
-//                       if (options.isNeededToMultiplyAlphaToColorOfPixelOutput) {
-//                         if (statesInfo.isTextureImageToLoadPreMultipliedAlpha) {
-//                           // Nothing to do because premultipling alpha is already done.
-//                         } else {
-//                           isNeededToMultiplyAlphaToColorOfTexture = true;
-//                         }
-//                       } else { // if is NOT Needed To Multiply AlphaToColor Of PixelOutput
-//                         if (statesInfo.isTextureImageToLoadPreMultipliedAlpha) {
-//                           // TODO: Implement to Make Texture Straight.
-//                         } else {
-//                           // Nothing to do because the texture is straight.
-//                         }
-//                       }
-//                     }
-
-//                     //texture.setParameter('UNPACK_PREMULTIPLY_ALPHA_WEBGL', isNeededToMultiplyAlphaToColorOfTexture);
-// //                    texture.loadWebGLTexture();
-//                   }
-//                 }
-//               }
-//             }
-
-//             let texture = glBoostContext.createTexture(baseColorTexture.texture.image.image, '', {
-//               'TEXTURE_MAG_FILTER': sampler === void 0 ? GLBoost.LINEAR : sampler.magFilter,
-//               'TEXTURE_MIN_FILTER': sampler === void 0 ? GLBoost.LINEAR_MIPMAP_LINEAR : sampler.minFilter,
-//               'TEXTURE_WRAP_S': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapS,
-//               'TEXTURE_WRAP_T': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapT,
-//               'UNPACK_PREMULTIPLY_ALPHA_WEBGL': isNeededToMultiplyAlphaToColorOfTexture
-//             });
-//             texture.userFlavorName = `Texture_Diffuse_index_${baseColorTexture.index}_of_${gltfMaterial.instanceNameWithUserFlavor}`;
-//             gltfMaterial.setTexture(texture, GLBoost.TEXTURE_PURPOSE_DIFFUSE);
-//           }
-
-
-//           let metallicRoughnessTexture = materialJson.pbrMetallicRoughness.metallicRoughnessTexture;
-//           if (metallicRoughnessTexture) {
-//             let sampler = metallicRoughnessTexture.texture.sampler;
-//             let texture = glBoostContext.createTexture(metallicRoughnessTexture.texture.image.image, '', {
-//               'TEXTURE_MAG_FILTER': sampler === void 0 ? GLBoost.LINEAR : sampler.magFilter,
-//               'TEXTURE_MIN_FILTER': sampler === void 0 ? GLBoost.LINEAR_MIPMAP_LINEAR : sampler.minFilter,
-//               'TEXTURE_WRAP_S': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapS,
-//               'TEXTURE_WRAP_T': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapT
-//             });
-//             texture.userFlavorName = `Texture_MetallicRoughness_index_${metallicRoughnessTexture.index}_of_${gltfMaterial.instanceNameWithUserFlavor}`;
-//             gltfMaterial.setTexture(texture, GLBoost.TEXTURE_PURPOSE_METALLIC_ROUGHNESS);
-//           }
-
-//           const normalTexture = materialJson.normalTexture;
-//           if (normalTexture) {
-//             const sampler = normalTexture.texture.sampler;
-//             const texture = glBoostContext.createTexture(normalTexture.texture.image.image, '', {
-//               'TEXTURE_MAG_FILTER': sampler === void 0 ? GLBoost.LINEAR : sampler.magFilter,
-//               'TEXTURE_MIN_FILTER': sampler === void 0 ? GLBoost.LINEAR_MIPMAP_LINEAR : sampler.minFilter,
-//               'TEXTURE_WRAP_S': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapS,
-//               'TEXTURE_WRAP_T': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapT
-//             });
-//             texture.userFlavorName = `Texture_MetallicRoughness_index_${normalTexture.index}_of_${gltfMaterial.instanceNameWithUserFlavor}`;
-//             gltfMaterial.setTexture(texture, GLBoost.TEXTURE_PURPOSE_NORMAL);
-//           }
-
-//           const occlusionTexture = materialJson.occlusionTexture;
-//           if (occlusionTexture) {
-//             const sampler = occlusionTexture.texture.sampler;
-//             const texture = glBoostContext.createTexture(occlusionTexture.texture.image.image, '', {
-//               'TEXTURE_MAG_FILTER': sampler === void 0 ? GLBoost.LINEAR : sampler.magFilter,
-//               'TEXTURE_MIN_FILTER': sampler === void 0 ? GLBoost.LINEAR_MIPMAP_LINEAR : sampler.minFilter,
-//               'TEXTURE_WRAP_S': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapS,
-//               'TEXTURE_WRAP_T': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapT
-//             });
-//             texture.userFlavorName = `Texture_Occlusion_index_${occlusionTexture.index}_of_${gltfMaterial.instanceNameWithUserFlavor}`;
-//             gltfMaterial.setTexture(texture, GLBoost.TEXTURE_PURPOSE_OCCLUSION);
-//           }
-
-//           const emissiveTexture = materialJson.emissiveTexture;
-//           if (emissiveTexture) {
-//             const sampler = normalTexture.texture.sampler;
-//             const texture = glBoostContext.createTexture(emissiveTexture.texture.image.image, '', {
-//               'TEXTURE_MAG_FILTER': sampler === void 0 ? GLBoost.LINEAR : sampler.magFilter,
-//               'TEXTURE_MIN_FILTER': sampler === void 0 ? GLBoost.LINEAR_MIPMAP_LINEAR : sampler.minFilter,
-//               'TEXTURE_WRAP_S': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapS,
-//               'TEXTURE_WRAP_T': sampler === void 0 ? GLBoost.REPEAT : sampler.wrapT
-//             });
-//             texture.userFlavorName = `Texture_Emissive_index_${emissiveTexture.index}_of_${gltfMaterial.instanceNameWithUserFlavor}`;
-//             gltfMaterial.setTexture(texture, GLBoost.TEXTURE_PURPOSE_EMISSIVE);
-//           }
-
-//           const alphaMode = materialJson.alphaMode;
-//           if (alphaMode === 'MASK') {
-//             // doalpha test in fragment shader
-//             gltfMaterial.isAlphaTest = true;
-//             gltfMaterial.alphaCutoff = materialJson.alphaCutoff;
-//           }
-
-//           let enables = [];
-//           if (options.isBlend || alphaMode === 'BLEND') {
-//             enables.push(3042);
-//           }
-//           if (options.isDepthTest) {
-//             enables.push(2929);
-//           }
-//           gltfMaterial.states.enable = enables; // It means, [gl.BLEND];
-//           if (options.isBlend && options.isNeededToMultiplyAlphaToColorOfPixelOutput) {
-//             gltfMaterial.states.functions.blendFuncSeparate = [1, 771, 1, 771];
-//           }
-//           gltfMaterial.globalStatesUsage = GLBoost.GLOBAL_STATES_USAGE_IGNORE;
-//         }
-//       };
-//       setTextures(materialJson);
-
-
-
-//     } else {
-//       if (typeof vertexData.components.texcoord !== 'undefined') {
-//         // If texture coordinates existed even once in the previous loop
-//         let emptyTexcoords = [];
-//         let componentN = vertexData.components.position;
-//         let length = _positions[i].length / componentN;
-//         for (let k = 0; k < length; k++) {
-//           emptyTexcoords.push(0);
-//           emptyTexcoords.push(0);
-//         }
-//         additional['texcoord'][i] = new Float32Array(emptyTexcoords);
-//         vertexData.components.texcoord = 2;
-//         vertexData.componentBytes.texcoord = 4;
-//         dataViewMethodDic.texcoord = 'getFloat32';
-//       }
-//     }
-
-//     const pmr = materialJson.pbrMetallicRoughness;
-//     if (pmr != null) {
-//       if (pmr.baseColorFactor) {
-//         gltfMaterial.baseColor = new Vector4(pmr.baseColorFactor);
-//       }
-//       if (pmr.metallicFactor) {
-//         gltfMaterial.metallic = pmr.metallicFactor;
-//       }
-//       if (pmr.roughnessFactor) {
-//         gltfMaterial.roughness = pmr.roughnessFactor;
-//       }
-//       if (materialJson.emissiveFactor) {
-//         gltfMaterial.emissive = new Vector3(materialJson.emissiveFactor);
-//       }
-//     }
-
-
-//     if (indices !== null) {
-//       gltfMaterial.setVertexN(geometry, indices.length);
-//     }
-
-//     const defaultShader = this._getDefaultShader(options);
-//     if (defaultShader) {
-//       gltfMaterial.shaderClass = defaultShader;
-//     }
-//   }
 
   _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
     if (( byteOffset % alignSize ) != 0) {
