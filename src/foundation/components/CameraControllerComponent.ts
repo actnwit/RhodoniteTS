@@ -265,38 +265,38 @@ export default class CameraControllerComponent extends Component {
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this.__mouseWheel);
+        eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this));
       }
-      eventTargetDom.addEventListener("contextmenu", this.__contexMenu, false);
-      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick);
+      eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), false);
+      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this));
     }
   }
 
   unregisterEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
-        eventTargetDom.removeEventListener("touchstart", this.__mouseDown);
-        eventTargetDom.removeEventListener("touchend", this.__mouseUp);
+        eventTargetDom.removeEventListener("touchstart", this.__mouseDown.bind(this));
+        eventTargetDom.removeEventListener("touchend", this.__mouseUp.bind(this));
         (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMove, {
           passive: false
         });
       }
       if ("onmouseup" in document) {
-        eventTargetDom.removeEventListener("mousedown", this.__mouseDown);
-        eventTargetDom.removeEventListener("mouseup", this.__mouseUp);
+        eventTargetDom.removeEventListener("mousedown", this.__mouseDown.bind(this));
+        eventTargetDom.removeEventListener("mouseup", this.__mouseUp.bind(this));
         (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMove, {
           passive: false
         });
       }
       if (window.WheelEvent) {
-        eventTargetDom.removeEventListener("wheel", this.__mouseWheel);
+        eventTargetDom.removeEventListener("wheel", this.__mouseWheel.bind(this));
       }
       eventTargetDom.removeEventListener(
         "contextmenu",
-        this.__contexMenu,
+        this.__contexMenu.bind(this),
         false
       );
-      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClick);
+      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClick.bind(this));
     }
   }
 
