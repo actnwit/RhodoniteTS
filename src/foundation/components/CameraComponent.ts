@@ -203,6 +203,10 @@ export default class CameraComponent extends Component {
     this._parametersInner.x = val;
   }
 
+  get zNearInner() {
+    return this._parametersInner.x;
+  }
+
   get zNear() {
     return this._parameters.x;
   }
@@ -225,6 +229,10 @@ export default class CameraComponent extends Component {
 
   get fovy() {
     return this._parameters.z;
+  }
+
+  set fovyInner(val: number) {
+    this._parametersInner.z = val;
   }
 
   set aspect(val: number) {

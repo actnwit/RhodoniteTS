@@ -229,6 +229,10 @@ export default class Primitive extends RnObject {
     if (this.__aabb.isVanilla()) {
       const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = this.__attributes[positionIdx];
+
+      if (positionAccessor.min == null || positionAccessor.max == null) {
+        positionAccessor.calcMinMax();
+      }
       this.__aabb.minPoint = positionAccessor.min;
       this.__aabb.maxPoint = positionAccessor.max;
     }

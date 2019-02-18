@@ -328,6 +328,8 @@ export default class CameraControllerComponent extends Component {
     cc.rightInner = data.newRight;
     cc.topInner = data.newTop;
     cc.bottomInner = data.newBottom;
+
+    cc.fovyInner = data.fovy;
   }
 
   __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
@@ -485,7 +487,8 @@ export default class CameraControllerComponent extends Component {
       newLeft,
       newRight,
       newTop,
-      newBottom
+      newBottom,
+      fovy
     };
   }
 
@@ -512,7 +515,7 @@ export default class CameraControllerComponent extends Component {
       (targetAABB.lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) *
       this.__scaleOfLengthCameraToCenter;
 
-    let newCenterVec = targetAABB.centerPoint;//this.__targetEntity!.getSceneGraph().worldPosition;//targetAABB.centerPoint;
+    let newCenterVec = targetAABB.centerPoint;//new Vector3(-0.0190, -0.10556, 0.0133);//targetAABB.centerPoint;//this.__targetEntity!.getSceneGraph().worldPosition;//targetAABB.centerPoint;
 
     let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
     let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);
