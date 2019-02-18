@@ -24,8 +24,8 @@ export default class AccessorBase extends RnObject {
   protected __typedArrayClass?: TypedArrayConstructor;
   protected __dataViewGetter: any;
   protected __dataViewSetter: any;
-  protected __max: number = -Number.MAX_VALUE;
-  protected __min: number = Number.MAX_VALUE;
+  protected __max?: any;
+  protected __min?: any;
 
   constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min} :
     {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number}) {

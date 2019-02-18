@@ -223,4 +223,8 @@ export default class Primitive extends RnObject {
     return this.__primitiveUid;
   }
 
+  get AABB() {
+    
+  }
+
 }
