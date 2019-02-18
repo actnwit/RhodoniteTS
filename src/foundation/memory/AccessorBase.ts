@@ -201,7 +201,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian)];
+    const byteSize = this.componentSizeInBytes;
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian)];
   }
 
   getVec3AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
@@ -209,7 +210,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian)];
+    const byteSize = this.componentSizeInBytes;
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian)];
   }
 
   getVec4AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
@@ -217,7 +219,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian)];
+    const byteSize = this.componentSizeInBytes;
+    return [this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian)];
   }
 
   getMat3AsArray(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Array<number> {
@@ -225,10 +228,11 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
+    const byteSize = this.componentSizeInBytes;
     return [
-      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
-      this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
-      this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian), this.__dataViewGetter(this.__byteStride*index+8, endian),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+4*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+5*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+6*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+7*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+8*byteSize, endian),
     ];
   }
 
@@ -237,11 +241,12 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
+    const byteSize = this.componentSizeInBytes;
     return [
-      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
-      this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
-      this.__dataViewGetter(this.__byteStride*index+8, endian), this.__dataViewGetter(this.__byteStride*index+9, endian), this.__dataViewGetter(this.__byteStride*index+10, endian), this.__dataViewGetter(this.__byteStride*index+11, endian),
-      this.__dataViewGetter(this.__byteStride*index+12, endian), this.__dataViewGetter(this.__byteStride*index+13, endian), this.__dataViewGetter(this.__byteStride*index+14, endian), this.__dataViewGetter(this.__byteStride*index+15, endian),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+4*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+5*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+6*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+7*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+8*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+9*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+10*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+11*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+12*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+13*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+14*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+15*byteSize, endian),
     ];
   }
 
@@ -250,7 +255,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return new Vector2(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian));
+    const byteSize = this.componentSizeInBytes;
+    return new Vector2(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian));
   }
 
   getVec3(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Vector3 {
@@ -258,7 +264,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return new Vector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian));
+    const byteSize = this.componentSizeInBytes;
+    return new Vector3(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian));
   }
 
   getVec4(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Vector4 {
@@ -266,7 +273,8 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
-    return new Vector4(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian));
+    const byteSize = this.componentSizeInBytes;
+    return new Vector4(this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian));
   }
 
   getMat3(i: Index, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}): Matrix33 {
@@ -274,10 +282,11 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
+    const byteSize = this.componentSizeInBytes;
     return new Matrix33(
-      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian),
-      this.__dataViewGetter(this.__byteStride*index+3, endian), this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian),
-      this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian), this.__dataViewGetter(this.__byteStride*index+8, endian),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+4*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+5*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+6*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+7*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+8*byteSize, endian),
     );
   }
 
@@ -286,11 +295,12 @@ export default class AccessorBase extends RnObject {
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
     }
+    const byteSize = this.componentSizeInBytes;
     return new MutableMatrix44(
-      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1, endian), this.__dataViewGetter(this.__byteStride*index+2, endian), this.__dataViewGetter(this.__byteStride*index+3, endian),
-      this.__dataViewGetter(this.__byteStride*index+4, endian), this.__dataViewGetter(this.__byteStride*index+5, endian), this.__dataViewGetter(this.__byteStride*index+6, endian), this.__dataViewGetter(this.__byteStride*index+7, endian),
-      this.__dataViewGetter(this.__byteStride*index+8, endian), this.__dataViewGetter(this.__byteStride*index+9, endian), this.__dataViewGetter(this.__byteStride*index+10, endian), this.__dataViewGetter(this.__byteStride*index+11, endian),
-      this.__dataViewGetter(this.__byteStride*index+12, endian), this.__dataViewGetter(this.__byteStride*index+13, endian), this.__dataViewGetter(this.__byteStride*index+14, endian), this.__dataViewGetter(this.__byteStride*index+15, endian),
+      this.__dataViewGetter(this.__byteStride*index, endian), this.__dataViewGetter(this.__byteStride*index+1*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+2*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+3*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+4*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+5*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+6*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+7*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+8*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+9*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+10*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+11*byteSize, endian),
+      this.__dataViewGetter(this.__byteStride*index+12*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+13*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+14*byteSize, endian), this.__dataViewGetter(this.__byteStride*index+15*byteSize, endian),
     );
   }
 
@@ -387,4 +397,25 @@ export default class AccessorBase extends RnObject {
     return this.__max;
   }
 
+  calcMinMax() {
+    const componentN = this.compositionType.getNumberOfComponents();
+    const minVec3 = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
+    const maxVec3 = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
+    if (componentN === 3) {
+      for(let i=0; i<this.elementCount; i++) {
+        const vec3array = this.getVec3AsArray(i, {});
+        for (let j=0; j<3; j++) {
+          if (vec3array[j] < minVec3[j]) {
+            minVec3[j] = vec3array[j];
+          }
+          if (maxVec3[j] < vec3array[j]) {
+            maxVec3[j] = vec3array[j];
+          }
+        }
+      }
+    }
+
+    this.__min = minVec3;
+    this.__max = maxVec3;
+  }
 }
