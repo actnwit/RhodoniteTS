@@ -121,4 +121,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-127-gfcf7-mod branch: feature/normal-mapping';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-132-geaa4-mod branch: feature/aabb';
