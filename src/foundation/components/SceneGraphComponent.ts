@@ -217,7 +217,7 @@ export default class SceneGraphComponent extends Component {
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
 
       if (elem.__meshComponent != null) {
-        elem.__worldAABB = AABB.multiplyMatrix(elem.worldMatrixInner, elem.__meshComponent!.AABB);
+        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), elem.__meshComponent!.AABB);
       }
 
       var children = elem.children;
@@ -229,6 +229,7 @@ export default class SceneGraphComponent extends Component {
           console.assert("calculation of AABB error!");
         }
       }
+
       return elem.__worldAABB;
 
       return new AABB();

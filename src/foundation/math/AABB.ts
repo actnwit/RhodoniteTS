@@ -138,8 +138,9 @@ export default class AABB {
 
   get lengthCenterToCorner() {
     if (this.__isLengthCenterToCornerDirty) {
-      const lengthCenterToCorner = Vector3.lengthBtw(this.__centerPoint, this.__max);
+      const lengthCenterToCorner = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
       this.__lengthCenterToCorner = (lengthCenterToCorner !== lengthCenterToCorner) ? 0 : lengthCenterToCorner;
+      this.__isLengthCenterToCornerDirty = false;
     }
     return this.__lengthCenterToCorner;
   }
