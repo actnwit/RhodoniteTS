@@ -9,6 +9,7 @@ import { CompositionType, CompositionTypeEnum } from '../definitions/Composition
 import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
 import Material from '../materials/Material';
+import AABB from '../math/AABB';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
@@ -19,6 +20,7 @@ export default class Primitive extends RnObject {
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
   private static __headerAccessor?: Accessor;
+  private __aabb = new AABB();
 
   constructor(
     attributeAccessors: Array<Accessor>,
@@ -224,7 +226,14 @@ export default class Primitive extends RnObject {
   }
 
   get AABB() {
-    
+    if (this.__aabb.isVanilla()) {
+      const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
+      const positionAccessor = this.__attributes[positionIdx];
+      this.__aabb.minPoint = positionAccessor.min;
+      this.__aabb.maxPoint = positionAccessor.max;
+    }
+
+    return this.__aabb;
   }
 
 }

@@ -14,6 +14,8 @@ import Matrix33 from '../math/Matrix33';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Vector4 from '../math/Vector4';
 import Vector3 from '../math/Vector3';
+import AABB from '../math/AABB';
+import MeshComponent from './MeshComponent';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -24,6 +26,9 @@ export default class SceneGraphComponent extends Component {
   private __isWorldMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
   private static _isAllUpdate = false;
+  private __worldAABB = new AABB();
+  private __meshComponent?: MeshComponent;
+  private __isWorldAABBDirty = true;
 
   // Skeletal
   public isRootJoint = false;
@@ -39,13 +44,7 @@ export default class SceneGraphComponent extends Component {
 
     const thisClass = SceneGraphComponent;
 
-    this.__currentProcessStage = ProcessStage.Logic;
-    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic)!;
-    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Logic)!;
-    array[count++] = this.componentSID;
-    array[count] = Component.invalidComponentSID;
-
-    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
+//    this.__currentProcessStage = ProcessStage.Logic;
 
     this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
@@ -55,7 +54,6 @@ export default class SceneGraphComponent extends Component {
 
     //this.__updatedProperly = false;
 
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   isJoint() {
@@ -77,6 +75,7 @@ export default class SceneGraphComponent extends Component {
   setWorldMatrixDirty() {
     this.__isWorldMatrixUpToDate = false;
     SceneGraphComponent._isAllUpdate = false;
+    this.__isWorldAABBDirty = true;
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -118,6 +117,18 @@ export default class SceneGraphComponent extends Component {
 
   get normalMatrix() {
     return this.normalMatrixInner.clone();
+  }
+
+  $create() {
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
+
+    this.moveStageTo(ProcessStage.Logic);
+    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic)!;
+    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Logic)!;
+    array[count++] = this.componentSID;
+    array[count] = Component.invalidComponentSID;
+
+    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
   }
 
   $logic() {
@@ -199,6 +210,41 @@ export default class SceneGraphComponent extends Component {
     const worldPosition = new Vector3(this.worldMatrixInner.multiplyVector(zeroVector));
 
     return worldPosition;
+  }
+
+  calcWorldAABB() {
+    const that = this;
+    var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
+
+      if (elem.__meshComponent != null) {
+        elem.__worldAABB = AABB.multiplyMatrix(elem.worldMatrixInner, elem.__meshComponent!.AABB);
+      }
+
+      var children = elem.children;
+      for (let i = 0; i < children.length; i++) {
+        var aabb = mergeAABBRecursively(children[i]);
+        if (aabb instanceof AABB) {
+          elem.__worldAABB.mergeAABB(aabb);
+        } else {
+          console.assert("calculation of AABB error!");
+        }
+      }
+      return elem.__worldAABB;
+
+      return new AABB();
+    })(this);
+
+    this.__worldAABB.mergeAABB(aabb);
+
+    return this.__worldAABB;
+  }
+
+  get worldAABB() {
+    if (this.__isWorldAABBDirty) {
+      this.calcWorldAABB();
+      this.__isWorldAABBDirty = false;
+    }
+    return this.__worldAABB;
   }
 
 }

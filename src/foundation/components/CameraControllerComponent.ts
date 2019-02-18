@@ -16,6 +16,8 @@ import Entity from "../core/Entity";
 import Vector4 from "../math/Vector4";
 import Matrix44 from "../math/Matrix44";
 
+declare var window: any;
+
 export default class CameraControllerComponent extends Component {
   private __isKeyUp = false;
   private __movedMouseYOnCanvas = -1;
@@ -209,6 +211,45 @@ export default class CameraControllerComponent extends Component {
 //    this.updateCamera();
   };
 
+  __mouseWheel(evt: WheelEvent) {
+    MiscUtil.preventDefaultForDesktopOnly(evt);
+
+    this.dolly += evt.deltaY / 600;
+  };
+
+  __contexMenu(evt: Event) {
+    if (evt.preventDefault) {
+      MiscUtil.preventDefaultForDesktopOnly(evt);
+    } else {
+      evt.returnValue = false;
+    }
+  };
+
+  __mouseDblClick(evt: MouseEvent) {
+    if (evt.shiftKey) {
+      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
+    } else if (evt.ctrlKey) {
+      this.__rot_y = 0;
+      this.__rot_x = 0;
+      this.__rot_bgn_y = 0;
+      this.__rot_bgn_x = 0;
+    }
+  };
+
+  resetDolly() {
+    this.dolly = 1;
+  }
+
+  set dolly(value) {
+    this.__wheel_y = value;
+    this.__wheel_y = Math.min(this.__wheel_y, 3);
+    this.__wheel_y = Math.max(this.__wheel_y, 0.01);
+
+  }
+
+  get dolly() {
+    return this.__wheel_y;
+  }
 
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
@@ -223,11 +264,11 @@ export default class CameraControllerComponent extends Component {
         eventTargetDom.addEventListener("mousemove", this.__mouseMove.bind(this));
       }
 
-      // if (window.WheelEvent) {
-      //   eventTargetDom.addEventListener("wheel", this._onMouseWheel);
-      // }
-      // eventTargetDom.addEventListener("contextmenu", this._onContexMenu, false);
-      // eventTargetDom.addEventListener("dblclick", this._onMouseDblClick);
+      if (window.WheelEvent) {
+        eventTargetDom.addEventListener("wheel", this.__mouseWheel);
+      }
+      eventTargetDom.addEventListener("contextmenu", this.__contexMenu, false);
+      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick);
     }
   }
 
@@ -247,15 +288,15 @@ export default class CameraControllerComponent extends Component {
           passive: false
         });
       }
-      // if (window.WheelEvent) {
-      //   eventTargetDom.removeEventListener("wheel", this._onMouseWheel);
-      // }
-      // eventTargetDom.removeEventListener(
-      //   "contextmenu",
-      //   this._onContexMenu,
-      //   false
-      // );
-      // eventTargetDom.removeEventListener("dblclick", this._onMouseDblClick);
+      if (window.WheelEvent) {
+        eventTargetDom.removeEventListener("wheel", this.__mouseWheel);
+      }
+      eventTargetDom.removeEventListener(
+        "contextmenu",
+        this.__contexMenu,
+        false
+      );
+      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClick);
     }
   }
 
@@ -405,7 +446,7 @@ export default class CameraControllerComponent extends Component {
     let ratio = 1;
     if (typeof newLeft !== "undefined") {
       if (typeof this.__lengthCenterToCorner !== "undefined") {
-        //let aabb = this._getTargetAABB();
+        //let aabb = this.__getTargetAABB();
         ratio =
           camera.zNear /
           Math.abs(newCenterToEyeLength - this.__lengthCenterToCorner);
@@ -425,13 +466,13 @@ export default class CameraControllerComponent extends Component {
       }
     }
 
-    // if (this.__target) {
-    //   newZFar =
-    //     camera.zNear + Vector3.subtract(newCenterVec, newEyeVec).length();
-    //   newZFar +=
-    //     this.__getTargetAABB().lengthCenterToCorner *
-    //     this.__zFarAdjustingFactorBasedOnAABB;
-    // }
+    if (this.__targetEntity) {
+      newZFar =
+        camera.zNear + Vector3.subtract(newCenterVec, newEyeVec).length();
+      newZFar +=
+        this.__getTargetAABB().lengthCenterToCorner *
+        this.__zFarAdjustingFactorBasedOnAABB;
+    }
 
     this.__foyvBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
 
@@ -448,6 +489,10 @@ export default class CameraControllerComponent extends Component {
     };
   }
 
+  __getTargetAABB() {
+    return this.__targetEntity!.getSceneGraph().worldAABB;
+  }
+
   __updateTargeting(camera: CameraComponent) {
 
     const eyeVec = camera.eye;
@@ -459,20 +504,15 @@ export default class CameraControllerComponent extends Component {
       return {newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec};
     }
 
-    // let targetAABB = this._getTargetAABB();
+    let targetAABB = this.__getTargetAABB()
 
-    // const cameraZNearPlaneHeight = camera.top - camera.bottom;
-    // this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
-    // this.__lengthCameraToObject =
-    //   (targetAABB.lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) *
-    //   this.__scaleOfLengthCameraToCenter;
+    const cameraZNearPlaneHeight = camera.top - camera.bottom;
+    this.__lengthCenterToCorner = targetAABB.lengthCenterToCorner;
+    this.__lengthCameraToObject =
+      (targetAABB.lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) *
+      this.__scaleOfLengthCameraToCenter;
 
-    // if (!(targetAABB.centerPoint != null)) {
-    //   targetAABB.updateAllInfo();
-    // }
-    // let newCenterVec = targetAABB.centerPoint;
-
-    let newCenterVec = this.__targetEntity!.getSceneGraph().worldPosition;
+    let newCenterVec = targetAABB.centerPoint;//this.__targetEntity!.getSceneGraph().worldPosition;//targetAABB.centerPoint;
 
     let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
     let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);

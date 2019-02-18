@@ -13,9 +13,12 @@ import { BufferUse } from '../definitions/BufferUse';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
+import AABB from '../math/AABB';
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
+  private __localAABB = new AABB();
+
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -145,6 +148,16 @@ export default class MeshComponent extends Component {
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
   }
 
+  get AABB() {
+    if (this.__localAABB.isVanilla()) {
+      for (let primitive of this.__primitives) {
+        this.__localAABB.mergeAABB(primitive.AABB);
+      }
+    }
+
+    return this.__localAABB;
+  }
 
 }
+
 ComponentRepository.registerComponentClass(MeshComponent);

@@ -379,4 +379,12 @@ export default class AccessorBase extends RnObject {
     return this.__bufferView;
   }
 
+  get min() {
+    return this.__min;
+  }
+
+  get max() {
+    return this.__max;
+  }
+
 }

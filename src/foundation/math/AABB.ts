@@ -5,7 +5,7 @@ import MutableVector3 from './MutableVector3';
 
 export default class AABB {
   private __min: MutableVector3 = new MutableVector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-  private __max: MutableVector3 = new MutableVector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+  private __max: MutableVector3 = new MutableVector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
   private __centerPoint = Vector3.zero();
   private __lengthCenterToCorner = 0;
   private __isCenterPointDirty = false;
@@ -41,8 +41,8 @@ export default class AABB {
   }
 
   isVanilla() {
-    if (this.__min.x == Number.MAX_VALUE && this.__min.y == Number.MAX_VALUE && this.__min.z == Number.MAX_VALUE
-      && this.__max.x == -Number.MAX_VALUE && this.__max.y == -Number.MAX_VALUE && this.__max.z == -Number.MAX_VALUE) {
+    if (this.__min.x >= Number.MAX_VALUE && this.__min.y >= Number.MAX_VALUE && this.__min.z >= Number.MAX_VALUE
+      && this.__max.x <= -Number.MAX_VALUE && this.__max.y <= -Number.MAX_VALUE && this.__max.z <= -Number.MAX_VALUE) {
       return true;
     } else {
       return false;

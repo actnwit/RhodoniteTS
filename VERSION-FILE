@@ -1,6 +1,6 @@
-version: 0.1.1-130-g639e-mod
+version: 0.1.1-131-g1704-mod
 branch: feature/aabb
-d27ac1c6e3841ee4f2e9369608bfb2f48d3de8cd006fb08196e72b86457f21de ./dist/rhodonite.js
-8ae354d7432ad8c7f3c82fdcef074db2e60d67f496f9fbab1a863488b19161ef ./dist/rhodonite.min.js
-88843a36c81f1cd34b127dbf7ab68d98d35cd75c07e356601e7883ef24b3de14 ./dist/rhodonite-webgl.js
-215372f1ac798ca26ce0b2c0e74dfc73aee3ea06394fb18cb24206dc6ef27ed8 ./dist/rhodonite-webgl.min.js
+3d73c505eabe1db70633902c2c8b39092b770b8afc53803cd8cfb8363b1696a4 ./dist/rhodonite.js
+f6597c1136b98407b56aa6db79a8d2486be5a040fa090467f064d6e310a7a6c5 ./dist/rhodonite.min.js
+38a195e0e8afb870a265106e1deaaa23e129ce77e1651509c2275e9373e1ee0d ./dist/rhodonite-webgl.js
+38e19a8949a22cb1bef08882532d8a6fc6edfb7a853e26d598510bc090b76385 ./dist/rhodonite-webgl.min.js
