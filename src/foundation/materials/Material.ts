@@ -2,6 +2,7 @@ import RnObject from "../core/Object";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
+import { AlphaMode } from "../definitions/AlphaMode";
 
 
 export default class Material extends RnObject {
@@ -18,12 +19,20 @@ export default class Material extends RnObject {
   public occlusionTexture? :Texture;
   public emissiveTexture?: Texture;
   public emissiveFactor = Vector3.zero();
-  public alphaMode = 'OPAQUE';
+  public alphaMode = AlphaMode.Opaque;
   public alphaCutoff = 0.5;
   public doubleSided = false;
 
   constructor() {
     super(true);
     this.__materialUid = ++Material.__materialUidCount;
+  }
+
+  isBlend() {
+    if (this.alphaMode === AlphaMode.Blend) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

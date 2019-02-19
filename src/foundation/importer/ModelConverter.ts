@@ -25,6 +25,7 @@ import AnimationComponent from "../components/AnimationComponent";
 import { Animation } from "../definitions/Animation";
 import { MathUtil } from "../math/MathUtil";
 import SkeletalComponent from "../components/SkeletalComponent";
+import { AlphaMode } from "../definitions/AlphaMode";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -413,6 +414,11 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.metallicRoughnessTexture = rnTexture;
+      }
+
+      const alphaMode = materialJson.alphaMode;
+      if (alphaMode != null) {
+        material.alphaMode = AlphaMode.fromString(alphaMode);
       }
     }
 
