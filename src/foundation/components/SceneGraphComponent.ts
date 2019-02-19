@@ -123,12 +123,6 @@ export default class SceneGraphComponent extends Component {
     this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
 
     this.moveStageTo(ProcessStage.Logic);
-    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Logic)!;
-    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Logic)!;
-    array[count++] = this.componentSID;
-    array[count] = Component.invalidComponentSID;
-
-    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Logic, count)!;
   }
 
   $logic() {

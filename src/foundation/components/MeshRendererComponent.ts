@@ -42,12 +42,6 @@ export default class MeshRendererComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
-    let count = Component.__lengthOfArrayOfProcessStages.get(ProcessStage.Create)!;
-    const array: Int32Array = Component.__componentsOfProcessStages.get(ProcessStage.Create)!;
-    array[count++] = this.componentSID;
-    array[count] = Component.invalidComponentSID;
-    Component.__lengthOfArrayOfProcessStages.set(ProcessStage.Create, count)!;
-
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     const componentRepository = ComponentRepository.getInstance();
     const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
