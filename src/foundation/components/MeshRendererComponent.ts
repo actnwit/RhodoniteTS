@@ -40,6 +40,7 @@ export default class MeshRendererComponent extends Component {
   private static __cameraComponent?: CameraComponent;
   private static __firstOpaqueSid = Component.invalidComponentSID;
   private static __firstTransparentSid = Component.invalidComponentSID;
+  private static __manualTransparentSids?: ComponentSID[];
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -211,51 +212,72 @@ export default class MeshRendererComponent extends Component {
 
   }
 
-  static sort_$render() {
+  static sort_$render(): ComponentSID[] {
+    if (MeshRendererComponent.__manualTransparentSids == null) {
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
+
+      return sortedMeshComponentSids;
+    } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
+      return [];
+    } else {
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
+
+      return sortedMeshComponentSids;
+    }
+
+    return [];
+  }
+
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = []) {
     const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
     const opaqueMeshComponentSids: ComponentSID[] = [];
     const transparentMeshComponents: MeshComponent[] = [];
-    for (let i=0; i<meshComponents.length; i++) {
+    for (let i = 0; i < meshComponents.length; i++) {
       const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         let isBlendTypeMesh = false;
-        for (let j=0; j<meshComponent.getPrimitiveNumber(); j++) {
+        for (let j = 0; j < meshComponent.getPrimitiveNumber(); j++) {
           const primitive = meshComponent.getPrimitiveAt(j);
           if (primitive.material != null && primitive.material.isBlend()) {
             isBlendTypeMesh = true;
           }
         }
-        if (isBlendTypeMesh) {
+        if (transparentMeshComponentSids.length === 0 && isBlendTypeMesh) {
           transparentMeshComponents.push(meshComponent);
-        } else {
+        }
+        else {
           opaqueMeshComponentSids.push(meshComponent.componentSID);
         }
-
         const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
         if (cameraComponent) {
           meshComponent.calcViewDepth(cameraComponent);
         }
       }
     }
-
-    transparentMeshComponents.sort(function(a,b) {
-      if (a.viewDepth < b.viewDepth) return -1;
-      if (a.viewDepth > b.viewDepth) return 1;
+    transparentMeshComponents.sort(function (a, b) {
+      if (a.viewDepth < b.viewDepth)
+        return -1;
+      if (a.viewDepth > b.viewDepth)
+        return 1;
       return 0;
     });
 
-    const transparentMeshComponentSids = transparentMeshComponents.map((meshComponent)=>{
-      return meshComponent.componentSID;
-    });
+    if (transparentMeshComponentSids.length === 0) {
+      transparentMeshComponentSids = transparentMeshComponents.map((meshComponent) => {
+        return meshComponent.componentSID;
+      });
+    }
 
     MeshRendererComponent.__firstOpaqueSid = opaqueMeshComponentSids[0];
     MeshRendererComponent.__firstTransparentSid = transparentMeshComponentSids[0];
-
     const sortedMeshComponentSids = opaqueMeshComponentSids.concat(transparentMeshComponentSids);
     sortedMeshComponentSids.push(Component.invalidComponentSID);
-
     return sortedMeshComponentSids;
+  }
+
+  static set manualTransparentSids(sids: ComponentSID[]) {
+    MeshRendererComponent.__manualTransparentSids = sids;
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);

@@ -118,6 +118,8 @@
 
     const primitive = readyBasicVerticesData();
 
+    Rn.MeshRendererComponent.manualTransparentSids = [];
+
     const entities = [];
     const entityNumber = 100;
     for (let i=0; i<entityNumber; i++) {

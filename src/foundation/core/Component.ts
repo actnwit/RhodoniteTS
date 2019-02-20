@@ -180,12 +180,15 @@ export default class Component {
       const components = componentRepository.getComponentsWithType(componentClass)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
 
+      let sids = [];
       if (method != null) {
-        const sids = method();
+        sids = method();
         for (let i=0; i<sids.length; i++) {
           array[i] = sids[i];
         }
-      } else {
+      }
+
+      if (sids.length === 0) {
         let count = 0;
         for (let i=0; i<components.length; ++i) {
           const component = components[i];
