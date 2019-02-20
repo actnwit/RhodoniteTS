@@ -114,6 +114,10 @@ export default class Component {
     return this.__entityUid;
   }
 
+  get currentProcessStage() {
+    return this.__currentProcessStage;
+  }
+
   static isExistProcessStageMethod(componentType: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
     const component = componentRepository.getComponent(componentType, 0)!;
     if (component == null) {
@@ -170,19 +174,27 @@ export default class Component {
       return;
     }
 
-    const component = componentRepository.getComponentFromComponentTID(this.componentTID, 0)!;
     const dirty = Component.__componentsOfProcessStages.get(processStage)!
     if (dirty) {
+      const method = (componentClass as any)['sort_'+processStage.getMethodName()];
       const components = componentRepository.getComponentsWithType(componentClass)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
-      let count = 0;
-      for (let i=0; i<components.length; ++i) {
-        const component = components[i];
-        if (processStage === component.__currentProcessStage) {
-          array[count++] = component.componentSID;
+
+      if (method != null) {
+        const sids = method();
+        for (let i=0; i<sids.length; i++) {
+          array[i] = sids[i];
         }
+      } else {
+        let count = 0;
+        for (let i=0; i<components.length; ++i) {
+          const component = components[i];
+          if (processStage === component.__currentProcessStage) {
+            array[count++] = component.componentSID;
+          }
+        }
+        array[count] = Component.invalidComponentSID;
       }
-      array[count] = Component.invalidComponentSID;
     }
   }
 
