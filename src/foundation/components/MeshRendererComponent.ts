@@ -233,7 +233,9 @@ export default class MeshRendererComponent extends Component {
         }
 
         const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-        meshComponent.calcViewDepth(cameraComponent);
+        if (cameraComponent) {
+          meshComponent.calcViewDepth(cameraComponent);
+        }
       }
     }
 

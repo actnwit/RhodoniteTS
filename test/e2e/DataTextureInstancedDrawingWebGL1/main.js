@@ -98,7 +98,6 @@
       attributeCompositionTypes: [Rn.CompositionType.Vec3, Rn.CompositionType.Vec3],
       attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
       attributes: [positions, colors],
-      material: 0,
       primitiveMode: Rn.PrimitiveMode.Triangles
     });
 
