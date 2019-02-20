@@ -53,7 +53,7 @@ export default class Gltf2Importer {
       const json = JSON.parse(gotText);
       result = await this._loadAsTextJson(json, uri, options as ImporterOpition, defaultOptions);
     } else {
-      //this._loadAsBinaryJson(dataView, uri, isLittleEndian, arrayBuffer, options, defaultOptions);
+      result = await this._loadAsBinaryJson(dataView, uri, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions);
     }
 
     return result;
@@ -72,6 +72,41 @@ export default class Gltf2Importer {
     }
 
     return defaultOptions;
+  }
+
+  async _loadAsBinaryJson(dataView: DataView, uri: string, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: ImporterOpition, defaultOptions: {}) {
+    let gltfVer = dataView.getUint32(4, isLittleEndian);
+    if (gltfVer !== 2) {
+      throw new Error('invalid version field in this binary glTF file.');
+    }
+    let lengthOfThisFile = dataView.getUint32(8, isLittleEndian);
+    let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
+    let chunkType = dataView.getUint32(16, isLittleEndian);
+    // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)
+    if (chunkType !== 0x4E4F534A) {
+      throw new Error('invalid chunkType of chunk0 in this binary glTF file.');
+    }
+    let arrayBufferJSonContent = arrayBuffer.slice(20, 20 + lengthOfJSonChunkData);
+    let gotText = DataUtil.arrayBufferToString(arrayBufferJSonContent);
+    let gltfJson = JSON.parse(gotText);
+    options = this._getOptions(defaultOptions, gltfJson, options);
+    let arrayBufferBinary = arrayBuffer.slice(20 + lengthOfJSonChunkData + 8);
+
+    let basePath = null;
+    if (uri) {
+      //Set the location of glb file as basePath
+      basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
+    }
+
+    if (gltfJson.asset.extras === undefined) {
+      gltfJson.asset.extras = {};
+    }
+    this._mergeExtendedJson(gltfJson, options.extendedJson);
+    gltfJson.asset.extras.basePath = basePath;
+
+    const result  = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
+
+    return (result[0] as any)[0];
   }
 
   async _loadAsTextJson(gltfJson: glTF2, uri: string, options: ImporterOpition, defaultOptions: {}) {
