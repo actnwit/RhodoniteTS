@@ -14,11 +14,13 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import Accessor from '../memory/Accessor';
 import AABB from '../math/AABB';
+import CameraComponent from './CameraComponent';
+import Vector4 from '../math/Vector4';
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
   private __localAABB = new AABB();
-
+  private __viewDepth = -Number.MAX_VALUE;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -158,6 +160,18 @@ export default class MeshComponent extends Component {
     return this.__localAABB;
   }
 
+  calcViewDepth(cameraComponent: CameraComponent) {
+    const viewMatrix = cameraComponent.viewMatrix;
+    const centerPosition_inLocal = new Vector4(this.AABB.centerPoint);
+    const centerPosition_inView = viewMatrix.multiplyVector(centerPosition_inLocal);
+    this.__viewDepth = centerPosition_inView.z;
+
+    return this.__viewDepth;
+  }
+
+  get viewDepth() {
+    return this.__viewDepth;
+  }
 }
 
 ComponentRepository.registerComponentClass(MeshComponent);
