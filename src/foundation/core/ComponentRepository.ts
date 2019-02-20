@@ -97,10 +97,10 @@ export default class ComponentRepository {
 
   getComponentsWithType(componentType: typeof Component): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
-    let result: Component[] = [];
-    Array.prototype.push.apply(result, components!);
-
-    return result;
+    if (components == null) {
+      return [];
+    }
+    return components;
   }
 
   getComponentTIDs(): Array<ComponentTID> {
