@@ -240,4 +240,9 @@ export default class Primitive extends RnObject {
     return this.__aabb;
   }
 
+  addVertexAttribute(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
+    this.__attributes.push(accessor);
+    this.__attributeSemantics.push(vertexSemantics);
+  }
+
 }

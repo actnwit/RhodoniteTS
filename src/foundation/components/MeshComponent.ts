@@ -25,7 +25,7 @@ export default class MeshComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
-    this.moveStageTo(ProcessStage.Logic);
+    this.moveStageTo(ProcessStage.Load);
   }
 
   static get componentTID(): ComponentTID {
@@ -43,8 +43,9 @@ export default class MeshComponent extends Component {
     return this.__primitives.length;
   }
 
-  $logic() {
+  $load() {
     this.__calcTangents();
+    this.__calcFaceNormals();
     this.moveStageTo(ProcessStage.Mount);
   }
 
@@ -73,24 +74,25 @@ export default class MeshComponent extends Component {
 
         this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
+      primitive.addVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
     }
   }
 
   __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor) {
     // Calc normal
-    const ax = pos0.x - pos2.x;
-    const ay = pos0.y - pos2.y;
-    const az = pos0.z - pos2.z;
-    const bx = pos1.x - pos2.x;
-    const by = pos1.y - pos2.y;
-    const bz = pos1.z - pos2.z;
+    const ax = pos1.x - pos0.x;
+    const ay = pos1.y - pos0.y;
+    const az = pos1.z - pos0.z;
+    const bx = pos2.x - pos0.x;
+    const by = pos2.y - pos0.y;
+    const bz = pos2.z - pos0.z;
 
     let nx = ay * bz - az * by;
     let ny = az * bx - ax * bz;
     let nz = ax * by - ay * bx;
     let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
     if (da <= 1e-6) {
-      return 0;
+      da = 0.0001;
     }
     da = 1.0 / da;
     nx *= da;
@@ -134,6 +136,7 @@ export default class MeshComponent extends Component {
 
           this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, tangentAccessor, indicesAccessor);
         }
+        primitive.addVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
     }
   }

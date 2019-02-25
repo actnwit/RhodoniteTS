@@ -1,6 +1,6 @@
-version: 0.1.1-155-ge3f4-mod
+version: 0.1.1-156-g7e5e-mod
 branch: feature/software-bevel
-a0a5f22a5019b7702e4b1887727b58a0d810edcce59e2b7065a43dd176e93013 ./dist/rhodonite.js
-83d263317b97550aca084a3264d792497c7e1e5291abaa70c7c4b0d77d5acdc2 ./dist/rhodonite.min.js
-e9d8bfc259669b44cf2e19a5d334bc8d555cd3ceabc2d5227281d622043c6471 ./dist/rhodonite-webgl.js
-4036c2691cfcb7c5695b6732983e0c8c3d9394d80c2eda147e7a3554ec3df21d ./dist/rhodonite-webgl.min.js
+8abe8c8194a654e303c499add3f00a167449c6063a2e5aae22441855c2c04c09 ./dist/rhodonite.js
+e28e58aa41990c7cafed976062d64a7aff2289c17759935ed793250d1e8126d8 ./dist/rhodonite.min.js
+2d600c9b8c0c860271ec0e5b8e89cdc8ee775d9c157c5f94778dc5854eedb723 ./dist/rhodonite-webgl.js
+6586f99eb2b94a419ed63c375eb8c3e6582e818bc821b9162ff582a92b2d4361 ./dist/rhodonite-webgl.min.js
