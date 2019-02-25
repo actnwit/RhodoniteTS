@@ -48,6 +48,61 @@ export default class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Mount);
   }
 
+  __calcFaceNormals() {
+    for (let primitive of this.__primitives) {
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
+      const positionAccessor = primitive.attributeAccessors[positionIdx];
+      const indicesAccessor = primitive.indicesAccessor;
+
+      let incrementNum = 3; // PrimitiveMode.Triangles
+      if (primitive.primitiveMode === PrimitiveMode.TriangleStrip ||
+        primitive.primitiveMode === PrimitiveMode.TriangleFan) {
+        incrementNum = 1;
+      }
+
+      const vertexNum = primitive.getVertexCountAsIndicesBased();
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+
+      const normalAttributeByteSize = positionAccessor.byteLength;
+      const normalBufferView = buffer.takeBufferView({byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false});
+      const normalAccessor = normalBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+      for (let i = 0; i < vertexNum - 2; i += incrementNum) {
+        const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
+        const pos1 = positionAccessor.getVec3(i+1, {indicesAccessor});
+        const pos2 = positionAccessor.getVec3(i+2, {indicesAccessor});
+
+        this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
+      }
+    }
+  }
+
+  __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor) {
+    // Calc normal
+    const ax = pos0.x - pos2.x;
+    const ay = pos0.y - pos2.y;
+    const az = pos0.z - pos2.z;
+    const bx = pos1.x - pos2.x;
+    const by = pos1.y - pos2.y;
+    const bz = pos1.z - pos2.z;
+
+    let nx = ay * bz - az * by;
+    let ny = az * bx - ax * bz;
+    let nz = ax * by - ay * bx;
+    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    if (da <= 1e-6) {
+      return 0;
+    }
+    da = 1.0 / da;
+    nx *= da;
+    ny *= da;
+    nz *= da;
+    const faceNormal = new Vector3(nx, ny, nz);
+    normalAccessor.setVec3(i, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+    normalAccessor.setVec3(i+1, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+    normalAccessor.setVec3(i+2, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+
+  }
+
   __calcTangents() {
     for (let primitive of this.__primitives) {
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
