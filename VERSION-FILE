@@ -1,6 +1,6 @@
-version: 0.1.1-152-g07a6-mod
-branch: feature/improve-performance
-cbfa839226f614a9d448b224f548c5003f9358f8a3f7290971acc23899ce2ce2 ./dist/rhodonite.js
-7432ec9070eddd77fadeeded4203afe64bf6bc35d6ff5eb3244b93b4d36d3514 ./dist/rhodonite.min.js
-bf7dc1550147e9dba7de67b7b215841e7fa7eefb0997079b84a31ee2891fc19e ./dist/rhodonite-webgl.js
-f38f8d88985216ae21a56070bb3a31c00dba6e7fdd387b57b2537b86f4c76b81 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-157-g13df-mod
+branch: feature/bary-centric-coordinate
+e35a6c0acbfde932d4b1cb0ed4e4e08785d46e03b5550367f919053e8df82812 ./dist/rhodonite.js
+d29179658737905f64331f20f719b8478f53e8094ec442db3044d7d272ee96d0 ./dist/rhodonite.min.js
+c6597b4d9bedcfcd5ca5f5032c8a171d65e0f0cd71631162136484fab4135208 ./dist/rhodonite-webgl.js
+fa5dabcecf972bf4f9c7e1b5618a799f5a2bb962464008ea00ee1f3b1d51062f ./dist/rhodonite-webgl.min.js

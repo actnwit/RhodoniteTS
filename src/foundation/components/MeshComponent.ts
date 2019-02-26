@@ -25,7 +25,7 @@ export default class MeshComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
-    this.moveStageTo(ProcessStage.Logic);
+    this.moveStageTo(ProcessStage.Load);
   }
 
   static get componentTID(): ComponentTID {
@@ -43,9 +43,68 @@ export default class MeshComponent extends Component {
     return this.__primitives.length;
   }
 
-  $logic() {
+  $load() {
+//    this.makeVerticesSepareted();
     this.__calcTangents();
+    this.__calcFaceNormals();
+    this.__calcBaryCentricCoord();
     this.moveStageTo(ProcessStage.Mount);
+  }
+
+  __calcFaceNormals() {
+    for (let primitive of this.__primitives) {
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
+      const positionAccessor = primitive.attributeAccessors[positionIdx];
+      const indicesAccessor = primitive.indicesAccessor;
+
+      let incrementNum = 3; // PrimitiveMode.Triangles
+      if (primitive.primitiveMode === PrimitiveMode.TriangleStrip ||
+        primitive.primitiveMode === PrimitiveMode.TriangleFan) {
+        incrementNum = 1;
+      }
+
+      const vertexNum = primitive.getVertexCountAsIndicesBased();
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+
+      const normalAttributeByteSize = positionAccessor.byteLength;
+      const normalBufferView = buffer.takeBufferView({byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false});
+      const normalAccessor = normalBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+      for (let i = 0; i < vertexNum - 2; i += incrementNum) {
+        const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
+        const pos1 = positionAccessor.getVec3(i+1, {indicesAccessor});
+        const pos2 = positionAccessor.getVec3(i+2, {indicesAccessor});
+
+        this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
+      }
+      primitive.addVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
+    }
+  }
+
+  __calcFaceNormalFor3Vertices(i: Index, pos0: Vector3, pos1: Vector3, pos2: Vector3, normalAccessor: Accessor, indicesAccessor?: Accessor) {
+    // Calc normal
+    const ax = pos1.x - pos0.x;
+    const ay = pos1.y - pos0.y;
+    const az = pos1.z - pos0.z;
+    const bx = pos2.x - pos0.x;
+    const by = pos2.y - pos0.y;
+    const bz = pos2.z - pos0.z;
+
+    let nx = ay * bz - az * by;
+    let ny = az * bx - ax * bz;
+    let nz = ax * by - ay * bx;
+    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    if (da <= 1e-6) {
+      da = 0.0001;
+    }
+    da = 1.0 / da;
+    nx *= da;
+    ny *= da;
+    nz *= da;
+    const faceNormal = new Vector3(nx, ny, nz);
+    normalAccessor.setVec3(i, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+    normalAccessor.setVec3(i+1, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+    normalAccessor.setVec3(i+2, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+
   }
 
   __calcTangents() {
@@ -79,6 +138,7 @@ export default class MeshComponent extends Component {
 
           this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, tangentAccessor, indicesAccessor);
         }
+        primitive.addVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
     }
   }
@@ -171,6 +231,64 @@ export default class MeshComponent extends Component {
 
   get viewDepth() {
     return this.__viewDepth;
+  }
+
+  makeVerticesSepareted() {
+    for (let primitive of this.__primitives) {
+      if (primitive.hasIndices()) {
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+        const vertexCount = primitive.getVertexCountAsIndicesBased();
+
+        const indexAccessor = primitive.indicesAccessor;
+        for (let i in primitive.attributeAccessors) {
+          const attributeAccessor = primitive.attributeAccessors[i];
+          const elementSizeInBytes = attributeAccessor.elementSizeInBytes;
+          const bufferView = buffer.takeBufferView({byteLengthToNeed: elementSizeInBytes*vertexCount, byteStride: 0, isAoS: false});
+          const newAccessor = bufferView.takeAccessor({compositionType: attributeAccessor.compositionType, componentType: attributeAccessor.componentType, count: vertexCount});
+
+          for (let j=0; j<vertexCount; j++) {
+            const idx = indexAccessor!.getScalar(j, {});
+            newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
+          }
+
+          primitive.setVertexAttributes(newAccessor, primitive.attributeSemantics[i]);
+        }
+
+
+        const indicesAccessor = primitive.indicesAccessor!;
+        const elementSizeInBytes = indicesAccessor.elementSizeInBytes;
+        const bufferView = buffer.takeBufferView({byteLengthToNeed: elementSizeInBytes*vertexCount, byteStride: 0, isAoS: false});
+        const newAccessor = bufferView.takeAccessor({compositionType: indicesAccessor.compositionType, componentType: indicesAccessor.componentType, count: vertexCount});
+
+        for (let j=0; j<vertexCount; j++) {
+          //const idx = indexAccessor!.getScalar(j, {});
+          newAccessor.setScalar(j, j, {});
+        }
+
+        primitive.setIndices(newAccessor);
+      }
+    }
+  }
+
+  __calcBaryCentricCoord() {
+    for (let primitive of this.__primitives) {
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
+      const positionAccessor = primitive.attributeAccessors[positionIdx];
+      const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
+      const baryCentricCoordBufferView = buffer.takeBufferView({byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false});
+      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+
+      const vertexNum = positionAccessor.elementCount;
+      for (let i = 0; i < vertexNum; i++) {
+        baryCentricCoordAccessor.setVec3(i,
+          i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+          i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+          i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
+          {});
+      }
+      primitive.addVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
+    }
   }
 }
 

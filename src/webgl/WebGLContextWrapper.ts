@@ -15,6 +15,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtTFA?: EXT_texture_filter_anisotropic;
   public readonly webgl1ExtEIUI?: OES_element_index_uint;
   public readonly webgl1ExtSTL?: EXT_shader_texture_lod;
+  public readonly webgl1ExtDRV?: OES_standard_derivatives;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -35,6 +36,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
       this.webgl1ExtEIUI = this.__getExtension(WebGLExtension.ElementIndexUint);
       this.webgl1ExtSTL = this.__getExtension(WebGLExtension.ShaderTextureLod);
+      this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
     }
   }
 
