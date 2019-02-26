@@ -1,6 +1,6 @@
-version: 0.1.1-156-g7e5e-mod
-branch: feature/software-bevel
-8abe8c8194a654e303c499add3f00a167449c6063a2e5aae22441855c2c04c09 ./dist/rhodonite.js
-e28e58aa41990c7cafed976062d64a7aff2289c17759935ed793250d1e8126d8 ./dist/rhodonite.min.js
-2d600c9b8c0c860271ec0e5b8e89cdc8ee775d9c157c5f94778dc5854eedb723 ./dist/rhodonite-webgl.js
-6586f99eb2b94a419ed63c375eb8c3e6582e818bc821b9162ff582a92b2d4361 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-157-g13df-mod
+branch: feature/bary-centric-coordinate
+e35a6c0acbfde932d4b1cb0ed4e4e08785d46e03b5550367f919053e8df82812 ./dist/rhodonite.js
+d29179658737905f64331f20f719b8478f53e8094ec442db3044d7d272ee96d0 ./dist/rhodonite.min.js
+c6597b4d9bedcfcd5ca5f5032c8a171d65e0f0cd71631162136484fab4135208 ./dist/rhodonite-webgl.js
+fa5dabcecf972bf4f9c7e1b5618a799f5a2bb962464008ea00ee1f3b1d51062f ./dist/rhodonite-webgl.min.js

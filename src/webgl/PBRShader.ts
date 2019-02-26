@@ -28,17 +28,21 @@ precision highp float;
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
+${_in} vec3 a_faceNormal;
 ${_in} vec3 a_tangent;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
+${_in} vec3 a_baryCentricCoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
+${_out} vec3 v_faceNormal_inWorld;
 ${_out} vec3 v_tangent_inWorld;
 ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
+${_out} vec3 v_baryCentricCoord;
 uniform mat4 u_boneMatrices[100];
 
 ${this.toNormalMatrix}
@@ -62,7 +66,9 @@ void main ()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   v_color = a_color;
+
   v_normal_inWorld = normalMatrix * a_normal;
+  v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
 
   // Skeletal
@@ -77,8 +83,9 @@ void main ()
 
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
-
   }
+
+  v_baryCentricCoord = a_baryCentricCoord;
 
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
@@ -94,6 +101,7 @@ void main ()
 
     return `${_version}
 ${this.glsl1ShaderTextureLodExt}
+${this.glsl1ShaderDerivativeExt}
 precision highp float;
 
 struct Material {
@@ -123,10 +131,12 @@ uniform vec3 u_iblParameter;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
+${_in} vec3 v_faceNormal_inWorld;
 ${_in} vec3 v_tangent_inWorld;
 ${_in} vec3 v_binormal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
+${_in} vec3 v_baryCentricCoord;
 ${_def_rt0}
 
 ${this.pbrUniformDefinition}
@@ -156,6 +166,8 @@ void main ()
       normal_inWorld = normal;
     }
   }
+
+
 
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
@@ -288,7 +300,7 @@ void main ()
     return this.fragmentShaderSimple;
   }
 
-  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_instanceID'];
+  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_faceNormal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
   static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-    VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+    VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 }

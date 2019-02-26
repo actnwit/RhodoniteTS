@@ -73,7 +73,12 @@ export default abstract class GLSLShader {
 
   get glsl1ShaderTextureLodExt() {
     const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
-    return (ext != null)? '#extension GL_EXT_shader_texture_lod : require\n' : '';
+    return (ext != null) ? '#extension GL_EXT_shader_texture_lod : require' : '';
+  }
+
+  get glsl1ShaderDerivativeExt() {
+    const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtDRV;
+    return (ext != null) ? '#extension GL_OES_standard_derivatives : require' : '';
   }
 
   get toNormalMatrix() {

@@ -345,6 +345,39 @@ export default class AccessorBase extends RnObject {
     this.__dataViewSetter(this.__byteStride*index+3*sizeInBytes, w, endian);
   }
 
+  setVec2AsVector(i: Index, vec: Vector2, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride*index, vec.x, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, vec.y, endian);
+  }
+
+  setVec3AsVector(i: Index, vec: Vector3, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride*index, vec.x, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, vec.y, endian);
+    this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, vec.z, endian);
+  }
+
+  setVec4AsVector(i: Index, vec: Vector4, {indicesAccessor, endian = true}: {indicesAccessor?: Accessor|undefined, endian?: boolean}) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride*index, vec.x, endian);
+    this.__dataViewSetter(this.__byteStride*index+1*sizeInBytes, vec.y, endian);
+    this.__dataViewSetter(this.__byteStride*index+2*sizeInBytes, vec.z, endian);
+    this.__dataViewSetter(this.__byteStride*index+3*sizeInBytes, vec.w, endian);
+  }
+
   copyFromTypedArray(typedArray: TypedArray) {
     const componentN = this.numberOfComponents;
     const setter = (this as any)['setVec'+componentN];
@@ -367,6 +400,19 @@ export default class AccessorBase extends RnObject {
       index = indicesAccessor.getScalar(i, {});
     }
     this.__dataViewSetter(this.__byteStride*index + conpositionOffset, value, endian);
+  }
+
+  setElementFromSameCompositionAccessor(i:Index, accessor: Accessor, secondIdx?:Index) {
+    const j = (secondIdx != null) ? secondIdx : i;
+    if (this.compositionType.getNumberOfComponents() === 1) {
+      this.setScalar(i, accessor.getScalar(j, {}), {});
+    } else if (this.compositionType.getNumberOfComponents() === 2) {
+      this.setVec2AsVector(i, accessor.getVec2(j, {}), {});
+    } else if (this.compositionType.getNumberOfComponents() === 3) {
+      this.setVec3AsVector(i, accessor.getVec3(j, {}), {});
+    } else if (this.compositionType.getNumberOfComponents() === 4) {
+      this.setVec4AsVector(i, accessor.getVec4(j, {}), {});
+    }
   }
 
   get arrayBufferOfBufferView(): ArrayBuffer {

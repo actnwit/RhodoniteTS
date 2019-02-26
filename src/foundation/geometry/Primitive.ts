@@ -245,4 +245,17 @@ export default class Primitive extends RnObject {
     this.__attributeSemantics.push(vertexSemantics);
   }
 
+  setVertexAttributes(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
+    const index = this.__attributeSemantics.indexOf(vertexSemantics);
+    this.__attributes[index] = accessor;
+  }
+
+  removeIndices() {
+    this.__indices = undefined;
+  }
+
+  setIndices(accessor: Accessor) {
+    this.__indices = accessor;
+  }
+
 }
