@@ -1,6 +1,6 @@
-version: 0.1.1-157-g13df-mod
-branch: feature/bary-centric-coordinate
-e35a6c0acbfde932d4b1cb0ed4e4e08785d46e03b5550367f919053e8df82812 ./dist/rhodonite.js
-d29179658737905f64331f20f719b8478f53e8094ec442db3044d7d272ee96d0 ./dist/rhodonite.min.js
-c6597b4d9bedcfcd5ca5f5032c8a171d65e0f0cd71631162136484fab4135208 ./dist/rhodonite-webgl.js
-fa5dabcecf972bf4f9c7e1b5618a799f5a2bb962464008ea00ee1f3b1d51062f ./dist/rhodonite-webgl.min.js
+version: 0.1.1-159-ga205-mod
+branch: fix/mouse-event-cameracontroller
+93423979bc7cc7470396c0155e29d2e5009635febaaa5d8931ad4d091b270917 ./dist/rhodonite.js
+0017a0bd4cc55352597673437fa464108001f3e8d3b0c1f0daac275282dc99c9 ./dist/rhodonite.min.js
+90771136686cc7f53063d57a7135b736d8ae810be2c5e096484cd4208746507f ./dist/rhodonite-webgl.js
+9d317223af4cf78370b9da5bb3813b04a99336ef79415dcafcbe343de07b2299 ./dist/rhodonite-webgl.min.js

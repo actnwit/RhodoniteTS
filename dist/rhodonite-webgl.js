@@ -121,4 +121,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-157-g13df-mod branch: feature/bary-centric-coordinate';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-159-ga205-mod branch: fix/mouse-event-cameracontroller';
