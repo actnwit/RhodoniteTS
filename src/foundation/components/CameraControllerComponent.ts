@@ -85,8 +85,8 @@ export default class CameraControllerComponent extends Component {
   }
 
   __mouseDown(evt: any) {
-    MiscUtil.preventDefaultForDesktopOnly(evt);
-    evt.stopPropagation();
+    //MiscUtil.preventDefaultForDesktopOnly(evt);
+//    evt.stopPropagation();
 
     let rect = evt.target!.getBoundingClientRect();
     let clientX = null;
@@ -114,8 +114,8 @@ export default class CameraControllerComponent extends Component {
   }
 
   __mouseMove(evt: any) {
-    MiscUtil.preventDefaultForDesktopOnly(evt);
-    evt.stopPropagation();
+    //MiscUtil.preventDefaultForDesktopOnly(evt);
+    //evt.stopPropagation();
 
     if (this.__isKeyUp) {
       return;
