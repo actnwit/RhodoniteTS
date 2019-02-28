@@ -1107,4 +1107,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-159-ga205-mod branch: fix/mouse-event-cameracontroller';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-163-g0f44-mod branch: fix/rendering-error';

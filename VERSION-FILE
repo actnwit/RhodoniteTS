@@ -1,6 +1,6 @@
-version: 0.1.1-159-ga205-mod
-branch: fix/mouse-event-cameracontroller
-93423979bc7cc7470396c0155e29d2e5009635febaaa5d8931ad4d091b270917 ./dist/rhodonite.js
-0017a0bd4cc55352597673437fa464108001f3e8d3b0c1f0daac275282dc99c9 ./dist/rhodonite.min.js
-90771136686cc7f53063d57a7135b736d8ae810be2c5e096484cd4208746507f ./dist/rhodonite-webgl.js
-9d317223af4cf78370b9da5bb3813b04a99336ef79415dcafcbe343de07b2299 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-163-g0f44-mod
+branch: fix/rendering-error
+c49fd9c06ee55ff2095298bcd9885a6dbddd307a6587ce0368990cf981fe4015 ./dist/rhodonite.js
+81ee735b8cc8e096ed8aad4fbac4d54af3444c7419075b6a51766c9957b61bdf ./dist/rhodonite.min.js
+8049cd00228e2ac96bf0ebb334a8ba33140d246c53481cdfd853f2fa00194e4c ./dist/rhodonite-webgl.js
+575ffbf5c216ee7c97feece1ab9c1322e9f4f0567234227d86c7bbadad04e171 ./dist/rhodonite-webgl.min.js
