@@ -44,10 +44,10 @@ export default class MeshComponent extends Component {
   }
 
   $load() {
-//    this.makeVerticesSepareted();
+    //this.makeVerticesSepareted();
     this.__calcTangents();
-    this.__calcFaceNormals();
-    this.__calcBaryCentricCoord();
+    //this.__calcFaceNormals();
+    //this.__calcBaryCentricCoord();
     this.moveStageTo(ProcessStage.Mount);
   }
 
@@ -64,7 +64,7 @@ export default class MeshComponent extends Component {
       }
 
       const vertexNum = primitive.getVertexCountAsIndicesBased();
-      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
       const normalAttributeByteSize = positionAccessor.byteLength;
       const normalBufferView = buffer.takeBufferView({byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false});
@@ -123,7 +123,7 @@ export default class MeshComponent extends Component {
         }
 
         const vertexNum = primitive.getVertexCountAsIndicesBased();
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = positionAccessor.byteLength;
         const tangentBufferView = buffer.takeBufferView({byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false});
@@ -272,7 +272,7 @@ export default class MeshComponent extends Component {
 
   __calcBaryCentricCoord() {
     for (let primitive of this.__primitives) {
-      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
