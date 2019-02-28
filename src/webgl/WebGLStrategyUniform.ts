@@ -392,10 +392,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
       gl.bindTexture(gl.TEXTURE_2D, null);
-      gl.useProgram(null);
       this.dettachVertexData(glw);
     }
-
+    gl.useProgram(null);
   }
 
 }
