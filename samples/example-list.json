@@ -1,8 +1,12 @@
 {
-  "e2e": [
+  "test_e2e": [
     "DataTextureInstancedDrawingWebGL1",
     "DataTextureInstancedDrawingWebGL2",
     "Gltf2Importer",
     "UBOInstancedDrawing"
+  ],
+  "simple": [
+    "Effekseer",
+    "SparkGear"
   ]
 }
