@@ -44,10 +44,10 @@ export default class MeshComponent extends Component {
   }
 
   $load() {
-    //this.makeVerticesSepareted();
+    this.makeVerticesSepareted();
     this.__calcTangents();
     //this.__calcFaceNormals();
-    //this.__calcBaryCentricCoord();
+    this.__calcBaryCentricCoord();
     this.moveStageTo(ProcessStage.Mount);
   }
 
@@ -275,16 +275,25 @@ export default class MeshComponent extends Component {
       const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
+      const indicesAccessor = primitive.indicesAccessor;
       const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
       const baryCentricCoordBufferView = buffer.takeBufferView({byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false});
       const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
 
       const vertexNum = positionAccessor.elementCount;
-      for (let i = 0; i < vertexNum; i++) {
-        baryCentricCoordAccessor.setVec3(i,
-          i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
-          i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
-          i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
+      let num = vertexNum;
+      if (indicesAccessor) {
+        num = indicesAccessor.elementCount;
+      }
+      for (let ver_i = 0; ver_i < num; ver_i++) {
+        let idx = ver_i;
+        if (indicesAccessor) {
+          idx = indicesAccessor!.getScalar(ver_i, {});
+        }
+        baryCentricCoordAccessor.setVec3(idx,
+          idx % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+          idx % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+          idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
           {});
       }
       primitive.addVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);

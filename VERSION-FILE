@@ -1,6 +1,6 @@
-version: 0.1.1-165-gf565-mod
-branch: fix/memory-management
-ea5196cb12d421d823d598019efbb0b59d2ed94cae8c36049e5114bbef8023b6 ./dist/rhodonite.js
-5abe1255e090c3f8571cb5c3dd951a9efa41540409554b19838b694f18db0555 ./dist/rhodonite.min.js
-d486314490a8bf0cc329a9fcf6f33fbf4f51aafa4729f7b51966c244994147b7 ./dist/rhodonite-webgl.js
-add2d6d1b9af83c577c5c0956f12f510ae1f0e7ccc24b15d75ce9d65faa14d9c ./dist/rhodonite-webgl.min.js
+version: 0.1.1-169-g22bd-mod
+branch: feature/support-wireframe
+b85f61031594f7b80c9876aab2878f0eb78eb097dd86c0b5d8ad4a67c167a0ad ./dist/rhodonite.js
+c4c0c3d9511a06624022765fd788bea77ff4b5ccb1d8f5b4cc32e08b5e178707 ./dist/rhodonite.min.js
+4a45c36787573daf513e6a10f817dff3f611a14ef000cc0e2a1876ab357a14a6 ./dist/rhodonite-webgl.js
+59e77505ee0258d070049287b55abecfe491cd8bbe80cdb99c9c9b9ae20a7fea ./dist/rhodonite-webgl.min.js

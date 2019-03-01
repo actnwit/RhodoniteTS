@@ -254,7 +254,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>, y?: number, z?: number, w?: number}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, index?: Count) {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
     let funcName = 'uniform';

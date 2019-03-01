@@ -29,7 +29,9 @@ import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
 import LightComponent from './components/LightComponent';
 import { LightType } from './definitions/LightType';
+import { AlphaMode } from './definitions/AlphaMode';
 import CubeTexture from './textures/CubeTexture';
+import Material from './materials/Material';
 import CameraControllerComponent from './components/CameraControllerComponent';
 
 const Rn = {
@@ -65,7 +67,9 @@ const Rn = {
   LightComponent,
   LightType,
   CubeTexture,
-  CameraControllerComponent
+  CameraControllerComponent,
+  AlphaMode,
+  Material
 };
 export default Rn;
 

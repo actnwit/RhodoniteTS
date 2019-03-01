@@ -16,7 +16,7 @@ function generateEntity() {
 test('Use translate simply', () => {
   const firstEntity = generateEntity();
 
-  const indices = new Float32Array([
+  const indices = new Uint32Array([
     0, 1, 3, 3, 1, 2
   ]);
 
