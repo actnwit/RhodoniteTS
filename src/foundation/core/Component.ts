@@ -213,7 +213,7 @@ export default class Component {
 
   }
 
-  static takeBufferViewer(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte, count: Count) {
+  static takeBufferView(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte, count: Count) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
 
     if (!this.__bufferViews.has(componentClass)) {
@@ -344,9 +344,9 @@ export default class Component {
         member.get(info.bufferUse)!.push(info);
       });
 
+      // take a BufferView for all entities for each member fields.
       for (let bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
-        const bufferUseName = bufferUse.toString();
         if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
           Component.__byteLengthSumOfMembers.set(componentClass, new Map());
         }
@@ -361,10 +361,11 @@ export default class Component {
           );
         });
         if (infoArray.length > 0) {
-          Component.takeBufferViewer(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
+          Component.takeBufferView(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
         }
       }
 
+      // take a Accessor for all entities for each member fields (same as BufferView)
       for (let bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
         infoArray.forEach(info=>{
@@ -375,8 +376,7 @@ export default class Component {
 
     const member = Component.__members.get(componentClass)!;
 
-
-    // takeOne
+    // take a field value allocation for each entity for each member field
     for (let bufferUse of member.keys()) {
       const infoArray = member.get(bufferUse)!;
       infoArray.forEach(info=>{
