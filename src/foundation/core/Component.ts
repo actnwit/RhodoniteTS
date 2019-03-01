@@ -332,7 +332,7 @@ export default class Component {
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
 
-    if (this._component_sid <= 1) {
+    if (this._component_sid === 0) {
       if (!Component.__members.has(componentClass)) {
         Component.__members.set(componentClass, new Map());
       }
