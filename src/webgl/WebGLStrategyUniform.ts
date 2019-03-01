@@ -107,6 +107,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false},
       {semantic: ShaderSemantics.IBLParameter, isPlural: false},
       {semantic: ShaderSemantics.ViewPosition, isPlural: false},
+      {semantic: ShaderSemantics.Wireframe, isPlural: false},
     ];
     const lights = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -389,6 +390,17 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   //    const cameraPosition = cameraComponent.entity.getSceneGraph().worldPosition;
       const cameraPosition = cameraComponent.worldPosition;
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, {x:cameraPosition.v});
+
+      // Wireframe
+      let isWireframe = false;
+      let isWireframeOnShade = false;
+      let wireframeWidth = 1.0;
+      if (material) {
+        isWireframe = material.isWireframe;
+        isWireframeOnShade = material.isWireframeOnShade;
+        wireframeWidth = material.wireframeWidth;
+      }
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.Wireframe, false, 3, 'f', false, {x: isWireframe, y: !isWireframeOnShade, z: wireframeWidth});
 
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
       gl.bindTexture(gl.TEXTURE_2D, null);

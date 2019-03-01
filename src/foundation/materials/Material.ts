@@ -22,6 +22,9 @@ export default class Material extends RnObject {
   public alphaMode = AlphaMode.Opaque;
   public alphaCutoff = 0.5;
   public doubleSided = false;
+  public isWireframe = false;
+  public isWireframeOnShade = false;
+  public wireframeWidth = 1.0;
 
   constructor() {
     super(true);
