@@ -210,7 +210,7 @@ export default class ModelConverter {
         for (let channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
           const animOutputArray = channel.sampler.output.extras.typedDataArray;
-          const interpolation = channel.sampler.interpolation;
+          const interpolation = (channel.sampler.interpolation != null) ? channel.sampler.interpolation : 'LINEAR';
 
           let animationAttributeName = '';
           if (channel.target.path === 'translation') {
