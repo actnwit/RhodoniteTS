@@ -1,14 +1,13 @@
 import DataUtil from "../misc/DataUtil";
 
-
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
 
   private constructor() {
   }
 
-  async import(uri: string,  options: {} = {}) {
-    let defaultOptions = {
+  async import(uri: string,  options: GltfLoadOption) {
+    let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
         //        "foo.bin": content of file as ArrayBuffer,
@@ -32,32 +31,46 @@ export default class Gltf2Importer {
           isTextureImageToLoadPreMultipliedAlpha: false,
         }
       ],
-      extendedJson: null //   URI string / JSON Object / ArrayBuffer
+      extendedJson: void 0 //   URI string / JSON Object / ArrayBuffer
     };
 
-    const response = await fetch(uri);
+    if (options && options.files) {
+      for (let fileName in options.files) {
+        const splitted = fileName.split('.');
+        const fileExtension = splitted[splitted.length - 1];
 
+        if (fileExtension === 'gltf' || fileExtension === 'glb') {
+          return await this.__loadFromArrayBuffer((options.files as any)[fileName], options, defaultOptions, void 0);
+        }
+      }
+    }
+
+
+
+    const response = await fetch(uri);
     const arrayBuffer = await response.arrayBuffer();
+
+    return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri);
+
+  }
+
+  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, uri?: string) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
-
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-
-
     let result;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546C67) {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, uri, options as ImporterOpition, defaultOptions);
-    } else {
-      result = await this._loadAsBinaryJson(dataView, uri, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions);
+      result = await this._loadAsTextJson(json, options as ImporterOpition, defaultOptions, uri);
     }
-
+    else {
+      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions, uri);
+    }
     return result;
-
   }
 
   _getOptions(defaultOptions: any, json: glTF2, options: any): ImporterOpition {
@@ -74,7 +87,7 @@ export default class Gltf2Importer {
     return defaultOptions;
   }
 
-  async _loadAsBinaryJson(dataView: DataView, uri: string, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: ImporterOpition, defaultOptions: {}) {
+  async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
     let gltfVer = dataView.getUint32(4, isLittleEndian);
     if (gltfVer !== 2) {
       throw new Error('invalid version field in this binary glTF file.');
@@ -109,7 +122,7 @@ export default class Gltf2Importer {
     return (result[0] as any)[0];
   }
 
-  async _loadAsTextJson(gltfJson: glTF2, uri: string, options: ImporterOpition, defaultOptions: {}) {
+  async _loadAsTextJson(gltfJson: glTF2, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
     let basePath: string;
     if (uri) {
       //Set the location of gltf file as basePath
