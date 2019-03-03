@@ -2,6 +2,7 @@ import RnObject from "../core/Object";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import { AlphaMode } from "../definitions/AlphaMode";
+import { MaterialElementEnum } from "../definitions/MaterialElement";
 
 
 export default abstract class AbstractMaterial extends RnObject {
@@ -17,12 +18,15 @@ export default abstract class AbstractMaterial extends RnObject {
   public isWireframeOnShade = false;
   public wireframeWidth = 1.0;
 
+  public materialElement: MaterialElementEnum;
+
   public baseColor: MutableColorRgb = new MutableColorRgb(1, 1, 1);
   public baseColorTexture?: Texture
 
-  constructor() {
+  constructor(materialElement: MaterialElementEnum) {
     super(true);
     this.__materialUid = ++AbstractMaterial.__materialUidCount;
+    this.materialElement = materialElement;
   }
 
   isBlend() {

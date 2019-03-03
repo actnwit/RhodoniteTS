@@ -4,6 +4,7 @@ import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
 import AbstractMaterial from "./AbstractMaterial";
+import { MaterialElement } from "../definitions/MaterialElement";
 
 
 export default class PbrMaterial extends AbstractMaterial {
@@ -17,14 +18,6 @@ export default class PbrMaterial extends AbstractMaterial {
   public emissiveFactor = Vector3.zero();
 
   constructor() {
-    super();
-  }
-
-  isBlend() {
-    if (this.alphaMode === AlphaMode.Blend) {
-      return true;
-    } else {
-      return false;
-    }
+    super(MaterialElement.PBRShading);
   }
 }

@@ -31,7 +31,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __uboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __shaderProgram?: WebGLShader;
-  //private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __lightComponents?: LightComponent[];
   private __dummyWhiteTextureUid?: CGAPIResourceHandle;
