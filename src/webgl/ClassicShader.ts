@@ -1,5 +1,4 @@
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import WebGLResourceRepository from "./WebGLResourceRepository";
 import GLSLShader from "./GLSLShader";
 import Config from "../foundation/core/Config";
 

@@ -14,7 +14,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import MutableMatrix44 from "../math/MutableMatrix44";
-import Material from "../materials/Material";
+import PbrMaterial from "../materials/PbrMaterial";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
@@ -210,7 +210,7 @@ export default class ModelConverter {
         for (let channel of animation.channels) {
           const animInputArray = channel.sampler.input.extras.typedDataArray;
           const animOutputArray = channel.sampler.output.extras.typedDataArray;
-          const interpolation = channel.sampler.interpolation;
+          const interpolation = (channel.sampler.interpolation != null) ? channel.sampler.interpolation : 'LINEAR';
 
           let animationAttributeName = '';
           if (channel.target.path === 'translation') {
@@ -346,11 +346,11 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setupMaterial(materialJson:any) : Material|undefined {
+  private __setupMaterial(materialJson:any) : PbrMaterial|undefined {
     if (materialJson == null) {
       return void 0;
     }
-    const material = new Material();
+    const material = new PbrMaterial();
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 
@@ -668,14 +668,28 @@ export default class ModelConverter {
       byteOffset: (bufferView.byteOffset != null) ? bufferView.byteOffset : 0,
       isAoS: false
     });
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
-      max: accessor.max,
-      min: accessor.min
-    });
+
+    let rnAccessor;
+    if (accessor.byteStride != null) {
+      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteStride: accessor.byteStride,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    } else {
+      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    }
 
     return rnAccessor;
   }

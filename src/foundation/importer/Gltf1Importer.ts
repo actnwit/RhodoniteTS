@@ -1,7 +1,7 @@
 import DataUtil from "../misc/DataUtil";
 
-export default class Gltf2Importer {
-  private static __instance: Gltf2Importer;
+export default class Gltf1Importer {
+  private static __instance: Gltf1Importer;
 
   private constructor() {
   }
@@ -73,7 +73,7 @@ export default class Gltf2Importer {
     return result;
   }
 
-  _getOptions(defaultOptions: any, json: glTF2, options: any): ImporterOpition {
+  _getOptions(defaultOptions: any, json: glTF1, options: any): ImporterOpition {
     if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
       for (let optionName in json.asset.extras.loadOptions) {
         defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
@@ -122,7 +122,7 @@ export default class Gltf2Importer {
     return (result[0] as any)[0];
   }
 
-  async _loadAsTextJson(gltfJson: glTF2, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
+  async _loadAsTextJson(gltfJson: glTF1, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
     let basePath: string;
     if (uri) {
       //Set the location of gltf file as basePath
@@ -142,7 +142,7 @@ export default class Gltf2Importer {
     return (result[0] as any)[0];
   }
 
-  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: ImporterOpition) {
+  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF1, options: ImporterOpition) {
     let promises = [];
 
     let resources = {
@@ -159,7 +159,9 @@ export default class Gltf2Importer {
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2, options: ImporterOpition) {
+  _loadJsonContent(gltfJson: glTF1, options: ImporterOpition) {
+
+    this._convertToGltf2LikeStructure(gltfJson);
 
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
@@ -171,7 +173,7 @@ export default class Gltf2Importer {
     this._loadDependenciesOfMeshes(gltfJson);
 
     // Material
-    this._loadDependenciesOfMaterials(gltfJson);
+//    this._loadDependenciesOfMaterials(gltfJson);
 
     // Texture
     this._loadDependenciesOfTextures(gltfJson);
@@ -197,67 +199,145 @@ export default class Gltf2Importer {
 
   }
 
-  _loadDependenciesOfScenes(gltfJson: glTF2) {
-    for (let scene of gltfJson.scenes) {
-      scene.nodesIndices = scene.nodes.concat();
-      for (let i in scene.nodesIndices) {
-        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
+  private _convertToGltf2LikeStructure(gltfJson: glTF1) {
+    gltfJson.bufferDic = gltfJson.buffers;
+    gltfJson.buffers = [];
+    for (let bufferName in gltfJson.bufferDic) {
+      gltfJson.buffers.push((gltfJson.bufferDic as any)[bufferName]);
+    }
+    gltfJson.sceneDic = gltfJson.scenes;
+    gltfJson.scenes = [];
+    for (let sceneName in gltfJson.sceneDic) {
+      gltfJson.scenes.push((gltfJson.sceneDic as any)[sceneName]);
+    }
+
+    gltfJson.meshDic = gltfJson.meshes;
+
+    {
+      let count = 0;
+      gltfJson.nodeDic = gltfJson.nodes;
+      gltfJson.nodes = [];
+      gltfJson.nodesIndices = [];
+      for (let nodeName in gltfJson.nodeDic) {
+        gltfJson.nodesIndices.push(count++);
+        gltfJson.nodes.push((gltfJson.nodeDic as any)[nodeName]);
+      }
+    }
+
+    gltfJson.skinDic = gltfJson.skins;
+    gltfJson.skins = [];
+    for (let skinName in gltfJson.skinDic) {
+      gltfJson.skins.push((gltfJson.skinDic as any)[skinName]);
+    }
+
+    gltfJson.materialDic = gltfJson.materials;
+    gltfJson.cameraDic = gltfJson.cameras;
+    gltfJson.shaderDic = gltfJson.shaders;
+    gltfJson.imageDic = gltfJson.images;
+    gltfJson.animationDic = gltfJson.animations as any;
+    gltfJson.animations = [];
+    for (let animationName in gltfJson.animationDic) {
+      gltfJson.animations.push((gltfJson.animationDic as any)[animationName]);
+    }
+
+    gltfJson.textureDic = gltfJson.textures;
+    gltfJson.samplerDic = gltfJson.samplers;
+    gltfJson.accessorDic = gltfJson.accessors;
+    gltfJson.bufferViewDic = gltfJson.bufferViews;
+
+  }
+
+  _loadDependenciesOfScenes(gltfJson: glTF1) {
+    for (let sceneName in gltfJson.sceneDic) {
+      const scene = (gltfJson.sceneDic as any)[sceneName];
+      scene.nodeNames = scene.nodes;
+      scene.nodes = [];
+      scene.nodesIndices = [];
+      for (let name of scene.nodeNames) {
+        scene.nodes.push((gltfJson.nodeDic as any)[name]);
+
+        // calc index of 'name' in gltfJson.nodeDic enumerate
+        let count = 0;
+        for (let nodeName in gltfJson.nodeDic) {
+          if (nodeName === name) {
+            break;
+          }
+          count++;
+        }
+        scene.nodesIndices.push(count);
       }
     }
   }
 
-  _loadDependenciesOfNodes(gltfJson: glTF2) {
+  _loadDependenciesOfNodes(gltfJson: glTF1) {
 
-    for (let node of gltfJson.nodes) {
-
+    for (let nodeName in gltfJson.nodeDic) {
+      const node = (gltfJson.nodeDic as any)[nodeName];
       // Hierarchy
       if (node.children) {
-        node.childrenIndices = node.children.concat();
+        node.childrenNames = node.children.concat();
         node.children = [];
-        for (let i in node.childrenIndices) {
-          node.children[i] = gltfJson.nodes[node.childrenIndices[i]];
+        node.childrenIndices = [];
+        for (let name of node.childrenNames) {
+          node.children.push((gltfJson.nodeDic as any)[name]);
+
+          // calc index of 'name' in gltfJson.nodeDic enumerate
+          let count = 0;
+          for (let nodeName in gltfJson.nodeDic) {
+            if (nodeName === name) {
+              break;
+            }
+            count++;
+          }
+          node.childrenIndices.push(count);
         }
       }
 
       // Mesh
-      if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
-        node.meshIndex = node.mesh;
-        node.mesh = gltfJson.meshes[node.meshIndex];
+      if (node.meshes !== void 0 && gltfJson.meshes !== void 0) {
+        node.meshNames = node.meshes;
+        node.meshes = [];
+        for (let name of node.meshNames) {
+          node.meshes.push((gltfJson.meshDic as any)[name]);
+          node.mesh = (gltfJson.meshDic as any)[name];
+        }
       }
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinIndex = node.skin;
-        node.skin = gltfJson.skins[node.skinIndex];
-        if (node.mesh.extras === void 0) {
-          node.mesh.extras = {};
-        }
+        node.skinName = node.skin;
+        node.skin = (gltfJson.skinDic as any)[node.skinName];
+        // if (node.mesh.extras === void 0) {
+        //   node.mesh.extras = {};
+        // }
 
-        node.mesh.extras._skin = node.skin;
+        //node.mesh.extras._skin = node.skin;
       }
 
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
-        node.cameraIndex = node.camera;
-        node.camera = gltfJson.cameras[node.cameraIndex];
+        node.cameraName = node.camera;
+        node.camera = (gltfJson.cameraDic as any)[node.CameraName];
       }
 
     }
   }
 
-  _loadDependenciesOfMeshes(gltfJson: glTF2) {
+  _loadDependenciesOfMeshes(gltfJson: glTF1) {
     // Mesh
-    for (let mesh of gltfJson.meshes) {
+    for (let meshName in gltfJson.meshDic) {
+      const mesh = (gltfJson.meshDic as any)[meshName];
       for (let primitive of mesh.primitives) {
         if (primitive.material !== void 0) {
-          primitive.materialIndex = primitive.material;
-          primitive.material = gltfJson.materials[primitive.materialIndex];
+          primitive.materialName = primitive.material;
+          primitive.material = (gltfJson.materialDic as any)[primitive.materialName];
         }
 
-        primitive.attributesindex = Object.assign({}, primitive.attributes);
-        for (let attributeName in primitive.attributesindex) {
-          if (primitive.attributesindex[attributeName] >= 0) {
-            let accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
+        primitive.attributeNames = Object.assign({}, primitive.attributes);
+        for (let attributeName in primitive.attributeNames) {
+          if (primitive.attributeNames[attributeName] != null) {
+            const accessorName = primitive.attributeNames[attributeName];
+            let accessor = (gltfJson.accessorDic as any)[accessorName];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
@@ -269,14 +349,14 @@ export default class Gltf2Importer {
         }
 
         if (primitive.indices !== void 0) {
-          primitive.indicesIndex = primitive.indices;
-          primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+          primitive.indicesName = primitive.indices;
+          primitive.indices = (gltfJson.accessorDic as any)[primitive.indicesName];
         }
       }
     }
   }
 
-  _loadDependenciesOfMaterials(gltfJson: glTF2) {
+  _loadDependenciesOfMaterials(gltfJson: glTF1) {
     // Material
     if (gltfJson.materials) {
       for (let material of gltfJson.materials) {
@@ -309,35 +389,40 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfTextures(gltfJson: glTF2) {
+  _loadDependenciesOfTextures(gltfJson: glTF1) {
     // Texture
     if (gltfJson.textures) {
-      for (let texture of gltfJson.textures) {
+      for (let textureName in gltfJson.textureDic) {
+        const texture = (gltfJson.textureDic as any)[textureName];
         if (texture.sampler !== void 0) {
-          texture.samplerIndex = texture.sampler;
-          texture.sampler = gltfJson.samplers[texture.samplerIndex];
+          texture.samplerName = texture.sampler;
+          texture.sampler = (gltfJson.samplerDic as any)[texture.samplerName];
         }
         if (texture.source !== void 0) {
-          texture.sourceIndex = texture.source;
-          texture.image = gltfJson.images[texture.sourceIndex];
+          texture.sourceName = texture.source;
+          texture.image = (gltfJson.imageDic as any)[texture.sourceName];
         }
       }
     }
   }
 
-  _loadDependenciesOfJoints(gltfJson: glTF2) {
+  _loadDependenciesOfJoints(gltfJson: glTF1) {
     if (gltfJson.skins) {
-      for (let skin of gltfJson.skins) {
-        skin.skeletonIndex = skin.skeleton;
-        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+      for (let skinName in gltfJson.skinDic) {
+        const skin = (gltfJson.skinDic as any)[skinName];
+        skin.skeletonNames = skin.skeletons;
+        skin.skeletons = [];
+        for (let name of skin.skeletonNames) {
+          skin.skeletons.push((gltfJson.nodeDic as any)[name]);
+        }
 
-        skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
+        skin.inverseBindMatricesName = skin.inverseBindMatrices;
+        skin.inverseBindMatrices = (gltfJson.accessorDic as any)[skin.inverseBindMatricesName];
 
-        skin.jointsIndices = skin.joints;
+        skin.jointsNames = skin.joints;
         skin.joints = [];
-        for (let jointIndex of skin.jointsIndices) {
-          skin.joints.push(gltfJson.nodes[jointIndex]);
+        for (let name of skin.jointsNames) {
+          skin.joints.push((gltfJson.nodeDic as any)[name]);
         }
 
       }
@@ -346,9 +431,10 @@ export default class Gltf2Importer {
   }
 
 
-  _loadDependenciesOfAnimations(gltfJson: glTF2) {
+  _loadDependenciesOfAnimations(gltfJson: glTF1) {
     if (gltfJson.animations) {
-      for (let animation of gltfJson.animations) {
+      for (let animationName in gltfJson.animationDic) {
+        const animation = (gltfJson.animationDic as any)[animationName];
         for (let channel of animation.channels) {
           channel.samplerIndex = channel.sampler;
           channel.sampler = animation.samplers[channel.samplerIndex];
@@ -372,22 +458,24 @@ export default class Gltf2Importer {
     }
   }
 
-  _loadDependenciesOfAccessors(gltfJson: glTF2) {
+  _loadDependenciesOfAccessors(gltfJson: glTF1) {
     // Accessor
-    for (let accessor of gltfJson.accessors) {
+    for (let accessorName in gltfJson.accessorDic) {
+      const accessor = (gltfJson.accessorDic as any)[accessorName];
       if (accessor.bufferView !== void 0) {
-        accessor.bufferViewIndex = accessor.bufferView;
-        accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+        accessor.bufferViewName = accessor.bufferView;
+        accessor.bufferView = (gltfJson.bufferViewDic as any)[accessor.bufferViewName];
       }
     }
   }
 
-  _loadDependenciesOfBufferViews(gltfJson: glTF2) {
+  _loadDependenciesOfBufferViews(gltfJson: glTF1) {
     // BufferView
-    for (let bufferView of gltfJson.bufferViews) {
+    for (let bufferViewName in gltfJson.bufferViewDic) {
+      const bufferView = (gltfJson.bufferViewDic as any)[bufferViewName];
       if (bufferView.buffer !== void 0) {
-        bufferView.bufferIndex = bufferView.buffer;
-        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
+        bufferView.bufferName = bufferView.buffer;
+        bufferView.buffer = (gltfJson.bufferDic as any)[bufferView.bufferName];
       }
     }
   }
@@ -645,7 +733,7 @@ export default class Gltf2Importer {
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new Gltf2Importer();
+      this.__instance = new Gltf1Importer();
     }
     return this.__instance;
   }

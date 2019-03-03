@@ -30,6 +30,7 @@ export default class MeshRendererComponent extends Component {
   private static __staticWebglModule?: any;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
+  public isVisible = true;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
@@ -234,6 +235,9 @@ export default class MeshRendererComponent extends Component {
     const transparentMeshComponents: MeshComponent[] = [];
     for (let i = 0; i < meshComponents.length; i++) {
       const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+      if (!meshRendererComponent.isVisible) {
+        continue;
+      }
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         let isBlendTypeMesh = false;

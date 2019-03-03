@@ -19,6 +19,7 @@ import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
 import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
+import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -31,7 +32,7 @@ import LightComponent from './components/LightComponent';
 import { LightType } from './definitions/LightType';
 import { AlphaMode } from './definitions/AlphaMode';
 import CubeTexture from './textures/CubeTexture';
-import Material from './materials/Material';
+import PbrMaterial from './materials/PbrMaterial';
 import CameraControllerComponent from './components/CameraControllerComponent';
 
 const Rn = {
@@ -56,6 +57,7 @@ const Rn = {
   Matrix44,
   MutableMatrix44,
   ProcessApproach,
+  Gltf1Importer,
   Gltf2Importer,
   ModelConverter,
   ModuleManager,
@@ -69,7 +71,7 @@ const Rn = {
   CubeTexture,
   CameraControllerComponent,
   AlphaMode,
-  Material
+  PbrMaterial: PbrMaterial
 };
 export default Rn;
 

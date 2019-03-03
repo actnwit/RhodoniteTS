@@ -1,24 +1,16 @@
 import RnObject from "../core/Object";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
-import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
+import { MaterialElementEnum } from "../definitions/MaterialElement";
 
 
-export default class Material extends RnObject {
+export default abstract class AbstractMaterial extends RnObject {
   private static readonly InvalidMaterialUid: MaterialUID = -1;
-  private static __materialUidCount: MaterialUID = Material.InvalidMaterialUid;
+  private static __materialUidCount: MaterialUID = AbstractMaterial.InvalidMaterialUid;
   private __materialUid: MaterialUID;
-  public baseColor: MutableColorRgb = new MutableColorRgb(1, 1, 1);
+
   public alpha: number = 1;
-  public baseColorTexture?: Texture
-  public metallicFactor = 1.0;
-  public roughnessFactor = 1.0;
-  public metallicRoughnessTexture?: Texture;
-  public normalTexture?: Texture;
-  public occlusionTexture? :Texture;
-  public emissiveTexture?: Texture;
-  public emissiveFactor = Vector3.zero();
   public alphaMode = AlphaMode.Opaque;
   public alphaCutoff = 0.5;
   public doubleSided = false;
@@ -26,9 +18,15 @@ export default class Material extends RnObject {
   public isWireframeOnShade = false;
   public wireframeWidth = 1.0;
 
-  constructor() {
+  public materialElement: MaterialElementEnum;
+
+  public baseColor: MutableColorRgb = new MutableColorRgb(1, 1, 1);
+  public baseColorTexture?: Texture
+
+  constructor(materialElement: MaterialElementEnum) {
     super(true);
-    this.__materialUid = ++Material.__materialUidCount;
+    this.__materialUid = ++AbstractMaterial.__materialUidCount;
+    this.materialElement = materialElement;
   }
 
   isBlend() {
