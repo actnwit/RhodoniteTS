@@ -113,8 +113,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
     this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
       [
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false}
+        {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
       ]);
   }
 

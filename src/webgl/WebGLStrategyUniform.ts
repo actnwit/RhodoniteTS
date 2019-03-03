@@ -88,31 +88,31 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
     const args: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.WorldMatrix, isPlural: false},
-      {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
-      {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false},
-      {semantic: ShaderSemantics.NormalMatrix, isPlural: false},
-      {semantic: ShaderSemantics.OcclusionTexture, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.EmissiveTexture, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.NormalTexture, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.BoneMatrix, isPlural: true},
-      {semantic: ShaderSemantics.LightNumber, isPlural: false},
-      {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.MetallicRoughnessTexture, isPlural: false, prefix: 'material.'},
-      {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false},
-      {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false},
-      {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false},
-      {semantic: ShaderSemantics.IBLParameter, isPlural: false},
-      {semantic: ShaderSemantics.ViewPosition, isPlural: false},
-      {semantic: ShaderSemantics.Wireframe, isPlural: false},
+      {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.OcclusionTexture, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.EmissiveTexture, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.NormalTexture, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true},
+      {semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.MetallicRoughnessTexture, isPlural: false, prefix: 'material.', isSystem: false},
+      {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false, isSystem: false},
+      {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false, isSystem: false},
+      {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false, isSystem: false},
+      {semantic: ShaderSemantics.IBLParameter, isPlural: false, isSystem: false},
+      {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.Wireframe, isPlural: false, isSystem: false},
     ];
     const lights: ShaderSemanticsInfo[] = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
-      lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i});
-      lights.push({semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i});
-      lights.push({semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true});
+      lights.push({semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true});
+      lights.push({semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true});
     }
 
     this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid, args.concat(lights));

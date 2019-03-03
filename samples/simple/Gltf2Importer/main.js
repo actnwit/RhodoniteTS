@@ -15,7 +15,7 @@ const load = async function(time){
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  //cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
 
   // Lights
@@ -36,7 +36,7 @@ const load = async function(time){
  //const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
  //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
   const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
+  // const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
  // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
@@ -44,7 +44,7 @@ const load = async function(time){
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
+//  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
 
   // CameraComponent
