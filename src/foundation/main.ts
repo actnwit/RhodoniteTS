@@ -19,6 +19,7 @@ import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
 import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
+import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -56,6 +57,7 @@ const Rn = {
   Matrix44,
   MutableMatrix44,
   ProcessApproach,
+  Gltf1Importer,
   Gltf2Importer,
   ModelConverter,
   ModuleManager,
