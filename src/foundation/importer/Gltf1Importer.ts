@@ -277,8 +277,19 @@ export default class Gltf1Importer {
       if (node.children) {
         node.childrenNames = node.children.concat();
         node.children = [];
+        node.childrenIndices = [];
         for (let name of node.childrenNames) {
           node.children.push((gltfJson.nodeDic as any)[name]);
+
+          // calc index of 'name' in gltfJson.nodeDic enumerate
+          let count = 0;
+          for (let nodeName in gltfJson.nodeDic) {
+            if (nodeName === name) {
+              break;
+            }
+            count++;
+          }
+          node.childrenIndices.push(count);
         }
       }
 

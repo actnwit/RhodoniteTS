@@ -670,7 +670,7 @@ export default class ModelConverter {
     });
 
     let rnAccessor;
-    if (accessor.byteStride) {
+    if (accessor.byteStride != null) {
       rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
