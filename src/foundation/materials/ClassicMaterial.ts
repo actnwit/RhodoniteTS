@@ -8,10 +8,9 @@ import { MaterialElement } from "../definitions/MaterialElement";
 
 
 export default class ClassicMaterial extends AbstractMaterial {
-  public baseColorTexture?: Texture
-  public metallicFactor = 1.0;
-  public roughnessFactor = 1.0;
-  public metallicRoughnessTexture?: Texture;
+  public specularColor = new Vector3(1, 1, 1);
+  public specularPower = 10.0;
+  public specularMapTexture?: Texture;
   public normalTexture?: Texture;
   public occlusionTexture? :Texture;
   public emissiveTexture?: Texture;

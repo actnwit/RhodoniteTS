@@ -1143,4 +1143,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-182-g29a3-mod branch: feature/gltf';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-184-g7aaf-mod branch: feature/improve-material-system';

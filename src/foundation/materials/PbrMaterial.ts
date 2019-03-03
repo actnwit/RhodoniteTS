@@ -8,7 +8,6 @@ import { MaterialElement } from "../definitions/MaterialElement";
 
 
 export default class PbrMaterial extends AbstractMaterial {
-  public baseColorTexture?: Texture
   public metallicFactor = 1.0;
   public roughnessFactor = 1.0;
   public metallicRoughnessTexture?: Texture;
