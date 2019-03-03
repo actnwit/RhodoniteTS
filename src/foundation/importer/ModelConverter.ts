@@ -668,14 +668,28 @@ export default class ModelConverter {
       byteOffset: (bufferView.byteOffset != null) ? bufferView.byteOffset : 0,
       isAoS: false
     });
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
-      max: accessor.max,
-      min: accessor.min
-    });
+
+    let rnAccessor;
+    if (accessor.byteStride) {
+      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteStride: accessor.byteStride,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    } else {
+      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    }
 
     return rnAccessor;
   }

@@ -121,4 +121,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-178-g912f-mod branch: feature/gltf';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-179-g6df3-mod branch: feature/gltf';
