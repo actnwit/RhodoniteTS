@@ -283,7 +283,7 @@ export default class Gltf1Importer {
       }
 
       // Mesh
-      if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
+      if (node.meshes !== void 0 && gltfJson.meshes !== void 0) {
         node.meshNames = node.meshes;
         node.meshes = [];
         for (let name of node.meshNames) {
@@ -324,8 +324,9 @@ export default class Gltf1Importer {
 
         primitive.attributeNames = Object.assign({}, primitive.attributes);
         for (let attributeName in primitive.attributeNames) {
-          if (primitive.attributeNames[attributeName] >= 0) {
-            let accessor = (gltfJson.accessorDic as any)[attributeName];
+          if (primitive.attributeNames[attributeName] != null) {
+            const accessorName = primitive.attributeNames[attributeName];
+            let accessor = (gltfJson.accessorDic as any)[accessorName];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
