@@ -12,7 +12,7 @@ import SkeletalComponent from "../foundation/components/SkeletalComponent";
 import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import PBRShader from "./PBRShader";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
@@ -87,7 +87,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
-    const args: any = [
+    const args: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.WorldMatrix, isPlural: false},
       {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.'},
       {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
@@ -108,11 +108,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.ViewPosition, isPlural: false},
       {semantic: ShaderSemantics.Wireframe, isPlural: false},
     ];
-    const lights = [];
+    const lights: ShaderSemanticsInfo[] = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
-      lights.push({semanticStr: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i});
-      lights.push({semanticStr: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i});
-      lights.push({semanticStr: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i});
+      lights.push({semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i});
     }
 
     this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid, args.concat(lights));
