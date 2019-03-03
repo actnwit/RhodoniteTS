@@ -1,6 +1,6 @@
-version: 0.1.1-184-g7aaf-mod
+version: 0.1.1-185-gdfc0-mod
 branch: feature/improve-material-system
-7d8697d70577dbf4a94f7625c9430836c7c75b242123396b293b34971a523877 ./dist/rhodonite.js
-93545eb64a9b5d362114148af7def136c7f2c57c5cd320e1a748c8f1bc8cb2be ./dist/rhodonite.min.js
-1f093b4adf8905eca9b00d53350f705517b4b182556ee9c72c9249b83ed933f0 ./dist/rhodonite-webgl.js
-9ad7d77494e49c9e50fcc97ed8c5d3b6502a7e9ad145849a407b61487d37b59a ./dist/rhodonite-webgl.min.js
+2e0aab47b621c5fee4e3580dcb18b97d1e67c2bb1df098f2972c75ee85ff7a74 ./dist/rhodonite.js
+db356e0249a20345f0e7a9bab0926f245e84c7cdfa1208e164601f1039d59c33 ./dist/rhodonite.min.js
+c6fb1c8fc0888f548184d3abc0dcede1feab63ead51e543b7bea666434b7e193 ./dist/rhodonite-webgl.js
+21237004e58fb806230cd42f0b1a084c268e79f333eff61cc3a780c76af270c3 ./dist/rhodonite-webgl.min.js

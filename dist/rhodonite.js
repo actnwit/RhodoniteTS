@@ -554,18 +554,6 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 
 /***/ }),
 
-/***/ "./src/foundation/definitions/MaterialElement.ts":
-/*!*******************************************************!*\
-  !*** ./src/foundation/definitions/MaterialElement.ts ***!
-  \*******************************************************/
-/*! exports provided: MaterialElement */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"MaterialElement\", function() { return MaterialElement; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\n\nclass MaterialElementClass extends _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"] {\n    constructor({ index, str }) {\n        super({ index, str });\n    }\n}\nconst ClassicShading = new MaterialElementClass({ index: 0, str: 'ClassicShading' });\nconst PBRShading = new MaterialElementClass({ index: 1, str: 'PBRShading' });\nconst Lerp = new MaterialElementClass({ index: 2, str: 'Lerp' });\nconst Add = new MaterialElementClass({ index: 3, str: 'Add' });\nconst typeList = [ClassicShading, PBRShading];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList, index });\n}\nfunction fromString(str) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_fromString\"])({ typeList, str });\n}\nconst MaterialElement = Object.freeze({ ClassicShading, PBRShading, from, fromString });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/MaterialElement.ts?");
-
-/***/ }),
-
 /***/ "./src/foundation/definitions/PixelFormat.ts":
 /*!***************************************************!*\
   !*** ./src/foundation/definitions/PixelFormat.ts ***!
@@ -611,6 +599,18 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ProcessStage\", function() { return ProcessStage; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\n\nclass ProcessStageClass extends _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"] {\n    constructor({ index, str, methodName }) {\n        super({ index, str });\n        this.__methodName = methodName;\n    }\n    getMethodName() {\n        return this.__methodName;\n    }\n}\nconst Unknown = new ProcessStageClass({ index: -1, str: 'UNKNOWN', methodName: '$unknown' });\nconst Create = new ProcessStageClass({ index: 0, str: 'CREATE', methodName: '$create' });\nconst Load = new ProcessStageClass({ index: 1, str: 'LOAD', methodName: '$load' });\nconst Mount = new ProcessStageClass({ index: 2, str: 'MOUNT', methodName: '$mount' });\nconst Logic = new ProcessStageClass({ index: 3, str: 'LOGIC', methodName: '$logic' });\nconst PreRender = new ProcessStageClass({ index: 4, str: 'PRE_RENDER', methodName: '$prerender' });\nconst Render = new ProcessStageClass({ index: 5, str: 'RENDER', methodName: '$render' });\nconst Unmount = new ProcessStageClass({ index: 6, str: 'UNMOUNT', methodName: '$unmount' });\nconst Discard = new ProcessStageClass({ index: 7, str: 'DISCARD', methodName: '$discard' });\nconst typeList = [Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList, index });\n}\nconst ProcessStage = Object.freeze({ Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard, from });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/ProcessStage.ts?");
+
+/***/ }),
+
+/***/ "./src/foundation/definitions/ShaderNode.ts":
+/*!**************************************************!*\
+  !*** ./src/foundation/definitions/ShaderNode.ts ***!
+  \**************************************************/
+/*! exports provided: ShaderNode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ShaderNode\", function() { return ShaderNode; });\n/* harmony import */ var _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../misc/EnumIO */ \"./src/foundation/misc/EnumIO.ts\");\n\nclass ShaderNodeClass extends _misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"EnumClass\"] {\n    constructor({ index, str }) {\n        super({ index, str });\n    }\n}\nconst ClassicShading = new ShaderNodeClass({ index: 0, str: 'ClassicShading' });\nconst PBRShading = new ShaderNodeClass({ index: 1, str: 'PBRShading' });\nconst Lerp = new ShaderNodeClass({ index: 2, str: 'Lerp' });\nconst Add = new ShaderNodeClass({ index: 3, str: 'Add' });\nconst typeList = [ClassicShading, PBRShading];\nfunction from(index) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_from\"])({ typeList, index });\n}\nfunction fromString(str) {\n    return Object(_misc_EnumIO__WEBPACK_IMPORTED_MODULE_0__[\"_fromString\"])({ typeList, str });\n}\nconst ShaderNode = Object.freeze({ ClassicShading, PBRShading, from, fromString });\n\n\n//# sourceURL=webpack:///./src/foundation/definitions/ShaderNode.ts?");
 
 /***/ }),
 
@@ -718,7 +718,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return PbrMaterial; });\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _AbstractMaterial__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AbstractMaterial */ \"./src/foundation/materials/AbstractMaterial.ts\");\n/* harmony import */ var _definitions_MaterialElement__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../definitions/MaterialElement */ \"./src/foundation/definitions/MaterialElement.ts\");\n\n\n\nclass PbrMaterial extends _AbstractMaterial__WEBPACK_IMPORTED_MODULE_1__[\"default\"] {\n    constructor() {\n        super(_definitions_MaterialElement__WEBPACK_IMPORTED_MODULE_2__[\"MaterialElement\"].PBRShading);\n        this.metallicFactor = 1.0;\n        this.roughnessFactor = 1.0;\n        this.emissiveFactor = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].zero();\n    }\n}\n\n\n//# sourceURL=webpack:///./src/foundation/materials/PbrMaterial.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return PbrMaterial; });\n/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../math/Vector3 */ \"./src/foundation/math/Vector3.ts\");\n/* harmony import */ var _AbstractMaterial__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AbstractMaterial */ \"./src/foundation/materials/AbstractMaterial.ts\");\n/* harmony import */ var _definitions_ShaderNode__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../definitions/ShaderNode */ \"./src/foundation/definitions/ShaderNode.ts\");\n\n\n\nclass PbrMaterial extends _AbstractMaterial__WEBPACK_IMPORTED_MODULE_1__[\"default\"] {\n    constructor() {\n        super(_definitions_ShaderNode__WEBPACK_IMPORTED_MODULE_2__[\"ShaderNode\"].PBRShading);\n        this.metallicFactor = 1.0;\n        this.roughnessFactor = 1.0;\n        this.emissiveFactor = _math_Vector3__WEBPACK_IMPORTED_MODULE_0__[\"default\"].zero();\n    }\n}\n\n\n//# sourceURL=webpack:///./src/foundation/materials/PbrMaterial.ts?");
 
 /***/ }),
 
@@ -1143,4 +1143,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-184-g7aaf-mod branch: feature/improve-material-system';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-185-gdfc0-mod branch: feature/improve-material-system';

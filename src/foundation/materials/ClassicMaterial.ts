@@ -4,7 +4,7 @@ import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
 import AbstractMaterial from "./AbstractMaterial";
-import { MaterialElement } from "../definitions/MaterialElement";
+import { ShaderNode } from "../definitions/ShaderNode";
 
 
 export default class ClassicMaterial extends AbstractMaterial {
@@ -17,6 +17,6 @@ export default class ClassicMaterial extends AbstractMaterial {
   public emissiveFactor = Vector3.zero();
 
   constructor() {
-    super(MaterialElement.ClassicShading);
+    super(ShaderNode.ClassicShading);
   }
 }

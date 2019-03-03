@@ -2,11 +2,13 @@ import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import GLSLShader from "./GLSLShader";
 import Config from "../foundation/core/Config";
+import { ShaderNode } from "../foundation/definitions/ShaderNode";
 
 export type AttributeNames = Array<string>;
 
 export default class PBRShader extends GLSLShader {
   static __instance: PBRShader;
+  public static readonly materialElement = ShaderNode.PBRShading;
   private constructor() {
     super();
   }

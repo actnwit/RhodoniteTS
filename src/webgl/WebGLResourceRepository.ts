@@ -11,7 +11,7 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 import Component from "../foundation/core/Component";
-import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -221,7 +221,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix? :string, semanticStr?: string, index?: Count}>) {
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<ShaderSemanticsInfo>) {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 
