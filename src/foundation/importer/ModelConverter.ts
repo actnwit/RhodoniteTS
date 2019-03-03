@@ -14,7 +14,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import MutableMatrix44 from "../math/MutableMatrix44";
-import Material from "../materials/Material";
+import PbrMaterial from "../materials/PbrMaterial";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
@@ -346,11 +346,11 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setupMaterial(materialJson:any) : Material|undefined {
+  private __setupMaterial(materialJson:any) : PbrMaterial|undefined {
     if (materialJson == null) {
       return void 0;
     }
-    const material = new Material();
+    const material = new PbrMaterial();
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 

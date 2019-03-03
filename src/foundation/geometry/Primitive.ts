@@ -8,13 +8,13 @@ import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
-import Material from '../materials/Material';
+import PbrMaterial from '../materials/PbrMaterial';
 import AABB from '../math/AABB';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
   private __attributes: Array<Accessor>;
-  public  material?: Material;
+  public  material?: PbrMaterial;
   private __attributeSemantics: Array<VertexAttributeEnum>;
   private __indices?: Accessor;
   private static __primitiveCount: Count = 0;
@@ -26,7 +26,7 @@ export default class Primitive extends RnObject {
     attributeAccessors: Array<Accessor>,
     attributeSemantics: Array<VertexAttributeEnum>,
     mode: PrimitiveModeEnum,
-    material?: Material,
+    material?: PbrMaterial,
     indicesAccessor?: Accessor,
     )
   {
@@ -92,7 +92,7 @@ export default class Primitive extends RnObject {
       attributeSemantics: Array<VertexAttributeEnum>,
       attributes: Array<TypedArray>,
       primitiveMode: PrimitiveModeEnum,
-      material?: Material
+      material?: PbrMaterial
     })
   {
 

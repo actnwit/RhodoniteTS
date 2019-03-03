@@ -3,14 +3,10 @@ import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
+import AbstractMaterial from "./AbstractMaterial";
 
 
-export default class Material extends RnObject {
-  private static readonly InvalidMaterialUid: MaterialUID = -1;
-  private static __materialUidCount: MaterialUID = Material.InvalidMaterialUid;
-  private __materialUid: MaterialUID;
-  public baseColor: MutableColorRgb = new MutableColorRgb(1, 1, 1);
-  public alpha: number = 1;
+export default class PbrMaterial extends AbstractMaterial {
   public baseColorTexture?: Texture
   public metallicFactor = 1.0;
   public roughnessFactor = 1.0;
@@ -19,16 +15,9 @@ export default class Material extends RnObject {
   public occlusionTexture? :Texture;
   public emissiveTexture?: Texture;
   public emissiveFactor = Vector3.zero();
-  public alphaMode = AlphaMode.Opaque;
-  public alphaCutoff = 0.5;
-  public doubleSided = false;
-  public isWireframe = false;
-  public isWireframeOnShade = false;
-  public wireframeWidth = 1.0;
 
   constructor() {
-    super(true);
-    this.__materialUid = ++Material.__materialUidCount;
+    super();
   }
 
   isBlend() {
