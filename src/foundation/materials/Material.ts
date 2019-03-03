@@ -7,16 +7,30 @@ import AbstractMaterial from "./AbstractMaterial";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { CompositionType } from "../definitions/CompositionType";
 
 
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
+  private __fields: Map<ShaderSemanticsEnum, any> = new Map();
 
-  constructor() {
+  constructor(materialNodes: AbstractMaterialNode[]) {
     super(true);
+    this.__materialNodes = materialNodes;
+
+    this.initialize();
+  }
+
+  initialize() {
+    this.__materialNodes.forEach((materialNode)=>{
+      const semanticsInfoArray = materialNode._semanticsInfoArray;
+      semanticsInfoArray.forEach((semanticsInfo)=>{
+        //if (semanticsInfo.compositionType === CompositionType.
+      });
+    });
   }
 
   setParameter(shaderSemantic: ShaderSemanticsEnum) {
-    
+
   }
 }

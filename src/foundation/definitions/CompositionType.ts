@@ -24,8 +24,11 @@ const Vec4: CompositionTypeEnum = new CompositionTypeClass({index:3, str:'VEC4',
 const Mat2: CompositionTypeEnum = new CompositionTypeClass({index:4, str:'MAT2', numberOfComponents: 4});
 const Mat3: CompositionTypeEnum = new CompositionTypeClass({index:5, str:'MAT3', numberOfComponents: 9});
 const Mat4: CompositionTypeEnum = new CompositionTypeClass({index:6, str:'MAT4', numberOfComponents: 16});
+const Texture2D: CompositionTypeEnum = new CompositionTypeClass({index:7, str:'TEXTURE_2D', numberOfComponents: 1});
+const TextureCube: CompositionTypeEnum = new CompositionTypeClass({index:8, str:'TEXTURE_CUBE', numberOfComponents: 1});
 
-const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4];
+
+const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube];
 
 function from( index : number ): CompositionTypeEnum {
   return _from({typeList, index}) as CompositionTypeEnum;
@@ -35,4 +38,4 @@ function fromString( str: string ): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, from, fromString });
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, from, fromString });

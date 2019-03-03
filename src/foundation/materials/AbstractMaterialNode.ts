@@ -10,4 +10,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     super(false);
     this.__semantics = semantics;
   }
+
+  get _semanticsInfoArray() {
+    return this.__semantics;
+  }
 }

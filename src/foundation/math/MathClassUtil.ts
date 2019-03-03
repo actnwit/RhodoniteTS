@@ -4,6 +4,12 @@ import Vector4 from './Vector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
+import { CompositionTypeEnum } from '../main';
+import { CompositionType } from '../definitions/CompositionType';
+import MutableMatrix44 from './MutableMatrix44';
+import MutableMatrix33 from './MutableMatrix33';
+import MutableVector4 from './MutableVector4';
+import MutableVector3 from './MutableVector3';
 
 export default class MathClassUtil {
   constructor() {
@@ -40,6 +46,32 @@ export default class MathClassUtil {
       }
     } else {
       return element;
+    }
+  }
+
+  static getImmutableValueClass(compositionType: CompositionTypeEnum): Function|undefined {
+    if (compositionType === CompositionType.Vec2) {
+      return Vector2;
+    } else if (compositionType === CompositionType.Vec3) {
+      return Vector3;
+    } else if (compositionType === CompositionType.Vec4) {
+      return Vector4;
+    } else if (compositionType === CompositionType.Mat3) {
+      return Matrix33;
+    } else if (compositionType === CompositionType.Mat4) {
+      return Matrix44;
+    }
+  }
+
+  static getMutableValueClass(compositionType: CompositionTypeEnum): Function|undefined {
+    if (compositionType === CompositionType.Vec3) {
+      return MutableVector3;
+    } else if (compositionType === CompositionType.Vec4) {
+      return MutableVector4;
+    } else if (compositionType === CompositionType.Mat3) {
+      return MutableMatrix33;
+    } else if (compositionType === CompositionType.Mat4) {
+      return MutableMatrix44;
     }
   }
 
@@ -162,6 +194,7 @@ export default class MathClassUtil {
 
     return output;
   }
+
 }
 
 //GLBoost["MathClassUtil"] = MathClassUtil;
