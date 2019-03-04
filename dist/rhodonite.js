@@ -1227,4 +1227,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-200-g4794-mod branch: feature/improve-material-system';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-201-g994d7-mod branch: feature/improve-material-system';

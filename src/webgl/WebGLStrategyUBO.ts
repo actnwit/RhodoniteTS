@@ -53,7 +53,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
   private constructor(){}
 
-  setupShaderProgram(): void {
+  setupShaderProgram(meshComponent: MeshComponent): void {
     if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
@@ -92,6 +92,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     if (this.__isLoaded(0)) {
       return;
     }
+
+    this.setupShaderProgram(meshComponent);
 
     const primitiveNum = meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
