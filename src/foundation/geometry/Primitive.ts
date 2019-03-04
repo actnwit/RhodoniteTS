@@ -8,7 +8,6 @@ import MemoryManager from '../core/MemoryManager';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
-import PbrMaterial from '../materials/PbrMaterial';
 import AABB from '../math/AABB';
 import Material from '../materials/Material';
 

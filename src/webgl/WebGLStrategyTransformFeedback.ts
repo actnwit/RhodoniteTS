@@ -116,7 +116,7 @@ void main(){
     `
   }
 
-  setupShaderProgram(): void {
+  setupShaderProgram(meshComponent: MeshComponent): void {
     if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
@@ -145,6 +145,8 @@ void main(){
     if (this.__isVertexReady) {
       return;
     }
+
+    this.setupShaderProgram(meshComponent);
 
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
     const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: 4*3, byteStride: 4, isAoS:false});

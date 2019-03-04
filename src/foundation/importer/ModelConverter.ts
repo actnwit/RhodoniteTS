@@ -14,7 +14,6 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import MutableMatrix44 from "../math/MutableMatrix44";
-import PbrMaterial from "../materials/PbrMaterial";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { CameraType } from "../definitions/CameraType";
@@ -361,10 +360,10 @@ export default class ModelConverter {
 
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
-        material.baseColor.r = baseColorFactor[0];
-        material.baseColor.g = baseColorFactor[1];
-        material.baseColor.b = baseColorFactor[2];
-        material.alpha = baseColorFactor[3];
+        // material.baseColor.r = baseColorFactor[0];
+        // material.baseColor.g = baseColorFactor[1];
+        // material.baseColor.b = baseColorFactor[2];
+        // material.alpha = baseColorFactor[3];
         material.setParameter(ShaderSemantics.BaseColorFactor, new Vector4(baseColorFactor));
       }
 
@@ -374,7 +373,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
-        material.baseColorTexture = rnTexture;
+        // material.baseColorTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture.texture3DAPIResourseUid);
       }
 
@@ -384,7 +383,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
-        material.normalTexture = rnTexture;
+        // material.normalTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture.texture3DAPIResourseUid);
       }
 
@@ -394,7 +393,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
-        material.occlusionTexture = rnTexture;
+        // material.occlusionTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
       }
 
@@ -404,18 +403,18 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
-        material.emissiveTexture = rnTexture;
+        // material.emissiveTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
       if (metallicFactor != null) {
-        material.metallicFactor = metallicFactor;
+        // material.metallicFactor = metallicFactor;
       }
       metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
       let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
       if (roughnessFactor != null) {
-        material.roughnessFactor = roughnessFactor;
+        // material.roughnessFactor = roughnessFactor;
       }
       roughnessFactor = (roughnessFactor != null) ? roughnessFactor : 1;
       material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
@@ -426,7 +425,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
-        material.metallicRoughnessTexture = rnTexture;
+        // material.metallicRoughnessTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
       }
 

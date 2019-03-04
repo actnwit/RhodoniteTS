@@ -3,7 +3,6 @@ import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
-import AbstractMaterial from "./AbstractMaterial";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
@@ -12,15 +11,15 @@ import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
-import PbrMaterial from "./PbrMaterial";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 
-export default class Material extends PbrMaterial {
+export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<ShaderSemanticsEnum, any> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  public alphaMode = AlphaMode.Opaque;
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
@@ -112,5 +111,13 @@ export default class Material extends PbrMaterial {
         }
       );
     });
+  }
+
+  isBlend() {
+    if (this.alphaMode === AlphaMode.Blend) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
