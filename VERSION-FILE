@@ -1,6 +1,6 @@
-version: 0.1.1-190-g9a1c-mod
+version: 0.1.1-191-g8f2f-mod
 branch: feature/improve-material-system
-35ecab0fdd53192370a06de2eeb056f0cb418c9acd5d100fd28de157f64f1285 ./dist/rhodonite.js
-c3b4c8deffa1592d98ed602c8d2e078132becbc55acdd0df2d3a794462b3a942 ./dist/rhodonite.min.js
-5c265b946804ce9725219d7d6e0a93e51ece3cff21b2d0831a66637bdf5b9fb6 ./dist/rhodonite-webgl.js
-0f260c228d6df042df1c97446b6568dfd2c02815a1a11af5284c4f136d5277e1 ./dist/rhodonite-webgl.min.js
+3a4bd657ccfed1fe5e4867e45e18906a8903787139402669889e1b311ccc2e7c ./dist/rhodonite.js
+e4d8755de760525679a3a2b1b4c01cde493a1a9a3e234fb5c21eb86de291d489 ./dist/rhodonite.min.js
+bf8af707c6cdf9bc219bdaf9532f79cfe6d39d3c33b89e59b938ff25311ad12d ./dist/rhodonite-webgl.js
+42a2803d480e5004128ada1f816171e62378cbdef03aa2f3d8b28d975d2703f4 ./dist/rhodonite-webgl.min.js

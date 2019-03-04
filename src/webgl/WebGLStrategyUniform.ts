@@ -399,7 +399,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         isWireframeOnShade = material.isWireframeOnShade;
         wireframeWidth = material.wireframeWidth;
       }
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.Wireframe, false, 3, 'f', false, {x: isWireframe, y: !isWireframeOnShade, z: wireframeWidth});
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.Wireframe, false, 3, 'f', false, {x: isWireframe, y: isWireframeOnShade, z: wireframeWidth});
 
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
       gl.bindTexture(gl.TEXTURE_2D, null);
