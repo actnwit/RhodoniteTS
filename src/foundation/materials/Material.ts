@@ -75,9 +75,9 @@ export default class Material extends PbrMaterial {
       }
 
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.x});
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x});
       } else {
-        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value});
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v});
       }
       if (info.compositionType === CompositionType.Texture2D) {
         gl.activeTexture(gl['TEXTURE' + value.x]);

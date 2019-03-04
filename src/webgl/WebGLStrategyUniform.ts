@@ -42,7 +42,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
-  private __pbrUberMaterial?: Material;
+  //private __pbrUberMaterial?: Material;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -92,8 +92,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
-    this.__pbrUberMaterial = MaterialHelper.createPbrUberMaterial();
-    this.__pbrUberMaterial.setUniformLocations(this.__shaderProgramUid);
+//    this.__pbrUberMaterial = MaterialHelper.createPbrUberMaterial();
+//    this.__pbrUberMaterial.setUniformLocations(this.__shaderProgramUid);
 
     const args: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true},
@@ -106,6 +106,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
       {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
       {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true},
      ];
     const lights: ShaderSemanticsInfo[] = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -130,6 +131,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       //this.__vertexHandles[i] = vertexHandles;
       WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.primitiveUid, vertexHandles);
 //      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, void 0);
+
+      if (primitive.material) {
+        primitive.material.setUniformLocations(this.__shaderProgramUid);
+      }
     }
 
     this.__dummyWhiteTextureUid = this.__webglResourceRepository.createDummyTexture();
@@ -305,12 +310,24 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, {x:cameraPosition.v});
 
 
+      // BRDF LUT
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, {x:5});
+      gl.activeTexture(gl.TEXTURE5);
+      if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      }
 
 
+      if (material) {
+        material.setUniformValues(this.__shaderProgramUid);
+      }
 
 
-
-
+/*
       // Uniforms from Material
       // Bind BaseTexture
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
@@ -367,17 +384,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_2D, texture);
       }
 
-      // BRDF LUT
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, {x:5});
-      gl.activeTexture(gl.TEXTURE5);
-      if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-      }
-
       // Wireframe
       let isWireframe = false;
       let isWireframeOnShade = false;
@@ -409,6 +415,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessFactor, false, 2, 'f', true, {x:metallicRoughnessFactor});
+*/
+
 
 
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);

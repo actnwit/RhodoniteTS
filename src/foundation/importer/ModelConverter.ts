@@ -29,6 +29,7 @@ import { AlphaMode } from "../definitions/AlphaMode";
 import MaterialHelper from "../helpers/MaterialHelper";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import Vector2 from "../math/Vector2";
+import Material from "../materials/Material";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -349,7 +350,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setupMaterial(materialJson:any) : PbrMaterial|undefined {
+  private __setupMaterial(materialJson:any) : Material|undefined {
     if (materialJson == null) {
       return void 0;
     }
@@ -407,14 +408,16 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
       }
 
-      const metallicFactor = pbrMetallicRoughness.metallicFactor;
+      let metallicFactor = pbrMetallicRoughness.metallicFactor;
       if (metallicFactor != null) {
         material.metallicFactor = metallicFactor;
       }
-      const roughnessFactor = pbrMetallicRoughness.roughnessFactor;
+      metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
+      let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
       if (roughnessFactor != null) {
         material.roughnessFactor = roughnessFactor;
       }
+      roughnessFactor = (roughnessFactor != null) ? roughnessFactor : 1;
       material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
 
       const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;

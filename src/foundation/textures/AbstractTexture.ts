@@ -80,6 +80,7 @@ export default abstract class AbstractTexture extends RnObject {
 
     this.texture3DAPIResourseUid = texture;
     this.__isTextureReady = true;
+
   }
 
   generateTextureFromUri(imageUri: string) {

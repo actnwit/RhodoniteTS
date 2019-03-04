@@ -10,11 +10,12 @@ import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
 import PbrMaterial from '../materials/PbrMaterial';
 import AABB from '../math/AABB';
+import Material from '../materials/Material';
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
   private __attributes: Array<Accessor>;
-  public  material?: PbrMaterial;
+  public  material?: Material;
   private __attributeSemantics: Array<VertexAttributeEnum>;
   private __indices?: Accessor;
   private static __primitiveCount: Count = 0;
@@ -26,7 +27,7 @@ export default class Primitive extends RnObject {
     attributeAccessors: Array<Accessor>,
     attributeSemantics: Array<VertexAttributeEnum>,
     mode: PrimitiveModeEnum,
-    material?: PbrMaterial,
+    material?: Material,
     indicesAccessor?: Accessor,
     )
   {
@@ -92,7 +93,7 @@ export default class Primitive extends RnObject {
       attributeSemantics: Array<VertexAttributeEnum>,
       attributes: Array<TypedArray>,
       primitiveMode: PrimitiveModeEnum,
-      material?: PbrMaterial
+      material?: Material
     })
   {
 
