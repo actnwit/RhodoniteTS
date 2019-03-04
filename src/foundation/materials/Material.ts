@@ -11,6 +11,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { ComponentType } from "../definitions/ComponentType";
+import Vector2 from "../math/Vector2";
 
 
 export default class Material extends RnObject {
@@ -39,6 +40,10 @@ export default class Material extends RnObject {
     this.__fields.set(shaderSemantic, value);
   }
 
+  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, index: Index, value: any) {
+    this.__fields.set(shaderSemantic, new Vector2(index, value));
+  }
+
   getParameter(shaderSemantic: ShaderSemanticsEnum) {
     return this.__fields.get(shaderSemantic);
   }
@@ -56,14 +61,20 @@ export default class Material extends RnObject {
       if (info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte) {
         componentType = 'i';
       }
-      webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value});
 
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.x});
+      } else {
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value});
+      }
       if (info.compositionType === CompositionType.Texture2D) {
-        gl.activeTexture(gl['TEXTURE' + value]);
-
+        gl.activeTexture(gl['TEXTURE' + value.x]);
+        const texture = webglResourceRepository.getWebGLResource(value.y);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
       } else if (info.compositionType === CompositionType.TextureCube) {
-        gl.activeTexture(gl['TEXTURE' + value]);
-
+        gl.activeTexture(gl['TEXTURE' + value.x]);
+        const texture = webglResourceRepository.getWebGLResource(value.y);
+        gl.bindTexture(gl.TEXTURE_CUBE, texture);
       }
     });
   }
