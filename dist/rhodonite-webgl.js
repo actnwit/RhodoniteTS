@@ -85,4 +85,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-202-g3743-mod branch: feature/improve-material-system';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-203-g7af3-mod branch: feature/improve-material-system';

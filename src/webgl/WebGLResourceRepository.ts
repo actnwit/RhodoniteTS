@@ -114,6 +114,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
+    const texture = this.getWebGLResource(textureUid);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+
+  bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
+    const texture = this.getWebGLResource(textureUid);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+  }
+
   createVertexDataResources(primitive: Primitive): VertexHandles
    {
     const gl = this.__glw!.getRawContext();

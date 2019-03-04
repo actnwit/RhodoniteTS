@@ -81,13 +81,9 @@ export default class Material extends RnObject {
         webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v});
       }
       if (info.compositionType === CompositionType.Texture2D) {
-        gl.activeTexture(gl['TEXTURE' + value.x]);
-        const texture = webglResourceRepository.getWebGLResource(value.y);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        webglResourceRepository.bindTexture2D(value.x, value.y);
       } else if (info.compositionType === CompositionType.TextureCube) {
-        gl.activeTexture(gl['TEXTURE' + value.x]);
-        const texture = webglResourceRepository.getWebGLResource(value.y);
-        gl.bindTexture(gl.TEXTURE_CUBE, texture);
+        webglResourceRepository.bindTextureCube(value.x, value.y);
       }
     });
   }
