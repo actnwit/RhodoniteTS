@@ -48,6 +48,16 @@ export default class Material extends RnObject {
     return this.__fields.get(shaderSemantic);
   }
 
+  setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    let args: ShaderSemanticsInfo[] = [];
+    this.__materialNodes.forEach((materialNode)=>{
+      const semanticsInfoArray = materialNode._semanticsInfoArray;
+      args = args.concat(semanticsInfoArray);
+    });
+    webglResourceRepository.setupUniformLocations(shaderProgramUid, args);
+  }
+
   setUniformValues(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
