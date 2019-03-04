@@ -8,6 +8,7 @@ import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import { CompositionType } from "../definitions/CompositionType";
+import MathClassUtil from "../math/MathClassUtil";
 
 
 export default class Material extends RnObject {
@@ -25,12 +26,16 @@ export default class Material extends RnObject {
     this.__materialNodes.forEach((materialNode)=>{
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo)=>{
-        //if (semanticsInfo.compositionType === CompositionType.
+        this.__fields.set(semanticsInfo.semantic!, semanticsInfo.initialValue);
       });
     });
   }
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum) {
+  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any) {
+    this.__fields.set(shaderSemantic, value);
+  }
 
+  getParameter(shaderSemantic: ShaderSemanticsEnum) {
+    return this.__fields.get(shaderSemantic);
   }
 }
