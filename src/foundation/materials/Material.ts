@@ -12,15 +12,16 @@ import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
+import PbrMaterial from "./PbrMaterial";
 
 
-export default class Material extends RnObject {
+export default class Material extends PbrMaterial {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<ShaderSemanticsEnum, any> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
 
   constructor(materialNodes: AbstractMaterialNode[]) {
-    super(true);
+    super();
     this.__materialNodes = materialNodes;
 
     this.initialize();
@@ -40,8 +41,9 @@ export default class Material extends RnObject {
     this.__fields.set(shaderSemantic, value);
   }
 
-  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, index: Index, value: any) {
-    this.__fields.set(shaderSemantic, new Vector2(index, value));
+  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: CGAPIResourceHandle) {
+    const vec2 = this.__fields.get(shaderSemantic)!;
+    this.__fields.set(shaderSemantic, new Vector2(vec2.x, value));
   }
 
   getParameter(shaderSemantic: ShaderSemanticsEnum) {

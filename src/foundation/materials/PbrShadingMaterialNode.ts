@@ -11,6 +11,7 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import ModuleManager from "../system/ModuleManager";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
+import Vector4 from "../math/Vector4";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -22,7 +23,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     PbrShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new MutableColorRgb(1, 1, 1)},
+      {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
       {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, PbrShadingMaterialNode.__dummyWhiteTextureUid)},
       {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
       {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(2, PbrShadingMaterialNode.__dummyWhiteTextureUid)},

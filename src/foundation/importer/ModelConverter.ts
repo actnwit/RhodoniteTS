@@ -26,6 +26,9 @@ import { Animation } from "../definitions/Animation";
 import { MathUtil } from "../math/MathUtil";
 import SkeletalComponent from "../components/SkeletalComponent";
 import { AlphaMode } from "../definitions/AlphaMode";
+import MaterialHelper from "../helpers/MaterialHelper";
+import { ShaderSemantics } from "../definitions/ShaderSemantics";
+import Vector2 from "../math/Vector2";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -350,7 +353,8 @@ export default class ModelConverter {
     if (materialJson == null) {
       return void 0;
     }
-    const material = new PbrMaterial();
+//    const material = new PbrMaterial();
+    const material = MaterialHelper.createPbrUberMaterial();
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 
@@ -360,6 +364,7 @@ export default class ModelConverter {
         material.baseColor.g = baseColorFactor[1];
         material.baseColor.b = baseColorFactor[2];
         material.alpha = baseColorFactor[3];
+        material.setParameter(ShaderSemantics.BaseColorFactor, new Vector4(baseColorFactor));
       }
 
       const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
@@ -369,6 +374,7 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.baseColorTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const normalTexture = materialJson.normalTexture;
@@ -378,6 +384,7 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.normalTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const occlusionTexture = materialJson.occlusionTexture;
@@ -387,6 +394,7 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.occlusionTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const emissiveTexture = materialJson.emissiveTexture;
@@ -396,6 +404,7 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.emissiveTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const metallicFactor = pbrMetallicRoughness.metallicFactor;
@@ -406,6 +415,7 @@ export default class ModelConverter {
       if (roughnessFactor != null) {
         material.roughnessFactor = roughnessFactor;
       }
+      material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
 
       const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
       if (metallicRoughnessTexture != null) {
@@ -414,6 +424,7 @@ export default class ModelConverter {
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
         material.metallicRoughnessTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const alphaMode = materialJson.alphaMode;
