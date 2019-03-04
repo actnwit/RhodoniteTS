@@ -13,12 +13,14 @@ import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
 import PbrMaterial from "./PbrMaterial";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 
 export default class Material extends PbrMaterial {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<ShaderSemanticsEnum, any> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
+  public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
