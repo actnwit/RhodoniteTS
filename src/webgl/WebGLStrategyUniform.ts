@@ -24,6 +24,9 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import { TextureParameter } from "../foundation/definitions/TextureParameter";
 import CubeTexture from "../foundation/textures/CubeTexture";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import MaterialHelper from "../foundation/helpers/MaterialHelper";
+import { CompositionType } from "../foundation/definitions/CompositionType";
+import Material from "../foundation/materials/Material";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -38,6 +41,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
+
+  private __pbrUberMaterial?: Material;
 
   private vertexShaderMethodDefinitions_uniform:string =
   `
@@ -87,27 +92,21 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
     this.__shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
 
+    this.__pbrUberMaterial = MaterialHelper.createPbrUberMaterial();
+    this.__pbrUberMaterial.setUniformLocations(this.__shaderProgramUid);
+
     const args: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true},
-      {semantic: ShaderSemantics.BaseColorFactor, isPlural: false, prefix: 'material.', isSystem: false},
       {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
       {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true},
       {semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true},
-      {semantic: ShaderSemantics.OcclusionTexture, isPlural: false, prefix: 'material.', isSystem: false},
-      {semantic: ShaderSemantics.EmissiveTexture, isPlural: false, prefix: 'material.', isSystem: false},
-      {semantic: ShaderSemantics.BaseColorTexture, isPlural: false, prefix: 'material.', isSystem: false},
-      {semantic: ShaderSemantics.NormalTexture, isPlural: false, prefix: 'material.', isSystem: false},
       {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true},
       {semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true},
-      {semantic: ShaderSemantics.MetallicRoughnessFactor, isPlural: false, prefix: 'material.', isSystem: false},
-      {semantic: ShaderSemantics.MetallicRoughnessTexture, isPlural: false, prefix: 'material.', isSystem: false},
-      {semantic: ShaderSemantics.BrdfLutTexture, isPlural: false, isSystem: false},
-      {semantic: ShaderSemantics.DiffuseEnvTexture, isPlural: false, isSystem: false},
-      {semantic: ShaderSemantics.SpecularEnvTexture, isPlural: false, isSystem: false},
-      {semantic: ShaderSemantics.IBLParameter, isPlural: false, isSystem: false},
       {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true},
-      {semantic: ShaderSemantics.Wireframe, isPlural: false, isSystem: false},
-    ];
+      {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true},
+     ];
     const lights: ShaderSemanticsInfo[] = [];
     for (let i=0; i<Config.maxLightNumberInShader; i++) {
       lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true});
@@ -241,32 +240,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      // Set Uniforms
+      const material = primitive.material;
+
+      // Uniforms from System
       /// Matrices
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:RowMajarMatrix44.transpose(worldMatrix).v});
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, {x:normalMatrix.v});
 
-      /// Material
-      const material = primitive.material;
-      const baseColor = [];
-      const metallicRoughnessFactor = [];
-      if (material) {
-        baseColor[0] = material.baseColor.r;
-        baseColor[1] = material.baseColor.g;
-        baseColor[2] = material.baseColor.b;
-        baseColor[3] = material.alpha;
-        metallicRoughnessFactor[0] = material.metallicFactor;
-        metallicRoughnessFactor[1] = material.roughnessFactor;
-      } else {
-        baseColor[0] = 1;
-        baseColor[1] = 1;
-        baseColor[2] = 1;
-        baseColor[3] = 1;
-        metallicRoughnessFactor[0] = 1;
-        metallicRoughnessFactor[1] = 1;
-      }
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessFactor, false, 2, 'f', true, {x:metallicRoughnessFactor});
 
       // Lights
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, {x:this.__lightComponents!.length});
@@ -291,6 +271,47 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, {x:jointMatrices!});
       }
 
+
+      // Env map
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, {x:6});
+      gl.activeTexture(gl.TEXTURE6);
+      if (diffuseCube && diffuseCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      }
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, {x:7});
+      gl.activeTexture(gl.TEXTURE7);
+      if (specularCube && specularCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      }
+
+      let mipmapLevelNumber = 1;
+      if (specularCube) {
+        mipmapLevelNumber = specularCube.mipmapLevelNumber;
+      }
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, {x: mipmapLevelNumber, y: 1, z: 1});
+
+      // ViewPosition
+      const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+  //    const cameraPosition = cameraComponent.entity.getSceneGraph().worldPosition;
+      const cameraPosition = cameraComponent.worldPosition;
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, {x:cameraPosition.v});
+
+
+
+
+
+
+
+
+      // Uniforms from Material
       // Bind BaseTexture
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorTexture, false, 1, 'i', false, {x:0});
       gl.activeTexture(gl.TEXTURE0);
@@ -357,39 +378,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_2D, texture);
       }
 
-      // Env map
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, {x:6});
-      gl.activeTexture(gl.TEXTURE6);
-      if (diffuseCube && diffuseCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      }
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, {x:7});
-      gl.activeTexture(gl.TEXTURE7);
-      if (specularCube && specularCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-      }
-
-      let mipmapLevelNumber = 1;
-      if (specularCube) {
-        mipmapLevelNumber = specularCube.mipmapLevelNumber;
-      }
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, {x: mipmapLevelNumber, y: 1, z: 1});
-
-
-      // ViewPosition
-      const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-  //    const cameraPosition = cameraComponent.entity.getSceneGraph().worldPosition;
-      const cameraPosition = cameraComponent.worldPosition;
-      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, {x:cameraPosition.v});
-
       // Wireframe
       let isWireframe = false;
       let isWireframeOnShade = false;
@@ -400,6 +388,28 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         wireframeWidth = material.wireframeWidth;
       }
       this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.Wireframe, false, 3, 'f', false, {x: isWireframe, y: isWireframeOnShade, z: wireframeWidth});
+
+      /// Material
+      const baseColor = [];
+      const metallicRoughnessFactor = [];
+      if (material) {
+        baseColor[0] = material.baseColor.r;
+        baseColor[1] = material.baseColor.g;
+        baseColor[2] = material.baseColor.b;
+        baseColor[3] = material.alpha;
+        metallicRoughnessFactor[0] = material.metallicFactor;
+        metallicRoughnessFactor[1] = material.roughnessFactor;
+      } else {
+        baseColor[0] = 1;
+        baseColor[1] = 1;
+        baseColor[2] = 1;
+        baseColor[3] = 1;
+        metallicRoughnessFactor[0] = 1;
+        metallicRoughnessFactor[1] = 1;
+      }
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.BaseColorFactor, false, 4, 'f', true, {x:baseColor});
+      this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.MetallicRoughnessFactor, false, 2, 'f', true, {x:metallicRoughnessFactor});
+
 
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
       gl.bindTexture(gl.TEXTURE_2D, null);
