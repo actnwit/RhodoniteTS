@@ -93,4 +93,24 @@ export default class Material extends PbrMaterial {
     });
   }
 
+  createProgram(vertexShaderMethodDefinitions_uniform: string) {
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    this.__materialNodes.forEach((materialNode)=>{
+      const glslShader = (materialNode.constructor as any).shader;
+      const glslShaderClass = glslShader.constructor;
+      let vertexShader = glslShader.vertexShaderVariableDefinitions +
+        vertexShaderMethodDefinitions_uniform +
+        glslShader.vertexShaderBody
+      let fragmentShader = glslShader.fragmentShader;
+
+      this._shaderProgramUid = webglResourceRepository.createShaderProgram(
+        {
+          vertexShaderStr: vertexShader,
+          fragmentShaderStr: fragmentShader,
+          attributeNames: glslShaderClass.attributeNames,
+          attributeSemantics: glslShaderClass.attributeSemantics
+        }
+      );
+    });
+  }
 }

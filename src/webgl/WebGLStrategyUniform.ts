@@ -77,20 +77,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         }
 
         // Shader Setup
-        const glslShader = PBRShader.getInstance();
-        let vertexShader = glslShader.vertexShaderVariableDefinitions +
-          this.vertexShaderMethodDefinitions_uniform +
-          glslShader.vertexShaderBody
-        let fragmentShader = glslShader.fragmentShader;
-        material._shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-          {
-            vertexShaderStr: vertexShader,
-            fragmentShaderStr: fragmentShader,
-            attributeNames: PBRShader.attributeNames,
-            attributeSemantics: PBRShader.attributeSemantics
-          }
-        );
-        // const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid)! as WebGLShader;
+        material.createProgram(this.vertexShaderMethodDefinitions_uniform);
 
         const args: ShaderSemanticsInfo[] = [
           {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true},
