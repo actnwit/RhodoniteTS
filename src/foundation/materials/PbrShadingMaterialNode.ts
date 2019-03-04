@@ -13,12 +13,14 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
+import PBRShader from "../../webgl/PBRShader";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
-  static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  static readonly shader: PBRShader = PBRShader.getInstance();
 
   constructor() {
     PbrShadingMaterialNode.initDefaultTextures();

@@ -132,7 +132,7 @@ export default class MeshRendererComponent extends Component {
     MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
 
     // Shader setup
-    MeshRendererComponent.__webGLStrategy!.setupShaderProgram();
+    //MeshRendererComponent.__webGLStrategy!.setupShaderProgram();
 
   }
 
