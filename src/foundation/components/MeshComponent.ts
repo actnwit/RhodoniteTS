@@ -44,10 +44,10 @@ export default class MeshComponent extends Component {
   }
 
   $load() {
-    this.makeVerticesSepareted();
+//    this.makeVerticesSepareted();
     this.__calcTangents();
     //this.__calcFaceNormals();
-    this.__calcBaryCentricCoord();
+  //  this.__calcBaryCentricCoord();
     this.moveStageTo(ProcessStage.Mount);
   }
 

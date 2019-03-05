@@ -131,9 +131,6 @@ export default class MeshRendererComponent extends Component {
     // ResourceRepository
     MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
 
-    // Shader setup
-    MeshRendererComponent.__webGLStrategy!.setupShaderProgram();
-
   }
 
   static common_$prerender(): CGAPIResourceHandle {

@@ -91,7 +91,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
   `;
     }
 
-  setupShaderProgram(): void {
+  setupShaderProgram(meshComponent: MeshComponent): void {
     if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
@@ -113,8 +113,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
     this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
       [
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false}
+        {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
       ]);
   }
 
@@ -131,6 +131,8 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     if (this.__isLoaded(0)) {
       return;
     }
+
+    this.setupShaderProgram(meshComponent);
 
     const primitiveNum = meshComponent!.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {

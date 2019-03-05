@@ -32,7 +32,6 @@ import LightComponent from './components/LightComponent';
 import { LightType } from './definitions/LightType';
 import { AlphaMode } from './definitions/AlphaMode';
 import CubeTexture from './textures/CubeTexture';
-import PbrMaterial from './materials/PbrMaterial';
 import CameraControllerComponent from './components/CameraControllerComponent';
 
 const Rn = {
@@ -71,7 +70,6 @@ const Rn = {
   CubeTexture,
   CameraControllerComponent,
   AlphaMode,
-  PbrMaterial: PbrMaterial
 };
 export default Rn;
 

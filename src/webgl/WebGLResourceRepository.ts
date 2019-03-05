@@ -11,7 +11,7 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 import Component from "../foundation/core/Component";
-import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -112,6 +112,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, vao);
 
     return resourceHandle;
+  }
+
+  bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
+    const texture = this.getWebGLResource(textureUid);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+
+  bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
+    const texture = this.getWebGLResource(textureUid);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
   }
 
   createVertexDataResources(primitive: Primitive): VertexHandles
@@ -221,7 +235,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<{semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix? :string, semanticStr?: string, index?: Count}>) {
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<ShaderSemanticsInfo>) {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 

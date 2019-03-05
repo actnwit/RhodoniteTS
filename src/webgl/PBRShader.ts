@@ -2,11 +2,13 @@ import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/
 import WebGLResourceRepository from "./WebGLResourceRepository";
 import GLSLShader from "./GLSLShader";
 import Config from "../foundation/core/Config";
+import { ShaderNode } from "../foundation/definitions/ShaderNode";
 
 export type AttributeNames = Array<string>;
 
 export default class PBRShader extends GLSLShader {
   static __instance: PBRShader;
+  public static readonly materialElement = ShaderNode.PBRShading;
   private constructor() {
     super();
   }
@@ -306,7 +308,7 @@ void main ()
   float threshold = 0.001;
   float wireframeWidthInner = u_wireframe.z;
   float wireframeWidthRelativeScale = 1.0;
-  if (u_wireframe.x > 0.5 && u_wireframe.y > 0.5) {
+  if (u_wireframe.x > 0.5 && u_wireframe.y < 0.5) {
     rt0.a = 0.0;
   }
   vec4 wireframeResult = rt0;
@@ -319,7 +321,7 @@ void main ()
 
   if (u_wireframe.x > 0.5) {
     rt0 = wireframeResult;
-    if (u_wireframe.y > 0.5 && rt0.a == 0.0) {
+    if (u_wireframe.y < 0.5 && rt0.a == 0.0) {
       discard;
     }
   }

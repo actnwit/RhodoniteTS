@@ -1,11 +1,14 @@
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
 import Config from "../foundation/core/Config";
+import { ShaderNode } from "../foundation/definitions/ShaderNode";
 
 export type AttributeNames = Array<string>;
 
 export default class ClassicShader extends GLSLShader {
   static __instance: ClassicShader;
+  public static readonly materialElement = ShaderNode.ClassicShading;
+
   private constructor() {
     super();
   }
