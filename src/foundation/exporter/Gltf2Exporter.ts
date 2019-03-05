@@ -27,6 +27,8 @@ export default class Gltf2Exporter {
     };
 
     this.createNodes(json, entities);
+
+    this.download(json);
   }
 
   createNodes(json: any, entities: Entity[]) {
@@ -55,7 +57,19 @@ export default class Gltf2Exporter {
       }
 
       // matrix
-      node.matrix = entity.getTransform().matrix;
+      node.matrix = Array.prototype.slice.call(entity.getTransform().matrix.v);
     }
+  }
+
+  download(json: any, filename?: string) {
+    const a = document.createElement('a');
+    const e = document.createEvent('MouseEvent');
+
+    a.download = filename ? filename : 'Rhodonite_' + (new Date()).getTime() + '.json';
+    a.href = "data:application/octet-stream," + encodeURIComponent(JSON.stringify(json));
+
+    (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+    a.dispatchEvent(e);
   }
 }
