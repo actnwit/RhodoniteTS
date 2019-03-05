@@ -1,6 +1,6 @@
-version: 0.1.1-208-ga590-mod
+version: 0.1.1-209-ge7d6-mod
 branch: feature/fix-error-ie11
-188fb5bde69f4d9e1d4b801522b69cd6613ea978dd765f14f8e291985b4702fc ./dist/rhodonite.js
-3c0d6472a976c24be30489d0b997c518be7a971df9abd4f0dfd8a282f73c8f1a ./dist/rhodonite.min.js
-5a79346c71b81ce80c639c43a8fd8ac0d8e5c68a56442e1a31292b512f6c7ef3 ./dist/rhodonite-webgl.js
-4bd32fcc0eef07de078461c028ab351a19fdb6cb6ab3e5bbca8f04f02833233e ./dist/rhodonite-webgl.min.js
+d8ec83c4856e4a057bbcaf32e9eb615cc091672adb70605bc95f0b2d1e4bf45e ./dist/rhodonite.js
+57863eacf138ba5da7a4a038c5c9e0b59fd3e02f54bdca8130397ebc9dee2d38 ./dist/rhodonite.min.js
+fdb0a391a0d910c53228991cf20d824fa7d5e7ccf507e845c5d3886f644a2c1a ./dist/rhodonite-webgl.js
+bea141c53667ae434106f061254954841dc31e0b1da23c25ec13c8e0fef743d4 ./dist/rhodonite-webgl.min.js
