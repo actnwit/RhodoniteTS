@@ -44,7 +44,7 @@ const ViewPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({index:20, si
 const Wireframe: ShaderSemanticsEnum = new ShaderSemanticsClass({index:21, singularStr:'wireframe', pluralStr: 'wireframes'});
 const DiffuseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({index:22, singularStr:'diffuseColorFactor', pluralStr: 'diffuseColorFactors'});
 const DiffuseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:23, singularStr:'diffuseColorTexture', pluralStr: 'diffuseColorTextures'});
-const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({index:24, singularStr:'diffuseColorFactor', pluralStr: 'diffuseColorFactors'});
+const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({index:24, singularStr:'specularColorFactor', pluralStr: 'specularColorFactors'});
 const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:25, singularStr:'specularColorTexture', pluralStr: 'specularColorTextures'});
 const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({index:26, singularStr:'Shininess', pluralStr: 'Shininesses'});
 

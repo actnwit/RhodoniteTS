@@ -116,7 +116,6 @@ export default class DataUtil {
       } else {
         let xmlHttp = new XMLHttpRequest();
         if (isBinary) {
-          xmlHttp.responseType = "arraybuffer";
           xmlHttp.onload = (oEvent) => {
             let response = null;
             if (isBinary) {
@@ -126,6 +125,8 @@ export default class DataUtil {
             }
             resolveCallback(resolve, response);
           };
+          xmlHttp.open("GET", resourceUri, true);
+          xmlHttp.responseType = "arraybuffer";
         } else {
           xmlHttp.onreadystatechange = ()=> {
             if (xmlHttp.readyState === 4 && (Math.floor(xmlHttp.status/100) === 2 || xmlHttp.status === 0)) {
@@ -142,9 +143,9 @@ export default class DataUtil {
               }
             }
           };
+          xmlHttp.open("GET", resourceUri, true);
         }
 
-        xmlHttp.open("GET", resourceUri, true);
         xmlHttp.send(null);
       }
     });

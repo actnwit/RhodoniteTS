@@ -40,17 +40,24 @@ export default class Gltf2Importer {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__loadFromArrayBuffer((options.files as any)[fileName], options, defaultOptions, void 0);
+          return await this.__loadFromArrayBuffer((options.files as any)[fileName], options, defaultOptions, void 0).catch((err)=>{
+            console.log('this.__loadFromArrayBuffer error', err);
+          });
         }
       }
     }
 
+    let response: Response;
+    try {
+    response = await fetch(uri);
+    } catch (err) {
+      console.log('this.__loadFromArrayBuffer', err);
+    };
+    const arrayBuffer = await response!.arrayBuffer();
 
-
-    const response = await fetch(uri);
-    const arrayBuffer = await response.arrayBuffer();
-
-    return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri);
+    return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri).catch((err)=>{
+      console.log('this.__loadFromArrayBuffer error', err);
+    });;
 
   }
 
@@ -65,10 +72,14 @@ export default class Gltf2Importer {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, options as ImporterOpition, defaultOptions, uri);
+      result = await this._loadAsTextJson(json, options as ImporterOpition, defaultOptions, uri).catch((err)=>{
+        console.log('this.__loadAsTextJson error', err);
+      });
     }
     else {
-      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions, uri);
+      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions, uri).catch((err)=>{
+        console.log('this.__loadAsBinaryJson error', err);
+      });
     }
     return result;
   }
@@ -117,8 +128,12 @@ export default class Gltf2Importer {
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath;
 
-    const result  = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
-
+    let result: any;
+    try {
+      result  = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
+    } catch (err) {
+      console.log("this._loadInner error in _loadAsBinaryJson", err);
+    }
     return (result[0] as any)[0];
   }
 
@@ -137,8 +152,12 @@ export default class Gltf2Importer {
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath!;
 
-    const result = await this._loadInner(undefined, basePath!, gltfJson, options);
-
+    let result: any;
+    try {
+      result = await this._loadInner(undefined, basePath!, gltfJson, options);
+    } catch(err) {
+      console.log('this._loadInner error in _loadAsTextJson', err);
+    }
     return (result[0] as any)[0];
   }
 
@@ -596,7 +615,9 @@ export default class Gltf2Importer {
       }));
     }
 
-    return Promise.all(promisesToLoadResources);
+    return Promise.all(promisesToLoadResources).then().catch((err)=>{
+      console.log('Promise.all error', err);
+    });
   }
 
   _accessBinaryAsImage(bufferViewStr: string, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {

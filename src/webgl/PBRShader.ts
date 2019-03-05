@@ -108,13 +108,16 @@ precision highp float;
 
 struct Material {
   vec4 baseColorFactor;
-  sampler2D baseColorTexture;
-  sampler2D normalTexture;
-  sampler2D occlusionTexture;
-  sampler2D emissiveTexture;
   vec2 metallicRoughnessFactor;
-  sampler2D metallicRoughnessTexture;
 };
+
+
+uniform sampler2D u_baseColorTexture;
+uniform sampler2D u_normalTexture;
+uniform sampler2D u_occlusionTexture;
+uniform sampler2D u_emissiveTexture;
+uniform sampler2D u_metallicRoughnessTexture;
+
 uniform Material u_material;
 
 struct Light {
@@ -163,7 +166,7 @@ void main ()
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
   if (length(v_tangent_inWorld) > 0.01) {
-    vec3 normal = ${_texture}(u_material.normalTexture, v_texcoord).xyz*2.0 - 1.0;
+    vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
     if (length(normal) > 0.01) {
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
@@ -199,7 +202,7 @@ void main ()
 
 
   // BaseColor (take account for BaseColorTexture)
-  vec4 textureColor = ${_texture}(u_material.baseColorTexture, v_texcoord);
+  vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
   if (length(textureColor) > 0.01) {
     baseColor *= srgbToLinear(textureColor.rgb);
     alpha *= textureColor.a;
@@ -209,7 +212,7 @@ void main ()
   float userRoughness = u_material.metallicRoughnessFactor.y;
   float metallic = u_material.metallicRoughnessFactor.x;
 
-  vec4 ormTexel = texture2D(u_material.metallicRoughnessTexture, v_texcoord);
+  vec4 ormTexel = texture2D(u_metallicRoughnessTexture, v_texcoord);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
 
@@ -289,7 +292,7 @@ void main ()
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
     vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
 
-    float occlusion = texture2D(u_material.occlusionTexture, v_texcoord).r;
+    float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
     rt0.xyz += ibl * occlusion;
@@ -297,7 +300,7 @@ void main ()
   }
 
   // Emissive
-  vec3 emissive = srgbToLinear(texture2D(u_material.emissiveTexture, v_texcoord).xyz);
+  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, v_texcoord).xyz);
 
   rt0.xyz += emissive;
 
