@@ -90,6 +90,8 @@ export default class Gltf2Exporter {
 
   createMeshBinary(json: any, entities: Entity[]) {
     let count = 0;
+    let bufferByteLength = 0;
+
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
@@ -98,10 +100,20 @@ export default class Gltf2Exporter {
         for(let j=0; j<primitiveCount; j++) {
           const primitive = meshComponent.getPrimitiveAt(j);
           const indicesAccessor = primitive.indicesAccessor;
-          json.accessors[count] = {};
-          const accessor = json.accessors[count];
 
           if (indicesAccessor) {
+            // BufferView
+            json.bufferviews[count] = {};
+            const bufferview = json.bufferviews[count];
+            bufferview.buffer = 0;
+            bufferview.byteLength = indicesAccessor.byteLength;
+            bufferview.byteOffset = bufferByteLength;
+            bufferview.target = 34963;
+
+            // Accessor
+            json.accessors[count] = {};
+            const accessor = json.accessors[count];
+            accessor.bufferView = count;
             accessor.byteOffset = indicesAccessor.byteOffsetInBufferView;
             accessor.componentType = 5123;
             accessor.count = indicesAccessor.elementCount;
@@ -109,11 +121,40 @@ export default class Gltf2Exporter {
             accessor.max = [indicesAccessor.max];
             accessor.min = [indicesAccessor.min];
             accessor.type = 'SCALAR';
+            bufferByteLength += indicesAccessor.byteLength;
+            count++;
+          }
+
+          const attributeAccessors = primitive.attributeAccessors
+          for(let j=0; j<attributeAccessors.length; j++) {
+            // BufferView
+            json.bufferviews[count] = {};
+            const bufferview = json.bufferviews[count];
+            bufferview.buffer = 0;
+            bufferview.byteLength = attributeAccessors[j].byteLength;
+            bufferview.byteOffset = bufferByteLength;
+            bufferview.target = 34962;
+
+            // Accessor
+            json.accessors[count] = {};
+            const accessor = json.accessors[count];
+            const attributeAccessor = attributeAccessors[j];
+            accessor.bufferView = count;
+            accessor.byteOffset = attributeAccessor.byteOffsetInBufferView;
+            accessor.componentType = 5126;
+            accessor.count = attributeAccessor.elementCount;
+            attributeAccessor.calcMinMax();
+            accessor.max = Array.prototype.slice.call(attributeAccessor.max);
+            accessor.min = Array.prototype.slice.call(attributeAccessor.min);
+            accessor.type = 'VEC' + accessor.max.length;
+            bufferByteLength += attributeAccessor.byteLength;
             count++;
           }
         }
       }
     }
+    const buffer = json.buffers[0];
+    buffer.byteLength = bufferByteLength;
   }
 
   download(json: any, filename: string) {

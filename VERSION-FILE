@@ -1,6 +1,6 @@
-version: 0.1.1-214-gea430-mod
+version: 0.1.1-215-g11d0-mod
 branch: feature/gltf2-exporter
-bb6f84df3687dafda474ca4ce24fce565bd6f5229200f30009f4ee07a26e16d4 ./dist/rhodonite.js
-2e20db17fc7814994a3bb87a3e1cffa33346257679a15c7f8fc13a243a0c7df0 ./dist/rhodonite.min.js
-5c80b931629590db2ed5fdb4601e1a1d19ce62c75d7f4d9b36425988c44fbecd ./dist/rhodonite-webgl.js
-ae74118e6f68053617b1b91621dba8e8dd137733459f49df6b5942fc913200af ./dist/rhodonite-webgl.min.js
+b99d4ec250eead7d2c1ae117a950eaa3658bcd811181329b435c6b58129b6501 ./dist/rhodonite.js
+3cf9239cee8e6d513e8dc5ef798a207aad6b8f890d7324ea664bfc32a92073cc ./dist/rhodonite.min.js
+27b9c9fc11d85908d8de1a38ab3c737fc609a0e655cadf3e54f0330294952be0 ./dist/rhodonite-webgl.js
+ee61d8bfde48a2dc9e3fe648b80ec6fe079b59e122314f8097a4b2b6fa38cba1 ./dist/rhodonite-webgl.min.js
