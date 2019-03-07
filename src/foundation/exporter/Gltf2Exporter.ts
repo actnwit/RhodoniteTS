@@ -1,6 +1,7 @@
 import EntityRepository from "../core/EntityRepository";
 import Entity from "../core/Entity";
 import MeshComponent from "../components/MeshComponent";
+import { ShaderSemantics } from "../definitions/ShaderSemantics";
 
 declare var window: any;
 
@@ -55,6 +56,8 @@ export default class Gltf2Exporter {
     this.createMeshBinaryMetaData(json, entities);
 
     this.createMeshes(json, entities);
+
+    this.createMaterials(json, entities);
 
     const arraybuffer = this.createWriteBinary(json, entities);
 
@@ -147,6 +150,36 @@ export default class Gltf2Exporter {
         }
 
         (entity as any).gltfMeshIndex = count++;
+      }
+    }
+  }
+
+  createMaterials(json: any, entities: Entity[]) {
+    let count = 0;
+    json.materials = [];
+    for(let i=0; i<entities.length; i++) {
+      const entity = entities[i];
+      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+      if (meshComponent) {
+        const mesh = json.meshes[count];
+        const primitiveCount = meshComponent.getPrimitiveNumber();
+        for(let j=0; j<primitiveCount; j++) {
+          const rnPrimitive = meshComponent.getPrimitiveAt(j);
+          const primitive = mesh.primitives[j];
+          const rnMaterial = rnPrimitive.material!;
+          const material = {
+            "pbrMetallicRoughness": {
+              "baseColorFactor": Array.prototype.slice.call(rnMaterial.getParameter(ShaderSemantics.BaseColorFactor).v),
+              "metallicFactor": rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x,
+              "roughnessFactor": rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y
+//              "emissiveFactor": rnMaterial.getParameter(ShaderSemantics.EmissiveTexture
+            }
+          };
+
+          json.materials.push(material);
+          primitive.material = count;
+          count++;
+        }
       }
     }
   }
