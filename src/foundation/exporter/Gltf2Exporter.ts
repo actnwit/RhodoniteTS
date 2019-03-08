@@ -213,7 +213,6 @@ export default class Gltf2Exporter {
 
             const processTexture = (rnTexture: AbstractTexture)=>{
               if (rnTexture && rnTexture.width !== 1 && rnTexture.height !== 1) {
-                const htmlImageElement = rnTexture.htmlImageElement;
 
                 let imageIndex = countImage;
                 let match = false;
@@ -252,7 +251,7 @@ export default class Gltf2Exporter {
 
             let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
             let rnTexture;
-            let textureIndex
+            let textureIndex;
             if (textureParam != null) {
               rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
               textureIndex = processTexture(rnTexture!);
@@ -360,62 +359,92 @@ export default class Gltf2Exporter {
 
           if (indicesAccessor) {
             // BufferView
-            json.bufferViews[count] = {};
-            const bufferview = json.bufferViews[count];
-            bufferview.buffer = 0;
-            bufferview.byteLength = indicesAccessor.byteLength;
-            bufferview.byteOffset = bufferByteLength;
-            bufferview.target = 34963;
+            let match = false;
+            for (let k=0; k<json.bufferViews.length; k++) {
+              const bufferview = json.bufferViews[k];
+              if (bufferview.rnAccessor === indicesAccessor) {
+                match = true;
+                (indicesAccessor as any).gltfAccessorIndex = k;
+              }
+            }
 
-            // Accessor
-            json.accessors[count] = {};
-            const accessor = json.accessors[count];
-            accessor.bufferView = count;
-            accessor.byteOffset = 0;//indicesAccessor.byteOffsetInBufferView;
-            accessor.componentType = 5123;
-            accessor.count = indicesAccessor.elementCount;
-            indicesAccessor.calcMinMax();
-            accessor.max = [indicesAccessor.max];
-            accessor.min = [indicesAccessor.min];
-            accessor.type = 'SCALAR';
-            bufferByteLength += indicesAccessor.byteLength;
-            (indicesAccessor as any).gltfAccessorIndex = count;
-            count++;
+            if (!match) {
+              json.bufferViews[count] = {};
+              const bufferview = json.bufferViews[count];
 
-            accessor.accessor = indicesAccessor;
+              bufferview.rnAccessor = indicesAccessor;
+              bufferview.buffer = 0;
+              bufferview.byteLength = indicesAccessor.byteLength;
+              bufferview.byteOffset = bufferByteLength;
+              bufferview.target = 34963;
+
+              // Accessor
+              json.accessors[count] = {};
+              const accessor = json.accessors[count];
+              accessor.bufferView = count;
+              accessor.byteOffset = 0;//indicesAccessor.byteOffsetInBufferView;
+              accessor.componentType = 5123;
+              accessor.count = indicesAccessor.elementCount;
+              indicesAccessor.calcMinMax();
+              accessor.max = [indicesAccessor.max];
+              accessor.min = [indicesAccessor.min];
+              accessor.type = 'SCALAR';
+              bufferByteLength += indicesAccessor.byteLength;
+              (indicesAccessor as any).gltfAccessorIndex = count;
+              count++;
+
+              accessor.accessor = indicesAccessor;
+            }
           }
 
           const attributeAccessors = primitive.attributeAccessors;
           for(let j=0; j<attributeAccessors.length; j++) {
-            // BufferView
-            json.bufferViews[count] = {};
-            const bufferview = json.bufferViews[count];
-            bufferview.buffer = 0;
-            bufferview.byteLength = attributeAccessors[j].byteLength;
-            bufferview.byteOffset = bufferByteLength;
-            bufferview.target = 34962;
-
-            // Accessor
-            json.accessors[count] = {};
-            const accessor = json.accessors[count];
             const attributeAccessor = attributeAccessors[j];
-            accessor.bufferView = count;
-            accessor.byteOffset = 0;//attributeAccessor.byteOffsetInBufferView;
-            accessor.componentType = 5126;
-            accessor.count = attributeAccessor.elementCount;
-            attributeAccessor.calcMinMax();
-            accessor.max = Array.prototype.slice.call(attributeAccessor.max);
-            accessor.min = Array.prototype.slice.call(attributeAccessor.min);
-            accessor.type = 'VEC' + accessor.max.length;
-            bufferByteLength += attributeAccessor.byteLength;
-            (attributeAccessor as any).gltfAccessorIndex = count;
-            count++;
 
-            accessor.accessor = attributeAccessor;
+            let match = false;
+            for (let k=0; k<json.bufferViews.length; k++) {
+              const bufferview = json.bufferViews[k];
+              if (bufferview.rnAccessor === attributeAccessor) {
+                match = true;
+                (attributeAccessor as any).gltfAccessorIndex = k;
+              }
+            }
+            if (!match) {
+              // BufferView
+              json.bufferViews[count] = {};
+              const bufferview = json.bufferViews[count];
+              bufferview.rnAccessor = attributeAccessor;
+              bufferview.buffer = 0;
+              bufferview.byteLength = attributeAccessors[j].byteLength;
+              bufferview.byteOffset = bufferByteLength;
+              bufferview.target = 34962;
+
+              // Accessor
+              json.accessors[count] = {};
+              const accessor = json.accessors[count];
+              accessor.bufferView = count;
+              accessor.byteOffset = 0;//attributeAccessor.byteOffsetInBufferView;
+              accessor.componentType = 5126;
+              accessor.count = attributeAccessor.elementCount;
+              attributeAccessor.calcMinMax();
+              accessor.max = Array.prototype.slice.call(attributeAccessor.max);
+              accessor.min = Array.prototype.slice.call(attributeAccessor.min);
+              accessor.type = 'VEC' + accessor.max.length;
+              bufferByteLength += attributeAccessor.byteLength;
+              (attributeAccessor as any).gltfAccessorIndex = count;
+              count++;
+
+              accessor.accessor = attributeAccessor;
+            }
           }
         }
       }
     }
+
+    json.bufferViews.forEach((bufferView: any) => {
+      bufferView.rnAccessor = void 0;
+    });
+
     const buffer = json.buffers[0];
     buffer.byteLength = bufferByteLength;
   }
