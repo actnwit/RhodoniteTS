@@ -373,6 +373,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
         // material.baseColorTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture.texture3DAPIResourseUid);
       }
@@ -383,6 +384,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
         // material.normalTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture.texture3DAPIResourseUid);
       }
@@ -393,6 +395,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
         // material.occlusionTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
       }
@@ -403,6 +406,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
         // material.emissiveTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
       }
@@ -425,6 +429,7 @@ export default class ModelConverter {
         const image = texture.image.image;
         const rnTexture = new Texture();
         rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
         // material.metallicRoughnessTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
       }

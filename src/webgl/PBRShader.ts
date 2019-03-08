@@ -297,6 +297,8 @@ void main ()
     // Occlution to Indirect Lights
     rt0.xyz += ibl * occlusion;
 
+  } else {
+    rt0 = vec4(baseColor, alpha);
   }
 
   // Emissive

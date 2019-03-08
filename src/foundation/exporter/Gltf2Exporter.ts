@@ -2,6 +2,8 @@ import EntityRepository from "../core/EntityRepository";
 import Entity from "../core/Entity";
 import MeshComponent from "../components/MeshComponent";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
+import AbstractTexture from "../textures/AbstractTexture";
+import Vector4 from "../math/Vector4";
 
 declare var window: any;
 
@@ -155,30 +157,150 @@ export default class Gltf2Exporter {
   }
 
   createMaterials(json: any, entities: Entity[]) {
-    let count = 0;
+    let countMesh = 0;
+    let countMaterial = 0;
+    let countTexture = 0;
+    let countImage = 0;
     json.materials = [];
+    json.textures = [];
+    json.samplers = [];
+    json.images = [];
+    json.samplers[0] = {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
       if (meshComponent) {
-        const mesh = json.meshes[count];
+        const mesh = json.meshes[countMesh++];
         const primitiveCount = meshComponent.getPrimitiveNumber();
         for(let j=0; j<primitiveCount; j++) {
           const rnPrimitive = meshComponent.getPrimitiveAt(j);
           const primitive = mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
-          const material = {
+
+          let colorParam;
+          let metallic = 1.0;
+          let roughness = 1.0;
+          if (rnMaterial != null) {
+            colorParam = rnMaterial.getParameter(ShaderSemantics.BaseColorFactor);
+            if (colorParam == null) {
+              colorParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorFactor);
+            } else {
+              metallic = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x;
+              roughness = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y;
+            }
+          } else {
+            colorParam = new Vector4(1, 1, 1, 1);
+          }
+
+
+          const material: any = {
             "pbrMetallicRoughness": {
-              "baseColorFactor": Array.prototype.slice.call(rnMaterial.getParameter(ShaderSemantics.BaseColorFactor).v),
-              "metallicFactor": rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x,
-              "roughnessFactor": rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y
-//              "emissiveFactor": rnMaterial.getParameter(ShaderSemantics.EmissiveTexture
+              "baseColorFactor": Array.prototype.slice.call(colorParam.v),
+              "metallicFactor": metallic,
+              "roughnessFactor": roughness
             }
           };
 
+          if (rnMaterial) {
+
+            material.alphaMode = rnMaterial.alphaMode.str;
+
+            const processTexture = (rnTexture: AbstractTexture)=>{
+              if (rnTexture && rnTexture.width !== 1 && rnTexture.height !== 1) {
+                const htmlImageElement = rnTexture.htmlImageElement;
+
+                let imageIndex = countImage;
+                let match = false;
+                for (let k=0; k<json.images.length; k++) {
+                  const image = json.images[k];
+                  if (image.uri === rnTexture.name) {
+                    imageIndex = k;
+                    match = true;
+                  }
+                }
+                if (!match) {
+                  json.images[countImage++] = {
+                    uri: rnTexture.name
+                  }
+                  const htmlCanvasElement = rnTexture.htmlCanvasElement;
+                  if (htmlCanvasElement) {
+                    const blob = htmlCanvasElement.toBlob((blob)=>{
+                      var a = document.createElement('a');
+                      const e = document.createEvent('MouseEvent');
+                      (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                      a.href = URL.createObjectURL(blob);
+                      a.download = rnTexture.name;
+                      a.dispatchEvent(e);
+                    });
+                  }
+                }
+
+                json.textures[countTexture] = {
+                  sampler: 0,
+                  source: imageIndex
+                }
+
+                return countTexture++
+              }
+            }
+
+            let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
+            let rnTexture;
+            let textureIndex
+            if (textureParam != null) {
+              rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+              textureIndex = processTexture(rnTexture!);
+              if (textureIndex != null) {
+                material.pbrMetallicRoughness.baseColorTexture = {index: textureIndex};
+              }
+            } else {
+              textureParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorTexture);
+              if (textureParam != null) {
+                let rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+                let textureIndex = processTexture(rnTexture!);
+                if (textureIndex != null) {
+                  material.pbrMetallicRoughness.baseColorTexture = {index: textureIndex};
+                }
+              }
+            }
+
+            textureParam = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessTexture) as AbstractTexture;
+            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+            textureIndex = processTexture(rnTexture!);
+            if (textureIndex != null) {
+              material.pbrMetallicRoughness.metallicRoughnessTexture = {index: textureIndex};
+            }
+
+            textureParam = rnMaterial.getParameter(ShaderSemantics.NormalTexture) as AbstractTexture;
+            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+            textureIndex = processTexture(rnTexture!);
+            if (textureIndex != null) {
+              material.normalTexture = {index: textureIndex};
+            }
+
+            textureParam = rnMaterial.getParameter(ShaderSemantics.OcclusionTexture) as AbstractTexture;
+            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+            textureIndex = processTexture(rnTexture!);
+            if (textureIndex != null) {
+              material.occlusionTexture = {index: textureIndex};
+            }
+
+            textureParam = rnMaterial.getParameter(ShaderSemantics.EmissiveTexture) as AbstractTexture;
+            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+            textureIndex = processTexture(rnTexture!);
+            if (textureIndex != null) {
+              material.emissiveTexture = {index: textureIndex};
+            }
+          }
+
           json.materials.push(material);
-          primitive.material = count;
-          count++;
+          primitive.material = countMaterial++;
         }
       }
     }
