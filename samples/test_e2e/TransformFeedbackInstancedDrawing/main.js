@@ -161,3 +161,8 @@
 
 
 })();
+
+function exportGltf2() {
+  const exporter = Rn.Gltf2Exporter.getInstance();
+  exporter.export('Rhodonite');
+}
