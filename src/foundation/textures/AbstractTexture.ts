@@ -15,6 +15,11 @@ export default abstract class AbstractTexture extends RnObject {
   public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
   protected __isTextureReady = false;
   protected __startedToLoad = false;
+  protected __htmlImageElement?: HTMLImageElement;
+  protected __htmlCanvasElement?: HTMLCanvasElement;
+  protected __uri?: string;
+  protected __name: string = 'untitled';
+  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
 
   constructor() {
     super(true);
@@ -64,7 +69,10 @@ export default abstract class AbstractTexture extends RnObject {
 
   generateTextureFromImage(image: HTMLImageElement) {
     this.__startedToLoad = true;
+    this.__htmlImageElement = image;
     let imgCanvas = this._getResizedCanvas(image);
+    this.__htmlCanvasElement = imgCanvas;
+
     this.__width = imgCanvas.width;
     this.__height = imgCanvas.height;
 
@@ -80,10 +88,13 @@ export default abstract class AbstractTexture extends RnObject {
 
     this.texture3DAPIResourseUid = texture;
     this.__isTextureReady = true;
+    this.__uri = image.src;
 
+    AbstractTexture.__textureMap.set(texture, this);
   }
 
   generateTextureFromUri(imageUri: string) {
+    this.__uri = imageUri;
     this.__startedToLoad = true;
     return new Promise((resolve, reject)=> {
       this.__img = new Image();
@@ -91,7 +102,9 @@ export default abstract class AbstractTexture extends RnObject {
         this.__img.crossOrigin = 'Anonymous';
       }
       this.__img.onload = () => {
+        this.__htmlImageElement = this.__img;
         let imgCanvas = this._getResizedCanvas(this.__img!);
+        this.__htmlCanvasElement = imgCanvas;
         this.__width = imgCanvas.width;
         this.__height = imgCanvas.height;
 
@@ -107,11 +120,36 @@ export default abstract class AbstractTexture extends RnObject {
 
         this.texture3DAPIResourseUid = texture;
         this.__isTextureReady = true;
+        AbstractTexture.__textureMap.set(texture, this);
 
         resolve();
       };
 
       this.__img.src = imageUri;
     });
+  }
+
+  get htmlImageElement() {
+    return this.__htmlImageElement;
+  }
+
+  get htmlCanvasElement() {
+    return this.__htmlCanvasElement;
+  }
+
+  get uri() {
+    return this.__uri;
+  }
+
+  static getRhodoniteTexture(textureUid: CGAPIResourceHandle) {
+    return this.__textureMap.get(textureUid);
+  }
+
+  set name(name: string) {
+    this.__name = name;
+  }
+
+  get name(): string {
+    return this.__name;
   }
 }

@@ -589,6 +589,7 @@ export default class Gltf2Importer {
             const split = imageUri.split('.');
             let ext = split[split.length-1];
             img.src = this._getImageType(ext) + window.btoa(binaryData);
+            img.name = (imageJson.name) ? imageJson.name : imageJson.uri;
             img.onload = ()=>{
               resolve(gltfJson);
             }

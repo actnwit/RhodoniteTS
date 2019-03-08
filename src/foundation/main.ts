@@ -21,6 +21,7 @@ import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
+import Gltf2Exporter from './exporter/Gltf2Exporter';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
 import MemoryManager from './core/MemoryManager';
@@ -70,6 +71,7 @@ const Rn = {
   CubeTexture,
   CameraControllerComponent,
   AlphaMode,
+  Gltf2Exporter
 };
 export default Rn;
 

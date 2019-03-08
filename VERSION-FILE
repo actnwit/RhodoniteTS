@@ -1,6 +1,6 @@
-version: 0.1.1-209-ge7d6-mod
-branch: feature/fix-error-ie11
-d8ec83c4856e4a057bbcaf32e9eb615cc091672adb70605bc95f0b2d1e4bf45e ./dist/rhodonite.js
-57863eacf138ba5da7a4a038c5c9e0b59fd3e02f54bdca8130397ebc9dee2d38 ./dist/rhodonite.min.js
-fdb0a391a0d910c53228991cf20d824fa7d5e7ccf507e845c5d3886f644a2c1a ./dist/rhodonite-webgl.js
-bea141c53667ae434106f061254954841dc31e0b1da23c25ec13c8e0fef743d4 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-220-gaf15-mod
+branch: feature/gltf2-exporter
+cfdcda370326b57285e07dc15a9e15d2ade7d31c09e2c3c897f6ab30f8c708c2 ./dist/rhodonite.js
+3eb1259e81ac227d555a03e68f4afbeaf824311da132ae3e30673aec564b5017 ./dist/rhodonite.min.js
+a456d69aec550931f686a74111175b6ac8fcb7dbafd06bbe2fb0037827ca5599 ./dist/rhodonite-webgl.js
+f874d222c3eabb770c8b03b27cb1758dd9b056e6b3df7f33f849bfe6c8e92383 ./dist/rhodonite-webgl.min.js
