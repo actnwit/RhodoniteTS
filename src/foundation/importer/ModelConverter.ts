@@ -353,17 +353,13 @@ export default class ModelConverter {
     if (materialJson == null) {
       return void 0;
     }
-//    const material = new PbrMaterial();
+
     const material = MaterialHelper.createPbrUberMaterial();
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
-        // material.baseColor.r = baseColorFactor[0];
-        // material.baseColor.g = baseColorFactor[1];
-        // material.baseColor.b = baseColorFactor[2];
-        // material.alpha = baseColorFactor[3];
         material.setParameter(ShaderSemantics.BaseColorFactor, new Vector4(baseColorFactor));
       }
 
@@ -412,14 +408,8 @@ export default class ModelConverter {
       }
 
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
-      if (metallicFactor != null) {
-        // material.metallicFactor = metallicFactor;
-      }
       metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
       let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-      if (roughnessFactor != null) {
-        // material.roughnessFactor = roughnessFactor;
-      }
       roughnessFactor = (roughnessFactor != null) ? roughnessFactor : 1;
       material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
 
@@ -432,6 +422,17 @@ export default class ModelConverter {
         rnTexture.name = image.name;
         // material.metallicRoughnessTexture = rnTexture;
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
+      }
+
+      const diffuseColorTexture = materialJson.diffuseColorTexture;
+      if (diffuseColorTexture != null) {
+        const texture = emissiveTexture.texture;
+        const image = texture.image.image;
+        const rnTexture = new Texture();
+        rnTexture.generateTextureFromImage(image);
+        rnTexture.name = image.name;
+        // material.emissiveTexture = rnTexture;
+        material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture.texture3DAPIResourseUid);
       }
 
       const alphaMode = materialJson.alphaMode;

@@ -85,4 +85,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-220-gaf15-mod branch: feature/gltf2-exporter';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-223-g0fbd-mod branch: master';

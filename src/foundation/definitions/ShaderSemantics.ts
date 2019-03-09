@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 import { CompositionType } from "./CompositionType";
 import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 
@@ -57,10 +57,14 @@ function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
 }
 
+function fromString( str: string ): ShaderSemanticsEnum {
+  return _fromString({typeList, str}) as ShaderSemanticsEnum;
+}
+
 export type ShaderSemanticsInfo = {semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix? :string, semanticStr?: string, index?: Count,
   compositionType?: CompositionTypeEnum, componentType?: ComponentTypeEnum, isSystem: boolean, initialValue?: any};
 
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess });
+  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, from, fromString });

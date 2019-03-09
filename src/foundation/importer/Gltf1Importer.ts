@@ -173,7 +173,7 @@ export default class Gltf1Importer {
     this._loadDependenciesOfMeshes(gltfJson);
 
     // Material
-//    this._loadDependenciesOfMaterials(gltfJson);
+    this._loadDependenciesOfMaterials(gltfJson);
 
     // Texture
     this._loadDependenciesOfTextures(gltfJson);
@@ -356,34 +356,60 @@ export default class Gltf1Importer {
     }
   }
 
+  _isKHRMaterialsCommon(materialJson: any) {
+    if (typeof materialJson.extensions !== 'undefined' && typeof materialJson.extensions.KHR_materials_common !== 'undefined') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   _loadDependenciesOfMaterials(gltfJson: glTF1) {
     // Material
     if (gltfJson.materials) {
-      for (let material of gltfJson.materials) {
-        if (material.pbrMetallicRoughness) {
-          let baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
-          if (baseColorTexture !== void 0) {
-            baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
+      for (let materialStr in gltfJson.materials) {
+        let material = gltfJson.materials[materialStr];
+
+        if (this._isKHRMaterialsCommon(material)) {
+          material = material.extensions.KHR_materials_common;
+        }
+
+        const setParameters = (values: any[], isParameter: boolean)=> {
+          for (let valueName in values) {
+            let value = null;
+            if (isParameter) {
+              value = values[valueName].value;
+              if (typeof value === 'undefined') {
+                continue;
+              }
+            } else {
+              value = values[valueName];
+            }
+
+            if (typeof value === 'string') {
+              let textureStr = value;
+              let texturePurpose;
+              if (valueName === 'diffuse' || (material.technique === "CONSTANT" && valueName === 'ambient')) {
+                material.diffuseColorTexure = {};
+                material.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
+
+              } else if (valueName === 'emission' && textureStr.match(/_normal$/)) {
+                material.emissionTexure = {};
+                material.emissionTexture.texture = (gltfJson.textures as any)[value];
+              } else {
+              }
+
+              let texture = (gltfJson.textures as any)[textureStr];
+
+              material.setTexture(texture, texturePurpose);
+            }
           }
-          let metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
-          if (metallicRoughnessTexture !== void 0) {
-            metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
+        };
+        setParameters(material.values, false);
+        if (material.technique && gltfJson.techniques) {
+          if (typeof gltfJson.techniques[material.technique] !== "undefined") {
+            setParameters(gltfJson.techniques[material.technique].parameters, true);
           }
-        }
-
-        let normalTexture = material.normalTexture;
-        if (normalTexture !== void 0) {
-          normalTexture.texture = gltfJson.textures[normalTexture.index];
-        }
-
-        const occlusionTexture = material.occlusionTexture;
-        if (occlusionTexture !== void 0) {
-          occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
-        }
-
-        const emissiveTexture = material.emissiveTexture;
-        if (emissiveTexture !== void 0) {
-          emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
         }
       }
     }
