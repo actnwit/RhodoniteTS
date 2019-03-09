@@ -340,7 +340,7 @@ export default class ModelConverter {
         attributeRnAccessors.push(attributeRnAccessor);
         attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
       }
-      const material = this.__setupMaterial(primitive.material);
+      const material = this.__setupMaterial(gltfModel, primitive.material);
       const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
       const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
@@ -349,14 +349,18 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setupMaterial(materialJson:any) : Material|undefined {
+  private __setupMaterial(gltfModel: any, materialJson: any) : Material|undefined {
     if (materialJson == null) {
       return void 0;
     }
 
-    const material = MaterialHelper.createPbrUberMaterial();
+    let material: Material;
+    if (gltfModel.asset != null && gltfModel.asset.version === '2') {
+    } else {
+    }
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
+      material = MaterialHelper.createPbrUberMaterial();
 
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
@@ -396,17 +400,6 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
       }
 
-      const emissiveTexture = materialJson.emissiveTexture;
-      if (emissiveTexture != null) {
-        const texture = emissiveTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.emissiveTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
-      }
-
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
       metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
       let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
@@ -424,22 +417,36 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
       }
 
-      const diffuseColorTexture = materialJson.diffuseColorTexture;
-      if (diffuseColorTexture != null) {
-        const texture = emissiveTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.emissiveTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture.texture3DAPIResourseUid);
-      }
-
       const alphaMode = materialJson.alphaMode;
       if (alphaMode != null) {
         material.alphaMode = AlphaMode.fromString(alphaMode);
       }
+    } else {
+      material = MaterialHelper.createClassicUberMaterial();
     }
+
+    const diffuseColorTexture = materialJson.diffuseColorTexture;
+    if (diffuseColorTexture != null) {
+      const texture = diffuseColorTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      // material.emissiveTexture = rnTexture;
+      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture.texture3DAPIResourseUid);
+    }
+
+    const emissiveTexture = materialJson.emissiveTexture;
+    if (emissiveTexture != null) {
+      const texture = emissiveTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      // material.emissiveTexture = rnTexture;
+      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
+    }
+
 
     return material;
   }

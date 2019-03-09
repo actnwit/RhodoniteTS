@@ -390,7 +390,7 @@ export default class Gltf1Importer {
               let textureStr = value;
               let texturePurpose;
               if (valueName === 'diffuse' || (material.technique === "CONSTANT" && valueName === 'ambient')) {
-                material.diffuseColorTexure = {};
+                material.diffuseColorTexture = {};
                 material.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
 
               } else if (valueName === 'emission' && textureStr.match(/_normal$/)) {
@@ -399,9 +399,11 @@ export default class Gltf1Importer {
               } else {
               }
 
-              let texture = (gltfJson.textures as any)[textureStr];
 
-              material.setTexture(texture, texturePurpose);
+            } else {
+              if (valueName === 'diffuse') {
+                material.diffuseColorFactor = value;
+              }
             }
           }
         };

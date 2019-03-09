@@ -77,8 +77,10 @@ export default class Material extends RnObject {
 
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x});
-      } else {
+      } else if (info.compositionType !== CompositionType.Scalar) {
         webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v});
+      } else {
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value});
       }
       if (info.compositionType === CompositionType.Texture2D) {
         webglResourceRepository.bindTexture2D(value.x, value.y);

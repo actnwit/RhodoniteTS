@@ -83,7 +83,7 @@ void main ()
 precision highp float;
 
 struct Material {
-  vec4 baseColorFactor;
+  vec4 diffuseColorFactor;
 };
 uniform sampler2D u_baseColorTexture;
 uniform Material u_material;
@@ -109,11 +109,11 @@ void main ()
 
   // baseColor
   vec3 color = vec3(0.0, 0.0, 0.0);
-  if (v_color != color && u_material.baseColorFactor.rgb != color) {
-    color = v_color * u_material.baseColorFactor.rgb;
+  if (v_color != color && u_material.diffuseColorFactor.rgb != color) {
+    color = v_color * u_material.diffuseColorFactor.rgb;
   } else if (v_color == color) {
-    color = u_material.baseColorFactor.rgb;
-  } else if (u_material.baseColorFactor.rgb == color) {
+    color = u_material.diffuseColorFactor.rgb;
+  } else if (u_material.diffuseColorFactor.rgb == color) {
     color = v_color;
   } else {
     color = vec3(1.0, 1.0, 1.0);

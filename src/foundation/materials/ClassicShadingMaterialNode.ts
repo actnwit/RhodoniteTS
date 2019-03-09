@@ -13,13 +13,13 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import PBRShader from "../../webgl/PBRShader";
+import ClassicShader from "../../webgl/ClassicShader";
 
 export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static readonly shader: PBRShader = PBRShader.getInstance();
+  static readonly shader: ClassicShader = ClassicShader.getInstance();
 
   constructor() {
     ClassicShadingMaterialNode.initDefaultTextures();
