@@ -265,6 +265,17 @@ export default class ModelConverter {
 
       if (node.skin && node.skin.skeleton) {
         sg.isRootJoint = true;
+        // if (node.meshes) {
+        //   // let rnEntity = rnEntities[node_i];
+        //   // entityRepository
+        //   // for (let mesh of node.meshes) {
+        //   //   mesh
+        //   //   const entity = this.__generateMeshEntity() {
+
+        //   //   }
+        //   // }
+        //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+        // } else 
         if (node.mesh) {
           skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
         }
@@ -289,6 +300,13 @@ export default class ModelConverter {
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
+      // if (node.meshes != null) {
+      //   const groupEntity = this.__generateGroupEntity();
+      //   for (let mesh of node.meshes) {
+      //     const meshEntity = this.__setupMesh(mesh, rnBuffer, gltfModel);
+      //     groupEntity.getSceneGraph().addChild(meshEntity.getSceneGraph());
+      //   }
+      // } else 
       if (node.mesh != null) {
         const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
         if (node.mesh.name) {
@@ -349,7 +367,11 @@ export default class ModelConverter {
       const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
       const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
+
+//      this.__addOffsetToIndices(meshComponent);
     }
+
+
 
     return meshEntity;
   }
@@ -693,6 +715,23 @@ export default class ModelConverter {
     accessor.extras.typedDataArray = typedDataArray;
 
     return typedDataArray;
+  }
+
+  private __addOffsetToIndices(meshComponent: MeshComponent) {
+    const primitiveNumber = meshComponent.getPrimitiveNumber();
+    let offsetSum = 0;
+    for (let i=0; i<primitiveNumber; i++) {
+      const primitive = meshComponent.getPrimitiveAt(i);
+      const indicesAccessor = primitive.indicesAccessor;
+      if (indicesAccessor) {
+        const elementNumber = indicesAccessor.elementCount;
+        for (let j=0; j<elementNumber; j++) {
+          const index = indicesAccessor.getScalar(j, {});
+          indicesAccessor.setScalar(j, index+offsetSum, {});
+        }
+        offsetSum += elementNumber;
+      }
+    }
   }
 
   private __getRnAccessor(accessor: any, rnBuffer: Buffer) {

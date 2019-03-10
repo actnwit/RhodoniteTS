@@ -273,25 +273,17 @@ export default class Gltf1Importer {
 
   _loadDependenciesOfNodes(gltfJson: glTF1) {
 
-    for (let nodeName in gltfJson.nodeDic) {
-      const node = (gltfJson.nodeDic as any)[nodeName];
+    for (let node of gltfJson.nodes) {
+      //const node = (gltfJson.nodeDic as any)[nodeName];
       // Hierarchy
       if (node.children) {
         node.childrenNames = node.children.concat();
         node.children = [];
         node.childrenIndices = [];
         for (let name of node.childrenNames) {
-          node.children.push((gltfJson.nodeDic as any)[name]);
-
-          // calc index of 'name' in gltfJson.nodeDic enumerate
-          let count = 0;
-          for (let nodeName in gltfJson.nodeDic) {
-            if (nodeName === name) {
-              break;
-            }
-            count++;
-          }
-          node.childrenIndices.push(count);
+          const childNode = (gltfJson.nodeDic as any)[name];
+          node.children.push(childNode);
+          node.childrenIndices.push(childNode._index);
         }
       }
 
@@ -299,9 +291,35 @@ export default class Gltf1Importer {
       if (node.meshes !== void 0 && gltfJson.meshes !== void 0) {
         node.meshNames = node.meshes;
         node.meshes = [];
+
         for (let name of node.meshNames) {
           node.meshes.push((gltfJson.meshDic as any)[name]);
-          node.mesh = (gltfJson.meshDic as any)[name];
+        }
+       // node.mesh = node.meshes[2];
+
+        if (node.meshes == null || node.meshes.length === 0) {
+          node.mesh = node.meshes[0];
+        } else {
+          for (let i=0; i<node.meshes.length; i++) {
+            const mesh = node.meshes[i];
+            const childNode: any = {
+              mesh: mesh,
+              children: [],
+              skin: node.skin,
+              skeletons: node.skeletons.concat(),
+              matrix: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]
+            };
+            const childNodeIndex = gltfJson.nodes[gltfJson.nodes.length - 1]._index + 1;
+            childNode._index = childNodeIndex;
+            gltfJson.nodes.push(childNode);
+            node.children.push(childNode);
+            node.childrenIndices.push(childNode._index);
+          }
+
+          node.skeletons = void 0;
+          node.skin = void 0;
+          node.meshes = void 0;
+          node.meshNames = void 0;
         }
       }
 
@@ -336,6 +354,7 @@ export default class Gltf1Importer {
         }
 
         primitive.attributeNames = Object.assign({}, primitive.attributes);
+        primitive.attributes = [];
         for (let attributeName in primitive.attributeNames) {
           if (primitive.attributeNames[attributeName] != null) {
             const accessorName = primitive.attributeNames[attributeName];
@@ -353,9 +372,9 @@ export default class Gltf1Importer {
               toGetAsTypedArray: true,
               attributeName: attributeName
             };
-            primitive.attributes[attributeName] = accessor;
+            primitive.attributes.push(accessor);
           } else {
-            primitive.attributes[attributeName] = void 0;
+            //primitive.attributes[attributeName] = void 0;
           }
         }
 

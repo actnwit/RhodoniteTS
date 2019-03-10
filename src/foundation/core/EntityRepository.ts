@@ -53,6 +53,21 @@ export default class EntityRepository {
     return entity;
   }
 
+  removeComponentsFromEntity(componentClasses: Array<typeof Component>, entityUid: EntityUID) {
+    const entity: Entity = this.getEntity(entityUid);
+
+    for (let componentClass of componentClasses) {
+      let map = this._components[entity.entityUID];
+      if (map == null) {
+        map = new Map();
+        this._components[entity.entityUID] = map;
+      }
+      map.delete(componentClass.componentTID);
+    }
+
+    return entity;
+  }
+
   getEntity(entityUid: EntityUID) {
     return this.__entities[entityUid];
   }

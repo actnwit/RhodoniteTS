@@ -1,6 +1,6 @@
-version: 0.1.1-228-g0eafb-mod
+version: 0.1.1-229-g0588-mod
 branch: feature/gltf1-material
-c83134d6f4893433405989b22fd6e51931aad8bf922c4bed78d2889ec8e9143d ./dist/rhodonite.js
-c7c6c1071ace7f556bc08a8cc72b49d5b3f3f9746578f30822741f6a2ed81537 ./dist/rhodonite.min.js
-8124623d34dd5a7790ff72b804d2c41325fa2cf5954ead151e7f6e3b1ac8cf4c ./dist/rhodonite-webgl.js
-43312ac42cde5b55d0a0f413ad0d035cbb2d6edebea1a0bbff484e10924dcf95 ./dist/rhodonite-webgl.min.js
+132a0c36c6b72ea5ef80a0015b6752575be939dc8b7eef4947d167869b9d5612 ./dist/rhodonite.js
+e5ab4bba9b2a84d6919838a37f3f1798197a53d20cd85eb205c48b9c284df379 ./dist/rhodonite.min.js
+b642117f62d2d931dcf3991202f7b671c730b83b8a7decbcdd6eb7f1c71be64c ./dist/rhodonite-webgl.js
+ad118859098f6e41366b427c05e0a288f02f2f1a990f1aff60aa5d1895c956fb ./dist/rhodonite-webgl.min.js

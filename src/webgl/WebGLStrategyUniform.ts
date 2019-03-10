@@ -209,6 +209,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     const primitiveNum = meshComponent.getPrimitiveNumber();
+    let offsetSum = 0;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
 
