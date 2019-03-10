@@ -219,8 +219,10 @@ export default class Gltf1Importer {
       gltfJson.nodes = [];
       gltfJson.nodesIndices = [];
       for (let nodeName in gltfJson.nodeDic) {
-        gltfJson.nodesIndices.push(count++);
-        gltfJson.nodes.push((gltfJson.nodeDic as any)[nodeName]);
+        gltfJson.nodesIndices.push(count);
+        const node = (gltfJson.nodeDic as any)[nodeName];
+        node._index = count++;
+        gltfJson.nodes.push(node);
       }
     }
 
@@ -463,24 +465,30 @@ export default class Gltf1Importer {
     if (gltfJson.animations) {
       for (let animationName in gltfJson.animationDic) {
         const animation = (gltfJson.animationDic as any)[animationName];
+        animation.samplerDic = animation.samplers;
+        animation.samplers = [];
         for (let channel of animation.channels) {
-          channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex];
+          channel.sampler = animation.samplerDic[channel.sampler];
 
-          channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
-        }
-        for (let channel of animation.channels) {
-          channel.sampler.inputIndex = channel.sampler.input;
-          channel.sampler.outputIndex = channel.sampler.output;
-          channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
-          channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+          channel.target.node = (gltfJson.nodeDic as any)[channel.target.id];
+          channel.target.nodeIndex = channel.target.node._index;
+
+          channel.sampler.input = gltfJson.accessors[animation.parameters['TIME']];
+          channel.sampler.output = gltfJson.accessors[animation.parameters[channel.target.path]];
+
+          animation.samplers.push(channel.sampler);
+
           if (channel.target.path === 'rotation') {
             if (channel.sampler.output.extras === void 0) {
               channel.sampler.output.extras = {};
             }
             channel.sampler.output.extras.quaternionIfVec4 = true;
           }
+        }
+        animation.channelDic = animation.channels;
+        animation.channels = [];
+        for (let channel of animation.channelDic) {
+          animation.channels.push(channel);
         }
       }
     }

@@ -447,6 +447,10 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
     }
 
+    const diffuseColorFactor = materialJson.diffuseColorFactor;
+    if (diffuseColorFactor != null) {
+      material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
+    }
 
     return material;
   }
