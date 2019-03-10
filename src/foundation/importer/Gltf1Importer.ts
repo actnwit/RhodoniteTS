@@ -319,7 +319,7 @@ export default class Gltf1Importer {
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
         node.cameraName = node.camera;
-        node.camera = (gltfJson.cameraDic as any)[node.CameraName];
+        node.camera = (gltfJson.cameraDic as any)[node.cameraName];
       }
 
     }
