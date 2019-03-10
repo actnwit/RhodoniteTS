@@ -84,5 +84,6 @@ type glTF1 = {
   bufferViews: any[],
   bufferViewDic: Object,
 
-  buffer: any[]
+  buffer: any[],
+  techniques: any[]
 };

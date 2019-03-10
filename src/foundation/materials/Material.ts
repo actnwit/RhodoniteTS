@@ -12,6 +12,7 @@ import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import { runInThisContext } from "vm";
 
 
 export default class Material extends RnObject {
@@ -20,6 +21,7 @@ export default class Material extends RnObject {
   private __fieldsInfo: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
+  private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
@@ -77,8 +79,10 @@ export default class Material extends RnObject {
 
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x});
-      } else {
+      } else if (info.compositionType !== CompositionType.Scalar) {
         webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v});
+      } else {
+        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value});
       }
       if (info.compositionType === CompositionType.Texture2D) {
         webglResourceRepository.bindTexture2D(value.x, value.y);
@@ -98,14 +102,23 @@ export default class Material extends RnObject {
         glslShader.vertexShaderBody
       let fragmentShader = glslShader.fragmentShader;
 
-      this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-        {
-          vertexShaderStr: vertexShader,
-          fragmentShaderStr: fragmentShader,
-          attributeNames: glslShaderClass.attributeNames,
-          attributeSemantics: glslShaderClass.attributeSemantics
-        }
-      );
+      const shaderCharCount = (vertexShader + fragmentShader).length;
+
+      if (Material.__shaderMap.has(shaderCharCount)) {
+        this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+        return this._shaderProgramUid;
+      } else {
+        this._shaderProgramUid = webglResourceRepository.createShaderProgram(
+          {
+            vertexShaderStr: vertexShader,
+            fragmentShaderStr: fragmentShader,
+            attributeNames: glslShaderClass.attributeNames,
+            attributeSemantics: glslShaderClass.attributeSemantics
+          }
+        );
+        Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+        return this._shaderProgramUid;
+      }
     });
   }
 

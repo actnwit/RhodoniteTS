@@ -255,11 +255,27 @@ export default class ModelConverter {
         entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
         skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
 
+//        skeletalComponent.isSkinning = false;
+
         skeletalComponent._jointIndices = node.skin.jointsIndices;
+        if (node.skin.bindShapeMatrix != null) {
+          skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix);
+        }
       }
 
       if (node.skin && node.skin.skeleton) {
         sg.isRootJoint = true;
+        // if (node.meshes) {
+        //   // let rnEntity = rnEntities[node_i];
+        //   // entityRepository
+        //   // for (let mesh of node.meshes) {
+        //   //   mesh
+        //   //   const entity = this.__generateMeshEntity() {
+
+        //   //   }
+        //   // }
+        //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+        // } else 
         if (node.mesh) {
           skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
         }
@@ -284,6 +300,13 @@ export default class ModelConverter {
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
+      // if (node.meshes != null) {
+      //   const groupEntity = this.__generateGroupEntity();
+      //   for (let mesh of node.meshes) {
+      //     const meshEntity = this.__setupMesh(mesh, rnBuffer, gltfModel);
+      //     groupEntity.getSceneGraph().addChild(meshEntity.getSceneGraph());
+      //   }
+      // } else 
       if (node.mesh != null) {
         const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
         if (node.mesh.name) {
@@ -340,30 +363,34 @@ export default class ModelConverter {
         attributeRnAccessors.push(attributeRnAccessor);
         attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
       }
-      const material = this.__setupMaterial(primitive.material);
+      const material = this.__setupMaterial(gltfModel, primitive.material);
       const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
       const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
+
+//      this.__addOffsetToIndices(meshComponent);
     }
+
+
 
     return meshEntity;
   }
 
-  private __setupMaterial(materialJson:any) : Material|undefined {
+  private __setupMaterial(gltfModel: any, materialJson: any) : Material|undefined {
     if (materialJson == null) {
       return void 0;
     }
-//    const material = new PbrMaterial();
-    const material = MaterialHelper.createPbrUberMaterial();
+
+    let material: Material;
+    if (gltfModel.asset != null && gltfModel.asset.version === '2') {
+    } else {
+    }
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
+      material = MaterialHelper.createPbrUberMaterial();
 
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
-        // material.baseColor.r = baseColorFactor[0];
-        // material.baseColor.g = baseColorFactor[1];
-        // material.baseColor.b = baseColorFactor[2];
-        // material.alpha = baseColorFactor[3];
         material.setParameter(ShaderSemantics.BaseColorFactor, new Vector4(baseColorFactor));
       }
 
@@ -400,26 +427,9 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
       }
 
-      const emissiveTexture = materialJson.emissiveTexture;
-      if (emissiveTexture != null) {
-        const texture = emissiveTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.emissiveTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
-      }
-
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
-      if (metallicFactor != null) {
-        // material.metallicFactor = metallicFactor;
-      }
       metallicFactor = (metallicFactor != null) ? metallicFactor : 1;
       let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-      if (roughnessFactor != null) {
-        // material.roughnessFactor = roughnessFactor;
-      }
       roughnessFactor = (roughnessFactor != null) ? roughnessFactor : 1;
       material.setParameter(ShaderSemantics.MetallicRoughnessFactor, new Vector2(metallicFactor, roughnessFactor));
 
@@ -438,6 +448,35 @@ export default class ModelConverter {
       if (alphaMode != null) {
         material.alphaMode = AlphaMode.fromString(alphaMode);
       }
+    } else {
+      material = MaterialHelper.createClassicUberMaterial();
+    }
+
+    const diffuseColorTexture = materialJson.diffuseColorTexture;
+    if (diffuseColorTexture != null) {
+      const texture = diffuseColorTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      // material.emissiveTexture = rnTexture;
+      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture.texture3DAPIResourseUid);
+    }
+
+    const emissiveTexture = materialJson.emissiveTexture;
+    if (emissiveTexture != null) {
+      const texture = emissiveTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      // material.emissiveTexture = rnTexture;
+      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
+    }
+
+    const diffuseColorFactor = materialJson.diffuseColorFactor;
+    if (diffuseColorFactor != null) {
+      material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
     }
 
     return material;
@@ -676,6 +715,23 @@ export default class ModelConverter {
     accessor.extras.typedDataArray = typedDataArray;
 
     return typedDataArray;
+  }
+
+  private __addOffsetToIndices(meshComponent: MeshComponent) {
+    const primitiveNumber = meshComponent.getPrimitiveNumber();
+    let offsetSum = 0;
+    for (let i=0; i<primitiveNumber; i++) {
+      const primitive = meshComponent.getPrimitiveAt(i);
+      const indicesAccessor = primitive.indicesAccessor;
+      if (indicesAccessor) {
+        const elementNumber = indicesAccessor.elementCount;
+        for (let j=0; j<elementNumber; j++) {
+          const index = indicesAccessor.getScalar(j, {});
+          indicesAccessor.setScalar(j, index+offsetSum, {});
+        }
+        offsetSum += elementNumber;
+      }
+    }
   }
 
   private __getRnAccessor(accessor: any, rnBuffer: Buffer) {

@@ -14,4 +14,4 @@ function createClassicUberMaterial() {
   return material;
 }
 
-export default Object.freeze({createPbrUberMaterial});
+export default Object.freeze({createPbrUberMaterial, createClassicUberMaterial});

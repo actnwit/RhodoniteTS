@@ -64,6 +64,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   `;
 
+  private __lastShader: CGAPIResourceHandle = -1;
+
   private constructor(){}
 
   setupShaderProgram(meshComponent: MeshComponent): void {
@@ -216,11 +218,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
-
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLShader;
       const shaderProgramUid = material!._shaderProgramUid;
 
-      gl.useProgram(shaderProgram);
+      if (shaderProgramUid !== this.__lastShader) {
+        gl.useProgram(shaderProgram);
+        this.__lastShader = shaderProgramUid;
+      }
 
       // Uniforms from System
       /// Matrices
@@ -302,11 +306,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         material.setUniformValues(shaderProgramUid);
       }
 
+
       gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0);
-      gl.bindTexture(gl.TEXTURE_2D, null);
       this.dettachVertexData(glw);
+
     }
     gl.useProgram(null);
+    this.__lastShader = -1;
   }
 
 }

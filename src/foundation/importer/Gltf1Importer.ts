@@ -173,7 +173,7 @@ export default class Gltf1Importer {
     this._loadDependenciesOfMeshes(gltfJson);
 
     // Material
-//    this._loadDependenciesOfMaterials(gltfJson);
+    this._loadDependenciesOfMaterials(gltfJson);
 
     // Texture
     this._loadDependenciesOfTextures(gltfJson);
@@ -219,8 +219,10 @@ export default class Gltf1Importer {
       gltfJson.nodes = [];
       gltfJson.nodesIndices = [];
       for (let nodeName in gltfJson.nodeDic) {
-        gltfJson.nodesIndices.push(count++);
-        gltfJson.nodes.push((gltfJson.nodeDic as any)[nodeName]);
+        gltfJson.nodesIndices.push(count);
+        const node = (gltfJson.nodeDic as any)[nodeName];
+        node._index = count++;
+        gltfJson.nodes.push(node);
       }
     }
 
@@ -271,25 +273,17 @@ export default class Gltf1Importer {
 
   _loadDependenciesOfNodes(gltfJson: glTF1) {
 
-    for (let nodeName in gltfJson.nodeDic) {
-      const node = (gltfJson.nodeDic as any)[nodeName];
+    for (let node of gltfJson.nodes) {
+      //const node = (gltfJson.nodeDic as any)[nodeName];
       // Hierarchy
       if (node.children) {
         node.childrenNames = node.children.concat();
         node.children = [];
         node.childrenIndices = [];
         for (let name of node.childrenNames) {
-          node.children.push((gltfJson.nodeDic as any)[name]);
-
-          // calc index of 'name' in gltfJson.nodeDic enumerate
-          let count = 0;
-          for (let nodeName in gltfJson.nodeDic) {
-            if (nodeName === name) {
-              break;
-            }
-            count++;
-          }
-          node.childrenIndices.push(count);
+          const childNode = (gltfJson.nodeDic as any)[name];
+          node.children.push(childNode);
+          node.childrenIndices.push(childNode._index);
         }
       }
 
@@ -297,16 +291,35 @@ export default class Gltf1Importer {
       if (node.meshes !== void 0 && gltfJson.meshes !== void 0) {
         node.meshNames = node.meshes;
         node.meshes = [];
+
         for (let name of node.meshNames) {
           node.meshes.push((gltfJson.meshDic as any)[name]);
-          node.mesh = (gltfJson.meshDic as any)[name];
+        }
+        node.mesh = node.meshes[1];
+
+       if (node.meshes == null || node.meshes.length === 0) {
+          node.mesh = node.meshes[0];
+        } else {
+          const mergedMesh = {
+            name: '',
+            primitives: []
+          };
+          for (let i=0; i<node.meshes.length; i++) {
+            mergedMesh.name += '_' + node.meshes[i].name;
+            Array.prototype.push.apply(mergedMesh.primitives, node.meshes[i].primitives);
+          }
+          mergedMesh.name += '_merged';
+          node.mesh = mergedMesh;
+          node.meshes = void 0;
         }
       }
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinName = node.skin;
-        node.skin = (gltfJson.skinDic as any)[node.skinName];
+        if (typeof node.skin === 'string') {
+          node.skinName = node.skin;
+          node.skin = (gltfJson.skinDic as any)[node.skinName];
+        }
         // if (node.mesh.extras === void 0) {
         //   node.mesh.extras = {};
         // }
@@ -317,7 +330,7 @@ export default class Gltf1Importer {
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
         node.cameraName = node.camera;
-        node.camera = (gltfJson.cameraDic as any)[node.CameraName];
+        node.camera = (gltfJson.cameraDic as any)[node.cameraName];
       }
 
     }
@@ -334,17 +347,27 @@ export default class Gltf1Importer {
         }
 
         primitive.attributeNames = Object.assign({}, primitive.attributes);
+        primitive.attributes = [];
         for (let attributeName in primitive.attributeNames) {
           if (primitive.attributeNames[attributeName] != null) {
             const accessorName = primitive.attributeNames[attributeName];
             let accessor = (gltfJson.accessorDic as any)[accessorName];
+
+            if (attributeName === 'JOINT') {
+              attributeName = 'JOINTS_0';
+              delete primitive.attributes['JOINT'];
+            } else if (attributeName === 'WEIGHT') {
+              attributeName = 'WEIGHTS_0';
+              delete primitive.attributes['WEIGHT'];
+            }
+
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
             };
-            primitive.attributes[attributeName] = accessor;
+            primitive.attributes.push(accessor);
           } else {
-            primitive.attributes[attributeName] = void 0;
+            //primitive.attributes[attributeName] = void 0;
           }
         }
 
@@ -356,34 +379,62 @@ export default class Gltf1Importer {
     }
   }
 
+  _isKHRMaterialsCommon(materialJson: any) {
+    if (typeof materialJson.extensions !== 'undefined' && typeof materialJson.extensions.KHR_materials_common !== 'undefined') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   _loadDependenciesOfMaterials(gltfJson: glTF1) {
     // Material
     if (gltfJson.materials) {
-      for (let material of gltfJson.materials) {
-        if (material.pbrMetallicRoughness) {
-          let baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
-          if (baseColorTexture !== void 0) {
-            baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
+      for (let materialStr in gltfJson.materials) {
+        let material = gltfJson.materials[materialStr];
+
+        if (this._isKHRMaterialsCommon(material)) {
+          material = material.extensions.KHR_materials_common;
+        }
+
+        const setParameters = (values: any[], isParameter: boolean)=> {
+          for (let valueName in values) {
+            let value = null;
+            if (isParameter) {
+              value = values[valueName].value;
+              if (typeof value === 'undefined') {
+                continue;
+              }
+            } else {
+              value = values[valueName];
+            }
+
+            if (typeof value === 'string') {
+              let textureStr = value;
+              let texturePurpose;
+              if (valueName === 'diffuse' || (material.technique === "CONSTANT" && valueName === 'ambient')) {
+                material.diffuseColorTexture = {};
+                material.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
+
+              } else if (valueName === 'emission' && textureStr.match(/_normal$/)) {
+                material.emissionTexure = {};
+                material.emissionTexture.texture = (gltfJson.textures as any)[value];
+              } else {
+              }
+
+
+            } else {
+              if (valueName === 'diffuse') {
+                material.diffuseColorFactor = value;
+              }
+            }
           }
-          let metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
-          if (metallicRoughnessTexture !== void 0) {
-            metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
+        };
+        setParameters(material.values, false);
+        if (material.technique && gltfJson.techniques) {
+          if (typeof gltfJson.techniques[material.technique] !== "undefined") {
+            setParameters(gltfJson.techniques[material.technique].parameters, true);
           }
-        }
-
-        let normalTexture = material.normalTexture;
-        if (normalTexture !== void 0) {
-          normalTexture.texture = gltfJson.textures[normalTexture.index];
-        }
-
-        const occlusionTexture = material.occlusionTexture;
-        if (occlusionTexture !== void 0) {
-          occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
-        }
-
-        const emissiveTexture = material.emissiveTexture;
-        if (emissiveTexture !== void 0) {
-          emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
         }
       }
     }
@@ -410,21 +461,33 @@ export default class Gltf1Importer {
     if (gltfJson.skins) {
       for (let skinName in gltfJson.skinDic) {
         const skin = (gltfJson.skinDic as any)[skinName];
-        skin.skeletonNames = skin.skeletons;
-        skin.skeletons = [];
-        for (let name of skin.skeletonNames) {
-          skin.skeletons.push((gltfJson.nodeDic as any)[name]);
+        skin.joints = [];
+        skin.jointsIndices = [];
+        for (let jointName of skin.jointNames) {
+          const joint = (gltfJson.nodeDic as any)[jointName];
+          skin.joints.push(joint);
+          skin.jointsIndices.push(joint._index);
         }
+
+        skin.skeletonNames = skin.skeletons;
+        if (skin.skeletonNames) {
+          for (let name of skin.skeletonNames) {
+            skin.skeleton = skin.skeletons.push((gltfJson.nodeDic as any)[name]);
+          }
+        } else {
+          skin.skeleton = skin.joints[0];
+        }
+        skin.skeletonIndex = skin.skeleton._index;
 
         skin.inverseBindMatricesName = skin.inverseBindMatrices;
         skin.inverseBindMatrices = (gltfJson.accessorDic as any)[skin.inverseBindMatricesName];
 
-        skin.jointsNames = skin.joints;
+        skin.joints_tmp = skin.joints;
         skin.joints = [];
-        for (let name of skin.jointsNames) {
-          skin.joints.push((gltfJson.nodeDic as any)[name]);
+        for (let joint of skin.joints_tmp) {
+          skin.joints.push((gltfJson.nodeDic as any)[joint.name]);
         }
-
+        skin.joints_tmp = void 0;
       }
 
     }
@@ -435,24 +498,30 @@ export default class Gltf1Importer {
     if (gltfJson.animations) {
       for (let animationName in gltfJson.animationDic) {
         const animation = (gltfJson.animationDic as any)[animationName];
+        animation.samplerDic = animation.samplers;
+        animation.samplers = [];
         for (let channel of animation.channels) {
-          channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex];
+          channel.sampler = animation.samplerDic[channel.sampler];
 
-          channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
-        }
-        for (let channel of animation.channels) {
-          channel.sampler.inputIndex = channel.sampler.input;
-          channel.sampler.outputIndex = channel.sampler.output;
-          channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
-          channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+          channel.target.node = (gltfJson.nodeDic as any)[channel.target.id];
+          channel.target.nodeIndex = channel.target.node._index;
+
+          channel.sampler.input = gltfJson.accessors[animation.parameters['TIME']];
+          channel.sampler.output = gltfJson.accessors[animation.parameters[channel.target.path]];
+
+          animation.samplers.push(channel.sampler);
+
           if (channel.target.path === 'rotation') {
             if (channel.sampler.output.extras === void 0) {
               channel.sampler.output.extras = {};
             }
             channel.sampler.output.extras.quaternionIfVec4 = true;
           }
+        }
+        animation.channelDic = animation.channels;
+        animation.channels = [];
+        for (let channel of animation.channelDic) {
+          animation.channels.push(channel);
         }
       }
     }
