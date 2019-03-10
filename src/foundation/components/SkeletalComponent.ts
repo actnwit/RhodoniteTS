@@ -11,6 +11,7 @@ export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];
   public _inverseBindMatrices: Matrix44[] = [];
+  public _bindShapeMatrix?: Matrix44;
   private __jointMatrices?: number[];
   public jointsHierarchy?: SceneGraphComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
@@ -100,7 +101,9 @@ export default class SkeletalComponent extends Component {
       matrices[i] = Matrix44.identity();
       matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
       matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
-      // matrices[i] = Matrix44.multiply(matrices[i], this.bindShapeMatrix); // only for glTF1
+      if (this._bindShapeMatrix) {
+        matrices[i] = Matrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
+      }
     }
 
     let flatMatrices: number[] = [];

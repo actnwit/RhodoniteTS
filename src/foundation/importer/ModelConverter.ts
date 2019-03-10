@@ -256,6 +256,7 @@ export default class ModelConverter {
         skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
 
         skeletalComponent._jointIndices = node.skin.jointsIndices;
+        skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix);
       }
 
       if (node.skin && node.skin.skeleton) {

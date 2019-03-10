@@ -340,6 +340,15 @@ export default class Gltf1Importer {
           if (primitive.attributeNames[attributeName] != null) {
             const accessorName = primitive.attributeNames[attributeName];
             let accessor = (gltfJson.accessorDic as any)[accessorName];
+
+            if (attributeName === 'JOINT') {
+              attributeName = 'JOINTS_0';
+              delete primitive.attributes['JOINT'];
+            } else if (attributeName === 'WEIGHT') {
+              attributeName = 'WEIGHTS_0';
+              delete primitive.attributes['WEIGHT'];
+            }
+
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
@@ -440,21 +449,32 @@ export default class Gltf1Importer {
     if (gltfJson.skins) {
       for (let skinName in gltfJson.skinDic) {
         const skin = (gltfJson.skinDic as any)[skinName];
-        skin.skeletonNames = skin.skeletons;
-        skin.skeletons = [];
-        for (let name of skin.skeletonNames) {
-          skin.skeletons.push((gltfJson.nodeDic as any)[name]);
+        skin.joints = [];
+        skin.jointsIndices = [];
+        for (let jointName of skin.jointNames) {
+          const joint = (gltfJson.nodeDic as any)[jointName];
+          skin.joints.push(joint);
+          skin.jointsIndices.push(joint._index);
         }
+
+        skin.skeletonNames = skin.skeletons;
+        if (skin.skeletonNames) {
+          for (let name of skin.skeletonNames) {
+            skin.skeleton = skin.skeletons.push((gltfJson.nodeDic as any)[name]);
+          }
+        }
+        skin.skeleton = skin.joints[0];
+        skin.skeletonIndex = skin.joints[0]._index;
 
         skin.inverseBindMatricesName = skin.inverseBindMatrices;
         skin.inverseBindMatrices = (gltfJson.accessorDic as any)[skin.inverseBindMatricesName];
 
-        skin.jointsNames = skin.joints;
+        skin.joints_tmp = skin.joints;
         skin.joints = [];
-        for (let name of skin.jointsNames) {
-          skin.joints.push((gltfJson.nodeDic as any)[name]);
+        for (let joint of skin.joints_tmp) {
+          skin.joints.push((gltfJson.nodeDic as any)[joint.name]);
         }
-
+        skin.joints_tmp = void 0;
       }
 
     }
