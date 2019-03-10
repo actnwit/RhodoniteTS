@@ -295,38 +295,31 @@ export default class Gltf1Importer {
         for (let name of node.meshNames) {
           node.meshes.push((gltfJson.meshDic as any)[name]);
         }
-       // node.mesh = node.meshes[2];
+        node.mesh = node.meshes[1];
 
-        if (node.meshes == null || node.meshes.length === 0) {
+       if (node.meshes == null || node.meshes.length === 0) {
           node.mesh = node.meshes[0];
         } else {
+          const mergedMesh = {
+            name: '',
+            primitives: []
+          };
           for (let i=0; i<node.meshes.length; i++) {
-            const mesh = node.meshes[i];
-            const childNode: any = {
-              mesh: mesh,
-              children: [],
-              skin: node.skin,
-              skeletons: node.skeletons.concat(),
-              matrix: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]
-            };
-            const childNodeIndex = gltfJson.nodes[gltfJson.nodes.length - 1]._index + 1;
-            childNode._index = childNodeIndex;
-            gltfJson.nodes.push(childNode);
-            node.children.push(childNode);
-            node.childrenIndices.push(childNode._index);
+            mergedMesh.name += '_' + node.meshes[i].name;
+            Array.prototype.push.apply(mergedMesh.primitives, node.meshes[i].primitives);
           }
-
-          node.skeletons = void 0;
-          node.skin = void 0;
+          mergedMesh.name += '_merged';
+          node.mesh = mergedMesh;
           node.meshes = void 0;
-          node.meshNames = void 0;
         }
       }
 
       // Skin
       if (node.skin !== void 0 && gltfJson.skins !== void 0) {
-        node.skinName = node.skin;
-        node.skin = (gltfJson.skinDic as any)[node.skinName];
+        if (typeof node.skin === 'string') {
+          node.skinName = node.skin;
+          node.skin = (gltfJson.skinDic as any)[node.skinName];
+        }
         // if (node.mesh.extras === void 0) {
         //   node.mesh.extras = {};
         // }
