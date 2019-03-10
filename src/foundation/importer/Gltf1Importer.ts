@@ -462,9 +462,10 @@ export default class Gltf1Importer {
           for (let name of skin.skeletonNames) {
             skin.skeleton = skin.skeletons.push((gltfJson.nodeDic as any)[name]);
           }
+        } else {
+          skin.skeleton = skin.joints[0];
         }
-        skin.skeleton = skin.joints[0];
-        skin.skeletonIndex = skin.joints[0]._index;
+        skin.skeletonIndex = skin.skeleton._index;
 
         skin.inverseBindMatricesName = skin.inverseBindMatrices;
         skin.inverseBindMatrices = (gltfJson.accessorDic as any)[skin.inverseBindMatricesName];

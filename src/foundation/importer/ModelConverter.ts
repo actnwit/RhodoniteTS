@@ -255,8 +255,12 @@ export default class ModelConverter {
         entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
         skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
 
+//        skeletalComponent.isSkinning = false;
+
         skeletalComponent._jointIndices = node.skin.jointsIndices;
-        skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix);
+        if (node.skin.bindShapeMatrix != null) {
+          skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix);
+        }
       }
 
       if (node.skin && node.skin.skeleton) {
