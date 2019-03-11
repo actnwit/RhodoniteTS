@@ -7,6 +7,7 @@ import RowMajarMatrix44 from './RowMajarMatrix44';
 import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
+import MutableMatrix44 from './MutableMatrix44';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -459,6 +460,42 @@ export default class Matrix44 implements IMatrix44 {
       out8, out9, out10, out11,
       out12, out13, out14, out15, true
     );
+  }
+
+  static invertTo(m:Matrix44, outM: MutableMatrix44) {
+
+    let n00 = m.m00 * m.m11 - m.m01 * m.m10;
+    let n01 = m.m00 * m.m12 - m.m02 * m.m10;
+    let n02 = m.m00 * m.m13 - m.m03 * m.m10;
+    let n03 = m.m01 * m.m12 - m.m02 * m.m11;
+    let n04 = m.m01 * m.m13 - m.m03 * m.m11;
+    let n05 = m.m02 * m.m13 - m.m03 * m.m12;
+    let n06 = m.m20 * m.m31 - m.m21 * m.m30;
+    let n07 = m.m20 * m.m32 - m.m22 * m.m30;
+    let n08 = m.m20 * m.m33 - m.m23 * m.m30;
+    let n09 = m.m21 * m.m32 - m.m22 * m.m31;
+    let n10 = m.m21 * m.m33 - m.m23 * m.m31;
+    let n11 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    det = 1.0/det;
+
+    outM.m00 = (m.m11 * n11 - m.m12 * n10 + m.m13 * n09) * det;
+    outM.m01 = (m.m02 * n10 - m.m01 * n11 - m.m03 * n09) * det;
+    outM.m02 = (m.m31 * n05 - m.m32 * n04 + m.m33 * n03) * det;
+    outM.m03 = (m.m22 * n04 - m.m21 * n05 - m.m23 * n03) * det;
+    outM.m10 = (m.m12 * n08 - m.m10 * n11 - m.m13 * n07) * det;
+    outM.m11 = (m.m00 * n11 - m.m02 * n08 + m.m03 * n07) * det;
+    outM.m12 = (m.m32 * n02 - m.m30 * n05 - m.m33 * n01) * det;
+    outM.m13 = (m.m20 * n05 - m.m22 * n02 + m.m23 * n01) * det;
+    outM.m20 = (m.m10 * n10 - m.m11 * n08 + m.m13 * n06) * det;
+    outM.m21 = (m.m01 * n08 - m.m00 * n10 - m.m03 * n06) * det;
+    outM.m22 = (m.m30 * n04 - m.m31 * n02 + m.m33 * n00) * det;
+    outM.m23 = (m.m21 * n02 - m.m20 * n04 - m.m23 * n00) * det;
+    outM.m30 = (m.m11 * n07 - m.m10 * n09 - m.m12 * n06) * det;
+    outM.m31 = (m.m00 * n09 - m.m01 * n07 + m.m02 * n06) * det;
+    outM.m32 = (m.m31 * n01 - m.m30 * n03 - m.m32 * n00) * det;
+    outM.m33 = (m.m20 * n03 - m.m21 * n01 + m.m22 * n00) * det;
   }
 
   public get m00() {

@@ -40,6 +40,7 @@ export default class TransformComponent extends Component {
   private _updateCount = 0;
   private __updateCountAtLastLogic = 0;
   private static returnMatrix33 = new MutableMatrix33([0,0,0,0,0,0,0,0,0]);
+  private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
 
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -351,7 +352,8 @@ export default class TransformComponent extends Component {
 
   get normalMatrixInner() {
     if (!this._is_normal_trs_matrix_updated) {
-      const mat = Matrix44.transpose(Matrix44.invert(this.matrixInner));
+      Matrix44.invertTo(this.matrixInner, TransformComponent.invertedMatrix44);
+      const mat = TransformComponent.invertedMatrix44.transpose();
       TransformComponent.returnMatrix33.m00 = mat.m00;
       TransformComponent.returnMatrix33.m01 = mat.m01;
       TransformComponent.returnMatrix33.m02 = mat.m02;
