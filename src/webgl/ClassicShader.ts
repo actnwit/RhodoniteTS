@@ -85,7 +85,7 @@ precision highp float;
 struct Material {
   vec4 diffuseColorFactor;
 };
-uniform sampler2D u_baseColorTexture;
+uniform sampler2D u_diffuseColorTexture;
 uniform Material u_material;
 
 struct Light {
@@ -121,7 +121,7 @@ void main ()
   //color = v_color;
 
   // baseColorTexture
-  vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
+  vec4 textureColor = ${_texture}(u_diffuseColorTexture, v_texcoord);
   if (textureColor.r > 0.05) {
     color *= textureColor.rgb;
   }
