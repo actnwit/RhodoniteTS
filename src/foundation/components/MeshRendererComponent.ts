@@ -114,7 +114,7 @@ export default class MeshRendererComponent extends Component {
 
     const entity = this.__entityRepository.getEntity(this.__entityUid);
 
-    this.__webglRenderingStrategy!.$render!(this.__meshComponent!, this.__sceneGraphComponent!.worldMatrix, this.__sceneGraphComponent!.normalMatrix,
+    this.__webglRenderingStrategy!.$render!(this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
       entity, this.diffuseCubeMap, this.specularCubeMap);
 
   }

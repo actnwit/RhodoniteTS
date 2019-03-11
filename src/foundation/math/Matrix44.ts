@@ -6,6 +6,7 @@ import Vector4 from './Vector4';
 import RowMajarMatrix44 from './RowMajarMatrix44';
 import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
+import MutableVector3 from './MutableVector3';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -337,6 +338,20 @@ export default class Matrix44 implements IMatrix44 {
     var w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
 
     return new Vector4(x, y, z, w);
+  }
+
+  multiplyVector3(vec: Vector3) {
+    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
+    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
+    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+
+    return new Vector3(x, y, z);
+  }
+
+  multiplyVector3To(vec: Vector3, outVec: MutableVector3) {
+    outVec.x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
+    outVec.y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
+    outVec.z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
   }
 
   /**

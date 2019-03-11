@@ -57,6 +57,10 @@ export default class CameraControllerComponent extends Component {
   private __scaleOfLengthCameraToCenter = 1;
   private __zFarAdjustingFactorBasedOnAABB = 2.0;
 
+  private static returnVector3Eye = MutableVector3.zero();
+  private static returnVector3Center = MutableVector3.zero();
+  private static returnVector3Up = MutableVector3.zero();
+
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
@@ -529,19 +533,22 @@ export default class CameraControllerComponent extends Component {
     if (camera.entity.getSceneGraph()) {
       const sg = camera.entity.getSceneGraph();
       let mat = Matrix44.invert(sg.worldMatrixInner);
-      newEyeVec = new Vector3(
-        mat.multiplyVector(
-          new Vector4(newEyeVec.x, newEyeVec.y, newEyeVec.z, 1)
-        )
+
+      mat.multiplyVector3To(
+        newEyeVec, CameraControllerComponent.returnVector3Eye
       );
-      newCenterVec = new Vector3(
-        mat.multiplyVector(
-          new Vector4(newCenterVec.x, newCenterVec.y, newCenterVec.z, 1)
-        )
+      newEyeVec = CameraControllerComponent.returnVector3Eye as Vector3;
+
+      mat.multiplyVector3To(
+        newCenterVec, CameraControllerComponent.returnVector3Center
       );
-      newUpVec = new Vector3(
-        mat.multiplyVector(new Vector4(upVec.x, upVec.y, upVec.z, 1))
+      newCenterVec = CameraControllerComponent.returnVector3Center as Vector3;
+
+      mat.multiplyVector3To(
+        upVec, CameraControllerComponent.returnVector3Up
       );
+      newUpVec = CameraControllerComponent.returnVector3Up as Vector3;
+
     } else {
       newUpVec = upVec;
     }

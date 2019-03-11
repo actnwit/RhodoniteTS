@@ -244,6 +244,10 @@ export default class Vector3 implements IVector3 {
     return this.v[2];
   }
 
+  get w() {
+    return 1;
+  }
+
 
   get raw() {
     return this.v;

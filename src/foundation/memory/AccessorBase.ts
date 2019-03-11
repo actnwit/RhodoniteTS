@@ -60,16 +60,24 @@ export default class AccessorBase extends RnObject {
 
     if (this.__componentType.getSizeInBytes() === 8) {
       if (this.__byteOffsetInBuffer % 8 !== 0) {
-        console.info('Padding added because of byteOffset of accessor is not 8byte aligned despite of Double precision.');
+        console.info('Padding added because of byteOffset of accessor is not 8 bytes aligned despite of Double precision.');
         this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;
       }
     }
+    //  else if (this.__componentType.getSizeInBytes() === 4) {
+    //   if (this.__byteOffsetInBuffer % 4 !== 0) {
+    //     console.info('Padding added because of byteOffset of accessor is not 4 bytes aligned despite of Double precision.');
+    //     this.__byteOffsetInBuffer += 4 - this.__byteOffsetInBuffer % 4;
+    //   }
+    // }
     if (this.__bufferView.isSoA) {
       this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
       this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);
     }
-    this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
+    if (this.__byteOffsetInBuffer % this.__componentType.getSizeInBytes() === 0) {
+      this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
+    }
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
 
