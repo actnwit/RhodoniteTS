@@ -264,11 +264,68 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       } else {
         shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticSingular);
       }
+
     }
   }
 
+  __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
+    let result = false;
+    const value_x = (shaderProgram as any)[identifier + '_value_x'];
+    const value_y = (shaderProgram as any)[identifier + '_value_y'];
+    const value_z = (shaderProgram as any)[identifier + '_value_z'];
+    const value_w = (shaderProgram as any)[identifier + '_value_w'];
+
+    if (isVector) {
+      for (let i=0; i<(x as any).length; i++) {
+        if (value_x == null) {
+          result = true;
+          break;
+        }
+        if (Math.abs((x as any)[i] - value_x) >= delta) {
+          result = true;
+          break;
+        }
+      }
+    } else {
+      if (value_x == null) {
+        result = true;
+      } else {
+        const compare = ()=>{
+          if (x != null && Math.abs(x as number - value_x) >= delta) {
+            return true;
+          }
+          if (y != null && Math.abs(y as number - value_y) >= delta) {
+            return true;
+          }
+          if (z != null && Math.abs(z as number - value_z) >= delta) {
+            return true;
+          }
+          if (w != null && Math.abs(w as number - value_w) >= delta) {
+            return true;
+          }
+          return false;
+        }
+        result = compare();
+      }
+    }
+
+    (shaderProgram as any)[identifier + '_value_x'] = x;
+    (shaderProgram as any)[identifier + '_value_y'] = y;
+    (shaderProgram as any)[identifier + '_value_z'] = z;
+    (shaderProgram as any)[identifier + '_value_w'] = w;
+
+    return result;
+  }
+
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {force = true, delta}: {force?: boolean, delta?: number}, index?: Count) {
+
+    const args = [];
+    let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
+    if (index != null) {
+      identifier += '_' + index;
+    }
+
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
     let funcName = 'uniform';
@@ -281,11 +338,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       funcName += 'v';
     }
 
-    const args = [];
-    let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
-    if (index != null) {
-      identifier += '_' + index;
+    if (shaderProgram[identifier] == null) {
+      return false;
     }
+
+    // if (!force && !this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
+    //   return false;
+    // }
+
     args.push(shaderProgram[identifier]);
     if (isMatrix) {
       args.push(false);
@@ -301,6 +361,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       args.push(w);
     }
     gl[funcName].apply(gl, args);
+
+    return true;
   }
 
   setVertexDataToPipeline(

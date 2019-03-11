@@ -63,7 +63,7 @@ export default class Material extends RnObject {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, args);
   }
 
-  setUniformValues(shaderProgramUid: CGAPIResourceHandle) {
+  setUniformValues(shaderProgramUid: CGAPIResourceHandle, force: boolean) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     this.__fields.forEach((value, key)=>{
@@ -77,17 +77,20 @@ export default class Material extends RnObject {
         componentType = 'i';
       }
 
+      let updated;
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x});
+        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x}, {force: force});
       } else if (info.compositionType !== CompositionType.Scalar) {
-        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v});
+        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v}, {force: force});
       } else {
-        webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value});
+        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value}, {force: force});
       }
-      if (info.compositionType === CompositionType.Texture2D) {
-        webglResourceRepository.bindTexture2D(value.x, value.y);
-      } else if (info.compositionType === CompositionType.TextureCube) {
-        webglResourceRepository.bindTextureCube(value.x, value.y);
+      if (updated) {
+        if (info.compositionType === CompositionType.Texture2D) {
+          webglResourceRepository.bindTexture2D(value.x, value.y);
+        } else if (info.compositionType === CompositionType.TextureCube) {
+          webglResourceRepository.bindTextureCube(value.x, value.y);
+        }
       }
     });
   }

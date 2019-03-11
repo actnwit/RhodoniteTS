@@ -12,6 +12,7 @@ import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableQuaternion from '../math/MutableQuaterion';
 import { ProcessStage } from '../definitions/ProcessStage';
+import MutableMatrix33 from '../math/MutableMatrix33';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -38,6 +39,7 @@ export default class TransformComponent extends Component {
   private __toUpdateAllTransform = true;
   private _updateCount = 0;
   private __updateCountAtLastLogic = 0;
+  private static returnMatrix33 = new MutableMatrix33([0,0,0,0,0,0,0,0,0]);
 
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -349,7 +351,17 @@ export default class TransformComponent extends Component {
 
   get normalMatrixInner() {
     if (!this._is_normal_trs_matrix_updated) {
-      this._normalMatrix = new Matrix33(Matrix44.transpose(Matrix44.invert(this.matrix)));
+      const mat = Matrix44.transpose(Matrix44.invert(this.matrixInner));
+      TransformComponent.returnMatrix33.m00 = mat.m00;
+      TransformComponent.returnMatrix33.m01 = mat.m01;
+      TransformComponent.returnMatrix33.m02 = mat.m02;
+      TransformComponent.returnMatrix33.m10 = mat.m10;
+      TransformComponent.returnMatrix33.m11 = mat.m11;
+      TransformComponent.returnMatrix33.m12 = mat.m12;
+      TransformComponent.returnMatrix33.m20 = mat.m20;
+      TransformComponent.returnMatrix33.m21 = mat.m21;
+      TransformComponent.returnMatrix33.m22 = mat.m22;
+      this._normalMatrix = TransformComponent.returnMatrix33 as Matrix33;
       this._is_normal_trs_matrix_updated = true;
     }
     return this._normalMatrix;

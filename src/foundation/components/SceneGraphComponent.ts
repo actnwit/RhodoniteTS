@@ -16,6 +16,7 @@ import Vector4 from '../math/Vector4';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MeshComponent from './MeshComponent';
+import MutableVector3 from '../math/MutableVector3';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -29,6 +30,8 @@ export default class SceneGraphComponent extends Component {
   private __worldAABB = new AABB();
   private __meshComponent?: MeshComponent;
   private __isWorldAABBDirty = true;
+  private static __originVector3 = Vector3.zero();
+  private static returnVector3 = MutableVector3.zero();
 
   // Skeletal
   public isRootJoint = false;
@@ -110,8 +113,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   get normalMatrixInner() {
-    this._normalMatrix.copyComponents(RowMajarMatrix44.transpose(RowMajarMatrix44.invert(this.worldMatrix)));
-    //this._normalMatrix.copyComponents(this.worldMatrix);
+    this._normalMatrix.copyComponents(RowMajarMatrix44.transpose(RowMajarMatrix44.invert(this.worldMatrixInner)));
     return this._normalMatrix;
   }
 
@@ -199,11 +201,10 @@ export default class SceneGraphComponent extends Component {
     return results;
   }
 
-  get worldPosition() {
-    const zeroVector = new Vector4(0, 0, 0, 1);
-    const worldPosition = new Vector3(this.worldMatrixInner.multiplyVector(zeroVector));
-
-    return worldPosition;
+  get worldPosition(): Vector3 {
+    const zeroVector = SceneGraphComponent.__originVector3;
+    this.worldMatrixInner.multiplyVector3To(zeroVector, SceneGraphComponent.returnVector3);
+    return SceneGraphComponent.returnVector3 as Vector3;
   }
 
   calcWorldAABB() {

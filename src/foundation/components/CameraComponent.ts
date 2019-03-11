@@ -17,6 +17,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableVector4 from '../math/MutableVector4';
 import CameraControllerComponent from './CameraControllerComponent';
+import MutableVector3 from '../math/MutableVector3';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();
@@ -45,6 +46,7 @@ export default class CameraComponent extends Component {
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
   public static main: ComponentSID = -1;
+  private static returnVector3 = MutableVector3.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -341,7 +343,7 @@ export default class CameraComponent extends Component {
       0,
       1);
 
-    const invertWorldMatrix = RowMajarMatrix44.invert(this.__sceneGraphComponent!.worldMatrix);
+    const invertWorldMatrix = RowMajarMatrix44.invert(this.__sceneGraphComponent!.worldMatrixInner);
     this._viewMatrix.multiply(invertWorldMatrix);
 
     return this._viewMatrix;
@@ -368,10 +370,9 @@ export default class CameraComponent extends Component {
     this.calcViewMatrix();
   }
 
-  get worldPosition() {
-    const worldPosition = new Vector3(this.__sceneGraphComponent!.worldMatrixInner.multiplyVector(new Vector4(this.eyeInner)));
-
-    return worldPosition;
+  get worldPosition(): Vector3 {
+    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
+    return CameraComponent.returnVector3 as Vector3;
   }
 }
 ComponentRepository.registerComponentClass(CameraComponent);
