@@ -27,6 +27,8 @@ import MeshRendererComponent from "../foundation/components/MeshRendererComponen
 import MaterialHelper from "../foundation/helpers/MaterialHelper";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Material from "../foundation/materials/Material";
+import MutableMatrix44 from "../foundation/math/MutableMatrix44";
+import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -65,6 +67,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   `;
 
   private __lastShader: CGAPIResourceHandle = -1;
+  private static transposedMatrix44 = new MutableRowMajarMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
 
   private constructor(){}
 
@@ -230,7 +233,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       // Uniforms from System
       /// Matrices
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:RowMajarMatrix44.transpose(worldMatrix).v}, {force: force});
+      RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:WebGLStrategyUniform.transposedMatrix44.v}, {force: force});
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, {x:normalMatrix.v}, {force: force});
       const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:cameraComponent.viewMatrix.v}, {force: force});

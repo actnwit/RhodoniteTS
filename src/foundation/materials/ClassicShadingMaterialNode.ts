@@ -26,12 +26,12 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.DiffuseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
-      {semantic: ShaderSemantics.DiffuseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(0, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
+      {semantic: ShaderSemantics.DiffuseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(0, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
       {semantic: ShaderSemantics.SpecularColorFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
-      {semantic: ShaderSemantics.SpecularColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(2, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(3, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(4, ClassicShadingMaterialNode.__dummyBlackTextureUid)},
+      {semantic: ShaderSemantics.SpecularColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(1, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
+      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(2, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
+      {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(3, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
+      {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(4, ClassicShadingMaterialNode.__dummyBlackTextureUid)},
       {semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: 1},
       {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
     ];

@@ -320,7 +320,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
     componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {force = true, delta}: {force?: boolean, delta?: number}, index?: Count) {
 
-    const args = [];
     let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
     if (index != null) {
       identifier += '_' + index;
@@ -328,15 +327,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
-    let funcName = 'uniform';
-    if (isMatrix) {
-      funcName = 'uniformMatrix';
-    }
-    funcName += componentNumber;
-    funcName += componentType;
-    if (isVector) {
-      funcName += 'v';
-    }
 
     if (shaderProgram[identifier] == null) {
       return false;
@@ -346,21 +336,30 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     //   return false;
     // }
 
-    args.push(shaderProgram[identifier]);
     if (isMatrix) {
-      args.push(false);
+      if (componentNumber === 4) {
+        gl.uniformMatrix4fv(shaderProgram[identifier], false, x);
+      } else {
+        gl.uniformMatrix3fv(shaderProgram[identifier], false, x);
+      }
+    } else if (isVector) {
+      const funcName = 'uniform' + componentNumber + componentType + 'v';
+      gl[funcName](shaderProgram[identifier], x);
+    } else {
+      const funcName = 'uniform' + componentNumber + componentType;
+      if (componentNumber === 1) {
+        gl[funcName](shaderProgram[identifier], x);
+      }
+      if (componentNumber === 2) {
+        gl[funcName](shaderProgram[identifier], x, y);
+      }
+      if (componentNumber === 3) {
+        gl[funcName](shaderProgram[identifier], x, y, z);
+      }
+      if (componentNumber === 4) {
+        gl[funcName](shaderProgram[identifier], x, y, z, w);
+      }
     }
-    args.push(x);
-    if (y != null) {
-      args.push(y);
-    }
-    if (z != null) {
-      args.push(z);
-    }
-    if (w != null) {
-      args.push(w);
-    }
-    gl[funcName].apply(gl, args);
 
     return true;
   }

@@ -41,6 +41,7 @@ export default class SceneGraphComponent extends Component {
   public _jointsOfParentHierarchies: SceneGraphComponent[] = [];
 
   private static __bufferView: BufferView;
+  private static invertedMatrix44 = new MutableRowMajarMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -113,7 +114,8 @@ export default class SceneGraphComponent extends Component {
   }
 
   get normalMatrixInner() {
-    this._normalMatrix.copyComponents(RowMajarMatrix44.transpose(RowMajarMatrix44.invert(this.worldMatrixInner)));
+    RowMajarMatrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
+    this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
     return this._normalMatrix;
   }
 

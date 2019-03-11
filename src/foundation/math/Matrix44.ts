@@ -7,6 +7,7 @@ import RowMajarMatrix44 from './RowMajarMatrix44';
 import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
+import MutableMatrix44 from './MutableMatrix44';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -185,6 +186,24 @@ export default class Matrix44 implements IMatrix44 {
     );
   }
 
+  static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44) {
+    const sx = m.x * m.x;
+    const sy = m.y * m.y;
+    const sz = m.z * m.z;
+    const cx = m.y * m.z;
+    const cy = m.x * m.z;
+    const cz = m.x * m.y;
+    const wx = m.w * m.x;
+    const wy = m.w * m.y;
+    const wz = m.w * m.z;
+
+    outMat.m00 = 1.0 - 2.0 * (sy + sz); outMat.m01 = 2.0 * (cz - wz); outMat.m02 = 2.0 * (cy + wy); outMat.m03 = 0;
+    outMat.m10 = 2.0 * (cz + wz); outMat.m11 = 1.0 - 2.0 * (sx + sz); outMat.m12 = 2.0 * (cx - wx); outMat.m13 = 0;
+    outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
+    outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
+
+  }
+
   /**
    * to the identity matrix（static版）
    */
@@ -305,6 +324,25 @@ export default class Matrix44 implements IMatrix44 {
     return rotate;
   }
 
+  toEulerAnglesTo(outVec3: MutableVector3) {
+    if (Math.abs(this.m20) != 1.0) {
+      let y = -Math.asin(this.m20);
+      let x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
+      let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+      outVec3.x = x;
+      outVec3.y = y;
+      outVec3.z = z;
+    } else if (this.m20 === -1.0) {
+      outVec3.x = Math.atan2(this.m01, this.m02)
+      outVec3.y = Math.PI/2.0;
+      outVec3.z = 0.0;
+    } else {
+      outVec3.x = Math.atan2(-this.m01, -this.m02)
+      outVec3.y = -Math.PI/2.0;
+      outVec3.z = 0.0;
+    }
+  }
+
   static zero() {
     return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
@@ -418,7 +456,7 @@ export default class Matrix44 implements IMatrix44 {
   }
 
 
-  static invert(m:Matrix44) {
+  static invert(m:Matrix44 | RowMajarMatrix44) {
 
     let n00 = m.m00 * m.m11 - m.m01 * m.m10;
     let n01 = m.m00 * m.m12 - m.m02 * m.m10;
@@ -459,6 +497,42 @@ export default class Matrix44 implements IMatrix44 {
       out8, out9, out10, out11,
       out12, out13, out14, out15, true
     );
+  }
+
+  static invertTo(m:Matrix44, outM: MutableMatrix44) {
+
+    let n00 = m.m00 * m.m11 - m.m01 * m.m10;
+    let n01 = m.m00 * m.m12 - m.m02 * m.m10;
+    let n02 = m.m00 * m.m13 - m.m03 * m.m10;
+    let n03 = m.m01 * m.m12 - m.m02 * m.m11;
+    let n04 = m.m01 * m.m13 - m.m03 * m.m11;
+    let n05 = m.m02 * m.m13 - m.m03 * m.m12;
+    let n06 = m.m20 * m.m31 - m.m21 * m.m30;
+    let n07 = m.m20 * m.m32 - m.m22 * m.m30;
+    let n08 = m.m20 * m.m33 - m.m23 * m.m30;
+    let n09 = m.m21 * m.m32 - m.m22 * m.m31;
+    let n10 = m.m21 * m.m33 - m.m23 * m.m31;
+    let n11 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    let det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
+    det = 1.0/det;
+
+    outM.m00 = (m.m11 * n11 - m.m12 * n10 + m.m13 * n09) * det;
+    outM.m01 = (m.m02 * n10 - m.m01 * n11 - m.m03 * n09) * det;
+    outM.m02 = (m.m31 * n05 - m.m32 * n04 + m.m33 * n03) * det;
+    outM.m03 = (m.m22 * n04 - m.m21 * n05 - m.m23 * n03) * det;
+    outM.m10 = (m.m12 * n08 - m.m10 * n11 - m.m13 * n07) * det;
+    outM.m11 = (m.m00 * n11 - m.m02 * n08 + m.m03 * n07) * det;
+    outM.m12 = (m.m32 * n02 - m.m30 * n05 - m.m33 * n01) * det;
+    outM.m13 = (m.m20 * n05 - m.m22 * n02 + m.m23 * n01) * det;
+    outM.m20 = (m.m10 * n10 - m.m11 * n08 + m.m13 * n06) * det;
+    outM.m21 = (m.m01 * n08 - m.m00 * n10 - m.m03 * n06) * det;
+    outM.m22 = (m.m30 * n04 - m.m31 * n02 + m.m33 * n00) * det;
+    outM.m23 = (m.m21 * n02 - m.m20 * n04 - m.m23 * n00) * det;
+    outM.m30 = (m.m11 * n07 - m.m10 * n09 - m.m12 * n06) * det;
+    outM.m31 = (m.m00 * n09 - m.m01 * n07 + m.m02 * n06) * det;
+    outM.m32 = (m.m31 * n01 - m.m30 * n03 - m.m32 * n00) * det;
+    outM.m33 = (m.m20 * n03 - m.m21 * n01 + m.m22 * n00) * det;
   }
 
   public get m00() {

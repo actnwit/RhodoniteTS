@@ -5,6 +5,8 @@ import { IVector4 } from './IVector';
 import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
+import RowMajarMatrix44 from './RowMajarMatrix44';
+import MutableQuaternion from './MutableQuaterion';
 
 export default class Quaternion implements IVector4 {
   v: TypedArray;
@@ -136,6 +138,45 @@ export default class Quaternion implements IVector4 {
     }
   }
 
+  static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
+
+//    var q = new Quaternion(0, 0, 0, 1);
+    var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+    var ss = 1.0 - qr * qr;
+
+    if (ss === 0.0) {
+      outQ.v[3] = lhq.w;
+      outQ.v[0] = lhq.x;
+      outQ.v[1] = lhq.y;
+      outQ.v[2] = lhq.z;
+
+    } else {
+
+      if (qr > 1) {
+        qr = 0.999;
+      } else if (qr < -1) {
+        qr = -0.999;
+      }
+
+      let ph = Math.acos(qr);
+      let s2;
+      if(qr < 0.0 && ph > Math.PI / 2.0){
+        qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
+        ph = Math.acos(qr);
+        s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
+      } else {
+        s2 = Math.sin(ph * ratio) / Math.sin(ph);
+      }
+      let s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+
+      outQ.v[0] = lhq.x * s1 + rhq.x * s2;
+      outQ.v[1] = lhq.y * s1 + rhq.y * s2;
+      outQ.v[2] = lhq.z * s1 + rhq.z * s2;
+      outQ.v[3] = lhq.w * s1 + rhq.w * s2;
+
+    }
+  }
+
   static axisAngle(axisVec3: Vector3, radian: number) {
     var halfAngle = 0.5 * radian;
     var sin = Math.sin(halfAngle);
@@ -157,7 +198,7 @@ export default class Quaternion implements IVector4 {
     return result;
   }
 
-  static fromMatrix(m:Matrix44) {
+  static fromMatrix(m:Matrix44|RowMajarMatrix44) {
 
     let q = new Quaternion();
     let tr = m.m00 + m.m11 + m.m22;
