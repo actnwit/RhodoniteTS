@@ -1,6 +1,6 @@
-version: 0.1.1-233-g990a-mod
+version: 0.1.1-234-g0e1f-mod
 branch: feature/improve-gltf1
-30aa03f0bd6faeb6ca4d9c0be85f2b74e9ebe3661dd68fa695cb77bbb2038813 ./dist/rhodonite.js
-d6c3c240729f1d6ae0508b0f0a697f8b58fbd36c89a9f1ab67dba48e05c2828b ./dist/rhodonite.min.js
-5e423fccfe86706dbf556b3060be9dd026037a68df0a064eeacd6aa5a395126b ./dist/rhodonite-webgl.js
-aeb5fec018c26510c13ec70a57bf6df2b89f412c9ea9554b89f8f37cae165c7a ./dist/rhodonite-webgl.min.js
+6662bc8c612d6f03069794dc5523acc912250f3ccdf455adb97a858b617d9c98 ./dist/rhodonite.js
+d9a125424c19d62b3b13d4aadff504bdac4a124f2110a8a4a710a4d895016a28 ./dist/rhodonite.min.js
+602fed833691b8031fcc4a6d3dfed85ca2b7c2f5e38b26ea22d00d7922fbf6b3 ./dist/rhodonite-webgl.js
+5d674902219ee06d68fe5ccb220b8ba59b40267ea333e6e8fe1e8b8cb8da5015 ./dist/rhodonite-webgl.min.js

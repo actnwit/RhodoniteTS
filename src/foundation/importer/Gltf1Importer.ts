@@ -395,9 +395,8 @@ export default class Gltf1Importer {
       for (let materialStr in gltfJson.materials) {
         let material = gltfJson.materials[materialStr];
 
-        let origMaterial: any;
+        const origMaterial = material;
         if (this._isKHRMaterialsCommon(material)) {
-          origMaterial = material;
           material = material.extensions.KHR_materials_common;
         }
 
