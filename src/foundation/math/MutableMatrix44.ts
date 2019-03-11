@@ -272,7 +272,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     /**
    * multiply zero matrix and zero matrix
    */
-  multiply(mat: Matrix44) {
+  multiply(mat: Matrix44 | RowMajarMatrix44) {
     var m00 = this.m00*mat.m00 + this.m01*mat.m10 + this.m02*mat.m20 + this.m03*mat.m30;
     var m01 = this.m00*mat.m01 + this.m01*mat.m11 + this.m02*mat.m21 + this.m03*mat.m31;
     var m02 = this.m00*mat.m02 + this.m01*mat.m12 + this.m02*mat.m22 + this.m03*mat.m32;

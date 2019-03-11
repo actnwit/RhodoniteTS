@@ -186,6 +186,24 @@ export default class Matrix44 implements IMatrix44 {
     );
   }
 
+  static fromQuaternionTo(m: Quaternion, outMat: MutableMatrix44) {
+    const sx = m.x * m.x;
+    const sy = m.y * m.y;
+    const sz = m.z * m.z;
+    const cx = m.y * m.z;
+    const cy = m.x * m.z;
+    const cz = m.x * m.y;
+    const wx = m.w * m.x;
+    const wy = m.w * m.y;
+    const wz = m.w * m.z;
+
+    outMat.m00 = 1.0 - 2.0 * (sy + sz); outMat.m01 = 2.0 * (cz - wz); outMat.m02 = 2.0 * (cy + wy); outMat.m03 = 0;
+    outMat.m10 = 2.0 * (cz + wz); outMat.m11 = 1.0 - 2.0 * (sx + sz); outMat.m12 = 2.0 * (cx - wx); outMat.m13 = 0;
+    outMat.m20 = 2.0 * (cy - wy); outMat.m21 = 2.0 * (cx + wx); outMat.m22 = 1.0 - 2.0 * (sx + sy); outMat.m23 = 0;
+    outMat.m30 = 0; outMat.m31 = 0; outMat.m32 = 0; outMat.m33 = 1;
+
+  }
+
   /**
    * to the identity matrix（static版）
    */
@@ -306,6 +324,25 @@ export default class Matrix44 implements IMatrix44 {
     return rotate;
   }
 
+  toEulerAnglesTo(outVec3: MutableVector3) {
+    if (Math.abs(this.m20) != 1.0) {
+      let y = -Math.asin(this.m20);
+      let x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
+      let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+      outVec3.x = x;
+      outVec3.y = y;
+      outVec3.z = z;
+    } else if (this.m20 === -1.0) {
+      outVec3.x = Math.atan2(this.m01, this.m02)
+      outVec3.y = Math.PI/2.0;
+      outVec3.z = 0.0;
+    } else {
+      outVec3.x = Math.atan2(-this.m01, -this.m02)
+      outVec3.y = -Math.PI/2.0;
+      outVec3.z = 0.0;
+    }
+  }
+
   static zero() {
     return new Matrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
@@ -419,7 +456,7 @@ export default class Matrix44 implements IMatrix44 {
   }
 
 
-  static invert(m:Matrix44) {
+  static invert(m:Matrix44 | RowMajarMatrix44) {
 
     let n00 = m.m00 * m.m11 - m.m01 * m.m10;
     let n01 = m.m00 * m.m12 - m.m02 * m.m10;

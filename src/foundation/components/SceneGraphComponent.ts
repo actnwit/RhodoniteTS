@@ -115,7 +115,7 @@ export default class SceneGraphComponent extends Component {
 
   get normalMatrixInner() {
     RowMajarMatrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
-    this._normalMatrix.copyComponents(SceneGraphComponent.invertedMatrix44.transpose());
+    this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
     return this._normalMatrix;
   }
 

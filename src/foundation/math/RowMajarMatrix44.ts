@@ -291,6 +291,26 @@ export default class RowMajarMatrix44 {
     return mat_t;
   }
 
+  static transposeTo(mat: RowMajarMatrix44, outMat: MutableRowMajarMatrix44) {
+    outMat.m00 = mat.m00;
+    outMat.m01 = mat.m10;
+    outMat.m02 = mat.m20;
+    outMat.m03 = mat.m30;
+    outMat.m10 = mat.m01;
+    outMat.m11 = mat.m11;
+    outMat.m12 = mat.m21;
+    outMat.m13 = mat.m31;
+    outMat.m20 = mat.m02;
+    outMat.m21 = mat.m12;
+    outMat.m22 = mat.m22;
+    outMat.m23 = mat.m32;
+    outMat.m23 = mat.m32;
+    outMat.m30 = mat.m03;
+    outMat.m31 = mat.m13;
+    outMat.m32 = mat.m23;
+    outMat.m33 = mat.m33;
+  }
+
   multiplyVector(vec: Vector4) {
     var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
     var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;

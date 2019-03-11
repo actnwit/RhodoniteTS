@@ -7,6 +7,9 @@ import { CompositionTypeEnum, CompositionType } from "../definitions/Composition
 import Quaternion from "../math/Quaternion";
 import TransformComponent from "./TransformComponent";
 import { ProcessStage } from "../definitions/ProcessStage";
+import Vector3 from "../math/Vector3";
+import MutableVector3 from "../math/MutableVector3";
+import MutableQuaternion from "../math/MutableQuaterion";
 
 
 type AnimationLine = {
@@ -25,6 +28,8 @@ export default class AnimationComponent extends Component {
   private __transformComponent?: TransformComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
+  private static returnVector3 = MutableVector3.zero();
+  private static returnQuaterion = new MutableQuaternion([0,0,0,1]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -55,20 +60,25 @@ export default class AnimationComponent extends Component {
       return start * (1 - ratio) + end * ratio;
     } else {
       if (start instanceof Quaternion) {
-        return Quaternion.qlerp(start, end, ratio);
+        //return Quaternion.qlerp(start, end, ratio);
+        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaterion);
+        return AnimationComponent.returnQuaterion as Quaternion;
       } else {
-        const objectClass = start.constructor;
-        return objectClass.add(objectClass.multiply(start, (1 - ratio)), objectClass.multiply(end, ratio));
+//        const objectClass = start.constructor;
+        this.returnVector3.x = start.x * (1 - ratio) + end.x * ratio;
+        this.returnVector3.y = start.y * (1 - ratio) + end.y * ratio;
+        this.returnVector3.z = start.z * (1 - ratio) + end.z * ratio;
+        return this.returnVector3;
       }
     }
   }
 
   static interpolate(inputArray: any[], outputArray: any[], input: number, compositionType: CompositionTypeEnum, method = Animation.Linear) {
     if (input < inputArray[0]) {
-      return outputArray[0].clone(); // out of range!
+      return outputArray[0]; // out of range!
     }
     if (inputArray[inputArray.length-1] <= input) {
-      return outputArray[outputArray.length-1].clone(); // out of range!
+      return outputArray[outputArray.length-1]; // out of range!
     }
 
     if (method === Animation.Linear) {
@@ -78,7 +88,7 @@ export default class AnimationComponent extends Component {
         }
         if (inputArray[i] <= input && input < inputArray[i+1]) {
           let ratio = (input - inputArray[i]) / (inputArray[i+1] - inputArray[i]);
-          let resultValue = this.lerp(outputArray[i].clone(), outputArray[i+1].clone(), ratio, compositionType);
+          let resultValue = this.lerp(outputArray[i], outputArray[i+1], ratio, compositionType);
           return resultValue;
         }
       }
@@ -88,11 +98,11 @@ export default class AnimationComponent extends Component {
           break;
         }
         if (inputArray[i] <= input && input < inputArray[i+1]) {
-          return outputArray[i].clone();
+          return outputArray[i];
         }
       }
     }
-    return outputArray[0].clone(); // out of range!
+    return outputArray[0]; // out of range!
   }
 
   getStartInputValueOfAnimation() {

@@ -504,7 +504,7 @@ export default class CameraControllerComponent extends Component {
 
     const eyeVec = camera.eye;
     const centerVec = camera.direction;
-    const upVec = camera.up;
+    const upVec = (camera as any)._up;
     const fovy = camera.fovy;
 
     if (this.__targetEntity == null) {

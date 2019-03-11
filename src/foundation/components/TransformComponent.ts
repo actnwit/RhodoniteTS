@@ -13,6 +13,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableQuaternion from '../math/MutableQuaterion';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
+import MutableVector3 from '../math/MutableVector3';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -41,6 +42,8 @@ export default class TransformComponent extends Component {
   private __updateCountAtLastLogic = 0;
   private static returnMatrix33 = new MutableMatrix33([0,0,0,0,0,0,0,0,0]);
   private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static updateRotationMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static updateRotationVector3 = MutableVector3.zero();
 
   // dependencies
   private _dependentAnimationComponentId: number = 0;
@@ -451,7 +454,9 @@ export default class TransformComponent extends Component {
       this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-      this._rotate = (new Matrix44(this._quaternion)).toEulerAngles();
+      Matrix44.fromQuaternionTo(this._quaternion, TransformComponent.updateRotationMatrix44);
+      TransformComponent.updateRotationMatrix44.toEulerAnglesTo(TransformComponent.updateRotationVector3);
+      this._rotate = TransformComponent.updateRotationVector3 as Vector3;
       this._is_euler_angles_updated = true;
     } else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
       const m = this._matrix;

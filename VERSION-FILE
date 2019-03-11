@@ -1,6 +1,6 @@
-version: 0.1.1-237-ge032-mod
+version: 0.1.1-238-g71d0-mod
 branch: fix/rendering
-f31173ea0a548e8990901f295f3553846456a1da904d20ee5430a4e0e335a0d5 ./dist/rhodonite.js
-50f6dd2b5c446ec64dcf0f3d06c43efbda0f63d751b61e56f3ec7a2132a5f9ff ./dist/rhodonite.min.js
-9b3bf151040256dcb44e8f907ac1e96cdd53a910526c7a113fd27aa5de60229a ./dist/rhodonite-webgl.js
-8b2ce74028f01d89173dea96d3abeedc426cbe557ee19bd98980e5dfeae25be4 ./dist/rhodonite-webgl.min.js
+83291d6bb975fdd8b60588385183359331df8be642b652d1eacf9f591d4d683c ./dist/rhodonite.js
+020f67749c683105c7b6205701a631ace7be5f42a4afb2d132821a560e72e995 ./dist/rhodonite.min.js
+fa075287739f752a662f1d617c0d1ea58766fe4976cbb62e0676bc55b9124943 ./dist/rhodonite-webgl.js
+4c486a04620f2f3d6b00c8f13f58f9acbf20005d86ee2070a0809c4c1719223f ./dist/rhodonite-webgl.min.js
