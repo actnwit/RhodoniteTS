@@ -111,6 +111,11 @@ export default class Gltf1Importer {
       basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
     }
 
+
+    if (gltfJson.asset === undefined) {
+      gltfJson.asset = {};
+    }
+
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = {};
     }
@@ -128,6 +133,10 @@ export default class Gltf1Importer {
       //Set the location of gltf file as basePath
       basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
     }
+    if (gltfJson.asset === undefined) {
+      gltfJson.asset = {};
+    }
+
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = {};
     }
@@ -189,13 +198,6 @@ export default class Gltf1Importer {
 
     // BufferView
     this._loadDependenciesOfBufferViews(gltfJson);
-
-    if (gltfJson.asset === void 0) {
-      gltfJson.asset = {};
-    }
-    if (gltfJson.asset.extras === void 0) {
-      gltfJson.asset.extras = {};
-    }
 
   }
 
@@ -393,7 +395,9 @@ export default class Gltf1Importer {
       for (let materialStr in gltfJson.materials) {
         let material = gltfJson.materials[materialStr];
 
+        let origMaterial: any;
         if (this._isKHRMaterialsCommon(material)) {
+          origMaterial = material;
           material = material.extensions.KHR_materials_common;
         }
 
@@ -413,19 +417,18 @@ export default class Gltf1Importer {
               let textureStr = value;
               let texturePurpose;
               if (valueName === 'diffuse' || (material.technique === "CONSTANT" && valueName === 'ambient')) {
-                material.diffuseColorTexture = {};
-                material.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
+                origMaterial.diffuseColorTexture = {};
+                origMaterial.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
 
               } else if (valueName === 'emission' && textureStr.match(/_normal$/)) {
-                material.emissionTexure = {};
-                material.emissionTexture.texture = (gltfJson.textures as any)[value];
-              } else {
+                origMaterial.emissionTexure = {};
+                origMaterial.emissionTexture.texture = (gltfJson.textures as any)[value];
               }
 
 
             } else {
               if (valueName === 'diffuse') {
-                material.diffuseColorFactor = value;
+                origMaterial.diffuseColorFactor = value;
               }
             }
           }
