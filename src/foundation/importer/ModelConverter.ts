@@ -315,7 +315,7 @@ export default class ModelConverter {
         }
         rnEntities.push(meshEntity);
       } else if (node.camera != null) {
-        const cameraEntity = this.__setupCamera(node.camera);
+        const cameraEntity = this.__setupCamera(node.camera, gltfModel);
         rnEntities.push(cameraEntity);
       } else {
         const group = this.__generateGroupEntity();
@@ -327,10 +327,15 @@ export default class ModelConverter {
     return rnEntities;
    }
 
-  private __setupCamera(camera: any) {
+  private __setupCamera(camera: any, glTFModel: glTF2) {
     const cameraEntity = this.__generateCameraEntity();
     const cameraComponent = cameraEntity.getComponent(CameraComponent)! as CameraComponent;
     cameraComponent.direction = new Vector3(0, 0, -1);
+    if (glTFModel.asset && (glTFModel.asset as any).LastSaved_ApplicationVendor) {
+      // For an old exporter compatibility
+      cameraComponent.direction = new Vector3(1, 0, 0);
+      cameraComponent.directionInner = new Vector3(1, 0, 0);
+    }
     cameraComponent.up = new Vector3(0, 1, 0);
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
