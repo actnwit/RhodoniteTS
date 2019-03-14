@@ -6,6 +6,7 @@ export default class WebGLContextWrapper {
   __webglVersion: number = 1;
   public width: Size = 0;
   public height: Size = 0;
+  public readonly canvas: HTMLCanvasElement;
   public readonly webgl1ExtVAO?: OES_vertex_array_object;
   public readonly webgl1ExtIA?: ANGLE_instanced_arrays;
   public readonly webgl1ExtTF?: OES_texture_float;
@@ -19,10 +20,11 @@ export default class WebGLContextWrapper {
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
-  constructor(gl: WebGLRenderingContext, width: Size, height: Size) {
+  constructor(gl: WebGLRenderingContext, canvas: HTMLCanvasElement) {
     this.__gl = gl;
-    this.width = width;
-    this.height = height;
+    this.width = canvas.width;
+    this.height = canvas.height;
+    this.canvas = canvas
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
