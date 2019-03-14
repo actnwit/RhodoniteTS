@@ -88,6 +88,9 @@ struct Material {
 uniform sampler2D u_diffuseColorTexture;
 uniform Material u_material;
 
+uniform int u_shadingModel;
+uniform float u_shininess;
+
 struct Light {
   vec4 lightPosition;
   vec4 lightDirection;
@@ -95,6 +98,7 @@ struct Light {
 };
 uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
+uniform vec3 u_viewPosition;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -107,28 +111,30 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  // baseColor
-  vec3 color = vec3(0.0, 0.0, 0.0);
-  if (v_color != color && u_material.diffuseColorFactor.rgb != color) {
-    color = v_color * u_material.diffuseColorFactor.rgb;
-  } else if (v_color == color) {
-    color = u_material.diffuseColorFactor.rgb;
-  } else if (u_material.diffuseColorFactor.rgb == color) {
-    color = v_color;
+  // diffuseColor
+  vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+  if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
+    diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
+  } else if (v_color == diffuseColor) {
+    diffuseColor = u_material.diffuseColorFactor.rgb;
+  } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = v_color;
   } else {
-    color = vec3(1.0, 1.0, 1.0);
+    diffuseColor = vec3(1.0, 1.0, 1.0);
   }
-  //color = v_color;
 
-  // baseColorTexture
+  // diffuseColorTexture
   vec4 textureColor = ${_texture}(u_diffuseColorTexture, v_texcoord);
   if (textureColor.r > 0.05) {
-    color *= textureColor.rgb;
+    diffuseColor *= textureColor.rgb;
   }
 
   // Lighting
-  if (length(v_normal_inWorld) > 0.02) {
+  vec3 shadingColor = vec3(0.0, 0.0, 0.0);
+  if (u_shadingModel > 0) {
+
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
+    vec3 specular = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
       if (i >= u_lightNumber) {
         break;
@@ -155,13 +161,29 @@ void main ()
       vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
 //      incidentLight *= M_PI;
 
-      diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
+
+
+      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
+
+      if (u_shadingModel == 2) {// BLINN
+        // ViewDirection
+        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+        vec3 halfVector = normalize(lightDirection + viewDirection);
+        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), u_shininess);
+      } else if (u_shadingModel == 3) { // PHONG
+        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+        vec3 R = reflect(lightDirection, normal_inWorld);
+        specular += pow(max(0.0, dot(R, viewDirection)), u_shininess);
+      }
+
     }
 
-    color *= diffuse;
+    shadingColor = diffuse + specular;
+  } else {
+    shadingColor = diffuseColor;
   }
 
-  rt0 = vec4(color, 1.0);
+  rt0 = vec4(shadingColor, 1.0);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 

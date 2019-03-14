@@ -423,7 +423,8 @@ export default class Gltf1Importer {
                 origMaterial.emissionTexure = {};
                 origMaterial.emissionTexture.texture = (gltfJson.textures as any)[value];
               }
-
+              origMaterial.extras = {};
+              origMaterial.extras.technique = material.technique;
 
             } else {
               if (valueName === 'diffuse') {

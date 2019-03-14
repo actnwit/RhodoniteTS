@@ -29,6 +29,7 @@ import MaterialHelper from "../helpers/MaterialHelper";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import Vector2 from "../math/Vector2";
 import Material from "../materials/Material";
+import { ShadingModel } from "../definitions/ShadingModel";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -450,6 +451,16 @@ export default class ModelConverter {
       }
     } else {
       material = MaterialHelper.createClassicUberMaterial();
+      let param: Index = ShadingModel.Phong.index;
+      if (materialJson.extras && materialJson.extras.technique) {
+        switch (materialJson.extras.technique) {
+          case ShadingModel.Constant.str: param = ShadingModel.Constant.index; break;
+          case ShadingModel.Lambert.str: param = ShadingModel.Lambert.index; break;
+          case ShadingModel.BlinnPhong.str: param = ShadingModel.BlinnPhong.index; break;
+          case ShadingModel.Phong.str: param = ShadingModel.Phong.index; break;
+        }
+      material.setParameter(ShaderSemantics.ShadingModel, param);
+      }
     }
 
     const diffuseColorTexture = materialJson.diffuseColorTexture;
@@ -478,6 +489,8 @@ export default class ModelConverter {
     if (diffuseColorFactor != null) {
       material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
     }
+
+
 
     return material;
   }

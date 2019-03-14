@@ -14,6 +14,7 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import ClassicShader from "../../webgl/ClassicShader";
+import { ShadingModel } from "../definitions/ShadingModel";
 
 export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -32,8 +33,9 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
       {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(2, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
       {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(3, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
       {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(4, ClassicShadingMaterialNode.__dummyBlackTextureUid)},
-      {semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: 1},
+      {semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: 5},
       {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
+      {semantic: ShaderSemantics.ShadingModel, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: ShadingModel.Phong.index},
     ];
     super(shaderSemanticsInfoArray);
   }
