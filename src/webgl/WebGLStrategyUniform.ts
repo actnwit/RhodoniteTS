@@ -207,10 +207,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     if (meshComponent.componentSID === MeshRendererComponent.firstOpaqueSid) {
       gl.disable(gl.BLEND);
+      gl.depthMask(true);
     }
     if (meshComponent.componentSID == MeshRendererComponent.firstTranparentSid) {
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+      gl.depthMask(false);
     }
 
     const primitiveNum = meshComponent.getPrimitiveNumber();
