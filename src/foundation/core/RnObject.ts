@@ -4,6 +4,7 @@ export default class RnObject {
   static readonly InvalidObjectUID = -1;
   private __uniqueName: string;
   private static __uniqueNames: string[] = [];
+  private __tags: {[s:string]: string} = {};
 
   constructor() {
     this.__objectUid = ++RnObject.currentMaxObjectCount;
@@ -38,6 +39,28 @@ export default class RnObject {
       RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
 
       return true;
+    }
+  }
+
+  setTag(tagName: string, tagValue: string) {
+    this.__tags[tagName] = tagValue;
+  }
+
+  getTagValue(tagName: string) {
+    return this.__tags[tagName];
+  }
+
+  getTag(tagName: string) {
+    const tag :any = {};
+    tag[tagName] = this.__tags[tagName];
+    return tag;
+  }
+
+  hasTag(tagName: string) {
+    if (this.__tags[tagName] != null) {
+      return true;
+    } else {
+      return false;
     }
   }
 
