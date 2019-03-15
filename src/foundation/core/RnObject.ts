@@ -4,7 +4,8 @@ export default class RnObject {
   static readonly InvalidObjectUID = -1;
   private __uniqueName: string;
   private static __uniqueNames: string[] = [];
-  private __tags: {[s:string]: string} = {};
+  private __tags: {[s:string]: string} = {}; // Tag string allows alphabet, digit and underscore (_) only
+  private __conbinedTagString: string = ''; // Tag string allows alphabet, digit and underscore (_) only
 
   constructor() {
     this.__objectUid = ++RnObject.currentMaxObjectCount;
@@ -42,8 +43,23 @@ export default class RnObject {
     }
   }
 
-  setTag(tagName: string, tagValue: string) {
-    this.__tags[tagName] = tagValue;
+  validateTagString(val: string) {
+    var reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
+    if(reg.test(val)) {
+      return true;
+    }
+    return false;
+  }
+
+  tryToSetTag(tagName: string, tagValue: string) {
+    if (this.validateTagString(tagName)) {
+      if (this.validateTagString(tagValue)) {
+        this.__tags[tagName] = tagValue;
+        this.__conbinedTagString += `${tagName}:${tagValue}` + ' ';
+        return true;
+      }
+    }
+    return false;
   }
 
   getTagValue(tagName: string) {
@@ -58,6 +74,28 @@ export default class RnObject {
 
   hasTag(tagName: string) {
     if (this.__tags[tagName] != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  matchTag(tagName: string, tagValue: string) {
+    if (this.__tags[tagName] === tagValue) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  matchTagConblied(stringArray: string[]) {
+    let regExpStr = '^';
+
+    for (let i=0; i<stringArray.length; i++) {
+      regExpStr += `(?=.*${stringArray[i]})`;
+    }
+    var reg = new RegExp(regExpStr);
+    if (reg.test(this.__conbinedTagString)) {
       return true;
     } else {
       return false;
