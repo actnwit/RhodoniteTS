@@ -22,7 +22,7 @@ export default abstract class AbstractTexture extends RnObject {
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
 
   constructor() {
-    super(true);
+    super();
     this.__textureUid = ++AbstractTexture.__textureUidCount;
   }
 

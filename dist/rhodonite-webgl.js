@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-248-g6a75-mod branch: feature/resize';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-249-g9700-mod branch: feature/resize';

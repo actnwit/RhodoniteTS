@@ -7,7 +7,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private __shaderNode: ShaderNodeEnum[] = [];
 
   constructor(semantics: ShaderSemanticsInfo[]) {
-    super(false);
+    super();
     this.__semantics = semantics;
   }
 

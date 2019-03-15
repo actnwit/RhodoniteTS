@@ -23,7 +23,7 @@ export default class BufferView extends RnObject {
   constructor({buffer, byteOffset, byteLength, raw, isAoS} :
     {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: Uint8Array, isAoS: boolean})
   {
-    super(true);
+    super();
     this.__buffer = buffer;
     this.__byteOffset = byteOffset;
     this.__byteLength = byteLength;

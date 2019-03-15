@@ -9,7 +9,7 @@ export default class Buffer extends RnObject {
   private __bufferViews: Array<BufferView> = [];
 
   constructor({byteLength, arrayBuffer, name} : {byteLength: Size, arrayBuffer: ArrayBuffer, name: string}) {
-    super(true);
+    super();
     this.__name = name;
     this.__byteLength = byteLength;
     this.__raw = arrayBuffer;
