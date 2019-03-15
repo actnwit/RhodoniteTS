@@ -1,7 +1,7 @@
 import { PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
 import { VertexAttributeEnum, VertexAttribute } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
-import RnObject from '../core/Object';
+import RnObject from '../core/RnObject';
 import BufferView from '../memory/BufferView';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import MemoryManager from '../core/MemoryManager';

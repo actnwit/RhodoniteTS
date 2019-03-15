@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import Buffer from "../memory/Buffer";
 import Accessor from "./AccessorBase";
 import { CompositionTypeEnum } from "../definitions/CompositionType";

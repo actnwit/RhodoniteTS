@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import BufferView from "./BufferView";
 
 export default class Buffer extends RnObject {

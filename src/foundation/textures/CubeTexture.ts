@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import AbstractTexture from "./AbstractTexture";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 
