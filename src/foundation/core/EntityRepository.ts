@@ -3,6 +3,7 @@ import Component from './Component';
 import ComponentRepository from './ComponentRepository';
 import is from '../misc/IsUtil';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { match } from 'minimatch';
 
 export default class EntityRepository {
   private __entity_uid_count: number;
@@ -84,6 +85,16 @@ export default class EntityRepository {
       }
     }
     return component;
+  }
+
+  searchByTags(tags: RnTag[]) {
+    const matchEntites = [];
+    for (let entity of this.__entities) {
+      if (entity.matchTagConblied(tags)) {
+        matchEntites.push(entity);
+      }
+    }
+    return matchEntites;
   }
 
   _getEntities() {

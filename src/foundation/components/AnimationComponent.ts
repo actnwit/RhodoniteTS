@@ -17,7 +17,8 @@ type AnimationLine = {
     output: any[],
     outputAttributeName: string,
     outputCompositionType: CompositionTypeEnum
-    interpolationMethod: AnimationEnum
+    interpolationMethod: AnimationEnum,
+    targetEntityUid?: EntityUID
   }
 
 export default class AnimationComponent extends Component {

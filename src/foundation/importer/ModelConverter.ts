@@ -30,6 +30,7 @@ import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import Vector2 from "../math/Vector2";
 import Material from "../materials/Material";
 import { ShadingModel } from "../definitions/ShadingModel";
+import Component from "../core/Component";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -65,23 +66,28 @@ export default class ModelConverter {
     return defaultShader;
   }
 
-  private __generateGroupEntity() {
+  private __generateEntity(components: typeof Component[], gltfModel: glTF2): Entity {
+
     const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
+    const entity = repo.createEntity(components);
+    entity.tryToSetTag('sourceType', gltfModel.asset.extras!.fileType!);
+    entity.tryToSetTag('sourceTypeVersion', gltfModel.asset.extras!.version!);
+
     return entity;
   }
 
-  private __generateMeshEntity() {
-    const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
-      MeshComponent, MeshRendererComponent]);
+  private __generateGroupEntity(gltfModel: glTF2): Entity {
+    const entity = this.__generateEntity([TransformComponent, SceneGraphComponent], gltfModel);
     return entity;
   }
 
-  private __generateCameraEntity() {
-    const repo = EntityRepository.getInstance();
-    const entity = repo.createEntity([TransformComponent, SceneGraphComponent,
-      CameraComponent]);
+  private __generateMeshEntity(gltfModel: glTF2): Entity {
+    const entity = this.__generateEntity([TransformComponent, SceneGraphComponent, MeshComponent, MeshRendererComponent], gltfModel);
+    return entity;
+  }
+
+  private __generateCameraEntity(gltfModel: glTF2): Entity {
+    const entity = this.__generateEntity([TransformComponent, SceneGraphComponent, CameraComponent], gltfModel);
     return entity;
   }
 
@@ -114,8 +120,9 @@ export default class ModelConverter {
     this.__setupAnimation(gltfModel, rnEntities);
 
     // Root Group
-    const rootGroup = this.__generateGroupEntity();
+    const rootGroup = this.__generateGroupEntity(gltfModel);
     rootGroup.tryToSetUniqueName('FileRoot', true);
+    rootGroup.tryToSetTag('ObjectType', 'top');
     if (gltfModel.scenes[0].nodesIndices) {
       for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
         rootGroup.getSceneGraph().addChild(rnEntities[nodesIndex].getSceneGraph());
@@ -318,7 +325,7 @@ export default class ModelConverter {
         const cameraEntity = this.__setupCamera(node.camera, gltfModel);
         rnEntities.push(cameraEntity);
       } else {
-        const group = this.__generateGroupEntity();
+        const group = this.__generateGroupEntity(gltfModel);
         group.tryToSetUniqueName(node.name, true);
         rnEntities.push(group);
       }
@@ -327,11 +334,11 @@ export default class ModelConverter {
     return rnEntities;
    }
 
-  private __setupCamera(camera: any, glTFModel: glTF2) {
-    const cameraEntity = this.__generateCameraEntity();
+  private __setupCamera(camera: any, gltfModel: glTF2) {
+    const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getComponent(CameraComponent)! as CameraComponent;
     cameraComponent.direction = new Vector3(0, 0, -1);
-    if (glTFModel.asset && (glTFModel.asset as any).LastSaved_ApplicationVendor) {
+    if (gltfModel.asset && (gltfModel.asset as any).LastSaved_ApplicationVendor) {
       // For an old exporter compatibility
       cameraComponent.direction = new Vector3(1, 0, 0);
       cameraComponent.directionInner = new Vector3(1, 0, 0);
@@ -353,7 +360,7 @@ export default class ModelConverter {
   }
 
   private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
-    const meshEntity = this.__generateMeshEntity();
+    const meshEntity = this.__generateMeshEntity(gltfModel);
     let rnPrimitiveMode = PrimitiveMode.from(4);
     for (let i in mesh.primitives) {
       let primitive = mesh.primitives[i];

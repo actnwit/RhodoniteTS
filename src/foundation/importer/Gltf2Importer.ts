@@ -123,7 +123,7 @@ export default class Gltf2Importer {
     }
 
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {};
+      gltfJson.asset.extras = {fileType: "glTF", version: "2"};
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath;
@@ -144,7 +144,7 @@ export default class Gltf2Importer {
       basePath = uri.substring(0, uri.lastIndexOf('/')) + '/';
     }
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {};
+      gltfJson.asset.extras = {fileType: "glTF", version: "2"};
     }
 
     options = this._getOptions(defaultOptions, gltfJson, options);
