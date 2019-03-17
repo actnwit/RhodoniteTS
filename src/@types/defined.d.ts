@@ -31,4 +31,4 @@ type ImporterOpition = {
   extensionLoader: Function
 }
 
-type RnTag = {[s:string]: string};
+type RnTags = {[s:string]: string};

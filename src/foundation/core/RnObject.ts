@@ -4,7 +4,7 @@ export default class RnObject {
   static readonly InvalidObjectUID = -1;
   private __uniqueName: string;
   private static __uniqueNames: string[] = [];
-  private __tags: RnTag = {}; // Tag string allows alphabet, digit and underscore (_) only
+  private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
   private __conbinedTagString: string = ''; // Tag string allows alphabet, digit and underscore (_) only
 
   constructor() {
@@ -46,9 +46,9 @@ export default class RnObject {
   validateTagString(val: string) {
     var reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
     if(reg.test(val)) {
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   tryToSetTag(tagName: string, tagValue: string) {
@@ -112,11 +112,11 @@ export default class RnObject {
     }
   }
 
-  matchTagConblied(tags: Array<RnTag>) {
+  matchTagConblied(tags: RnTags) {
     let regExpStr = '^';
 
-    for (let i=0; i<tags.length; i++) {
-      regExpStr += `(?=.*${tags[i].tagName}:${tags[i].tagValue})`;
+    for (let tagName in tags) {
+      regExpStr += `(?=.*${[tagName]}:${tags[tagName]})`;
     }
     var reg = new RegExp(regExpStr);
     if (reg.test(this.__conbinedTagString)) {

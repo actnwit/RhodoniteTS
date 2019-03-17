@@ -70,8 +70,8 @@ export default class ModelConverter {
 
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity(components);
-    entity.tryToSetTag('sourceType', gltfModel.asset.extras!.fileType!);
-    entity.tryToSetTag('sourceTypeVersion', gltfModel.asset.extras!.version!);
+    entity.tryToSetTag('SourceType', gltfModel.asset.extras!.fileType!);
+    entity.tryToSetTag('SourceTypeVersion', gltfModel.asset.extras!.version!);
 
     return entity;
   }
