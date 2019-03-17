@@ -1,5 +1,5 @@
 let isTestTopPage = false;
-if (parent != null && parent.location.href.indexOf('test/#') !== -1) {
+if (parent != null && parent.location.href.indexOf('samples/#') !== -1) {
   isTestTopPage = true;
 }
 
@@ -10,7 +10,7 @@ if (isTestTopPage) {
   a.setAttribute('href', parent.location.href.replace('#', ''));
   a.setAttribute('target', '_parent');
 } else {
-  const newUri = document.location.href.replace(/test\//, 'test\/#');
+  const newUri = document.location.href.replace(/samples\//, 'samples\/#');
   a.innerText = 'Show Index';
   a.setAttribute('href', newUri);
 }
