@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import { ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
 
@@ -7,7 +7,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private __shaderNode: ShaderNodeEnum[] = [];
 
   constructor(semantics: ShaderSemanticsInfo[]) {
-    super(false);
+    super();
     this.__semantics = semantics;
   }
 

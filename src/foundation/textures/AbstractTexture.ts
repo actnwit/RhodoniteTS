@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";
@@ -22,7 +22,7 @@ export default abstract class AbstractTexture extends RnObject {
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
 
   constructor() {
-    super(true);
+    super();
     this.__textureUid = ++AbstractTexture.__textureUidCount;
   }
 

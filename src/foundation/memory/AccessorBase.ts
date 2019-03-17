@@ -1,6 +1,6 @@
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { CompositionType, CompositionTypeEnum } from "../definitions/CompositionType";
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import BufferView from "./BufferView";
 import Vector2 from "../math/Vector2";
 import Vector3 from "../math/Vector3";
@@ -29,7 +29,7 @@ export default class AccessorBase extends RnObject {
 
   constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min} :
     {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number}) {
-    super(true);
+    super();
 
     this.__bufferView = bufferView;
     this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;

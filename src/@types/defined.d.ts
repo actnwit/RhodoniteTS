@@ -30,3 +30,5 @@ type ImporterOpition = {
   extendedJson: {},
   extensionLoader: Function
 }
+
+type RnTags = {[s:string]: string};

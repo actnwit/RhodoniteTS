@@ -3,18 +3,18 @@ import TransformComponent from '../components/TransformComponent';
 import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
+import RnObject from './RnObject';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entity can acquire those functions by having components on themselves.
  */
-export default class Entity {
+export default class Entity extends RnObject {
   private __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
   private static __instance: Entity;
-  private __uniqueName: string;
-  private static __uniqueNames: string[] = [];
+
   private __entityRepository: EntityRepository;
 
   private __transformComponent?: TransformComponent;
@@ -29,12 +29,11 @@ export default class Entity {
    * @param entityComponent The instance of EntityComponent (Dependency Injection)
    */
   constructor(entityUID: EntityUID, isAlive: Boolean, entityComponent: EntityRepository) {
+    super();
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
     this.__entityRepository = entityComponent;
 
-    this.__uniqueName = 'entity_of_uid_' + entityUID;
-    Entity.__uniqueNames[entityUID] =  this.__uniqueName;
   }
 
   /**
@@ -83,35 +82,4 @@ export default class Entity {
     return this.__sceneGraphComponent;
   }
 
-  /**
-   * Try to set a unique name of the entity.
-   * @param name
-   * @param toAddNameIfConflict If true, force to add name string to the current unique name string. If false, give up to change name.
-   */
-  tryToSetUniqueName(name: string, toAddNameIfConflict: boolean): boolean {
-    if (Entity.__uniqueNames.indexOf(name) !== -1) {
-      // Conflict
-      if (toAddNameIfConflict) {
-        const newName = name + '_(' + this.__uniqueName + ')';
-        if (Entity.__uniqueNames.indexOf(newName) === -1) {
-          this.__uniqueName = newName;
-          Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
-          return true;
-        }
-      }
-      return false;
-    } else {
-      this.__uniqueName = name;
-      Entity.__uniqueNames[this.__entity_uid] = this.__uniqueName;
-
-      return true;
-    }
-  }
-
-  /**
-   * Get the unique name of the entity.
-   */
-  get uniqueName() {
-    return this.__uniqueName;
-  }
 }

@@ -1,4 +1,4 @@
-import RnObject from "../core/Object";
+import RnObject from "../core/RnObject";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
