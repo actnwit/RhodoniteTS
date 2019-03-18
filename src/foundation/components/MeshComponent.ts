@@ -76,7 +76,7 @@ export default class MeshComponent extends Component {
 
         this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
-      primitive.addVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
+      primitive.setVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
     }
   }
 
@@ -138,7 +138,7 @@ export default class MeshComponent extends Component {
 
           this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, tangentAccessor, indicesAccessor);
         }
-        primitive.addVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
+        primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
     }
   }
@@ -251,7 +251,7 @@ export default class MeshComponent extends Component {
             newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
           }
 
-          primitive.setVertexAttributes(newAccessor, primitive.attributeSemantics[i]);
+          primitive.setVertexAttribute(newAccessor, primitive.attributeSemantics[i]);
         }
 
 
@@ -296,7 +296,7 @@ export default class MeshComponent extends Component {
           idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
           {});
       }
-      primitive.addVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
+      primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
     }
   }
 }

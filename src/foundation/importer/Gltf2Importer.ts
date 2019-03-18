@@ -1,4 +1,5 @@
 import DataUtil from "../misc/DataUtil";
+import Accessor from "../memory/Accessor";
 
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
@@ -287,9 +288,30 @@ export default class Gltf2Importer {
           }
         }
 
-        if (primitive.indices !== void 0) {
+        if (primitive.indices != null) {
           primitive.indicesIndex = primitive.indices;
           primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+        }
+
+        if (primitive.targets != null) {
+          primitive.targetIndices = primitive.targets;
+          primitive.targets = [];
+          for (let target of primitive.targetIndices) {
+            const attributes = {};
+            for (let attributeName in target) {
+              if (target[attributeName] >= 0) {
+                let accessor = gltfJson.accessors[target[attributeName]];
+                accessor.extras = {
+                  toGetAsTypedArray: true,
+                  attributeName: attributeName
+                };
+                (attributes as any)[attributeName] = accessor;
+              } else {
+                (attributes as any)[attributeName] = void 0;
+              }
+            }
+            primitive.targets.push(attributes);
+          }
         }
       }
     }
