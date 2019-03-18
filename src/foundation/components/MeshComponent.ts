@@ -21,6 +21,7 @@ export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __viewDepth = -Number.MAX_VALUE;
+  public weights = [];
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);

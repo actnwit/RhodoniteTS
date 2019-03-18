@@ -707,10 +707,16 @@ export default class ModelConverter {
 
         switch (accessor.type) {
           case 'SCALAR':
-            typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+            if (accessor.extras && accessor.extras.weightCount) {
+              for (let i=0; i<accessor.extras.weightCount; i++) {
+                typedDataArray.push(dataView[dataViewMethod](pos+componentBytes*i, littleEndian));
+              }
+            } else {
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+            }
             break;
           case 'VEC2':
-            typedDataArray.push(new Vector2_F64(
+            typedDataArray.push(new Vector2(
               dataView[dataViewMethod](pos, littleEndian),
               dataView[dataViewMethod](pos+componentBytes, littleEndian)
             ));

@@ -10,6 +10,7 @@ import { ProcessStage } from "../definitions/ProcessStage";
 import Vector3 from "../math/Vector3";
 import MutableVector3 from "../math/MutableVector3";
 import MutableQuaternion from "../math/MutableQuaterion";
+import MeshComponent from "./MeshComponent";
 
 
 type AnimationLine = {
@@ -27,6 +28,7 @@ export default class AnimationComponent extends Component {
   public static globalTime: number = 0;
   public static isAnimating = true;
   private __transformComponent?: TransformComponent;
+  private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
   private static returnVector3 = MutableVector3.zero();
@@ -43,7 +45,6 @@ export default class AnimationComponent extends Component {
   }
 
   setAnimation(animationAttributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum) {
-//    console.log(animationAttributeName, animationInputArray, animationOutputArray);
 
     const line: AnimationLine = {
       input: animationInputArray,
@@ -64,12 +65,17 @@ export default class AnimationComponent extends Component {
         //return Quaternion.qlerp(start, end, ratio);
         Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaterion);
         return AnimationComponent.returnQuaterion as Quaternion;
-      } else {
-//        const objectClass = start.constructor;
+      } else if (start instanceof Vector3) {
         this.returnVector3.x = start.x * (1 - ratio) + end.x * ratio;
         this.returnVector3.y = start.y * (1 - ratio) + end.y * ratio;
         this.returnVector3.z = start.z * (1 - ratio) + end.z * ratio;
         return this.returnVector3;
+      } else {
+        const returnArray = [];
+        for (let i=0; i<start.length; i++) {
+          returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
+        }
+        return returnArray;
       }
     }
   }
@@ -155,20 +161,33 @@ export default class AnimationComponent extends Component {
 
   $create() {
     this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
     for (let attributeName in this.__animationLine) {
       if (this.__backupDefaultValues[attributeName] == null) {
-        this.__backupDefaultValues[attributeName] = (this.__transformComponent! as any)[attributeName];
+        if (attributeName === 'weights') {
+          this.__backupDefaultValues[attributeName] = (this.__meshComponent! as any)[attributeName];
+        } else {
+          this.__backupDefaultValues[attributeName] = (this.__transformComponent! as any)[attributeName];
+        }
       }
       if (AnimationComponent.isAnimating) {
         const line = this.__animationLine[attributeName];
         let value = AnimationComponent.interpolate(line.input, line.output, AnimationComponent.globalTime, line.outputCompositionType, line.interpolationMethod);
-        (this.__transformComponent! as any)[attributeName] = value;
+        if (attributeName === 'weights') {
+          (this.__meshComponent! as any)[attributeName] = value;
+        } else {
+          (this.__transformComponent! as any)[attributeName] = value;
+        }
       } else {
-        (this.__transformComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
+        if (attributeName === 'weights') {
+          (this.__meshComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
+        } else {
+          (this.__transformComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
+        }
       }
     }
   }

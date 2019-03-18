@@ -402,11 +402,15 @@ export default class Gltf2Importer {
           channel.sampler.outputIndex = channel.sampler.output;
           channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
           channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+          if (channel.sampler.output.extras === void 0) {
+            channel.sampler.output.extras = {};
+          }
           if (channel.target.path === 'rotation') {
-            if (channel.sampler.output.extras === void 0) {
-              channel.sampler.output.extras = {};
-            }
             channel.sampler.output.extras.quaternionIfVec4 = true;
+          }
+          if (channel.sampler.path === 'weights') {
+            const weightCount = channel.sampler.output.count / channel.sampler.input.count
+            channel.sampler.output.extras.weightCount = weightCount;
           }
         }
       }
