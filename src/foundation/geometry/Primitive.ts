@@ -10,21 +10,23 @@ import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
 import AABB from '../math/AABB';
 import Material from '../materials/Material';
+import MaterialHelper from '../helpers/MaterialHelper';
+
+type Attributes = Map<VertexAttributeEnum, Accessor>;
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum;
-  private __attributes: Array<Accessor>;
   public  material?: Material;
-  private __attributeSemantics: Array<VertexAttributeEnum>;
+  private __attributes: Attributes = new Map();
   private __indices?: Accessor;
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
   private static __headerAccessor?: Accessor;
   private __aabb = new AABB();
+  private __targets: Array<Attributes> = [];
 
   constructor(
-    attributeAccessors: Array<Accessor>,
-    attributeSemantics: Array<VertexAttributeEnum>,
+    attributes: Attributes,
     mode: PrimitiveModeEnum,
     material?: Material,
     indicesAccessor?: Accessor,
@@ -33,9 +35,13 @@ export default class Primitive extends RnObject {
     super();
 
     this.__indices = indicesAccessor;
-    this.__attributes = attributeAccessors;
-    this.__attributeSemantics = attributeSemantics;
-    this.material = material;
+    this.__attributes = attributes;
+
+    if (material != null) {
+      this.material = material;
+    } else {
+      this.material = MaterialHelper.createClassicUberMaterial();
+    }
     this.__mode = mode;
 
     this.__primitiveUid = Primitive.__primitiveCount++;
@@ -138,9 +144,13 @@ export default class Primitive extends RnObject {
       attributeAccessors.push(accessor);
     });
 
+    const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
+    for (let i=0; i<attributeSemantics.length; i++) {
+      attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
+    }
+
     return new Primitive(
-      attributeAccessors,
-      attributeSemantics,
+      attributeMap,
       primitiveMode,
       material,
       indicesAccessor,
@@ -160,9 +170,8 @@ export default class Primitive extends RnObject {
   }
 
   getVertexCountAsVerticesBased() {
-    const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
-    const positionAccessor = this.__attributes[positionIdx];
-    return positionAccessor.elementCount;
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position);
+    return positionAccessor!.elementCount;
   }
 
   getTriangleCountAsIndicesBased() {
@@ -183,8 +192,7 @@ export default class Primitive extends RnObject {
   }
 
   getTriangleCountAsVerticesBased() {
-    const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
-    const positionAccessor = this.__attributes[positionIdx];
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
     switch (this.__mode) {
       case PrimitiveMode.Triangles:
         return positionAccessor.elementCount / 3;
@@ -202,19 +210,45 @@ export default class Primitive extends RnObject {
   }
 
   get attributeAccessors(): Array<Accessor> {
-    return this.__attributes.concat();
+    const accessors:Array<Accessor> = [];
+    this.__attributes.forEach((accessor, semantic)=>{
+      accessors.push(accessor);
+    });
+    return accessors;
+  }
+
+  getAttribute(semantic: VertexAttributeEnum) {
+    return this.__attributes.get(semantic);
   }
 
   get attributeSemantics(): Array<VertexAttributeEnum> {
-    return this.__attributeSemantics.concat();
+    const semantics:Array<VertexAttributeEnum> = [];
+    this.__attributes.forEach((accessor, semantic)=>{
+      semantics.push(semantic);
+    });
+    return semantics;
+  }
+
+  get attributeEntries() {
+    return this.__attributes.entries();
   }
 
   get attributeCompositionTypes(): Array<CompositionTypeEnum> {
-    return this.__attributes.map(attribute=>{return attribute.compositionType});
+    const types:Array<CompositionTypeEnum> = [];
+    this.__attributes.forEach((accessor, semantic)=>{
+      types.push(accessor.compositionType);
+    });
+
+    return types;
   }
 
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
-    return this.__attributes.map(attribute=>{return attribute.componentType});
+    const types:Array<ComponentTypeEnum> = [];
+    this.__attributes.forEach((accessor, semantic)=>{
+      types.push(accessor.componentType);
+    });
+
+    return types;
   }
 
   get primitiveMode(): PrimitiveModeEnum {
@@ -227,8 +261,7 @@ export default class Primitive extends RnObject {
 
   get AABB() {
     if (this.__aabb.isVanilla()) {
-      const positionIdx = this.__attributeSemantics.indexOf(VertexAttribute.Position);
-      const positionAccessor = this.__attributes[positionIdx];
+      const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
 
       if (positionAccessor.min == null || positionAccessor.max == null) {
         positionAccessor.calcMinMax();
@@ -240,14 +273,8 @@ export default class Primitive extends RnObject {
     return this.__aabb;
   }
 
-  addVertexAttribute(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
-    this.__attributes.push(accessor);
-    this.__attributeSemantics.push(vertexSemantics);
-  }
-
-  setVertexAttributes(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
-    const index = this.__attributeSemantics.indexOf(vertexSemantics);
-    this.__attributes[index] = accessor;
+  setVertexAttribute(accessor: Accessor, vertexSemantics: VertexAttributeEnum) {
+    this.__attributes.set(vertexSemantics, accessor);
   }
 
   removeIndices() {
@@ -256,6 +283,14 @@ export default class Primitive extends RnObject {
 
   setIndices(accessor: Accessor) {
     this.__indices = accessor;
+  }
+
+  setTargets(targets: Array<Attributes>) {
+    this.__targets = targets;
+  }
+
+  get targets(): Array<Attributes> {
+    return this.__targets;
   }
 
 }

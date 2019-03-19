@@ -29,18 +29,22 @@ const load = async function(time){
   //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 
-//  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
-//  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
  //const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
  //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
-//  const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
-   const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
+ // const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/Triangle/glTF/Triangle.gltf');
+//   const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
 //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
+//const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf');
+  const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
+
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);

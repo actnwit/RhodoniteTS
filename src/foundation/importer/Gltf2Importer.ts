@@ -1,4 +1,5 @@
 import DataUtil from "../misc/DataUtil";
+import Accessor from "../memory/Accessor";
 
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
@@ -287,9 +288,30 @@ export default class Gltf2Importer {
           }
         }
 
-        if (primitive.indices !== void 0) {
+        if (primitive.indices != null) {
           primitive.indicesIndex = primitive.indices;
           primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+        }
+
+        if (primitive.targets != null) {
+          primitive.targetIndices = primitive.targets;
+          primitive.targets = [];
+          for (let target of primitive.targetIndices) {
+            const attributes = {};
+            for (let attributeName in target) {
+              if (target[attributeName] >= 0) {
+                let accessor = gltfJson.accessors[target[attributeName]];
+                accessor.extras = {
+                  toGetAsTypedArray: true,
+                  attributeName: attributeName
+                };
+                (attributes as any)[attributeName] = accessor;
+              } else {
+                (attributes as any)[attributeName] = void 0;
+              }
+            }
+            primitive.targets.push(attributes);
+          }
         }
       }
     }
@@ -380,11 +402,15 @@ export default class Gltf2Importer {
           channel.sampler.outputIndex = channel.sampler.output;
           channel.sampler.input = gltfJson.accessors[channel.sampler.inputIndex];
           channel.sampler.output = gltfJson.accessors[channel.sampler.outputIndex];
+          if (channel.sampler.output.extras === void 0) {
+            channel.sampler.output.extras = {};
+          }
           if (channel.target.path === 'rotation') {
-            if (channel.sampler.output.extras === void 0) {
-              channel.sampler.output.extras = {};
-            }
             channel.sampler.output.extras.quaternionIfVec4 = true;
+          }
+          if (channel.target.path === 'weights') {
+            const weightCount = channel.sampler.output.count / channel.sampler.input.count
+            channel.sampler.output.extras.weightCount = weightCount;
           }
         }
       }

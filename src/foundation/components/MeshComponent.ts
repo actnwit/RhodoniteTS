@@ -21,6 +21,8 @@ export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __viewDepth = -Number.MAX_VALUE;
+  public weights = [];
+  private __morphPrimitives: Array<Primitive> = [];
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -37,7 +39,12 @@ export default class MeshComponent extends Component {
   }
 
   getPrimitiveAt(i: number) {
-    return this.__primitives[i];
+    if (this.weights.length > 0) {
+      this.__calcMorphPrimitives();
+      return this.__morphPrimitives[i];
+    } else {
+      return this.__primitives[i];
+    }
   }
   getPrimitiveNumber() {
     return this.__primitives.length;
@@ -76,7 +83,7 @@ export default class MeshComponent extends Component {
 
         this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
-      primitive.addVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
+      primitive.setVertexAttribute(normalAccessor, VertexAttribute.FaceNormal);
     }
   }
 
@@ -138,7 +145,7 @@ export default class MeshComponent extends Component {
 
           this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, tangentAccessor, indicesAccessor);
         }
-        primitive.addVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
+        primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
     }
   }
@@ -236,7 +243,7 @@ export default class MeshComponent extends Component {
   makeVerticesSepareted() {
     for (let primitive of this.__primitives) {
       if (primitive.hasIndices()) {
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
         const vertexCount = primitive.getVertexCountAsIndicesBased();
 
         const indexAccessor = primitive.indicesAccessor;
@@ -251,7 +258,7 @@ export default class MeshComponent extends Component {
             newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
           }
 
-          primitive.setVertexAttributes(newAccessor, primitive.attributeSemantics[i]);
+          primitive.setVertexAttribute(newAccessor, primitive.attributeSemantics[i]);
         }
 
 
@@ -296,7 +303,61 @@ export default class MeshComponent extends Component {
           idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
           {});
       }
-      primitive.addVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
+      primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
+    }
+  }
+
+  __initMorphPrimitives() {
+    if (this.weights.length === 0) {
+      return;
+    }
+
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+    for (let i=0; i<this.__primitives.length; i++) {
+      const primitive = this.__primitives[i];
+      if (this.__morphPrimitives[i] == null) {
+        const target = primitive.targets[0];
+        const map = new Map();
+        target.forEach((accessor, semantic)=>{
+          const bufferView = buffer.takeBufferView({byteLengthToNeed: accessor.byteLength, byteStride: 0, isAoS: false});
+          const morphAccessor = bufferView.takeAccessor({compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount});
+          map.set(semantic, morphAccessor);
+        });
+        const morphPrimitive = new Primitive(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
+        this.__morphPrimitives[i] = morphPrimitive;
+      }
+    }
+  }
+
+  __calcMorphPrimitives() {
+  if (this.weights.length === 0) {
+      return;
+    }
+
+    this.__initMorphPrimitives();
+
+    for (let i=0; i<this.__primitives.length; i++) {
+      const morphPrimitive = this.__morphPrimitives[i];
+      const primitive = this.__primitives[i];
+      const target = primitive.targets[0];
+      target.forEach((accessor, semantic)=>{
+        const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+        const elementCount = morphAccessor.elementCount;
+        for (let j=0; j<elementCount; j++) {
+          morphAccessor.setElementFromSameCompositionAccessor(j, primitive.getAttribute(semantic)!)
+        }
+      });
+
+      for (let k=0; k<primitive.targets.length; k++) {
+        const target = primitive.targets[k];
+        target.forEach((accessor, semantic)=>{
+          const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+          const elementCount = morphAccessor.elementCount;
+          for (let j=0; j<elementCount; j++) {
+            morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
+          }
+        });
+      }
     }
   }
 }

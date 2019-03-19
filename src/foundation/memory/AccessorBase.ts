@@ -423,6 +423,19 @@ export default class AccessorBase extends RnObject {
     }
   }
 
+  addElementFromSameCompositionAccessor(i:Index, accessor: Accessor, coeff: number, secondIdx?:Index) {
+    const j = (secondIdx != null) ? secondIdx : i;
+    if (this.compositionType.getNumberOfComponents() === 1) {
+      this.setScalar(i, this.getScalar(i, {}) + coeff * accessor.getScalar(j, {}), {});
+    } else if (this.compositionType.getNumberOfComponents() === 2) {
+      this.setVec2AsVector(i, Vector2.add(this.getVec2(i, {}), Vector2.multiply(accessor.getVec2(j, {}), coeff)), {});
+    } else if (this.compositionType.getNumberOfComponents() === 3) {
+      this.setVec3AsVector(i, Vector3.add(this.getVec3(i, {}), Vector3.multiply(accessor.getVec3(j, {}), coeff)), {});
+    } else if (this.compositionType.getNumberOfComponents() === 4) {
+      this.setVec4AsVector(i, Vector4.add(this.getVec4(i, {}), Vector4.multiply(accessor.getVec4(j, {}), coeff)), {});
+    }
+  }
+
   get arrayBufferOfBufferView(): ArrayBuffer {
     return this.__raw;
   }

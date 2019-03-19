@@ -237,7 +237,7 @@ void main ()
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Lighting
-  if (length(v_normal_inWorld) > 0.02) {
+  if (length(normal_inWorld) > 0.02) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
       if (i >= u_lightNumber) {

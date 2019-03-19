@@ -138,6 +138,15 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
     const vertexHandles = [];
     const primitiveNum = meshComponent!.getPrimitiveNumber();
+
+    if (meshComponent.weights.length > 0) {
+      for(let i=0; i<primitiveNum; i++) {
+        const primitive = meshComponent!.getPrimitiveAt(i);
+        vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
+        this.__webglResourceRepository.resendVertexBuffer(primitive, vertexHandles[i].vboHandles);
+      }
+    }
+
     for(let i=0; i<primitiveNum; i++) {
 
       const primitive = meshComponent!.getPrimitiveAt(i);

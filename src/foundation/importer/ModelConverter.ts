@@ -31,6 +31,8 @@ import Vector2 from "../math/Vector2";
 import Material from "../materials/Material";
 import { ShadingModel } from "../definitions/ShadingModel";
 import Component from "../core/Component";
+import { VertexAttributeEnum } from "../main";
+import Accessor from "../memory/Accessor";
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -362,29 +364,48 @@ export default class ModelConverter {
   private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     let rnPrimitiveMode = PrimitiveMode.from(4);
+
+    const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
+
     for (let i in mesh.primitives) {
       let primitive = mesh.primitives[i];
       if (primitive.mode != null) {
         rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
       }
+      // indices
       const indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
-      const attributeRnAccessors = [];
-      const attributeSemantics = [];
+      const map: Map<VertexAttributeEnum, Accessor> = new Map();
+
+      // attributes
       for (let attributeName in primitive.attributes) {
         let attributeAccessor = primitive.attributes[attributeName];
         const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-        attributeRnAccessors.push(attributeRnAccessor);
-        attributeSemantics.push(VertexAttribute.fromString(attributeAccessor.extras.attributeName));
+        map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
       }
       const material = this.__setupMaterial(gltfModel, primitive.material);
-      const rnPrimitive = new Primitive(attributeRnAccessors, attributeSemantics, rnPrimitiveMode, material, indicesRnAccessor);
-      const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
-      meshComponent.addPrimitive(rnPrimitive);
+      const rnPrimitive = new Primitive(map, rnPrimitiveMode, material, indicesRnAccessor);
 
-//      this.__addOffsetToIndices(meshComponent);
+      // morph targets
+      if (primitive.targets != null) {
+        const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
+        for (let target of primitive.targets) {
+          const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
+          for (let attributeName in target) {
+            let attributeAccessor = target[attributeName];
+            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+            targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
+          }
+          targets.push(targetMap);
+        }
+        rnPrimitive.setTargets(targets);
+      }
+
+      meshComponent.addPrimitive(rnPrimitive);
     }
 
-
+    if (mesh.weights) {
+      meshComponent.weights = mesh.weights;
+    }
 
     return meshEntity;
   }
@@ -688,15 +709,26 @@ export default class ModelConverter {
     } else {
       let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
       let byteDelta = componentBytes * componentN;
+      if (accessor.extras && accessor.extras.weightCount) {
+        byteDelta = componentBytes * componentN * accessor.extras.weightCount;
+      }
       let littleEndian = true;
       for (let pos = 0; pos < byteLength; pos += byteDelta) {
 
         switch (accessor.type) {
           case 'SCALAR':
-            typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+            if (accessor.extras && accessor.extras.weightCount) {
+              const array = [];
+              for (let i=0; i<accessor.extras.weightCount; i++) {
+                array.push(dataView[dataViewMethod](pos+componentBytes*i, littleEndian));
+              }
+              typedDataArray.push(array);
+            } else {
+              typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
+            }
             break;
           case 'VEC2':
-            typedDataArray.push(new Vector2_F64(
+            typedDataArray.push(new Vector2(
               dataView[dataViewMethod](pos, littleEndian),
               dataView[dataViewMethod](pos+componentBytes, littleEndian)
             ));

@@ -99,6 +99,26 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
+  resendVertexBuffer(primitive: Primitive, vboHandles: Array<WebGLResourceHandle>) {
+    const gl = this.__glw!.getRawContext();;
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const vbo = gl.createBuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, vbo!);
+
+    primitive.attributeAccessors.forEach((accessor, i)=>{
+      const vbo = this.getWebGLResource(vboHandles[i]);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.getUint8Array(), gl.STATIC_DRAW);
+  //    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    });
+  }
+
 　createVertexArray() {
     const gl = this.__glw;
 
