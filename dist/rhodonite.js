@@ -418,7 +418,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nlet maxEntityNumber = 1000;\nlet maxLightNumberInShader = 4;\n/* harmony default export */ __webpack_exports__[\"default\"] = ({ maxEntityNumber, maxLightNumberInShader });\n\n\n//# sourceURL=webpack:///./src/foundation/core/Config.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\nlet maxEntityNumber = 5000;\nlet maxLightNumberInShader = 4;\n/* harmony default export */ __webpack_exports__[\"default\"] = ({ maxEntityNumber, maxLightNumberInShader });\n\n\n//# sourceURL=webpack:///./src/foundation/core/Config.ts?");
 
 /***/ }),
 
@@ -1227,4 +1227,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-262-g54ce-mod branch: feature/memory-system';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-263-g7c8e-mod branch: feature/memory-system';

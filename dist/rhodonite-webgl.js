@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-262-g54ce-mod branch: feature/memory-system';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-263-g7c8e-mod branch: feature/memory-system';

@@ -1,6 +1,6 @@
-version: 0.1.1-262-g54ce-mod
+version: 0.1.1-263-g7c8e-mod
 branch: feature/memory-system
-88b93ac8bfdc2ba3379fde79fc50c9aebcdc04135432a278b9e9d68cd4f4982c ./dist/rhodonite.js
-0402121e0a5fd0985b90f04f20820bdc53dd640cbf0382d9644c0ed3505b2869 ./dist/rhodonite.min.js
-55c4fbf5df2f0cb7b0d4b193fbadb78a948b7345f2d137a1ff8e41c8d3510498 ./dist/rhodonite-webgl.js
-151a75bf1c29f98e0f673b0750fd9a095fa20e2a8dc513c4dd381927b261a68f ./dist/rhodonite-webgl.min.js
+9259d463037ff8ecff2592352dd7fb624406e8f7e4dc2d2b4a773434b1c84c47 ./dist/rhodonite.js
+bb9632edd6e5c46713c2cf8283b66de719afc1e813e921142544991d644721c0 ./dist/rhodonite.min.js
+dcfab5e824356f0f0f5ebaf4bfbe426fe392dde1c455583d84e413ba43d9d626 ./dist/rhodonite-webgl.js
+0fba0423d1623e8962e7f336d91ec4c05932eb9af474c249a97942182b3fad10 ./dist/rhodonite-webgl.min.js

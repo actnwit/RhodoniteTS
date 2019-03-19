@@ -418,7 +418,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Com
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nvar maxEntityNumber = 1000;\nvar maxLightNumberInShader = 4;\n/* harmony default export */ __webpack_exports__[\"default\"] = ({ maxEntityNumber: maxEntityNumber, maxLightNumberInShader: maxLightNumberInShader });\n\n\n//# sourceURL=webpack:///./src/foundation/core/Config.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\nvar maxEntityNumber = 5000;\nvar maxLightNumberInShader = 4;\n/* harmony default export */ __webpack_exports__[\"default\"] = ({ maxEntityNumber: maxEntityNumber, maxLightNumberInShader: maxLightNumberInShader });\n\n\n//# sourceURL=webpack:///./src/foundation/core/Config.ts?");
 
 /***/ }),
 
