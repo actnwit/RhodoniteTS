@@ -117,6 +117,9 @@ export default class MeshRendererComponent extends Component {
     this.__webglRenderingStrategy!.$render!(this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
       entity, this.diffuseCubeMap, this.specularCubeMap);
 
+    if (this.__meshComponent!.weights.length > 0) {
+      this.moveStageTo(ProcessStage.PreRender);
+    }
   }
 
   static common_$load(processApproach: ProcessApproachEnum) {

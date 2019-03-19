@@ -10,6 +10,7 @@ import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
 import AABB from '../math/AABB';
 import Material from '../materials/Material';
+import MaterialHelper from '../helpers/MaterialHelper';
 
 type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -36,7 +37,11 @@ export default class Primitive extends RnObject {
     this.__indices = indicesAccessor;
     this.__attributes = attributes;
 
-    this.material = material;
+    if (material != null) {
+      this.material = material;
+    } else {
+      this.material = MaterialHelper.createClassicUberMaterial();
+    }
     this.__mode = mode;
 
     this.__primitiveUid = Primitive.__primitiveCount++;
@@ -212,6 +217,10 @@ export default class Primitive extends RnObject {
     return accessors;
   }
 
+  getAttribute(semantic: VertexAttributeEnum) {
+    return this.__attributes.get(semantic);
+  }
+
   get attributeSemantics(): Array<VertexAttributeEnum> {
     const semantics:Array<VertexAttributeEnum> = [];
     this.__attributes.forEach((accessor, semantic)=>{
@@ -278,6 +287,10 @@ export default class Primitive extends RnObject {
 
   setTargets(targets: Array<Attributes>) {
     this.__targets = targets;
+  }
+
+  get targets(): Array<Attributes> {
+    return this.__targets;
   }
 
 }

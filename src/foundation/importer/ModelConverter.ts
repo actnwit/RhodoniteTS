@@ -364,6 +364,9 @@ export default class ModelConverter {
   private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     let rnPrimitiveMode = PrimitiveMode.from(4);
+
+    const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
+
     for (let i in mesh.primitives) {
       let primitive = mesh.primitives[i];
       if (primitive.mode != null) {
@@ -392,12 +395,16 @@ export default class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
             targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
           }
+          targets.push(targetMap);
         }
         rnPrimitive.setTargets(targets);
       }
 
-      const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
       meshComponent.addPrimitive(rnPrimitive);
+    }
+
+    if (mesh.weights) {
+      meshComponent.weights = mesh.weights;
     }
 
     return meshEntity;
@@ -702,15 +709,20 @@ export default class ModelConverter {
     } else {
       let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
       let byteDelta = componentBytes * componentN;
+      if (accessor.extras && accessor.extras.weightCount) {
+        byteDelta = componentBytes * componentN * accessor.extras.weightCount;
+      }
       let littleEndian = true;
       for (let pos = 0; pos < byteLength; pos += byteDelta) {
 
         switch (accessor.type) {
           case 'SCALAR':
             if (accessor.extras && accessor.extras.weightCount) {
+              const array = [];
               for (let i=0; i<accessor.extras.weightCount; i++) {
-                typedDataArray.push(dataView[dataViewMethod](pos+componentBytes*i, littleEndian));
+                array.push(dataView[dataViewMethod](pos+componentBytes*i, littleEndian));
               }
+              typedDataArray.push(array);
             } else {
               typedDataArray.push(dataView[dataViewMethod](pos, littleEndian));
             }

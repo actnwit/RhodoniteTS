@@ -1,6 +1,6 @@
-version: 0.1.1-257-g28ac-mod
+version: 0.1.1-258-g9e4c-mod
 branch: feature/morph-target
-c6379deba4f993587c240245f6112e0621be6ee134cafc830b378d820b77a01f ./dist/rhodonite.js
-8369d5f51281bce17d90246a052feaa72aa8802c9c3242da2de07eef93138f3f ./dist/rhodonite.min.js
-469882ca5fe1bbf0cb33685e16ff5d5d831710f7f0e285ffa4ddb20bc2e08cdc ./dist/rhodonite-webgl.js
-f7b289eb6d948a50c32cb4c4e3f2ee193a34aba044667246b38aa29f367996a2 ./dist/rhodonite-webgl.min.js
+79f54c0a6a1721ae990250936c6fb0b57eef9da4077b551caa096ac582990c9d ./dist/rhodonite.js
+38d19b85a6724de3037c5c6dc59f1051341a5472ce0c1675dc8e9f26dc60ea17 ./dist/rhodonite.min.js
+f71edb4b41b70723e590720e21baf52ef2f5ff65834aec1623ab229a89f13247 ./dist/rhodonite-webgl.js
+e8b6b13a84bc6fd0bdc87fce9e16f8586318d8e51d0f4ba4fd0e7145f3518168 ./dist/rhodonite-webgl.min.js

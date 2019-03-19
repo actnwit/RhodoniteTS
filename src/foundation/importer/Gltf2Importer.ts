@@ -408,7 +408,7 @@ export default class Gltf2Importer {
           if (channel.target.path === 'rotation') {
             channel.sampler.output.extras.quaternionIfVec4 = true;
           }
-          if (channel.sampler.path === 'weights') {
+          if (channel.target.path === 'weights') {
             const weightCount = channel.sampler.output.count / channel.sampler.input.count
             channel.sampler.output.extras.weightCount = weightCount;
           }
