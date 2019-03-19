@@ -35,6 +35,7 @@ import { AlphaMode } from './definitions/AlphaMode';
 import CubeTexture from './textures/CubeTexture';
 import CameraControllerComponent from './components/CameraControllerComponent';
 import detectFormat from './importer/FormatDetector';
+import Config from './core/Config';
 
 const Rn = {
   EntityRepository,
@@ -73,7 +74,8 @@ const Rn = {
   CameraControllerComponent,
   AlphaMode,
   Gltf2Exporter,
-  detectFormat
+  detectFormat,
+  Config
 };
 export default Rn;
 

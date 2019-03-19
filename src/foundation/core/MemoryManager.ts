@@ -13,8 +13,8 @@ export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: {[s: string]: Buffer} = {};
-  private static __bufferWidthLength: Size = Math.pow(2,11);
-  private static __bufferHeightLength: Size = Math.pow(2,11);
+  private static __bufferWidthLength: Size = Math.pow(2,9);
+  private static __bufferHeightLength: Size = Math.pow(2,9);
 
   private constructor() {
 
@@ -30,7 +30,7 @@ export default class MemoryManager {
 
     // BufferForGPUVertexData
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*MemoryManager.bufferHeightLength/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*(MemoryManager.bufferHeightLength+1)/*width*height*/*4/*rgba*/*8/*byte*/); // 16MB
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -40,7 +40,7 @@ export default class MemoryManager {
 
     // BufferForUBO
     {
-      const arrayBuffer = new ArrayBuffer((MemoryManager.bufferWidthLength-1)*(MemoryManager.bufferHeightLength-1)/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*(MemoryManager.bufferHeightLength)/*width*height*/*4/*rgba*/*8/*byte*/);//2^14); // 16KB
       const buffer = new Buffer({
         byteLength:arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -48,7 +48,7 @@ export default class MemoryManager {
       this.__buffers[buffer.name] = buffer;
     }
 
-    // BufferForCP
+    // BufferForCPU
     {
       const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*MemoryManager.bufferHeightLength/*width*height*/*4/*rgba*/*8/*byte*/);
       const buffer = new Buffer({

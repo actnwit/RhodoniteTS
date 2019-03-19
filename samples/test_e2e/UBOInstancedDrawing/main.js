@@ -100,6 +100,8 @@
     return primitive;
   }
 
+  //Rn.Config.maxEntityNumber = 10;
+
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UBOWebGL2, document.getElementById('world'));

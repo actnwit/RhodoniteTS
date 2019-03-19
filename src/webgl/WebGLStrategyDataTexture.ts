@@ -173,7 +173,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     let halfFloatDataTextureBuffer: Uint16Array;
     if (isHalfFloatMode) {
       halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-      let convertLength = buffer.byteSizeInUse / 4; //components
+      let convertLength = buffer.takenSizeInByte / 4; //components
       convertLength /= 2; // bytes
       for (let i=0; i<convertLength; i++) {
         halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
@@ -184,24 +184,24 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            level: 0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            level: 0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
               format: PixelFormat.RGBA, type: ComponentType.HalfFloat
             });
         }
       } else {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level:0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            level:0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            level: 0, width: MemoryManager.bufferWidthLength, height:buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         }
