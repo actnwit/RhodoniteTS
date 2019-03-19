@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-258-g9e4c-mod branch: feature/morph-target';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-259-g5fe1a-mod branch: feature/morph-target';
