@@ -1,7 +1,7 @@
 import Component from './Component';
 import is from '../misc/IsUtil';
-import InitialSetting from '../system/InitialSetting';
 import EntityRepository from './EntityRepository';
+import Config from './Config';
 
 export default class ComponentRepository {
   private static __instance: ComponentRepository;
@@ -88,7 +88,7 @@ export default class ComponentRepository {
       const componentClass = ComponentRepository.__componentClasses.get(i);
       if (componentClass != null) {
         const sizeOfComponent = (componentClass as any).sizeOfThisComponent;
-        const maxEntityNumber = InitialSetting.maxEntityNumber;
+        const maxEntityNumber = Config.maxEntityNumber;
         memoryBeginIndex += sizeOfComponent * maxEntityNumber;
       }
     }

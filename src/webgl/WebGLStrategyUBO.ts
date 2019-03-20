@@ -131,7 +131,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     if (isHalfFloatMode) {
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-        let convertLength = buffer.byteSizeInUse / 4; //components
+        let convertLength = buffer.takenSizeInByte / 4; //components
         convertLength /= 2; // bytes
         for (let i=0; i<convertLength; i++) {
           halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);

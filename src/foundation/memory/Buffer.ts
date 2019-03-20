@@ -79,8 +79,12 @@ export default class Buffer extends RnObject {
     this.__takenBytesIndex = value;
   }
 
-  get byteSizeInUse() {
+  get byteLength() {
     return this.__byteLength;
+  }
+
+  get takenSizeInByte() {
+    return this.__takenBytesIndex;
   }
 
 }
