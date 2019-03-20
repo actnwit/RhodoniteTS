@@ -363,7 +363,7 @@ export default class ModelConverter {
 
   private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
-    let rnPrimitiveMode = PrimitiveMode.from(4);
+    let rnPrimitiveMode = PrimitiveMode.Triangles;
 
     const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
 
