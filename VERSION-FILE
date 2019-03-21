@@ -1,6 +1,6 @@
-version: 0.1.1-266-gd181-mod
-branch: feature/draco
-42154b672e992fe8ff31b9f02bd1d83f1f37e4170d1250e68a40877ca8e37b6a ./dist/rhodonite.js
-5cb7c61a5970958e7689bc133e1d0fa05efca4675059e636dbac95160cb9b306 ./dist/rhodonite.min.js
-c94badda2ac66ae4984faaf1a7cacb108d955a63413f53fceb3cee1b16f3981e ./dist/rhodonite-webgl.js
-be7921dbf12a44986ebcc693e438044692a94f66dbc322c4e41e90f4d3f9cb08 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-268-ga05e-mod
+branch: master
+65eab0eef7ff5cd08bcffc26142c86199bd7da8d41322bd1036b0a192e95db8c ./dist/rhodonite.js
+b1acb80763edb27deb4657a26ca0cfc0cc2c25254a7694861dd0ec25c9363e51 ./dist/rhodonite.min.js
+aa75e5018b74b92a5d67e44fd9d6a8742f2e6b3c6c02a980a2344a2c4c1fb34a ./dist/rhodonite-webgl.js
+8e4d5e80d01b7f3ad04bad1e9fc0b15987e8a5b5bcc3ba4fb53d9fa81a408f5a ./dist/rhodonite-webgl.min.js
