@@ -1017,18 +1017,14 @@ export default class ModelConverter {
       const numComponents = numPoints * compositionNum;
 
       for (let i=0; i<numPoints; i++) {
-        const components = [];
-        for (let j=0; j<compositionNum; j++) {
-          components[j] = posAttributeData.GetValue(i*compositionNum+j);
-        }
         if (compositionNum === 1) {
-          attributeRnDracoAccessor.setScalar(i, components[0], {});
+          attributeRnDracoAccessor.setScalar(i, posAttributeData.GetValue(i*compositionNum), {});
         } else if (compositionNum === 2) {
-          attributeRnDracoAccessor.setVec2(i, components[0], components[1], {});
+          attributeRnDracoAccessor.setVec2(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), {});
         } else if (compositionNum === 3) {
-          attributeRnDracoAccessor.setVec3(i, components[0], components[1], components[2], {});
+          attributeRnDracoAccessor.setVec3(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), posAttributeData.GetValue(i*compositionNum+2), {});
         } else if (compositionNum === 4) {
-          attributeRnDracoAccessor.setVec4(i, components[0], components[1], components[2], components[3], {});
+          attributeRnDracoAccessor.setVec4(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), posAttributeData.GetValue(i*compositionNum+2), posAttributeData.GetValue(i*compositionNum+3), {});
         }
       }
 
