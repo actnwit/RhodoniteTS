@@ -420,10 +420,11 @@ export default class Gltf2Importer {
   _loadDependenciesOfAccessors(gltfJson: glTF2) {
     // Accessor
     for (let accessor of gltfJson.accessors) {
-      if (accessor.bufferView !== void 0) {
-        accessor.bufferViewIndex = accessor.bufferView;
-        accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+      if (accessor.bufferView == null) {
+        accessor.bufferView = 0;
       }
+      accessor.bufferViewIndex = accessor.bufferView;
+      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
     }
   }
 
