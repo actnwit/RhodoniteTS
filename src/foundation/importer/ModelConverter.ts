@@ -34,6 +34,8 @@ import Component from "../core/Component";
 import { VertexAttributeEnum } from "../main";
 import Accessor from "../memory/Accessor";
 
+declare var DracoDecoderModule: any;
+
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -373,14 +375,26 @@ export default class ModelConverter {
         rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
       }
       // indices
-      const indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+      let indicesRnAccessor;
       const map: Map<VertexAttributeEnum, Accessor> = new Map();
 
-      // attributes
-      for (let attributeName in primitive.attributes) {
-        let attributeAccessor = primitive.attributes[attributeName];
-        const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-        map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
+//      if (false) {
+      if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
+        indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
+        // const KHR_draco_mesh_compression = primitive.extensions.KHR_draco_mesh_compression;
+        // for (let attributeName in KHR_draco_mesh_compression.attributes) {
+        //   let attributeAccessor = KHR_draco_mesh_compression.attributes[attributeName];
+        //   const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+        //   map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
+        // }
+      } else {
+        // attributes
+        indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+        for (let attributeName in primitive.attributes) {
+          let attributeAccessor = primitive.attributes[attributeName];
+          const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+          map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
+        }
       }
       const material = this.__setupMaterial(gltfModel, primitive.material);
       const rnPrimitive = new Primitive(map, rnPrimitiveMode, material, indicesRnAccessor);
@@ -823,5 +837,207 @@ export default class ModelConverter {
     }
 
     return rnAccessor;
+  }
+
+  private __createRnAccessor(accessor: any, byteLength: Byte, rnBuffer: Buffer) {
+    const rnBufferView = rnBuffer.takeBufferView({
+      byteLengthToNeed: byteLength,
+      byteStride: 0,
+      isAoS: false
+    });
+
+    let rnAccessor;
+    if (accessor.byteStride != null) {
+      rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteStride: accessor.byteStride,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    } else {
+      rnAccessor = rnBufferView.takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
+        max: accessor.max,
+        min: accessor.min
+      });
+    }
+
+    return rnAccessor;
+  }
+
+
+
+  private __getRnBufferView(bufferView: any, rnBuffer: Buffer) {
+    const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
+      byteLengthToNeed: bufferView.byteLength,
+      byteStride: (bufferView.byteStride != null) ? bufferView.byteStride : 0,
+      byteOffset: (bufferView.byteOffset != null) ? bufferView.byteOffset : 0,
+      isAoS: false
+    });
+
+    return rnBufferView;
+  }
+
+  private __getGeometryFromDracoBuffer(draco: any, decoder: any, arrayBuffer: ArrayBuffer) {
+    const buffer = new draco.DecoderBuffer();
+    buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
+    const geometryType = decoder.GetEncodedGeometryType(buffer);
+    let dracoGeometry;
+    let decodingStatus;
+    if (geometryType === draco.TRIANGULAR_MESH) {
+        dracoGeometry = new draco.Mesh();
+        decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
+    } else if (geometryType == draco.POINT_CLOUD) {
+        dracoGeometry = new draco.PointCloud();
+        decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
+    } else {
+        const errorMsg = 'Unknown geometry type.';
+        console.error(errorMsg);
+    }
+
+    dracoGeometry.geometryType = geometryType; // store
+
+    if (!decodingStatus.ok() || dracoGeometry.ptr == 0) {
+        let errorMsg = 'Decoding failed: ';
+        errorMsg += decodingStatus.error_msg();
+        console.error(errorMsg);
+        draco.destroy(decoder);
+        draco.destroy(dracoGeometry);
+        throw new Error(errorMsg);
+    }
+    draco.destroy(buffer);
+    //console.log('Decoded.');
+
+    return dracoGeometry;
+  }
+
+  __getIndicesFromDraco(draco: any, decoder: any, dracoGeometry: any, triangleStripDrawMode: boolean) {
+    // For mesh, we need to generate the faces.
+    const geometryType = dracoGeometry.geometryType;
+    if (geometryType !== draco.TRIANGULAR_MESH) {
+        return void 0;
+    }
+
+    let indices;
+
+    if (triangleStripDrawMode) {
+        const stripsArray = new draco.DracoInt32Array();
+        const numStrips = decoder.GetTriangleStripsFromMesh(dracoGeometry, stripsArray);
+        indices = new Uint32Array(stripsArray.size());
+        for (var i = 0; i < stripsArray.size(); ++i) {
+            indices[i] = stripsArray.GetValue(i);
+        }
+        draco.destroy(stripsArray);
+    } else { // TRIANGLES
+        const numFaces = dracoGeometry.num_faces();
+        const numIndices = numFaces * 3;
+        indices = new Uint32Array(numIndices);
+        const ia = new draco.DracoInt32Array();
+        for (let i = 0; i < numFaces; ++i) {
+            decoder.GetFaceFromMesh(dracoGeometry, i, ia);
+            var index = i * 3;
+            indices[index] = ia.GetValue(0);
+            indices[index + 1] = ia.GetValue(1);
+            indices[index + 2] = ia.GetValue(2);
+        }
+        draco.destroy(ia);
+    }
+    return indices;
+  }
+
+  private __decodeDraco(primitive: any, rnBuffer: Buffer, gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
+    const bufferView = gltfModel.bufferViews[primitive.extensions.KHR_draco_mesh_compression.bufferView];
+    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
+
+    const arraybufferOfRnBufferView = rnBufferView.getUint8Array().buffer;
+
+    const draco = new DracoDecoderModule();
+    const decoder = new draco.Decoder();
+    const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arraybufferOfRnBufferView);
+
+    let lengthOfRnBufferForDraco = 0;
+
+    if (primitive.indices) {
+      const count = primitive.indices.count;
+      lengthOfRnBufferForDraco += count * 4;
+    }
+    for (let attributeName in primitive.attributes) {
+      const accessor = primitive.attributes[attributeName];
+      const count = accessor.count;
+      const byteOfComposition = CompositionType.fromString(accessor.type).getNumberOfComponents() * 4;
+      const attributeByteLength = count * byteOfComposition;
+      lengthOfRnBufferForDraco += attributeByteLength;
+    }
+
+    const rnDracoBuffer = new Buffer({
+      byteLength: lengthOfRnBufferForDraco,
+      arrayBuffer: new ArrayBuffer(lengthOfRnBufferForDraco),
+      name: 'Draco'});
+
+    const primitiveMode = PrimitiveMode.from(primitive.mode);
+    let isTriangleStrip = false;
+    if (primitiveMode === PrimitiveMode.TriangleStrip) {
+      isTriangleStrip = true;
+    }
+
+    const indices = this.__getIndicesFromDraco(draco, decoder, dracoGeometry, isTriangleStrip)!;
+    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length * 4, rnDracoBuffer);
+    for (let i=0; i<indices.length; i++) {
+      indicesDracoAccessor.setScalar(i, indices[i], {});
+    }
+
+    for (let attributeName in primitive.attributes) {
+      const attributeAccessor = primitive.attributes[attributeName];
+      const count = attributeAccessor.count;
+      const byteOfComposition = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents() * 4;
+      const attributeByteLength = count * byteOfComposition;
+      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, attributeByteLength, rnDracoBuffer);
+
+      let dracoAttributeName = attributeName;
+      if (attributeName === 'TEXCOORD_0') {
+        dracoAttributeName = 'TEX_COORD';
+      }
+
+      const posAttId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);
+      if (posAttId == -1) {
+        break;
+      }
+      const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
+      const posAttributeData = new draco.DracoFloat32Array();
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, posAttribute, posAttributeData);
+
+      const numPoints = dracoGeometry.num_points();
+      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
+      const numComponents = numPoints * compositionNum;
+
+      for (let i=0; i<numPoints; i++) {
+        const components = [];
+        for (let j=0; j<compositionNum; j++) {
+          components[j] = posAttributeData.GetValue(i*compositionNum+j);
+        }
+        if (compositionNum === 1) {
+          attributeRnDracoAccessor.setScalar(i, components[0], {});
+        } else if (compositionNum === 2) {
+          attributeRnDracoAccessor.setVec2(i, components[0], components[1], {});
+        } else if (compositionNum === 3) {
+          attributeRnDracoAccessor.setVec3(i, components[0], components[1], components[2], {});
+        } else if (compositionNum === 4) {
+          attributeRnDracoAccessor.setVec4(i, components[0], components[1], components[2], components[3], {});
+        }
+      }
+
+//      draco.destroy(posAttributeData);
+
+
+      map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnDracoAccessor);
+    }
+
+    return indicesDracoAccessor;
   }
 }
