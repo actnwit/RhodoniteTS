@@ -378,15 +378,12 @@ export default class ModelConverter {
       let indicesRnAccessor;
       const map: Map<VertexAttributeEnum, Accessor> = new Map();
 
-//      if (false) {
       if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
         indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
-        // const KHR_draco_mesh_compression = primitive.extensions.KHR_draco_mesh_compression;
-        // for (let attributeName in KHR_draco_mesh_compression.attributes) {
-        //   let attributeAccessor = KHR_draco_mesh_compression.attributes[attributeName];
-        //   const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-        //   map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
-        // }
+
+        if (indicesRnAccessor == null) {
+          break;
+        }
       } else {
         // attributes
         indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
@@ -904,12 +901,12 @@ export default class ModelConverter {
     dracoGeometry.geometryType = geometryType; // store
 
     if (!decodingStatus.ok() || dracoGeometry.ptr == 0) {
-        let errorMsg = 'Decoding failed: ';
-        errorMsg += decodingStatus.error_msg();
-        console.error(errorMsg);
-        draco.destroy(decoder);
-        draco.destroy(dracoGeometry);
-        throw new Error(errorMsg);
+      let errorMsg = 'Decoding failed: ';
+      errorMsg += decodingStatus.error_msg();
+      console.error(errorMsg);
+      draco.destroy(decoder);
+      draco.destroy(dracoGeometry);
+      return void 0;
     }
     draco.destroy(buffer);
     //console.log('Decoded.');
@@ -960,6 +957,9 @@ export default class ModelConverter {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arraybufferOfRnBufferView);
+    if (dracoGeometry == null) {
+      return void 0;
+    }
 
     let lengthOfRnBufferForDraco = 0;
 

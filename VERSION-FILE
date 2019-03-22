@@ -1,6 +1,6 @@
-version: 0.1.1-270-g2c5a-mod
-branch: feature/improve-camera-controller
-7b9b84f30cecf6c338f5b31d10066a46fe974808e2f93f2f146e87b7d8222550 ./dist/rhodonite.js
-161b6ea3deba08f1dca45d9eefc0cf6d08fb66e7a451f1059ecb43fb56898b59 ./dist/rhodonite.min.js
-7f9bb8f7a0ab3da0159d344668d39ade26d301181a814ca8b48e2937a9408611 ./dist/rhodonite-webgl.js
-ec393d64fb74291a527fb0bf9ab060da0bc7ed703cea9ee83c199085ad8a4bbb ./dist/rhodonite-webgl.min.js
+version: 0.1.1-272-g7999-mod
+branch: master
+f6d0668759f94dc84f1dae47162fa1af459e1e600aea4f5baf823fd66a8ccc9d ./dist/rhodonite.js
+d3ca3b5bda7f6484523c3447d40f960948a64c63fe3aa0686039a0b58ddaa28c ./dist/rhodonite.min.js
+d0cded1aac43acf00a630faeab5a40cfecafb77059667aac90c7ff3f4fa869a2 ./dist/rhodonite-webgl.js
+470db67ede0e6d89e6e9c09bd497a9fad8049b86ef23274d8a6a7dcf2e78c64e ./dist/rhodonite-webgl.min.js
