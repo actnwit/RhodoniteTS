@@ -222,6 +222,10 @@ export default class CameraComponent extends Component {
     this._parametersInner.y = val;
   }
 
+  get zFarInner() {
+    return this._parametersInner.y;
+  }
+
   get zFar() {
     return this._parameters.y;
   }

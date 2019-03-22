@@ -51,11 +51,11 @@ export default class CameraControllerComponent extends Component {
   private __shiftCameraTo = MutableVector3.zero();
   private __lengthCenterToCorner = 0.5;
   private __cameraComponent?: CameraComponent;
-  private __transformComponent?: TransformComponent;
   private __targetEntity?:Entity;
   private __lengthCameraToObject = 1;
   private __scaleOfLengthCameraToCenter = 1;
   private __zFarAdjustingFactorBasedOnAABB = 2.0;
+  private __scaleOfZNearAndZFar = 5000;
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -77,7 +77,6 @@ export default class CameraControllerComponent extends Component {
 
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
-    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -450,27 +449,6 @@ export default class CameraControllerComponent extends Component {
     let newZNear = camera.zNear;
     let newZFar = camera.zFar;
     let ratio = 1;
-    if (typeof newLeft !== "undefined") {
-      if (typeof this.__lengthCenterToCorner !== "undefined") {
-        //let aabb = this.__getTargetAABB();
-        ratio =
-          camera.zNear /
-          Math.abs(newCenterToEyeLength - this.__lengthCenterToCorner);
-
-        const minRatio = 0.001;
-        if (ratio < minRatio) {
-          ratio = minRatio;
-        }
-
-        let scale = 1 / ratio;
-        newLeft *= scale;
-        newRight *= scale;
-        newTop *= scale;
-        newBottom *= scale;
-        newZFar *= scale;
-        newZNear *= scale;
-      }
-    }
 
     if (this.__targetEntity) {
       newZFar =
@@ -478,6 +456,24 @@ export default class CameraControllerComponent extends Component {
       newZFar +=
         this.__getTargetAABB().lengthCenterToCorner *
         this.__zFarAdjustingFactorBasedOnAABB;
+    }
+
+    if (typeof newLeft !== "undefined") {
+      if (typeof this.__lengthCenterToCorner !== "undefined") {
+        //let aabb = this.__getTargetAABB();
+        ratio = newZFar / camera.zNear;
+
+        const minRatio = this.__scaleOfZNearAndZFar;
+        ratio /= minRatio;
+
+        let scale = ratio;
+        newLeft *= scale;
+        newRight *= scale;
+        newTop *= scale;
+        newBottom *= scale;
+//        newZFar *= scale;
+        newZNear *= scale;
+      }
     }
 
     this.__foyvBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
@@ -519,7 +515,7 @@ export default class CameraControllerComponent extends Component {
       (targetAABB.lengthCenterToCorner / Math.sin((fovy * Math.PI) / 180 / 2)) *
       this.__scaleOfLengthCameraToCenter;
 
-    let newCenterVec = targetAABB.centerPoint;//new Vector3(-0.0190, -0.10556, 0.0133);//targetAABB.centerPoint;//this.__targetEntity!.getSceneGraph().worldPosition;//targetAABB.centerPoint;
+    let newCenterVec = targetAABB.centerPoint;
 
     let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
     let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);
@@ -554,6 +550,14 @@ export default class CameraControllerComponent extends Component {
     }
 
     return {newEyeVec, newCenterVec, newUpVec};
+  }
+
+  set scaleOfZNearAndZFar(value: number) {
+    this.__scaleOfZNearAndZFar = value;
+  }
+
+  get scaleOfZNearAndZFar() {
+    return this.__scaleOfZNearAndZFar;
   }
 
   static get componentTID(): ComponentTID {
