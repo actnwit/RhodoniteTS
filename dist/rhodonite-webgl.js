@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-272-g7999-mod branch: master';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-275-g27ef-mod branch: feature/improve-skin-animation';
