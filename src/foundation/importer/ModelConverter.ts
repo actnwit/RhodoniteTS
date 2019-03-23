@@ -255,7 +255,9 @@ export default class ModelConverter {
     }
     const entityRepository = EntityRepository.getInstance();
     for (let skin of gltfModel.skins) {
-      this._accessBinaryWithAccessor(skin.inverseBindMatrices);
+      if (skin.inverseBindMatrices) {
+        this._accessBinaryWithAccessor(skin.inverseBindMatrices);
+      }
     }
 
     for (let node_i in gltfModel.nodes) {
