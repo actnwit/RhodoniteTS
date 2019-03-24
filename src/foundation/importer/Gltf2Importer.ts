@@ -375,12 +375,16 @@ export default class Gltf2Importer {
         skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
         skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
 
+        if (skin.skeleton == null) {
+          skin.skeletonIndex = skin.joints[0];
+          skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+        }
+
         skin.jointsIndices = skin.joints;
         skin.joints = [];
         for (let jointIndex of skin.jointsIndices) {
           skin.joints.push(gltfJson.nodes[jointIndex]);
         }
-
       }
 
     }

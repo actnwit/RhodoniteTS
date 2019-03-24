@@ -48,11 +48,12 @@ const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({index
 const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:25, singularStr:'specularColorTexture', pluralStr: 'specularColorTextures'});
 const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({index:26, singularStr:'shininess', pluralStr: 'shininesses'});
 const ShadingModel: ShaderSemanticsEnum = new ShaderSemanticsClass({index:27, singularStr:'shadingModel', pluralStr: 'shadingModels'});
+const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({index:28, singularStr:'skinningMode', pluralStr: 'skinningModes'});
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
                   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
                   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel ];
+                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode ];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
@@ -68,4 +69,4 @@ export type ShaderSemanticsInfo = {semantic?: ShaderSemanticsEnum, isPlural?: bo
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, from, fromString });
+  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, from, fromString });

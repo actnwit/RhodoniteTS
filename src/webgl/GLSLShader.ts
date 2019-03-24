@@ -126,16 +126,19 @@ export default abstract class GLSLShader {
     `;
   }
 
-  get processSkinningIfNeed() {
+  get processSkinning() {
     return `
     bool isSkinning = false;
-    if (length(a_weight.xyz) > 0.01) {
+    if (u_skinningMode == 1) {
       mat4 skinMat = getSkinMatrix();
       v_position_inWorld = skinMat * vec4(a_position, 1.0);
       normalMatrix = toNormalMatrix(skinMat);
       v_normal_inWorld = normalize(normalMatrix * a_normal);
       gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
       isSkinning = true;
+    } else {
+      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
     }
     `;
 
