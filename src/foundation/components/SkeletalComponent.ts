@@ -25,30 +25,20 @@ export default class SkeletalComponent extends Component {
     return WellKnownComponentTIDs.SkeletalComponentTID;
   }
 
+  set joints(joints: SceneGraphComponent[]) {
+    this.__joints = joints;
+  }
+
   $create() {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     this.moveStageTo(ProcessStage.Load);
   }
 
   $load() {
-    if (this.jointsHierarchy == null) {
-      return;
-    }
-    const joints = SceneGraphComponent.flattenHierarchy(this.jointsHierarchy, true);
-    let jointCount = 0;
-
-    for (let i=0; i<this._jointIndices.length; i++) {
-      for (let j=0; j<joints.length; j++) {
-        if (this._jointIndices[i] === joints[j].jointIndex) {
-          this.__joints.push(joints[j]);
-//          joints[j].skeletalMesh = this;
-          let inverseBindMatrix = (this._inverseBindMatrices[jointCount] !== void 0) ? this._inverseBindMatrices[jointCount] : Matrix44.identity();
-          joints[j]._inverseBindMatrix = inverseBindMatrix;
-          joints[j]._bindMatrix = Matrix44.invert(inverseBindMatrix);
-          jointCount++;
-          break;
-        }
-      }
+    for (let i=0; i<this.__joints.length; i++) {
+      let inverseBindMatrix = (this._inverseBindMatrices[i] !== void 0) ? this._inverseBindMatrices[i] : Matrix44.identity();
+      this.__joints[i]._inverseBindMatrix = inverseBindMatrix;
+      this.__joints[i]._bindMatrix = Matrix44.invert(inverseBindMatrix);
     }
 
     const calcParentJointsMatricesRecursively = (joint: SceneGraphComponent)=> {

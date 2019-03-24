@@ -291,7 +291,12 @@ export default class ModelConverter {
         //   // skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
         // } else 
         if (node.mesh) {
-          skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+          const joints = [];
+          for (let i of node.skin.jointsIndices) {
+            joints.push(rnEntities[i].getSceneGraph());
+          }
+          skeletalComponent!.joints = joints;
+          //skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
         }
       }
 
