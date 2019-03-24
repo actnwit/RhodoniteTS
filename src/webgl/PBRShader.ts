@@ -46,6 +46,8 @@ ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
 uniform mat4 u_boneMatrices[100];
+uniform int u_skinningMode;
+
 
 ${this.toNormalMatrix}
 
@@ -64,15 +66,13 @@ void main ()
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
-  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   v_color = a_color;
 
-  v_normal_inWorld = normalMatrix * a_normal;
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
 
   // Skeletal
-  ${this.processSkinningIfNeed}
+  ${this.processSkinning}
 
   if (length(a_normal) > 0.01) {
     // if normal exist
@@ -85,7 +85,6 @@ void main ()
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
   }
-
   v_baryCentricCoord = a_baryCentricCoord;
 
 

@@ -92,6 +92,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true},
           {semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true},
+          {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true},
@@ -277,6 +278,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (skeletalComponent) {
         const jointMatrices = skeletalComponent.jointMatrices;
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, {x:jointMatrices!}, {force: force});
+        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, {x:true}, {force: force});
+      } else {
+        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, {x:false}, {force: force});
       }
 
       let updated: boolean;

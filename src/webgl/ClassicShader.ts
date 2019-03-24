@@ -40,6 +40,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 uniform mat4 u_boneMatrices[100];
+uniform int u_skinningMode;
 
 ${this.toNormalMatrix}
 
@@ -58,15 +59,12 @@ void main ()
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
-  v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-
-  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
   // Skeletal
-  ${this.processSkinningIfNeed}
+  ${this.processSkinning}
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 }

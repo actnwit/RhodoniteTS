@@ -319,24 +319,26 @@ export default class ModelConverter {
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
-      // if (node.meshes != null) {
-      //   const groupEntity = this.__generateGroupEntity();
-      //   for (let mesh of node.meshes) {
-      //     const meshEntity = this.__setupMesh(mesh, rnBuffer, gltfModel);
-      //     groupEntity.getSceneGraph().addChild(meshEntity.getSceneGraph());
-      //   }
-      // } else 
       if (node.mesh != null) {
         const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
+        if (node.name) {
+          meshEntity.tryToSetUniqueName(node.name, true);
+        }
         if (node.mesh.name) {
           meshEntity.tryToSetUniqueName(node.mesh.name, true);
         }
         rnEntities.push(meshEntity);
       } else if (node.camera != null) {
         const cameraEntity = this.__setupCamera(node.camera, gltfModel);
+        if (node.name) {
+          cameraEntity.tryToSetUniqueName(node.name, true);
+        }
         rnEntities.push(cameraEntity);
       } else {
         const group = this.__generateGroupEntity(gltfModel);
+        if (node.name) {
+          group.tryToSetUniqueName(node.name, true);
+        }
         group.tryToSetUniqueName(node.name, true);
         rnEntities.push(group);
       }

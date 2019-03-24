@@ -87,7 +87,7 @@ export default class SkeletalComponent extends Component {
         let inverseBindMatrix = joint._inverseBindMatrix!;
         globalJointTransform = new Matrix44(joint.worldMatrixInner);
         matrices[i] = Matrix44.identity();
-        matrices[i] = Matrix44.multiply(matrices[i], Matrix44.invert(new Matrix44(this.__sceneGraphComponent!.worldMatrixInner)));
+        //matrices[i] = Matrix44.multiply(matrices[i], Matrix44.invert(new Matrix44(this.__sceneGraphComponent!.worldMatrixInner)));
         matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
         matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
         if (this._bindShapeMatrix) {
