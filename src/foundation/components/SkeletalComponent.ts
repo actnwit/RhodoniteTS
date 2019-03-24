@@ -83,16 +83,16 @@ export default class SkeletalComponent extends Component {
     if (this.isSkinning) {
       for (let i=0; i<this.__joints.length; i++) {
         const joint = this.__joints[i];
-          let globalJointTransform = null;
-          let inverseBindMatrix = joint._inverseBindMatrix!;
-          globalJointTransform = new Matrix44(joint.worldMatrixInner);
-          matrices[i] = Matrix44.identity();
-          matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
-          matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
-          if (this._bindShapeMatrix) {
-            matrices[i] = Matrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
-          }
-  //      }
+        let globalJointTransform = null;
+        let inverseBindMatrix = joint._inverseBindMatrix!;
+        globalJointTransform = new Matrix44(joint.worldMatrixInner);
+        matrices[i] = Matrix44.identity();
+        matrices[i] = Matrix44.multiply(matrices[i], Matrix44.invert(new Matrix44(this.__sceneGraphComponent!.worldMatrixInner)));
+        matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
+        matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
+        if (this._bindShapeMatrix) {
+          matrices[i] = Matrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
+        }
       }
 
       flatMatrices = [];

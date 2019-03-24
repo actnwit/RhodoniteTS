@@ -64,8 +64,6 @@ void main ()
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
-  v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   v_color = a_color;
 
@@ -81,6 +79,7 @@ void main ()
     vec3 tangent_inWorld;
     if (!isSkinning) {
       tangent_inWorld = normalMatrix * a_tangent;
+      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
     }
 
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);

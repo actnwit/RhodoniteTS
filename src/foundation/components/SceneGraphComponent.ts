@@ -102,7 +102,7 @@ export default class SceneGraphComponent extends Component {
   get worldMatrixInner() {
 //    if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(this.isJoint()));
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
       this.__isWorldMatrixUpToDate = true;
   //  }
 
@@ -132,7 +132,7 @@ export default class SceneGraphComponent extends Component {
   $logic() {
    // if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(this.isJoint()));
+      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
       this.__isWorldMatrixUpToDate = true;
     //}
   }
