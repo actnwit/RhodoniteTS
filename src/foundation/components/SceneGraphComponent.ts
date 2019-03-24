@@ -38,7 +38,7 @@ export default class SceneGraphComponent extends Component {
   public jointIndex = -1;
   public _inverseBindMatrix?: Matrix44;
   public _bindMatrix?: Matrix44;
-  public _jointsOfParentHierarchies: SceneGraphComponent[] = [];
+  public _jointsOfHierarchies: SceneGraphComponent[] = [];
 
   private static __bufferView: BufferView;
   private static invertedMatrix44 = new MutableRowMajarMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);

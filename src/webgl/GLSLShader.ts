@@ -129,7 +129,7 @@ export default abstract class GLSLShader {
   get processSkinningIfNeed() {
     return `
     bool isSkinning = false;
-    if (length(a_weight.xyz) > 0.01) {
+    if (length(a_weight.xyzw) > 0.01) {
       mat4 skinMat = getSkinMatrix();
       v_position_inWorld = skinMat * vec4(a_position, 1.0);
       normalMatrix = toNormalMatrix(skinMat);

@@ -41,30 +41,58 @@ export default class SkeletalComponent extends Component {
       this.__joints[i]._bindMatrix = Matrix44.invert(inverseBindMatrix);
     }
 
+    const calcParentJointsMatricesRecursively = (joint: SceneGraphComponent)=> {
+      let parentJoint = joint.parent;
+
+      let results: SceneGraphComponent[] = [];
+      if (parentJoint) {
+        let result = calcParentJointsMatricesRecursively(parentJoint);
+        if (Array.isArray(result)) {
+          Array.prototype.push.apply(results, result);
+        }
+
+        // for glTF2.0
+        for (let gltfJointIndex of this._jointIndices) {
+          if (parentJoint.jointIndex === gltfJointIndex) {
+            results.push(parentJoint);
+            return results;
+          }
+        }
+
+        return results;
+      }
+
+      return null;
+    };
+
+    let jointsHierarchies = null;
+    for (let i=0; i<this.__joints.length; i++) {
+      jointsHierarchies = calcParentJointsMatricesRecursively(this.__joints[i]);
+      if (jointsHierarchies != null) {
+        jointsHierarchies.push(this.__joints[i]);
+        this.__joints[i]._jointsOfHierarchies = jointsHierarchies;
+      }
+    }
+
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
-    let skeletalMeshWorldMatrix;
-    let jointZeroWorldMatrix;
     let flatMatrices: number[] = [];
-    const matrices = [];
+    const matrices: Matrix44[] = [];
     if (this.isSkinning) {
       for (let i=0; i<this.__joints.length; i++) {
-        let globalJointTransform = null;
-        let inverseBindMatrix = this.__joints[i]._inverseBindMatrix!;
-        globalJointTransform = new Matrix44(this.__joints[i].worldMatrixInner);
-        skeletalMeshWorldMatrix = globalJointTransform;
-
-        if (i === 0) {
-          jointZeroWorldMatrix = globalJointTransform;
-        }
-        matrices[i] = Matrix44.identity();
-        matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
-        matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
-        if (this._bindShapeMatrix) {
-          matrices[i] = Matrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
-        }
+        const joint = this.__joints[i];
+          let globalJointTransform = null;
+          let inverseBindMatrix = joint._inverseBindMatrix!;
+          globalJointTransform = new Matrix44(joint.worldMatrixInner);
+          matrices[i] = Matrix44.identity();
+          matrices[i] = Matrix44.multiply(matrices[i], globalJointTransform);
+          matrices[i] = Matrix44.multiply(matrices[i], inverseBindMatrix);
+          if (this._bindShapeMatrix) {
+            matrices[i] = Matrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
+          }
+  //      }
       }
 
       flatMatrices = [];

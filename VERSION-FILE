@@ -1,6 +1,6 @@
-version: 0.1.1-278-g9323b-mod
+version: 0.1.1-279-g1b7d-mod
 branch: feature/improve-skin-animation
-3dccf862bd825638e374e080ff5beb9ebc903e8b1276d6cf738042ef230d4db4 ./dist/rhodonite.js
-893b7b8762e34e14dbe792bc0b81e35c019342a9a646f7f66836ee42cd57525a ./dist/rhodonite.min.js
-0eb9f05aeb71f01c0fdc8df5f86999d94e8668edb35293a7b0d811f52bfc48a1 ./dist/rhodonite-webgl.js
-d72e83861941e612b9354b7de4225d20ac8f452f5ec82e1a70f39a6fdabb5153 ./dist/rhodonite-webgl.min.js
+0223561adc3755e15941adda516c2b73d6f9148e60375747f3a71940fdc4d1fc ./dist/rhodonite.js
+3804107584ff8144a22cad63eb4db99455017c628ea015cbc833cbd392988a63 ./dist/rhodonite.min.js
+82b4ceaf25e8754d1a923f9a89101c1b303551c7a13a55790b4ab82c910a28d7 ./dist/rhodonite-webgl.js
+34aba971c0ac79102e2abb9d2eaeb8ea0ad7281bb97044f36336aab9e4279ea0 ./dist/rhodonite-webgl.min.js
