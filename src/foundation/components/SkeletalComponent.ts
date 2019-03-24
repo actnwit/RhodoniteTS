@@ -41,38 +41,6 @@ export default class SkeletalComponent extends Component {
       this.__joints[i]._bindMatrix = Matrix44.invert(inverseBindMatrix);
     }
 
-    const calcParentJointsMatricesRecursively = (joint: SceneGraphComponent)=> {
-      let parentJoint = joint.parent;
-
-      let results: SceneGraphComponent[] = [];
-      if (parentJoint) {
-        let result = calcParentJointsMatricesRecursively(parentJoint);
-        if (Array.isArray(result)) {
-          Array.prototype.push.apply(results, result);
-        }
-
-        // for glTF2.0
-        for (let gltfJointIndex of this._jointIndices) {
-          if (parentJoint.jointIndex === gltfJointIndex) {
-            results.push(parentJoint);
-            return results;
-          }
-        }
-
-        return results;
-      }
-
-      return null;
-    };
-
-    let jointsParentHierarchies = null;
-    for (let i=0; i<this.__joints.length; i++) {
-      jointsParentHierarchies = calcParentJointsMatricesRecursively(this.__joints[i]);
-      if (jointsParentHierarchies != null) {
-        this.__joints[i]._jointsOfParentHierarchies = jointsParentHierarchies;
-      }
-    }
-
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -82,7 +50,7 @@ export default class SkeletalComponent extends Component {
     let flatMatrices: number[] = [];
     const matrices = [];
     if (this.isSkinning) {
-      for (let i=this.__joints.length-1; i>=0; i--) {
+      for (let i=0; i<this.__joints.length; i++) {
         let globalJointTransform = null;
         let inverseBindMatrix = this.__joints[i]._inverseBindMatrix!;
         globalJointTransform = new Matrix44(this.__joints[i].worldMatrixInner);
