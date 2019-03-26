@@ -195,6 +195,114 @@ export default class MathClassUtil {
     return output;
   }
 
+  static add(lhs:any, rhs:any) {
+    if (isFinite(lhs)) { // number?
+      return lhs + rhs;
+    } else if (lhs instanceof Vector2) {
+      return Vector2.add(lhs, rhs);
+    } else if (lhs instanceof Vector3) {
+      return Vector3.add(lhs, rhs);
+    } else if (lhs instanceof Vector4) {
+      return Vector4.add(lhs, rhs);
+    } else if (lhs instanceof Quaternion) {
+      return Quaternion.add(lhs, rhs);
+    } else if (Array.isArray(lhs)) {
+      const arr: number[] = [];
+      for (let i=0; i<lhs.length; i++) {
+        arr[i] = lhs[i] + rhs[i];
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+    }
+  }
+
+  static subtract(lhs:any, rhs:any) {
+    if (isFinite(lhs)) { // number?
+      return lhs - rhs;
+    } else if (lhs instanceof Vector2) {
+      return Vector2.subtract(lhs, rhs);
+    } else if (lhs instanceof Vector3) {
+      return Vector3.subtract(lhs, rhs);
+    } else if (lhs instanceof Vector4) {
+      return Vector4.subtract(lhs, rhs);
+    } else if (lhs instanceof Quaternion) {
+      return Quaternion.subtract(lhs, rhs);
+    } else if (Array.isArray(lhs)) {
+      const arr: number[] = [];
+      for (let i=0; i<lhs.length; i++) {
+        arr[i] = lhs[i] - rhs[i];
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+    }
+  }
+
+  static multiplyNumber(lhs: any, rhs: number) {
+    if (isFinite(lhs)) { // number?
+      return lhs * rhs;
+    } else if (lhs instanceof Vector2) {
+      return Vector2.multiply(lhs, rhs);
+    } else if (lhs instanceof Vector3) {
+      return Vector3.multiply(lhs, rhs);
+    } else if (lhs instanceof Vector4) {
+      return Vector4.multiply(lhs, rhs);
+    } else if (lhs instanceof Quaternion) {
+      return Quaternion.multiplyNumber(lhs, rhs);
+    } else if (Array.isArray(lhs)) {
+      const arr: number[] = [];
+      for (let i=0; i<lhs.length; i++) {
+        arr[i] = lhs[i] * rhs;
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+    }
+  }
+  static divideNumber(lhs: any, rhs: number) {
+    if (isFinite(lhs)) { // number?
+      return lhs / rhs;
+    } else if (lhs instanceof Vector2) {
+      return Vector2.multiply(lhs, 1/rhs);
+    } else if (lhs instanceof Vector3) {
+      return Vector3.multiply(lhs, 1/rhs);
+    } else if (lhs instanceof Vector4) {
+      return Vector4.multiply(lhs, 1/rhs);
+    } else if (lhs instanceof Quaternion) {
+      return Quaternion.multiplyNumber(lhs, 1/rhs);
+    } else if (Array.isArray(lhs)) {
+      const arr: number[] = [];
+      for (let i=0; i<lhs.length; i++) {
+        arr[i] = lhs[i] / rhs;
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+    }
+  }
+
+  static init(objForDetectType: any, val: number) {
+    if (isFinite(objForDetectType)) { // number?
+      return val;
+    } else if (objForDetectType instanceof Vector2) {
+      return new Vector2(val, val);
+    } else if (objForDetectType instanceof Vector3) {
+      return new Vector3(val, val, val);
+    } else if (objForDetectType instanceof Vector4) {
+      return new Vector4(val, val, val, val);
+    } else if (objForDetectType instanceof Quaternion) {
+      return new Quaternion(0, 0, 0, 1);
+    } else if (Array.isArray(objForDetectType)) {
+      const arr: number[] = [];
+      for (let i=0; i<objForDetectType.length; i++) {
+        arr[i] = val;
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+    }
+  }
 }
 
 //GLBoost["MathClassUtil"] = MathClassUtil;

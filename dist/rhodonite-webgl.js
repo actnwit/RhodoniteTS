@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-281-gc6a0-mod branch: feature/improve-skin-animation';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-283-g222f-mod branch: feature/cubic-spline-interpolate';
