@@ -198,6 +198,10 @@ export default class Quaternion implements IVector4 {
     return result;
   }
 
+  static multiplyNumber(q1:Quaternion, val: number) {
+    return new Quaternion(q1.x*val, q1.y*val, q1.z*val, q1.w*val);
+  }
+
   static fromMatrix(m:Matrix44|RowMajarMatrix44) {
 
     let q = new Quaternion();
@@ -246,6 +250,13 @@ export default class Quaternion implements IVector4 {
     }
   }
 
+  static add(lhs: Quaternion, rhs: Quaternion) {
+    return new Quaternion(lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z, lhs.w+rhs.w)
+  }
+
+  static subtract(lhs: Quaternion, rhs: Quaternion) {
+    return new Quaternion(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z, lhs.w-rhs.w)
+  }
 
   toString() {
     return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';

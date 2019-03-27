@@ -27,6 +27,10 @@ export default class Vector2 implements IVector2 {
     return new Vector2(lvec.x + rvec.x, lvec.y + rvec.y);
   }
 
+  static subtract(lvec: Vector2, rvec: Vector2) {
+    return new Vector2(lvec.x - rvec.x, lvec.y - rvec.y);
+  }
+
   multiply(val:number) {
     this.x *= val;
     this.y *= val;

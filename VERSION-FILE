@@ -1,6 +1,6 @@
-version: 0.1.1-281-gc6a0-mod
-branch: feature/improve-skin-animation
-b95d6169aa3ee148a75b302fd13f1d301eec31b02b1585fecac194cd6ec00e7d ./dist/rhodonite.js
-03124d07a5abc7b8bcfd25214b8fbb46ada0ed076808dd5f156d8a1917348858 ./dist/rhodonite.min.js
-51e42ed898d006d4aefd2d0817bb5981d5397229c083673723970cbcac67e62f ./dist/rhodonite-webgl.js
-db7d10fd4eb5b9367303bd8837716c0751b1f18c8d5bf766bddba3ae20065708 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-283-g222f-mod
+branch: feature/cubic-spline-interpolate
+a28d3d055d4b292ce6df623d1dea07ea3351f555fa4fae078c8f0f94abc5161a ./dist/rhodonite.js
+1afd1e5e473e032a7284a58b8e9bcffbbc837e353f1bf67c6ee76146a1830f32 ./dist/rhodonite.min.js
+61b22c666f3a796806953a17ad98db946f2393951b56cfbe8c43e0bebf7172e4 ./dist/rhodonite-webgl.js
+84c51b8793c849dec4988e65bc491e8b30104a01dbd2a3d07c344307be96c126 ./dist/rhodonite-webgl.min.js
