@@ -19,7 +19,7 @@ export default class SkeletalShader extends GLSLShader {
     return this.__instance;
   }
 
-  get vertexShaderVariableDefinitions() {
+  get vertexShaderDefinitions() {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
@@ -76,7 +76,7 @@ mat4 getSkinMatrix() {
 
   `;
 
-  get fragmentShader() {
+  get fragmentShaderBody() {
     return '';
   }
 

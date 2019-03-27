@@ -328,6 +328,6 @@ export default abstract class GLSLShader {
     `;
   }
 
-  abstract get fragmentShader(): string;
+  abstract get fragmentShaderBody(): string;
 
 }

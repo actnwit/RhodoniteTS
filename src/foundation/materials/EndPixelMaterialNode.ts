@@ -2,10 +2,10 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../de
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import SkeletalShader from "../../webgl/shaders/SkeletalShader";
+import EndShader from "../../webgl/shaders/EndShader";
 
 export default class SkeletalMaterialNode extends AbstractMaterialNode {
-  static readonly shader: SkeletalShader = SkeletalShader.getInstance();
+  static readonly shader: EndShader = EndShader.getInstance();
 
   constructor() {
 
@@ -15,24 +15,19 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
     ];
     super(shaderSemanticsInfoArray);
 
-    this.__vertexInputs.push(
+    this.__pixelInputs.push(
     {
-      compositionType: CompositionType.Mat4,
+      compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'inNormalMatrix'
+      name: 'inColor'
     });
 
-    this.__vertexOutputs.push(
-    {
-      compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Int,
-      name: 'isSkinning'
-    });
-    this.__vertexOutputs.push({
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      name: 'outNormalMatrix'
-    });
+    this.__vertexInputs.push(
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'inPosition'
+      });
   }
 
   static async initDefaultTextures() {

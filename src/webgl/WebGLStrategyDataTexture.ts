@@ -109,7 +109,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
         // const glslShader = ClassicShader.getInstance();
         // let vertexShader = glslShader.glslBegin +
         //   this.vertexShaderMethodDefinitions_dataTexture +
-        //   glslShader.vertexShaderVariableDefinitions +
+        //   glslShader.vertexShaderDefinitions +
         //   glslShader.glslMainBegin +
         //   glslShader.vertexShaderBody +
         //   glslShader.glslMainEnd;

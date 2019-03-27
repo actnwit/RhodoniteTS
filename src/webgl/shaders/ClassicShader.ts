@@ -21,7 +21,7 @@ export default class ClassicShader extends GLSLShader {
   }
 
 
-  get vertexShaderVariableDefinitions() {
+  get vertexShaderDefinitions() {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
@@ -189,7 +189,7 @@ void main ()
   }
 
 
-  get fragmentShader() {
+  get fragmentShaderBody() {
     return this.fragmentShaderSimple;
   }
 

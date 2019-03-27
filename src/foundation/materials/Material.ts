@@ -105,14 +105,15 @@ export default class Material extends RnObject {
       // Shader Construction
       let vertexShader = glslShader.glslBegin +
         vertexShaderMethodDefinitions_uniform +
-        glslShader.vertexShaderVariableDefinitions +
+        glslShader.vertexShaderDefinitions +
         glslShader.glslMainBegin +
         glslShader.vertexShaderBody +
         glslShader.glslMainEnd;
-      let fragmentShader = glslShader.fragmentShader;
+      let fragmentShader = glslShader.fragmentShaderBody;
 
       const shaderCharCount = (vertexShader + fragmentShader).length;
 
+      // Cache
       if (Material.__shaderMap.has(shaderCharCount)) {
         this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
         return this._shaderProgramUid;

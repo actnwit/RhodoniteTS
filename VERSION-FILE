@@ -1,6 +1,6 @@
-version: 0.1.1-287-g2b05-mod
+version: 0.1.1-288-gf574-mod
 branch: feature/shader-system
-fee845e39bcf2d12c604f6415b5914c17c8db8f0b32082b81c6d4237b10701cd ./dist/rhodonite.js
-efbd61513021201b623741008e220c18696be1d7da4b49bed9a5ca8db82beaaa ./dist/rhodonite.min.js
-d928ffc56f7fe55d85a43e08043b86afe463aa9f27d184011ee8191e590f09d4 ./dist/rhodonite-webgl.js
-553f1e335bd2c58b4368e888c69a6312e86f7168d167e3d894c27f0add776a4a ./dist/rhodonite-webgl.min.js
+723fbd2c32a0e242cf5d279bbb5b8d390073b0f0c22fa49440013503e438023b ./dist/rhodonite.js
+8eaa442b807aafff9f40c1916b52013adf678c16011450df371bd33c342406b1 ./dist/rhodonite.min.js
+1283328487a09bc70bf2dee745ca1f8063e64143778cdf5a6f1c2e4e1a19ee29 ./dist/rhodonite-webgl.js
+4b5bf0893442c5d4ac4d41525fa9f5adc07d02247e92b3590023e5cb937e35c3 ./dist/rhodonite-webgl.min.js

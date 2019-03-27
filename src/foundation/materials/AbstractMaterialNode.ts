@@ -14,8 +14,10 @@ type ShaderSocket = {
 export default abstract class AbstractMaterialNode extends RnObject {
   private __semantics: ShaderSemanticsInfo[] = [];
   private __shaderNode: ShaderNodeEnum[] = [];
-  protected __inputs: ShaderSocket[] = [];
-  protected __outputs: ShaderSocket[] = [];
+  protected __vertexInputs: ShaderSocket[] = [];
+  protected __pixelInputs: ShaderSocket[] = [];
+  protected __vertexOutputs: ShaderSocket[] = [];
+  protected __pixelOutputs: ShaderSocket[] = [];
 
   constructor(semantics: ShaderSemanticsInfo[]) {
     super();
