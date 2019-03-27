@@ -190,9 +190,6 @@ export default class MeshRendererComponent extends Component {
       viewMatrix = MeshRendererComponent.__cameraComponent.viewMatrix;
       projectionMatrix = MeshRendererComponent.__cameraComponent.projectionMatrix;
     }
-    if (!MeshRendererComponent.__webGLStrategy!.common_$render(viewMatrix, projectionMatrix)) {
-      return;
-    }
 
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
     const meshComponent = meshComponents[0] as MeshComponent;
@@ -200,10 +197,13 @@ export default class MeshRendererComponent extends Component {
     const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
+      if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix)) {
+        break;
+      }
 
       MeshRendererComponent.__webGLStrategy!.attachVertexData(i, primitive, glw, MeshRendererComponent.__instanceIDBufferUid);
-      MeshRendererComponent.__webGLStrategy!.attatchShaderProgram();
-      MeshRendererComponent.__webGLStrategy!.attachGPUData();
+      MeshRendererComponent.__webGLStrategy!.attatchShaderProgram(primitive.material!);
+      MeshRendererComponent.__webGLStrategy!.attachGPUData(primitive);
 
       const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
 //      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);

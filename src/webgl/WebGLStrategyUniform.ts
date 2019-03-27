@@ -165,10 +165,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
   };
 
-  attachGPUData(): void {
+  attachGPUData(primitive: Primitive): void {
   };
 
-  attatchShaderProgram(): void {
+  attatchShaderProgram(material: Material): void {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
@@ -205,13 +205,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     return false;
   }
 
   $render(meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
     if (meshComponent.componentSID === MeshRendererComponent.firstOpaqueSid) {
@@ -227,6 +226,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
+      //this.attatchShaderProgram(primitive.material!);
 
 
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);

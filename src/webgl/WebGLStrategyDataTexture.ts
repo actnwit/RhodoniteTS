@@ -16,12 +16,14 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
+import Material from "../foundation/materials/Material";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  // private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __meshComponent?: MeshComponent;
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
@@ -92,34 +94,44 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
+    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent!.getPrimitiveAt(i);
+      const material = primitive.material;
+      if (material) {
+        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+          return;
+        }
 
-    // Shader Setup
-    const glslShader = ClassicShader.getInstance();
-    let vertexShader = glslShader.glslBegin +
-      this.vertexShaderMethodDefinitions_dataTexture +
-      glslShader.vertexShaderVariableDefinitions +
-      glslShader.glslMainBegin +
-      glslShader.vertexShaderBody +
-      glslShader.glslMainEnd;
-    let fragmentShader = glslShader.fragmentShader;
-    this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      {
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: fragmentShader,
-        attributeNames: ClassicShader.attributeNames,
-        attributeSemantics: ClassicShader.attributeSemantics
+        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture);
+
+        // // Shader Setup
+        // const glslShader = ClassicShader.getInstance();
+        // let vertexShader = glslShader.glslBegin +
+        //   this.vertexShaderMethodDefinitions_dataTexture +
+        //   glslShader.vertexShaderVariableDefinitions +
+        //   glslShader.glslMainBegin +
+        //   glslShader.vertexShaderBody +
+        //   glslShader.glslMainEnd;
+        // let fragmentShader = glslShader.fragmentShader;
+        // this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
+        //   {
+        //     vertexShaderStr: vertexShader,
+        //     fragmentShaderStr: fragmentShader,
+        //     attributeNames: ClassicShader.attributeNames,
+        //     attributeSemantics: ClassicShader.attributeSemantics
+        //   }
+        // );
+
+        this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
+          [
+            {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
+          ]);
       }
-    );
-
-    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
-      [
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
-      ]);
+    }
   }
+
 
 
   private __isLoaded(index: Index) {
@@ -134,7 +146,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     if (this.__isLoaded(0)) {
       return;
     }
-
+    this.__meshComponent = meshComponent;
     this.setupShaderProgram(meshComponent);
 
     const primitiveNum = meshComponent!.getPrimitiveNumber();
@@ -246,17 +258,18 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
   };
 
-  attachGPUData(): void {
+  attachGPUData(primitive: Primitive): void {
+    const material = primitive.material!;
     const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)! as WebGLTexture;
     gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
     var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     gl.uniform1i(uniform_dataTexture, 0);
   };
 
-  attatchShaderProgram(): void {
-    const shaderProgramUid = this.__shaderProgramUid;
+  attatchShaderProgram(material: Material): void {
+    const shaderProgramUid = material._shaderProgramUid;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
@@ -286,13 +299,14 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+    const material = primitive.material!;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram();
+    this.attatchShaderProgram(material);
     const gl = glw.getRawContext();
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
 
     return true;
   }

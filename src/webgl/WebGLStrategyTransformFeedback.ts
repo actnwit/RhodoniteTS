@@ -22,13 +22,14 @@ import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShaderader from "./shaders/ClassicShader";
 import ClassicShader from "./shaders/ClassicShader";
+import Material from "../foundation/materials/Material";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __instanceDataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __vertexDataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+//  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __primitiveHeaderUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __indexCountToSubtractUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __entitiesUidUboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -42,7 +43,27 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     const _in = ClassicShader.getInstance().glsl_vertex_in;
     const _texture = ClassicShader.getInstance().glsl_texture;
 
-    return `#version 300 es
+    return `
+    uniform mat4 u_worldMatrix;
+    uniform mat4 u_viewMatrix;
+    uniform mat4 u_projectionMatrix;
+    uniform mat3 u_normalMatrix;
+
+    mat4 getMatrix(float instanceId) {
+      return u_worldMatrix;
+    }
+
+    mat4 getViewMatrix(float instanceId) {
+      return u_viewMatrix;
+    }
+
+    mat4 getProjectionMatrix(float instanceId) {
+      return u_projectionMatrix;
+    }
+
+    mat3 getNormalMatrix(float instanceId) {
+      return u_normalMatrix;
+    }
 
     layout (std140) uniform indexCountsToSubtract {
       ivec4 counts[256];
@@ -63,44 +84,44 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     uniform sampler2D u_instanceDataTexture;
     uniform sampler2D u_vertexDataTexture;
 
-    void main(){
-      int indexOfVertices = gl_VertexID + 3*gl_InstanceID;
+    // void main(){
+    //   int indexOfVertices = gl_VertexID + 3*gl_InstanceID;
 
-      int entityUidMinusOne = 0;
-      int primitiveUid = 0;
-      for (int i=0; i<=indexOfVertices; i++) {
-        for (int j=0; j<1024; j++) {
-          int value = u_indexCountsToSubtract.counts[j/4][j%4];
-          int result = int(step(float(value), float(i)));
-          if (result > 0) {
-            entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;
-            primitiveUid = result * u_primitiveData.ids[j/4][j%4];
-          } else {
-            break;
-          }
-        }
-      }
+    //   int entityUidMinusOne = 0;
+    //   int primitiveUid = 0;
+    //   for (int i=0; i<=indexOfVertices; i++) {
+    //     for (int j=0; j<1024; j++) {
+    //       int value = u_indexCountsToSubtract.counts[j/4][j%4];
+    //       int result = int(step(float(value), float(i)));
+    //       if (result > 0) {
+    //         entityUidMinusOne = result * int(u_entityData.ids[j/4][j%4]) - 1;
+    //         primitiveUid = result * u_primitiveData.ids[j/4][j%4];
+    //       } else {
+    //         break;
+    //       }
+    //     }
+    //   }
 
-      ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];
-      int primIndicesByteOffset = indicesMeta.x;
-      int primIndicesComponentSizeInByte = indicesMeta.y;
-      int primIndicesLength = indicesMeta.z;
+    //   ivec4 indicesMeta = u_primitiveHeader.data[9*primitiveUid + 0];
+    //   int primIndicesByteOffset = indicesMeta.x;
+    //   int primIndicesComponentSizeInByte = indicesMeta.y;
+    //   int primIndicesLength = indicesMeta.z;
 
-      int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;
+    //   int idx = gl_VertexID - primIndicesByteOffset / 4 /*byte*/;
 
-      // get Indices
-      int texelLength = ${MemoryManager.bufferWidthLength};
-      vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
-      int index = int(indexVec4[idx%4]);
+    //   // get Indices
+    //   int texelLength = ${MemoryManager.bufferWidthLength};
+    //   vec4 indexVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
+    //   int index = int(indexVec4[idx%4]);
 
-      // get Positions
-      ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];
-      int primPositionsByteOffset = indicesData.x;
-      idx = primPositionsByteOffset/4 + index;
-      vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
+    //   // get Positions
+    //   ivec4 indicesData = u_primitiveHeader.data[9*primitiveUid + 1];
+    //   int primPositionsByteOffset = indicesData.x;
+    //   idx = primPositionsByteOffset/4 + index;
+    //   vec4 posVec4 = texelFetch(u_vertexDataTexture, ivec2(idx%texelLength, idx/texelLength), 0);
 
-      position = posVec4;
-    }
+    //   position = posVec4;
+    //}
 `
   }
 
@@ -117,27 +138,36 @@ void main(){
   }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
+    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent!.getPrimitiveAt(i);
+      const material = primitive.material;
+      if (material) {
+        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+          return;
+        }
 
-    // Shader Setup
-    let vertexShader = this.__transformFeedbackShaderText;
-    let fragmentShader = this.__transformFeedbackFragmentShaderText;
-    this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      {
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: fragmentShader,
-        attributeNames: ClassicShader.attributeNames,
-        attributeSemantics: ClassicShader.attributeSemantics
+        // Shader Setup
+        material.createProgram(this.__transformFeedbackShaderText);
+
+        // let vertexShader = ;
+        // let fragmentShader = this.__transformFeedbackFragmentShaderText;
+        // this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
+        //   {
+        //     vertexShaderStr: vertexShader,
+        //     fragmentShaderStr: fragmentShader,
+        //     attributeNames: ClassicShader.attributeNames,
+        //     attributeSemantics: ClassicShader.attributeSemantics
+        //   }
+        // );
+
+        this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
+          [
+            {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
+          ]);
       }
-    );
-
-    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
-      [
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
-      ]);
+    }
   }
 
 
@@ -334,13 +364,14 @@ void main(){
     this.__setupGPUVertexData();
   };
 
-  attachGPUData(): void {
+  attachGPUData(primitive: Primitive): void {
+    const material = primitive.material!;
     {
       const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
       const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid)! as WebGLTexture;
       gl.activeTexture(gl.TEXTURE0)
       gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
       var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');
       gl.uniform1i(uniform_instanceDataTexture, 0);
     }
@@ -350,19 +381,19 @@ void main(){
       const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid)! as WebGLTexture;
       gl.activeTexture(gl.TEXTURE1)
       gl.bindTexture(gl.TEXTURE_2D, dataTexture);
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(this.__shaderProgramUid);
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
       var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');
       gl.uniform1i(uniform_vertexDataTexture, 1);
     }
 
-    this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'indexCountsToSubtract', 0);
-    this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'entityUids', 1);
-    this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveUids', 2);
-    this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'primitiveHeader', 3);
+    this.__webglResourceRepository.bindUniformBlock(material._shaderProgramUid, 'indexCountsToSubtract', 0);
+    this.__webglResourceRepository.bindUniformBlock(material._shaderProgramUid, 'entityUids', 1);
+    this.__webglResourceRepository.bindUniformBlock(material._shaderProgramUid, 'primitiveUids', 2);
+    this.__webglResourceRepository.bindUniformBlock(material._shaderProgramUid, 'primitiveHeader', 3);
   };
 
-  attatchShaderProgram(): void {
-    const shaderProgramUid = this.__shaderProgramUid;
+  attatchShaderProgram(material: Material): void {
+    const shaderProgramUid = material._shaderProgramUid;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
@@ -380,13 +411,14 @@ void main(){
     return this.__instance;
   }
 
-  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+    const material = primitive.material!;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram();
+    this.attatchShaderProgram(primitive.material!);
     const gl = glw.getRawContext();
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
 
     return true;
   }
