@@ -104,25 +104,6 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
         }
 
         material.createProgram(this.vertexShaderMethodDefinitions_dataTexture);
-
-        // // Shader Setup
-        // const glslShader = ClassicShader.getInstance();
-        // let vertexShader = glslShader.glslBegin +
-        //   this.vertexShaderMethodDefinitions_dataTexture +
-        //   glslShader.vertexShaderDefinitions +
-        //   glslShader.glslMainBegin +
-        //   glslShader.vertexShaderBody +
-        //   glslShader.glslMainEnd;
-        // let fragmentShader = glslShader.fragmentShader;
-        // this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-        //   {
-        //     vertexShaderStr: vertexShader,
-        //     fragmentShaderStr: fragmentShader,
-        //     attributeNames: ClassicShader.attributeNames,
-        //     attributeSemantics: ClassicShader.attributeSemantics
-        //   }
-        // );
-
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
             {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},

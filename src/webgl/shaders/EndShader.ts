@@ -20,20 +20,21 @@ export default class EndShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-
-    return ``;
-  };
-
-  get vertexShaderBody() {
     return `
     function endVertex(in vec4 inPosition) {
       gl_Position = inPosition;
     }
     `;
+  };
+
+  get vertexShaderBody() {
+    return `
+
+    `;
   }
 
 
-  get fragmentShaderBody() {
+  get fragmentShaderDefinitions() {
     const _def_fragColor = this.glsl_fragColor;
     return `
     function endPixel(in vec4 inColor) {
@@ -41,6 +42,10 @@ export default class EndShader extends GLSLShader {
       ${_def_fragColor}
     }
     `;
+  }
+
+  get fragmentShaderBody() {
+    return '';
   }
 
   static attributeNames: AttributeNames = [];

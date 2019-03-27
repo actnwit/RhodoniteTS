@@ -28,8 +28,9 @@ export default class AddShader extends GLSLShader {
     `;
   };
 
-  vertexShaderBody:string = `
-  `;
+  get vertexShaderBody() {
+    return '';
+  }
 
   get fragmentShaderDefinitions() {
     return `

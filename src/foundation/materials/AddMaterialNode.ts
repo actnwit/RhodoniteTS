@@ -11,24 +11,41 @@ export default class AddMaterialNode extends AbstractMaterialNode {
   constructor() {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: true, isSystem: true},
-      {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
     ];
     super(shaderSemanticsInfoArray);
 
-    this.__pixelInputs.push(
+    this.__vertexInputs.push(
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'lhs'
     });
+    this.__vertexInputs.push(
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'rhs'
+      });
+    this.__vertexOutputs.push(
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'outValue'
+      });
+
+    this.__pixelInputs.push(
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'lhs'
+      });
     this.__pixelInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'rhs'
       });
-    this.__vertexInputs.push(
+    this.__pixelOutputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,

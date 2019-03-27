@@ -5,7 +5,7 @@ import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 
-type ShaderSocket = {
+export type ShaderSocket = {
   compositionType: CompositionTypeEnum,
   componentType: ComponentTypeEnum,
   name: string

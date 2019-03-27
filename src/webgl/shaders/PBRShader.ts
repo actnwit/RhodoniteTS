@@ -332,6 +332,9 @@ void main ()
 `;
   }
 
+  get fragmentShaderDefinitions() {
+    return '';
+  }
 
   get fragmentShaderBody() {
     return this.fragmentShaderSimple;

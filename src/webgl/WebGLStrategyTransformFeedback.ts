@@ -150,16 +150,6 @@ void main(){
         // Shader Setup
         material.createProgram(this.__transformFeedbackShaderText);
 
-        // let vertexShader = ;
-        // let fragmentShader = this.__transformFeedbackFragmentShaderText;
-        // this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-        //   {
-        //     vertexShaderStr: vertexShader,
-        //     fragmentShaderStr: fragmentShader,
-        //     attributeNames: ClassicShader.attributeNames,
-        //     attributeSemantics: ClassicShader.attributeSemantics
-        //   }
-        // );
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [

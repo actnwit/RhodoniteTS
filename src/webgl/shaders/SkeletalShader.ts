@@ -71,6 +71,11 @@ mat4 getSkinMatrix() {
 
   };
 
+
+  get fragmentShaderDefinitions() {
+    return '';
+  }
+
   vertexShaderBody:string = `
 
 

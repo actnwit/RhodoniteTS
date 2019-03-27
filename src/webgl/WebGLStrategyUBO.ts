@@ -67,22 +67,6 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
         // Shader Setup
         material.createProgram(this.vertexShaderMethodDefinitions_UBO);
 
-        // const glslShader = ClassicShader.getInstance();
-        // let vertexShader = glslShader.glslBegin +
-        //   this.vertexShaderMethodDefinitions_UBO +
-        //   glslShader.vertexShaderDefinitions +
-        //   glslShader.glslMainBegin +
-        //   glslShader.vertexShaderBody +
-        //   glslShader.glslMainEnd;
-        // let fragmentShader = glslShader.fragmentShader;
-        // this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-        //   {
-        //     vertexShaderStr: vertexShader,
-        //     fragmentShaderStr: fragmentShader,
-        //     attributeNames: ClassicShader.attributeNames,
-        //     attributeSemantics: ClassicShader.attributeSemantics
-        //   }
-        // );
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [

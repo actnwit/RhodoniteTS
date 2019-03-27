@@ -4,7 +4,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
 
-export default class SkeletalMaterialNode extends AbstractMaterialNode {
+export default class GetVarsNode extends AbstractMaterialNode {
   static readonly shader: EndShader = EndShader.getInstance();
 
   constructor() {
