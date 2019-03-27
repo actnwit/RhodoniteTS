@@ -5,10 +5,9 @@ import { ComponentType } from "../definitions/ComponentType";
 import SkeletalShader from "../../webgl/shaders/SkeletalShader";
 
 export default class SkeletalMaterialNode extends AbstractMaterialNode {
-  static readonly shader: SkeletalShader = SkeletalShader.getInstance();
 
   constructor() {
-    super();
+    super(SkeletalShader.getInstance());
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: true, isSystem: true},

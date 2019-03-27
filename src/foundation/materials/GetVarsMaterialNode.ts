@@ -9,12 +9,11 @@ import { VertexAttributeEnum } from "../main";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
 
 export default class GetVarsMaterialNode extends AbstractMaterialNode {
-  shader: GetVarsShader = new GetVarsShader();
   private __attributeNames: AttributeNames = [];
   private __attributeSemantics: Array<VertexAttributeEnum> = [];
   private __shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
   constructor() {
-    super();
+    super(new GetVarsShader());
 
     this.setShaderSemanticsInfoArray(this.__shaderSemanticsInfoArray);
 
@@ -35,7 +34,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
       });
     }
     this.__vertexOutputs.push(outShaderSocket);
-    this.shader.addVertexInputAndOutput(inShaderSocket, outShaderSocket);
+    (this.shader as GetVarsShader).addVertexInputAndOutput(inShaderSocket, outShaderSocket);
   }
 
   addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
@@ -49,7 +48,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
       });
     }
     this.__pixelOutputs.push(outShaderSocket);
-    this.shader.addPixelInputAndOutput(inShaderSocket, outShaderSocket);
+    (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket);
   }
 
   get attributeNames() {

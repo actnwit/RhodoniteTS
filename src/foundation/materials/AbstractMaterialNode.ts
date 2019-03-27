@@ -4,6 +4,7 @@ import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
+import GLSLShader from "../../webgl/shaders/GLSLShader";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -16,7 +17,7 @@ export type ShaderSocket = {
 }
 
 type MaterialNodeUID = number;
-type InputConnectionType = {materialNodeUid: number, outputName: string};
+type InputConnectionType = {materialNodeUid: number, outputName: string, inputName: string};
 
 export default abstract class AbstractMaterialNode extends RnObject {
   private __semantics: ShaderSemanticsInfo[] = [];
@@ -31,9 +32,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialNode[] = [];
+  public readonly shader: GLSLShader;
 
-  constructor() {
+  constructor(shader: GLSLShader) {
     super();
+    this.shader = shader;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
   }
@@ -54,12 +57,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__semantics = shaderSemanticsInfoArray;
   }
 
-  addVertexInputConnection(materialNode: AbstractMaterialNode, outputName: string) {
-    this.__vertexInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName});
+  addVertexInputConnection(materialNode: AbstractMaterialNode, outputName: string, inputName: string) {
+    this.__vertexInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName, inputName: inputName});
   }
 
-  addPixelInputConnection(materialNode: AbstractMaterialNode, outputName: string) {
-    this.__pixelInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName});
+  addPixelInputConnection(materialNode: AbstractMaterialNode, outputName: string, inputName: string) {
+    this.__pixelInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName, inputName: inputName});
   }
 
 }

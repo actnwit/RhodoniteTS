@@ -1,6 +1,7 @@
 import { ComponentType } from "../../foundation/definitions/ComponentType";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
+import { VertexAttribute } from "../definitions/VertexAttribute";
 
 test('GetVersMaterialNode vertex shader works correctly', () => {
 
@@ -9,7 +10,7 @@ test('GetVersMaterialNode vertex shader works correctly', () => {
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'a_position',
+      name: VertexAttribute.Position,
       isImmediateValue: false
     },
     {

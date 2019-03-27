@@ -5,14 +5,22 @@ import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
 
 export default class EndMaterialNode extends AbstractMaterialNode {
-  static readonly shader: EndShader = EndShader.getInstance();
 
   constructor() {
-    super();
+    super(EndShader.getInstance());
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+
+    this.__vertexInputs.push(
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'inPosition',
+        isImmediateValue: false
+      });
+
 
     this.__pixelInputs.push(
     {
@@ -22,13 +30,6 @@ export default class EndMaterialNode extends AbstractMaterialNode {
       isImmediateValue: false
     });
 
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'inPosition',
-        isImmediateValue: false
-      });
   }
 
   static async initDefaultTextures() {

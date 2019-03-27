@@ -158,6 +158,11 @@ export default class GetVarsShader extends GLSLShader {
     return '';
   }
 
-  static attributeNames: AttributeNames = [];
-  static attributeSemantics: Array<VertexAttributeEnum> = [];
+  get attributeNames(): AttributeNames {
+    return [];
+  }
+
+  get attributeSemantics(): Array<VertexAttributeEnum> {
+    return [];
+  }
 }

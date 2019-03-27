@@ -6,10 +6,9 @@ import EndShader from "../../webgl/shaders/EndShader";
 import AddShader from "../../webgl/shaders/AddShader";
 
 export default class AddMaterialNode extends AbstractMaterialNode {
-  static readonly shader: AddShader = AddShader.getInstance();
 
   constructor() {
-    super();
+    super(AddShader.getInstance());
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];

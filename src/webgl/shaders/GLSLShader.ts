@@ -343,5 +343,6 @@ export default abstract class GLSLShader {
   abstract get pixelShaderDefinitions(): string;
   abstract get vertexShaderBody(): string;
   abstract get pixelShaderBody(): string;
-
+  abstract get attributeNames(): AttributeNames;
+  abstract get attributeSemantics(): Array<VertexAttributeEnum>;
 }

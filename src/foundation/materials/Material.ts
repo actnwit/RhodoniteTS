@@ -107,8 +107,7 @@ export default class Material extends RnObject {
   createProgram(vertexShaderMethodDefinitions_uniform: string) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     this.__materialNodes.forEach((materialNode)=>{
-      const glslShader = (materialNode.constructor as any).shader;
-      const glslShaderClass = glslShader.constructor;
+      const glslShader = materialNode.shader;
 
       // Shader Construction
       let vertexShader = glslShader.glslBegin +
@@ -130,8 +129,8 @@ export default class Material extends RnObject {
           {
             vertexShaderStr: vertexShader,
             fragmentShaderStr: fragmentShader,
-            attributeNames: glslShaderClass.attributeNames,
-            attributeSemantics: glslShaderClass.attributeSemantics
+            attributeNames: glslShader.attributeNames,
+            attributeSemantics: glslShader.attributeSemantics
           }
         );
         Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
@@ -141,9 +140,11 @@ export default class Material extends RnObject {
   }
 
   createProgramString() {
-    for (let i=0; i<this.__materialNodes.length; i++) {
-      const materialNode = this.__materialNodes[i];
+    let vertexShader = this.__materialNodes[0].shader.glslBegin;
 
+    for (let i=0; i<this.__materialNodes.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      //materialNode.
     }
   }
 
