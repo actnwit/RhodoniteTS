@@ -13,7 +13,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
   private __attributeSemantics: Array<VertexAttributeEnum> = [];
   private __shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
   constructor() {
-    super(new GetVarsShader());
+    super(new GetVarsShader(), 'getVars');
 
     this.setShaderSemanticsInfoArray(this.__shaderSemanticsInfoArray);
 

@@ -8,7 +8,7 @@ import AddShader from "../../webgl/shaders/AddShader";
 export default class AddMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(AddShader.getInstance());
+    super(AddShader.getInstance(), 'add');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];

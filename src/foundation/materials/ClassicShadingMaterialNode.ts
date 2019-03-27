@@ -22,7 +22,7 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
-    super(ClassicShader.getInstance());
+    super(ClassicShader.getInstance(), 'classicShading');
     ClassicShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [

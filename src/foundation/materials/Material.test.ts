@@ -24,7 +24,7 @@ test('Material works correctly', () => {
       isImmediateValue: false
     }
   );
-  getVarsMaterialNode.addVertexInputAndOutput(
+  getVarsMaterialNode.addPixelInputAndOutput(
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
@@ -46,16 +46,7 @@ test('Material works correctly', () => {
 
   material.setMaterialNodes([getVarsMaterialNode, endMaterialNode], getVarsMaterialNode);
 
-  console.log(getVarsMaterialNode.shader.vertexShaderDefinitions);
+  console.log(material.createProgramString());
 
-// expect(getVarsMaterialNode.shader.vertexShaderDefinitions).toEqual(`function getVars(
-//   in vec4 a_position,
-//   out vec4 position_inLocal,
-//   in mat4 u_viewMatrix,
-//   out mat4 viewMatrix
-// )
-// {
-//   position_inLocal = a_position;
-//   viewMatrix = u_viewMatrix;
-// }`)
+ expect(material.createProgramString()).toEqual(``)
 });

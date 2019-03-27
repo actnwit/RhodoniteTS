@@ -7,7 +7,7 @@ import EndShader from "../../webgl/shaders/EndShader";
 export default class EndMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(EndShader.getInstance());
+    super(EndShader.getInstance(), 'end');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];

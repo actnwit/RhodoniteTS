@@ -21,7 +21,7 @@ export default abstract class GLSLShader {
 
   get glsl_fragColor() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
       return '';
     } else {
       return 'gl_FragColor = rt0;\n';
@@ -66,7 +66,7 @@ export default abstract class GLSLShader {
 
   get glsl_versionText() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
       return '#version 300 es\n'
     } else {
       return '';

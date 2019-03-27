@@ -7,7 +7,7 @@ import SkeletalShader from "../../webgl/shaders/SkeletalShader";
 export default class SkeletalMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(SkeletalShader.getInstance());
+    super(SkeletalShader.getInstance(), 'skinning');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: true, isSystem: true},

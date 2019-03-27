@@ -21,7 +21,7 @@ export default class EndShader extends GLSLShader {
 
   get vertexShaderDefinitions() {
     return `
-    function endVertex(in vec4 inPosition) {
+    function end(in vec4 inPosition) {
       gl_Position = inPosition;
     }
     `;
@@ -37,7 +37,7 @@ export default class EndShader extends GLSLShader {
   get pixelShaderDefinitions() {
     const _def_fragColor = this.glsl_fragColor;
     return `
-    function endPixel(in vec4 inColor) {
+    function end(in vec4 inColor) {
       rt0 = inColor;
       ${_def_fragColor}
     }

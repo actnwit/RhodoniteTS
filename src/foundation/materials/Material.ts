@@ -140,12 +140,49 @@ export default class Material extends RnObject {
   }
 
   createProgramString() {
-    let vertexShader = this.__materialNodes[0].shader.glslBegin;
+    const firstMaterialNode = this.__materialNodesForTest[0];
+    let vertexShader = firstMaterialNode.shader.glslBegin;
+    let pixelShader = firstMaterialNode.shader.glslBegin;
 
-    for (let i=0; i<this.__materialNodes.length; i++) {
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
       const materialNode = this.__materialNodesForTest[i];
-      //materialNode.
+      vertexShader += materialNode.shader.vertexShaderDefinitions;
+      pixelShader += materialNode.shader.pixelShaderDefinitions;
     }
+
+    // vertex main process
+    vertexShader += firstMaterialNode.shader.glslMainBegin;
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      for (let j=0; j<materialNode.vertexInputConnections.length; j++) {
+        const inputConnection = materialNode.vertexInputConnections[j];
+        const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+        const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
+        const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
+        const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+        const rowStr = `${glslTypeStr} ${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid};\n`;
+        vertexShader += rowStr;
+      }
+    }
+    vertexShader += firstMaterialNode.shader.glslMainEnd;
+
+    // pixel main process
+    pixelShader += firstMaterialNode.shader.glslMainBegin;
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      for (let j=0; j<materialNode.pixelInputConnections.length; j++) {
+        const inputConnection = materialNode.pixelInputConnections[j];
+        const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+        const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+        const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
+        const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+        const rowStr = `${glslTypeStr} ${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid};\n`;
+        pixelShader += rowStr;
+      }
+    }
+    pixelShader += firstMaterialNode.shader.glslMainEnd;
+
+    return vertexShader + '\n' + pixelShader;
   }
 
   isBlend() {

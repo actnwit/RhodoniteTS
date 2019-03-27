@@ -17,7 +17,7 @@ export type ShaderSocket = {
 }
 
 type MaterialNodeUID = number;
-type InputConnectionType = {materialNodeUid: number, outputName: string, inputName: string};
+type InputConnectionType = {materialNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string};
 
 export default abstract class AbstractMaterialNode extends RnObject {
   private __semantics: ShaderSemanticsInfo[] = [];
@@ -33,10 +33,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialNode[] = [];
   public readonly shader: GLSLShader;
+  public readonly shaderFunctionName: string;
 
-  constructor(shader: GLSLShader) {
+  constructor(shader: GLSLShader, shaderFunctionName: string) {
     super();
     this.shader = shader;
+    this.shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
   }
@@ -57,12 +59,55 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__semantics = shaderSemanticsInfoArray;
   }
 
-  addVertexInputConnection(materialNode: AbstractMaterialNode, outputName: string, inputName: string) {
-    this.__vertexInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName, inputName: inputName});
+  addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
+    this.__vertexInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis});
   }
 
-  addPixelInputConnection(materialNode: AbstractMaterialNode, outputName: string, inputName: string) {
-    this.__pixelInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputName: outputName, inputName: inputName});
+  addPixelInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
+    this.__pixelInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis});
   }
 
+  get vertexInputConnections(): InputConnectionType[] {
+    return this.__vertexInputConnections;
+  }
+
+  get pixelInputConnections(): InputConnectionType[] {
+    return this.__pixelInputConnections;
+  }
+
+  getVertexInput(name:string): ShaderSocket|undefined {
+    for (let input of this.__vertexInputs) {
+      if (input.name === name) {
+        return input;
+      }
+    }
+    return void 0;
+  }
+
+  getVertexOutput(name:string): ShaderSocket|undefined {
+    for (let output of this.__vertexOutputs) {
+      if (output.name === name) {
+        return output;
+      }
+    }
+    return void 0;
+  }
+
+  getPixelInput(name:string): ShaderSocket|undefined {
+    for (let input of this.__pixelInputs) {
+      if (input.name === name) {
+        return input;
+      }
+    }
+    return void 0;
+  }
+
+  getPixelOutput(name:string): ShaderSocket|undefined {
+    for (let output of this.__pixelOutputs) {
+      if (output.name === name) {
+        return output;
+      }
+    }
+    return void 0;
+  }
 }
