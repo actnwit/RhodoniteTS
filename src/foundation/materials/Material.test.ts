@@ -24,6 +24,20 @@ test('Material works correctly', () => {
       isImmediateValue: false
     }
   );
+  getVarsMaterialNode.addVertexInputAndOutput(
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: VertexAttribute.Normal,
+      isImmediateValue: false
+    },
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: 'normal_inLocal',
+      isImmediateValue: false
+    }
+  );
   getVarsMaterialNode.addPixelInputAndOutput(
     {
       compositionType: CompositionType.Vec4,

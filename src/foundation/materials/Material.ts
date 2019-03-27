@@ -150,37 +150,119 @@ export default class Material extends RnObject {
       pixelShader += materialNode.shader.pixelShaderDefinitions;
     }
 
-    // vertex main process
-    vertexShader += firstMaterialNode.shader.glslMainBegin;
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
-      for (let j=0; j<materialNode.vertexInputConnections.length; j++) {
-        const inputConnection = materialNode.vertexInputConnections[j];
-        const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-        const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
-        const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
-        const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-        const rowStr = `${glslTypeStr} ${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid};\n`;
-        vertexShader += rowStr;
-      }
-    }
-    vertexShader += firstMaterialNode.shader.glslMainEnd;
+    // vertex main process (temporary variable definitions)
+    {
+      vertexShader += firstMaterialNode.shader.glslMainBegin;
+      const varInputNames: Array<Array<string>> = [];
+      const varOutputNames: Array<Array<string>> = [];
+      for (let i=0; i<this.__materialNodesForTest.length; i++) {
+        const materialNode = this.__materialNodesForTest[i];
+        if (varInputNames[i] == null) {
+          varInputNames[i] = [];
+        }
+        if (i-1 >= 0) {
+          if (varOutputNames[i-1] == null) {
+            varOutputNames[i-1] = [];
+          }
+        }
+        for (let j=0; j<materialNode.vertexInputConnections.length; j++) {
+          const inputConnection = materialNode.vertexInputConnections[j];
+          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+          const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
+          const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
+          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
 
-    // pixel main process
-    pixelShader += firstMaterialNode.shader.glslMainBegin;
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
-      for (let j=0; j<materialNode.pixelInputConnections.length; j++) {
-        const inputConnection = materialNode.pixelInputConnections[j];
-        const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-        const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-        const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
-        const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-        const rowStr = `${glslTypeStr} ${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid};\n`;
+          varInputNames[i].push(varName);
+          if (i-1 >= 0) {
+            varOutputNames[i-1].push(varName);
+          }
+
+          const rowStr = `${glslTypeStr} ${varName};\n`;
+          vertexShader += rowStr;
+        }
+
+      }
+      for (let i=0; i<this.__materialNodesForTest.length; i++) {
+        const materialNode = this.__materialNodesForTest[i];
+
+          const functionName = materialNode.shaderFunctionName;
+
+          const varNames = varInputNames[i].concat(varOutputNames[i]);
+          let rowStr = `${functionName}(`;
+          for (let k=0; k<varNames.length; k++) {
+            const varName = varNames[k];
+            if (varName == null) {
+              continue;
+            }
+            if (k!==0) {
+              rowStr += ', ';
+            }
+            rowStr += varNames[k];
+          }
+          rowStr += ');\n';
+          vertexShader += rowStr;
+      }
+
+      vertexShader += firstMaterialNode.shader.glslMainEnd;
+    }
+
+    // pixel main process (temporary variable definitions)
+    {
+      pixelShader += firstMaterialNode.shader.glslMainBegin;
+      const varInputNames: Array<Array<string>> = [];
+      const varOutputNames: Array<Array<string>> = [];
+      for (let i=0; i<this.__materialNodesForTest.length; i++) {
+        const materialNode = this.__materialNodesForTest[i];
+        if (varInputNames[i] == null) {
+          varInputNames[i] = [];
+        }
+        if (i-1 >= 0) {
+          if (varOutputNames[i-1] == null) {
+            varOutputNames[i-1] = [];
+          }
+        }
+
+        for (let j=0; j<materialNode.pixelInputConnections.length; j++) {
+          const inputConnection = materialNode.pixelInputConnections[j];
+          const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+          const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+          const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
+          const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
+
+          varInputNames[i].push(varName);
+          if (i-1 >= 0) {
+            varOutputNames[i-1].push(varName);
+          }
+
+          const rowStr = `${glslTypeStr} ${varName};\n`;
+          pixelShader += rowStr;
+        }
+      }
+
+      for (let i=0; i<this.__materialNodesForTest.length; i++) {
+        const materialNode = this.__materialNodesForTest[i];
+        const functionName = materialNode.shaderFunctionName;
+
+        const varNames = varInputNames[i].concat(varOutputNames[i]);
+        let rowStr = `${functionName}(`;
+        for (let k=0; k<varNames.length; k++) {
+          const varName = varNames[k];
+          if (varName == null) {
+            continue;
+          }
+          if (k!==0) {
+            rowStr += ', ';
+          }
+          rowStr += varNames[k];
+        }
+        rowStr += ');\n';
         pixelShader += rowStr;
       }
+
+      pixelShader += firstMaterialNode.shader.glslMainEnd;
     }
-    pixelShader += firstMaterialNode.shader.glslMainEnd;
 
     return vertexShader + '\n' + pixelShader;
   }
