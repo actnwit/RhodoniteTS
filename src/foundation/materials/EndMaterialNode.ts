@@ -4,7 +4,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
 
-export default class SkeletalMaterialNode extends AbstractMaterialNode {
+export default class EndMaterialNode extends AbstractMaterialNode {
   static readonly shader: EndShader = EndShader.getInstance();
 
   constructor() {
@@ -18,14 +18,16 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'inColor'
+      name: 'inColor',
+      isImmediateValue: false
     });
 
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'inPosition'
+        name: 'inPosition',
+        isImmediateValue: false
       });
   }
 

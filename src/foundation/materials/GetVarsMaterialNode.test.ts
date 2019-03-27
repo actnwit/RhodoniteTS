@@ -1,11 +1,11 @@
-import GetVarsShader from "./GetVarsShader";
 import { ComponentType } from "../../foundation/definitions/ComponentType";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
+import GetVarsMaterialNode from "./GetVarsMaterialNode";
 
-test('GetVersShader vertex shader works correctly', () => {
+test('GetVersMaterialNode vertex shader works correctly', () => {
 
-  const getVarsShader = new GetVarsShader();
-  getVarsShader.addVertexInputAndOutput(
+  const getVarsMaterialNode = new GetVarsMaterialNode();
+  getVarsMaterialNode.addVertexInputAndOutput(
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
@@ -19,7 +19,7 @@ test('GetVersShader vertex shader works correctly', () => {
       isImmediateValue: false
     }
   );
-  getVarsShader.addVertexInputAndOutput(
+  getVarsMaterialNode.addVertexInputAndOutput(
     {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
@@ -34,9 +34,9 @@ test('GetVersShader vertex shader works correctly', () => {
     }
   );
 
-  console.log(getVarsShader.vertexShaderDefinitions);
+  console.log(getVarsMaterialNode.shader.vertexShaderDefinitions);
 
-expect(getVarsShader.vertexShaderDefinitions).toEqual(`function getVars(
+expect(getVarsMaterialNode.shader.vertexShaderDefinitions).toEqual(`function getVars(
   in vec4 a_position,
   out vec4 position_inLocal,
   in mat4 u_viewMatrix,
@@ -48,10 +48,10 @@ expect(getVarsShader.vertexShaderDefinitions).toEqual(`function getVars(
 }`)
 });
 
-test('GetVersShader pixel shader works correctly', () => {
+test('GetVersMaterialNode pixel shader works correctly', () => {
 
-  const getVarsShader = new GetVarsShader();
-  getVarsShader.addPixelInputAndOutput(
+  const getVarsMaterialNode = new GetVarsMaterialNode();
+  getVarsMaterialNode.addPixelInputAndOutput(
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
@@ -65,7 +65,7 @@ test('GetVersShader pixel shader works correctly', () => {
       isImmediateValue: false
     }
   );
-  getVarsShader.addPixelInputAndOutput(
+  getVarsMaterialNode.addPixelInputAndOutput(
     {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
@@ -80,9 +80,9 @@ test('GetVersShader pixel shader works correctly', () => {
     }
   );
 
-  console.log(getVarsShader.pixelShaderDefinitions);
+  console.log(getVarsMaterialNode.shader.pixelShaderDefinitions);
 
-expect(getVarsShader.pixelShaderDefinitions).toEqual(`function getVars(
+expect(getVarsMaterialNode.shader.pixelShaderDefinitions).toEqual(`function getVars(
   in vec4 v_position,
   out vec4 position_inWorld,
   in mat4 u_viewMatrix,

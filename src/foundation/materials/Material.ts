@@ -14,6 +14,7 @@ import Vector2 from "../math/Vector2";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
 import GLSLShader from "../../webgl/shaders/GLSLShader";
+import GetVarsMaterialNode from "./GetVarsMaterialNode";
 
 
 export default class Material extends RnObject {
@@ -23,12 +24,19 @@ export default class Material extends RnObject {
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
+  private __startMaterialNode?: AbstractMaterialNode;
+  private __materialNodesForTest: AbstractMaterialNode[] = [];
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
     this.__materialNodes = materialNodes;
 
     this.initialize();
+  }
+
+  setMaterialNodes(materialNodes: AbstractMaterialNode[], startMaterialNode: AbstractMaterialNode) {
+    this.__materialNodesForTest = materialNodes;
+    this.__startMaterialNode = startMaterialNode;
   }
 
   initialize() {
@@ -130,6 +138,13 @@ export default class Material extends RnObject {
         return this._shaderProgramUid;
       }
     });
+  }
+
+  createProgramString() {
+    for (let i=0; i<this.__materialNodes.length; i++) {
+      const materialNode = this.__materialNodes[i];
+
+    }
   }
 
   isBlend() {

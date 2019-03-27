@@ -19,38 +19,44 @@ export default class AddMaterialNode extends AbstractMaterialNode {
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'lhs'
+      name: 'lhs',
+      isImmediateValue: false
     });
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'rhs'
+        name: 'rhs',
+        isImmediateValue: false
       });
     this.__vertexOutputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'outValue'
+        name: 'outValue',
+        isImmediateValue: false
       });
 
     this.__pixelInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'lhs'
+        name: 'lhs',
+        isImmediateValue: false
       });
     this.__pixelInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'rhs'
+        name: 'rhs',
+        isImmediateValue: false
       });
     this.__pixelOutputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
-        name: 'outValue'
+        name: 'outValue',
+        isImmediateValue: false
       });
   }
 
