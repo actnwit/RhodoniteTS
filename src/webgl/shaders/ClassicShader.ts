@@ -58,7 +58,7 @@ ${this.processSkinning}
 
   // Skeletal
   bool isSkinning;
-  skinning(isSkinning, normalMatrix);
+  skinning(isSkinning, normalMatrix, normalMatrix);
 
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
