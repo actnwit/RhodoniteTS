@@ -27,13 +27,14 @@ test('Material works correctly', () => {
     {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
-      name: 'u_viewMatrix',
-      isImmediateValue: false
+      name: 'redColor',
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 0.0)'
     },
     {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
-      name: 'viewMatrix',
+      name: 'outColor',
       isImmediateValue: false
     }
   );

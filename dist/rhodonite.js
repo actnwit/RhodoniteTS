@@ -1239,4 +1239,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ })
 
 /******/ });
-(0,eval)('this').Rn.VERSION='version: 0.1.1-294-g5b81-mod branch: feature/shader-system';
+(0,eval)('this').Rn.VERSION='version: 0.1.1-295-gfce0-mod branch: feature/shader-system';

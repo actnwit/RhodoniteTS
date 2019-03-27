@@ -67,15 +67,16 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
   );
   getVarsMaterialNode.addPixelInputAndOutput(
     {
-      compositionType: CompositionType.Mat4,
+      compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'u_viewMatrix',
-      isImmediateValue: false
+      name: 'redColor',
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 0.0)'
     },
     {
-      compositionType: CompositionType.Mat4,
+      compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: 'viewMatrix',
+      name: 'outColor',
       isImmediateValue: false
     }
   );
@@ -85,11 +86,10 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
 expect(getVarsMaterialNode.shader.pixelShaderDefinitions).toEqual(`function getVars(
   in vec4 v_position,
   out vec4 position_inWorld,
-  in mat4 u_viewMatrix,
-  out mat4 viewMatrix
+  out vec4 outColor
 )
 {
   position_inWorld = v_position;
-  viewMatrix = u_viewMatrix;
+  outColor = vec4(1.0, 0.0, 0.0, 0.0);
 }`)
 });

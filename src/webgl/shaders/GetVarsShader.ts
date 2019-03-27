@@ -47,16 +47,17 @@ export default class GetVarsShader extends GLSLShader {
 
     let args = '';
     for (let i=0; i<this.__vertexInputs.length; i++) {
+      const input = this.__vertexInputs[i];
       if (i!=0) {
         args += ',\n  ';
       }
-      const input = this.__vertexInputs[i];
-      const inputType = input.compositionType.getGlslStr(input.componentType);
-      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
-      const inputRowStr = `in ${inputType} ${inputName}`;
-      args += inputRowStr;
-
-      args += ',\n  ';
+      if (!input.isImmediateValue) {
+        const inputType = input.compositionType.getGlslStr(input.componentType);
+        const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+        const inputRowStr = `in ${inputType} ${inputName}`;
+        args += inputRowStr;
+        args += ',\n  ';
+      }
 
       const output = this.__vertexOutputs[i];
       const outputType = output.compositionType.getGlslStr(output.componentType);
@@ -74,7 +75,12 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__vertexInputs.length; i++) {
       const input = this.__vertexInputs[i];
       const output = this.__vertexOutputs[i];
-      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      let inputName;
+      if (input.isImmediateValue) {
+        inputName = input.immediateValue;
+      } else {
+        inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      }
       const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
       let rowStr = `${outputName} = ${inputName};\n`;
       if (i !== this.__vertexInputs.length - 1) {
@@ -101,17 +107,17 @@ export default class GetVarsShader extends GLSLShader {
 
     let args = '';
     for (let i=0; i<this.__pixelInputs.length; i++) {
+      const input = this.__pixelInputs[i];
       if (i!=0) {
         args += ',\n  ';
       }
-      const input = this.__pixelInputs[i];
-      const inputType = input.compositionType.getGlslStr(input.componentType);
-      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
-      const inputRowStr = `in ${inputType} ${inputName}`;
-      args += inputRowStr;
-
-      args += ',\n  ';
-
+      if (!input.isImmediateValue) {
+        const inputType = input.compositionType.getGlslStr(input.componentType);
+        const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+        const inputRowStr = `in ${inputType} ${inputName}`;
+        args += inputRowStr;
+        args += ',\n  ';
+      }
       const output = this.__pixelOutputs[i];
       const outputType = output.compositionType.getGlslStr(output.componentType);
       const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
@@ -128,7 +134,12 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__pixelInputs.length; i++) {
       const input = this.__pixelInputs[i];
       const output = this.__pixelOutputs[i];
-      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      let inputName;
+      if (input.isImmediateValue) {
+        inputName = input.immediateValue;
+      } else {
+        inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      }
       const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
       let rowStr = `${outputName} = ${inputName};\n`;
       if (i !== this.__pixelInputs.length - 1) {
