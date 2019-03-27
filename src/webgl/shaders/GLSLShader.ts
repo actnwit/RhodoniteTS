@@ -328,6 +328,7 @@ export default abstract class GLSLShader {
     `;
   }
 
+  abstract get vertexShaderBody(): string;
   abstract get fragmentShaderBody(): string;
 
 }
