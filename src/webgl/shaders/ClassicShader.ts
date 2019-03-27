@@ -188,11 +188,11 @@ void main ()
 `;
   }
 
-  get fragmentShaderDefinitions() {
+  get pixelShaderDefinitions() {
     return '';
   }
 
-  get fragmentShaderBody() {
+  get pixelShaderBody() {
     return this.fragmentShaderSimple;
   }
 

@@ -109,7 +109,7 @@ export default class Material extends RnObject {
         glslShader.glslMainBegin +
         glslShader.vertexShaderBody +
         glslShader.glslMainEnd;
-      let fragmentShader = glslShader.fragmentShaderBody;
+      let fragmentShader = glslShader.pixelShaderBody;
 
       const shaderCharCount = (vertexShader + fragmentShader).length;
 

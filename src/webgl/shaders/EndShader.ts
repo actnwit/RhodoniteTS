@@ -34,7 +34,7 @@ export default class EndShader extends GLSLShader {
   }
 
 
-  get fragmentShaderDefinitions() {
+  get pixelShaderDefinitions() {
     const _def_fragColor = this.glsl_fragColor;
     return `
     function endPixel(in vec4 inColor) {
@@ -44,7 +44,7 @@ export default class EndShader extends GLSLShader {
     `;
   }
 
-  get fragmentShaderBody() {
+  get pixelShaderBody() {
     return '';
   }
 

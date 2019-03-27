@@ -30,6 +30,7 @@ export default class GetVarsShader extends GLSLShader {
     this.__vertexInputs.push(inShaderSocket);
     this.__vertexOutputs.push(outShaderSocket);
   }
+
   addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
     if (inShaderSocket.componentType !== outShaderSocket.componentType ||
       inShaderSocket.compositionType !== outShaderSocket.compositionType) {
@@ -41,7 +42,7 @@ export default class GetVarsShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-    const startArgs = `function getVers(
+    const startArgs = `function getVars(
   `;
 
     let args = '';
@@ -90,17 +91,51 @@ export default class GetVarsShader extends GLSLShader {
   }
 
 
-  get fragmentShaderDefinitions() {
-    const _def_fragColor = this.glsl_fragColor;
-    return `
-    function endPixel(in vec4 inColor) {
-      rt0 = inColor;
-      ${_def_fragColor}
+  get pixelShaderDefinitions() {
+  const startArgs = `function getVars(
+  `;
+
+    let args = '';
+    for (let i=0; i<this.__pixelInputs.length; i++) {
+      if (i!=0) {
+        args += ',\n  ';
+      }
+      const input = this.__pixelInputs[i];
+      const inputType = input.compositionType.getGlslStr(input.componentType);
+      const inputRowStr = `in ${inputType} ${input.name}`;
+      args += inputRowStr;
+
+      args += ',\n  ';
+
+      const output = this.__pixelOutputs[i];
+      const outputType = output.compositionType.getGlslStr(output.componentType);
+      const outputRowStr = `out ${outputType} ${output.name}`;
+      args += outputRowStr;
     }
-    `;
+
+    const endArgs = `
+)
+{
+  `;
+
+    let processStr = '';
+    for (let i=0; i<this.__pixelInputs.length; i++) {
+      const input = this.__pixelInputs[i];
+      const output = this.__pixelOutputs[i];
+      let rowStr = `${output.name} = ${input.name};\n`;
+      if (i !== this.__pixelInputs.length - 1) {
+        rowStr += '  ';
+      }
+      processStr += rowStr;
+    }
+
+    const end = `}`;
+
+    return startArgs + args + endArgs + processStr + end;
+
   }
 
-  get fragmentShaderBody() {
+  get pixelShaderBody() {
     return '';
   }
 

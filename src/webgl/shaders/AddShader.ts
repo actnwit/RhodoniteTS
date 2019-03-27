@@ -32,7 +32,7 @@ export default class AddShader extends GLSLShader {
     return '';
   }
 
-  get fragmentShaderDefinitions() {
+  get pixelShaderDefinitions() {
     return `
     function add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
       outValue = lfs + rhs;
@@ -40,7 +40,7 @@ export default class AddShader extends GLSLShader {
     `;
   }
 
-  get fragmentShaderBody() {
+  get pixelShaderBody() {
     return `
     `;
   }

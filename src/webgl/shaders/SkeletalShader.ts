@@ -72,7 +72,7 @@ mat4 getSkinMatrix() {
   };
 
 
-  get fragmentShaderDefinitions() {
+  get pixelShaderDefinitions() {
     return '';
   }
 
@@ -81,7 +81,7 @@ mat4 getSkinMatrix() {
 
   `;
 
-  get fragmentShaderBody() {
+  get pixelShaderBody() {
     return '';
   }
 
