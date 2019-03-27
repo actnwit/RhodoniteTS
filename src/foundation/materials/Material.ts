@@ -13,6 +13,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
+import GLSLShader from "../../webgl/shaders/GLSLShader";
 
 
 export default class Material extends RnObject {
@@ -100,9 +101,14 @@ export default class Material extends RnObject {
     this.__materialNodes.forEach((materialNode)=>{
       const glslShader = (materialNode.constructor as any).shader;
       const glslShaderClass = glslShader.constructor;
-      let vertexShader = glslShader.vertexShaderVariableDefinitions +
+
+      // Shader Construction
+      let vertexShader = glslShader.glslBegin +
         vertexShaderMethodDefinitions_uniform +
-        glslShader.vertexShaderBody
+        glslShader.vertexShaderVariableDefinitions +
+        glslShader.glslMainBegin +
+        glslShader.vertexShaderBody +
+        glslShader.glslMainEnd;
       let fragmentShader = glslShader.fragmentShader;
 
       const shaderCharCount = (vertexShader + fragmentShader).length;

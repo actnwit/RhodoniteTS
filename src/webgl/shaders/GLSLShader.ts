@@ -1,5 +1,5 @@
-import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import WebGLResourceRepository from "./WebGLResourceRepository";
+import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
+import WebGLResourceRepository from "../WebGLResourceRepository";
 
 export type AttributeNames = Array<string>;
 
@@ -71,6 +71,25 @@ export default abstract class GLSLShader {
     }
   }
 
+  get glslBegin() {
+    const _version = this.glsl_versionText;
+    return `${_version}
+    precision highp float;
+    `
+  }
+
+  get glslMainBegin() {
+    return `
+    void main() {
+    `
+  }
+
+  get glslMainEnd() {
+    return `
+    }
+    `
+  }
+
   get glsl1ShaderTextureLodExt() {
     const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
     return (ext != null) ? '#extension GL_EXT_shader_texture_lod : require' : '';
@@ -127,21 +146,36 @@ export default abstract class GLSLShader {
   }
 
   get processSkinning() {
-    return `
-    bool isSkinning = false;
-    if (u_skinningMode == 1) {
-      mat4 skinMat = getSkinMatrix();
-      v_position_inWorld = skinMat * vec4(a_position, 1.0);
-      normalMatrix = toNormalMatrix(skinMat);
-      v_normal_inWorld = normalize(normalMatrix * a_normal);
-      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-      isSkinning = true;
-    } else {
-      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-    }
-    `;
 
+    return `
+    bool skinning(
+      out bool isSkinning,
+      inout mat3 normalMatrix
+      )
+    {
+      mat4 worldMatrix = getMatrix(a_instanceID);
+      mat4 viewMatrix = getViewMatrix(a_instanceID);
+      mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
+
+      // Skeletal
+      isSkinning = false;
+      if (u_skinningMode == 1) {
+        mat4 skinMat = getSkinMatrix();
+        v_position_inWorld = skinMat * vec4(a_position, 1.0);
+        normalMatrix = toNormalMatrix(skinMat);
+        v_normal_inWorld = normalize(normalMatrix * a_normal);
+        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+        isSkinning = true;
+      } else {
+        v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+        normalMatrix = normalMatrix;
+        v_normal_inWorld = normalize(normalMatrix * a_normal);
+      }
+
+      return isSkinning;
+    }
+`;
   }
 
   get pbrUniformDefinition() {

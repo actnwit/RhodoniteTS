@@ -13,7 +13,7 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import PBRShader from "../../webgl/PBRShader";
+import PBRShader from "../../webgl/shaders/PBRShader";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

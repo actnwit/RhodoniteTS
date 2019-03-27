@@ -6,7 +6,7 @@ import { MathUtil } from "../foundation/math/MathUtil";
 import { PixelFormat } from "../foundation/definitions/PixelFormat";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import { TextureParameter } from "../foundation/definitions/TextureParameter";
-import GLSLShader from "./GLSLShader";
+import GLSLShader from "./shaders/GLSLShader";
 import { BufferUse } from "../foundation/definitions/BufferUse";
 import WebGLStrategy from "./WebGLStrategy";
 import MeshComponent from "../foundation/components/MeshComponent"
@@ -15,7 +15,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import ClassicShader from "./ClassicShader";
+import ClassicShader from "./shaders/ClassicShader";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -98,9 +98,12 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
     // Shader Setup
     const glslShader = ClassicShader.getInstance();
-    let vertexShader = glslShader.vertexShaderVariableDefinitions +
+    let vertexShader = glslShader.glslBegin +
       this.vertexShaderMethodDefinitions_dataTexture +
-      glslShader.vertexShaderBody
+      glslShader.vertexShaderVariableDefinitions +
+      glslShader.glslMainBegin +
+      glslShader.vertexShaderBody +
+      glslShader.glslMainEnd;
     let fragmentShader = glslShader.fragmentShader;
     this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
       {

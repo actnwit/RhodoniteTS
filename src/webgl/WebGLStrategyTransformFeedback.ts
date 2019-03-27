@@ -6,7 +6,7 @@ import { MathUtil } from "../foundation/math/MathUtil";
 import { PixelFormat } from "../foundation/definitions/PixelFormat";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import { TextureParameter } from "../foundation/definitions/TextureParameter";
-import GLSLShader from "./GLSLShader";
+import GLSLShader from "./shaders/GLSLShader";
 import Entity from "../foundation/core/Entity";
 import EntityRepository from "../foundation/core/EntityRepository";
 import { BufferUse } from "../foundation/definitions/BufferUse";
@@ -20,8 +20,8 @@ import { PrimitiveMode } from "../foundation/definitions/PrimitiveMode";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import ClassicShaderader from "./ClassicShader";
-import ClassicShader from "./ClassicShader";
+import ClassicShaderader from "./shaders/ClassicShader";
+import ClassicShader from "./shaders/ClassicShader";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;

@@ -13,7 +13,7 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/ClassicShader";
+import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 
 export default class ClassicShadingMaterialNode extends AbstractMaterialNode {

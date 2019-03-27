@@ -1,5 +1,5 @@
 import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
-import GLSLShader from "./GLSLShader";
+import GLSLShader from "./shaders/GLSLShader";
 import WebGLStrategy from "./WebGLStrategy";
 import MeshComponent from "../foundation/components/MeshComponent";
 import WebGLContextWrapper from "./WebGLContextWrapper";
@@ -13,7 +13,6 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
-import PBRShader from "./PBRShader";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";

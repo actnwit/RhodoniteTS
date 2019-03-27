@@ -1,7 +1,7 @@
-import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
-import Config from "../foundation/core/Config";
-import { ShaderNode } from "../foundation/definitions/ShaderNode";
+import Config from "../../foundation/core/Config";
+import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 
 export type AttributeNames = Array<string>;
 
@@ -26,8 +26,7 @@ export default class ClassicShader extends GLSLShader {
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `${_version}
-precision highp float;
+    return `
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -46,28 +45,27 @@ ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
+${this.processSkinning}
 `;
 
   };
 
   vertexShaderBody:string = `
-
-void main ()
-{
   mat4 worldMatrix = getMatrix(a_instanceID);
   mat4 viewMatrix = getViewMatrix(a_instanceID);
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
+  // Skeletal
+  bool isSkinning;
+  skinning(isSkinning, normalMatrix);
+
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  // Skeletal
-  ${this.processSkinning}
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
-}
   `;
 
   get fragmentShaderSimple() {

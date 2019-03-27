@@ -1,7 +1,7 @@
 import Accessor from "../foundation/memory/Accessor";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Primitive from "../foundation/geometry/Primitive";
-import GLSLShader, {AttributeNames} from "./GLSLShader";
+import GLSLShader, {AttributeNames} from "./shaders/GLSLShader";
 import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import { TextureParameterEnum, TextureParameter } from "../foundation/definitions/TextureParameter";
 import { PixelFormatEnum, PixelFormat } from "../foundation/definitions/PixelFormat";
