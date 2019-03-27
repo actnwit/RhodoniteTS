@@ -1,6 +1,6 @@
-version: 0.1.1-291-gaba7-mod
+version: 0.1.1-292-g3b29-mod
 branch: feature/shader-system
-2e1b9388e42d1540187e33025c4028cba9893771503dd5a753fddd922620e304 ./dist/rhodonite.js
-e3a433bcb652a6557326cbb03945d08cf823dc8eb816f6dba590d05bc7921440 ./dist/rhodonite.min.js
-ae4f869ef7dec7251d049b8da2e7a0544392c6f3f55c6893f7b0943d3a57abe8 ./dist/rhodonite-webgl.js
-7e1b05b22b058d0368925a74e831dab22528b4ab4caa000df467eff9f30265d6 ./dist/rhodonite-webgl.min.js
+2e0421c54ad34da4a832e931916cc416fb133875087def1109dc0fd2cda75f00 ./dist/rhodonite.js
+b17e429c9b526dc100133a0357c3f127594821698cf1762c7c40a9138d348629 ./dist/rhodonite.min.js
+890592d0c474471d92a3865814370bc576bebe426a9df029fc7a828c6623687b ./dist/rhodonite-webgl.js
+00fc81fc0951e99f6257ad2354075e0fc2e72bfad112bc6b62430d72a494b8f7 ./dist/rhodonite-webgl.min.js

@@ -9,10 +9,11 @@ export default class AddMaterialNode extends AbstractMaterialNode {
   static readonly shader: AddShader = AddShader.getInstance();
 
   constructor() {
+    super();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];
-    super(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
     this.__vertexInputs.push(
     {

@@ -23,6 +23,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   static readonly shader: PBRShader = PBRShader.getInstance();
 
   constructor() {
+    super();
     PbrShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -39,7 +40,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       // {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false},
       {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
     ];
-    super(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
   static async initDefaultTextures() {

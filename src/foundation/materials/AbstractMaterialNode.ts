@@ -1,14 +1,14 @@
 import RnObject from "../core/RnObject";
-import { ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
-import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
+import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 
 export type ShaderSocket = {
   compositionType: CompositionTypeEnum,
   componentType: ComponentTypeEnum,
-  name: string
+  name: string | VertexAttributeEnum | ShaderSemanticsEnum
 }
 
 export default abstract class AbstractMaterialNode extends RnObject {
@@ -19,12 +19,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __vertexOutputs: ShaderSocket[] = [];
   protected __pixelOutputs: ShaderSocket[] = [];
 
-  constructor(semantics: ShaderSemanticsInfo[]) {
+  constructor() {
     super();
-    this.__semantics = semantics;
   }
+
 
   get _semanticsInfoArray() {
     return this.__semantics;
+  }
+
+  setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
+    this.__semantics = shaderSemanticsInfoArray;
   }
 }

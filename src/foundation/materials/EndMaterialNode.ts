@@ -8,10 +8,11 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
   static readonly shader: EndShader = EndShader.getInstance();
 
   constructor() {
+    super();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];
-    super(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
     this.__pixelInputs.push(
     {

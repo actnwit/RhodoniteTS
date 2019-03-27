@@ -1,17 +1,18 @@
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
-import AbstractMaterialNode from "./AbstractMaterialNode";
+import AbstractMaterialNode, { ShaderSocket } from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
+import GetVarsShader from "../../webgl/shaders/GetVarsShader";
 
 export default class GetVarsNode extends AbstractMaterialNode {
-  static readonly shader: EndShader = EndShader.getInstance();
+  shader: GetVarsShader = new GetVarsShader();
 
   constructor() {
+    super();
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-    ];
-    super(shaderSemanticsInfoArray);
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
     this.__pixelInputs.push(
     {
@@ -28,7 +29,9 @@ export default class GetVarsNode extends AbstractMaterialNode {
       });
   }
 
-  static async initDefaultTextures() {
+  addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
+    this.__vertexOutputs.push(outShaderSocket);
+    this.shader
   }
 
   convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
