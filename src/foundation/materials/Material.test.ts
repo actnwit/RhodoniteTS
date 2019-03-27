@@ -4,6 +4,7 @@ import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import Material from "./Material";
 import EndMaterialNode from "./EndMaterialNode";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import AddMaterialNode from "./AddMaterialNode";
 
 test('Material works correctly', () => {
 
@@ -54,11 +55,15 @@ test('Material works correctly', () => {
     }
   );
 
+  const addMaterialNode = new AddMaterialNode();
+  addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'position_inLocal', 'lhs');
+  addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'normal_inLocal', 'rhs');
+
   const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'position_inLocal', 'inPosition');
+  endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
   endMaterialNode.addPixelInputConnection(getVarsMaterialNode, 'outColor', 'inColor');
 
-  material.setMaterialNodes([getVarsMaterialNode, endMaterialNode], getVarsMaterialNode);
+  material.setMaterialNodes([getVarsMaterialNode, addMaterialNode, endMaterialNode], getVarsMaterialNode);
 
   console.log(material.createProgramString());
 

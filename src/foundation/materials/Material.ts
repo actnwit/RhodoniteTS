@@ -15,6 +15,7 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
 import GLSLShader from "../../webgl/shaders/GLSLShader";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
+import { pathExists } from "fs-extra";
 
 
 export default class Material extends RnObject {
@@ -150,13 +151,26 @@ export default class Material extends RnObject {
       pixelShader += materialNode.shader.pixelShaderDefinitions;
     }
 
+    // remove node which don't have inputConnections (except first node)
+    const vertexMaterialNodes = [];
+    const pixelMaterialNodes = [];
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      if (i === 0 || materialNode.vertexInputConnections.length > 0) {
+        vertexMaterialNodes.push(materialNode);
+      }
+      if (i === 0 || materialNode.pixelInputConnections.length > 0) {
+        pixelMaterialNodes.push(materialNode);
+      }
+    }
+
     // vertex main process (temporary variable definitions)
     {
       vertexShader += firstMaterialNode.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
-      for (let i=0; i<this.__materialNodesForTest.length; i++) {
-        const materialNode = this.__materialNodesForTest[i];
+      for (let i=0; i<vertexMaterialNodes.length; i++) {
+        const materialNode = vertexMaterialNodes[i];
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
         }
@@ -183,8 +197,8 @@ export default class Material extends RnObject {
         }
 
       }
-      for (let i=0; i<this.__materialNodesForTest.length; i++) {
-        const materialNode = this.__materialNodesForTest[i];
+      for (let i=0; i<vertexMaterialNodes.length; i++) {
+        const materialNode = vertexMaterialNodes[i];
 
           const functionName = materialNode.shaderFunctionName;
 
@@ -212,8 +226,8 @@ export default class Material extends RnObject {
       pixelShader += firstMaterialNode.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
-      for (let i=0; i<this.__materialNodesForTest.length; i++) {
-        const materialNode = this.__materialNodesForTest[i];
+      for (let i=0; i<pixelMaterialNodes.length; i++) {
+        const materialNode = pixelMaterialNodes[i];
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
         }
@@ -241,8 +255,8 @@ export default class Material extends RnObject {
         }
       }
 
-      for (let i=0; i<this.__materialNodesForTest.length; i++) {
-        const materialNode = this.__materialNodesForTest[i];
+      for (let i=0; i<pixelMaterialNodes.length; i++) {
+        const materialNode = pixelMaterialNodes[i];
         const functionName = materialNode.shaderFunctionName;
 
         const varNames = varInputNames[i].concat(varOutputNames[i]);
