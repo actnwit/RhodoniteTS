@@ -52,14 +52,16 @@ export default class GetVarsShader extends GLSLShader {
       }
       const input = this.__vertexInputs[i];
       const inputType = input.compositionType.getGlslStr(input.componentType);
-      const inputRowStr = `in ${inputType} ${input.name}`;
+      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      const inputRowStr = `in ${inputType} ${inputName}`;
       args += inputRowStr;
 
       args += ',\n  ';
 
       const output = this.__vertexOutputs[i];
       const outputType = output.compositionType.getGlslStr(output.componentType);
-      const outputRowStr = `out ${outputType} ${output.name}`;
+      const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
+      const outputRowStr = `out ${outputType} ${outputName}`;
       args += outputRowStr;
     }
 
@@ -72,7 +74,9 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__vertexInputs.length; i++) {
       const input = this.__vertexInputs[i];
       const output = this.__vertexOutputs[i];
-      let rowStr = `${output.name} = ${input.name};\n`;
+      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
+      let rowStr = `${outputName} = ${inputName};\n`;
       if (i !== this.__vertexInputs.length - 1) {
         rowStr += '  ';
       }
@@ -102,14 +106,16 @@ export default class GetVarsShader extends GLSLShader {
       }
       const input = this.__pixelInputs[i];
       const inputType = input.compositionType.getGlslStr(input.componentType);
-      const inputRowStr = `in ${inputType} ${input.name}`;
+      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      const inputRowStr = `in ${inputType} ${inputName}`;
       args += inputRowStr;
 
       args += ',\n  ';
 
       const output = this.__pixelOutputs[i];
       const outputType = output.compositionType.getGlslStr(output.componentType);
-      const outputRowStr = `out ${outputType} ${output.name}`;
+      const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
+      const outputRowStr = `out ${outputType} ${outputName}`;
       args += outputRowStr;
     }
 
@@ -122,7 +128,9 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__pixelInputs.length; i++) {
       const input = this.__pixelInputs[i];
       const output = this.__pixelOutputs[i];
-      let rowStr = `${output.name} = ${input.name};\n`;
+      const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
+      const outputName = GLSLShader.getStringFromShaderAnyDataType(output.name);
+      let rowStr = `${outputName} = ${inputName};\n`;
       if (i !== this.__pixelInputs.length - 1) {
         rowStr += '  ';
       }

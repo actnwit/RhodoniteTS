@@ -4,7 +4,7 @@ export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
   shaderStr: string;
 }
-class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
+export class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
   private __attributeSlot: Index;
   private __shaderStr: string;
   constructor({index, str, shaderStr, attributeSlot} : {index: number, str: string, shaderStr: string, attributeSlot: Index}) {

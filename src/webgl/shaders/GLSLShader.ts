@@ -1,5 +1,7 @@
-import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "../WebGLResourceRepository";
+import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
+import { ShaderSemantics, ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
 
 export type AttributeNames = Array<string>;
 
@@ -328,6 +330,15 @@ export default abstract class GLSLShader {
     `;
   }
 
+  static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {
+    if (data instanceof ShaderSemanticsClass) {
+      return 'u_' + data.singularStr;
+    } else if (data instanceof VertexAttributeClass) {
+      return data.shaderStr;
+    } else {
+      return data as string;
+    }
+  }
   abstract get vertexShaderDefinitions(): string;
   abstract get pixelShaderDefinitions(): string;
   abstract get vertexShaderBody(): string;

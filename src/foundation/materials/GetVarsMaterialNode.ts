@@ -14,24 +14,17 @@ export default class GetVarsNode extends AbstractMaterialNode {
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
-    this.__pixelInputs.push(
-    {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      name: 'inColor'
-    });
-
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'inPosition'
-      });
   }
 
   addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
     this.__vertexOutputs.push(outShaderSocket);
-    this.shader
+
+    const input = {
+      conpositionType: inShaderSocket.compositionType,
+      componentType: inShaderSocket.componentType,
+      name: inShaderSocket
+    }
+//    this.shader.addVertexInputAndOutput()
   }
 
   convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {

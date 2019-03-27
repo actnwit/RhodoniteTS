@@ -5,11 +5,15 @@ import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 
+export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
+
 export type ShaderSocket = {
   compositionType: CompositionTypeEnum,
   componentType: ComponentTypeEnum,
-  name: string | VertexAttributeEnum | ShaderSemanticsEnum
+  name: ShaderAttributeOrSemanticsOrString
 }
+
+
 
 export default abstract class AbstractMaterialNode extends RnObject {
   private __semantics: ShaderSemanticsInfo[] = [];

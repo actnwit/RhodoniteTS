@@ -7,7 +7,7 @@ export interface ShaderSemanticsEnum extends EnumIO {
   pluralStr: string;
 }
 
-class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
+export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
   public readonly pluralStr: string;
   constructor({index, singularStr, pluralStr} : {index: number, singularStr: string, pluralStr: string}) {
     super({index:index, str:singularStr});
