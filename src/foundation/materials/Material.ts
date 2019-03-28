@@ -172,10 +172,15 @@ export default class Material extends RnObject {
     vertexShader += '\n';
 
     // function definitions
+    const existFunctions: string[] = [];
     for (let i=0; i<this.__materialNodesForTest.length; i++) {
       const materialNode = this.__materialNodesForTest[i];
+      if (existFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
+        continue;
+      }
       vertexShader += materialNode.shader.vertexShaderDefinitions;
       pixelShader += materialNode.shader.pixelShaderDefinitions;
+      existFunctions.push(materialNode.shaderFunctionName);
     }
 
     // remove node which don't have inputConnections (except first node)
@@ -191,12 +196,12 @@ export default class Material extends RnObject {
       }
     }
 
-    // vertex main process (temporary variable definitions)
+    // vertex main process
     {
       vertexShader += firstMaterialNode.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
-      for (let i=0; i<vertexMaterialNodes.length; i++) {
+      for (let i=1; i<vertexMaterialNodes.length; i++) {
         const materialNode = vertexMaterialNodes[i];
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
@@ -213,22 +218,41 @@ export default class Material extends RnObject {
           const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
           const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
-
           varInputNames[i].push(varName);
-          if (i-1 >= 0) {
-            varOutputNames[i-1].push(varName);
-          }
 
           const rowStr = `${glslTypeStr} ${varName};\n`;
           vertexShader += rowStr;
         }
+        for (let j=i; j<vertexMaterialNodes.length; j++) {
+          const materialNodeInner = vertexMaterialNodes[j];
+          const prevMaterialNodeInner = vertexMaterialNodes[i-1];
+          for (let k=0; k<materialNodeInner.vertexInputConnections.length; k++) {
+            const inputConnection = materialNodeInner.vertexInputConnections[k];
+            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
+              continue;
+            }
+            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+            const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
+            const inputSocketOfThis = materialNodeInner.getVertexInput(inputConnection.inputNameOfThis);
+            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+
+            if (i-1 >= 0) {
+              varOutputNames[i-1].push(varName);
+            }
+
+          }
+        }
 
       }
+
       for (let i=0; i<vertexMaterialNodes.length; i++) {
         const materialNode = vertexMaterialNodes[i];
 
           const functionName = materialNode.shaderFunctionName;
-
+          if (varInputNames[i] == null) {
+            varInputNames[i] = [];
+          }
           const varNames = varInputNames[i].concat(varOutputNames[i]);
           let rowStr = `${functionName}(`;
           for (let k=0; k<varNames.length; k++) {
@@ -248,12 +272,12 @@ export default class Material extends RnObject {
       vertexShader += firstMaterialNode.shader.glslMainEnd;
     }
 
-    // pixel main process (temporary variable definitions)
+    // pixel main process
     {
       pixelShader += firstMaterialNode.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
-      for (let i=0; i<pixelMaterialNodes.length; i++) {
+      for (let i=1; i<pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
@@ -263,7 +287,6 @@ export default class Material extends RnObject {
             varOutputNames[i-1] = [];
           }
         }
-
         for (let j=0; j<materialNode.pixelInputConnections.length; j++) {
           const inputConnection = materialNode.pixelInputConnections[j];
           const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
@@ -271,35 +294,55 @@ export default class Material extends RnObject {
           const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
           const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
-
           varInputNames[i].push(varName);
-          if (i-1 >= 0) {
-            varOutputNames[i-1].push(varName);
-          }
 
           const rowStr = `${glslTypeStr} ${varName};\n`;
           pixelShader += rowStr;
         }
+        for (let j=i; j<pixelMaterialNodes.length; j++) {
+          const materialNodeInner = pixelMaterialNodes[j];
+          const prevMaterialNodeInner = pixelMaterialNodes[i-1];
+          for (let k=0; k<materialNodeInner.pixelInputConnections.length; k++) {
+            const inputConnection = materialNodeInner.pixelInputConnections[k];
+            if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
+              continue;
+            }
+            const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+            const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+            const inputSocketOfThis = materialNodeInner.getPixelInput(inputConnection.inputNameOfThis);
+            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
+            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+
+            if (i-1 >= 0) {
+              varOutputNames[i-1].push(varName);
+            }
+
+          }
+        }
+
       }
 
       for (let i=0; i<pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
-        const functionName = materialNode.shaderFunctionName;
 
-        const varNames = varInputNames[i].concat(varOutputNames[i]);
-        let rowStr = `${functionName}(`;
-        for (let k=0; k<varNames.length; k++) {
-          const varName = varNames[k];
-          if (varName == null) {
-            continue;
+          const functionName = materialNode.shaderFunctionName;
+          if (varInputNames[i] == null) {
+            varInputNames[i] = [];
           }
-          if (k!==0) {
-            rowStr += ', ';
+          const varNames = varInputNames[i].concat(varOutputNames[i]);
+          let rowStr = `${functionName}(`;
+          for (let k=0; k<varNames.length; k++) {
+            const varName = varNames[k];
+            if (varName == null) {
+              continue;
+            }
+            if (k!==0) {
+              rowStr += ', ';
+            }
+            rowStr += varNames[k];
           }
-          rowStr += varNames[k];
-        }
-        rowStr += ');\n';
-        pixelShader += rowStr;
+          rowStr += ');\n';
+          pixelShader += rowStr;
       }
 
       pixelShader += firstMaterialNode.shader.glslMainEnd;
