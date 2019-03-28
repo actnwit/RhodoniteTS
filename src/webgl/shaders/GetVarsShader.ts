@@ -4,6 +4,8 @@ import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { ShaderSocket } from "../../foundation/materials/AbstractMaterialNode";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
+import { CompositionTypeEnum } from "../../foundation/main";
+import { ShaderSemanticsEnum } from "../../foundation/definitions/ShaderSemantics";
 
 export type AttributeNames = Array<string>;
 
@@ -15,7 +17,9 @@ export default class GetVarsShader extends GLSLShader {
   private __vertexOutputs: ShaderSocket[] = [];
   private __pixelInputs: ShaderSocket[] = [];
   private __pixelOutputs: ShaderSocket[] = [];
-
+  private __attributeNames: AttributeNames = [];
+  private __attributeSemantics: Array<VertexAttributeEnum> = [];
+  private __attributeCompositions: Array<CompositionTypeEnum> = []
 
   constructor() {
     super();
@@ -159,10 +163,14 @@ export default class GetVarsShader extends GLSLShader {
   }
 
   get attributeNames(): AttributeNames {
-    return [];
+    return this.__attributeNames;
   }
 
   get attributeSemantics(): Array<VertexAttributeEnum> {
-    return [];
+    return this.__attributeSemantics;
+  }
+
+  get attributeCompositions(): Array<CompositionTypeEnum> {
+    return this.__attributeCompositions;
   }
 }

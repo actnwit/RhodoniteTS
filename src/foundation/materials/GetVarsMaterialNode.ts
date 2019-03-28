@@ -5,12 +5,13 @@ import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
 import GetVarsShader from "../../webgl/shaders/GetVarsShader";
 import { AttributeNames } from "../../webgl/shaders/GLSLShader";
-import { VertexAttributeEnum } from "../main";
+import { VertexAttributeEnum, CompositionTypeEnum } from "../main";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
 
 export default class GetVarsMaterialNode extends AbstractMaterialNode {
-  private __attributeNames: AttributeNames = [];
-  private __attributeSemantics: Array<VertexAttributeEnum> = [];
+  //private __attributeNames: AttributeNames = [];
+  //private __attributeSemantics: Array<VertexAttributeEnum> = [];
+  //private __attributeCompositions: Array<CompositionTypeEnum> = [];
   private __shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
   constructor() {
     super(new GetVarsShader(), 'getVars');
@@ -21,8 +22,9 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
 
   addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
     if (inShaderSocket.name instanceof VertexAttributeClass) {
-      this.__attributeSemantics.push(inShaderSocket.name);
-      this.__attributeNames.push(inShaderSocket.name.shaderStr);
+      this.shader.attributeSemantics.push(inShaderSocket.name);
+      this.shader.attributeNames.push(inShaderSocket.name.shaderStr);
+      this.shader.attributeCompositions.push(inShaderSocket.compositionType);
     }
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__shaderSemanticsInfoArray.push({
@@ -51,13 +53,13 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket);
   }
 
-  get attributeNames() {
-    return this.__attributeNames;
-  }
+  // get attributeNames() {
+  //   return this.__attributeNames;
+  // }
 
-  get attributeSemantics() {
-    return this.__attributeSemantics;
-  }
+  // get attributeSemantics() {
+  //   return this.__attributeSemantics;
+  // }
 
   convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
   }

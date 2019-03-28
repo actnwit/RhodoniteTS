@@ -2,6 +2,7 @@ import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitio
 import GLSLShader from "./GLSLShader";
 import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
 
@@ -199,4 +200,8 @@ void main ()
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
     VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+
+  get attributeCompositions(): Array<CompositionTypeEnum> {
+    return [];
+  }
 }

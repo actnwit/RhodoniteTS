@@ -2,6 +2,7 @@ import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitio
 import GLSLShader from "./GLSLShader";
 import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
 
@@ -91,5 +92,9 @@ mat4 getSkinMatrix() {
   get attributeSemantics(): Array<VertexAttributeEnum> {
     return [VertexAttribute.Position,
     VertexAttribute.Normal, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+  }
+
+  get attributeCompositions(): Array<CompositionTypeEnum> {
+    return [];
   }
 }

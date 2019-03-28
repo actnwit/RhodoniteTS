@@ -2,6 +2,7 @@ import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitio
 import GLSLShader from "./GLSLShader";
 import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
 
@@ -52,6 +53,10 @@ export default class EndShader extends GLSLShader {
     return [];
   }
   get attributeSemantics(): Array<VertexAttributeEnum> {
+    return [];
+  }
+
+  get attributeCompositions(): Array<CompositionTypeEnum> {
     return [];
   }
 }

@@ -145,6 +145,21 @@ export default class Material extends RnObject {
     let vertexShader = firstMaterialNode.shader.glslBegin;
     let pixelShader = firstMaterialNode.shader.glslBegin;
 
+    // attribute variables definitions
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      const attributeNames = materialNode.shader.attributeNames;
+      const attributeSemantics = materialNode.shader.attributeSemantics;
+      const attributeCompositions = materialNode.shader.attributeCompositions;
+      for (let j=0; j<attributeSemantics.length; j++) {
+        const attributeName = attributeNames[j];
+        const attributeComposition = attributeCompositions[j];
+        vertexShader += `${attributeComposition.getGlslStr(ComponentType.Float)} ${attributeName};\n`;
+      }
+    }
+    vertexShader += '\n';
+
+    // function definitions
     for (let i=0; i<this.__materialNodesForTest.length; i++) {
       const materialNode = this.__materialNodesForTest[i];
       vertexShader += materialNode.shader.vertexShaderDefinitions;
@@ -278,7 +293,7 @@ export default class Material extends RnObject {
       pixelShader += firstMaterialNode.shader.glslMainEnd;
     }
 
-    return vertexShader + '\n' + pixelShader;
+    return vertexShader + '\n\n\n\n' + pixelShader;
   }
 
   isBlend() {
