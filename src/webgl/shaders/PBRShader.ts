@@ -3,6 +3,7 @@ import GLSLShader from "./GLSLShader";
 import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
+import { CompositionType } from "../../foundation/definitions/CompositionType";
 
 export type AttributeNames = Array<string>;
 
@@ -346,6 +347,6 @@ void main ()
     VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec3, CompositionType.Scalar];
   }
 }
