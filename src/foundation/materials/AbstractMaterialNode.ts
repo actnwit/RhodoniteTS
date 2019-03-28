@@ -34,6 +34,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   static materialNodes: AbstractMaterialNode[] = [];
   public readonly shader: GLSLShader;
   public readonly shaderFunctionName: string;
+  public isSingleOperation = false;
 
   constructor(shader: GLSLShader, shaderFunctionName: string) {
     super();

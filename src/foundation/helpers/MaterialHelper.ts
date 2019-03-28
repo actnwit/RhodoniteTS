@@ -3,13 +3,17 @@ import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
 import ClassicShadingMaterialNode from "../materials/ClassicShadingMaterialNode";
 
 function createPbrUberMaterial() {
-  const material = new Material([new PbrShadingMaterialNode]);
+  const materialNode = new PbrShadingMaterialNode;
+  materialNode.isSingleOperation = true;
+  const material = new Material([materialNode]);
 
   return material;
 }
 
 function createClassicUberMaterial() {
-  const material = new Material([new ClassicShadingMaterialNode]);
+  const materialNode = new ClassicShadingMaterialNode;
+  materialNode.isSingleOperation = true;
+  const material = new Material([materialNode]);
 
   return material;
 }

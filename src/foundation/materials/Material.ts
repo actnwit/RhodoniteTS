@@ -26,7 +26,6 @@ export default class Material extends RnObject {
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
-  private __materialNodesForTest: AbstractMaterialNode[] = [];
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
@@ -36,7 +35,7 @@ export default class Material extends RnObject {
   }
 
   setMaterialNodes(materialNodes: AbstractMaterialNode[]) {
-    this.__materialNodesForTest = materialNodes;
+    this.__materialNodes = materialNodes;
   }
 
   initialize() {
@@ -104,39 +103,38 @@ export default class Material extends RnObject {
     });
   }
 
-  createProgram(vertexShaderMethodDefinitions_uniform: string) {
+  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    this.__materialNodes.forEach((materialNode)=>{
-      const glslShader = materialNode.shader;
+    const materialNode = this.__materialNodes[0];
+    const glslShader = materialNode.shader;
 
-      // Shader Construction
-      let vertexShader = glslShader.glslBegin +
-        vertexShaderMethodDefinitions_uniform +
-        glslShader.vertexShaderDefinitions +
-        glslShader.glslMainBegin +
-        glslShader.vertexShaderBody +
-        glslShader.glslMainEnd;
-      let fragmentShader = glslShader.pixelShaderBody;
+    // Shader Construction
+    let vertexShader = glslShader.glslBegin +
+      vertexShaderMethodDefinitions_uniform +
+      glslShader.vertexShaderDefinitions +
+      glslShader.glslMainBegin +
+      glslShader.vertexShaderBody +
+      glslShader.glslMainEnd;
+    let fragmentShader = glslShader.pixelShaderBody;
 
-      const shaderCharCount = (vertexShader + fragmentShader).length;
+    const shaderCharCount = (vertexShader + fragmentShader).length;
 
-      // Cache
-      if (Material.__shaderMap.has(shaderCharCount)) {
-        this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
-        return this._shaderProgramUid;
-      } else {
-        this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-          {
-            vertexShaderStr: vertexShader,
-            fragmentShaderStr: fragmentShader,
-            attributeNames: glslShader.attributeNames,
-            attributeSemantics: glslShader.attributeSemantics
-          }
-        );
-        Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
-        return this._shaderProgramUid;
-      }
-    });
+    // Cache
+    if (Material.__shaderMap.has(shaderCharCount)) {
+      this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+      return this._shaderProgramUid;
+    } else {
+      this._shaderProgramUid = webglResourceRepository.createShaderProgram(
+        {
+          vertexShaderStr: vertexShader,
+          fragmentShaderStr: fragmentShader,
+          attributeNames: glslShader.attributeNames,
+          attributeSemantics: glslShader.attributeSemantics
+        }
+      );
+      Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+      return this._shaderProgramUid;
+    }
   }
 
   createProgramString(vertexShaderMethodDefinitions_uniform = '') {
@@ -144,8 +142,8 @@ export default class Material extends RnObject {
     // Find Start Node
     let firstMaterialNodeVertex: AbstractMaterialNode;
     let firstMaterialNodePixel: AbstractMaterialNode;
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
+    for (let i=0; i<this.__materialNodes.length; i++) {
+      const materialNode = this.__materialNodes[i];
       if (materialNode.vertexInputConnections.length === 0) {
         firstMaterialNodeVertex = materialNode;
       }
@@ -160,8 +158,8 @@ export default class Material extends RnObject {
     const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.materialNodeUid];
     const sortedNodeArrayPixel: AbstractMaterialNode[] = [firstMaterialNodePixel!];
     /// delete first nodes from existing array
-    const materialNodesVertex = this.__materialNodesForTest.concat();
-    const materialNodesPixel = this.__materialNodesForTest.concat();
+    const materialNodesVertex = this.__materialNodes.concat();
+    const materialNodesPixel = this.__materialNodes.concat();
     materialNodesVertex.splice(materialNodesVertex.indexOf(firstMaterialNodeVertex!), 1);
     materialNodesPixel.splice(materialNodesPixel.indexOf(firstMaterialNodePixel!), 1);
     do {
@@ -439,27 +437,32 @@ export default class Material extends RnObject {
     return {vertexShader, pixelShader, attributeNames, attributeSemantics};
   }
 
-  createProgram2(vertexShaderMethodDefinitions_uniform: string) {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
-    let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
+  createProgram(vertexShaderMethodDefinitions_uniform: string) {
 
-    const shaderCharCount = (returnValue.vertexShader + returnValue.pixelShader).length;
-
-    // Cache
-    if (Material.__shaderMap.has(shaderCharCount)) {
-      this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
-      return this._shaderProgramUid;
+    if (this.__materialNodes[0].isSingleOperation) {
+      return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform);
     } else {
-      this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-        {
-          vertexShaderStr: returnValue.vertexShader,
-          fragmentShaderStr: returnValue.pixelShader,
-          attributeNames: returnValue.attributeNames,
-          attributeSemantics: returnValue.attributeSemantics
-        }
-      );
-      Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
-      return this._shaderProgramUid;
+      const webglResourceRepository = WebGLResourceRepository.getInstance();
+      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
+
+      const shaderCharCount = (returnValue.vertexShader + returnValue.pixelShader).length;
+
+      // Cache
+      if (Material.__shaderMap.has(shaderCharCount)) {
+        this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+        return this._shaderProgramUid;
+      } else {
+        this._shaderProgramUid = webglResourceRepository.createShaderProgram(
+          {
+            vertexShaderStr: returnValue.vertexShader,
+            fragmentShaderStr: returnValue.pixelShader,
+            attributeNames: returnValue.attributeNames,
+            attributeSemantics: returnValue.attributeSemantics
+          }
+        );
+        Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+        return this._shaderProgramUid;
+      }
     }
   }
 
