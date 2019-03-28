@@ -57,6 +57,21 @@ test('Material works correctly', () => {
       isImmediateValue: false
     }
   );
+  getVarsMaterialNode.addVertexInputAndOutput(
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: 'huga2',
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.5, 0.0, 1.0)'
+    },
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: 'specularColor',
+      isImmediateValue: false
+    }
+  );
   getVarsMaterialNode.addPixelInputAndOutput(
     {
       compositionType: CompositionType.Vec4,
@@ -78,14 +93,19 @@ test('Material works correctly', () => {
   addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'normal_inLocal', 'rhs');
 
   const addMaterialNode2 = new AddMaterialNode();
-  addMaterialNode2.addVertexInputConnection(addMaterialNode, 'outValue', 'lhs');
-  addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'baseColor', 'rhs');
+  addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'baseColor', 'lhs');
+  addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'specularColor', 'rhs');
+
+  const addMaterialNode3 = new AddMaterialNode();
+  addMaterialNode3.addVertexInputConnection(addMaterialNode, 'outValue', 'lhs');
+  addMaterialNode3.addVertexInputConnection(addMaterialNode2, 'outValue', 'rhs');
 
   const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(addMaterialNode2, 'outValue', 'inPosition');
+  endMaterialNode.addVertexInputConnection(addMaterialNode3, 'outValue', 'inPosition');
   endMaterialNode.addPixelInputConnection(getVarsMaterialNode, 'outColor', 'inColor');
 
-  material.setMaterialNodes([getVarsMaterialNode, addMaterialNode, addMaterialNode2, endMaterialNode], getVarsMaterialNode);
+  // nodes are intentionally made the order random
+  material.setMaterialNodes([endMaterialNode, addMaterialNode2, addMaterialNode3, addMaterialNode, getVarsMaterialNode]);
 
   console.log(material.createProgramString());
 

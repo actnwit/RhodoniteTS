@@ -25,7 +25,6 @@ export default class Material extends RnObject {
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
-  private __startMaterialNode?: AbstractMaterialNode;
   private __materialNodesForTest: AbstractMaterialNode[] = [];
 
   constructor(materialNodes: AbstractMaterialNode[]) {
@@ -35,9 +34,8 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
-  setMaterialNodes(materialNodes: AbstractMaterialNode[], startMaterialNode: AbstractMaterialNode) {
+  setMaterialNodes(materialNodes: AbstractMaterialNode[]) {
     this.__materialNodesForTest = materialNodes;
-    this.__startMaterialNode = startMaterialNode;
   }
 
   initialize() {
@@ -141,13 +139,73 @@ export default class Material extends RnObject {
   }
 
   createProgramString() {
-    const firstMaterialNode = this.__materialNodesForTest[0];
-    let vertexShader = firstMaterialNode.shader.glslBegin;
-    let pixelShader = firstMaterialNode.shader.glslBegin;
 
-    // attribute variables definitions
+    // Find Start Node
+    let firstMaterialNodeVertex: AbstractMaterialNode;
+    let firstMaterialNodePixel: AbstractMaterialNode;
     for (let i=0; i<this.__materialNodesForTest.length; i++) {
       const materialNode = this.__materialNodesForTest[i];
+      if (materialNode.vertexInputConnections.length === 0) {
+        firstMaterialNodeVertex = materialNode;
+      }
+      if (materialNode.pixelInputConnections.length === 0) {
+        firstMaterialNodePixel = materialNode;
+      }
+    }
+
+    // Topological Sorting
+    const ignoredInputUidsVertex: Index[] = [firstMaterialNodeVertex!.materialNodeUid];
+    const sortedNodeArrayVertex: AbstractMaterialNode[] = [firstMaterialNodeVertex!];
+    const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.materialNodeUid];
+    const sortedNodeArrayPixel: AbstractMaterialNode[] = [firstMaterialNodePixel!];
+    /// delete first nodes from existing array
+    const materialNodesVertex = this.__materialNodesForTest.concat();
+    const materialNodesPixel = this.__materialNodesForTest.concat();
+    materialNodesVertex.splice(materialNodesVertex.indexOf(firstMaterialNodeVertex!), 1);
+    materialNodesPixel.splice(materialNodesPixel.indexOf(firstMaterialNodePixel!), 1);
+    do {
+      let materialNodeWhichHasNoInputs: AbstractMaterialNode;
+      materialNodesVertex.forEach((materialNode)=>{
+        let inputCount = 0;
+        for (let inputConnection of materialNode.vertexInputConnections) {
+          if (ignoredInputUidsVertex.indexOf(inputConnection.materialNodeUid) === -1) {
+            inputCount++;
+          }
+        }
+        if (inputCount === 0) {
+          materialNodeWhichHasNoInputs = materialNode;
+        }
+      });
+      sortedNodeArrayVertex.push(materialNodeWhichHasNoInputs!);
+      ignoredInputUidsVertex.push(materialNodeWhichHasNoInputs!.materialNodeUid);
+      materialNodesVertex.splice(materialNodesVertex.indexOf(materialNodeWhichHasNoInputs!), 1);
+
+    } while (materialNodesVertex.length !== 0);
+    do {
+      let materialNodeWhichHasNoInputs: AbstractMaterialNode;
+      materialNodesPixel.forEach((materialNode)=>{
+        let inputCount = 0;
+        for (let inputConnection of materialNode.pixelInputConnections) {
+          if (ignoredInputUidsPixel.indexOf(inputConnection.materialNodeUid) === -1) {
+            inputCount++;
+          }
+        }
+        if (inputCount === 0) {
+          materialNodeWhichHasNoInputs = materialNode;
+        }
+      });
+      sortedNodeArrayPixel.push(materialNodeWhichHasNoInputs!);
+      ignoredInputUidsPixel.push(materialNodeWhichHasNoInputs!.materialNodeUid);
+      materialNodesPixel.splice(materialNodesPixel.indexOf(materialNodeWhichHasNoInputs!), 1);
+    } while (materialNodesPixel.length !== 0);
+
+    // Get GLSL Beginning code
+    let vertexShader = firstMaterialNodeVertex!.shader.glslBegin;
+    let pixelShader = firstMaterialNodeVertex!.shader.glslBegin;
+
+    // attribute variables definitions in Vertex Shader
+    for (let i=0; i<sortedNodeArrayVertex.length; i++) {
+      const materialNode = sortedNodeArrayVertex[i];
       const attributeNames = materialNode.shader.attributeNames;
       const attributeSemantics = materialNode.shader.attributeSemantics;
       const attributeCompositions = materialNode.shader.attributeCompositions;
@@ -160,8 +218,8 @@ export default class Material extends RnObject {
     vertexShader += '\n';
 
     // uniform variables definitions
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
+    for (let i=0; i<sortedNodeArrayVertex.length; i++) {
+      const materialNode = sortedNodeArrayVertex[i];
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       for (let j=0; j<semanticsInfoArray.length; j++) {
         const semanticInfo = semanticsInfoArray[j];
@@ -170,11 +228,38 @@ export default class Material extends RnObject {
       }
     }
     vertexShader += '\n';
+    for (let i=0; i<sortedNodeArrayPixel.length; i++) {
+      const materialNode = sortedNodeArrayPixel[i];
+      const semanticsInfoArray = materialNode._semanticsInfoArray;
+      for (let j=0; j<semanticsInfoArray.length; j++) {
+        const semanticInfo = semanticsInfoArray[j];
+        const attributeComposition = semanticInfo.compositionType!;
+        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+      }
+    }
+    pixelShader += '\n';
+
+
+    // remove node which don't have inputConnections (except first node)
+    const vertexMaterialNodes = [];
+    const pixelMaterialNodes = [];
+    for (let i=0; i<sortedNodeArrayVertex.length; i++) {
+      const materialNode = sortedNodeArrayVertex[i];
+      if (i === 0 || materialNode.vertexInputConnections.length > 0) {
+        vertexMaterialNodes.push(materialNode);
+      }
+    }
+    for (let i=0; i<sortedNodeArrayPixel.length; i++) {
+      const materialNode = sortedNodeArrayPixel[i];
+      if (i === 0 || materialNode.pixelInputConnections.length > 0) {
+        pixelMaterialNodes.push(materialNode);
+      }
+    }
 
     // function definitions
     const existFunctions: string[] = [];
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
+    for (let i=0; i<vertexMaterialNodes.length; i++) {
+      const materialNode = vertexMaterialNodes[i];
       if (existFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
@@ -183,22 +268,9 @@ export default class Material extends RnObject {
       existFunctions.push(materialNode.shaderFunctionName);
     }
 
-    // remove node which don't have inputConnections (except first node)
-    const vertexMaterialNodes = [];
-    const pixelMaterialNodes = [];
-    for (let i=0; i<this.__materialNodesForTest.length; i++) {
-      const materialNode = this.__materialNodesForTest[i];
-      if (i === 0 || materialNode.vertexInputConnections.length > 0) {
-        vertexMaterialNodes.push(materialNode);
-      }
-      if (i === 0 || materialNode.pixelInputConnections.length > 0) {
-        pixelMaterialNodes.push(materialNode);
-      }
-    }
-
     // vertex main process
     {
-      vertexShader += firstMaterialNode.shader.glslMainBegin;
+      vertexShader += firstMaterialNodeVertex!.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i=1; i<vertexMaterialNodes.length; i++) {
@@ -269,12 +341,12 @@ export default class Material extends RnObject {
           vertexShader += rowStr;
       }
 
-      vertexShader += firstMaterialNode.shader.glslMainEnd;
+      vertexShader += firstMaterialNodeVertex!.shader.glslMainEnd;
     }
 
     // pixel main process
     {
-      pixelShader += firstMaterialNode.shader.glslMainBegin;
+      pixelShader += firstMaterialNodePixel!.shader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i=1; i<pixelMaterialNodes.length; i++) {
@@ -345,7 +417,7 @@ export default class Material extends RnObject {
           pixelShader += rowStr;
       }
 
-      pixelShader += firstMaterialNode.shader.glslMainEnd;
+      pixelShader += firstMaterialNodePixel!.shader.glslMainEnd;
     }
 
     return vertexShader + '\n\n\n\n' + pixelShader;
