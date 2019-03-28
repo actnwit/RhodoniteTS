@@ -13,9 +13,10 @@ import { ComponentType } from "../definitions/ComponentType";
 import Vector2 from "../math/Vector2";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
-import GLSLShader from "../../webgl/shaders/GLSLShader";
+import GLSLShader, { AttributeNames } from "../../webgl/shaders/GLSLShader";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { pathExists } from "fs-extra";
+import { VertexAttributeEnum } from "../main";
 
 
 export default class Material extends RnObject {
@@ -138,7 +139,7 @@ export default class Material extends RnObject {
     });
   }
 
-  createProgramString() {
+  createProgramString(vertexShaderMethodDefinitions_uniform = '') {
 
     // Find Start Node
     let firstMaterialNodeVertex: AbstractMaterialNode;
@@ -255,6 +256,9 @@ export default class Material extends RnObject {
         pixelMaterialNodes.push(materialNode);
       }
     }
+
+    // Add additional functions by system
+    vertexShader += vertexShaderMethodDefinitions_uniform;
 
     // function definitions
     const existFunctions: string[] = [];
@@ -420,7 +424,43 @@ export default class Material extends RnObject {
       pixelShader += firstMaterialNodePixel!.shader.glslMainEnd;
     }
 
-    return vertexShader + '\n\n\n\n' + pixelShader;
+
+    let attributeNames: AttributeNames = [];
+    let attributeSemantics: Array<VertexAttributeEnum> = [];
+    for (let i=0; i<vertexMaterialNodes.length; i++) {
+      const materialNode = vertexMaterialNodes[i];
+      Array.prototype.push.apply(attributeNames, materialNode.shader.attributeNames);
+      Array.prototype.push.apply(attributeSemantics, materialNode.shader.attributeSemantics); 
+    }
+    // remove duplicate values
+    attributeNames = Array.from(new Set(attributeNames))
+    attributeSemantics = Array.from(new Set(attributeSemantics))
+
+    return {vertexShader, pixelShader, attributeNames, attributeSemantics};
+  }
+
+  createProgram2(vertexShaderMethodDefinitions_uniform: string) {
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
+
+    const shaderCharCount = (returnValue.vertexShader + returnValue.pixelShader).length;
+
+    // Cache
+    if (Material.__shaderMap.has(shaderCharCount)) {
+      this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+      return this._shaderProgramUid;
+    } else {
+      this._shaderProgramUid = webglResourceRepository.createShaderProgram(
+        {
+          vertexShaderStr: returnValue.vertexShader,
+          fragmentShaderStr: returnValue.pixelShader,
+          attributeNames: returnValue.attributeNames,
+          attributeSemantics: returnValue.attributeSemantics
+        }
+      );
+      Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+      return this._shaderProgramUid;
+    }
   }
 
   isBlend() {

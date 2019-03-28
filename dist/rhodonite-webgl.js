@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-304-g5757-mod branch: feature/shader-system';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-306-g580a-mod branch: feature/shader-system';

@@ -107,9 +107,8 @@ test('Material works correctly', () => {
   // nodes are intentionally made the order random
   material.setMaterialNodes([endMaterialNode, addMaterialNode2, addMaterialNode3, addMaterialNode, getVarsMaterialNode]);
 
-  console.log(material.createProgramString());
-
- expect(material.createProgramString().replace(/\s+/g, "")).toEqual(`
+  const returnValues = material.createProgramString();
+ expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
  precision highp float;
  
 
