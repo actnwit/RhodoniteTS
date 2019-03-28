@@ -9,14 +9,8 @@ import { VertexAttributeEnum, CompositionTypeEnum } from "../main";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
 
 export default class GetVarsMaterialNode extends AbstractMaterialNode {
-  //private __attributeNames: AttributeNames = [];
-  //private __attributeSemantics: Array<VertexAttributeEnum> = [];
-  //private __attributeCompositions: Array<CompositionTypeEnum> = [];
-  private __shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
   constructor() {
     super(new GetVarsShader(), 'getVars');
-
-    this.setShaderSemanticsInfoArray(this.__shaderSemanticsInfoArray);
 
   }
 
@@ -27,7 +21,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
       this.shader.attributeCompositions.push(inShaderSocket.compositionType);
     }
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
-      this.__shaderSemanticsInfoArray.push({
+      this.__semantics.push({
         semantic: inShaderSocket.name,
         isPlural: false,
         compositionType: inShaderSocket.compositionType,
@@ -41,7 +35,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
 
   addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
-      this.__shaderSemanticsInfoArray.push({
+      this.__semantics.push({
         semantic: inShaderSocket.name,
         isPlural: false,
         compositionType: inShaderSocket.compositionType,
@@ -52,14 +46,6 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     this.__pixelOutputs.push(outShaderSocket);
     (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket);
   }
-
-  // get attributeNames() {
-  //   return this.__attributeNames;
-  // }
-
-  // get attributeSemantics() {
-  //   return this.__attributeSemantics;
-  // }
 
   convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
   }

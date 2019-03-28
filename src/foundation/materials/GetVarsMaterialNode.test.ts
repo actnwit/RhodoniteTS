@@ -37,7 +37,7 @@ test('GetVersMaterialNode vertex shader works correctly', () => {
 
   console.log(getVarsMaterialNode.shader.vertexShaderDefinitions);
 
-expect(getVarsMaterialNode.shader.vertexShaderDefinitions).toEqual(`function getVars(
+expect(getVarsMaterialNode.shader.vertexShaderDefinitions).toEqual(`void getVars(
   in vec4 a_position,
   out vec4 position_inLocal,
   in mat4 u_viewMatrix,
@@ -84,7 +84,7 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
 
   console.log(getVarsMaterialNode.shader.pixelShaderDefinitions);
 
-expect(getVarsMaterialNode.shader.pixelShaderDefinitions).toEqual(`function getVars(
+expect(getVarsMaterialNode.shader.pixelShaderDefinitions).toEqual(`void getVars(
   in vec4 v_position,
   out vec4 position_inWorld,
   out vec4 outColor

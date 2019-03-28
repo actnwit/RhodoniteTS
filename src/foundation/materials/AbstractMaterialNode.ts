@@ -20,7 +20,7 @@ type MaterialNodeUID = number;
 type InputConnectionType = {materialNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string};
 
 export default abstract class AbstractMaterialNode extends RnObject {
-  private __semantics: ShaderSemanticsInfo[] = [];
+  protected __semantics: ShaderSemanticsInfo[] = [];
   private __shaderNode: ShaderNodeEnum[] = [];
   protected __vertexInputs: ShaderSocket[] = [];
   protected __pixelInputs: ShaderSocket[] = [];

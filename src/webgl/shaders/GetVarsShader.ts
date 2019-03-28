@@ -1,11 +1,11 @@
-import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
 import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { ShaderSocket } from "../../foundation/materials/AbstractMaterialNode";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import { CompositionTypeEnum } from "../../foundation/main";
-import { ShaderSemanticsEnum } from "../../foundation/definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
 
 export type AttributeNames = Array<string>;
 
@@ -46,7 +46,7 @@ export default class GetVarsShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-    const startArgs = `function getVars(
+    const startArgs = `void getVars(
   `;
 
     let args = '';
@@ -55,7 +55,9 @@ export default class GetVarsShader extends GLSLShader {
       if (i!=0) {
         args += ',\n  ';
       }
-      if (!input.isImmediateValue) {
+      if (!(input.isImmediateValue ||
+        input.name instanceof VertexAttributeClass ||
+        input.name instanceof ShaderSemanticsClass)) {
         const inputType = input.compositionType.getGlslStr(input.componentType);
         const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
         const inputRowStr = `in ${inputType} ${inputName}`;
@@ -106,7 +108,7 @@ export default class GetVarsShader extends GLSLShader {
 
 
   get pixelShaderDefinitions() {
-  const startArgs = `function getVars(
+  const startArgs = `void getVars(
   `;
 
     let args = '';
@@ -115,7 +117,9 @@ export default class GetVarsShader extends GLSLShader {
       if (i!=0) {
         args += ',\n  ';
       }
-      if (!input.isImmediateValue) {
+      if (!(input.isImmediateValue ||
+        input.name instanceof VertexAttributeClass ||
+        input.name instanceof ShaderSemanticsClass)) {
         const inputType = input.compositionType.getGlslStr(input.componentType);
         const inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
         const inputRowStr = `in ${inputType} ${inputName}`;

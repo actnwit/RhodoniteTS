@@ -5,6 +5,7 @@ import Material from "./Material";
 import EndMaterialNode from "./EndMaterialNode";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import AddMaterialNode from "./AddMaterialNode";
+import { ShaderSemantics } from "../definitions/ShaderSemantics";
 
 test('Material works correctly', () => {
 
@@ -15,8 +16,9 @@ test('Material works correctly', () => {
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: VertexAttribute.Position,
-      isImmediateValue: false
+      name: 'hoge',
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
@@ -29,13 +31,29 @@ test('Material works correctly', () => {
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
-      name: VertexAttribute.Normal,
-      isImmediateValue: false
+      name: 'Muda',
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.0, 1.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'normal_inLocal',
+      isImmediateValue: false
+    }
+  );
+  getVarsMaterialNode.addVertexInputAndOutput(
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: 'huga',
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.2, 0.0, 1.0)'
+    },
+    {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      name: 'baseColor',
       isImmediateValue: false
     }
   );
@@ -45,7 +63,7 @@ test('Material works correctly', () => {
       componentType: ComponentType.Float,
       name: 'redColor',
       isImmediateValue: true,
-      immediateValue: 'vec4(1.0, 0.0, 0.0, 0.0)'
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
@@ -59,11 +77,15 @@ test('Material works correctly', () => {
   addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'position_inLocal', 'lhs');
   addMaterialNode.addVertexInputConnection(getVarsMaterialNode, 'normal_inLocal', 'rhs');
 
+  const addMaterialNode2 = new AddMaterialNode();
+  addMaterialNode2.addVertexInputConnection(addMaterialNode, 'outValue', 'lhs');
+  addMaterialNode2.addVertexInputConnection(getVarsMaterialNode, 'baseColor', 'rhs');
+
   const endMaterialNode = new EndMaterialNode();
-  endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
+  endMaterialNode.addVertexInputConnection(addMaterialNode2, 'outValue', 'inPosition');
   endMaterialNode.addPixelInputConnection(getVarsMaterialNode, 'outColor', 'inColor');
 
-  material.setMaterialNodes([getVarsMaterialNode, addMaterialNode, endMaterialNode], getVarsMaterialNode);
+  material.setMaterialNodes([getVarsMaterialNode, addMaterialNode, addMaterialNode2, endMaterialNode], getVarsMaterialNode);
 
   console.log(material.createProgramString());
 

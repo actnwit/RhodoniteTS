@@ -36,7 +36,7 @@ test('GetVersShader vertex shader works correctly', () => {
 
   console.log(getVarsShader.vertexShaderDefinitions);
 
-expect(getVarsShader.vertexShaderDefinitions).toEqual(`function getVars(
+expect(getVarsShader.vertexShaderDefinitions).toEqual(`void getVars(
   in vec4 a_position,
   out vec4 position_inLocal,
   in mat4 u_viewMatrix,
@@ -82,7 +82,7 @@ test('GetVersShader pixel shader works correctly', () => {
 
   console.log(getVarsShader.pixelShaderDefinitions);
 
-expect(getVarsShader.pixelShaderDefinitions).toEqual(`function getVars(
+expect(getVarsShader.pixelShaderDefinitions).toEqual(`void getVars(
   in vec4 v_position,
   out vec4 position_inWorld,
   in mat4 u_viewMatrix,

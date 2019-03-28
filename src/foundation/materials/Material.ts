@@ -159,6 +159,18 @@ export default class Material extends RnObject {
     }
     vertexShader += '\n';
 
+    // uniform variables definitions
+    for (let i=0; i<this.__materialNodesForTest.length; i++) {
+      const materialNode = this.__materialNodesForTest[i];
+      const semanticsInfoArray = materialNode._semanticsInfoArray;
+      for (let j=0; j<semanticsInfoArray.length; j++) {
+        const semanticInfo = semanticsInfoArray[j];
+        const attributeComposition = semanticInfo.compositionType!;
+        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+      }
+    }
+    vertexShader += '\n';
+
     // function definitions
     for (let i=0; i<this.__materialNodesForTest.length; i++) {
       const materialNode = this.__materialNodesForTest[i];

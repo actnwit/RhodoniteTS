@@ -22,7 +22,7 @@ export default class EndShader extends GLSLShader {
 
   get vertexShaderDefinitions() {
     return `
-    function end(in vec4 inPosition) {
+    void end(in vec4 inPosition) {
       gl_Position = inPosition;
     }
     `;
@@ -37,9 +37,13 @@ export default class EndShader extends GLSLShader {
 
   get pixelShaderDefinitions() {
     const _def_fragColor = this.glsl_fragColor;
+    let vec4StrOrNot = '';
+    if (_def_fragColor !== '') {
+      vec4StrOrNot = 'vec4';
+    }
     return `
-    function end(in vec4 inColor) {
-      rt0 = inColor;
+    void end(in vec4 inColor) {
+      ${vec4StrOrNot} rt0 = inColor;
       ${_def_fragColor}
     }
     `;
