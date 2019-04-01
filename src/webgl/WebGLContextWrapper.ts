@@ -1,5 +1,4 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
-import { K } from "handlebars";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;
