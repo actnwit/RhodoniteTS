@@ -49,11 +49,14 @@ const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({inde
 const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({index:26, singularStr:'shininess', pluralStr: 'shininesses'});
 const ShadingModel: ShaderSemanticsEnum = new ShaderSemanticsClass({index:27, singularStr:'shadingModel', pluralStr: 'shadingModels'});
 const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({index:28, singularStr:'skinningMode', pluralStr: 'skinningModes'});
+const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:29, singularStr:'generalTexture', pluralStr: 'generalTextures'});
+const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({index:30, singularStr:'vertexAttributesExistenceArray', pluralStr: 'vertexAttributesExistenceArrays'});
+
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
                   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
                   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode ];
+                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
@@ -69,4 +72,4 @@ export type ShaderSemanticsInfo = {semantic?: ShaderSemanticsEnum, isPlural?: bo
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, from, fromString });
+  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray, from, fromString });

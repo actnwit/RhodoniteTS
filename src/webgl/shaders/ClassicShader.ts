@@ -111,10 +111,13 @@ void main ()
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+  float alpha = 1.0;
   if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
+    alpha = u_material.diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
     diffuseColor = u_material.diffuseColorFactor.rgb;
+    alpha = u_material.diffuseColorFactor.a;
   } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
     diffuseColor = v_color;
   } else {
@@ -181,7 +184,7 @@ void main ()
     shadingColor = diffuseColor;
   }
 
-  rt0 = vec4(shadingColor, 1.0);
+  rt0 = vec4(shadingColor, alpha);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 

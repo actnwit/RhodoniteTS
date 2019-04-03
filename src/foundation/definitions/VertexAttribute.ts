@@ -37,6 +37,8 @@ const BaryCentricCoord: VertexAttributeEnum = new VertexAttributeClass({index:10
 
 const typeList = [ Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, FaceNormal, BaryCentricCoord ];
 
+const AttributeTypeNumber = 11;
+
 function from( index : number ): VertexAttributeEnum {
   return _from({typeList, index}) as VertexAttributeEnum;
 }
@@ -46,5 +48,5 @@ function fromString( str: string ): VertexAttributeEnum {
 }
 
 export const VertexAttribute = Object.freeze({
-  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, FaceNormal, BaryCentricCoord, from, fromString
+  Unknown, Position, Normal, Tangent, Texcoord0, Texcoord1, Color0, Joints0, Weights0, Instance, FaceNormal, BaryCentricCoord, AttributeTypeNumber: AttributeTypeNumber, from, fromString
 });

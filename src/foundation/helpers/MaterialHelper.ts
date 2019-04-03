@@ -1,6 +1,6 @@
 import Material from "../materials/Material";
 import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
-import ClassicShadingMaterialNode from "../materials/ClassicShadingMaterialNode";
+import ClassicShadingSingleMaterialNode from "../materials/ClassicShadingSingleMaterialNode";
 
 function createPbrUberMaterial() {
   const materialNode = new PbrShadingMaterialNode;
@@ -11,7 +11,7 @@ function createPbrUberMaterial() {
 }
 
 function createClassicUberMaterial() {
-  const materialNode = new ClassicShadingMaterialNode;
+  const materialNode = new ClassicShadingSingleMaterialNode;
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 

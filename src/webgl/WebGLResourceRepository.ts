@@ -17,6 +17,7 @@ export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
   iboHandle?: CGAPIResourceHandle,
   vboHandles: Array<CGAPIResourceHandle>,
+  attributesFlags: Array<boolean>,
   setComplete: boolean;
 };
 
@@ -159,15 +160,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
 
+    const attributesFlags = [];
+    for (let i=0; i<VertexAttribute.AttributeTypeNumber; i++) {
+      attributesFlags[i] = false;
+    }
     const vboHandles:Array<WebGLResourceHandle> = [];
-    primitive.attributeAccessors.forEach(accessor=>{
+    primitive.attributeAccessors.forEach((accessor, i)=>{
       const vboHandle = this.createVertexBuffer(accessor);
+      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
+      attributesFlags[slotIdx] = true;
       vboHandles.push(vboHandle);
     });
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-    return {vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles, setComplete: false};
+    return {vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false};
   }
 
   createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
@@ -288,7 +295,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
+  __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
     let result = false;
     const value_x = (shaderProgram as any)[identifier + '_value_x'];
     const value_y = (shaderProgram as any)[identifier + '_value_y'];
@@ -338,7 +345,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {force = true, delta}: {force?: boolean, delta?: number}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {force = true, delta}: {force?: boolean, delta?: number}, index?: Count) {
 
     let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
     if (index != null) {

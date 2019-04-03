@@ -96,6 +96,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true},
+          {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
         ];
         const lights: ShaderSemanticsInfo[] = [];
         for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -228,7 +229,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const primitive = meshComponent.getPrimitiveAt(i);
       //this.attatchShaderProgram(primitive.material!);
 
-
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
@@ -243,6 +243,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
 
       // Uniforms from System
+      const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, {x:vertexHandle.attributesFlags}, {force: force});
+
       /// Matrices
       RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:WebGLStrategyUniform.transposedMatrix44.v}, {force: force});

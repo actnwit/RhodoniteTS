@@ -17,6 +17,7 @@ import GLSLShader, { AttributeNames } from "../../webgl/shaders/GLSLShader";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { pathExists } from "fs-extra";
 import { VertexAttributeEnum } from "../main";
+import { VertexAttribute } from "../definitions/VertexAttribute";
 
 
 export default class Material extends RnObject {
@@ -110,6 +111,9 @@ export default class Material extends RnObject {
 
     // Shader Construction
     let vertexShader = glslShader.glslBegin +
+`
+uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
+` +
       vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderDefinitions +
       glslShader.glslMainBegin +
@@ -256,6 +260,10 @@ export default class Material extends RnObject {
     }
 
     // Add additional functions by system
+
+    vertexShader += `
+uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
+`
     vertexShader += vertexShaderMethodDefinitions_uniform;
 
     // function definitions
