@@ -13,16 +13,16 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import PBRShader from "../../webgl/PBRShader";
+import PBRShader from "../../webgl/shaders/PBRShader";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static readonly shader: PBRShader = PBRShader.getInstance();
 
   constructor() {
+    super(PBRShader.getInstance(), 'pbrShading');
     PbrShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -39,7 +39,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       // {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false},
       {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
     ];
-    super(shaderSemanticsInfoArray);
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
   static async initDefaultTextures() {

@@ -16,6 +16,7 @@ type ComponentTID = number;
 type ComponentSID = number;
 
 type MaterialUID = number;
+type MaterialNodeUID = number;
 type TextureUID = number;
 
 type WebGLResourceHandle = number;

@@ -1,6 +1,6 @@
-version: 0.1.1-283-g222f-mod
-branch: feature/cubic-spline-interpolate
-a28d3d055d4b292ce6df623d1dea07ea3351f555fa4fae078c8f0f94abc5161a ./dist/rhodonite.js
-1afd1e5e473e032a7284a58b8e9bcffbbc837e353f1bf67c6ee76146a1830f32 ./dist/rhodonite.min.js
-61b22c666f3a796806953a17ad98db946f2393951b56cfbe8c43e0bebf7172e4 ./dist/rhodonite-webgl.js
-84c51b8793c849dec4988e65bc491e8b30104a01dbd2a3d07c344307be96c126 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-311-gcda1-mod
+branch: feature/improve-shader-node-system
+a1cc0e2a21ec52989dda9163acbf3d59b9d99b3782c1b603b337e31ad78ca599 ./dist/rhodonite.js
+e992131da723fc727ba081594e7b6944591d86a7d0a067df1bc1cf5831892e57 ./dist/rhodonite.min.js
+1da863710d6ad5f45fce84d9e8e68f3ef40357434af0f91570adbeb397462e71 ./dist/rhodonite-webgl.js
+d07aa8c0ed42e1d1470b5ababb51f3201141a430254a7ac64d88410cb8f94456 ./dist/rhodonite-webgl.min.js

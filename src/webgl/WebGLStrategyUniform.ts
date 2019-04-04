@@ -1,5 +1,5 @@
 import WebGLResourceRepository, { VertexHandles } from "./WebGLResourceRepository";
-import GLSLShader from "./GLSLShader";
+import GLSLShader from "./shaders/GLSLShader";
 import WebGLStrategy from "./WebGLStrategy";
 import MeshComponent from "../foundation/components/MeshComponent";
 import WebGLContextWrapper from "./WebGLContextWrapper";
@@ -13,7 +13,6 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
-import PBRShader from "./PBRShader";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";
@@ -97,6 +96,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true},
+          {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
         ];
         const lights: ShaderSemanticsInfo[] = [];
         for (let i=0; i<Config.maxLightNumberInShader; i++) {
@@ -166,10 +166,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
   };
 
-  attachGPUData(): void {
+  attachGPUData(primitive: Primitive): void {
   };
 
-  attatchShaderProgram(): void {
+  attatchShaderProgram(material: Material): void {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
@@ -206,13 +206,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     return false;
   }
 
   $render(meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram();
     const gl = glw.getRawContext();
 
     if (meshComponent.componentSID === MeshRendererComponent.firstOpaqueSid) {
@@ -228,7 +227,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
-
+      //this.attatchShaderProgram(primitive.material!);
 
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
@@ -244,6 +243,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
 
       // Uniforms from System
+      const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, {x:vertexHandle.attributesFlags}, {force: force});
+
       /// Matrices
       RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, {x:WebGLStrategyUniform.transposedMatrix44.v}, {force: force});

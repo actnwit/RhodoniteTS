@@ -1,5 +1,5 @@
 import getRenderingStrategy from './getRenderingStrategy';
-import GLSLShader, {AttributeNames} from "./GLSLShader";
+import GLSLShader, {AttributeNames} from "./shaders/GLSLShader";
 import WebGLContextWrapper from './WebGLContextWrapper';
 import WebGLResourceRepository, {VertexHandles} from './WebGLResourceRepository';
 import WebGLStrategy from './WebGLStrategy';

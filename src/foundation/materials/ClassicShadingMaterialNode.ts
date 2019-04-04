@@ -1,52 +1,67 @@
-import RnObject from "../core/RnObject";
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
-import MutableColorRgb from "../math/MutableColorRgb";
-import Vector2 from "../math/Vector2";
 import { ComponentType } from "../definitions/ComponentType";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import ModuleManager from "../system/ModuleManager";
-import { PixelFormat } from "../definitions/PixelFormat";
-import { TextureParameter } from "../definitions/TextureParameter";
-import Vector4 from "../math/Vector4";
+import WireframeShader from "../../webgl/shaders/WireframeShader";
 import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/ClassicShader";
+import ClassicShadingShader from "../../webgl/shaders/ClassicShadingShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 
 export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static readonly shader: ClassicShader = ClassicShader.getInstance();
 
   constructor() {
-    ClassicShadingMaterialNode.initDefaultTextures();
+    super(ClassicShadingShader.getInstance(), 'classicShading');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.DiffuseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
-      {semantic: ShaderSemantics.DiffuseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(0, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.SpecularColorFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
-      {semantic: ShaderSemantics.SpecularColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(1, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(2, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(3, ClassicShadingMaterialNode.__dummyWhiteTextureUid)},
-      {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(4, ClassicShadingMaterialNode.__dummyBlackTextureUid)},
-      {semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: 5},
-      {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
-      {semantic: ShaderSemantics.ShadingModel, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: ShadingModel.Phong.index},
+      {
+        semantic: ShaderSemantics.Shininess,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 5
+      },
+      {
+        semantic: ShaderSemantics.ShadingModel,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Int,
+        isPlural: false,
+        isSystem: false,
+        initialValue: ShadingModel.Phong.index
+      }
     ];
-    super(shaderSemanticsInfoArray);
-  }
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
-  static async initDefaultTextures() {
-    if (ClassicShadingMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
-    ClassicShadingMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    ClassicShadingMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    ClassicShadingMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
+    // Input
+    this.__vertexInputs.push(
+    {
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      name: 'diffuseColor',
+      isImmediateValue: false
+    });
+
+    this.__vertexInputs.push(
+    {
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      name: 'position_inWorld',
+      isImmediateValue: false
+    });
+    this.__vertexInputs.push(
+      {
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        name: 'normal_inWorld',
+        isImmediateValue: false
+      });
+
+    // Output
+    this.__vertexOutputs.push({
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      name: 'outColor',
+      isImmediateValue: false
+    });
   }
 }

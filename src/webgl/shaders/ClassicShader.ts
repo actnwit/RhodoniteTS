@@ -1,7 +1,9 @@
-import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
+import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
-import Config from "../foundation/core/Config";
-import { ShaderNode } from "../foundation/definitions/ShaderNode";
+import Config from "../../foundation/core/Config";
+import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { CompositionTypeEnum } from "../../foundation/main";
+import { CompositionType } from "../../foundation/definitions/CompositionType";
 
 export type AttributeNames = Array<string>;
 
@@ -21,13 +23,12 @@ export default class ClassicShader extends GLSLShader {
   }
 
 
-  get vertexShaderVariableDefinitions() {
+  get vertexShaderDefinitions() {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `${_version}
-precision highp float;
+    return `
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -46,28 +47,27 @@ ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
+${this.processSkinning}
 `;
 
   };
 
   vertexShaderBody:string = `
-
-void main ()
-{
   mat4 worldMatrix = getMatrix(a_instanceID);
   mat4 viewMatrix = getViewMatrix(a_instanceID);
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
+  // Skeletal
+  bool isSkinning;
+  skinning(isSkinning, normalMatrix, normalMatrix);
+
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  // Skeletal
-  ${this.processSkinning}
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
-}
   `;
 
   get fragmentShaderSimple() {
@@ -111,10 +111,13 @@ void main ()
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+  float alpha = 1.0;
   if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
+    alpha = u_material.diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
     diffuseColor = u_material.diffuseColorFactor.rgb;
+    alpha = u_material.diffuseColorFactor.a;
   } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
     diffuseColor = v_color;
   } else {
@@ -181,7 +184,7 @@ void main ()
     shadingColor = diffuseColor;
   }
 
-  rt0 = vec4(shadingColor, 1.0);
+  rt0 = vec4(shadingColor, alpha);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 
@@ -190,12 +193,19 @@ void main ()
 `;
   }
 
+  get pixelShaderDefinitions() {
+    return '';
+  }
 
-  get fragmentShader() {
+  get pixelShaderBody() {
     return this.fragmentShaderSimple;
   }
 
-  static attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
-  static attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
+  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
+  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
     VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+
+  get attributeCompositions(): Array<CompositionTypeEnum> {
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+  }
 }

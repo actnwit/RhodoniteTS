@@ -3,7 +3,7 @@ import MemoryManager from "../foundation/core/MemoryManager";
 import Buffer from "../foundation/memory/Buffer";
 import { MathUtil } from "../foundation/math/MathUtil";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import GLSLShader from "./GLSLShader";
+import GLSLShader from "./shaders/GLSLShader";
 import { BufferUse } from "../foundation/definitions/BufferUse";
 import WebGLStrategy from "./WebGLStrategy";
 import MeshComponent from "../foundation/components/MeshComponent";
@@ -12,13 +12,14 @@ import Primitive from "../foundation/geometry/Primitive";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
-import ClassicShader from "./ClassicShader";
+import ClassicShader from "./shaders/ClassicShader";
+import Material from "../foundation/materials/Material";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __uboUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  //private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __vertexHandles: Array<VertexHandles> = [];
   private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
@@ -54,30 +55,26 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   private constructor(){}
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    if (this.__shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
+    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent!.getPrimitiveAt(i);
+      const material = primitive.material;
+      if (material) {
+        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+          return;
+        }
 
-    // Shader Setup
-    const glslShader = ClassicShader.getInstance();
-    let vertexShader = glslShader.vertexShaderVariableDefinitions +
-      this.vertexShaderMethodDefinitions_UBO +
-      glslShader.vertexShaderBody
-    let fragmentShader = glslShader.fragmentShader;
-    this.__shaderProgramUid = this.__webglResourceRepository.createShaderProgram(
-      {
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: fragmentShader,
-        attributeNames: ClassicShader.attributeNames,
-        attributeSemantics: ClassicShader.attributeSemantics
+        // Shader Setup
+        material.createProgram(this.vertexShaderMethodDefinitions_UBO);
+
+
+        this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
+          [
+            {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
+          ]);
       }
-    );
-
-    this.__webglResourceRepository.setupUniformLocations(this.__shaderProgramUid,
-      [
-        {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
-        {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
-      ]);
+    }
   }
 
   private __isLoaded(index: Index) {
@@ -157,12 +154,12 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
   };
 
-  attachGPUData(): void {
-    this.__webglResourceRepository.bindUniformBlock(this.__shaderProgramUid, 'matrix', 0);
+  attachGPUData(primitive: Primitive): void {
+    this.__webglResourceRepository.bindUniformBlock(primitive.material!._shaderProgramUid, 'matrix', 0);
   };
 
-  attatchShaderProgram(): void {
-    const shaderProgramUid = this.__shaderProgramUid;
+  attatchShaderProgram(material: Material): void {
+    const shaderProgramUid = material._shaderProgramUid;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
@@ -192,13 +189,14 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram();
+    const material = primitive.material!;
+    this.attatchShaderProgram(material);
     const gl = glw.getRawContext();
 
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
-    this.__webglResourceRepository.setUniformValue(this.__shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
 
     return true;
   }

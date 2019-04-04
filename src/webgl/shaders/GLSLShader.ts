@@ -1,5 +1,8 @@
-import { VertexAttributeEnum, VertexAttribute } from "../foundation/definitions/VertexAttribute";
-import WebGLResourceRepository from "./WebGLResourceRepository";
+import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
+import WebGLResourceRepository from "../WebGLResourceRepository";
+import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
+import { ShaderSemantics, ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
+import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
 
@@ -19,7 +22,7 @@ export default abstract class GLSLShader {
 
   get glsl_fragColor() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
       return '';
     } else {
       return 'gl_FragColor = rt0;\n';
@@ -64,11 +67,30 @@ export default abstract class GLSLShader {
 
   get glsl_versionText() {
     const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
       return '#version 300 es\n'
     } else {
       return '';
     }
+  }
+
+  get glslBegin() {
+    const _version = this.glsl_versionText;
+    return `${_version}
+    precision highp float;
+    `
+  }
+
+  get glslMainBegin() {
+    return `
+    void main() {
+    `
+  }
+
+  get glslMainEnd() {
+    return `
+    }
+    `
   }
 
   get glsl1ShaderTextureLodExt() {
@@ -127,21 +149,37 @@ export default abstract class GLSLShader {
   }
 
   get processSkinning() {
-    return `
-    bool isSkinning = false;
-    if (u_skinningMode == 1) {
-      mat4 skinMat = getSkinMatrix();
-      v_position_inWorld = skinMat * vec4(a_position, 1.0);
-      normalMatrix = toNormalMatrix(skinMat);
-      v_normal_inWorld = normalize(normalMatrix * a_normal);
-      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-      isSkinning = true;
-    } else {
-      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-    }
-    `;
 
+    return `
+    bool skinning(
+      out bool isSkinning,
+      in mat3 inNormalMatrix,
+      out mat3 outNormalMatrix
+      )
+    {
+      mat4 worldMatrix = getMatrix(a_instanceID);
+      mat4 viewMatrix = getViewMatrix(a_instanceID);
+      mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
+
+      // Skeletal
+      isSkinning = false;
+      if (u_skinningMode == 1) {
+        mat4 skinMat = getSkinMatrix();
+        v_position_inWorld = skinMat * vec4(a_position, 1.0);
+        outNormalMatrix = toNormalMatrix(skinMat);
+        v_normal_inWorld = normalize(outNormalMatrix * a_normal);
+        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+        isSkinning = true;
+      } else {
+        v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+        outNormalMatrix = inNormalMatrix;
+        v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+      }
+
+      return isSkinning;
+    }
+`;
   }
 
   get pbrUniformDefinition() {
@@ -293,6 +331,20 @@ export default abstract class GLSLShader {
     `;
   }
 
-  abstract get fragmentShader(): string;
-
+  static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {
+    if (data instanceof ShaderSemanticsClass) {
+      return 'u_' + data.singularStr;
+    } else if (data instanceof VertexAttributeClass) {
+      return data.shaderStr;
+    } else {
+      return data as string;
+    }
+  }
+  abstract get vertexShaderDefinitions(): string;
+  abstract get pixelShaderDefinitions(): string;
+  abstract get vertexShaderBody(): string;
+  abstract get pixelShaderBody(): string;
+  abstract get attributeNames(): AttributeNames;
+  abstract get attributeSemantics(): Array<VertexAttributeEnum>;
+  abstract get attributeCompositions(): Array<CompositionTypeEnum>;
 }

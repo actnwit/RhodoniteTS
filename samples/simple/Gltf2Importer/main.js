@@ -41,10 +41,11 @@ const load = async function(time){
   //const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
-//const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
+const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
 //const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
-  const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Skin/Animation_Skin_09.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Node/Animation_Node_05.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/polly/project_polly.glb');
 
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
