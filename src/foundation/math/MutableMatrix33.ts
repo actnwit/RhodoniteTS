@@ -74,6 +74,13 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
   }
 
   /**
+   * zero matrix(static version)
+   */
+  static zero() {
+    return new MutableMatrix33(0, 0, 0, 0, 0, 0, 0, 0, 0);
+  }
+
+  /**
    * Create X oriented Rotation Matrix
    */
   rotateX(radian:number) {
