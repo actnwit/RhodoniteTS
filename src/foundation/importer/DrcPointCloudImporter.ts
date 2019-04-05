@@ -178,6 +178,8 @@ export default class DrcPointCloudImporter {
       primitiveMode: PrimitiveMode.Points
     });
 
+    draco.destroy(decoder);
+    draco.destroy(dracoGeometry);
 
     return new Promise((resolve, reject) => {
       resolve(primitive);
