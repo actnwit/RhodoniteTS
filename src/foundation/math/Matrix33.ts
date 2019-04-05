@@ -335,6 +335,10 @@ export default class Matrix33 implements IMatrix33 {
     return this.v[8];
   }
 
+  public at(row_i:number, column_i:number) {
+    return this.v[row_i+column_i*3];
+  }
+
   toString() {
     return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
       this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
