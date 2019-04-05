@@ -527,4 +527,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     return this.v[15];
   }
 
+  public setAt(row_i:number, column_i:number, val: number) {
+    this.v[row_i+column_i*3] = val;
+  }
+
 }

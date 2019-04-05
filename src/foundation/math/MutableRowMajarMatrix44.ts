@@ -482,4 +482,7 @@ export default class MutableRowMajarMatrix44 extends RowMajarMatrix44 {
     return this.v[15];
   }
 
+  public setAt(row_i:number, column_i:number, val: number) {
+    this.v[column_i+row_i*3] = val;
+  }
 }

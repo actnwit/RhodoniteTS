@@ -328,4 +328,8 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     return this.v[8];
   }
 
+  public setAt(row_i:number, column_i:number, val: number) {
+    this.v[row_i+column_i*3] = val;
+  }
+
 }
