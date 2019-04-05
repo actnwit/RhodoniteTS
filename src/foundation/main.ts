@@ -21,6 +21,7 @@ import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
+import DrcPointCloudImporter from './importer/DrcPointCloudImporter';
 import Gltf2Exporter from './exporter/Gltf2Exporter';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -61,6 +62,7 @@ const Rn = {
   ProcessApproach,
   Gltf1Importer,
   Gltf2Importer,
+  DrcPointCloudImporter,
   ModelConverter,
   ModuleManager,
   MemoryManager,
@@ -79,7 +81,7 @@ const Rn = {
 };
 export default Rn;
 
-declare var window:any;
+declare var window: any;
 window['Rn'] = Rn;
 
 export type CompositionTypeEnum = CompositionTypeEnum;
