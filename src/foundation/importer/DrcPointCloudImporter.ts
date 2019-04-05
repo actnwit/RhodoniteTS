@@ -64,7 +64,11 @@ export default class DrcPointCloudImporter {
     };
     const arrayBuffer = await response!.arrayBuffer();
 
-    return this.__decodeDraco(arrayBuffer);
+    console.log('arrayBuffer!');
+    console.log(arrayBuffer!);
+    console.log('');
+
+    return this.__decodeDraco(arrayBuffer, options);
 
     // return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri).catch((err) => {
     //   console.log('this.__loadFromArrayBuffer error', err);
@@ -72,7 +76,7 @@ export default class DrcPointCloudImporter {
 
   }
 
-  private __decodeDraco(arrayBuffer: ArrayBuffer) {
+  private async __decodeDraco(arrayBuffer: ArrayBuffer, options: GltfLoadOption) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
@@ -83,9 +87,62 @@ export default class DrcPointCloudImporter {
       throw new Error('invalid geometryType of drc file.');
     }
 
+    const decodedBuffer = this.__AttributeBuffers(draco, decoder, dracoGeometry);
+
+    let uri;
+    try {
+      uri = await this.__encodeBufferToURI(decodedBuffer);
+    } catch (error) {
+      console.log('uri encode error: ' + error);
+    }
+
+    console.log(uri);
+    console.log('');
+
+
+
+
+
+
+
+    const gltfJson: { [key: string]: any } = {
+      "asset": {
+        "version": "2.0"
+      }
+    };
+
+    gltfJson["nodes"] = "aaa";
+
+    console.log("gltfJson");
+    console.log(gltfJson);
 
     const numPoints = dracoGeometry.num_points();
     const numAttributes = dracoGeometry.num_attributes();
+
+
+
+    draco.destroy(decoder);
+    draco.destroy(dracoGeometry);
+
+
+  }
+
+  private __encodeBufferToURI(decodeddata: Float32Array) {
+    return new Promise((resolve, reject) => {
+      var blob = new Blob([decodeddata.buffer], { type: "application/octet-stream" });
+      var fr = new FileReader();
+
+      fr.onload = () => {
+        resolve(fr.result!);
+      };
+
+      fr.onerror = (error) => {
+        reject(error);
+      };
+
+      fr.readAsDataURL(blob);
+
+    });
 
   }
 
@@ -138,7 +195,7 @@ export default class DrcPointCloudImporter {
     };
     const arrayBuffer = await response!.arrayBuffer();
 
-    return this.__decodeDracoDirect(arrayBuffer);
+    return this.__decodeDracoDirect(arrayBuffer, options);
 
     // return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri).catch((err) => {
     //   console.log('this.__loadFromArrayBuffer error', err);
@@ -146,7 +203,7 @@ export default class DrcPointCloudImporter {
 
   }
 
-  private __decodeDracoDirect(arrayBuffer: ArrayBuffer) {
+  private __decodeDracoDirect(arrayBuffer: ArrayBuffer, options: GltfLoadOption) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
@@ -220,6 +277,68 @@ export default class DrcPointCloudImporter {
     return dracoGeometry;
   }
 
+  private __AttributeBuffers(draco: any, decoder: any, dracoGeometry: any) {
+    const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
+    if (posAttId === -1) {
+      draco.destroy(decoder);
+      draco.destroy(dracoGeometry);
+      throw new Error('Draco: No position attribute found.');
+    }
+    const colorAttId = decoder.GetAttributeId(dracoGeometry, draco.COLOR);
+    const normalAttId = decoder.GetAttributeId(dracoGeometry, draco.NORMAL);
+
+    const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
+    const colAttribute = decoder.GetAttribute(dracoGeometry, colorAttId);
+    const norAttribute = decoder.GetAttribute(dracoGeometry, normalAttId);
+    const posAttributeData = new draco.DracoFloat32Array();
+    const colAttributeData = new draco.DracoFloat32Array();
+    const norAttributeData = new draco.DracoFloat32Array();
+    decoder.GetAttributeFloatForAllPoints(dracoGeometry, posAttribute, posAttributeData);
+    decoder.GetAttributeFloatForAllPoints(dracoGeometry, colAttribute, colAttributeData);
+    decoder.GetAttributeFloatForAllPoints(dracoGeometry, norAttribute, norAttributeData);
+
+    const numPoints = dracoGeometry.num_points();
+
+    let bufferSize = 0;
+    bufferSize += numPoints * 3;
+    if (colorAttId !== -1) bufferSize += numPoints * 4;
+    if (normalAttId !== -1) bufferSize += numPoints * 3;
+
+    const attributeBuffers = new Float32Array(bufferSize);
+    for (var i = 0; i < numPoints * 3; i += 1) {
+      attributeBuffers[i] = posAttributeData.GetValue(i);
+    }
+
+    let currentAttributeIndex = numPoints * 3;
+
+    if (colorAttId !== -1) {
+      const numComponents = colAttribute.num_components();
+      for (let i = 0; i < numPoints; i += numComponents) {
+        attributeBuffers[currentAttributeIndex + i] = colAttributeData.GetValue(i);
+        attributeBuffers[currentAttributeIndex + i + 1] = colAttributeData.GetValue(i + 1);
+        attributeBuffers[currentAttributeIndex + i + 2] = colAttributeData.GetValue(i + 2);
+        if (numComponents == 4) {
+          attributeBuffers[currentAttributeIndex + i + 3] = colAttributeData.GetValue(i + 3);
+        } else {
+          attributeBuffers[currentAttributeIndex + i + 3] = 1.0;
+        }
+      }
+      currentAttributeIndex += numPoints * 4;
+    }
+
+    if (normalAttId !== -1) {
+      for (var i = 0; i < numPoints * 3; i += 1) {
+        attributeBuffers[currentAttributeIndex + i] = norAttributeData.GetValue(i);  // XYZ XYZ
+      }
+    }
+
+    draco.destroy(posAttributeData);
+    draco.destroy(colAttributeData);
+    draco.destroy(norAttributeData);
+    return attributeBuffers;
+  }
+
+
   private __getPositions(draco: any, decoder: any, dracoGeometry: any,
     attributeCompositionTypes: Array<CompositionTypeEnum>,
     attributeSemantics: Array<VertexAttributeEnum>,
@@ -258,15 +377,14 @@ export default class DrcPointCloudImporter {
     attributes: Array<TypedArray>
   ) {
     // Get color attributes if exists.
-    var colorAttId = decoder.GetAttributeId(dracoGeometry, draco.COLOR);
-    var colAttributeData;
+    const colorAttId = decoder.GetAttributeId(dracoGeometry, draco.COLOR);
     if (colorAttId === -1) {
       return null;
     } else {
       //console.log('Loaded color attribute.');
 
       const colAttribute = decoder.GetAttribute(dracoGeometry, colorAttId);
-      colAttributeData = new draco.DracoFloat32Array();
+      const colAttributeData = new draco.DracoFloat32Array();
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, colAttribute, colAttributeData);
 
       const numPoints = dracoGeometry.num_points();
@@ -300,15 +418,14 @@ export default class DrcPointCloudImporter {
     attributes: Array<TypedArray>
   ) {
     // Get normal attributes if exists.
-    var normalAttId = decoder.GetAttributeId(dracoGeometry, draco.NORMAL);
-    var norAttributeData;
+    const normalAttId = decoder.GetAttributeId(dracoGeometry, draco.NORMAL);
     if (normalAttId === -1) {
       return null;
     } else {
       //console.log('Loaded normal attribute.');
 
-      var norAttribute = decoder.GetAttribute(dracoGeometry, normalAttId);
-      norAttributeData = new draco.DracoFloat32Array();
+      const norAttribute = decoder.GetAttribute(dracoGeometry, normalAttId);
+      const norAttributeData = new draco.DracoFloat32Array();
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, norAttribute, norAttributeData);
 
       const numPoints = dracoGeometry.num_points();
