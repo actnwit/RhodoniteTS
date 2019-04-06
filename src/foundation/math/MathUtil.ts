@@ -1,3 +1,7 @@
+import Matrix33 from "./Matrix33";
+import Vector3 from "./Vector3";
+import MutableMatrix33 from "./MutableMatrix33";
+
 //import GLBoost from '../../globals';
 
 
