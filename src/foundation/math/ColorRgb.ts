@@ -1,4 +1,3 @@
-//import GLBoost from './../../globals';
 import Vector2 from './Vector2';
 import Vector4 from './Vector4';
 import {IVector3} from './IVector';
@@ -50,6 +49,10 @@ export default class ColorRgb implements IVector3, IColorRgb {
     return this.v[2];
   }
 
+  get w() {
+    return 1;
+  }
+
   get r() {
     return this.v[0];
   }
@@ -60,5 +63,9 @@ export default class ColorRgb implements IVector3, IColorRgb {
 
   get b() {
     return this.v[2];
+  }
+
+  get a() {
+    return 1;
   }
 }
