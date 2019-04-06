@@ -3,6 +3,8 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
+import ColorRgb from "../math/ColorRgb";
+import ColorRgba from "../math/ColorRgba";
 
 export default abstract class AbstractTexture extends RnObject {
   private __width: Size = 0;
@@ -12,6 +14,7 @@ export default abstract class AbstractTexture extends RnObject {
   private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
   private __textureUid: TextureUID;
   private __img?: HTMLImageElement;
+  private __canvasContext?: CanvasRenderingContext2D;
   public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
   protected __isTextureReady = false;
   protected __startedToLoad = false;
@@ -61,8 +64,8 @@ export default abstract class AbstractTexture extends RnObject {
     canvas.width = this._getNearestPowerOfTwo(image.width);
     canvas.height = this._getNearestPowerOfTwo(image.height);
 
-    var ctx = canvas.getContext("2d")!;
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    this.__canvasContext = canvas.getContext("2d")!;
+    this.__canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
 
     return canvas;
   }
@@ -151,5 +154,20 @@ export default abstract class AbstractTexture extends RnObject {
 
   get name(): string {
     return this.__name;
+  }
+
+  getImageData(x: Index, y:Index, width: Size, height: Size) {
+    return this.__canvasContext!.getImageData(x, y, width, height);
+  }
+
+  getPixelAsColorArba(x: Index, y:Index) {
+    const pixel = this.getImageData(x, y, 1, 1);
+    const data = pixel.data;
+    return new ColorRgba(data[0], data[1], data[2], data[3]);
+  }
+
+  getPixelAsArray(x: Index, y:Index) {
+    const pixel = this.getImageData(x, y, 1, 1);
+    return pixel.data;
   }
 }
