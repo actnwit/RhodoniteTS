@@ -132,14 +132,14 @@ export default class Vector3 implements IVector3 {
   /**
    * dot product
    */
-  dotProduct(vec3:Vector3) {
+  dot(vec3:Vector3) {
       return this.x * vec3.x + this.y * vec3.y + this.z * vec3.z;
   }
 
   /**
    * dot product(static version)
    */
-  static dotProduct(lv:Vector3, rv:Vector3) {
+  static dot(lv:Vector3, rv:Vector3) {
     return lv.x * rv.x + lv.y * rv.y + lv.z * rv.z;
   }
 
@@ -211,7 +211,7 @@ export default class Vector3 implements IVector3 {
   }
 
   static angleOfVectors(lhv:Vector3, rhv:Vector3) {
-    let cos_sita = Vector3.dotProduct(lhv, rhv) / ( lhv.length() * rhv.length() );
+    let cos_sita = Vector3.dot(lhv, rhv) / ( lhv.length() * rhv.length() );
 
     let sita = Math.acos(cos_sita);
 

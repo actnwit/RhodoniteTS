@@ -548,7 +548,7 @@ export default class TransformComponent extends Component {
     const fromDir = Vector3.normalize(fromVec);
     const toDir = Vector3.normalize(toVec);
     const rotationDir = Vector3.cross(fromDir, toDir);
-    const cosTheta = Vector3.dotProduct(fromDir, toDir);
+    const cosTheta = Vector3.dot(fromDir, toDir);
     let theta = Math.acos(cosTheta);
     this.quaternion = MutableQuaternion.axisAngle(rotationDir, theta);
   }

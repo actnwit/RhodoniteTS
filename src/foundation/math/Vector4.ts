@@ -7,7 +7,7 @@ import { CompositionType } from '../definitions/CompositionType';
 export default class Vector4 implements IVector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|IVector4|null, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|Vector3|IVector4|Array<number>|null, y?:number, z?:number, w?:number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
