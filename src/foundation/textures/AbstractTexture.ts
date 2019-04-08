@@ -1,10 +1,15 @@
 import RnObject from "../core/RnObject";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
+import { CompositionType } from "../definitions/CompositionType";
 import { TextureParameter } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
 import ColorRgb from "../math/ColorRgb";
 import ColorRgba from "../math/ColorRgba";
+import Vector4 from "../math/Vector4";
+import Vector3 from "../math/Vector3";
+import MutableVector3 from "../math/MutableVector3";
+import MutableVector4 from "../math/MutableVector4";
 
 export default abstract class AbstractTexture extends RnObject {
   private __width: Size = 0;
@@ -37,8 +42,16 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__width;
   }
 
+  set width(val: Size) {
+    this.__width = val;
+  }
+
   get height() {
     return this.__height;
+  }
+
+  set height(val: Size) {
+    this.__height = val;
   }
 
   get isTextureReady() {
@@ -160,14 +173,35 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__canvasContext!.getImageData(x, y, width, height);
   }
 
-  getPixelAsColorArba(x: Index, y:Index) {
+  getPixelAs(x: Index, y:Index, typeClass:
+    typeof ColorRgb| typeof ColorRgba | typeof Vector3 | typeof MutableVector3 | typeof Vector4 | typeof MutableVector4) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
-    return new ColorRgba(data[0], data[1], data[2], data[3]);
+    if (typeClass.compositionType === CompositionType.Vec4) {
+      return new (typeClass as any)(data[0], data[1], data[2], data[3]);
+    } else {
+      return new (typeClass as any)(data[0], data[1], data[2]);
+    }
   }
 
   getPixelAsArray(x: Index, y:Index) {
     const pixel = this.getImageData(x, y, 1, 1);
     return pixel.data;
+  }
+
+  setPixel(x: Index, y:Index, value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4) {
+    const pixel = this.getImageData(x, y, 1, 1);
+    const data = pixel.data;
+    for (let i=0; i<(value as any).compositionType.getNumberOfComponents(); i++) {
+      data[i] = value.v[i];
+    }
+    this.__canvasContext!.putImageData(pixel, x, y);
+  }
+
+  setPixelAtChannel(x: Index, y:Index, channelIdx: Index, value: number) {
+    const pixel = this.getImageData(x, y, 1, 1);
+    const data = pixel.data;
+    data[channelIdx] = value;
+    this.__canvasContext!.putImageData(pixel, x, y);
   }
 }
