@@ -1,6 +1,6 @@
-version: 0.1.1-316-gafb0-mod
-branch: feature/optimize-skeletal-animation
-abad6f13ae28a2096df6eb27d99a31d85d2148740e19da7b80b7192a1dafc20c ./dist/rhodonite.js
-be8b3be88cbcdfab1fc250852f6dde7a98312914c7bcb3445f6d2c336ae320f3 ./dist/rhodonite.min.js
-33e1b2b316a9d158758fbf3ce7c860bf74f40e0ef0522a3b90b55a214acffa84 ./dist/rhodonite-webgl.js
-9472e4fdd37a09de8dc9719b4d1c0116e7f8b88a99fb87e49c4dab671c7c3d8d ./dist/rhodonite-webgl.min.js
+version: 0.1.1-332-gc12f-mod
+branch: 
+bda06ef3638237fc54dce3dc7257ab470ce6c8dda48c7c3be88ecf1407a3c696 ./dist/rhodonite.js
+052014a540016152722691c3849f2d6a187346e092a5b0d01d33c35efd626ce9 ./dist/rhodonite.min.js
+0fddc2fa94e09be20de053bb8673677ad300e4cce7d6b9246c195d1ebae954e8 ./dist/rhodonite-webgl.js
+565717c768c8c2ca22e1079ae910f8fc6386f63ae484d938eb085ad6d9b0f3be ./dist/rhodonite-webgl.min.js

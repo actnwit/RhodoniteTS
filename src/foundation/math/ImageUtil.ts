@@ -6,6 +6,7 @@ import { MathUtil } from "./MathUtil";
 import MutableVector3 from "./MutableVector3";
 import ColorRgb from "./ColorRgb";
 import Vector2 from "./Vector2";
+import Texture from "../textures/Texture";
 
 // These codes are from https://eheitzresearch.wordpress.com/738-2/
 // "Procedural Stochastic Textures by Tiling and Blending"
@@ -137,7 +138,7 @@ function decorrelateColorSpace(
 }
 
 // Compute average subpixel variance at a given LOD
-function ComputeLODAverageSubpixelVariance(image: AbstractTexture, LOD:Index, channel:Index) :number
+function computeLODAverageSubpixelVariance(image: AbstractTexture, LOD:Index, channel:Index) :number
 {
 	// Window width associated with
 	const windowWidth = 1 << LOD;
@@ -173,7 +174,7 @@ function ComputeLODAverageSubpixelVariance(image: AbstractTexture, LOD:Index, ch
 }
 
 // Filter LUT by sampling a Gaussian N(mu, std�)
-function FilterLUTValueAtx(LUT: AbstractTexture, x:number, std: number, channel: Index, LUT_WIDTH: Size = 128): number
+function filterLUTValueAtx(LUT: AbstractTexture, x:number, std: number, channel: Index, LUT_WIDTH: Size = 128): number
 {
 	// Number of samples for filtering (heuristic: twice the LUT resolution)
 	const numberOfSamples = 2 * LUT_WIDTH;
@@ -185,7 +186,7 @@ function FilterLUTValueAtx(LUT: AbstractTexture, x:number, std: number, channel:
 		// Quantile used to sample the Gaussian
 		const U = (sample + 0.5) / numberOfSamples;
 		// Sample the Gaussian
-		const sample_x = invCDF(U, x, std);
+		const sample_x = MathUtil.invGaussianCdf(U, x, std);
 		// Find sample texel in LUT (the LUT covers the domain [0, 1])
 		const sample_texel = Math.max(0, Math.min(LUT_WIDTH - 1, Math.floor(sample_x * LUT_WIDTH)));
 		// Fetch LUT at level 0
@@ -198,7 +199,7 @@ function FilterLUTValueAtx(LUT: AbstractTexture, x:number, std: number, channel:
 	return filtered_value;
 }
 
-function PrefilterLUT(image_T_Input: AbstractTexture, LUT_Tinv: AbstractTexture, channel: Index): void
+function prefilterLUT(image_T_Input: AbstractTexture, LUT_Tinv: AbstractTexture, channel: Index): void
 {
 	// Compute number of prefiltered levels and resize LUT
 	LUT_Tinv.height = Math.floor(Math.log(image_T_Input.width)/Math.log(2.0));
@@ -208,7 +209,7 @@ function PrefilterLUT(image_T_Input: AbstractTexture, LUT_Tinv: AbstractTexture,
 	for(let LOD = 1 ; LOD < LUT_Tinv.height ; LOD++)
 	{
 		// Compute subpixel variance at LOD
-		const window_variance = ComputeLODAverageSubpixelVariance(image_T_Input, LOD, channel);
+		const window_variance = computeLODAverageSubpixelVariance(image_T_Input, LOD, channel);
 		const window_std = Math.sqrt(window_variance);
 
 		// Prefilter LUT with Gaussian kernel of this variance
@@ -217,10 +218,119 @@ function PrefilterLUT(image_T_Input: AbstractTexture, LUT_Tinv: AbstractTexture,
 			// Texel position in [0, 1]
 			const x_texel:number = (i+0.5) / LUT_Tinv.width;
 			// Filter look-up table around this position with Gaussian kernel
-		  const filteredValue = FilterLUTValueAtx(LUT_Tinv, x_texel, window_std, channel);
+		  const filteredValue = filterLUTValueAtx(LUT_Tinv, x_texel, window_std, channel);
 			// Store filtered value
 			LUT_Tinv.setPixelAtChannel(i, LOD, channel, filteredValue);
 		}
 	}
 }
+/*
+function computeTinput(input: AbstractTexture, T_input: AbstractTexture, channel: Index, GAUSSIAN_AVERAGE = 0.5, GAUSSIAN_STD = 0.16666)
+{	
+	// Sort pixels of example image
+	const sortedInputValues: Array<PixelSortStruct> = [];
+	for (let y = 0; y < input.height; y++) {
+    for (let x = 0; x < input.width; x++)
+    {
+      sortedInputValues[y * input.width + x].x = x;
+      sortedInputValues[y * input.width + x].y = y;
+      sortedInputValues[y * input.width + x].value = input.getPixelAsArray(x, y)[channel];
+    }
+  }
+	sort(sortedInputValues.begin(), sortedInputValues.end());
 
+	// Assign Gaussian value to each pixel
+	for (let i = 0; i < sortedInputValues.length ; i++)
+	{
+		// Pixel coordinates
+		const x = sortedInputValues[i].x;
+		const y = sortedInputValues[i].y;
+		// Input quantile (given by its order in the sorting)
+		const U = (i + 0.5) / (sortedInputValues.length);
+		// Gaussian quantile
+		const G = MathUtil.invGaussianCdf(U, GAUSSIAN_AVERAGE, GAUSSIAN_STD);
+		// Store
+		T_input.setPixelAtChannel(x, y, channel, G);
+	}
+}
+
+function computeInvT(input: AbstractTexture, Tinv:AbstractTexture, channel: number, GAUSSIAN_AVERAGE = 0.5, GAUSSIAN_STD = 0.16666)
+{
+	// Sort pixels of example image
+	const sortedInputValues: Array<number> = [];
+	for (let y = 0; y < input.height; y++) {
+    for (let x = 0; x < input.width; x++)
+    {
+      sortedInputValues[y * input.width + x] = input.getPixelAsArray(x, y)[channel];
+    }
+  }
+
+	sort(sortedInputValues.begin(), sortedInputValues.end());
+
+	// Generate Tinv look-up table
+	for (let i = 0; i < Tinv.width; i++)
+	{
+		// Gaussian value in [0, 1]
+		const G = (i + 0.5) / (Tinv.width);
+		// Quantile value
+		const U = MathUtil.gaussianCdf(G, GAUSSIAN_AVERAGE, GAUSSIAN_STD);
+		// Find quantile in sorted pixel values
+		const index = Math.floor(U * sortedInputValues.length);
+		// Get input value
+		const I = sortedInputValues[index];
+		// Store in LUT
+		Tinv.setPixelAtChannel(i, 0, channel, I);
+	}
+}
+
+function precomputations(
+	input: AbstractTexture,   // input: example image
+	Tinput: AbstractTexture,  // output: T(input) image
+	Tinv: AbstractTexture,	   // output: T^{-1} look-up table
+	colorSpaceVector1: MutableVector3,   // output: color space vector1
+	colorSpaceVector2: MutableVector3,   // output: color space vector2
+	colorSpaceVector3: MutableVector3,   // output: color space vector3
+  colorSpaceOrigin: MutableVector3,    // output: color space origin
+  LUT_WIDTH: Size = 128)
+{
+	// Section 1.4 Improvement: using a decorrelated color space
+//	const input_decorrelated:AbstractTexture = TextureDataFloat(input.width, input.height, 3);
+  const input_decorrelated: AbstractTexture = new Texture();
+  input_decorrelated.width = input.width;
+  input_decorrelated.height = input.height;
+
+	decorrelateColorSpace(input,
+							input_decorrelated,
+							colorSpaceVector1,
+							colorSpaceVector2,
+							colorSpaceVector3,
+							colorSpaceOrigin);
+
+	// Section 1.3.2 Applying the histogram transformation T on the input
+  //Tinput = TextureDataFloat(input.width, input.height, 3);
+  Tinput = new Texture();
+  Tinput.width = input.width;
+  Tinput.height = input.height;
+
+	for(let channel = 0 ; channel < 3 ; channel++)
+	{
+		computeTinput(input_decorrelated, Tinput, channel);
+	}
+
+	// Section 1.3.3 Precomputing the inverse histogram transformation T^{-1}
+  //Tinv = TextureDataFloat(LUT_WIDTH, 1, 3);
+  Tinv = new Texture();
+  Tinv.width = LUT_WIDTH;
+  Tinv.height = 1;
+	for(let channel = 0 ; channel < 3 ; channel++)
+	{
+		computeInvT(input_decorrelated, Tinv, channel);
+	}
+
+	// Section 1.5 Improvement: prefiltering the look-up table
+	for(let channel = 0 ; channel < 3 ; channel++)
+	{
+		prefilterLUT(Tinput, Tinv, channel);
+	}
+}
+*/
