@@ -355,15 +355,15 @@ export default class CameraControllerComponent extends Component {
 
     let fovy = this.__getFovyFromCamera(camera);
 
+    let centerToEyeVec = Vector3.subtract(
+      this.__eyeVec,
+      this.__centerVec
+    );
+    centerToEyeVec = Vector3.multiply(centerToEyeVec,
+      (this.__wheel_y * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
+    );
+    this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
-      let centerToEyeVec = Vector3.subtract(
-        this.__eyeVec,
-        this.__centerVec
-      );
-      centerToEyeVec = Vector3.multiply(centerToEyeVec,
-        (this.__wheel_y * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
-      );
-      this.__lengthOfCenterToEye = centerToEyeVec.length();
       let horizontalAngleOfVectors = Vector3.angleOfVectors(
         new Vector3(centerToEyeVec.x, 0, centerToEyeVec.z),
         new Vector3(0, 0, 1)
@@ -416,13 +416,6 @@ export default class CameraControllerComponent extends Component {
       }
       //this._verticalAngleOfVectors *= verticalSign;
     } else {
-      let centerToEyeVec = Vector3.subtract(
-        this.__eyeVec,
-        this.__centerVec
-      );
-      centerToEyeVec = Vector3.multiply(centerToEyeVec,
-        (this.__wheel_y * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
-      );
       let rotateM_X = Matrix33.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       let rotateM_Y = Matrix33.rotateY(MathUtil.degreeToRadian(this.__rot_x));
       let rotateM = Matrix33.multiply(rotateM_Y, rotateM_X);
