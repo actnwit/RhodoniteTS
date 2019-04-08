@@ -8,6 +8,12 @@ import ColorRgb from "./ColorRgb";
 import Vector2 from "./Vector2";
 import Texture from "../textures/Texture";
 
+type PixelSortType = {
+  x: Index,
+  y: Index,
+  value: number
+};
+
 // These codes are from https://eheitzresearch.wordpress.com/738-2/
 // "Procedural Stochastic Textures by Tiling and Blending"
 // Thanks to the authors for permission to use.
@@ -224,11 +230,11 @@ function prefilterLUT(image_T_Input: AbstractTexture, LUT_Tinv: AbstractTexture,
 		}
 	}
 }
-/*
+
 function computeTinput(input: AbstractTexture, T_input: AbstractTexture, channel: Index, GAUSSIAN_AVERAGE = 0.5, GAUSSIAN_STD = 0.16666)
-{	
+{
 	// Sort pixels of example image
-	const sortedInputValues: Array<PixelSortStruct> = [];
+	const sortedInputValues: Array<PixelSortType> = [];
 	for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++)
     {
@@ -237,7 +243,12 @@ function computeTinput(input: AbstractTexture, T_input: AbstractTexture, channel
       sortedInputValues[y * input.width + x].value = input.getPixelAsArray(x, y)[channel];
     }
   }
-	sort(sortedInputValues.begin(), sortedInputValues.end());
+
+  sortedInputValues.sort((a:PixelSortType, b:PixelSortType)=>{
+    if (a.value < b.value) return 1;
+    if (a.value > b.value) return -1;
+    return 0;
+  });
 
 	// Assign Gaussian value to each pixel
 	for (let i = 0; i < sortedInputValues.length ; i++)
@@ -265,7 +276,11 @@ function computeInvT(input: AbstractTexture, Tinv:AbstractTexture, channel: numb
     }
   }
 
-	sort(sortedInputValues.begin(), sortedInputValues.end());
+  sortedInputValues.sort((a:number, b:number)=>{
+    if (a < b) return 1;
+    if (a > b) return -1;
+    return 0;
+  });
 
 	// Generate Tinv look-up table
 	for (let i = 0; i < Tinv.width; i++)
@@ -333,4 +348,3 @@ function precomputations(
 		prefilterLUT(Tinput, Tinv, channel);
 	}
 }
-*/
