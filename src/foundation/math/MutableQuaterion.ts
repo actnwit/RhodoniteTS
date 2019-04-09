@@ -4,6 +4,7 @@ import Quaternion from "./Quaternion";
 import {IVector4} from "./IVector";
 import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
+import RowMajarMatrix44 from "./RowMajarMatrix44";
 
 export default class MutableQuaternion extends Quaternion implements IVector4 {
 
@@ -116,6 +117,41 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     this.x = 0;
     this.w = 1;
   }
+
+  static fromMatrix(m:Matrix44|RowMajarMatrix44) {
+
+    let q = new MutableQuaternion();
+    let tr = m.m00 + m.m11 + m.m22;
+
+    if (tr > 0) {
+      let S = 0.5 / Math.sqrt(tr+1.0);
+      q.v[3] = 0.25 / S;
+      q.v[0] = (m.m21 - m.m12) * S;
+      q.v[1] = (m.m02 - m.m20) * S;
+      q.v[2] = (m.m10 - m.m01) * S;
+    } else if ((m.m00 > m.m11) && (m.m00 > m.m22)) {
+      let S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+      q.v[3] = (m.m21 - m.m12) / S;
+      q.v[0] = 0.25 * S;
+      q.v[1] = (m.m01 + m.m10) / S;
+      q.v[2] = (m.m02 + m.m20) / S;
+    } else if (m.m11 > m.m22) {
+      let S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+      q.v[3] = (m.m02 - m.m20) / S;
+      q.v[0] = (m.m01 + m.m10) / S;
+      q.v[1] = 0.25 * S;
+      q.v[2] = (m.m12 + m.m21) / S;
+    } else {
+      let S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+      q.v[3] = (m.m10 - m.m01) / S;
+      q.v[0] = (m.m02 + m.m20) / S;
+      q.v[1] = (m.m12 + m.m21) / S;
+      q.v[2] = 0.25 * S;
+    }
+
+    return q;
+  }
+
 
   get x():number {
     return this.v[0];

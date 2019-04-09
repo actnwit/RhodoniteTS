@@ -7,6 +7,7 @@ import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 import RowMajarMatrix44 from './RowMajarMatrix44';
 import MutableQuaternion from './MutableQuaterion';
+import LogQuaternion from './LogQuaternion';
 
 export default class Quaternion implements IVector4 {
   v: TypedArray;
@@ -26,6 +27,13 @@ export default class Quaternion implements IVector4 {
       this.v[1] = 0;
       this.v[2] = 0;
       this.v[3] = 1;
+    } else if (x instanceof LogQuaternion) {
+      const theta = x.x*x.x + x.y*x.y + x.z*x.z;
+      const sin = Math.sin(theta);
+      this.v[0] = x.x*(sin/theta);
+      this.v[1] = x.y*(sin/theta);
+      this.v[2] = x.z*(sin/theta);
+      this.v[3] = Math.cos(theta);
     } else if (Array.isArray(x)) {
       this.v[0] = x[0];
       this.v[1] = x[1];
