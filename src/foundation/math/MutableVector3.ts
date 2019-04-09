@@ -33,13 +33,6 @@ export default class MutableVector3 extends Vector3 implements IVector3 {
     return new MutableVector3(this.x, this.y, this.z);
   }
 
-  /**
-   * Zero Vector
-   */
-  static zero() {
-    return new MutableVector3(0, 0, 0);
-  }
-
   static one() {
     return new MutableVector3(1, 1, 1);
   }
