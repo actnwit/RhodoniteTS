@@ -74,4 +74,27 @@ function isPowerOfTwoTexture(width: Size, height: Size) {
   return isPowerOfTwo(width) && isPowerOfTwo(height);
 }
 
-export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture});
+  // values range must be [-1, 1]
+function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
+  let v0 = 0.0;
+  let v1 = 0.0;
+
+  x = (x + 1)/2.0;
+  y = (y + 1)/2.0;
+  z = (z + 1)/2.0;
+  w = (w + 1)/2.0;
+
+  let ir = Math.floor(x*(criteria-1.0));
+  let ig = Math.floor(y*(criteria-1.0));
+  let irg = ir*criteria + ig;
+  v0 = irg / criteria;
+
+  let ib =  Math.floor(z*(criteria-1.0));
+  let ia =  Math.floor(w*(criteria-1.0));
+  let iba = ib*criteria + ia;
+  v1 =iba / criteria;
+
+  return [v0, v1];
+}
+
+export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2});
