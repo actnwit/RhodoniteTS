@@ -93,7 +93,7 @@ export default class Vector4 implements IVector4 {
    * Zero Vector
    */
   static zero() {
-    return new (this.constructor as any)(0, 0, 0, 1);
+    return new (this as any)(0, 0, 0, 1);
   }
 
   length() {

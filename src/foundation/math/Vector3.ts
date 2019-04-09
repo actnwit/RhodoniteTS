@@ -76,7 +76,7 @@ export default class Vector3 implements IVector3 {
    * Zero Vector
    */
   static zero() {
-    return new Vector3(0, 0, 0);
+    return new (this as any)(0, 0, 0);
   }
 
   static one() {
