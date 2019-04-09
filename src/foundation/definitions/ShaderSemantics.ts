@@ -51,12 +51,14 @@ const ShadingModel: ShaderSemanticsEnum = new ShaderSemanticsClass({index:27, si
 const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({index:28, singularStr:'skinningMode', pluralStr: 'skinningModes'});
 const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({index:29, singularStr:'generalTexture', pluralStr: 'generalTextures'});
 const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({index:30, singularStr:'vertexAttributesExistenceArray', pluralStr: 'vertexAttributesExistenceArrays'});
+const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({index:31, singularStr:'boneCompressedChank', pluralStr: 'boneCompressedChanks'});
+const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({index:32, singularStr:'boneCompressedInfo', pluralStr: 'boneCompressedInfos'});
 
 
 const typeList = [ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
                   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
                   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray];
+                  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo];
 
 function from( index : number ): ShaderSemanticsEnum {
   return _from({typeList, index}) as ShaderSemanticsEnum;
@@ -72,4 +74,5 @@ export type ShaderSemanticsInfo = {semantic?: ShaderSemanticsEnum, isPlural?: bo
 export const ShaderSemantics = Object.freeze({ WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray, from, fromString });
+  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
+  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString });

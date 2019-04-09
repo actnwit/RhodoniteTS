@@ -1,6 +1,6 @@
-version: 0.1.1-311-gcda1-mod
-branch: feature/improve-shader-node-system
-a1cc0e2a21ec52989dda9163acbf3d59b9d99b3782c1b603b337e31ad78ca599 ./dist/rhodonite.js
-e992131da723fc727ba081594e7b6944591d86a7d0a067df1bc1cf5831892e57 ./dist/rhodonite.min.js
-1da863710d6ad5f45fce84d9e8e68f3ef40357434af0f91570adbeb397462e71 ./dist/rhodonite-webgl.js
-d07aa8c0ed42e1d1470b5ababb51f3201141a430254a7ac64d88410cb8f94456 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-316-gafb0-mod
+branch: feature/optimize-skeletal-animation
+abad6f13ae28a2096df6eb27d99a31d85d2148740e19da7b80b7192a1dafc20c ./dist/rhodonite.js
+be8b3be88cbcdfab1fc250852f6dde7a98312914c7bcb3445f6d2c336ae320f3 ./dist/rhodonite.min.js
+33e1b2b316a9d158758fbf3ce7c860bf74f40e0ef0522a3b90b55a214acffa84 ./dist/rhodonite-webgl.js
+9472e4fdd37a09de8dc9719b4d1c0116e7f8b88a99fb87e49c4dab671c7c3d8d ./dist/rhodonite-webgl.min.js

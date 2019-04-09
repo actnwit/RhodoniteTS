@@ -89,6 +89,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true},
+          {semantic: ShaderSemantics.BoneCompressedChank, isPlural: true, isSystem: true},
+          {semantic: ShaderSemantics.BoneCompressedInfo, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true},
           {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
@@ -279,7 +281,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
       if (skeletalComponent) {
         const jointMatrices = skeletalComponent.jointMatrices;
+        const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, {x:jointMatrices!}, {force: force});
+        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, {x:jointCompressedChanks!}, {force: force});
+        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, {x:skeletalComponent.jointCompressedInfo!.v}, {force: force});
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, {x:true}, {force: force});
       } else {
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, {x:false}, {force: force});

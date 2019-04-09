@@ -136,12 +136,97 @@ export default abstract class GLSLShader {
 
   get getSkinMatrix() {
     return `
+    //uniform mat4 u_boneMatrices[100];
+    uniform vec4 u_boneCompressedChanks[90];
+    uniform vec4 u_boneCompressedInfo;
+
+    mat4 createMatrixFromQuaternionTransformUniformScale( vec4 quaternion, vec4 translationScale ) {
+      vec4 q = quaternion;
+      vec3 t = translationScale.xyz;
+      float scale = translationScale.w;
+
+      float sx = q.x * q.x;
+      float sy = q.y * q.y;
+      float sz = q.z * q.z;
+      float cx = q.y * q.z;
+      float cy = q.x * q.z;
+      float cz = q.x * q.y;
+      float wx = q.w * q.x;
+      float wy = q.w * q.y;
+      float wz = q.w * q.z;
+
+      mat4 mat = mat4(
+        1.0 - 2.0 * (sy + sz), 2.0 * (cz + wz), 2.0 * (cy - wy), 0.0,
+        2.0 * (cz - wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx + wx), 0.0,
+        2.0 * (cy + wy), 2.0 * (cx - wx), 1.0 - 2.0 * (sx + sy), 0.0,
+        t.x, t.y, t.z, 1.0
+      );
+
+      mat4 uniformScaleMat = mat4(
+        scale, 0.0, 0.0, 0.0,
+        0.0, scale, 0.0, 0.0,
+        0.0, 0.0, scale, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      );
+
+      return mat*uniformScaleMat;
+    }
+
+    vec4 unpackedVec2ToNormalizedVec4(vec2 vec_xy, float criteria){
+
+      float r;
+      float g;
+      float b;
+      float a;
+
+      float ix = floor(vec_xy.x * criteria);
+      float v1x = ix / criteria;
+      float v1y = ix - floor(v1x) * criteria;
+
+      r = ( v1x + 1.0 ) / (criteria-1.0);
+      g = ( v1y + 1.0 ) / (criteria-1.0);
+
+      float iy = floor( vec_xy.y * criteria);
+      float v2x = iy / criteria;
+      float v2y = iy - floor(v2x) * criteria;
+
+      b = ( v2x + 1.0 ) / (criteria-1.0);
+      a = ( v2y + 1.0 ) / (criteria-1.0);
+
+      r -= 1.0/criteria;
+      g -= 1.0/criteria;
+      b -= 1.0/criteria;
+      a -= 1.0/criteria;
+
+      r = r*2.0-1.0;
+      g = g*2.0-1.0;
+      b = b*2.0-1.0;
+      a = a*2.0-1.0;
+
+      return vec4(r, g, b, a);
+    }
+
 
     mat4 getSkinMatrix() {
-      mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
-      skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
-      skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
-      skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
+
+      vec2 criteria = vec2(4096.0, 4096.0);
+      mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].zw, criteria.y)*u_boneCompressedInfo);
+      skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].zw, criteria.y)*u_boneCompressedInfo);
+      skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].zw, criteria.y)*u_boneCompressedInfo);
+      skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].zw, criteria.y)*u_boneCompressedInfo);
+
+      // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
+      // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
+      // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
+      // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
 
       return skinMat;
     }
@@ -151,6 +236,8 @@ export default abstract class GLSLShader {
   get processSkinning() {
 
     return `
+    uniform int u_skinningMode;
+
     bool skinning(
       out bool isSkinning,
       in mat3 inNormalMatrix,
