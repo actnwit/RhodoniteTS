@@ -120,7 +120,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
 
   static fromMatrix(m:Matrix44|RowMajarMatrix44) {
 
-    let q = new MutableQuaternion();
+    let q = new MutableQuaternion(0,0,0,1);
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {

@@ -45,8 +45,6 @@ ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
-uniform mat4 u_boneMatrices[100];
-uniform int u_skinningMode;
 
 
 ${this.toNormalMatrix}
