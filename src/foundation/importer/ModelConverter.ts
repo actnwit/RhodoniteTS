@@ -1012,9 +1012,11 @@ export default class ModelConverter {
 
     for (let attributeName in primitive.attributes) {
       const attributeAccessor = primitive.attributes[attributeName];
-      const count = attributeAccessor.count;
-      const byteOfComposition = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents() * 4;
-      const attributeByteLength = count * byteOfComposition;
+
+      const numPoints = dracoGeometry.num_points();
+      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
+      const byteOfComposition = compositionNum * 4;
+      const attributeByteLength = numPoints * byteOfComposition;
       const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, attributeByteLength, rnDracoBuffer);
 
       let dracoAttributeName = attributeName;
@@ -1023,17 +1025,15 @@ export default class ModelConverter {
       }
 
       const attId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);
-      if (attId == -1) {
+      if (attId === -1) {
         const errorMsg = attributeName + 'attribute not found in draco.';
         console.error(errorMsg);
         continue;
       }
+
       const attribute = decoder.GetAttribute(dracoGeometry, attId);
       const attributeData = new draco.DracoFloat32Array();
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData);
-
-      const numPoints = dracoGeometry.num_points();
-      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
 
       for (let i = 0; i < numPoints; i++) {
         if (compositionNum === 1) {
