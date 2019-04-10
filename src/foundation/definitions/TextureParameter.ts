@@ -14,6 +14,7 @@ class TextureParameterClass extends EnumClass implements TextureParameterEnum {
 
 const Nearest: TextureParameterEnum = new TextureParameterClass({index:0x2600, str:'NEAREST'});
 const Linear: TextureParameterEnum = new TextureParameterClass({index:0x2601, str:'LINEAR'});
+const LinearMipmapLinear: TextureParameterEnum = new TextureParameterClass({index:0x2703, str:'LINEAR_MIPMAP_LINEAR'});
 const TextureMagFilter: TextureParameterEnum = new TextureParameterClass({index:0x2800, str:'TEXTURE_MAG_FILTER'});
 const TextureMinFilter: TextureParameterEnum = new TextureParameterClass({index:0x2801, str:'TEXTURE_MIN_FILTER'});
 const TextureWrapS: TextureParameterEnum = new TextureParameterClass({index:0x2802, str:'TEXTURE_WRAP_S'});
@@ -34,12 +35,12 @@ const RGBA16F: TextureParameterEnum = new TextureParameterClass({index:0x881A, s
 const RGBA32F: TextureParameterEnum = new TextureParameterClass({index:0x8814, str:'RGBA32F'});
 
 
-const typeList = [ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
+const typeList = [ Nearest, Linear, LinearMipmapLinear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture, Texture0, Texture1, ActiveTexture,
   Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F ];
 
 function from( index : number ): TextureParameterEnum {
   return _from({typeList, index}) as TextureParameterEnum;
 }
 
-export const TextureParameter = Object.freeze({ Nearest, Linear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
+export const TextureParameter = Object.freeze({ Nearest, Linear, LinearMipmapLinear, TextureMagFilter, TextureMinFilter, TextureWrapS, TextureWrapT, Texture2D, Texture,
   Texture0, Texture1, ActiveTexture, Repeat, ClampToEdge, RGB8, RGBA8, RGB10_A2, RGB16F, RGB32F, RGBA16F, RGBA32F });
