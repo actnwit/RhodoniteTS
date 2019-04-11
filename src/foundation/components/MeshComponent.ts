@@ -118,9 +118,11 @@ export default class MeshComponent extends Component {
     for (let primitive of this.__primitives) {
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
+      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
       if (texcoordIdx !== -1) {
         const positionAccessor = primitive.attributeAccessors[positionIdx];
         const texcoordAccessor = primitive.attributeAccessors[texcoordIdx];
+        const normalAccessor = primitive.attributeAccessors[normalIdx];
         const indicesAccessor = primitive.indicesAccessor;
 
         let incrementNum = 3; // PrimitiveMode.Triangles
@@ -142,8 +144,11 @@ export default class MeshComponent extends Component {
           const uv0 = texcoordAccessor.getVec2(i, {indicesAccessor});
           const uv1 = texcoordAccessor.getVec2(i+1, {indicesAccessor});
           const uv2 = texcoordAccessor.getVec2(i+2, {indicesAccessor});
+          const norm0 = normalAccessor.getVec3(i, {indicesAccessor});
+          const norm1 = normalAccessor.getVec3(i+1, {indicesAccessor});
+          const norm2 = normalAccessor.getVec3(i+2, {indicesAccessor});
 
-          this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, tangentAccessor, indicesAccessor);
+          this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, norm1, norm2, tangentAccessor, indicesAccessor);
         }
         primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent);
       }
@@ -158,12 +163,15 @@ export default class MeshComponent extends Component {
     uv0: Vector2,
     uv1: Vector2,
     uv2: Vector2,
+    norm0: Vector3,
+    norm1: Vector3,
+    norm2: Vector3,
     tangentAccessor: Accessor,
     indicesAccessor?: Accessor,
   ) {
-    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2);
-    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0);
-    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1);
+    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0, norm1, norm2);
+    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, norm1, norm2);
+    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, norm1, norm2);
 
     tangentAccessor.setVec3(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, {indicesAccessor});
     tangentAccessor.setVec3(i+1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, {indicesAccessor});
@@ -176,7 +184,10 @@ export default class MeshComponent extends Component {
     pos2Vec3: Vector3,
     uv0Vec2: Vector2,
     uv1Vec2: Vector2,
-    uv2Vec2: Vector2
+    uv2Vec2: Vector2,
+    norm0Vec3: Vector3,
+    norm1Vec3: Vector3,
+    norm2Vec3: Vector3
   ) {
     let cp0 = [
       new Vector3(pos0Vec3.x, uv0Vec2.x, uv0Vec2.y),
@@ -212,6 +223,13 @@ export default class MeshComponent extends Component {
 
       u[i] = -abc.y / abc.x;
       v[i] = -abc.z / abc.x;
+
+    }
+    if (u[0] * u[0] + u[1] * u[1] + u[2] * u[2] < Number.EPSILON) {
+      const tangent = Vector3.cross(norm0Vec3, new Vector3(pos1Vec3));
+      u[0] = tangent.x;
+      u[1] = tangent.y;
+      u[2] = tangent.z;
     }
 
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
