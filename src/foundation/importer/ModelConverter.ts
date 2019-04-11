@@ -845,9 +845,9 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __createRnAccessor(accessor: any, byteLength: Byte, rnBuffer: Buffer) {
+  private __createRnAccessor(accessor: any, numOfAttributes: Count, compositionNum: Count, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferView({
-      byteLengthToNeed: byteLength,
+      byteLengthToNeed: numOfAttributes * compositionNum * 4,
       byteStride: 0,
       isAoS: false
     });
@@ -857,7 +857,7 @@ export default class ModelConverter {
       rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
+        count: numOfAttributes,
         byteStride: accessor.byteStride,
         byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
         max: accessor.max,
@@ -867,7 +867,7 @@ export default class ModelConverter {
       rnAccessor = rnBufferView.takeAccessorWithByteOffset({
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
+        count: numOfAttributes,
         byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
         max: accessor.max,
         min: accessor.min
@@ -969,6 +969,7 @@ export default class ModelConverter {
       draco.destroy(decoder);
       return void 0;
     }
+    const numPoints = dracoGeometry.num_points();
 
     const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
     if (posAttId == -1) {
@@ -986,9 +987,8 @@ export default class ModelConverter {
     }
     for (let attributeName in primitive.attributes) {
       const accessor = primitive.attributes[attributeName];
-      const count = accessor.count;
-      const byteOfComposition = CompositionType.fromString(accessor.type).getNumberOfComponents() * 4;
-      const attributeByteLength = count * byteOfComposition;
+      const compositionNum = CompositionType.fromString(accessor.type).getNumberOfComponents();
+      const attributeByteLength = numPoints * compositionNum * 4;
       lengthOfRnBufferForDraco += attributeByteLength;
     }
 
@@ -1005,7 +1005,7 @@ export default class ModelConverter {
     }
 
     const indices = this.__getIndicesFromDraco(draco, decoder, dracoGeometry, isTriangleStrip)!;
-    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length * 4, rnDracoBuffer);
+    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length, 1, rnDracoBuffer);
     for (let i = 0; i < indices.length; i++) {
       indicesDracoAccessor.setScalar(i, indices[i], {});
     }
@@ -1013,11 +1013,8 @@ export default class ModelConverter {
     for (let attributeName in primitive.attributes) {
       const attributeAccessor = primitive.attributes[attributeName];
 
-      const numPoints = dracoGeometry.num_points();
       const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
-      const byteOfComposition = compositionNum * 4;
-      const attributeByteLength = numPoints * byteOfComposition;
-      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, attributeByteLength, rnDracoBuffer);
+      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, numPoints, compositionNum, rnDracoBuffer);
 
       let dracoAttributeName = attributeName;
       if (attributeName === 'TEXCOORD_0') {
