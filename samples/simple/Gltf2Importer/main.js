@@ -14,7 +14,7 @@ const load = async function(time){
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
+  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 25, 1);
   //cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
 
@@ -59,10 +59,10 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
 
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = '../../../assets/ibl/specular/specular';
+  specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/diffuse/diffuse';
+  diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
   diffuseCubeTexture.mipmapLevelNumber = 1;
   const componentRepository = Rn.ComponentRepository.getInstance();
   const meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
