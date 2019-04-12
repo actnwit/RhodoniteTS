@@ -365,6 +365,22 @@ export default abstract class GLSLShader {
       return localShadowing * localMasking;
     }
 
+    // The code from https://google.github.io/filament/Filament.html#listing_approximatedspecularv
+    // The idea is from [Heitz14] Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs.
+    float v_SmithGGXCorrelated(float NL, float NV, float alphaRoughness) {
+      float a2 = alphaRoughness * alphaRoughness;
+      float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
+      float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
+      return 0.5 / (GGXV + GGXL);
+    }
+
+    float v_SmithGGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
+      float a = alphaRoughness;
+      float GGXV = NL * (NV * (1.0 - a) + a);
+      float GGXL = NV * (NL * (1.0 - a) + a);
+      return 0.5 / (GGXV + GGXL);
+    }
+
     // The Schlick Approximation to Fresnel
     vec3 fresnel(vec3 f0, float LH) {
       return vec3(f0) + (vec3(1.0) - f0) * pow(1.0 - LH, 5.0);
@@ -372,8 +388,11 @@ export default abstract class GLSLShader {
 
     vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {
       float D = d_ggx(NH, alphaRoughness);
-      float G = g_shielding(NL, NV, alphaRoughness);
-      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
+      float V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
+      return vec3(D)*vec3(V)*F;
+//      float G = g_shielding(NL, NV, alphaRoughness);
+//      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
+
     }
 
     vec3 diffuse_brdf(vec3 albedo)

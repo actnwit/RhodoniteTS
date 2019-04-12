@@ -554,12 +554,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           let loadedCount = 0;
           const images: HTMLImageElement[] = [];
           let faces = [
-            [baseUri + "_right_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-            [baseUri + "_left_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-            [baseUri + "_top_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-            [baseUri + "_bottom_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-            [baseUri + "_front_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-            [baseUri + "_back_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+            [baseUri + "_posx_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+            [baseUri + "_negx_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+            [baseUri + "_posy_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+            [baseUri + "_negy_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+            [baseUri + "_posz_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+            [baseUri + "_negz_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
           ];
           for (var j = 0; j < faces.length; j++) {
             const face = faces[j][1];
