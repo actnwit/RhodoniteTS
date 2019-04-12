@@ -228,7 +228,7 @@ void main ()
   vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
 
   // NV
-  float NV = clamp(dot(normal_inWorld, viewDirection), 0.001, 1.0);
+  float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
@@ -273,7 +273,7 @@ void main ()
       vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
       // Specular
-      float NL = clamp(dot(normal_inWorld, lightDirection), 0.001, 1.0);
+      float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
       float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
       float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
       vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
