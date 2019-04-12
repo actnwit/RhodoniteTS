@@ -97,6 +97,15 @@ export default class EntityRepository {
     return matchEntites;
   }
 
+  getEntityByUniqueName(uniqueName: string) {
+    for (let entity of this.__entities) {
+      if (entity.uniqueName === uniqueName) {
+        return entity;
+      }
+    }
+    return void 0;
+  }
+
   _getEntities() {
     return this.__entities.concat();
   }
