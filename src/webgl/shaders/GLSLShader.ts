@@ -389,7 +389,7 @@ export default abstract class GLSLShader {
     vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {
       float D = d_ggx(NH, alphaRoughness);
       float V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
-      return vec3(D)*vec3(V)*F/vec3(4.0*NL*NV);
+      return vec3(D)*vec3(V)*F;
 //      float G = g_shielding(NL, NV, alphaRoughness);
 //      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
 
