@@ -43,10 +43,10 @@ const load = function(time){
 
       // Env Map
       const specularCubeTexture = new Rn.CubeTexture();
-      specularCubeTexture.baseUriToLoad = '../../../assets/ibl/specular/specular';
+      specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
       specularCubeTexture.mipmapLevelNumber = 10;
       const diffuseCubeTexture = new Rn.CubeTexture();
-      diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/diffuse/diffuse';
+      diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
       diffuseCubeTexture.mipmapLevelNumber = 1;
       const componentRepository = Rn.ComponentRepository.getInstance();
       const meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
