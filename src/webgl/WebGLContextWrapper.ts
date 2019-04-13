@@ -16,6 +16,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtEIUI?: OES_element_index_uint;
   public readonly webgl1ExtSTL?: EXT_shader_texture_lod;
   public readonly webgl1ExtDRV?: OES_standard_derivatives;
+  public readonly webgl1ExtDB?: WEBGL_draw_buffers;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -38,6 +39,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtEIUI = this.__getExtension(WebGLExtension.ElementIndexUint);
       this.webgl1ExtSTL = this.__getExtension(WebGLExtension.ShaderTextureLod);
       this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
+      this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
     }
   }
 
@@ -95,6 +97,12 @@ export default class WebGLContextWrapper {
     } else {
       this.webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
     }
+  }
+
+  colorAttachiment(index: Index) {
+    return this.webgl1ExtDB ?
+      (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`] :
+      (this.__gl as any)[`COLOR_ATTACHMENT${index}`];
   }
 
   private __getExtension(extension: WebGLExtensionEnum) {

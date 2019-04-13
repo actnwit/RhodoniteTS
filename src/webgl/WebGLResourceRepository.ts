@@ -12,6 +12,8 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 import Component from "../foundation/core/Component";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
+import AbstractTexture from "../foundation/textures/AbstractTexture";
+import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -460,7 +462,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   createTexture(data: DirectTextureData, {level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy}:
     {level:Index, internalFormat:TextureParameterEnum|PixelFormatEnum, width:Size, height:Size, border:Size, format:PixelFormatEnum,
       type:ComponentTypeEnum, magFilter:TextureParameterEnum, minFilter:TextureParameterEnum, wrapS:TextureParameterEnum, wrapT:TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean}): WebGLResourceHandle {
-    const gl = this.__glw!.getRawContext();;
+    const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture();
 
@@ -487,6 +489,93 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
+    return resourceHandle;
+  }
+
+  /**
+   * create textures as render target. (and attach it to framebuffer object internally.)<br>
+   * @param  width - width of texture
+   * @param  height - height of texture
+   * @param  textureNum - the number of creation.
+   * @returns  an array of created textures.
+   */
+  createTexturesForRenderTarget(width: number, height:number, textureNum:number): Array<AbstractTexture> {
+    const gl = this.__glw!.getRawContext();
+
+    // Create FBO
+    var fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    fbo.width = width;
+    fbo.height = height;
+    fbo.rnTextures = [];
+
+    for(let i=0; i<textureNum; i++) {
+      let texture = new RenderTargetTexture();
+      texture.create(fbo.width, fbo.height);
+      texture.fbo = fbo;
+      fbo._glboostTextures.push(texture);
+    }
+
+    // Create RenderBuffer
+    var renderBuffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, fbo.width, fbo.height);
+    fbo.renderBuffer = renderBuffer;
+
+    // Attach Buffers
+    fbo.rnTextures.forEach((texture: RenderTargetTexture, i: Index)=>{
+      var glTexture = texture.texture3DAPIResourseUid;
+      var attachimentId = this.__glw!.colorAttachiment(i);
+      texture.colorAttachment = attachimentId;
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, glTexture, 0);
+    });
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return fbo._glboostTextures.concat();
+  }
+
+  createRenderTargetTexture(
+    {width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT}:{
+      width: Size,
+      height: Size,
+      level: Index,
+      internalFormat: TextureParameterEnum|PixelFormatEnum,
+      format: PixelFormatEnum,
+      type: ComponentTypeEnum,
+      magFilter: TextureParameterEnum,
+      minFilter: TextureParameterEnum,
+      wrapS: TextureParameterEnum,
+      wrapT: TextureParameterEnum
+    }
+    )
+  {
+    const gl = this.__glw!.getRawContext();
+
+    const texture = gl.createTexture();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, texture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    if (
+      // if WebGL2
+      this.__glw!.isWebGL2 &&
+      // if DEPTH_COMPONENT
+      (internalFormat.index === 6402 || internalFormat.index === 33189 ||
+      internalFormat.index === 33190 || internalFormat.index === 33191)
+    ) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+    }
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
     return resourceHandle;
   }
 
