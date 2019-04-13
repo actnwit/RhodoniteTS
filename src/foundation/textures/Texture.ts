@@ -9,4 +9,77 @@ export default class Texture extends AbstractTexture {
   constructor() {
     super();
   }
+
+  private __getResizedCanvas(image: HTMLImageElement) {
+    var canvas = document.createElement("canvas");
+    canvas.width = this.__getNearestPowerOfTwo(image.width);
+    canvas.height = this.__getNearestPowerOfTwo(image.height);
+
+    var ctx = canvas.getContext("2d")!;
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    return canvas;
+  }
+
+  generateTextureFromImage(image: HTMLImageElement) {
+    this.__startedToLoad = true;
+    this.__htmlImageElement = image;
+    let imgCanvas = this.__getResizedCanvas(image);
+    this.__htmlCanvasElement = imgCanvas;
+
+    this.__width = imgCanvas.width;
+    this.__height = imgCanvas.height;
+
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
+      imgCanvas, {
+        level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
+        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.LinearMipmapLinear,
+        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
+      });
+
+    this.texture3DAPIResourseUid = texture;
+    this.__isTextureReady = true;
+    this.__uri = image.src;
+
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  generateTextureFromUri(imageUri: string) {
+    this.__uri = imageUri;
+    this.__startedToLoad = true;
+    return new Promise((resolve, reject)=> {
+      this.__img = new Image();
+      if (!imageUri.match(/^data:/)) {
+        this.__img.crossOrigin = 'Anonymous';
+      }
+      this.__img.onload = () => {
+        this.__htmlImageElement = this.__img;
+        let imgCanvas = this.__getResizedCanvas(this.__img!);
+        this.__htmlCanvasElement = imgCanvas;
+        this.__width = imgCanvas.width;
+        this.__height = imgCanvas.height;
+
+        const moduleManager = ModuleManager.getInstance();
+        const moduleName = 'webgl';
+        const webglModule = (moduleManager.getModule(moduleName)! as any);
+        let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
+          imgCanvas, {
+            level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
+          });
+
+        this.texture3DAPIResourseUid = texture;
+        this.__isTextureReady = true;
+        AbstractTexture.__textureMap.set(texture, this);
+
+        resolve();
+      };
+
+      this.__img.src = imageUri;
+    });
+  }
 }
