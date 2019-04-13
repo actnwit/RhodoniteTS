@@ -339,7 +339,6 @@ export default class ModelConverter {
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
-        group.tryToSetUniqueName(node.name, true);
         rnEntities.push(group);
       }
     }
