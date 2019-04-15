@@ -1,6 +1,5 @@
 import { ProcessStageEnum, ProcessStage } from "../definitions/ProcessStage";
 import ComponentRepository from "../core/ComponentRepository";
-import RenderingPipeline from "../renderer/RenderingPipeline";
 import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
 import ModuleManager from "./ModuleManager";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
