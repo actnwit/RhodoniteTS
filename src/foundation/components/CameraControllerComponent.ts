@@ -56,6 +56,7 @@ export default class CameraControllerComponent extends Component {
   private __scaleOfLengthCameraToCenter = 1;
   private __zFarAdjustingFactorBasedOnAABB = 2.0;
   private __scaleOfZNearAndZFar = 5000;
+  private __doPreventDefault = false;
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -75,6 +76,14 @@ export default class CameraControllerComponent extends Component {
     return this.__targetEntity;
   }
 
+  set doPreventDefault(flag: boolean) {
+    this.__doPreventDefault = flag;
+  }
+
+  get doPreventDefault() {
+    return this.__doPreventDefault;
+  }
+
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
 
@@ -88,7 +97,7 @@ export default class CameraControllerComponent extends Component {
   }
 
   __mouseDown(evt: any) {
-    //MiscUtil.preventDefaultForDesktopOnly(evt);
+    //this.__tryToPreventDefault(evt);
 //    evt.stopPropagation();
 
     let rect = evt.target!.getBoundingClientRect();
@@ -117,7 +126,7 @@ export default class CameraControllerComponent extends Component {
   }
 
   __mouseMove(evt: any) {
-    //MiscUtil.preventDefaultForDesktopOnly(evt);
+    //this.__tryToPreventDefault(evt);
     //evt.stopPropagation();
 
     if (this.__isKeyUp) {
@@ -214,15 +223,21 @@ export default class CameraControllerComponent extends Component {
 //    this.updateCamera();
   };
 
+  private __tryToPreventDefault(evt:Event) {
+    if (this.__doPreventDefault) {
+      evt.preventDefault();
+    }
+  }
+
   __mouseWheel(evt: WheelEvent) {
-    MiscUtil.preventDefaultForDesktopOnly(evt);
+    this.__tryToPreventDefault(evt);
 
     this.dolly += evt.deltaY / 600;
   };
 
   __contexMenu(evt: Event) {
     if (evt.preventDefault) {
-      MiscUtil.preventDefaultForDesktopOnly(evt);
+      this.__tryToPreventDefault(evt);
     } else {
       evt.returnValue = false;
     }
@@ -257,21 +272,21 @@ export default class CameraControllerComponent extends Component {
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
-        eventTargetDom.addEventListener("touchstart", this.__mouseDown.bind(this));
-        eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this));
-        eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this));
+        eventTargetDom.addEventListener("touchstart", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
       }
       if ("onmouseup" in document) {
-        eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this));
-        eventTargetDom.addEventListener("mouseup", this.__mouseUp.bind(this));
-        eventTargetDom.addEventListener("mousemove", this.__mouseMove.bind(this));
+        eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mouseup", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mousemove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this));
+        eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this), {passive: !this.__doPreventDefault});
       }
-      eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), false);
-      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this));
+      eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), {passive: !this.__doPreventDefault});
+      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this), {passive: !this.__doPreventDefault});
     }
   }
 
@@ -280,16 +295,12 @@ export default class CameraControllerComponent extends Component {
       if ("ontouchend" in document) {
         eventTargetDom.removeEventListener("touchstart", this.__mouseDown.bind(this));
         eventTargetDom.removeEventListener("touchend", this.__mouseUp.bind(this));
-        (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMove, {
-          passive: false
-        });
+        (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMove.bind(this));
       }
       if ("onmouseup" in document) {
         eventTargetDom.removeEventListener("mousedown", this.__mouseDown.bind(this));
         eventTargetDom.removeEventListener("mouseup", this.__mouseUp.bind(this));
-        (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMove, {
-          passive: false
-        });
+        (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMove.bind(this));
       }
       if (window.WheelEvent) {
         eventTargetDom.removeEventListener("wheel", this.__mouseWheel.bind(this));
