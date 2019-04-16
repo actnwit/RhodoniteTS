@@ -40,7 +40,7 @@ export default class Texture extends AbstractTexture {
         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
       });
 
-    this.texture3DAPIResourseUid = texture;
+    this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
     this.__uri = image.src;
 
@@ -72,7 +72,7 @@ export default class Texture extends AbstractTexture {
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
           });
 
-        this.texture3DAPIResourseUid = texture;
+        this.cgApiResourceUid = texture;
         this.__isTextureReady = true;
         AbstractTexture.__textureMap.set(texture, this);
 

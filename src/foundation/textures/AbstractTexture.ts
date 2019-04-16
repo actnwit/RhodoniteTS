@@ -12,7 +12,7 @@ export default abstract class AbstractTexture extends RnObject {
   private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
   private __textureUid: TextureUID;
   protected __img?: HTMLImageElement;
-  public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
+  public cgApiResourceUid: CGAPIResourceHandle = -1;
   protected __isTextureReady = false;
   protected __startedToLoad = false;
   protected __htmlImageElement?: HTMLImageElement;

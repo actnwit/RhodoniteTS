@@ -4,8 +4,9 @@ import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { TextureParameter } from "../definitions/TextureParameter";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
+import IRenderable from "./IRenderable";
 
-export default class RenderTargetTexture extends AbstractTexture {
+export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
  private __colorAttachmentId = -1;
  private __depthAttachmentId = -1;
  private __fbo = -1;
@@ -29,7 +30,7 @@ export default class RenderTargetTexture extends AbstractTexture {
     let webGLResourceRepository:WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
     const texture = webGLResourceRepository.createRenderTargetTexture(
       {width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT});
-    this.texture3DAPIResourseUid = texture;
+    this.cgApiResourceUid = texture;
 
     AbstractTexture.__textureMap.set(texture, this);
   }

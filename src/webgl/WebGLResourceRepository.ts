@@ -14,6 +14,8 @@ import Component from "../foundation/core/Component";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
+import IRenderable from "../foundation/textures/IRenderable";
+import FrameBuffer from "../foundation/renderer/FrameBuffer";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -492,6 +494,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
+  createFrameBufferObject() {
+    const gl = this.__glw!.getRawContext();
+    var fbo = gl.createFramebuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, fbo!);
+
+    return resourceHandle;
+  }
+
   /**
    * create textures as render target. (and attach it to framebuffer object internally.)<br>
    * @param  width - width of texture
@@ -524,7 +535,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     // Attach Buffers
     fbo.rnTextures.forEach((texture: RenderTargetTexture, i: Index)=>{
-      var glTexture = texture.texture3DAPIResourseUid;
+      var glTexture = texture.cgApiResourceUid;
       var attachimentId = this.__glw!.colorAttachiment(i);
       texture.colorAttachment = attachimentId;
       gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, glTexture, 0);
@@ -535,6 +546,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     return fbo._glboostTextures.concat();
+  }
+
+  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable) {
+    const gl = this.__glw!.getRawContext();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)!;
+    //const renderable = this.getWebGLResource(renderable)!;
+    
   }
 
   createRenderTargetTexture(
@@ -746,6 +764,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
 
+  }
+
+  deleteFrameBufferObject(frameBufferObjectHandle: WebGLResourceHandle) {
+    const fbo = this.getWebGLResource(frameBufferObjectHandle);
+    const gl = this.__glw!.getRawContext();
+    if (fbo != null) {
+      gl.deleteFrameBufferObject(fbo!);
+      this.__webglResources.delete(frameBufferObjectHandle);
+    }
   }
 
   deleteTexture(textureHandle: WebGLResourceHandle) {

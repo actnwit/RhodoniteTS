@@ -1,6 +1,6 @@
-version: 0.1.1-362-gd2de-mod
+version: 0.1.1-367-g982c-mod
 branch: feature/multi-pass
-e96f2de8d20163d2304fb002fd0649c8d40b3a29d0e158b5787b1b2ad8e865fc ./dist/rhodonite.js
-5709415caa62a588b58dcf05c2806d125bb4b943f74cf7e353d3aa4c276263f2 ./dist/rhodonite.min.js
-032c0458c1dc3d737450a72f9b60ef9c21b70a8fa20affc79b2335db2624f355 ./dist/rhodonite-webgl.js
-8a8ae05513eac3ad3d9d37a4431652ffd0c651b56676f5bcc1a782e5a4dd516c ./dist/rhodonite-webgl.min.js
+fc516aaa3be1bff23f63d525baa7b510688839f45f1525971cebea5c5fd5c99e ./dist/rhodonite.js
+acce8e673ce98a7c79b411fcbf71112780446afb1ee85e92c1af9f1669095f2b ./dist/rhodonite.min.js
+dedb5bb4aff4fe233a08b9a9480afd42bb5a1af712f5dd1549e776bf911cc2f3 ./dist/rhodonite-webgl.js
+7257d3494647e6b095eec5d1d9d897719f23cf0fd6e01d473f4308ab518f7820 ./dist/rhodonite-webgl.min.js
