@@ -537,7 +537,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     fbo.rnTextures.forEach((texture: RenderTargetTexture, i: Index)=>{
       var glTexture = texture.cgApiResourceUid;
       var attachimentId = this.__glw!.colorAttachiment(i);
-      texture.colorAttachment = attachimentId;
+      //texture.colorAttachment = attachimentId;
       gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, glTexture, 0);
     });
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
@@ -551,8 +551,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable) {
     const gl = this.__glw!.getRawContext();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID)!;
-    //const renderable = this.getWebGLResource(renderable)!;
-    
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
+    const attachimentId = this.__glw!.colorAttachiment(index);
+    if (renderable instanceof RenderTargetTexture) {
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, renderableWebGLResource, 0);
+    } else {
+      // It's must be RenderBuffer
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachimentId, gl.RENDERBUFFER, renderableWebGLResource);
+    }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
   }
 
   createRenderTargetTexture(

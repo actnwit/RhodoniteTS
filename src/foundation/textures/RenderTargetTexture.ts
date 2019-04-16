@@ -7,9 +7,8 @@ import { ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
- private __colorAttachmentId = -1;
- private __depthAttachmentId = -1;
- private __fbo = -1;
+
+  private __fbo = -1;
 
   constructor() {
     super();
@@ -34,23 +33,6 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
 
     AbstractTexture.__textureMap.set(texture, this);
   }
-
-  set colorAttachment(colorAttachmentId) {
-    this.__colorAttachmentId = colorAttachmentId;
-  }
-
-  get colorAttachment() {
-    return this.__colorAttachmentId;
-  }
-
-  set depthAttachment(depthAttachmentId) {
-    this.__depthAttachmentId = depthAttachmentId;
-  }
-
-  get depthAttachment() {
-    return this.__depthAttachmentId;
-  }
-
 
   set fbo(fbo) {
     this.__fbo = fbo;
