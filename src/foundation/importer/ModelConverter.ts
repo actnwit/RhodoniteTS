@@ -394,7 +394,9 @@ export default class ModelConverter {
         }
       } else {
         // attributes
-        indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+        if (primitive.indices) {
+          indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+        }
         for (let attributeName in primitive.attributes) {
           let attributeAccessor = primitive.attributes[attributeName];
           const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
