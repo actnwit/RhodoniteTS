@@ -46,11 +46,13 @@ ${this.toNormalMatrix}
 ${this.getSkinMatrix}
 
 ${this.processSkinning}
+
+${this.pointSize}
 `;
 
   };
 
-  vertexShaderBody:string = `
+  vertexShaderBody: string = `
   mat4 worldMatrix = getMatrix(a_instanceID);
   mat4 viewMatrix = getViewMatrix(a_instanceID);
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
@@ -64,6 +66,7 @@ ${this.processSkinning}
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
+  gl_PointSize = getPointSize(a_instanceID);
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
   `;
@@ -201,7 +204,7 @@ void main ()
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-    VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];

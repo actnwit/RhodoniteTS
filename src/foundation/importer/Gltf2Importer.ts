@@ -1,5 +1,6 @@
 import DataUtil from "../misc/DataUtil";
 import Accessor from "../memory/Accessor";
+import BufferView from "../memory/BufferView";
 
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
@@ -458,7 +459,7 @@ export default class Gltf2Importer {
     Object.assign(gltfJson, extendedJson);
   }
 
-  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: ImporterOpition, resources: {
+  async _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: ImporterOpition, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]
@@ -570,6 +571,8 @@ export default class Gltf2Importer {
       }
     }
 
+    await Promise.all(promisesToLoadResources);
+
     // Textures Async load
     for (let _i in gltfJson.images) {
       const i = _i as any as number;
@@ -580,7 +583,12 @@ export default class Gltf2Importer {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+        let arrayBuffer = arrayBufferBinary;
+        if (arrayBufferBinary == null) {
+          const bufferView = gltfJson.bufferViews[imageJson.bufferView];
+          arrayBuffer = bufferView.buffer.buffer;
+        }
+        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBuffer, imageJson.mimeType);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
