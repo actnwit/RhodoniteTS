@@ -1,5 +1,6 @@
 import RnObject from "../core/RnObject";
 import IRenderable from "./IRenderable";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width: number = 0;
@@ -8,5 +9,15 @@ export default class RenderBuffer extends RnObject implements IRenderable {
 
   constructor() {
     super();
+  }
+
+  create(width: Size, height: Size) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(width, height);
+  }
+
+  discard() {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.deleteRenderBuffer(this.cgApiResourceUid);
   }
 }

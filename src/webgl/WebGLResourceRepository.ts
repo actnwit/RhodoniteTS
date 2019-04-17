@@ -567,6 +567,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
+  createRenderBuffer(width: Size, height: Size) {
+    const gl = this.__glw!.getRawContext();
+    var renderBuffer = gl.createRenderbuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, renderBuffer!);
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    return resourceHandle;
+  }
+
   createRenderTargetTexture(
     {width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT}:{
       width: Size,
@@ -787,6 +800,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
+  deleteRenderBuffer(renderBufferUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+
+    const renderBuffer = this.getWebGLResource(renderBufferUid)!;
+    gl.deleteRenderBuffer(renderBuffer)
+    this.__webglResources.delete(renderBufferUid);
+
+  }
+
   deleteTexture(textureHandle: WebGLResourceHandle) {
     const texture = this.getWebGLResource(textureHandle);
     const gl = this.__glw!.getRawContext();
@@ -871,6 +893,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = this.getWebGLResource(uboUid)!;
+    this.__webglResources.delete(uboUid);
 
     gl.deleteBuffer(ubo);
   }
@@ -891,6 +914,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const transformFeedback = this.getWebGLResource(transformFeedbackUid)!;
     gl.deleteTransformFeedback(transformFeedback);
-
+    this.__webglResources.delete(transformFeedbackUid);
   }
 }
