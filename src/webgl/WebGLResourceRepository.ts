@@ -855,7 +855,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const ubo = this.getWebGLResource(uboUid);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
