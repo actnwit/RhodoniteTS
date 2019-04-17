@@ -1,10 +1,11 @@
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import { TextureParameter } from "../definitions/TextureParameter";
-import { PixelFormat } from "../definitions/PixelFormat";
+import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
+import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
+import { ComponentTypeEnum } from "../main";
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
 
@@ -14,14 +15,27 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     super();
   }
 
-  create(width: Size, height: Size, level = 0,
-    internalFormat = PixelFormat.RGBA,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.LinearMipmapLinear,
-    wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge)
+  create(
+    {
+      width, height, level = 0,
+      internalFormat = PixelFormat.RGBA,
+      format = PixelFormat.RGBA,
+      type = ComponentType.UnsignedByte,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge
+    }:
+    {
+      width: Size, height: Size, level: number,
+      internalFormat: PixelFormatEnum,
+      format: PixelFormatEnum,
+      type: ComponentTypeEnum,
+      magFilter: TextureParameterEnum,
+      minFilter: TextureParameterEnum,
+      wrapS: TextureParameterEnum,
+      wrapT: TextureParameterEnum
+    })
   {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';

@@ -1,6 +1,7 @@
 import RnObject from "../core/RnObject";
 import IRenderable from "./IRenderable";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import { TextureParameterEnum } from "../definitions/TextureParameter";
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width: number = 0;
@@ -11,9 +12,9 @@ export default class RenderBuffer extends RnObject implements IRenderable {
     super();
   }
 
-  create(width: Size, height: Size) {
+  create(width: Size, height: Size, internalFormat: TextureParameterEnum) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(width, height);
+    this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(width, height, internalFormat);
   }
 
   discard() {
