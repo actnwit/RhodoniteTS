@@ -46,7 +46,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
-  uniform float u_pointSize;
 
   mat4 getMatrix(float instanceId) {
     return u_worldMatrix;
@@ -64,9 +63,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return u_normalMatrix;
   }
 
-  float getPointSize(float instanceId) {
-    return u_pointSize;
-  }
 
   `;
 
