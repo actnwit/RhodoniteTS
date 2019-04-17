@@ -269,6 +269,16 @@ export default abstract class GLSLShader {
 `;
   }
 
+  get pointSize() {
+    return `
+    uniform float u_pointSize;
+
+    float getPointSize(float instanceId) {
+      return u_pointSize;
+    }
+    `
+  }
+
   get pbrUniformDefinition() {
     let shaderText = '';
     shaderText += 'uniform vec2 uMetallicRoughnessFactors;\n';
