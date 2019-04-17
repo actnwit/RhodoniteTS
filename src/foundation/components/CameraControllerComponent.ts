@@ -352,15 +352,8 @@ export default class CameraControllerComponent extends Component {
     let newUpVec = null;
 
     if (this.__isKeyUp || !this.__isForceGrab) {
-      this.__eyeVec =
-        this.__shiftCameraTo != null
-          ? Vector3.add(
-              Vector3.subtract(this.__shiftCameraTo, center),
-              eye
-            )
-          : eye;
-      this.__centerVec =
-        this.__shiftCameraTo != null ? this.__shiftCameraTo : new MutableVector3(center);
+      this.__eyeVec = Vector3.add(eye, this.__shiftCameraTo);
+      this.__centerVec = Vector3.add(center, this.__shiftCameraTo);
       this.__upVec = new MutableVector3(up);
     }
 
