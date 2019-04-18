@@ -48,6 +48,8 @@ ${this.getSkinMatrix}
 ${this.processSkinning}
 
 ${this.pointSize}
+
+${this.pointDistanceAttenuation}
 `;
 
   };
@@ -66,7 +68,12 @@ ${this.pointSize}
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  gl_PointSize = getPointSize(a_instanceID);
+  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
+  float distanceFromCamera = length(position_inWorld.xyz - getViewPosition(a_instanceID));
+  vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
+  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
+  float maxPointSize = getPointSize(a_instanceID);
+  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
   `;
