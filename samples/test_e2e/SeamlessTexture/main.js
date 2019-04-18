@@ -25,27 +25,11 @@
     Rn.MeshRendererComponent.manualTransparentSids = [];
 
     const entities = [];
-    const entityNumber = 100;
-    // for (let i=0; i<entityNumber; i++) {
-    //   const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
-      const entity = generateEntity();
-      // const entity1 = generateGroupEntity();
-      // const entity2 = generateGroupEntity();
-      // const entity3 = generateGroupEntity();
-      // const entity4 = generateGroupEntity();
-      // entity4.getSceneGraph().addChild(entity3.getSceneGraph());
-      // entity3.getSceneGraph().addChild(entity2.getSceneGraph());
-      // entity2.getSceneGraph().addChild(entity1.getSceneGraph());
-      // entity1.getSceneGraph().addChild(entity.getSceneGraph());
-      // entity1.getTransform().scale = new Rn.Vector3(2, 1, 1);
-      entities.push(entity);
+    const entity = generateEntity();
+    entities.push(entity);
 
-      const meshComponent = entity.getComponent(Rn.MeshComponent);
-      meshComponent.addPrimitive(primitive);
-      //entity.getTransform().toUpdateAllTransform = false;
-      // entity.getTransform().scale = new Rn.Vector3(1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2, 1/sqrtEntityNumber/2);
-      // entity.getTransform().translate = new Rn.Vector3(1/sqrtEntityNumber * 2 * (i%sqrtEntityNumber) - 1.0 + 1/sqrtEntityNumber, Math.floor(i / sqrtEntityNumber)/sqrtEntityNumber*2 -1.0 + 1/sqrtEntityNumber, 0.0);
-    // }
+    const meshComponent = entity.getComponent(Rn.MeshComponent);
+    meshComponent.addPrimitive(primitive);
     entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);;
 
     const startTime = Date.now();
