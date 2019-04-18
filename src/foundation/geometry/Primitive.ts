@@ -15,7 +15,7 @@ import MaterialHelper from '../helpers/MaterialHelper';
 type Attributes = Map<VertexAttributeEnum, Accessor>;
 
 export default class Primitive extends RnObject {
-  private __mode: PrimitiveModeEnum;
+  private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   public  material?: Material;
   private __attributes: Attributes = new Map();
   private __indices?: Accessor;
@@ -25,14 +25,17 @@ export default class Primitive extends RnObject {
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
 
-  constructor(
+  constructor() {
+    super();
+  }
+
+  setData(
     attributes: Attributes,
     mode: PrimitiveModeEnum,
     material?: Material,
     indicesAccessor?: Accessor,
     )
   {
-    super();
 
     this.__indices = indicesAccessor;
     this.__attributes = attributes;
@@ -82,6 +85,7 @@ export default class Primitive extends RnObject {
     // });
 
   }
+
   static get maxPrimitiveCount() {
     return 500;
   }
@@ -149,12 +153,14 @@ export default class Primitive extends RnObject {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    return new Primitive(
+    const primitive = new Primitive();
+    primitive.setData(
       attributeMap,
       primitiveMode,
       material,
-      indicesAccessor,
+      indicesAccessor
     );
+    return primitive;
   }
 
   get indicesAccessor(): Accessor | undefined {
