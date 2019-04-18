@@ -341,7 +341,8 @@ export default class MeshComponent extends Component {
           const morphAccessor = bufferView.takeAccessor({compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount});
           map.set(semantic, morphAccessor);
         });
-        const morphPrimitive = new Primitive(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
+        const morphPrimitive = new Primitive();
+        morphPrimitive.setData(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
         this.__morphPrimitives[i] = morphPrimitive;
       }
     }
