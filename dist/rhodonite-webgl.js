@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-372-g1276-mod branch: feature/add-primitive-classes';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-373-gf6aa-mod branch: feature/add-primitive-classes';
