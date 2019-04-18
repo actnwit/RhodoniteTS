@@ -404,7 +404,8 @@ export default class ModelConverter {
         }
       }
       const material = this.__setupMaterial(gltfModel, primitive.material);
-      const rnPrimitive = new Primitive(map, rnPrimitiveMode, material, indicesRnAccessor);
+      const rnPrimitive = new Primitive();
+      rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
       // morph targets
       if (primitive.targets != null) {
