@@ -28,6 +28,7 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import Material from "../foundation/materials/Material";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
+import Vector3 from "../foundation/math/Vector3";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -46,6 +47,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
+  uniform vec3 u_viewPosition;
 
   mat4 getMatrix(float instanceId) {
     return u_worldMatrix;
@@ -62,8 +64,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   mat3 getNormalMatrix(float instanceId) {
     return u_normalMatrix;
   }
-
-
   `;
 
   private __lastShader: CGAPIResourceHandle = -1;
@@ -102,13 +102,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
         ];
-
-        if (primitive.primitiveMode.index === gl.POINTS) {
-          args.push(
-            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
-          );
-        }
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
@@ -349,7 +345,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
 
       // Point size
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 1.0 }, { force: force });
+      const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { force: force });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { force: force });
+
 
       if (primitive.indicesAccessor) {
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);

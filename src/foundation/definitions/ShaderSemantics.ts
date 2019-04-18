@@ -54,12 +54,12 @@ const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsC
 const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 31, singularStr: 'boneCompressedChank', pluralStr: 'boneCompressedChanks' });
 const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 32, singularStr: 'boneCompressedInfo', pluralStr: 'boneCompressedInfos' });
 const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 33, singularStr: 'pointSize', pluralStr: 'pointSize' });
-
+const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 34, singularStr: 'pointDistanceAttenuation', pluralStr: 'pointDistanceAttenuation' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
-  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize];
+  DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture, VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, PointDistanceAttenuation];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -79,5 +79,5 @@ export const ShaderSemantics = Object.freeze({
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize
+  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, PointDistanceAttenuation
 });
