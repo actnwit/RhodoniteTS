@@ -29,7 +29,7 @@ export default class RenderTargetTexture extends AbstractTexture {
     let webGLResourceRepository:WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
     const texture = webGLResourceRepository.createRenderTargetTexture(
       {width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT});
-    this.texture3DAPIResourseUid = texture;
+    this.cgApiResourceUid = texture;
 
     AbstractTexture.__textureMap.set(texture, this);
   }

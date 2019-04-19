@@ -99,7 +99,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
         ];
@@ -328,8 +328,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (specularCube) {
         mipmapLevelNumber = specularCube.mipmapLevelNumber;
       }
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, { x: mipmapLevelNumber, y: 1, z: 1 }, { force: force });
-
+      const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap}, { force: force })
 
       // BRDF LUT
       updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { force: force });

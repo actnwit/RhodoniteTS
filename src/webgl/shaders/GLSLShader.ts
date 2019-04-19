@@ -302,7 +302,7 @@ export default abstract class GLSLShader {
       shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
       shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
-      shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
+      shaderText += 'uniform vec4 uIBLParameters;\n'; // Ka * amount of ambient lights
     }
 
     shaderText += 'uniform vec4 ambient;\n'; // Ka * amount of ambient lights

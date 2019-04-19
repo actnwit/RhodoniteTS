@@ -24,6 +24,8 @@ import AbstractTexture from "../textures/AbstractTexture";
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyBlueTextureUid: CGAPIResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle =
@@ -82,7 +84,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           2,
-          ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
+          ClassicShadingSingleMaterialNode.__dummyBlueTextureUid
         ]
       },
       {
@@ -144,6 +146,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     }
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
+    ClassicShadingSingleMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
     ClassicShadingSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture(
       "rgba(0, 0, 0, 1)"
     );
