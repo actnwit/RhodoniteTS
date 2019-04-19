@@ -19,6 +19,7 @@ import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
+import AbstractTexture from "../textures/AbstractTexture";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -48,10 +49,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           0,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.SpecularColorFactor,
@@ -68,10 +69,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           1,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.NormalTexture,
@@ -79,10 +80,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           2,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.OcclusionTexture,
@@ -90,10 +91,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           3,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.EmissiveTexture,
@@ -101,10 +102,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           4,
           ClassicShadingSingleMaterialNode.__dummyBlackTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.Shininess,

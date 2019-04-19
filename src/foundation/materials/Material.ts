@@ -18,6 +18,7 @@ import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { pathExists } from "fs-extra";
 import { VertexAttributeEnum } from "../main";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import AbstractTexture from "../textures/AbstractTexture";
 
 
 export default class Material extends RnObject {
@@ -53,9 +54,9 @@ export default class Material extends RnObject {
     this.__fields.set(shaderSemantic, value);
   }
 
-  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: CGAPIResourceHandle) {
-    const vec2 = this.__fields.get(shaderSemantic)!;
-    this.__fields.set(shaderSemantic, new Vector2(vec2.x, value));
+  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture) {
+    const array = this.__fields.get(shaderSemantic)!;
+    this.__fields.set(shaderSemantic, [array[0], value]);
   }
 
   getParameter(shaderSemantic: ShaderSemanticsEnum) {
@@ -88,17 +89,19 @@ export default class Material extends RnObject {
 
       let updated;
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value.x}, {force: force});
+        if (value[0] != null && value[1] != null) {
+          updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value[0]}, {force: force});
+        }
       } else if (info.compositionType !== CompositionType.Scalar) {
         updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, true, {x: value.v}, {force: force});
       } else {
         updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, info.compositionType!.getNumberOfComponents(), componentType, false, {x: value}, {force: force});
       }
-      if (updated) {
+      if (updated && value[0] != null && value[1] != null) {
         if (info.compositionType === CompositionType.Texture2D) {
-          webglResourceRepository.bindTexture2D(value.x, value.y);
+          webglResourceRepository.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
         } else if (info.compositionType === CompositionType.TextureCube) {
-          webglResourceRepository.bindTextureCube(value.x, value.y);
+          webglResourceRepository.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
         }
       }
     });

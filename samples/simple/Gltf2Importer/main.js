@@ -57,6 +57,18 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   cameraControllerComponent.setTarget(rootGroup);
 
+  const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const spherePrimitive = new Rn.Sphere();
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const environmentCubeTexture = new Rn.CubeTexture();
+  environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
+  environmentCubeTexture.mipmapLevelNumber = 1;
+  environmentCubeTexture.loadTextureImagesAsync();
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  spherePrimitive.generate({radius: 4, widthSegments: 40, heightSegments: 40, material: sphereMaterial});
+  const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
+  sphereMeshComponent.addPrimitive(spherePrimitive);
+  sphereEntity.getTransform().scale = new Rn.Vector3(-1, -1, -1);
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
   specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';

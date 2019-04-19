@@ -306,7 +306,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE6);
         if (diffuseCube && diffuseCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
@@ -317,7 +317,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE7);
         if (specularCube && specularCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
