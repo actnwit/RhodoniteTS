@@ -72,7 +72,7 @@ ${this.processSkinning}
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
 
-  if (length(a_normal) > 0.01) {
+  if (abs(length(a_normal)) > 0.01) {
     // if normal exist
     vec3 tangent_inWorld;
     if (!isSkinning) {
@@ -128,7 +128,7 @@ uniform vec3 u_viewPosition;
 
 uniform samplerCube u_diffuseEnvTexture;
 uniform samplerCube u_specularEnvTexture;
-uniform vec3 u_iblParameter;
+uniform vec4 u_iblParameter;
 
 uniform vec3 u_wireframe;
 
@@ -160,10 +160,12 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+  float rot = u_iblParameter.w;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  normal_inWorld = rotEnvMatrix * normal_inWorld;
 
-  if (length(v_tangent_inWorld) > 0.01) {
+  if (abs(length(v_tangent_inWorld)) > 0.01) {
     vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
-    if (length(normal) > 0.01) {
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
       normal_inWorld = normalize(v_normal_inWorld);
@@ -176,7 +178,6 @@ void main ()
 
       normal = normalize(tbnMat_tangent_to_world * normal);
       normal_inWorld = normal;
-    }
   }
 
 
@@ -287,7 +288,6 @@ void main ()
 
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
     vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
-
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights

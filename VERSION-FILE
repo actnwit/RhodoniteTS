@@ -1,6 +1,6 @@
-version: 0.1.1-373-gf6aa-mod
-branch: feature/add-primitive-classes
-7d75f7a4d3ffd2f7a4b18950c38694d08ae220955364ffd3c012bdbbd5848b6e ./dist/rhodonite.js
-2ab1ae84e39ee05f2e12ede3d5a023d80e508d01200c4e0b89e998ff3572db6d ./dist/rhodonite.min.js
-df5964c50847e754609777fcd2929a668927dd332e2af37145fd4fb9fb6a3216 ./dist/rhodonite-webgl.js
-36adc133053a4db0fb65d24e7f02a3ffed1850f275d77c029cd3116b077e76a9 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-377-gd236-mod
+branch: master
+38aa0ca319e88191d90981ea45ec8ea237102645e821614bb4d4b54b139d02fb ./dist/rhodonite.js
+d7105d8dc13670da56c2c70e6a9e40c5f2e7e20e8703eb30b6a4dd24e67329fd ./dist/rhodonite.min.js
+b85ec9c110268f8dd4c65c851ad0e493835fd92e5f5bfe79700f5f5506cba223 ./dist/rhodonite-webgl.js
+755d5228ba7a4ee3bfd579ee8639ec2754a688005aaeac9d1466f2e34a3c6a21 ./dist/rhodonite-webgl.min.js

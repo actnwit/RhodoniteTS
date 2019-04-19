@@ -524,7 +524,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     // Attach Buffers
     fbo.rnTextures.forEach((texture: RenderTargetTexture, i: Index)=>{
-      var glTexture = texture.texture3DAPIResourseUid;
+      var glTexture = texture.cgApiResourceUid;
       var attachimentId = this.__glw!.colorAttachiment(i);
       texture.colorAttachment = attachimentId;
       gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, glTexture, 0);
