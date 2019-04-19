@@ -38,6 +38,9 @@ import CameraControllerComponent from './components/CameraControllerComponent';
 import detectFormat from './importer/FormatDetector';
 import Config from './core/Config';
 import Plane from './geometry/Plane';
+import Sphere from './geometry/Sphere';
+import MaterialHelper from './helpers/MaterialHelper';
+import {ShaderSemantics} from './definitions/ShaderSemantics';
 
 const Rn = {
   EntityRepository,
@@ -80,6 +83,9 @@ const Rn = {
   detectFormat,
   Config,
   Plane,
+  Sphere,
+  MaterialHelper,
+  ShaderSemantics
 };
 export default Rn;
 
