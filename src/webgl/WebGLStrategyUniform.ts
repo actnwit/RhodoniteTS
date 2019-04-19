@@ -84,8 +84,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
-        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-        const gl = glw.getRawContext();
 
         // Shader Setup
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);

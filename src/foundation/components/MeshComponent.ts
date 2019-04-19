@@ -51,10 +51,10 @@ export default class MeshComponent extends Component {
   }
 
   $load() {
-//    this.makeVerticesSepareted();
+    //    this.makeVerticesSepareted();
     this.__calcTangents();
     //this.__calcFaceNormals();
-  //  this.__calcBaryCentricCoord();
+    //  this.__calcBaryCentricCoord();
     this.moveStageTo(ProcessStage.Mount);
   }
 
@@ -74,12 +74,12 @@ export default class MeshComponent extends Component {
       const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
       const normalAttributeByteSize = positionAccessor.byteLength;
-      const normalBufferView = buffer.takeBufferView({byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false});
-      const normalAccessor = normalBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+      const normalBufferView = buffer.takeBufferView({ byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false });
+      const normalAccessor = normalBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
       for (let i = 0; i < vertexNum - 2; i += incrementNum) {
-        const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
-        const pos1 = positionAccessor.getVec3(i+1, {indicesAccessor});
-        const pos2 = positionAccessor.getVec3(i+2, {indicesAccessor});
+        const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
+        const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
+        const pos2 = positionAccessor.getVec3(i + 2, { indicesAccessor });
 
         this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
@@ -108,18 +108,19 @@ export default class MeshComponent extends Component {
     ny *= da;
     nz *= da;
     const faceNormal = new Vector3(nx, ny, nz);
-    normalAccessor.setVec3(i, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
-    normalAccessor.setVec3(i+1, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
-    normalAccessor.setVec3(i+2, faceNormal.x, faceNormal.y, faceNormal.z, {indicesAccessor});
+    normalAccessor.setVec3(i, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
+    normalAccessor.setVec3(i + 1, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
+    normalAccessor.setVec3(i + 2, faceNormal.x, faceNormal.y, faceNormal.z, { indicesAccessor });
 
   }
 
   __calcTangents() {
     for (let primitive of this.__primitives) {
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
-      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
-      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
       if (texcoordIdx !== -1) {
+        const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
+        const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
+
         const positionAccessor = primitive.attributeAccessors[positionIdx];
         const texcoordAccessor = primitive.attributeAccessors[texcoordIdx];
         const normalAccessor = primitive.attributeAccessors[normalIdx];
@@ -135,18 +136,18 @@ export default class MeshComponent extends Component {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = positionAccessor.byteLength;
-        const tangentBufferView = buffer.takeBufferView({byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false});
-        const tangentAccessor = tangentBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
+        const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
-          const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
-          const pos1 = positionAccessor.getVec3(i+1, {indicesAccessor});
-          const pos2 = positionAccessor.getVec3(i+2, {indicesAccessor});
-          const uv0 = texcoordAccessor.getVec2(i, {indicesAccessor});
-          const uv1 = texcoordAccessor.getVec2(i+1, {indicesAccessor});
-          const uv2 = texcoordAccessor.getVec2(i+2, {indicesAccessor});
-          const norm0 = normalAccessor.getVec3(i, {indicesAccessor});
-          const norm1 = normalAccessor.getVec3(i+1, {indicesAccessor});
-          const norm2 = normalAccessor.getVec3(i+2, {indicesAccessor});
+          const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
+          const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
+          const pos2 = positionAccessor.getVec3(i + 2, { indicesAccessor });
+          const uv0 = texcoordAccessor.getVec2(i, { indicesAccessor });
+          const uv1 = texcoordAccessor.getVec2(i + 1, { indicesAccessor });
+          const uv2 = texcoordAccessor.getVec2(i + 2, { indicesAccessor });
+          const norm0 = normalAccessor.getVec3(i, { indicesAccessor });
+          const norm1 = normalAccessor.getVec3(i + 1, { indicesAccessor });
+          const norm2 = normalAccessor.getVec3(i + 2, { indicesAccessor });
 
           this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, norm1, norm2, tangentAccessor, indicesAccessor);
         }
@@ -173,9 +174,9 @@ export default class MeshComponent extends Component {
     const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, norm1, norm2);
     const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, norm1, norm2);
 
-    tangentAccessor.setVec3(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, {indicesAccessor});
-    tangentAccessor.setVec3(i+1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, {indicesAccessor});
-    tangentAccessor.setVec3(i+2, tan2Vec3.x, tan2Vec3.y, tan2Vec3.z, {indicesAccessor});
+    tangentAccessor.setVec3(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, { indicesAccessor });
+    tangentAccessor.setVec3(i + 1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, { indicesAccessor });
+    tangentAccessor.setVec3(i + 2, tan2Vec3.x, tan2Vec3.y, tan2Vec3.z, { indicesAccessor });
   }
 
   __calcTangentPerVertex(
@@ -268,10 +269,10 @@ export default class MeshComponent extends Component {
         for (let i in primitive.attributeAccessors) {
           const attributeAccessor = primitive.attributeAccessors[i];
           const elementSizeInBytes = attributeAccessor.elementSizeInBytes;
-          const bufferView = buffer.takeBufferView({byteLengthToNeed: elementSizeInBytes*vertexCount, byteStride: 0, isAoS: false});
-          const newAccessor = bufferView.takeAccessor({compositionType: attributeAccessor.compositionType, componentType: attributeAccessor.componentType, count: vertexCount});
+          const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
+          const newAccessor = bufferView.takeAccessor({ compositionType: attributeAccessor.compositionType, componentType: attributeAccessor.componentType, count: vertexCount });
 
-          for (let j=0; j<vertexCount; j++) {
+          for (let j = 0; j < vertexCount; j++) {
             const idx = indexAccessor!.getScalar(j, {});
             newAccessor.setElementFromSameCompositionAccessor(j, attributeAccessor, idx);
           }
@@ -282,10 +283,10 @@ export default class MeshComponent extends Component {
 
         const indicesAccessor = primitive.indicesAccessor!;
         const elementSizeInBytes = indicesAccessor.elementSizeInBytes;
-        const bufferView = buffer.takeBufferView({byteLengthToNeed: elementSizeInBytes*vertexCount, byteStride: 0, isAoS: false});
-        const newAccessor = bufferView.takeAccessor({compositionType: indicesAccessor.compositionType, componentType: indicesAccessor.componentType, count: vertexCount});
+        const bufferView = buffer.takeBufferView({ byteLengthToNeed: elementSizeInBytes * vertexCount, byteStride: 0, isAoS: false });
+        const newAccessor = bufferView.takeAccessor({ compositionType: indicesAccessor.compositionType, componentType: indicesAccessor.componentType, count: vertexCount });
 
-        for (let j=0; j<vertexCount; j++) {
+        for (let j = 0; j < vertexCount; j++) {
           //const idx = indexAccessor!.getScalar(j, {});
           newAccessor.setScalar(j, j, {});
         }
@@ -302,8 +303,8 @@ export default class MeshComponent extends Component {
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
       const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
-      const baryCentricCoordBufferView = buffer.takeBufferView({byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false});
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount});
+      const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });
+      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
 
       const vertexNum = positionAccessor.elementCount;
       let num = vertexNum;
@@ -331,14 +332,14 @@ export default class MeshComponent extends Component {
     }
 
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
-    for (let i=0; i<this.__primitives.length; i++) {
+    for (let i = 0; i < this.__primitives.length; i++) {
       const primitive = this.__primitives[i];
       if (this.__morphPrimitives[i] == null) {
         const target = primitive.targets[0];
         const map = new Map();
-        target.forEach((accessor, semantic)=>{
-          const bufferView = buffer.takeBufferView({byteLengthToNeed: accessor.byteLength, byteStride: 0, isAoS: false});
-          const morphAccessor = bufferView.takeAccessor({compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount});
+        target.forEach((accessor, semantic) => {
+          const bufferView = buffer.takeBufferView({ byteLengthToNeed: accessor.byteLength, byteStride: 0, isAoS: false });
+          const morphAccessor = bufferView.takeAccessor({ compositionType: accessor.compositionType, componentType: accessor.componentType, count: accessor.elementCount });
           map.set(semantic, morphAccessor);
         });
         const morphPrimitive = new Primitive();
@@ -349,30 +350,30 @@ export default class MeshComponent extends Component {
   }
 
   __calcMorphPrimitives() {
-  if (this.weights.length === 0) {
+    if (this.weights.length === 0) {
       return;
     }
 
     this.__initMorphPrimitives();
 
-    for (let i=0; i<this.__primitives.length; i++) {
+    for (let i = 0; i < this.__primitives.length; i++) {
       const morphPrimitive = this.__morphPrimitives[i];
       const primitive = this.__primitives[i];
       const target = primitive.targets[0];
-      target.forEach((accessor, semantic)=>{
+      target.forEach((accessor, semantic) => {
         const morphAccessor = morphPrimitive.getAttribute(semantic)!;
         const elementCount = morphAccessor.elementCount;
-        for (let j=0; j<elementCount; j++) {
+        for (let j = 0; j < elementCount; j++) {
           morphAccessor.setElementFromSameCompositionAccessor(j, primitive.getAttribute(semantic)!)
         }
       });
 
-      for (let k=0; k<primitive.targets.length; k++) {
+      for (let k = 0; k < primitive.targets.length; k++) {
         const target = primitive.targets[k];
-        target.forEach((accessor, semantic)=>{
+        target.forEach((accessor, semantic) => {
           const morphAccessor = morphPrimitive.getAttribute(semantic)!;
           const elementCount = morphAccessor.elementCount;
-          for (let j=0; j<elementCount; j++) {
+          for (let j = 0; j < elementCount; j++) {
             morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
           }
         });

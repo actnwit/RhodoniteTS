@@ -15,7 +15,7 @@ export default class DrcPointCloudImporter {
   }
 
   // for ModelConverter,  not implemented yet
-  async importPointCloud(uri: string, options: GltfLoadOption) {
+  async importPointCloud(gltfUri: string, textureUri: string, options: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
@@ -49,7 +49,7 @@ export default class DrcPointCloudImporter {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__decodeDraco((options.files as any)[fileName], options, defaultOptions, void 0).catch((err) => {
+          return await this.__decodeDraco((options.files as any)[fileName], options, defaultOptions, void 0, textureUri).catch((err) => {
             console.log('this.__decodeDraco error', err);
           });
         }
@@ -58,13 +58,13 @@ export default class DrcPointCloudImporter {
 
     let response: Response;
     try {
-      response = await fetch(uri);
+      response = await fetch(gltfUri);
     } catch (err) {
       throw new Error('this.__loadFromArrayBuffer: ' + err);
     };
     const arrayBuffer = await response.arrayBuffer();
 
-    return await this.__decodeDraco(arrayBuffer, options, defaultOptions, uri).catch((err) => {
+    return await this.__decodeDraco(arrayBuffer, options, defaultOptions, gltfUri, textureUri).catch((err) => {
       console.log('this.__decodeDraco error', err);
     });
 
@@ -74,19 +74,19 @@ export default class DrcPointCloudImporter {
 
   }
 
-  private async __decodeDraco(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, uri?: string) {
+  private async __decodeDraco(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, gltfUri?: string, textureUri?: string) {
     let gotText: any;
     let gltfJson: any;
-    await this.__decodeBuffer(arrayBuffer).then(async (json: any) => {
+    await this.__decodeBuffer(arrayBuffer, textureUri).then(async (json: any) => {
       gotText = JSON.stringify(json);
       gltfJson = JSON.parse(gotText);
     });
-    return await this._loadAsTextJson(gltfJson, options as ImporterOpition, defaultOptions, uri).catch((err) => {
+    return await this._loadAsTextJson(gltfJson, options as ImporterOpition, defaultOptions, gltfUri).catch((err) => {
       console.log('this.__loadAsTextJson error', err);
     });
   }
 
-  private __decodeBuffer(arrayBuffer: ArrayBuffer) {
+  private __decodeBuffer(arrayBuffer: ArrayBuffer, textureUri?: string) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
@@ -104,7 +104,7 @@ export default class DrcPointCloudImporter {
       throw new Error('Draco: No position attribute found.');
     }
 
-    const geometryAttributes = ['POSITION', 'NORMAL', 'COLOR'];
+    const geometryAttributes = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD'];
     const numPoints = dracoGeometry.num_points();
 
     const attributeDataAll: any[] = [];
@@ -125,7 +125,6 @@ export default class DrcPointCloudImporter {
 
       let numComponent = attribute.num_components();
       attributeComponents[i] = numComponent;
-
       if (geometryAttributes[i] === 'COLOR') {
         bufferLength += numPoints * 4;
       } else {
@@ -142,6 +141,11 @@ export default class DrcPointCloudImporter {
           buffer[currentBufferindex + 2] = attributeDataAll[i].GetValue(j + 2);
           buffer[currentBufferindex + 3] = 1.0; // alpha value
         }
+      } else if (geometryAttributes[i] === 'TEX_COORD') {
+        for (var j = 0; j < numPoints; currentBufferindex += 2, j++) {
+          buffer[currentBufferindex] = attributeDataAll[i].GetValue(2 * j);
+          buffer[currentBufferindex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
+        }
       } else {
         for (var j = 0; j < numPoints * attributeComponents[i]; currentBufferindex++ , j++) {
           buffer[currentBufferindex] = attributeDataAll[i].GetValue(j);
@@ -152,11 +156,11 @@ export default class DrcPointCloudImporter {
     draco.destroy(decoder);
     draco.destroy(dracoGeometry);
 
-    return this.__decodedBufferToJSON(buffer, numPoints, geometryAttributes, attributeComponents);
+    return this.__decodedBufferToJSON(buffer, numPoints, geometryAttributes, attributeComponents, textureUri);
   }
 
   private async __decodedBufferToJSON(buffer: Float32Array, numPoints: number,
-    geometryAttributes: string[], attributeComponents: number[]) {
+    geometryAttributes: string[], attributeComponents: number[], textureUri?: string) {
     let json: any = {
       "asset": {
         version: "2.0"
@@ -176,7 +180,8 @@ export default class DrcPointCloudImporter {
       ]
     };
 
-    await this.__convertBufferToURI(buffer.buffer).then((uri) => {
+    const mimeType = 'application/octet-stream';
+    await this.__convertBufferToURI(buffer.buffer, mimeType).then((uri) => {
       json["buffers"] = [
         {
           "name": "input",
@@ -192,7 +197,7 @@ export default class DrcPointCloudImporter {
     const bufferViews: any = [];
 
     let byteOffsetOfBufferView = 0;
-    for (let i = 0, currentIndexOfBufferView = 0; i < geometryAttributes.length; i++ , currentIndexOfBufferView++) {
+    for (let i = 0, currentIndexOfBufferView = 0; i < geometryAttributes.length; currentIndexOfBufferView++) {
       const currentComponent = attributeComponents[i];
       const type = "VEC" + currentComponent;
 
@@ -229,22 +234,63 @@ export default class DrcPointCloudImporter {
     json["accessors"] = accessors;
     json["bufferViews"] = bufferViews;
 
-    let attributes: any = {};
+    const mesh: any = {
+      "name": "Node-Mesh",
+      "primitives": [
+        {
+          "mode": 0
+        }
+      ]
+    };
+
+    const attributes: any = {};
     for (let i = 0; i < geometryAttributes.length; i++) {
-      attributes[geometryAttributes[i]] = i;
+      if (geometryAttributes[i] !== 'TEX_COORD') {
+        attributes[geometryAttributes[i]] = i;
+      } else {
+        if (!textureUri) continue;
+
+        attributes['TEXCOORD_0'] = i;
+
+        try {
+          let response: Response = await fetch(textureUri);
+          const arrayBuffer = await response.arrayBuffer();
+          const mimeType = 'image/jpeg';
+          await this.__convertBufferToURI(arrayBuffer, mimeType).then((uri) => {
+            json["images"] = [
+              {
+                "mimeType": mimeType,
+                "uri": uri
+              }
+            ];
+
+            json["textures"] = [
+              {
+                "source": 0
+              }
+            ];
+            json["materials"] = [
+              {
+                "pbrMetallicRoughness": {
+                  "baseColorTexture": {
+                    "index": 0
+                  },
+                  "metallicFactor": 0
+                }
+              }
+            ];
+            mesh.primitives[0].material = 0;
+          }).catch((err) => {
+            console.log('this.__convertBufferToURI error:', err);
+          });
+        } catch (err) {
+          throw new Error('jpg load error');
+        };
+      }
     }
 
-    json["meshes"] = [
-      {
-        "name": "Node-Mesh",
-        "primitives": [
-          {
-            "attributes": attributes,
-            "mode": 0
-          }
-        ]
-      }
-    ];
+    mesh.primitives[0].attributes = attributes;
+    json["meshes"] = [mesh];
 
 
     return new Promise((resolve, reject) => {
@@ -252,9 +298,9 @@ export default class DrcPointCloudImporter {
     });
   }
 
-  private __convertBufferToURI(arrayBuffer: ArrayBuffer) {
+  private __convertBufferToURI(arrayBuffer: ArrayBuffer, mimeType: string) {
     return new Promise((resolve, reject) => {
-      var blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+      var blob = new Blob([arrayBuffer], { type: mimeType });
       var fr = new FileReader();
 
       fr.onload = (event) => {
