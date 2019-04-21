@@ -9,7 +9,7 @@ export type AttributeNames = Array<string>;
 export default abstract class GLSLShader {
   static __instance: GLSLShader;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  constructor() {}
+  constructor() { }
 
   get glsl_rt0() {
     const repo = this.__webglResourceRepository!;
@@ -275,6 +275,16 @@ export default abstract class GLSLShader {
 
     float getPointSize(float instanceId) {
       return u_pointSize;
+    }
+    `
+  }
+
+  get pointDistanceAttenuation() {
+    return `
+    uniform vec3 u_pointDistanceAttenuation;
+
+    vec3 getPointDistanceAttenuation(float instanceId) {
+      return u_pointDistanceAttenuation;
     }
     `
   }
