@@ -5,6 +5,7 @@ import ModuleManager from "./ModuleManager";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import WebGLStrategy from "../../webgl/WebGLStrategy";
 import Component from "../core/Component";
+import Expression from "../renderer/Expression";
 
 export default class System {
   private static __instance: System;
@@ -25,7 +26,7 @@ export default class System {
   private constructor() {
   }
 
-  process() {
+  process(expression?: Expression) {
     if (this.__processApproach === ProcessApproach.None) {
       throw new Error('Choose a process approach first.');
     }
