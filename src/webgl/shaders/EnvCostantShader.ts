@@ -110,9 +110,7 @@ void main ()
 
   // diffuseColorTexture
   vec4 textureColor = textureCube(u_colorEnvTexture, normalize(v_position_inLocal));
-  if (textureColor.r > 0.05) {
-    diffuseColor *= textureColor.rgb;
-  }
+  diffuseColor *= textureColor.rgb;
 
   rt0 = vec4(diffuseColor, alpha);
 
