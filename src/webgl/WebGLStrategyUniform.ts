@@ -47,7 +47,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
-  uniform vec3 u_viewPosition;
 
   mat4 getMatrix(float instanceId) {
     return u_worldMatrix;
@@ -63,10 +62,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   mat3 getNormalMatrix(float instanceId) {
     return u_normalMatrix;
-  }
-
-  vec3 getViewPosition(float instanceId) {
-    return u_viewPosition;
   }
   `;
 
@@ -84,6 +79,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
+        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+        const gl = glw.getRawContext();
 
         // Shader Setup
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
@@ -107,6 +104,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
         ];
+
+        if (primitive.primitiveMode.index === gl.POINTS) {
+          args.push(
+            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          );
+        }
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
@@ -304,7 +307,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE6);
         if (diffuseCube && diffuseCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
@@ -315,7 +318,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE7);
         if (specularCube && specularCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);

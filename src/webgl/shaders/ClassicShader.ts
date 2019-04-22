@@ -41,6 +41,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
+uniform vec3 u_viewPosition;
 ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
@@ -69,7 +70,7 @@ ${this.pointDistanceAttenuation}
   v_texcoord = a_texcoord;
 
   vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  float distanceFromCamera = length(position_inWorld.xyz - getViewPosition(a_instanceID));
+  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
   vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
   float maxPointSize = getPointSize(a_instanceID);
