@@ -6,6 +6,7 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import WebGLStrategy from "../../webgl/WebGLStrategy";
 import Component from "../core/Component";
 import Expression from "../renderer/Expression";
+import RenderPass from "../renderer/RenderPass";
 
 export default class System {
   private static __instance: System;
@@ -22,8 +23,10 @@ export default class System {
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private __webglStrategy?: WebGLStrategy;
+  private __localExpression = new Expression();
 
   private constructor() {
+    this.__localExpression.addRenderPasses([new RenderPass()]);
   }
 
   process(expression?: Expression) {
@@ -31,27 +34,38 @@ export default class System {
       throw new Error('Choose a process approach first.');
     }
 
-    this.__processStages.forEach(stage=>{
-      const methodName = stage.getMethodName();
-      const componentTids = this.__componentRepository.getComponentTIDs();
-      componentTids.forEach(componentTid=>{
-        const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+    let exp = expression;
+    if (expression == null) {
+      exp = this.__localExpression;
+    }
 
-        const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
-        if (componentClass_commonMethod) {
-          componentClass_commonMethod({processApproach: this.__processApproach});
-        }
+    for (let i=0; i<exp!.renderPasses.length; i++) {
+      const renderPass = exp!.renderPasses[i];
 
-        componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
-        componentClass.process({
-          componentType: componentClass,
-          processStage:stage,
-          processApproach:this.__processApproach,
-          componentRepository: this.__componentRepository,
-          strategy: this.__webglStrategy!
+      this.__processStages.forEach(stage=>{
+        const methodName = stage.getMethodName();
+        const componentTids = this.__componentRepository.getComponentTIDs();
+        componentTids.forEach(componentTid=>{
+          const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+
+          const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
+          if (componentClass_commonMethod) {
+            componentClass_commonMethod({processApproach: this.__processApproach});
+          }
+
+          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
+          componentClass.process({
+            componentType: componentClass,
+            processStage:stage,
+            processApproach:this.__processApproach,
+            componentRepository: this.__componentRepository,
+            strategy: this.__webglStrategy!
+          });
         });
       });
-    });
+
+    }
+
   }
 
   setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement) {

@@ -12,7 +12,7 @@ export default class Expression extends RnObject {
   }
 
   addRenderPasses(renderPasses: RenderPass[]) {
-    this.__renderPasses == this.__renderPasses.concat(renderPasses);
+    this.__renderPasses = this.__renderPasses.concat(renderPasses);
   }
 
   clearRenderPasses() {
