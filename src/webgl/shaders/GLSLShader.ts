@@ -9,7 +9,7 @@ export type AttributeNames = Array<string>;
 export default abstract class GLSLShader {
   static __instance: GLSLShader;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  constructor() {}
+  constructor() { }
 
   get glsl_rt0() {
     const repo = this.__webglResourceRepository!;
@@ -279,6 +279,16 @@ export default abstract class GLSLShader {
     `
   }
 
+  get pointDistanceAttenuation() {
+    return `
+    uniform vec3 u_pointDistanceAttenuation;
+
+    vec3 getPointDistanceAttenuation(float instanceId) {
+      return u_pointDistanceAttenuation;
+    }
+    `
+  }
+
   get pbrUniformDefinition() {
     let shaderText = '';
     shaderText += 'uniform vec2 uMetallicRoughnessFactors;\n';
@@ -302,7 +312,7 @@ export default abstract class GLSLShader {
       shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
       shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
-      shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
+      shaderText += 'uniform vec4 uIBLParameters;\n'; // Ka * amount of ambient lights
     }
 
     shaderText += 'uniform vec4 ambient;\n'; // Ka * amount of ambient lights

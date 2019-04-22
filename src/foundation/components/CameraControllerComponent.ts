@@ -68,6 +68,14 @@ export default class CameraControllerComponent extends Component {
     this.registerEventListeners();
   }
 
+  set zFarAdjustingFactorBasedOnAABB(value: number) {
+    this.__zFarAdjustingFactorBasedOnAABB = value;
+  }
+
+  get zFarAdjustingFactorBasedOnAABB() {
+    return this.__zFarAdjustingFactorBasedOnAABB;
+  }
+
   setTarget(targetEntity: Entity) {
     this.__targetEntity = targetEntity;
   }

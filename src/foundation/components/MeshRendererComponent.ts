@@ -30,6 +30,9 @@ export default class MeshRendererComponent extends Component {
   private static __staticWebglModule?: any;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
+  public diffuseCubeMapContribution = 1.0;
+  public specularCubeMapContribution = 1.0;
+  public rotationOfCubeMap = 0;
   public isVisible = true;
 
   private static __webglResourceRepository?: WebGLResourceRepository;

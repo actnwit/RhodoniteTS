@@ -28,6 +28,7 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import Material from "../foundation/materials/Material";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
+import Vector3 from "../foundation/math/Vector3";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -46,6 +47,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
+  uniform vec3 u_viewPosition;
 
   mat4 getMatrix(float instanceId) {
     return u_worldMatrix;
@@ -63,7 +65,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return u_normalMatrix;
   }
 
-
+  vec3 getViewPosition(float instanceId) {
+    return u_viewPosition;
+  }
   `;
 
   private __lastShader: CGAPIResourceHandle = -1;
@@ -80,8 +84,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
-        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-        const gl = glw.getRawContext();
 
         // Shader Setup
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
@@ -99,16 +101,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
         ];
-
-        if (primitive.primitiveMode.index === gl.POINTS) {
-          args.push(
-            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
-          );
-        }
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
@@ -306,7 +304,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE6);
         if (diffuseCube && diffuseCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cubeTextureUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
@@ -317,7 +315,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (updated) {
         gl.activeTexture(gl.TEXTURE7);
         if (specularCube && specularCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!);
+          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cubeTextureUid!);
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
         } else {
           const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
@@ -328,8 +326,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (specularCube) {
         mipmapLevelNumber = specularCube.mipmapLevelNumber;
       }
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 3, 'f', false, { x: mipmapLevelNumber, y: 1, z: 1 }, { force: force });
-
+      const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap}, { force: force })
 
       // BRDF LUT
       updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { force: force });
@@ -349,7 +347,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
 
       // Point size
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 1.0 }, { force: force });
+      const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { force: force });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { force: force });
+
 
       if (primitive.indicesAccessor) {
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);

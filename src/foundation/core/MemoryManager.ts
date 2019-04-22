@@ -12,49 +12,53 @@ import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
-  private __buffers: {[s: string]: Buffer} = {};
-  private static __bufferWidthLength: Size = Math.pow(2,9);
-  private static __bufferHeightLength: Size = Math.pow(2,9);
+  private __buffers: { [s: string]: Buffer } = {};
+  private static __bufferWidthLength: Size = Math.pow(2, 10);
+  private static __bufferHeightLength: Size = Math.pow(2, 10);
 
   private constructor() {
 
     // BufferForGPUInstanceData
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*MemoryManager.bufferHeightLength/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/);
       const buffer = new Buffer({
-        byteLength:arrayBuffer.byteLength,
+        byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: BufferUse.GPUInstanceData.toString()});
+        name: BufferUse.GPUInstanceData.toString()
+      });
       this.__buffers[buffer.name] = buffer;
     }
 
     // BufferForGPUVertexData
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*(MemoryManager.bufferHeightLength+1)/*width*height*/*4/*rgba*/*8/*byte*/); // 16MB
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * (MemoryManager.bufferHeightLength + 1)/*width*height*/ * 4/*rgba*/ * 8/*byte*/); // 16MB
       const buffer = new Buffer({
-        byteLength:arrayBuffer.byteLength,
+        byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: BufferUse.GPUVertexData.toString()});
+        name: BufferUse.GPUVertexData.toString()
+      });
       this.__buffers[buffer.name] = buffer;
     }
 
     // BufferForUBO
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*(MemoryManager.bufferHeightLength)/*width*height*/*4/*rgba*/*8/*byte*/);//2^14); // 16KB
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * (MemoryManager.bufferHeightLength)/*width*height*/ * 4/*rgba*/ * 8/*byte*/);//2^14); // 16KB
       const buffer = new Buffer({
-        byteLength:arrayBuffer.byteLength,
+        byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: BufferUse.UBOGeneric.toString()});
+        name: BufferUse.UBOGeneric.toString()
+      });
       this.__buffers[buffer.name] = buffer;
     }
 
     // BufferForCPU
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength*MemoryManager.bufferHeightLength/*width*height*/*4/*rgba*/*8/*byte*/);
+      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/);
       const buffer = new Buffer({
-        byteLength:arrayBuffer.byteLength,
+        byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
-        name: BufferUse.CPUGeneric.toString()});
+        name: BufferUse.CPUGeneric.toString()
+      });
       this.__buffers[buffer.name] = buffer;
     }
 

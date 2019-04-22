@@ -18,6 +18,7 @@ import AbstractTexture from "../textures/AbstractTexture";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyBlueTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -31,7 +32,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [0, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
       {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
       {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [1, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
-      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [2, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [2, PbrShadingMaterialNode.__dummyBlueTextureUid]},
       {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [3, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
       {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [4, PbrShadingMaterialNode.__dummyBlackTextureUid]},
 //      {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(6, PbrShadingMaterialNode.__pbrCookTorranceBrdfLutDataUrlUid)},
@@ -49,6 +50,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     }
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     PbrShadingMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
+    PbrShadingMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
     PbrShadingMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
     PbrShadingMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
 
