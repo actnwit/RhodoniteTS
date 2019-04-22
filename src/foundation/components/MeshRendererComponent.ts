@@ -125,7 +125,7 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  static common_$load(processApproach: ProcessApproachEnum) {
+  static common_$load({processApproach} : {processApproach: ProcessApproachEnum}) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);

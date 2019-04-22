@@ -38,7 +38,7 @@ export default class System {
 
         const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
         if (componentClass_commonMethod) {
-          componentClass_commonMethod(this.__processApproach);
+          componentClass_commonMethod({processApproach: this.__processApproach});
         }
 
         componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
