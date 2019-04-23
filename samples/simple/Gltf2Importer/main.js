@@ -46,17 +46,17 @@ const load = async function(time){
 //  const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Node/Animation_Node_05.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/polly/project_polly.glb');
-//const response = await importer.import('../../../assets/gltf/2.0/zoman/zoman.gltf');
+const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
 
   const modelConverter = Rn.ModelConverter.getInstance();
-//  const rootGroup = modelConverter.convertToRhodoniteObject(response);
+ const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
 //  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  //cameraControllerComponent.setTarget(rootGroup);
+  cameraControllerComponent.setTarget(rootGroup);
   cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 1000;
 
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
@@ -65,7 +65,7 @@ const load = async function(time){
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const environmentCubeTexture = new Rn.CubeTexture();
   // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
-  environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/tear_of_steel_bridge/environment/environment';
+  environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
@@ -75,10 +75,10 @@ const load = async function(time){
   sphereEntity.getTransform().scale = new Rn.Vector3(1, 1, 1);
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = '../../../assets/ibl/tear_of_steel_bridge/specular/specular';
+  specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/tear_of_steel_bridge/diffuse/diffuse';
+  diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/diffuse/diffuse';
   diffuseCubeTexture.mipmapLevelNumber = 1;
   const componentRepository = Rn.ComponentRepository.getInstance();
   window.meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
@@ -86,7 +86,7 @@ const load = async function(time){
     meshRendererComponent.specularCubeMap = specularCubeTexture;
     meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
   }
-
+/*
   const sphere2Entity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const sphere2Primitive = new Rn.Sphere();
   const sphere2PbrMaterial = Rn.MaterialHelper.createPbrUberMaterial();
@@ -100,7 +100,7 @@ const load = async function(time){
   window.sphere2MeshRendererComponent = sphere2MeshRendererComponent;
   sphere2MeshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
   sphere2MeshRendererComponent.specularCubeMap = specularCubeTexture;
-
+*/
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
@@ -109,13 +109,13 @@ const load = async function(time){
   const draw = function(time) {
 
     if (p == null && count > 0) {
-      //if (response != null) {
+      if (response != null) {
 
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, 600, 600);
+        gl.viewport(0, 0, 800, 800);
         gl.clearColor(0.8, 0.8, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-//      }
+     }
 
       p = document.createElement('p');
       p.setAttribute("id", "rendered");
@@ -161,7 +161,7 @@ function rotEnv(rot) {
   for (let meshRendererComponent of window.meshRendererComponents) {
     meshRendererComponent.rotationOfCubeMap = rot;
   }
-  window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
+  // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
   window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, rot, 0);
 }
 

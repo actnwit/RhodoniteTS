@@ -178,7 +178,7 @@ void main ()
     vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-      normal_inWorld = normalize(v_normal_inWorld);
+      normal_inWorld = normalize(normal_inWorld);
 
       mat3 tbnMat_tangent_to_world = mat3(
         tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
@@ -210,10 +210,10 @@ void main ()
 
   // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
-  if (length(textureColor) > 0.01) {
+  // if (length(textureColor) > 0.01) {
     baseColor *= srgbToLinear(textureColor.rgb);
     alpha *= textureColor.a;
-  }
+  // }
 
   // Metallic & Roughness
   float userRoughness = u_material.metallicRoughnessFactor.y;
