@@ -186,6 +186,11 @@ export default class SceneGraphComponent extends Component {
     // return matrix;
   }
 
+  /**
+   * Collects children and itself from specified sceneGraphComponent.
+   * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
+   * @param isJointMode collects joints only
+   */
   static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: Boolean): SceneGraphComponent[] {
 
     const results: SceneGraphComponent[] = [];

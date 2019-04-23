@@ -19,6 +19,8 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import ModuleManager from '../system/ModuleManager';
 import CubeTexture from '../textures/CubeTexture';
+import Entity from '../core/Entity';
+import RenderPass from '../renderer/RenderPass';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -125,7 +127,7 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  static common_$load(processApproach: ProcessApproachEnum) {
+  static common_$load({processApproach} : {processApproach: ProcessApproachEnum}) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -216,15 +218,21 @@ export default class MeshRendererComponent extends Component {
 
   }
 
-  static sort_$render(): ComponentSID[] {
+  static sort_$render(renderPass?: RenderPass): ComponentSID[] {
+    let meshComponents;
+    if (renderPass != null) {
+      meshComponents = renderPass.meshComponents;
+    }
     if (MeshRendererComponent.__manualTransparentSids == null) {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
     } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
       return [];
     } else {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
       return sortedMeshComponentSids;
     }
@@ -232,8 +240,12 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = []) {
-    const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], meshComponentsOfRenderPass?: MeshComponent[]) {
+    let meshComponents = meshComponentsOfRenderPass;
+    if (meshComponents == null) {
+      meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+    }
+
     const opaqueMeshComponentSids: ComponentSID[] = [];
     const transparentMeshComponents: MeshComponent[] = [];
     for (let i = 0; i < meshComponents.length; i++) {

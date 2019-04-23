@@ -14,6 +14,8 @@ import Component from "../foundation/core/Component";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
+import IRenderable from "../foundation/textures/IRenderable";
+import FrameBuffer from "../foundation/renderer/FrameBuffer";
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
@@ -492,49 +494,74 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  /**
-   * create textures as render target. (and attach it to framebuffer object internally.)<br>
-   * @param  width - width of texture
-   * @param  height - height of texture
-   * @param  textureNum - the number of creation.
-   * @returns  an array of created textures.
-   */
-  createTexturesForRenderTarget(width: number, height:number, textureNum:number): Array<AbstractTexture> {
+  createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
-
-    // Create FBO
     var fbo = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    fbo.width = width;
-    fbo.height = height;
-    fbo.rnTextures = [];
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, fbo!);
 
-    for(let i=0; i<textureNum; i++) {
-      let texture = new RenderTargetTexture();
-      texture.create(fbo.width, fbo.height);
-      texture.fbo = fbo;
-      fbo._glboostTextures.push(texture);
+    return resourceHandle;
+  }
+
+  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable) {
+    const gl = this.__glw!.getRawContext();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)!;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
+    const attachimentId = this.__glw!.colorAttachiment(index);
+    if (renderable instanceof RenderTargetTexture) {
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, renderableWebGLResource, 0);
+    } else {
+      // It's must be RenderBuffer
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachimentId, gl.RENDERBUFFER, renderableWebGLResource);
     }
 
-    // Create RenderBuffer
-    var renderBuffer = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, fbo.width, fbo.height);
-    fbo.renderBuffer = renderBuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
 
-    // Attach Buffers
-    fbo.rnTextures.forEach((texture: RenderTargetTexture, i: Index)=>{
-      var glTexture = texture.cgApiResourceUid;
-      var attachimentId = this.__glw!.colorAttachiment(i);
-      texture.colorAttachment = attachimentId;
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, glTexture, 0);
-    });
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
+  attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
+    this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 36096); // gl.DETPH_ATTACHMENT
+  }
 
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+  attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
+    this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 36128); // gl.STENCIL_ATTACHMENT
+  }
+
+  attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
+    this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 33306); // gl.DEPTH_STENCIL_ATTACHMENT
+  }
+
+  private __attachDepthOrStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable, attachmentType: number) {
+    const gl = this.__glw!.getRawContext();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)!;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
+    if (renderable instanceof RenderTargetTexture) {
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.ATTA, gl.TEXTURE_2D, renderableWebGLResource, 0);
+    } else {
+      // It's must be RenderBuffer
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachmentType, gl.RENDERBUFFER, renderableWebGLResource);
+    }
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    return fbo._glboostTextures.concat();
+  }
+
+  createRenderBuffer(width: Size, height: Size, internalFormat: TextureParameterEnum) {
+    const gl = this.__glw!.getRawContext();
+    var renderBuffer = gl.createRenderbuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, renderBuffer!);
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, internalFormat.str, width, height);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    return resourceHandle;
   }
 
   createRenderTargetTexture(
@@ -748,6 +775,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
+  deleteFrameBufferObject(frameBufferObjectHandle: WebGLResourceHandle) {
+    const fbo = this.getWebGLResource(frameBufferObjectHandle);
+    const gl = this.__glw!.getRawContext();
+    if (fbo != null) {
+      gl.deleteFrameBufferObject(fbo!);
+      this.__webglResources.delete(frameBufferObjectHandle);
+    }
+  }
+
+  deleteRenderBuffer(renderBufferUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+
+    const renderBuffer = this.getWebGLResource(renderBufferUid)!;
+    gl.deleteRenderBuffer(renderBuffer)
+    this.__webglResources.delete(renderBufferUid);
+
+  }
+
   deleteTexture(textureHandle: WebGLResourceHandle) {
     const texture = this.getWebGLResource(textureHandle);
     const gl = this.__glw!.getRawContext();
@@ -794,7 +839,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const ubo = this.getWebGLResource(uboUid);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
-    void gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 0, bufferView, 0);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
 
@@ -832,6 +877,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const ubo = this.getWebGLResource(uboUid)!;
+    this.__webglResources.delete(uboUid);
 
     gl.deleteBuffer(ubo);
   }
@@ -852,6 +898,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const transformFeedback = this.getWebGLResource(transformFeedbackUid)!;
     gl.deleteTransformFeedback(transformFeedback);
-
+    this.__webglResources.delete(transformFeedbackUid);
   }
 }

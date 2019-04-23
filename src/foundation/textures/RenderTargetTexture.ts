@@ -1,27 +1,41 @@
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import { TextureParameter } from "../definitions/TextureParameter";
-import { PixelFormat } from "../definitions/PixelFormat";
+import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
+import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
+import IRenderable from "./IRenderable";
+import { ComponentTypeEnum } from "../main";
 
-export default class RenderTargetTexture extends AbstractTexture {
- private __colorAttachmentId = -1;
- private __depthAttachmentId = -1;
- private __fbo = -1;
+export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
+
+  private __fbo = -1;
 
   constructor() {
     super();
   }
 
-  create(width: Size, height: Size, level = 0,
-    internalFormat = PixelFormat.RGBA,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.LinearMipmapLinear,
-    wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge)
+  create(
+    {
+      width, height, level = 0,
+      internalFormat = PixelFormat.RGBA,
+      format = PixelFormat.RGBA,
+      type = ComponentType.UnsignedByte,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.ClampToEdge,
+      wrapT = TextureParameter.ClampToEdge
+    }:
+    {
+      width: Size, height: Size, level: number,
+      internalFormat: PixelFormatEnum,
+      format: PixelFormatEnum,
+      type: ComponentTypeEnum,
+      magFilter: TextureParameterEnum,
+      minFilter: TextureParameterEnum,
+      wrapS: TextureParameterEnum,
+      wrapT: TextureParameterEnum
+    })
   {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
@@ -33,23 +47,6 @@ export default class RenderTargetTexture extends AbstractTexture {
 
     AbstractTexture.__textureMap.set(texture, this);
   }
-
-  set colorAttachment(colorAttachmentId) {
-    this.__colorAttachmentId = colorAttachmentId;
-  }
-
-  get colorAttachment() {
-    return this.__colorAttachmentId;
-  }
-
-  set depthAttachment(depthAttachmentId) {
-    this.__depthAttachmentId = depthAttachmentId;
-  }
-
-  get depthAttachment() {
-    return this.__depthAttachmentId;
-  }
-
 
   set fbo(fbo) {
     this.__fbo = fbo;

@@ -13,24 +13,43 @@
     return entity;
   }
 
-  const promise = Rn.ModuleManager.getInstance().loadModule('webgl');
-  promise.then(function(){
+  const promises = [];
+  promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
+  promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
+  Promise.all(promises).then(function(){
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.DataTextureWebGL1, document.getElementById('world'));
+    const entityRepository = Rn.EntityRepository.getInstance();
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+
+    const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+    const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
+
+    
+    const expression = new Rn.Expression();
+    const renderPass = new Rn.RenderPass();
+    expression.addRenderPasses([renderPass]);
 
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
 
-    Rn.MeshRendererComponent.manualTransparentSids = [];
+    // Rn.MeshRendererComponent.manualTransparentSids = [];
 
     const entities = [];
     const entity = generateEntity();
     entities.push(entity);
 
+    const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
+    cameraControllerComponent.setTarget(entity);
+
+
     const meshComponent = entity.getComponent(Rn.MeshComponent);
     meshComponent.addPrimitive(primitive);
-    entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);;
+    entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+
+    renderPass.addEntities(entities);
+    // renderPass.addEntities([]);
+
 
     const startTime = Date.now();
     let p = null;
@@ -68,7 +87,7 @@
       stats.begin();
 
   //      console.log(date.getTime());
-      system.process();
+      system.process(expression);
 
       stats.end();
       count++;
