@@ -36,6 +36,11 @@ export default class RenderPass extends RnObject {
     return this.__entities;
   }
 
+  clearEntities() {
+    this.__meshComponents = void 0;
+    this.__entities = [];
+  }
+
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];

@@ -224,15 +224,15 @@ export default class MeshRendererComponent extends Component {
       meshComponents = renderPass.meshComponents;
     }
     if (MeshRendererComponent.__manualTransparentSids == null) {
-      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, meshComponents);
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
     } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
       return [];
     } else {
-      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, meshComponents);
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
       return sortedMeshComponentSids;
     }

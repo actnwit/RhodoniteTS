@@ -8,6 +8,7 @@ import Component from "../core/Component";
 import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import MeshRendererComponent from "../components/MeshRendererComponent";
+import EntityRepository from "../core/EntityRepository";
 
 export default class System {
   private static __instance: System;
@@ -22,12 +23,14 @@ export default class System {
     ProcessStage.Discard
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
+  private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private __webglStrategy?: WebGLStrategy;
   private __localExpression = new Expression();
+  private __localRenderPass = new RenderPass();
 
   private constructor() {
-    this.__localExpression.addRenderPasses([new RenderPass()]);
+    this.__localExpression.addRenderPasses([this.__localRenderPass]);
   }
 
   process(expression?: Expression) {
@@ -38,6 +41,8 @@ export default class System {
     let exp = expression;
     if (expression == null) {
       exp = this.__localExpression;
+      this.__localRenderPass.clearEntities();
+      this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
     }
 
 

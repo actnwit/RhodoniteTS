@@ -24,11 +24,11 @@
     const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
     const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
 
-    /*
+    
     const expression = new Rn.Expression();
     const renderPass = new Rn.RenderPass();
     expression.addRenderPasses([renderPass]);
-*/
+
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
@@ -47,8 +47,8 @@
     meshComponent.addPrimitive(primitive);
     entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
 
-    // renderPass.addEntities(entities);
-    //renderPass.addEntities([]);
+    renderPass.addEntities(entities);
+    // renderPass.addEntities([]);
 
 
     const startTime = Date.now();
@@ -87,7 +87,7 @@
       stats.begin();
 
   //      console.log(date.getTime());
-      system.process();
+      system.process(expression);
 
       stats.end();
       count++;
