@@ -6,7 +6,7 @@ import MeshComponent from "../components/MeshComponent";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
-  private __meshComponents?: MeshComponent[] = [];
+  private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
 
   constructor() {
@@ -49,9 +49,7 @@ export default class RenderPass extends RnObject {
   }
 
   get meshComponents() {
-    if (this.__collectMeshComponents == null) {
-      this.__collectMeshComponents();
-    }
+    this.__collectMeshComponents();
     return this.__meshComponents;
   }
 

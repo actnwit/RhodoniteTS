@@ -41,6 +41,9 @@ import Plane from './geometry/Plane';
 import Sphere from './geometry/Sphere';
 import MaterialHelper from './helpers/MaterialHelper';
 import {ShaderSemantics} from './definitions/ShaderSemantics';
+import RenderPass from './renderer/RenderPass';
+import FrameBuffer from './renderer/FrameBuffer';
+import Expression from './renderer/Expression';
 
 const Rn = {
   EntityRepository,
@@ -85,7 +88,10 @@ const Rn = {
   Plane,
   Sphere,
   MaterialHelper,
-  ShaderSemantics
+  ShaderSemantics,
+  RenderPass,
+  FrameBuffer,
+  Expression
 };
 export default Rn;
 
