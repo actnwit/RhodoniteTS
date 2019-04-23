@@ -1085,17 +1085,17 @@ export default class DrcPointCloudImporter {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
 
-      promisesToLoadResources.push(new Promise((resolve, reject) => {
+      promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        img.src = imageUri;
+        await this._imgLoad(img, imageUri);
+
         imageJson.image = img;
+        resources.images[i] = img;
         if (imageUri.match(/^data:/)) {
           resolve(gltfJson);
         } else {
-
           const load = (img: HTMLImageElement, response: any) => {
-
             var bytes = new Uint8Array(response);
             var binaryData = "";
             for (var i = 0, len = bytes.byteLength; i < len; i++) {
@@ -1158,6 +1158,15 @@ export default class DrcPointCloudImporter {
     let imgSrc = this._getImageType(imageType);
     let dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
+  }
+
+  _imgLoad(img: HTMLImageElement, imageUri: string) {
+    return new Promise(((resolve, reject) => {
+      img.onload = () => {
+        resolve();
+      };
+      img.src = imageUri;
+    }));
   }
 
   _getImageType(imageType: string) {
