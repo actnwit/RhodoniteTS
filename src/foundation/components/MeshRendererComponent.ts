@@ -19,6 +19,8 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import ModuleManager from '../system/ModuleManager';
 import CubeTexture from '../textures/CubeTexture';
+import Entity from '../core/Entity';
+import RenderPass from '../renderer/RenderPass';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -216,7 +218,11 @@ export default class MeshRendererComponent extends Component {
 
   }
 
-  static sort_$render(): ComponentSID[] {
+  static sort_$render(renderPass?: RenderPass): ComponentSID[] {
+    let meshComponents;
+    if (renderPass != null) {
+      meshComponents = renderPass.meshComponents;
+    }
     if (MeshRendererComponent.__manualTransparentSids == null) {
       const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
@@ -232,8 +238,12 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = []) {
-    const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], meshComponentsOfRenderPass?: MeshComponent[]) {
+    let meshComponents = meshComponentsOfRenderPass;
+    if (meshComponents == null) {
+      meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+    }
+
     const opaqueMeshComponentSids: ComponentSID[] = [];
     const transparentMeshComponents: MeshComponent[] = [];
     for (let i = 0; i < meshComponents.length; i++) {

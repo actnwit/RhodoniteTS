@@ -7,6 +7,7 @@ import WebGLStrategy from "../../webgl/WebGLStrategy";
 import Component from "../core/Component";
 import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
+import MeshRendererComponent from "../components/MeshRendererComponent";
 
 export default class System {
   private static __instance: System;
@@ -39,21 +40,29 @@ export default class System {
       exp = this.__localExpression;
     }
 
-    for (let i=0; i<exp!.renderPasses.length; i++) {
-      const renderPass = exp!.renderPasses[i];
 
-      this.__processStages.forEach(stage=>{
-        const methodName = stage.getMethodName();
-        const componentTids = this.__componentRepository.getComponentTIDs();
-        componentTids.forEach(componentTid=>{
+    this.__processStages.forEach(stage=>{
+      const methodName = stage.getMethodName();
+      const componentTids = this.__componentRepository.getComponentTIDs();
+      componentTids.forEach(componentTid=>{
+
+        let loopN = 1;
+        let renderPass;
+        if (componentTid === MeshRendererComponent.componentTID) {
+          loopN = exp!.renderPasses.length;
+        }
+
+        for (let i=0; i<loopN; i++) {
+          renderPass = exp!.renderPasses[i];
+
           const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
           const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
           if (componentClass_commonMethod) {
-            componentClass_commonMethod({processApproach: this.__processApproach});
+            componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass});
           }
 
-          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
+          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
           componentClass.process({
             componentType: componentClass,
             processStage:stage,
@@ -61,10 +70,11 @@ export default class System {
             componentRepository: this.__componentRepository,
             strategy: this.__webglStrategy!
           });
-        });
-      });
+        }
 
-    }
+      });
+    });
+
 
   }
 
