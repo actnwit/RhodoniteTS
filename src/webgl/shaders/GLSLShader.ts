@@ -442,7 +442,11 @@ export default abstract class GLSLShader {
       float lod = (userRoughness * mipCount);
 
       vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
-      vec3 diffuseLight = srgbToLinear(textureCube(u_diffuseEnvTexture, n).rgb);
+      vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
+      // vec3 diffuseLight = srgbToLinear(diffuseTexel); // if LDR with ganma (for example, jpg, png...)
+      //vec3 diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0); // if rgbe.png
+      vec3 diffuseLight = diffuseTexel.rgb; // if full floating
+
       ${accessSpecularIBLTexture}
 
       vec3 diffuse = diffuseLight * albedo;

@@ -17,6 +17,8 @@ import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import IRenderable from "../foundation/textures/IRenderable";
 import FrameBuffer from "../foundation/renderer/FrameBuffer";
 
+declare var HDRImage: any;
+
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle,
   iboHandle?: CGAPIResourceHandle,
@@ -629,7 +631,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const loadImageToGPU = (image: DirectTextureData, cubemapSide: number, i: Index) => {
-        if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
+        if ((image as any).isHdr) {
+          //gl.texImage2D(cubemapSide, i, gl.RGBA, (image as any).width, (image as any).height, 0, gl.RGBA, gl.UNSIGNED_BYTE, (image as any).dataRGBE);
+          gl.texImage2D(cubemapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
+        } else if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
           gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         } else {
           gl.texImage2D(cubemapSide, i, gl.RGBA, width!/(i+1),
@@ -656,7 +661,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
    * @param mipLevelCount the number of mip levels (include root level). if no mipmap, the value should be 1;
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
-  async createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count) {
+  async createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isHdr: Boolean) {
     const gl = this.__glw!.getRawContext();
 
     const imageArgs:Array<{posX: DirectTextureData, negX: DirectTextureData, posY: DirectTextureData,
@@ -669,17 +674,28 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         return new Promise<HTMLImageElement[]>((resolve, reject)=>{
           let loadedCount = 0;
           const images: HTMLImageElement[] = [];
+          let extension = '.jpg';
+          if (isHdr) {
+            extension = '.hdr';
+          }
+
           let faces = [
-            [baseUri + "_posx_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-            [baseUri + "_negx_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-            [baseUri + "_posy_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-            [baseUri + "_negy_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-            [baseUri + "_posz_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-            [baseUri + "_negz_" + i + ".jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+            [baseUri + "_posx_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+            [baseUri + "_negx_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+            [baseUri + "_posy_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+            [baseUri + "_negy_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+            [baseUri + "_posz_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+            [baseUri + "_negz_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
           ];
           for (var j = 0; j < faces.length; j++) {
             const face = faces[j][1];
-            const image = new Image();
+            let image: any;
+            if (isHdr) {
+              image = new HDRImage();
+              image.isHdr = true;
+            } else {
+              image = new Image();
+            }
             (image as any).side = face;
             (image as any).uri = faces[j][0];
             image.crossOrigin = "Anonymous";
