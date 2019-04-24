@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-412-g827a2-mod branch: feature/multi-pass';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-418-g8368-mod branch: feature/improve-ibl';
