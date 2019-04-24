@@ -44,6 +44,7 @@ import {ShaderSemantics} from './definitions/ShaderSemantics';
 import RenderPass from './renderer/RenderPass';
 import FrameBuffer from './renderer/FrameBuffer';
 import Expression from './renderer/Expression';
+import {HdriFormat} from './definitions/HdriFormat';
 
 const Rn = {
   EntityRepository,
@@ -91,7 +92,8 @@ const Rn = {
   ShaderSemantics,
   RenderPass,
   FrameBuffer,
-  Expression
+  Expression,
+  HdriFormat,
 };
 export default Rn;
 

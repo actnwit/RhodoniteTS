@@ -324,9 +324,9 @@ export default abstract class GLSLShader {
     let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(u_specularEnvTexture, reflection, lod).rgb);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);`;
     } else {
-      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(u_specularEnvTexture, reflection).rgb);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);`;
     }
 
     return `
@@ -436,18 +436,33 @@ export default abstract class GLSLShader {
       return pow(value, 1.0/2.2);
     }
 
+    uniform ivec2 hdriFormat;
     vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
     {
       float mipCount = u_iblParameter.x;
       float lod = (userRoughness * mipCount);
 
-      vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
+      vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
       vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
-      // vec3 diffuseLight = srgbToLinear(diffuseTexel); // if LDR with ganma (for example, jpg, png...)
-      //vec3 diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0); // if rgbe.png
-      vec3 diffuseLight = diffuseTexel.rgb; // if full floating
+      vec3 diffuseLight;
+      if (hdriFormat.x == 4) { // LDR_SRGB
+        diffuseLight = srgbToLinear(diffuseTexel.rgb);
+      } else if (hdriFormat.x == 1) { // RGBE
+        diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+      } else {
+        diffuseLight = diffuseTexel.rgb;
+      }
 
       ${accessSpecularIBLTexture}
+
+      vec3 specularLight;
+      if (hdriFormat.y == 4) { // LDR_SRGB
+        specularLight = srgbToLinear(specularTexel.rgb);
+      } else if (hdriFormat.y == 1) { // RGBE
+        specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+      } else {
+        specularLight = specularTexel.rgb;
+      }
 
       vec3 diffuse = diffuseLight * albedo;
       vec3 specular = specularLight * (F0 * brdf.x + brdf.y);

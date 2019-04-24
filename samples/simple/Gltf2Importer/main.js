@@ -47,6 +47,7 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   //const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Node/Animation_Node_05.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/polly/project_polly.glb');
 //const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
+//  const response = await importer.import('../../../assets/gltf/2.0/env_test/EnvironmentTest.gltf');
 
   const modelConverter = Rn.ModelConverter.getInstance();
  const rootGroup = modelConverter.convertToRhodoniteObject(response);
@@ -66,6 +67,7 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   const environmentCubeTexture = new Rn.CubeTexture();
   // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
   environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
+  environmentCubeTexture.isNamePosNeg = true;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
@@ -73,14 +75,21 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
   sphereMeshComponent.addPrimitive(spherePrimitive);
   sphereEntity.getTransform().scale = new Rn.Vector3(1, 1, 1);
+
+
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
+  // specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
   specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
+  specularCubeTexture.isNamePosNeg = true;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
+  // diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
   diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/diffuse/diffuse';
-  diffuseCubeTexture.isHdr = true;
+  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   diffuseCubeTexture.mipmapLevelNumber = 1;
+  diffuseCubeTexture.isNamePosNeg = true;
   const componentRepository = Rn.ComponentRepository.getInstance();
   window.meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
   for (let meshRendererComponent of window.meshRendererComponents) {

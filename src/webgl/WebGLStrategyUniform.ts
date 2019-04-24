@@ -29,6 +29,7 @@ import Material from "../foundation/materials/Material";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
 import Vector3 from "../foundation/math/Vector3";
+import { HdriFormat } from "../foundation/definitions/HdriFormat";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -103,6 +104,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+          { semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true },
         ];
 
         if (primitive.primitiveMode.index === gl.POINTS) {
@@ -332,6 +334,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap}, { force: force })
+      let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+      let specularHdriType = HdriFormat.LDR_SRGB.index;
+      if (meshRenderComponent.diffuseCubeMap) {
+        diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+      }
+      if (meshRenderComponent.specularCubeMap) {
+        specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+      }
+
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType}, { force: force })
 
       // BRDF LUT
       updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { force: force });

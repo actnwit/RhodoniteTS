@@ -1,6 +1,6 @@
-version: 0.1.1-418-g8368-mod
-branch: feature/improve-ibl
-3d074c6677b3a5b07ba2a46a2d5587a72757cd1b78b3ba4e7e71647cbf82f03e ./dist/rhodonite.js
-4e75cdc0266b96b0c7504edcf86cb799858d090fdb3e084a3c834e0ee47f4467 ./dist/rhodonite.min.js
-55b1370bb5a77cab6d55c70b31d0b09a0ee90019c5de067beb9149799b641e0e ./dist/rhodonite-webgl.js
-8fab91c434079a9ac672ea66ce11fd07b4ed4a6e0d99f6f587ae5efa5dbef7f6 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-420-gbf0e-mod
+branch: master
+f272456336913b7531005cfec841132332ca95fc066b4a3742f9fdadd11ff45f ./dist/rhodonite.js
+d58031193d1f18f3c871d21adafbefc664aba8b6abc24bc9a9b3c1e3085f3ba4 ./dist/rhodonite.min.js
+547df0edaa7be743ef6b56681a41791650366bd5c0a0bdfe289dcb47044f7f17 ./dist/rhodonite-webgl.js
+4ac6ddbf90a3114afb7fd4afcd0500f73a199d00e18b566de4901f1b67a8ba74 ./dist/rhodonite-webgl.min.js

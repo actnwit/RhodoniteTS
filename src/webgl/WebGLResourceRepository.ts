@@ -16,6 +16,7 @@ import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import IRenderable from "../foundation/textures/IRenderable";
 import FrameBuffer from "../foundation/renderer/FrameBuffer";
+import { HdriFormatEnum, HdriFormat } from "../foundation/definitions/HdriFormat";
 
 declare var HDRImage: any;
 
@@ -631,15 +632,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const loadImageToGPU = (image: DirectTextureData, cubemapSide: number, i: Index) => {
-        if ((image as any).isHdr) {
-          //gl.texImage2D(cubemapSide, i, gl.RGBA, (image as any).width, (image as any).height, 0, gl.RGBA, gl.UNSIGNED_BYTE, (image as any).dataRGBE);
-          gl.texImage2D(cubemapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
-        } else if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
-          gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        } else {
-          gl.texImage2D(cubemapSide, i, gl.RGBA, width!/(i+1),
-            height!/(i+1), 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        }
+      if ((image as any).hdriFormat === HdriFormat.HDR) {
+        gl.texImage2D(cubemapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
+      } else if ((image as any).hdriFormat === HdriFormat.RGBE_PNG) {
+        gl.texImage2D(cubemapSide, i, gl.RGBA, (image as any).width, (image as any).height, 0, gl.RGBA, gl.UNSIGNED_BYTE, (image as any).dataRGBE);
+      } else if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
+        gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      } else {
+        gl.texImage2D(cubemapSide, i, gl.RGBA, width!/(i+1),
+          height!/(i+1), 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      }
     }
 
     for (let i=0; i<images.length; i++) {
@@ -661,7 +663,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
    * @param mipLevelCount the number of mip levels (include root level). if no mipmap, the value should be 1;
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
-  async createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isHdr: Boolean) {
+  async createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum) {
     const gl = this.__glw!.getRawContext();
 
     const imageArgs:Array<{posX: DirectTextureData, negX: DirectTextureData, posY: DirectTextureData,
@@ -675,24 +677,39 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           let loadedCount = 0;
           const images: HTMLImageElement[] = [];
           let extension = '.jpg';
-          if (isHdr) {
+          if (hdriFormat === HdriFormat.HDR) {
             extension = '.hdr';
           }
 
+          let posx = '_right_';
+          let negx = '_left_';
+          let posy = '_top_';
+          let negy = '_bottom_';
+          let posz = '_front_';
+          let negz = '_back_';
+          if (isNamePosNeg) {
+            posx = '_posx_';
+            negx = '_negx_';
+            posy = '_posy_';
+            negy = '_negx_';
+            posz = '_posz_';
+            negz = '_negz_';
+          }
+
           let faces = [
-            [baseUri + "_posx_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-            [baseUri + "_negx_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-            [baseUri + "_posy_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-            [baseUri + "_negy_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-            [baseUri + "_posz_" + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-            [baseUri + "_negz_" + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+            [baseUri + posx + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+            [baseUri + negx + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+            [baseUri + posy + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+            [baseUri + negy + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+            [baseUri + posz + i + extension, gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+            [baseUri + negz + i + extension, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
           ];
           for (var j = 0; j < faces.length; j++) {
             const face = faces[j][1];
             let image: any;
-            if (isHdr) {
+            if (hdriFormat === HdriFormat.HDR || hdriFormat === HdriFormat.RGBE_PNG || hdriFormat === HdriFormat.RGB9_E5_PNG) {
               image = new HDRImage();
-              image.isHdr = true;
+              image.hdriFormat = hdriFormat;
             } else {
               image = new Image();
             }
