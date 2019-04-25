@@ -2,47 +2,71 @@ import RnObject from "../core/RnObject";
 import Entity from "../core/Entity";
 import CGAPIResourceRepository from "./CGAPIResourceRepository";
 import IRenderable from "../textures/IRenderable";
+import { RenderBufferTargetEnum, RenderBufferTarget } from "../definitions/RenderBufferTarget";
 
 export default class FrameBuffer extends RnObject {
   private __entities?: Entity[];
-  private __colorAttatchments: Array<IRenderable> = [];
-  private __depthAttatchment?: IRenderable;
-  private __stencilAttatchment?: IRenderable;
-  private __depthStencilAttatchment?: IRenderable;
-  private __framebufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __colorAttachments: Array<IRenderable> = [];
+  private __depthAttachment?: IRenderable;
+  private __stencilAttachment?: IRenderable;
+  private __depthStencilAttachment?: IRenderable;
+  public cgApiResourceUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public width: Size = 0;
   public height: Size = 0;
+  private __colorAttachmentMap: Map<RenderBufferTargetEnum, IRenderable> = new Map();
 
   constructor() {
     super();
+  }
+
+  get colorAttachmentsRenderBufferTargets() {
+    return Array.from(this.__colorAttachmentMap.keys());
+  }
+
+  get colorAttachments() {
+    return this.__colorAttachments;
+  }
+
+  get depthAttachment() {
+    return this.__depthAttachment;
+  }
+
+  get stencilAttachement() {
+    return this.__stencilAttachment;
+  }
+
+  get depthStancilAttachment() {
+    return this.__depthStencilAttachment;
   }
 
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__framebufferUid = webGLResourceRepository.createFrameBufferObject();
+    this.cgApiResourceUid = webGLResourceRepository.createFrameBufferObject();
 
-    return this.__framebufferUid;
+    return this.cgApiResourceUid;
   }
 
   get framebufferUID() {
-    return this.__framebufferUid;
+    return this.cgApiResourceUid;
   }
 
   discard() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteFrameBufferObject(this.__framebufferUid);
+    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
   }
 
-  setColorAttatchmentAt(index: Index, renderable: IRenderable) {
+  setColorAttachmentAt(index: Index, renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.__colorAttatchments[index] = renderable;
+    this.__colorAttachments[index] = renderable;
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
+
+    this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
 
     return true;
   }
@@ -51,7 +75,7 @@ export default class FrameBuffer extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.__depthAttatchment = renderable;
+    this.__depthAttachment = renderable;
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.attachDepthBufferToFrameBufferObject(this, renderable);
@@ -63,7 +87,7 @@ export default class FrameBuffer extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.__stencilAttatchment = renderable;
+    this.__stencilAttachment = renderable;
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.attachStencilBufferToFrameBufferObject(this, renderable);
@@ -75,7 +99,7 @@ export default class FrameBuffer extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.__depthStencilAttatchment = renderable;
+    this.__depthStencilAttachment = renderable;
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.attachDepthStencilBufferToFrameBufferObject(this, renderable);

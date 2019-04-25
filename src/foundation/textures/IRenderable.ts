@@ -1,3 +1,5 @@
+import { RenderBufferTargetEnum } from "../definitions/RenderBufferTarget";
+
 export default interface IRenderable {
   width: Size,
   height: Size,

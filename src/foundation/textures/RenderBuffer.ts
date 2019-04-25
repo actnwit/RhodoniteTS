@@ -13,6 +13,8 @@ export default class RenderBuffer extends RnObject implements IRenderable {
   }
 
   create(width: Size, height: Size, internalFormat: TextureParameterEnum) {
+    this.width = width;
+    this.height = height;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(width, height, internalFormat);
   }

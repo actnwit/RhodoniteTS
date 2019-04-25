@@ -1,4 +1,6 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
+import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
+import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;
@@ -103,6 +105,27 @@ export default class WebGLContextWrapper {
     return this.webgl1ExtDB ?
       (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`] :
       (this.__gl as any)[`COLOR_ATTACHMENT${index}`];
+  }
+
+  drawBuffers(buffers: RenderBufferTargetEnum[]) {
+    const gl: any = this.__gl;
+    if (buffers.length === 0) {
+      return;
+    }
+    let buffer = buffers;
+    if (this.isWebGL2) {
+      gl.drawBuffers(buffers.map((buf)=>{return gl[buf.str]}));
+      buffer = gl[buffer[0].str];
+    } else if (this.webgl1ExtDB) {
+      this.webgl1ExtDB.drawBuffersWEBGL(buffers.map((buf)=>{return gl[buf.str]}));
+      buffer = gl[buffer[0].str];
+    }
+
+    if (buffer === gl.NONE) {
+      gl.colorMask(false, false, false, false);
+    } else {
+      gl.colorMask(true, true, true, true);
+    }
   }
 
   private __getExtension(extension: WebGLExtensionEnum) {

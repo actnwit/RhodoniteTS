@@ -17,6 +17,9 @@ import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import IRenderable from "../foundation/textures/IRenderable";
 import FrameBuffer from "../foundation/renderer/FrameBuffer";
 import { HdriFormatEnum, HdriFormat } from "../foundation/definitions/HdriFormat";
+import Vector4 from "../foundation/math/Vector4";
+import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 declare var HDRImage: any;
 
@@ -561,10 +564,34 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__webglResources.set(resourceHandle, renderBuffer!);
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, internalFormat.str, width, height);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl[internalFormat.str], width, height);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
     return resourceHandle;
+  }
+
+  setDrawTargets(framebuffer?: FrameBuffer) {
+    if (framebuffer) {
+      this.__glw!.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+    } else {
+      this.__glw!.drawBuffers([RenderBufferTarget.Back]);
+    }
+  }
+
+  bindFramebuffer(framebuffer?: FrameBuffer) {
+    const gl = this.__glw!.getRawContext();
+    if (framebuffer) {
+      const fboUid = framebuffer.cgApiResourceUid;
+      const fbo = this.getWebGLResource(fboUid);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    } else {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+  }
+
+  unbindFramebuffer() {
+    const gl = this.__glw!.getRawContext();
+    gl.bindFramebuffer(null);
   }
 
   createRenderTargetTexture(
@@ -932,5 +959,34 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const transformFeedback = this.getWebGLResource(transformFeedbackUid)!;
     gl.deleteTransformFeedback(transformFeedback);
     this.__webglResources.delete(transformFeedbackUid);
+  }
+
+  setViewport(viewport?: Vector4) {
+    const gl = this.__glw!.getRawContext();
+    if (viewport) {
+      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
+    } else {
+      gl.viewport(0, 0, this.__glw!.width, this.__glw!.height);
+    }
+  }
+
+  clearFrameBuffer(renderPass: RenderPass) {
+    const gl = this.__glw!.getRawContext();
+    let bufferBit = 0;
+    if (renderPass.toClearColorBuffer) {
+      gl.clearColor(renderPass.clearColor.x, renderPass.clearColor.y, renderPass.clearColor.z, renderPass.clearColor.w);
+      bufferBit |= gl.COLOR_BUFFER_BIT;
+    }
+    if (renderPass.toClearDepthBuffer) {
+      gl.clearDepth(renderPass.clearDepth);
+      bufferBit |= gl.DEPTH_BUFFER_BIT;
+    }
+    if (renderPass.toClearStencilBuffer) {
+      gl.clearStencil(renderPass.clearStencil);
+      bufferBit |= gl.STENCIL_BUFFER_BIT;
+    }
+    if (bufferBit !== 0) {
+      gl.clear(bufferBit);
+    }
   }
 }
