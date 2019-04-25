@@ -38,6 +38,8 @@
     const entities = [];
     const entity = generateEntity();
     entities.push(entity);
+    const entity2 = generateEntity();
+    entities.push(entity2);
 
     const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
     cameraControllerComponent.setTarget(entity);
@@ -46,6 +48,11 @@
     const meshComponent = entity.getComponent(Rn.MeshComponent);
     meshComponent.addPrimitive(primitive);
     entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+    const meshComponent2 = entity2.getComponent(Rn.MeshComponent);
+    meshComponent2.addPrimitive(primitive);
+    entity2.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+    entity2.getTransform().translate = new Rn.Vector3(1.5, 0, 0);
+
 
     renderPass.addEntities(entities);
     // renderPass.addEntities([]);
