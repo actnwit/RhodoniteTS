@@ -114,7 +114,7 @@ export default class WebGLContextWrapper {
     }
     let buffer = buffers;
     if (this.isWebGL2) {
-      gl.drawBuffers(buffers);
+      gl.drawBuffers(buffers.map((buf)=>{return gl[buf.str]}));
       buffer = gl[buffer[0].str];
     } else if (this.webgl1ExtDB) {
       this.webgl1ExtDB.drawBuffersWEBGL(buffers.map((buf)=>{return gl[buf.str]}));
