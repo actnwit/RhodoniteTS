@@ -22,7 +22,7 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
+      minFilter = TextureParameter.Linear,
       wrapS = TextureParameter.ClampToEdge,
       wrapT = TextureParameter.ClampToEdge
     }:
@@ -37,6 +37,8 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
       wrapT: TextureParameterEnum
     })
   {
+    this.__width = width;
+    this.__height = height;
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);

@@ -45,6 +45,11 @@ import RenderPass from './renderer/RenderPass';
 import FrameBuffer from './renderer/FrameBuffer';
 import Expression from './renderer/Expression';
 import {HdriFormat} from './definitions/HdriFormat';
+import RenderTargetTexture from './textures/RenderTargetTexture';
+import RenderBuffer from './textures/RenderBuffer';
+import {TextureParameter} from './definitions/TextureParameter';
+import RenderableHelper from './helpers/RenderableHelper';
+import Texture from './textures/Texture';
 
 const Rn = {
   EntityRepository,
@@ -94,6 +99,11 @@ const Rn = {
   FrameBuffer,
   Expression,
   HdriFormat,
+  RenderTargetTexture,
+  RenderBuffer,
+  TextureParameter,
+  RenderableHelper,
+  Texture,
 };
 export default Rn;
 

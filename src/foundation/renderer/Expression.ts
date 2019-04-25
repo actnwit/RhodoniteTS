@@ -3,6 +3,7 @@ import Entity from "../core/Entity";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 
 import RenderPass from "./RenderPass";
+import Vector4 from "../math/Vector4";
 
 export default class Expression extends RnObject {
   private __renderPasses: RenderPass[] = [];

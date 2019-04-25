@@ -131,7 +131,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: ShadingModel.Phong.index
+        initialValue: ShadingModel.Constant.index
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

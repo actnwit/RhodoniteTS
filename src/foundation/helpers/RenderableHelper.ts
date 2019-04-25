@@ -12,7 +12,7 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.LinearMipmapLinear,
+    minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.ClampToEdge,
     wrapT = TextureParameter.ClampToEdge
   }) {
@@ -22,13 +22,15 @@ function createTexturesForRenderTarget(width: number, height:number, textureNum:
   for (let i=0; i<textureNum; i++) {
     const renderTargetTexture = new RenderTargetTexture();
     renderTargetTexture.create({width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT});
-    frameBuffer.setColorAttatchmentAt(i, renderTargetTexture);
+    frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
   const renderBuffer = new RenderBuffer();
-  renderBuffer.create(width, height, TextureParameter.Depth24);
+  renderBuffer.create(width, height, TextureParameter.Depth16);
 
   frameBuffer.setDepthAttachment(renderBuffer);
+
+  return frameBuffer;
 }
 
 

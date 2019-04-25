@@ -9,6 +9,7 @@ import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import EntityRepository from "../core/EntityRepository";
+import { ComponentType } from "../definitions/ComponentType";
 
 export default class System {
   private static __instance: System;
@@ -25,6 +26,7 @@ export default class System {
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
+  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   private __webglStrategy?: WebGLStrategy;
   private __localExpression = new Expression();
   private __localRenderPass = new RenderPass();
@@ -59,9 +61,14 @@ export default class System {
 
         for (let i=0; i<loopN; i++) {
           renderPass = exp!.renderPasses[i];
+          if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
+            this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
+            this.__webglResourceRepository.setViewport(renderPass.getViewport());
+            this.__webglResourceRepository.setDrawTargets(renderPass.getFramebuffer());
+            this.__webglResourceRepository.clearFrameBuffer(renderPass);
+          }
 
           const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
-
           const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
           if (componentClass_commonMethod) {
             componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass});

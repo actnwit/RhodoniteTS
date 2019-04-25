@@ -13,7 +13,7 @@ function createPbrUberMaterial() {
 
 function createClassicUberMaterial() {
   const materialNode = new ClassicShadingSingleMaterialNode;
-  materialNode.isSingleOperation = true; 
+  materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
   return material;
