@@ -26,6 +26,7 @@
 
     const expression = new Rn.Expression();
     const renderPass1 = new Rn.RenderPass();
+    renderPass1.toClearColorBuffer = true;
     const renderPass2 = new Rn.RenderPass();
     // expression.addRenderPasses([renderPass1]);
     expression.addRenderPasses([renderPass1, renderPass2]);
@@ -37,8 +38,8 @@
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
     primitive.material = Rn.MaterialHelper.createClassicUberMaterial();
     const texture = new Rn.Texture();
-    texture.generateTextureFromUri('../../../assets/textures/specular_back_1.jpg');
-    primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
+    //texture.generateTextureFromUri('../../../assets/textures/specular_back_1.jpg');
+    //primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
     primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(1, 0, 1, 1));
 
     const entities = [];
@@ -63,8 +64,8 @@
     primitive2.material = Rn.MaterialHelper.createClassicUberMaterial();
     primitive2.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, framebuffer.colorAttachments[0]);
     meshComponent2.addPrimitive(primitive2);
-    entity2.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
-    entity2.getTransform().translate = new Rn.Vector3(1.5, 0, 0);
+    entity2.getTransform().rotate = new Rn.Vector3(-Math.PI*2/3, 0, 0);
+    entity2.getTransform().translate = new Rn.Vector3(0, 0, 0);
 
 
     renderPass1.addEntities([entity]);
