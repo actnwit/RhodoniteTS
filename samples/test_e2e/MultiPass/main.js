@@ -27,17 +27,33 @@
     const expression = new Rn.Expression();
     const renderPass1 = new Rn.RenderPass();
     renderPass1.toClearColorBuffer = true;
+    renderPass1.cameraComponent = cameraComponent;
     const renderPass2 = new Rn.RenderPass();
-    // expression.addRenderPasses([renderPass1]);
-    expression.addRenderPasses([renderPass1, renderPass2]);
+    renderPass2.toClearColorBuffer = true;
+    renderPass2.cameraComponent = cameraComponent;
+    const renderPass_fxaa = new Rn.RenderPass();
+    renderPass_fxaa.toClearColorBuffer = true;
+    const cameraEntity_fxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
+    const cameraComponent_fxaa = cameraEntity_fxaa.getComponent(Rn.CameraComponent);
+    cameraEntity_fxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
+    cameraComponent_fxaa.type = Rn.CameraType.Orthographic;
+    renderPass_fxaa.cameraComponent = cameraComponent_fxaa;
 
-    const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(512, 512, 1, {})
+
+    // expression.addRenderPasses([renderPass1]);
+    expression.addRenderPasses([renderPass1, renderPass2, renderPass_fxaa]);
+
+    const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {})
     renderPass1.setFramebuffer(framebuffer);
+
+    const framebuffer_fxaatarget = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {})
+    renderPass2.setFramebuffer(framebuffer_fxaatarget);
+
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
     primitive.material = Rn.MaterialHelper.createClassicUberMaterial();
-    const texture = new Rn.Texture();
+    // const texture = new Rn.Texture();
     //texture.generateTextureFromUri('../../../assets/textures/specular_back_1.jpg');
     //primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
     primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(1, 0, 1, 1));
@@ -46,9 +62,11 @@
     const entity = generateEntity();
     entities.push(entity);
 
-
     const entity2 = generateEntity();
     entities.push(entity2);
+
+    const entity_fxaa = generateEntity();
+    entities.push(entity_fxaa);
 
     const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
     cameraControllerComponent.setTarget(entity);
@@ -67,9 +85,20 @@
     entity2.getTransform().rotate = new Rn.Vector3(-Math.PI*2/3, 0, 0);
     entity2.getTransform().translate = new Rn.Vector3(0, 0, 0);
 
+    const primitive_fxaa = new Rn.Plane();
+    primitive_fxaa.generate({width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false});
+    primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+    primitive_fxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, framebuffer_fxaatarget.colorAttachments[0]);
+    primitive_fxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(600, 600));
+    const meshComponent_fxaa = entity_fxaa.getComponent(Rn.MeshComponent);
+    meshComponent_fxaa.addPrimitive(primitive_fxaa);
+    entity_fxaa.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+    entity_fxaa.getTransform().translate = new Rn.Vector3(0, 0, 0);
+
 
     renderPass1.addEntities([entity]);
     renderPass2.addEntities([entity2]);
+    renderPass_fxaa.addEntities([entity_fxaa]);
     // renderPass.addEntities([]);
 
 

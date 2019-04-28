@@ -36,7 +36,7 @@ export default class CameraComponent extends Component {
   // if ortho, z: xmag, w: ymag
   private _parameters: MutableVector4 = MutableVector4.dummy();
   private _parametersInner: MutableVector4 = MutableVector4.dummy();
-  public type: CameraTypeEnum = CameraType.Perspective;
+  private __type: CameraTypeEnum = CameraType.Perspective;
   private __sceneGraphComponent?: SceneGraphComponent;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
@@ -76,6 +76,25 @@ export default class CameraComponent extends Component {
     this.moveStageTo(ProcessStage.PreRender);
 
     CameraComponent.main = componentSid;
+  }
+
+  set type(type: CameraTypeEnum) {
+    this.__type = type;
+    if (type === CameraType.Orthographic) {
+      this._parameters.z = 1;
+      this._parameters.w = 1;
+      this._parametersInner.z = 1;
+      this._parametersInner.w = 1;
+    } else {
+      this._parameters.z = 90;
+      this._parameters.w = 1;
+      this._parametersInner.z = 90;
+      this._parametersInner.w = 1;
+    }
+  }
+
+  get type() {
+    return this.__type;
   }
 
   get eye() {

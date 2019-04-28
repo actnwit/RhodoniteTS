@@ -30,6 +30,7 @@ import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
 import Vector3 from "../foundation/math/Vector3";
 import { HdriFormat } from "../foundation/definitions/HdriFormat";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -225,7 +226,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return false;
   }
 
-  $render(meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
+  $render(meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
@@ -265,7 +266,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { force: force });
       this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { force: force });
-      const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+      const cameraComponent = renderPass.cameraComponent;
       if (cameraComponent) {
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { force: force });
         this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { force: force });

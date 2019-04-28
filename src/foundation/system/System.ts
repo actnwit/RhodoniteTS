@@ -10,6 +10,7 @@ import RenderPass from "../renderer/RenderPass";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import EntityRepository from "../core/EntityRepository";
 import { ComponentType } from "../definitions/ComponentType";
+import CameraComponent from "../components/CameraComponent";
 
 export default class System {
   private static __instance: System;
@@ -45,6 +46,7 @@ export default class System {
       exp = this.__localExpression;
       this.__localRenderPass.clearEntities();
       this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
+      this.__localRenderPass.cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
 
 
@@ -80,7 +82,8 @@ export default class System {
             processStage:stage,
             processApproach:this.__processApproach,
             componentRepository: this.__componentRepository,
-            strategy: this.__webglStrategy!
+            strategy: this.__webglStrategy!,
+            renderPass: renderPass
           });
         }
 

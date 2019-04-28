@@ -57,12 +57,13 @@ const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 33, sin
 const ColorEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 34, singularStr: 'colorEnvTexture', pluralStr: 'colorEnvTextures' });
 const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 35, singularStr: 'pointDistanceAttenuation', pluralStr: 'pointDistanceAttenuation' });
 const HDRIFormat: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 36, singularStr: 'HDRIFormat', pluralStr: 'HDRIFormats' });
+const ScreenInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 37, singularStr: 'screenInfo', pluralStr: 'screenInfos' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat];
+  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat, ScreenInfo ];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -82,5 +83,6 @@ export const ShaderSemantics = Object.freeze({
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat
+  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, ColorEnvTexture, PointDistanceAttenuation,
+  HDRIFormat, ScreenInfo
 });

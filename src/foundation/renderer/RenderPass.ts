@@ -5,6 +5,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import ColorRgb from "../math/ColorRgb";
+import CameraComponent from "../components/CameraComponent";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
@@ -17,6 +18,7 @@ export default class RenderPass extends RnObject {
   public clearColor = new Vector4(1, 1, 1, 1);
   public clearDepth = 1;
   public clearStencil = 0;
+  public cameraComponent?: CameraComponent;
 
   constructor() {
     super();
