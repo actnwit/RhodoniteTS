@@ -17,6 +17,36 @@ const load = async function(time){
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 25, 1);
   //cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
+  // Seting FXAA [start]
+  const expression = new Rn.Expression();
+  const renderPass = new Rn.RenderPass();
+  renderPass.toClearColorBuffer = true;
+  renderPass.cameraComponent = cameraComponent;
+  const renderPassFxaa = new Rn.RenderPass();
+  renderPassFxaa.toClearColorBuffer = true;
+
+  expression.addRenderPasses([renderPass, renderPassFxaa]);
+
+  const framebufferFxaaTarget = Rn.RenderableHelper.createTexturesForRenderTarget(800, 800, 1, {})
+  renderPass.setFramebuffer(framebufferFxaaTarget);
+
+  const entityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const primitiveFxaa = new Rn.Plane();
+  primitiveFxaa.generate({width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false});
+  primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+  primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, framebufferFxaaTarget.colorAttachments[0]);
+  primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(800, 800));
+  const meshComponentFxaa = entityFxaa.getComponent(Rn.MeshComponent);
+  meshComponentFxaa.addPrimitive(primitiveFxaa);
+  entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+  renderPassFxaa.addEntities([entityFxaa]);
+  const cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
+  const cameraComponentFxaa = cameraEntityFxaa.getComponent(Rn.CameraComponent);
+  cameraEntityFxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
+  cameraComponentFxaa.type = Rn.CameraType.Orthographic;
+  renderPassFxaa.cameraComponent = cameraComponentFxaa;
+  // Setting FXAA [end]
+
 
   // Lights
 //  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -40,13 +70,13 @@ const load = async function(time){
 //   const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  //const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
-const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
+  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+// const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
 //const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Node/Animation_Node_05.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/polly/project_polly.glb');
-//const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
+// const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/env_test/EnvironmentTest.gltf');
 
   const modelConverter = Rn.ModelConverter.getInstance();
@@ -60,6 +90,7 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   cameraControllerComponent.setTarget(rootGroup);
   cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 1000;
 
+  // Env Cube
   const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const spherePrimitive = new Rn.Sphere();
   window.sphereEntity = sphereEntity;
@@ -76,13 +107,14 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
   sphereMeshComponent.addPrimitive(spherePrimitive);
   sphereEntity.getTransform().scale = new Rn.Vector3(1, 1, 1);
 
+  renderPass.addEntities([rootGroup, sphereEntity]);
 
   // Env Map
   const specularCubeTexture = new Rn.CubeTexture();
   // specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
   specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
+  // specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
   // diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
@@ -96,7 +128,8 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
     meshRendererComponent.specularCubeMap = specularCubeTexture;
     meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
   }
-/*
+
+  /*
   const sphere2Entity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   const sphere2Primitive = new Rn.Sphere();
   const sphere2PbrMaterial = Rn.MaterialHelper.createPbrUberMaterial();
@@ -151,7 +184,8 @@ const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process();
+    // system.process();
+    system.process(expression);
     count++;
 
     requestAnimationFrame(draw);
