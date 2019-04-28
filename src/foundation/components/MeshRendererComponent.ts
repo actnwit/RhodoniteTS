@@ -112,7 +112,7 @@ export default class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  $render() {
+  $render({renderPass}: {renderPass: RenderPass}) {
     if (this.__webglRenderingStrategy!.$render == null) {
       return;
     }
@@ -120,7 +120,7 @@ export default class MeshRendererComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
 
     this.__webglRenderingStrategy!.$render!(this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
-      entity, this.diffuseCubeMap, this.specularCubeMap);
+      entity, renderPass, this.diffuseCubeMap, this.specularCubeMap);
 
     if (this.__meshComponent!.weights.length > 0) {
       this.moveStageTo(ProcessStage.PreRender);

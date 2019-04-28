@@ -143,12 +143,13 @@ export default class Component {
    * Process the components
    * @param param0 params
    */
-  static process({componentType, processStage, processApproach, componentRepository, strategy}: {
+  static process({componentType, processStage, processApproach, componentRepository, strategy, renderPass}: {
     componentType: typeof Component,
     processStage: ProcessStageEnum,
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
-    strategy: WebGLStrategy
+    strategy: WebGLStrategy,
+    renderPass: RenderPass
   }
     ) {
     if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
@@ -165,7 +166,8 @@ export default class Component {
       (component as any)[processStage.getMethodName()]({
         processStage,
         processApproach,
-        strategy
+        strategy,
+        renderPass
       });
     }
   }
