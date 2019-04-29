@@ -297,7 +297,7 @@ void main ()
 
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
     vec3 F = fresnel(F0, NV);
-    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
+    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness, F);
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
