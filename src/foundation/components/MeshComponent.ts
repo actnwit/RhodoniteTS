@@ -116,6 +116,10 @@ export default class MeshComponent extends Component {
 
   __calcTangents() {
     for (let primitive of this.__primitives) {
+      const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
+      if (tangentIdx !== -1) {
+        continue;
+      }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
       if (texcoordIdx !== -1) {
         const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
