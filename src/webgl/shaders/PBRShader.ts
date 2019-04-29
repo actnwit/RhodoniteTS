@@ -277,8 +277,8 @@ void main ()
 
       // Fresnel
       vec3 halfVector = normalize(lightDirection + viewDirection);
-      float LH = clamp(dot(lightDirection, halfVector), 0.0, 1.0);
-      vec3 F = fresnel(F0, LH);
+      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+      vec3 F = fresnel(F0, VH);
 
       // Diffuse
       vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
@@ -286,7 +286,6 @@ void main ()
       // Specular
       float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
       float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
-      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
       vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
       vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
@@ -297,7 +296,8 @@ void main ()
     }
 
     vec3 reflection = reflect(-viewDirection, normal_inWorld);
-    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
+    vec3 F = fresnel(F0, NV);
+    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness, F);
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights

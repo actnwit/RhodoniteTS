@@ -436,8 +436,13 @@ export default abstract class GLSLShader {
       return pow(value, 1.0/2.2);
     }
 
+    vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
+    {
+      return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+    }
+
     uniform ivec2 hdriFormat;
-    vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
+    vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
     {
       float mipCount = u_iblParameter.x;
       float lod = (userRoughness * mipCount);
@@ -464,7 +469,9 @@ export default abstract class GLSLShader {
         specularLight = specularTexel.rgb;
       }
 
-      vec3 diffuse = diffuseLight * albedo;
+      vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
+      vec3 kD = 1.0 - kS;
+      vec3 diffuse = diffuseLight * albedo * kD;
       vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
 
       float IBLDiffuseContribution = u_iblParameter.y;
