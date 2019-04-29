@@ -718,7 +718,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
             posx = '_posx_';
             negx = '_negx_';
             posy = '_posy_';
-            negy = '_negx_';
+            negy = '_negy_';
             posz = '_posz_';
             negz = '_negz_';
           }
