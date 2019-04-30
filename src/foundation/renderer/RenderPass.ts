@@ -6,12 +6,18 @@ import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
+import WebGLStrategy from "../../webgl/WebGLStrategy";
+import { ProcessApproachEnum, ProcessApproach } from "../definitions/ProcessApproach";
+import ModuleManager from "../system/ModuleManager";
+
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
   private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
   private __viewport?: Vector4;
+  private __webglStrategy?: WebGLStrategy;
+  private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
@@ -28,10 +34,10 @@ export default class RenderPass extends RnObject {
     for (let entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph();
       const collectedSgComponents = SceneGraphComponent.flattenHierarchy(sceneGraphComponent, false);
-      const collectedEntities: Entity[] = collectedSgComponents.map((sg: SceneGraphComponent)=>{return sg.entity});
+      const collectedEntities: Entity[] = collectedSgComponents.map((sg: SceneGraphComponent) => { return sg.entity });
 
       // Eliminate duplicates
-      const map: Map<EntityUID, Entity> = this.__entities.concat(collectedEntities).reduce((map: Map<EntityUID, Entity>, entity:Entity)=>{
+      const map: Map<EntityUID, Entity> = this.__entities.concat(collectedEntities).reduce((map: Map<EntityUID, Entity>, entity: Entity) => {
         map.set(entity.entityUID, entity);
         return map;
       }, new Map());
@@ -55,7 +61,7 @@ export default class RenderPass extends RnObject {
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
-      this.__entities.filter((entity)=>{
+      this.__entities.filter((entity) => {
         const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
@@ -69,12 +75,28 @@ export default class RenderPass extends RnObject {
     return this.__meshComponents;
   }
 
+  setProcessApproach(approach: ProcessApproachEnum) {
+    this.__processApproach = approach;
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    this.__webglStrategy = webglModule.getRenderingStrategy(approach);
+  }
+
+  getWebglStrategy() {
+    return this.__webglStrategy;
+  }
+
+  getProcessApproach() {
+    return this.__processApproach;
+  }
+
   setFramebuffer(framebuffer: FrameBuffer) {
     this.__frameBuffer = framebuffer;
     this.setViewport(new Vector4(0, 0, framebuffer.width, framebuffer.height));
   }
 
-  getFramebuffer(): FrameBuffer|undefined {
+  getFramebuffer(): FrameBuffer | undefined {
     return this.__frameBuffer;
   }
 
