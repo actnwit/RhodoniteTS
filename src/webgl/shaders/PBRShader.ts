@@ -172,7 +172,7 @@ void main ()
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   float rot = u_iblParameter.w;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  normal_inWorld = rotEnvMatrix * normal_inWorld;
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
   if (abs(length(v_tangent_inWorld)) > 0.01) {
     vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
@@ -295,9 +295,10 @@ void main ()
   //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
-    vec3 reflection = reflect(-viewDirection, normal_inWorld);
+    vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+
     vec3 F = fresnel(F0, NV);
-    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness, F);
+    vec3 ibl = IBLContribution(normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
