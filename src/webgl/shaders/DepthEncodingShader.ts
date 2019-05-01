@@ -9,17 +9,17 @@ import CameraComponent from '../../foundation/components/CameraComponent';
 
 export type AttributeNames = Array<string>;
 
-export default class DepthEncodeToColorShader extends GLSLShader {
-  static __instance: DepthEncodeToColorShader;
+export default class DepthEncodingShader extends GLSLShader {
+  static __instance: DepthEncodingShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
   private constructor() {
     super();
   }
 
-  static getInstance(): DepthEncodeToColorShader {
+  static getInstance(): DepthEncodingShader {
     if (!this.__instance) {
-      this.__instance = new DepthEncodeToColorShader();
+      this.__instance = new DepthEncodingShader();
     }
     return this.__instance;
   }
@@ -31,27 +31,37 @@ export default class DepthEncodeToColorShader extends GLSLShader {
 
     return `
 ${_in} vec3 a_position;
-${_out} vec3 v_position_inLocal;
+${_out} vec4 v_position_inLocal;
 `;
   };
 
   vertexShaderBody: string = `
-  v_position_inLocal = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+  v_position_inLocal = u_projectionMatrix * u_viewMatrix * u_worldMatrix * vec4(a_position, 1.0);
   gl_Position = v_position_inLocal;
   `;
 
   get fragmentShaderSimple() {
     const _in = this.glsl_fragment_in;
 
-    const mainCameraComponentSID = CameraComponent.main;
-
     const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    const zNear = mainCameraComponent.zNearInner;
-    const zFar = mainCameraComponent.zFarInner;
+
+    let zNear: number | string = mainCameraComponent.zNearInner;
+    let zFar: number | string = mainCameraComponent.zFarInner;
+    let ZNearToFar: number | string = zFar - zNear;
+
+    if (Number.isInteger(zNear)) {
+      zNear = zNear + '.0';
+    }
+    if (Number.isInteger(zFar)) {
+      zFar = zFar + '.0';
+    }
+    if (Number.isInteger(ZNearToFar)) {
+      ZNearToFar = ZNearToFar + '.0';
+    }
 
     return `
 precision highp float;
-${_in} vec3 v_position_inLocal;
+${_in} vec4 v_position_inLocal;
 
 vec4 encodeDepthToRGBA(float depth){
   float r = depth;
@@ -69,7 +79,7 @@ void main ()
 {
   float near = ${zNear};
   float far  = ${zFar};
-  float linerDepth = 1.0 / ${zFar - zNear};
+  float linerDepth = 1.0 / ${ZNearToFar};
   linerDepth *= length(v_position_inLocal);
   vec4 encodedLinearDepth = encodeDepthToRGBA(linerDepth);
 
