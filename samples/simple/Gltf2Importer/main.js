@@ -206,7 +206,7 @@ function rotEnv(rot) {
     meshRendererComponent.rotationOfCubeMap = rot;
   }
   // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, rot, 0);
+  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, -rot, 0);
 }
 
 function setDiffuseCubeMapContribution(value) {
