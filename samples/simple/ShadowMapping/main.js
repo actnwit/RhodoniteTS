@@ -34,12 +34,12 @@
     // renderPassMain.toClearColorBuffer = true;
 
 
-    //Lights
-    const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent]);
-    const lightPosition = new Rn.Vector3(0.0, 0.0, 10.0);
+    //Light
+    // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent]);
+    const lightPosition = new Rn.Vector3(0.0, 0.0, 0.7);
 
-    lightEntity.getTransform().translate = lightPosition;
-    lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+    // lightEntity.getTransform().translate = lightPosition;
+    // lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
 
 
     //cameras
@@ -52,12 +52,44 @@
     renderPassFromLight.cameraComponent = cameraComponentFromLght;
     Rn.CameraComponent.main = cameraComponentMain.componentSID;
 
+    cameraComponentFromLght.parameters = new Rn.Vector4(0.1, 1000, 0, 1);
     // cameraEntityMain.getTransform().translate = new Rn.Vector3(0.0, 0.0, 0.0);
+    cameraEntityMain.getTransform().translate = lightPosition;
     cameraEntityFromLight.getTransform().translate = lightPosition;
 
 
-    //entities and components
+    //entities and components for depth shader
+
     const entities = [];
+    const entitySmallForDepth = generateEntity();
+    const entityLargeForDepth = generateEntity();
+    entities.push(entitySmallForDepth);
+    entities.push(entityLargeForDepth);
+
+    const meshComponentSmallForDepth = entitySmallForDepth.getComponent(Rn.MeshComponent);
+    const meshComponentLargeForDepth = entityLargeForDepth.getComponent(Rn.MeshComponent);
+
+    //primitives for depth shader
+
+    const primitiveSmallSquareForDepth = new Rn.Plane();
+    primitiveSmallSquareForDepth.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
+    primitiveSmallSquareForDepth.material = Rn.MaterialHelper.createDepthEncodingMaterial();
+    meshComponentSmallForDepth.addPrimitive(primitiveSmallSquareForDepth);
+    entitySmallForDepth.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    entitySmallForDepth.getTransform().translate = new Rn.Vector3(0, 0, -1.0);
+    entitySmallForDepth.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
+
+    const primitiveLargeSquareForDepth = new Rn.Plane();
+    primitiveLargeSquareForDepth.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
+    primitiveLargeSquareForDepth.material = Rn.MaterialHelper.createDepthEncodingMaterial();
+    meshComponentLargeForDepth.addPrimitive(primitiveLargeSquareForDepth);
+    entityLargeForDepth.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    entityLargeForDepth.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
+
+    renderPassFromLight.addEntities([entitySmallForDepth, entityLargeForDepth]);
+
+
+    //entities and components for shadow mapping
     const entitySmall = generateEntity();
     const entityLarge = generateEntity();
     entities.push(entitySmall);
@@ -67,23 +99,26 @@
     const meshComponentLarge = entityLarge.getComponent(Rn.MeshComponent);
 
 
-    //primitives
+    //primitives for shadow mapping
     const primitiveSmallSquare = new Rn.Plane();
     primitiveSmallSquare.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
-    primitiveSmallSquare.material = Rn.MaterialHelper.createDepthEncodingMaterial();
+    primitiveSmallSquare.material = Rn.MaterialHelper.createShadowMappingDepthEncodedMaterial(renderPassFromLight);
+    primitiveSmallSquare.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.5, 0.1, 0.4, 1));
+
     meshComponentSmall.addPrimitive(primitiveSmallSquare);
+    entitySmall.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
     entitySmall.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     entitySmall.getTransform().translate = new Rn.Vector3(0, 0, -1.0);
-    entitySmall.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
 
     const primitiveLargeSquare = new Rn.Plane();
     primitiveLargeSquare.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
-    primitiveLargeSquare.material = Rn.MaterialHelper.createDepthEncodingMaterial();
+    primitiveLargeSquare.material = Rn.MaterialHelper.createShadowMappingDepthEncodedMaterial(renderPassFromLight);
+    primitiveLargeSquare.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.1, 0.7, 0.5, 1));
+
     meshComponentLarge.addPrimitive(primitiveLargeSquare);
     entityLarge.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     entityLarge.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
 
-    renderPassFromLight.addEntities([entitySmall]);
     renderPassMain.addEntities([entitySmall, entityLarge]);
 
 
@@ -91,6 +126,7 @@
     const cameraControllerComponent = cameraEntityMain.getComponent(Rn.CameraControllerComponent);
     cameraControllerComponent.setTarget(entityLarge);
 
+    renderPassMain.cameraComponent.zFarInner = 10.0;
 
     const startTime = Date.now();
     let p = null;
