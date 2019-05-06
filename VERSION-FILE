@@ -1,6 +1,6 @@
-version: 0.1.1-449-gebe2-mod
-branch: feature/refactor-pbr
-d939d4e8420ed26e212bb836b318b9879acec563308f8f78503e727d26dae8dc ./dist/rhodonite.js
-b793b98ef4ae3b0ad84caffeba4a2c30447960af96f5c8a7fd51ca5656f7a268 ./dist/rhodonite.min.js
-6a3b7dfa61fb7524b112904529852747cd5e81bb0647ce6c76a046d5d0c46418 ./dist/rhodonite-webgl.js
-601753508a8be7723ecc6734ecce4e4a70ffb72e00941493c98c0cbf3246aeac ./dist/rhodonite-webgl.min.js
+version: 0.1.1-450-g9f372-mod
+branch: guncys/feature/ibl-hdr
+44908a5e8c01390dbcf09cded18ed084fde28a03b8bb1ac61f3a939ddf3e006c ./dist/rhodonite.js
+5326863d0f778303adec158d1910c22f5ab208b260dd0c2e2c68c699188f69f9 ./dist/rhodonite.min.js
+24f7a509d6d0f1bb56352abf6c9e399d5569ebd2c678a945c72f5b2f4a713717 ./dist/rhodonite-webgl.js
+2042f377d8cecf771b3e56115b7cb42905d14d992f7df614edb1b7759dc2259d ./dist/rhodonite-webgl.min.js
