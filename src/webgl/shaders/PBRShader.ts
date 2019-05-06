@@ -107,6 +107,14 @@ ${this.pointDistanceAttenuation}
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
 
+    let accessSpecularIBLTexture: string;
+    const repo = this.__webglResourceRepository!;
+    if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);`;
+    } else {
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);`;
+    }
+
     return `${_version}
 ${this.glsl1ShaderTextureLodExt}
 ${this.glsl1ShaderDerivativeExt}
@@ -155,6 +163,46 @@ ${_def_rt0}
 ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
+
+uniform ivec2 hdriFormat;
+vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+{
+  float mipCount = u_iblParameter.x;
+  float lod = (userRoughness * mipCount);
+
+  vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
+  vec3 diffuseLight;
+  if (hdriFormat.x == 4) { // LDR_SRGB
+    diffuseLight = srgbToLinear(diffuseTexel.rgb);
+  } else if (hdriFormat.x == 1) { // RGBE
+    diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+  } else {
+    diffuseLight = diffuseTexel.rgb;
+  }
+
+  ${accessSpecularIBLTexture}
+
+  vec3 specularLight;
+  if (hdriFormat.y == 4) { // LDR_SRGB
+    specularLight = srgbToLinear(specularTexel.rgb);
+  } else if (hdriFormat.y == 1) { // RGBE
+    specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+  } else {
+    specularLight = specularTexel.rgb;
+  }
+
+  vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
+  vec3 kD = 1.0 - kS;
+  vec3 diffuse = diffuseLight * albedo * kD;
+  vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
+
+  float IBLDiffuseContribution = u_iblParameter.y;
+  float IBLSpecularContribution = u_iblParameter.z;
+  diffuse *= IBLDiffuseContribution;
+  specular *= IBLSpecularContribution;
+  return diffuse + specular;
+}
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
