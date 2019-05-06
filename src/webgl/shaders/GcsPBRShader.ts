@@ -164,7 +164,7 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
-uniform ivec2 hdriFormat;
+uniform ivec2 u_hdriFormat;
 vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
   float mipCount = u_iblParameter.x;
@@ -173,9 +173,9 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
   vec3 diffuseLight;
-  if (hdriFormat.x == 4) { // LDR_SRGB
+  if (u_hdriFormat.x == 0) { // LDR_SRGB
     diffuseLight = srgbToLinear(diffuseTexel.rgb);
-  } else if (hdriFormat.x == 1) { // RGBE
+  } else if (u_hdriFormat.x == 3) { // RGBE
     diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
   } else {
     diffuseLight = diffuseTexel.rgb;
@@ -184,9 +184,9 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   ${accessSpecularIBLTexture}
 
   vec3 specularLight;
-  if (hdriFormat.y == 4) { // LDR_SRGB
+  if (u_hdriFormat.y == 0) { // LDR_SRGB
     specularLight = srgbToLinear(specularTexel.rgb);
-  } else if (hdriFormat.y == 1) { // RGBE
+  } else if (u_hdriFormat.y == 3) { // RGBE
     specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
   } else {
     specularLight = specularTexel.rgb;
