@@ -44,7 +44,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord_0;
 ${_out} vec4 v_texcoord_1;
-${_out} vec4 v_MVPposition_from_light;
+${_out} vec4 v_projPosition_from_light;
 
 uniform vec3 u_viewPosition;
 uniform mat4 u_lightViewMatrix;
@@ -94,8 +94,8 @@ ${this.pointDistanceAttenuation}
     0.5, 0.5, 0.0, 1.0
   );
 
-  v_MVPposition_from_light = u_lightProjectionMatrix * u_lightViewMatrix * v_position_inWorld;
-  v_texcoord_1 = tMatrix * v_MVPposition_from_light;
+  v_projPosition_from_light = u_lightProjectionMatrix * u_lightViewMatrix * v_position_inWorld;
+  v_texcoord_1 = tMatrix * v_projPosition_from_light;
   `;
 
   get fragmentShaderSimple() {
@@ -144,7 +144,7 @@ ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord_0;
 ${_in} vec4 v_texcoord_1;
-${_in} vec4 v_MVPposition_from_light;
+${_in} vec4 v_projPosition_from_light;
 ${_def_rt0}
 
 float decodeRGBAToDepth(vec4 RGBA){
@@ -185,10 +185,9 @@ void main ()
 
   // shadow mapping
   float shadow = decodeRGBAToDepth(${_textureProj}(u_depthTexture, v_texcoord_1));
-  if(v_MVPposition_from_light.w > 0.0){
+  if(v_projPosition_from_light.w > 0.0){
     float normalizationCoefficient = 1.0 / ${ZNearToFar};
-    vec3 vertexToLight = u_lightPositionForShadowMapping - v_position_inWorld.xyz;
-    float linerDepth = normalizationCoefficient * length(vertexToLight);
+    float linerDepth = normalizationCoefficient * length(v_projPosition_from_light);
 
     if(linerDepth > shadow + 0.0001){
       diffuseColor *= vec3(0.5, 0.5, 0.5);
