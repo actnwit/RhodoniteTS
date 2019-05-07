@@ -49,12 +49,6 @@ ${_out} vec4 v_position_inLocal;
     let zFar: number | string = mainCameraComponent.zFarInner;
     let ZNearToFar: number | string = zFar - zNear;
 
-    if (Number.isInteger(zNear)) {
-      zNear = zNear + '.0';
-    }
-    if (Number.isInteger(zFar)) {
-      zFar = zFar + '.0';
-    }
     if (Number.isInteger(ZNearToFar)) {
       ZNearToFar = ZNearToFar + '.0';
     }
@@ -77,10 +71,8 @@ vec4 encodeDepthToRGBA(float depth){
 
 void main ()
 {
-  float near = ${zNear};
-  float far  = ${zFar};
-  float linerDepth = 1.0 / ${ZNearToFar};
-  linerDepth *= length(v_position_inLocal);
+  float normalizationCoefficient = 1.0 / ${ZNearToFar};
+  float linerDepth = normalizationCoefficient * length(v_position_inLocal);
   vec4 encodedLinearDepth = encodeDepthToRGBA(linerDepth);
 
   gl_FragColor = encodedLinearDepth;

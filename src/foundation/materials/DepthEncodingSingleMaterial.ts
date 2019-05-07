@@ -38,12 +38,5 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
   }
 
   static async initDefaultTextures() {
-    // if (EnvConstantSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-    //   return;
-    // }
-    // const webglResourceRepository = WebGLResourceRepository.getInstance();
-    // EnvConstantSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    // EnvConstantSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    // EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
   }
 }
