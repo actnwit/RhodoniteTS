@@ -110,15 +110,9 @@ ${this.pointDistanceAttenuation}
     let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-<<<<<<< HEAD
       accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
     } else {
       accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
-=======
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);`;
-    } else {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);`;
->>>>>>> Switch to GcsPBRShader from PBRShader
     }
 
     return `${_version}
@@ -170,30 +164,18 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
-<<<<<<< HEAD
 uniform ivec2 u_hdriFormat;
-=======
-uniform ivec2 hdriFormat;
->>>>>>> Switch to GcsPBRShader from PBRShader
 vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
   float mipCount = u_iblParameter.x;
   float lod = (userRoughness * mipCount);
 
   vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
-<<<<<<< HEAD
   vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   if (u_hdriFormat.x == 0) { // LDR_SRGB
     diffuseLight = srgbToLinear(diffuseTexel.rgb);
   } else if (u_hdriFormat.x == 3) { // RGBE
-=======
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
-  vec3 diffuseLight;
-  if (hdriFormat.x == 4) { // LDR_SRGB
-    diffuseLight = srgbToLinear(diffuseTexel.rgb);
-  } else if (hdriFormat.x == 1) { // RGBE
->>>>>>> Switch to GcsPBRShader from PBRShader
     diffuseLight = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
   } else {
     diffuseLight = diffuseTexel.rgb;
@@ -202,15 +184,9 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   ${accessSpecularIBLTexture}
 
   vec3 specularLight;
-<<<<<<< HEAD
   if (u_hdriFormat.y == 0) { // LDR_SRGB
     specularLight = srgbToLinear(specularTexel.rgb);
   } else if (u_hdriFormat.y == 3) { // RGBE
-=======
-  if (hdriFormat.y == 4) { // LDR_SRGB
-    specularLight = srgbToLinear(specularTexel.rgb);
-  } else if (hdriFormat.y == 1) { // RGBE
->>>>>>> Switch to GcsPBRShader from PBRShader
     specularLight = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
   } else {
     specularLight = specularTexel.rgb;
@@ -242,11 +218,7 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-<<<<<<< HEAD
   float rot = u_iblParameter.w + 3.1415;
-=======
-  float rot = u_iblParameter.w;
->>>>>>> Switch to GcsPBRShader from PBRShader
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
