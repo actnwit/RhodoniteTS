@@ -109,7 +109,14 @@ void main ()
   }
 
   // diffuseColorTexture
-  vec4 textureColor = textureCube(u_colorEnvTexture, normalize(v_position_inLocal));
+
+  // adapt OpenGL (RenderMan) Cubemap convension
+  float rot = 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 envNormal = normalize(rotEnvMatrix * v_position_inLocal);
+  envNormal.x *= -1.0;
+
+  vec4 textureColor = textureCube(u_colorEnvTexture, envNormal);
   diffuseColor *= textureColor.rgb;
 
   rt0 = vec4(diffuseColor, alpha);
