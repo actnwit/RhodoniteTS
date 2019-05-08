@@ -56,5 +56,5 @@ function createShadowMapping32bitMaterial(renderPass: RenderPass) {
 
 export default Object.freeze({
   createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial,
-  createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMappingDepthEncodedMaterial: createShadowMapping32bitMaterial
+  createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMapping32bitMaterial
 });
