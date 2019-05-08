@@ -62,6 +62,9 @@ export default class CameraControllerComponent extends Component {
   private static returnVector3Center = MutableVector3.zero();
   private static returnVector3Up = MutableVector3.zero();
 
+  private __maximum_y?: number;
+  private __minimum_y?: number;
+
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
@@ -227,9 +230,21 @@ export default class CameraControllerComponent extends Component {
     ) {
       //       this._rot_y += this._rot_y - (this._verticalAngleThrethold - this._verticalAngleOfVectors);
     }
-
+    if(this.__maximum_y != null && this.__rot_y > this.__maximum_y){
+      this.__rot_y = this.__maximum_y
+    }
+    if(this.__minimum_y != null && this.__rot_y < this.__minimum_y){
+      this.__rot_y = this.__minimum_y
+    }
 //    this.updateCamera();
   };
+
+  set maximumY(maximum_y: number) {
+    this.__maximum_y = maximum_y;
+  }
+  set minimumY(minimum_y: number) {
+    this.__minimum_y = minimum_y;
+  }
 
   private __tryToPreventDefault(evt:Event) {
     if (this.__doPreventDefault) {
