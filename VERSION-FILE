@@ -1,6 +1,6 @@
-version: 0.1.1-475-g7965-mod
+version: 0.1.1-479-g6dda-mod
 branch: guncys/master
-de7014702cbdcea5116bfa82cdb25bfac42eac2bab9b06d19bedc920ce4e2ded ./dist/rhodonite.js
-2507df33dbe20de6083c0c6195f9983e104554610be56bb1fccd95a7b17ca582 ./dist/rhodonite.min.js
-7b2e35b0b7a8cc5c662097f618514b391b3c5ac9a7bcd1256d0614ff460901b7 ./dist/rhodonite-webgl.js
-2ba9a20f52eab15196ddbf8822c481c07557a06a2fd7dbed4219728c734235cc ./dist/rhodonite-webgl.min.js
+78f730c9482f77a21a79a8ea9085b17542511d49a3e7ef6fd48f2e9d0846fb6c ./dist/rhodonite.js
+ff6f6130d38971d903adc25403b243b66409e6859f705f9c11eace0ec660e07b ./dist/rhodonite.min.js
+292b0ce995a1d87ca888057dba5c5274fc88282edf4cfbee49a571b3f4f496ce ./dist/rhodonite-webgl.js
+ccb75fd73b67786ed8eb9f722b9c7a0b7ddc505db7da68d0ba997bece5da941a ./dist/rhodonite-webgl.min.js

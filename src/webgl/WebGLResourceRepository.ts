@@ -661,8 +661,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const loadImageToGPU = (image: DirectTextureData, cubemapSide: number, i: Index) => {
       if ((image as any).hdriFormat === HdriFormat.HDR) {
         gl.texImage2D(cubemapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
-      } else if ((image as any).hdriFormat === HdriFormat.RGBE_PNG) {
-        gl.texImage2D(cubemapSide, i, gl.RGBA, (image as any).width, (image as any).height, 0, gl.RGBA, gl.UNSIGNED_BYTE, (image as any).dataRGBE);
       } else
       if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
         gl.texImage2D(cubemapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -707,6 +705,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           let extension = '.jpg';
           if (hdriFormat === HdriFormat.HDR) {
             extension = '.hdr';
+          } else if (hdriFormat === HdriFormat.RGBE_PNG) {
+            extension = '.RGBE.PNG';
           }
 
           let posx = '_right_';
@@ -735,12 +735,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           for (var j = 0; j < faces.length; j++) {
             const face = faces[j][1];
             let image: any;
-            if (hdriFormat === HdriFormat.HDR || hdriFormat === HdriFormat.RGBE_PNG || hdriFormat === HdriFormat.RGB9_E5_PNG) {
+            if (hdriFormat === HdriFormat.HDR || hdriFormat === HdriFormat.RGB9_E5_PNG) {
               image = new HDRImage();
-              image.hdriFormat = hdriFormat;
             } else {
               image = new Image();
             }
+            image.hdriFormat = hdriFormat;
+
             (image as any).side = face;
             (image as any).uri = faces[j][0];
             image.crossOrigin = "Anonymous";
