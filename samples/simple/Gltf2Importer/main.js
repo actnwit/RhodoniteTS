@@ -70,13 +70,13 @@ const load = async function(time){
 //   const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+  // const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
 // const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
 //const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/gltf-asset-generator/Animation_Node/Animation_Node_05.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/polly/project_polly.glb');
-// const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
+const response = await importer.import('../../../assets/gltf/2.0/zoman_sf/scene.gltf');
 //  const response = await importer.import('../../../assets/gltf/2.0/env_test/EnvironmentTest.gltf');
 
   const modelConverter = Rn.ModelConverter.getInstance();
@@ -99,6 +99,7 @@ const load = async function(time){
   // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
   environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
@@ -114,7 +115,7 @@ const load = async function(time){
   // specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
   specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
-  // specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
   // diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
