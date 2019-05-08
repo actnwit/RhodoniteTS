@@ -268,9 +268,11 @@ void main ()
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord_0', 'a_joint', 'a_weight', 'a_instanceID', 'a_texcoord_1'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
   VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0,
-  VertexAttribute.Instance, VertexAttribute.Texcoord1,];
+  VertexAttribute.Instance, VertexAttribute.Texcoord1];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec3,
+    CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4,
+    CompositionType.Scalar, CompositionType.Vec2];
   }
 }

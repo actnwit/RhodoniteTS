@@ -104,13 +104,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           { semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true },
         ];
 
         if (primitive.primitiveMode.index === gl.POINTS) {
           args.push(
-            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true, initialValue: 30.0 },
+            { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true, initialValue: new Vector3(0.0, 0.1, 0.01) },
           );
         }
 
@@ -334,7 +334,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         mipmapLevelNumber = specularCube.mipmapLevelNumber;
       }
       const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap}, { force: force })
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap }, { force: force })
       let diffuseHdriType = HdriFormat.LDR_SRGB.index;
       let specularHdriType = HdriFormat.LDR_SRGB.index;
       if (meshRenderComponent.diffuseCubeMap) {
@@ -344,7 +344,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
       }
 
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType}, { force: force })
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType }, { force: force })
 
       // BRDF LUT
       updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { force: force });
@@ -362,12 +362,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (material) {
         material.setUniformValues(shaderProgramUid, force);
       }
-
-      // Point size
-      const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { force: force });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { force: force });
-
 
       if (primitive.indicesAccessor) {
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);

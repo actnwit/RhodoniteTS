@@ -33,6 +33,22 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
     DepthEncodingSingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
+      {
+        semantic: ShaderSemantics.PointSize,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 100.0
+      },
+      {
+        semantic: ShaderSemantics.PointDistanceAttenuation,
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        isPlural: false,
+        isSystem: false,
+        initialValue: new Vector3(0.0, 0.1, 0.01)
+      }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
