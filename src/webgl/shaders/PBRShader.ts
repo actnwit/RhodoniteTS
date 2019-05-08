@@ -110,9 +110,9 @@ ${this.pointDistanceAttenuation}
     let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
     } else {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
     }
 
     return `${_version}
@@ -164,14 +164,13 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
-uniform ivec2 hdriFormat;
 vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
   float mipCount = u_iblParameter.x;
   float lod = (userRoughness * mipCount);
 
   vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   diffuseLight = srgbToLinear(diffuseTexel.rgb);
 
@@ -206,7 +205,7 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-  float rot = u_iblParameter.w;
+  float rot = u_iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
