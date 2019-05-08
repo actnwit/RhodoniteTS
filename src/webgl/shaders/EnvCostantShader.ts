@@ -82,6 +82,10 @@ uniform int u_shadingModel;
 
 uniform vec3 u_viewPosition;
 
+vec3 linearToSrgb(vec3 linearColor) {
+  return pow(linearColor, vec3(1.0/2.2));
+}
+
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec3 v_position_inLocal;
@@ -111,6 +115,8 @@ void main ()
   // diffuseColorTexture
   vec4 textureColor = textureCube(u_colorEnvTexture, normalize(v_position_inLocal));
   diffuseColor *= textureColor.rgb;
+
+  diffuseColor = linearToSrgb(diffuseColor);
 
   rt0 = vec4(diffuseColor, alpha);
 
