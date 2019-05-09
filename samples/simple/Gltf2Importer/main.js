@@ -21,6 +21,7 @@ const load = async function(time){
   const expression = new Rn.Expression();
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
+  renderPass.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
   renderPass.cameraComponent = cameraComponent;
   const renderPassFxaa = new Rn.RenderPass();
   renderPassFxaa.toClearColorBuffer = true;
@@ -49,8 +50,10 @@ const load = async function(time){
 
 
   // Lights
-//  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-//  lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
+  // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  // lightEntity.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
+  // lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  //  lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
 //  lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
   // const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity2.getTransform().translate = new Rn.Vector3(1000.0, 0.0, 1.0);
@@ -99,6 +102,7 @@ const load = async function(time){
   // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
   environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
@@ -114,12 +118,12 @@ const load = async function(time){
   // specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
   specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
-  // specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
   specularCubeTexture.mipmapLevelNumber = 10;
   const diffuseCubeTexture = new Rn.CubeTexture();
   // diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
   diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/diffuse/diffuse';
-  // diffuseCubeTexture.hdriFormat = Rn.HdriFormat.HDR;
+  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
   diffuseCubeTexture.mipmapLevelNumber = 1;
   diffuseCubeTexture.isNamePosNeg = true;
   const componentRepository = Rn.ComponentRepository.getInstance();

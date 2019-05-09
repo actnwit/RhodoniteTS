@@ -1,0 +1,7 @@
+#?RADIANCE
+# Output from cmft.
+FORMAT=32-bit_rle_rgbe
+EXPOSURE=1
+
+-Y 8 +X 8
+ŒaIƒÅ‚]‚ù¡o–bE»g€a`€Ëª×[Uƒ€®}eƒ€V?ƒ£iF‚¾{QæŸ{€Ÿ{z€n€ur¶€±†rƒ‰_JƒºxP‚á‘[eJÏ¥¢€¦“Ä€˜™ø€‰kZƒØ{‚™hG‚ÊŠX‘lOè½¸€¼§ß€UW‹²‰m‚‹gM‚ÉdeEÔ¡{€±€š‰±€’”ã€Ú¤{©}Zù´~€µƒ\€‰fP€ä³°Ñµáhf–€ŠeHØ›m€¢rO€ó«z»†k›toŽw‘‰À¾‡^€–iG€æžk°xTŠ_Jæ¥˜~Ö¬Ã~ka
