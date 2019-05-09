@@ -298,6 +298,8 @@ export default class CameraComponent extends Component {
      this.cornerInner = this.corner;
      this.parametersInner = this.parameters;
    }
+
+   this.moveStageTo(ProcessStage.PreRender);
   }
 
   calcProjectionMatrix() {
@@ -393,6 +395,8 @@ export default class CameraComponent extends Component {
   $prerender() {
     this.calcProjectionMatrix();
     this.calcViewMatrix();
+
+    this.moveStageTo(ProcessStage.Logic);
   }
 
   get worldPosition(): Vector3 {
