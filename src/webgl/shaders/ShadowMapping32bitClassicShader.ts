@@ -47,7 +47,7 @@ ${_out} vec4 v_texcoord_1;
 ${_out} vec4 v_projPosition_from_light;
 
 uniform vec3 u_viewPosition;
-uniform mat4 u_lightViewMatrix;
+uniform mat4 u_lightViewProjectionMatrix;
 uniform mat4 u_lightProjectionMatrix;
 uniform sampler2D  u_depthTexture;
 ${this.toNormalMatrix}
@@ -94,7 +94,7 @@ ${this.pointDistanceAttenuation}
     0.5, 0.5, 0.0, 1.0
   );
 
-  v_projPosition_from_light = u_lightProjectionMatrix * u_lightViewMatrix * v_position_inWorld;
+  v_projPosition_from_light = u_lightViewProjectionMatrix * v_position_inWorld;
   v_texcoord_1 = tMatrix * v_projPosition_from_light;
   `;
 
@@ -136,7 +136,6 @@ uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 uniform vec3 u_viewPosition;
 
-uniform vec3 u_lightPositionForShadowMapping;
 uniform sampler2D u_depthTexture;
 
 ${_in} vec3 v_color;
