@@ -110,9 +110,9 @@ ${this.pointDistanceAttenuation}
     let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, mix(reflection, n, lod/(mipCount - 1.0)), lod);`;
     } else {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, n));`;
     }
 
     return `${_version}
@@ -165,13 +165,13 @@ ${this.pbrUniformDefinition}
 ${this.pbrMethodDefinition}
 
 uniform ivec2 u_hdriFormat;
-vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
 {
   float mipCount = u_iblParameter.x;
-  float lod = (userRoughness * mipCount);
+  float lod = (userRoughness * (mipCount - 1.0));
 
   vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, n);
   vec3 diffuseLight;
   if (u_hdriFormat.x == 0) { // LDR_SRGB
     diffuseLight = srgbToLinear(diffuseTexel.rgb);
@@ -221,6 +221,7 @@ void main ()
   float rot = u_iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
+  normal_forEnv.x *= -1.0;
 
   if (abs(length(v_tangent_inWorld)) > 0.01) {
     vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
@@ -285,9 +286,12 @@ void main ()
 
   // ViewDirection
   vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+  vec3 env_viewDirection = rotEnvMatrix * normalize(u_viewPosition - v_position_inWorld.xyz);
+  env_viewDirection.x *= -1.0;
 
   // NV
   float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
+  float env_NV = clamp(abs(dot(normal_forEnv, env_viewDirection)), 0.0, 1.0);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
@@ -343,10 +347,9 @@ void main ()
   //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
-    vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+    vec3 reflection = reflect(-env_viewDirection, normal_forEnv);
 
-    vec3 F = fresnel(F0, NV);
-    vec3 ibl = IBLContribution(normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
+    vec3 ibl = IBLContribution(normal_forEnv, env_NV, reflection, albedo, F0, userRoughness);
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
