@@ -46,7 +46,7 @@ export default class CameraComponent extends Component {
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
   public static main: ComponentSID = -1;
-  private static invertedMatrix44 = new MutableRowMajarMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static invertedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
@@ -291,15 +291,15 @@ export default class CameraComponent extends Component {
 
   $logic() {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
-   if (cameraControllerComponent == null) {
-     this.eyeInner = this.eye;
-     this.directionInner = this.direction;
-     this.upInner = this.up;
-     this.cornerInner = this.corner;
-     this.parametersInner = this.parameters;
-   }
+    if (cameraControllerComponent == null) {
+      this.eyeInner = this.eye;
+      this.directionInner = this.direction;
+      this.upInner = this.up;
+      this.cornerInner = this.corner;
+      this.parametersInner = this.parameters;
+    }
 
-   this.moveStageTo(ProcessStage.PreRender);
+    this.moveStageTo(ProcessStage.PreRender);
   }
 
   calcProjectionMatrix() {
@@ -314,15 +314,15 @@ export default class CameraComponent extends Component {
       this._projectionMatrix.setComponents(
         xscale, 0, 0, 0,
         0, yscale, 0, 0,
-        0, 0,  -(zFar + zNear) / (zFar - zNear), -(2.0 * zFar * zNear) / (zFar - zNear),
+        0, 0, -(zFar + zNear) / (zFar - zNear), -(2.0 * zFar * zNear) / (zFar - zNear),
         0, 0, -1, 0);
     } else if (this.type === CameraType.Orthographic) {
       const xmag = this._parametersInner.z;
       const ymag = this._parametersInner.w;
       this._projectionMatrix.setComponents(
-        1/xmag, 0.0, 0.0, 0,
-        0.0, 1/ymag, 0.0, 0,
-        0.0, 0.0, -2/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
+        1 / xmag, 0.0, 0.0, 0,
+        0.0, 1 / ymag, 0.0, 0,
+        0.0, 0.0, -2 / (zFar - zNear), -(zFar + zNear) / (zFar - zNear),
         0.0, 0.0, 0.0, 1.0
       );
     } else {
@@ -331,9 +331,9 @@ export default class CameraComponent extends Component {
       const top = this._cornerInner.z;
       const bottom = this._cornerInner.w;
       this._projectionMatrix.setComponents(
-        2*zNear/(right-left), 0.0, (right+left)/(right-left), 0.0,
-        0.0, 2*zNear/(top-bottom), (top+bottom)/(top-bottom), 0.0,
-        0.0, 0.0, - (zFar+zNear)/(zFar-zNear), -1*2*zFar*zNear/(zFar-zNear),
+        2 * zNear / (right - left), 0.0, (right + left) / (right - left), 0.0,
+        0.0, 2 * zNear / (top - bottom), (top + bottom) / (top - bottom), 0.0,
+        0.0, 0.0, - (zFar + zNear) / (zFar - zNear), -1 * 2 * zFar * zNear / (zFar - zNear),
         0.0, 0.0, -1.0, 0.0
       );
     }
@@ -380,7 +380,11 @@ export default class CameraComponent extends Component {
     return this._viewMatrix;
   }
 
-  $create({strategy}: {
+  get viewProjectionMatrix() {
+    return Matrix44.multiply(this._projectionMatrix, this._viewMatrix);
+  }
+
+  $create({ strategy }: {
     strategy: WebGLStrategy
   }) {
     if (this.__sceneGraphComponent != null) {
