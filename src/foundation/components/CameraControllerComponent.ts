@@ -58,6 +58,10 @@ export default class CameraControllerComponent extends Component {
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = false;
 
+  private __pinchInOutInitDistance? = null;
+  private __pinchInOutFinalDistance? = null;
+  private __pinchInOutStarted = false
+
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
   private static returnVector3Up = MutableVector3.zero();
@@ -292,12 +296,76 @@ export default class CameraControllerComponent extends Component {
     return this.__wheel_y;
   }
 
+  private getDistance (event){
+    const touches = event.changedTouches ;
+
+    const x1 = touches[0].pageX
+    const y1 = touches[0].pageY
+    const x2 = touches[1].pageX
+    const y2 = touches[1].pageY
+
+    return Math.sqrt(Math.pow(x2 - x1 , 2) + Math.pow(y2 - y1 , 2))
+  }
+
+  __pinchInOutStart(event){
+    this.__pinchInOutStarted = true
+  }
+
+
+  d = []
+  __pinchInOut(event){
+    const touches = event.changedTouches ;
+    if (!this.__pinchInOutStarted || touches.length < 2 ) {
+      return 
+    }
+    if(!this.__pinchInOutInitDistance){
+        this.__pinchInOutInitDistance  = this.getDistance(event)
+    }
+
+    this.d.push(this.getDistance(event))
+    this.__pinchInOutFinalDistance = this.getDistance(event)
+  }
+
+  __pinchInOutEnd(event){
+    if(!this.__pinchInOutFinalDistance || !this.__pinchInOutInitDistance ){
+      return
+    }
+    if(this.d.length == 0){
+      return
+    }
+    const pinchInOutFinalDistance = this.__pinchInOutFinalDistance 
+    const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
+    
+    let max = 0
+    let min = 1000000000000000000000000
+    let maxIndex = 0
+    let minIndex = 0
+    this.d.forEach((d , i)=>{
+        if(d < min){
+            min = d
+            minIndex = i
+        }
+        if(d > max){
+            max = d
+            maxIndex = i
+        }
+    })
+    const ratio = minIndex > maxIndex ? min / max : max / min
+
+    this.dolly *= 1 / ratio
+    this.d = []
+  }
+
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
         eventTargetDom.addEventListener("touchstart", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
+
+        eventTargetDom.addEventListener("touchstart" , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchmove"  , this.__pinchInOut.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend"   , this.__pinchInOutEnd.bind(this), {passive: !this.__doPreventDefault});
       }
       if ("onmouseup" in document) {
         eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
@@ -308,6 +376,7 @@ export default class CameraControllerComponent extends Component {
       if (window.WheelEvent) {
         eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this), {passive: !this.__doPreventDefault});
       }
+
       eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), {passive: !this.__doPreventDefault});
       eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this), {passive: !this.__doPreventDefault});
     }
