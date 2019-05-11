@@ -22,6 +22,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import FXAA3QualityShader from "../../webgl/shaders/FXAA3Quality";
 import FurnaceTestShader from "../../webgl/shaders/FurnaceTest";
+import PbrShadingMaterialNode from "./PbrShadingMaterialNode";
 
 export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -41,6 +42,29 @@ export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode 
         isPlural: false,
         isSystem: false,
         initialValue: new Vector2(0, 0)
+      },
+      {
+        semantic: ShaderSemantics.MetallicRoughnessFactor,
+        compositionType: CompositionType.Vec2,
+        componentType: ComponentType.Float,
+        isPlural: false,
+        isSystem: false,
+        initialValue: new Vector2(1, 1)
+      },
+      {
+        semantic: ShaderSemantics.MetallicRoughnessTexture,
+        compositionType: CompositionType.Texture2D,
+        componentType: ComponentType.Int, isPlural: false,
+        isSystem: false,
+        initialValue: [1, FurnaceTestSingleMaterialNode.__dummyWhiteTextureUid]
+      },
+      {
+        semanticStr: 'mode',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Int,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 0
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
