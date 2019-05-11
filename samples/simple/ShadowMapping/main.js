@@ -6,12 +6,6 @@
     const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
-  function generateGroupEntity() {
-    const repo = Rn.EntityRepository.getInstance();
-    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent]);
-    //    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-    return entity;
-  }
 
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
@@ -20,7 +14,6 @@
     const system = Rn.System.getInstance();
     const entityRepository = Rn.EntityRepository.getInstance();
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
-
 
     //render passes
     const expression = new Rn.Expression();
