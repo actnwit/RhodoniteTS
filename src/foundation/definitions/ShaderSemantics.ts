@@ -59,16 +59,14 @@ const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const HDRIFormat: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 36, singularStr: 'hdriFormat', pluralStr: 'hdriFormats' });
 const ScreenInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 37, singularStr: 'screenInfo', pluralStr: 'screenInfos' });
 const DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 38, singularStr: 'depthTexture', pluralStr: 'depthTexture' });
-const LightViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 39, singularStr: 'lightViewMatrix', pluralStr: 'lightViewMatrix' });
-const LightProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 40, singularStr: 'lightProjectionMatrix', pluralStr: 'lightProjectionMatrix' });
-const LightPositionForShadowMapping: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 41, singularStr: 'lightPositionForShadowMapping', pluralStr: 'lightPositionForShadowMapping' });
+const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 39, singularStr: 'lightViewProjectionMatrix', pluralStr: 'lightViewProjectionMatrix' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
-  ScreenInfo, DepthTexture, LightViewMatrix, LightProjectionMatrix, LightPositionForShadowMapping];
+  ScreenInfo, DepthTexture, LightViewProjectionMatrix];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -89,5 +87,5 @@ export const ShaderSemantics = Object.freeze({
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, ColorEnvTexture, PointDistanceAttenuation,
-  HDRIFormat, ScreenInfo, DepthTexture, LightViewMatrix, LightProjectionMatrix, LightPositionForShadowMapping
+  HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix
 });

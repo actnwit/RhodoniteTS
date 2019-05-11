@@ -14,6 +14,7 @@ import Vector3 from "../math/Vector3";
 import { ShadingModel } from "../definitions/ShadingModel";
 import ShadowMapping32bitClassicShader from "../../webgl/shaders/ShadowMapping32bitClassicShader";
 import RenderPass from "../renderer/RenderPass";
+import Matrix44 from "../math/Matrix44";
 
 export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -144,28 +145,12 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
     if (cameraComponent) {
       shaderSemanticsInfoArray.push(
         {
-          semantic: ShaderSemantics.LightViewMatrix,
+          semantic: ShaderSemantics.LightViewProjectionMatrix,
           compositionType: CompositionType.Mat4,
           componentType: ComponentType.Float,
           isPlural: false,
           isSystem: true,
-          initialValue: cameraComponent.viewMatrix
-        },
-        {
-          semantic: ShaderSemantics.LightProjectionMatrix,
-          compositionType: CompositionType.Mat4,
-          componentType: ComponentType.Float,
-          isPlural: false,
-          isSystem: true,
-          initialValue: cameraComponent.projectionMatrix
-        },
-        {
-          semantic: ShaderSemantics.LightPositionForShadowMapping,
-          compositionType: CompositionType.Vec3,
-          componentType: ComponentType.Float,
-          isPlural: false,
-          isSystem: true,
-          initialValue: cameraComponent.worldPosition.clone()
+          initialValue: new Matrix44(null)
         }
       );
     }
