@@ -15,7 +15,7 @@ const load = async function(time){
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   cameraComponent.type = Rn.CameraType.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 10000, 1, 1);
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 2.0);
 
   //const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
@@ -46,15 +46,17 @@ const load = async function(time){
 
   // Plane
   const planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-  const planePrimitive = new Rn.Plane();
   const planeMaterial = Rn.MaterialHelper.createFurnaceTestMaterial();
   planeMaterial.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(512, 512));
   planeMaterial.setParameter('mode', 1);
 
-  planePrimitive.generate({width:2, height:2, uSpan:1, vSpan:1, material: planeMaterial});
+  // const planePrimitive = new Rn.Plane();
+  // planePrimitive.generate({width:2, height:2, uSpan:1, vSpan:1, material: planeMaterial});
+  const planePrimitive = new Rn.Sphere();
+  planePrimitive.generate({radius:1, widthSegments:100, heightSegments:100, material: planeMaterial});
   const planeComponent = planeEntity.getComponent(Rn.MeshComponent);
   planeComponent.addPrimitive(planePrimitive);
-  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  // planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
 
   // CameraComponent
   // const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);

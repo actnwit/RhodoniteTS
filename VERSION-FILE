@@ -1,6 +1,6 @@
-version: 0.1.1-489-g90c5-mod
+version: 0.1.1-526-g42ae-mod
 branch: guncys/feature/furnace-test
-5c9c820bc27ad46193b155e886b4d0cb58afee42415da4645da098c6a64e1aec ./dist/rhodonite.js
-9b3e4d6c5c2970249bdc3c35325a6a185ac7aab3f43ccddfdb62484eff7db4df ./dist/rhodonite.min.js
-276ec373916d4d1e49fefa0a4e35cb49ee8a6ac2edf137aa17234fe2708f476d ./dist/rhodonite-webgl.js
-c8d37e5f6051b765125e0394942a094d09a4327db64e1af2420b111a6c84d9fa ./dist/rhodonite-webgl.min.js
+d5d95a150d8913edc7fcfb7061eb6e6f856b946f1da496523bf58d7ef755751f ./dist/rhodonite.js
+7fe89d973ff9962203dea636413d05e6bd3399186fde82074a94d57a2a6dcd19 ./dist/rhodonite.min.js
+98fa8048977ef5bc3d7b63423a465f9e6eeb400f92341472720aa75a64f6e841 ./dist/rhodonite-webgl.js
+3d3468aa1921f5347b7c53658c74e29183084d9407bdba709b2b3112f4437e7c ./dist/rhodonite-webgl.min.js

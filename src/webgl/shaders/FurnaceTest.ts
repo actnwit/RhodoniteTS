@@ -245,18 +245,21 @@ void main ()
     userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
     roughness = userRoughness;
 
-    vec3 viewVector = normalize(u_viewPosition - v_position_inWorld.xyz);
-    float NoV = dot(v_normal_inWorld, viewVector);
+    // vec3 viewVector = normalize(vec3(0.0, 0.0, 10.0) - v_position_inWorld.xyz);
+    // vec3 viewVector = normalize(u_viewPosition - v_position_inWorld.xyz);
+    vec3 viewVector = vec3(0.0, 0.0, 1.0);
+    NoV = dot(v_normal_inWorld, viewVector);
   }
 
   float whiteFurnaceResult = whiteFurnaceTest(roughness, NoV);
   float weakWhiteFurnaceResult = weakWhiteFurnaceTest(roughness, NoV);
 
   // rt0 = vec4(whiteFurnaceResult, weakWhiteFurnaceResult, 0.0, 1.0);
-  rt0 = vec4(whiteFurnaceResult, whiteFurnaceResult, whiteFurnaceResult, 1.0);
-  // rt0 = vec4(weakWhiteFurnaceResult, weakWhiteFurnaceResult, weakWhiteFurnaceResult, 1.0);
-  // rt0 = vec4(roughness, NoV, 0.0, 1.0);
-
+  // rt0 = vec4(whiteFurnaceResult, whiteFurnaceResult, whiteFurnaceResult, 1.0);
+  rt0 = vec4(weakWhiteFurnaceResult, weakWhiteFurnaceResult, weakWhiteFurnaceResult, 1.0);
+  // float nn = NoV*0.5+0.5;
+  // rt0 = vec4(nn, nn, nn, 1.0);
+  // rt0 = vec4(v_normal_inWorld.xyz, 1.0);
   // rt0 = vec4(1.0, 1.0, 1.0, 1.0);
   ${_def_fragColor}
 }
@@ -271,10 +274,10 @@ void main ()
     return this.fragmentShaderSimple;
   }
 
-  attributeNames: AttributeNames = ['a_position'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position];
+  attributeNames: AttributeNames = ['a_position', 'a_normal'];
+  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Normal];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3];
+    return [CompositionType.Vec3, CompositionType.Vec3];
   }
 }
