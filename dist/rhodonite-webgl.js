@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-484-gf5ee-mod branch: guncys/feature/improve-specular-ibl';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-486-gd038-mod branch: guncys/feature/furnace-test';

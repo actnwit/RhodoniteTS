@@ -3,6 +3,7 @@ import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
 import ClassicShadingSingleMaterialNode from "../materials/ClassicShadingSingleMaterialNode";
 import EnvConstantSingleMaterialNode from "../materials/EnvConstantSingleMaterial";
 import FXAA3QualitySingleMaterialNode from "../materials/FXAA3QualitySingleMaterialNode";
+import FurnaceTestSingleMaterialNode from "../materials/FurnaceTestSingleNode";
 
 function createPbrUberMaterial() {
   const materialNode = new PbrShadingMaterialNode;
@@ -36,4 +37,13 @@ function createFXAA3QualityMaterial() {
   return material;
 }
 
-export default Object.freeze({createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial});
+function createFurnaceTestMaterial() {
+  const materialNode = new FurnaceTestSingleMaterialNode;
+  materialNode.isSingleOperation = true;
+  const material = new Material([materialNode]);
+
+  return material;
+}
+
+export default Object.freeze({createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial,
+  createFXAA3QualityMaterial, createFurnaceTestMaterial});
