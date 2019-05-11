@@ -49,6 +49,8 @@ const load = async function(time){
   const planePrimitive = new Rn.Plane();
   const planeMaterial = Rn.MaterialHelper.createFurnaceTestMaterial();
   planeMaterial.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(512, 512));
+  planeMaterial.setParameter('mode', 1);
+
   planePrimitive.generate({width:2, height:2, uSpan:1, vSpan:1, material: planeMaterial});
   const planeComponent = planeEntity.getComponent(Rn.MeshComponent);
   planeComponent.addPrimitive(planePrimitive);

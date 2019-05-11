@@ -36,12 +36,10 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
-${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
-uniform vec3 u_viewPosition;
 ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
@@ -61,22 +59,11 @@ ${this.pointDistanceAttenuation}
   mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
   mat3 normalMatrix = getNormalMatrix(a_instanceID);
 
-  // Skeletal
-  bool isSkinning;
-  skinning(isSkinning, normalMatrix, normalMatrix);
-
-  v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
-  vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
-  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
-  float maxPointSize = getPointSize(a_instanceID);
-  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
-
-//  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
+  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+  v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
   `;
 
   get fragmentShaderSimple() {
@@ -91,7 +78,6 @@ precision highp float;
 
 uniform vec2 u_screenInfo;
 
-${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
@@ -231,12 +217,37 @@ float whiteFurnaceTest(float roughness, float NoV)
 	return clamp(integral, 0.0, 1.0);
 }
 
+uniform vec3 u_viewPosition;
+uniform int u_mode;
+uniform vec2 u_metallicRoughnessFactor;
+uniform sampler2D u_metallicRoughnessTexture;
+
 void main ()
 {
 
   vec2 quadSizeInPixel = u_screenInfo;
   float roughness = (gl_FragCoord.y) / quadSizeInPixel.y;
   float NoV = (gl_FragCoord.x) / quadSizeInPixel.x;
+
+  // 2D mode
+  if (u_mode == 0) {
+    roughness = (gl_FragCoord.y) / quadSizeInPixel.y;
+    NoV = (gl_FragCoord.x) / quadSizeInPixel.x;
+  } else {
+    // object mode
+    // Roughness
+    const float c_MinRoughness = 0.04;
+    float userRoughness = u_metallicRoughnessFactor.y;
+    float metallic = u_metallicRoughnessFactor.x;
+
+    vec4 ormTexel = texture2D(u_metallicRoughnessTexture, v_texcoord);
+    userRoughness = ormTexel.g * userRoughness;
+    userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
+    roughness = userRoughness;
+
+    vec3 viewVector = normalize(u_viewPosition - v_position_inWorld.xyz);
+    float NoV = dot(v_normal_inWorld, viewVector);
+  }
 
   float whiteFurnaceResult = whiteFurnaceTest(roughness, NoV);
   float weakWhiteFurnaceResult = weakWhiteFurnaceTest(roughness, NoV);
