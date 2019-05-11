@@ -73,4 +73,4 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 /***/ })
 
 }]);
-(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-526-g42ae-mod branch: guncys/feature/furnace-test';
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-527-g5697-mod branch: guncys/feature/furnace-test';

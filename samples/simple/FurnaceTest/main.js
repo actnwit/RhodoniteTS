@@ -17,6 +17,8 @@ const load = async function(time){
   cameraComponent.parameters = new Rn.Vector4(0.1, 10000, 1, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 2.0);
 
+  
+
   //const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
@@ -44,23 +46,31 @@ const load = async function(time){
 
 
 
-  // Plane
+  // 3D Model
+  const modelMaterial = Rn.MaterialHelper.createFurnaceTestMaterial();
+  modelMaterial.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(512, 512));
+  window.modelMaterial = modelMaterial;
+
   const planeEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
-  const planeMaterial = Rn.MaterialHelper.createFurnaceTestMaterial();
-  planeMaterial.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(512, 512));
-  planeMaterial.setParameter('mode', 1);
+  const planePrimitive = new Rn.Plane();
+  planePrimitive.generate({width:2, height:2, uSpan:1, vSpan:1, material: modelMaterial});
+  const planeMeshComponent = planeEntity.getComponent(Rn.MeshComponent);
+  planeMeshComponent.addPrimitive(planePrimitive);
+  planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  window.planeEntity = planeEntity;
 
-  // const planePrimitive = new Rn.Plane();
-  // planePrimitive.generate({width:2, height:2, uSpan:1, vSpan:1, material: planeMaterial});
-  const planePrimitive = new Rn.Sphere();
-  planePrimitive.generate({radius:1, widthSegments:100, heightSegments:100, material: planeMaterial});
-  const planeComponent = planeEntity.getComponent(Rn.MeshComponent);
-  planeComponent.addPrimitive(planePrimitive);
-  // planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+  const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const spherePrimitive = new Rn.Sphere();
+  spherePrimitive.generate({radius:1, widthSegments:100, heightSegments:100, material: modelMaterial});
+  const sphereComponent = sphereEntity.getComponent(Rn.MeshComponent);
+  sphereComponent.addPrimitive(spherePrimitive);
+  window.sphereEntity = sphereEntity;
 
+  // At first , it's mode 0
+  window.sphereEntity.getComponent(Rn.MeshRendererComponent).isVisible = false;
   // CameraComponent
   // const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  // cameraControllerComponent.setTarget(planeEntity);
+  // cameraControllerComponent.setTarget(modelEntity);
   // cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 1000;
 
 
@@ -74,7 +84,7 @@ const load = async function(time){
       // if (response != null) {
 
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, 512, 512);
+        gl.viewport(0, 0, 256, 256);
         gl.clearColor(0.8, 0.8, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //  }
@@ -119,22 +129,21 @@ function exportGltf2() {
   exporter.export('Rhodonite');
 }
 
-function rotEnv(rot) {
-  for (let meshRendererComponent of window.meshRendererComponents) {
-    meshRendererComponent.rotationOfCubeMap = rot;
-  }
-  // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, -rot, 0);
+function setRoughness(value) {
+  window.modelMaterial.setParameter(Rn.ShaderSemantics.MetallicRoughnessFactor, new Rn.Vector2(1, value));
 }
 
-function setDiffuseCubeMapContribution(value) {
-  for (let meshRendererComponent of window.meshRendererComponents) {
-    meshRendererComponent.diffuseCubeMapContribution = value;
-  }
+function setDebugView(value) {
+  window.modelMaterial.setParameter('debugView', value);
 }
 
-function setSpecularCubeMapContribution(value) {
-  for (let meshRendererComponent of window.meshRendererComponents) {
-    meshRendererComponent.specularCubeMapContribution = value;
+function setMode(value) {
+  window.modelMaterial.setParameter('mode', value);
+  if (value === 0) {
+    window.planeEntity.getComponent(Rn.MeshRendererComponent).isVisible = true;
+    window.sphereEntity.getComponent(Rn.MeshRendererComponent).isVisible = false;
+  } else {
+    window.planeEntity.getComponent(Rn.MeshRendererComponent).isVisible = false;
+    window.sphereEntity.getComponent(Rn.MeshRendererComponent).isVisible = true;
   }
 }

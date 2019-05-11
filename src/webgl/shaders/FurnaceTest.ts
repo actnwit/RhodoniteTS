@@ -219,6 +219,7 @@ float whiteFurnaceTest(float roughness, float NoV)
 
 uniform vec3 u_viewPosition;
 uniform int u_mode;
+uniform int u_debugView;
 uniform vec2 u_metallicRoughnessFactor;
 uniform sampler2D u_metallicRoughnessTexture;
 
@@ -226,8 +227,8 @@ void main ()
 {
 
   vec2 quadSizeInPixel = u_screenInfo;
-  float roughness = (gl_FragCoord.y) / quadSizeInPixel.y;
-  float NoV = (gl_FragCoord.x) / quadSizeInPixel.x;
+  float roughness = 0.0;
+  float NoV = 0.0;
 
   // 2D mode
   if (u_mode == 0) {
@@ -251,14 +252,17 @@ void main ()
     NoV = dot(v_normal_inWorld, viewVector);
   }
 
-  float whiteFurnaceResult = whiteFurnaceTest(roughness, NoV);
-  float weakWhiteFurnaceResult = weakWhiteFurnaceTest(roughness, NoV);
-
+  if (u_debugView == 0) {
+    float whiteFurnaceResult = whiteFurnaceTest(roughness, NoV);
+    rt0 = vec4(whiteFurnaceResult, whiteFurnaceResult, whiteFurnaceResult, 1.0);
+  } else if (u_debugView == 1) {
+    float weakWhiteFurnaceResult = weakWhiteFurnaceTest(roughness, NoV);
+    rt0 = vec4(weakWhiteFurnaceResult, weakWhiteFurnaceResult, weakWhiteFurnaceResult, 1.0);
+  } else {
+    float nn = NoV*0.5+0.5;
+    rt0 = vec4(nn, nn, nn, 1.0);
+  }
   // rt0 = vec4(whiteFurnaceResult, weakWhiteFurnaceResult, 0.0, 1.0);
-  // rt0 = vec4(whiteFurnaceResult, whiteFurnaceResult, whiteFurnaceResult, 1.0);
-  rt0 = vec4(weakWhiteFurnaceResult, weakWhiteFurnaceResult, weakWhiteFurnaceResult, 1.0);
-  // float nn = NoV*0.5+0.5;
-  // rt0 = vec4(nn, nn, nn, 1.0);
   // rt0 = vec4(v_normal_inWorld.xyz, 1.0);
   // rt0 = vec4(1.0, 1.0, 1.0, 1.0);
   ${_def_fragColor}

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>Gltf2Importer</title>
+  <title>Furnace Test</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -18,12 +18,12 @@
 </head>
 <body>
   <header>
-    <h1 class="header-title">Rhodonite E2E Test - Gltf2Importer</h1>
+    <h1 class="header-title">Rhodonite E2E Test - Furnace Test</h1>
   </header>
   <main>
     <section class="test">
       <h2>Rendering Test Image</h2>
-      <canvas id="world" width="512" height="512"></canvas>
+      <canvas id="world" width="256" height="256"></canvas>
       <div>
         <button onclick="window.isAnimating = true;">Animate</button>
         <button onclick="exportGltf2();">Export as glTF2</button>
@@ -38,7 +38,6 @@
   <script src="../../../dist/vendor/draco_decoder.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
-  <script src="../../../dist/vendor/hdrpng.js"></script>
   <script src="../../../dist/rhodonite.js"></script>
   <script src="main.js"></script>
 </body>
