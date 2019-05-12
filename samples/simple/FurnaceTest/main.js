@@ -7,7 +7,7 @@ const load = async function(time){
   const importer = Rn.Gltf2Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
-
+  window.gl = gl;
   const entityRepository = Rn.EntityRepository.getInstance();
 
   // Camera
@@ -17,7 +17,7 @@ const load = async function(time){
   cameraComponent.parameters = new Rn.Vector4(0.1, 10000, 1, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 2.0);
 
-  
+
 
   //const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
@@ -73,7 +73,7 @@ const load = async function(time){
   // cameraControllerComponent.setTarget(modelEntity);
   // cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 1000;
 
-
+  // window.clearColor = new Rn.Vector4(1.0, 1.0, 1.0, 1.0);
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   let count = 0;
@@ -84,9 +84,9 @@ const load = async function(time){
       // if (response != null) {
 
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, 256, 256);
-        gl.clearColor(0.8, 0.8, 0.8, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //gl.viewport(0, 0, 256, 256);
+        // gl.clearColor(window.clearColor.x, window.clearColor.y, window.clearColor.z, window.clearColor.w);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //  }
 
       p = document.createElement('p');
@@ -116,9 +116,9 @@ const load = async function(time){
     system.process();
     count++;
 
-    requestAnimationFrame(draw);
+    // requestAnimationFrame(draw);
   }
-
+  window.draw = draw;
   draw();
 }
 
@@ -131,10 +131,34 @@ function exportGltf2() {
 
 function setRoughness(value) {
   window.modelMaterial.setParameter(Rn.ShaderSemantics.MetallicRoughnessFactor, new Rn.Vector2(1, value));
+  window.draw();
 }
 
 function setDebugView(value) {
   window.modelMaterial.setParameter('debugView', value);
+  window.draw();
+}
+
+function setGtype(value) {
+  window.modelMaterial.setParameter('g_type', value);
+  window.draw();
+}
+
+function setF0(value) {
+  window.modelMaterial.setParameter('f0', value);
+  window.draw();
+}
+
+function setDisableFresnel(value) {
+  window.modelMaterial.setParameter('disable_fresnel', value);
+  window.draw();
+}
+
+
+function setClearColor(x, y, z) {
+  window.clearColor = new Rn.Vector4(x,y,z,1);
+  window.gl.clearColor(window.clearColor.x, window.clearColor.y, window.clearColor.z, window.clearColor.w);
+  window.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 function setMode(value) {
@@ -146,4 +170,5 @@ function setMode(value) {
     window.planeEntity.getComponent(Rn.MeshRendererComponent).isVisible = false;
     window.sphereEntity.getComponent(Rn.MeshRendererComponent).isVisible = true;
   }
+  window.draw();
 }

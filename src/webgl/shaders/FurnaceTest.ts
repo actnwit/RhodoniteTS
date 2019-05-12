@@ -83,11 +83,35 @@ ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 
+uniform int u_g_type;
+uniform int u_disable_fresnel;
+uniform float u_f0;
+uniform sampler2D u_brdfLutTexture;
+
 #define MATH_PI 3.141592
 
 // These codes are referenced from https://github.com/knarkowicz/FurnaceTest
 float roughnessRemap(float userRoughness) {
   return userRoughness * userRoughness;
+}
+
+// GGX NDF
+float d_ggx(float userRoughness, float NH) {
+  float alphaRoughness = userRoughness * userRoughness;
+  float roughnessSqr = alphaRoughness * alphaRoughness;
+  float f = (roughnessSqr - 1.0) * NH * NH + 1.0;
+  return roughnessSqr / (MATH_PI * f * f);
+}
+
+float specularIBL(float userRoughness, float NV) {
+  vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  float specular = 1.0 * (u_f0 * brdf.x + brdf.y);
+  return specular;
+}
+
+// The Schlick Approximation to Fresnel
+float fresnel(float f0, float VH) {
+  return f0 + (1.0 - f0) * pow(1.0 - VH, 5.0);
 }
 
 float smithG1(float roughness, float NoV)
@@ -108,6 +132,44 @@ float smithG(float roughness, float NoV, float NoL)
 	float lambdaV = (-1.0 + sqrt(1.0 + a2 * (1.0 - NoV2) / NoV2)) * 0.5;
 	float lambdaL = (-1.0 + sqrt(1.0 + a2 * (1.0 - NoL2) / NoL2)) * 0.5;
 	return 1.0 / (1.0 + lambdaV + lambdaL);
+}
+
+float g_shieldingForWeak(float alphaRoughness, float NV, float NL) {
+  float r = alphaRoughness;
+
+  // Local Masking using "Schlick-Smith" Masking Function
+  float localMasking = 2.0 * NV / (NV + sqrt(r * r + (1.0 - r * r) * (NV * NV)));
+
+  return localMasking;
+}
+
+
+float g_shielding(float roughness, float NV, float NL) {
+  float a = roughnessRemap( roughness );
+  float r = a;
+
+  // Local Shadowing using "Schlick-Smith" Masking Function
+  float localShadowing = 2.0 * NL / (NL + sqrt(r * r + (1.0 - r * r) * (NL * NL)));
+
+  // Local Masking using "Schlick-Smith" Masking Function
+  float localMasking = 2.0 * NV / (NV + sqrt(r * r + (1.0 - r * r) * (NV * NV)));
+
+  return localShadowing * localMasking;
+}
+
+float v_SmithGGXCorrelatedForWeak(float roughness, float NV, float NL) {
+  float a = roughnessRemap( roughness );
+  float a2 = a * a;
+  float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
+  return 0.5 / (GGXV);
+}
+
+float v_SmithGGXCorrelated(float roughness, float NV, float NL) {
+  float a = roughnessRemap( roughness );
+  float a2 = a * a;
+  float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
+  float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
+  return 0.5 / (GGXV + GGXL);
 }
 
 float vanDerCorpus(int n, int base)
@@ -163,12 +225,32 @@ float weakWhiteFurnaceTest(float roughness, float NoV)
 
 		float VoHUnsat = vx * hx + vy * hy + vz * hz;
 
+    float lz = 2.0 * VoHUnsat * hz - vz;
+
+    float NoL = max(lz, 0.0);
 		float NoH = max(hz, 0.0);
 		float VoH = max(VoHUnsat, 0.0);
 
-		float g1 = smithG1(roughness, NoV);
-		float pdf = 4.0 * VoH / NoH;
-		integral += (g1 * pdf) / (4.0 * NoV);
+    float f = fresnel(u_f0, VoH);
+
+    float g1 = 0.0;
+    if (u_g_type == 0) {
+      g1 = smithG1(roughness, NoV);
+    } else if (u_g_type == 1) {
+      g1 = g_shieldingForWeak(roughness, NoV, NoL);
+    } else if (u_g_type == 2) {
+      g1 = v_SmithGGXCorrelatedForWeak(roughness, NoV, NoL) * 4.0 * NoV * NoL;
+    }
+
+    float pdf = 4.0 * VoH / NoH;
+    float integralValue = (g1 * pdf) / (4.0 * NoV);
+    if (u_disable_fresnel == 0) {
+      integralValue *= f;
+    }
+    // integralValue *= 0.5; // Set furnace color 0.5
+
+    integral += integralValue;
+
 	}
 	integral /= float(sampleNum);
 	return clamp(integral, 0.0, 1.0);
@@ -207,21 +289,43 @@ float whiteFurnaceTest(float roughness, float NoV)
 
 		float NoL = max(lz, 0.0);
 		float NoH = max(hz, 0.0);
-		float VoH = max(VoHUnsat, 0.0);
+    float VoH = max(VoHUnsat, 0.0);
 
-    float g = smithG(roughness, NoV, NoL);
+    float f = fresnel(u_f0, VoH);
+
+    float g = 0.0;
+    if (u_g_type == 0) {
+      g = smithG(roughness, NoV, NoL);
+    } else if (u_g_type == 1){
+      g = g_shielding(roughness, NoV, NoL);
+    } else if (u_g_type == 2){
+      g = v_SmithGGXCorrelated(roughness, NoV, NoL) * (4.0 * NoV * NoL);
+    } else if (u_g_type == 3) {
+      g = 0.0;
+    }
+
     float pdf = 4.0 * VoH / NoH;
-		integral += (g * pdf) / (4.0 * NoV);
+    float integralValue = (g * pdf) / (4.0 * NoV);
+    if (u_disable_fresnel == 0 && u_g_type != 3) {
+      integralValue *= f;
+    }
+    // integralValue *= 0.5; // Set furnace color 0.5
+    integral += integralValue;
 	}
-	integral /= float(sampleNum);
+  integral /= float(sampleNum);
+  if (u_g_type == 3) {
+    integral = specularIBL(roughness, NoV);
+  }
 	return clamp(integral, 0.0, 1.0);
 }
 
 uniform vec3 u_viewPosition;
 uniform int u_mode;
 uniform int u_debugView;
+
 uniform vec2 u_metallicRoughnessFactor;
 uniform sampler2D u_metallicRoughnessTexture;
+
 
 void main ()
 {
@@ -258,13 +362,15 @@ void main ()
   } else if (u_debugView == 1) {
     float weakWhiteFurnaceResult = weakWhiteFurnaceTest(roughness, NoV);
     rt0 = vec4(weakWhiteFurnaceResult, weakWhiteFurnaceResult, weakWhiteFurnaceResult, 1.0);
-  } else {
+  } else if (u_debugView == 2){
     float nn = NoV*0.5+0.5;
     rt0 = vec4(nn, nn, nn, 1.0);
+  } else {
+    rt0 = vec4(1.0, 1.0, 1.0, 1.0);
   }
+
   // rt0 = vec4(whiteFurnaceResult, weakWhiteFurnaceResult, 0.0, 1.0);
-  // rt0 = vec4(v_normal_inWorld.xyz, 1.0);
-  // rt0 = vec4(1.0, 1.0, 1.0, 1.0);
+  // rt0 = vec4(v_normal_inWorld.xyz, .0);
   ${_def_fragColor}
 }
 `;

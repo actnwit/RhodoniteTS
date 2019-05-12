@@ -74,6 +74,30 @@ export default class FurnaceTestSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         initialValue: 0
       },
+      {
+        semanticStr: 'g_type',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Int,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 0
+      },
+      {
+        semanticStr: 'disable_fresnel',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Int,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 0
+      },
+      {
+        semanticStr: 'f0',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 1
+      },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
