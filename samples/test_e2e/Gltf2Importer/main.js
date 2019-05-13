@@ -22,9 +22,10 @@ const load = function(time){
 
     // Lights
     const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-    lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
+    lightEntity.getTransform().translate = new Rn.Vector3(1.0, 1.0, 100000.0);
     lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
-    //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+    lightEntity.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
+    lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
     //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 
@@ -40,22 +41,6 @@ const load = function(time){
       // CameraComponent
       const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
       cameraControllerComponent.setTarget(rootGroup);
-
-      // Env Map
-      const specularCubeTexture = new Rn.CubeTexture();
-      specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
-      specularCubeTexture.mipmapLevelNumber = 10;
-      const diffuseCubeTexture = new Rn.CubeTexture();
-      diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
-      diffuseCubeTexture.mipmapLevelNumber = 1;
-      const componentRepository = Rn.ComponentRepository.getInstance();
-      const meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
-      for (let i=0; i<meshRendererComponents.length; i++) {
-        const meshRendererComponent = meshRendererComponents[i];
-        meshRendererComponent.specularCubeMap = specularCubeTexture;
-        meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
-      }
-
 
       Rn.CameraComponent.main = 0;
       let startTime = Date.now();
