@@ -59,8 +59,6 @@ export default class CameraControllerComponent extends Component {
   private __doPreventDefault = false;
 
   private __pinchInOutInitDistance? = null;
-  private __pinchInOutFinalDistance? = null;
-  private __pinchInOutStarted = false
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -308,52 +306,31 @@ export default class CameraControllerComponent extends Component {
   }
 
   __pinchInOutStart(event){
-    this.__pinchInOutStarted = true
+    this.__pinchInOutInitDistance = null
   }
-
-
-  d = []
   __pinchInOut(event){
-    const touches = event.changedTouches ;
-    if (!this.__pinchInOutStarted || touches.length < 2 ) {
-      return 
+    const touches = event.changedTouches 
+    if(touches.length < 2){
+      return
     }
     if(!this.__pinchInOutInitDistance){
-        this.__pinchInOutInitDistance  = this.getDistance(event)
-    }
-
-    this.d.push(this.getDistance(event))
-    this.__pinchInOutFinalDistance = this.getDistance(event)
-  }
-
-  __pinchInOutEnd(event){
-    if(!this.__pinchInOutFinalDistance || !this.__pinchInOutInitDistance ){
+      this.__pinchInOutInitDistance = this.getDistance(event)
       return
     }
-    if(this.d.length == 0){
-      return
-    }
-    const pinchInOutFinalDistance = this.__pinchInOutFinalDistance 
+
     const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
+    const pinchInOutFinalDistance = this.getDistance(event)
+    this.__pinchInOutInitDistance = pinchInOutFinalDistance
     
-    let max = 0
-    let min = 1000000000000000000000000
-    let maxIndex = 0
-    let minIndex = 0
-    this.d.forEach((d , i)=>{
-        if(d < min){
-            min = d
-            minIndex = i
-        }
-        if(d > max){
-            max = d
-            maxIndex = i
-        }
-    })
-    const ratio = minIndex > maxIndex ? min / max : max / min
+    const ratio = pinchInOutInitDistance / pinchInOutFinalDistance
 
-    this.dolly *= 1 / ratio
-    this.d = []
+    this.dolly /= 1 / ratio
+    if(this.dolly > 3 ){
+      this.dolly = 3
+    }
+    if(this.dolly < 0.01 ){
+      this.dolly = 0.01
+    }
   }
 
   registerEventListeners(eventTargetDom = document) {
@@ -363,9 +340,9 @@ export default class CameraControllerComponent extends Component {
         eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
 
-        eventTargetDom.addEventListener("touchstart" , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchstart"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchmove"  , this.__pinchInOut.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchend"   , this.__pinchInOutEnd.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
       }
       if ("onmouseup" in document) {
         eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
