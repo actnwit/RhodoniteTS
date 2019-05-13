@@ -294,7 +294,7 @@ export default class CameraControllerComponent extends Component {
     return this.__wheel_y;
   }
 
-  private getDistance (event : TouchEvent){
+  __getTouchesDistance (event : TouchEvent){
     const touches = event.changedTouches ;
 
     const x1 = touches[0].pageX
@@ -314,12 +314,12 @@ export default class CameraControllerComponent extends Component {
       return
     }
     if(!this.__pinchInOutInitDistance){
-      this.__pinchInOutInitDistance = this.getDistance(event)
+      this.__pinchInOutInitDistance = this.__getTouchesDistance(event)
       return
     }
 
     const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
-    const pinchInOutFinalDistance = this.getDistance(event)
+    const pinchInOutFinalDistance = this.__getTouchesDistance(event)
     this.__pinchInOutInitDistance = pinchInOutFinalDistance
     
     const ratio = pinchInOutInitDistance / pinchInOutFinalDistance
