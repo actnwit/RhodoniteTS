@@ -58,7 +58,7 @@ export default class CameraControllerComponent extends Component {
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = false;
 
-  private __pinchInOutInitDistance? = null;
+  private __pinchInOutInitDistance? : number | null = null;
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -294,7 +294,7 @@ export default class CameraControllerComponent extends Component {
     return this.__wheel_y;
   }
 
-  private getDistance (event){
+  private getDistance (event : TouchEvent){
     const touches = event.changedTouches ;
 
     const x1 = touches[0].pageX
@@ -305,10 +305,10 @@ export default class CameraControllerComponent extends Component {
     return Math.sqrt(Math.pow(x2 - x1 , 2) + Math.pow(y2 - y1 , 2))
   }
 
-  __pinchInOutStart(event){
+  __pinchInOutStart(event : TouchEvent){
     this.__pinchInOutInitDistance = null
   }
-  __pinchInOut(event){
+  __pinchInOut(event : TouchEvent){
     const touches = event.changedTouches 
     if(touches.length < 2){
       return
