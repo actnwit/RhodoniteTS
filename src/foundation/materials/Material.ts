@@ -5,7 +5,7 @@ import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass } from "../definitions/ShaderSemantics";
 import { CompositionType } from "../definitions/CompositionType";
 import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
@@ -23,8 +23,8 @@ import AbstractTexture from "../textures/AbstractTexture";
 
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
-  private __fields: Map<ShaderSemanticsEnum, any> = new Map();
-  private __fieldsInfo: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
+  private __fields: Map<string, any> = new Map();
+  private __fieldsInfo: Map<string, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -43,24 +43,49 @@ export default class Material extends RnObject {
   initialize() {
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
-      semanticsInfoArray.forEach((semanticsInfo) => {
-        this.__fields.set(semanticsInfo.semantic!, semanticsInfo.initialValue);
-        this.__fieldsInfo.set(semanticsInfo.semantic!, semanticsInfo);
+      semanticsInfoArray.forEach((semanticsInfo)=>{
+        if (semanticsInfo.semantic != null) {
+          this.__fields.set(semanticsInfo.semantic.str!, semanticsInfo.initialValue);
+          this.__fieldsInfo.set(semanticsInfo.semantic.str!, semanticsInfo);
+        } else {
+          this.__fields.set(semanticsInfo.semanticStr!, semanticsInfo.initialValue);
+          this.__fieldsInfo.set(semanticsInfo.semanticStr!, semanticsInfo);
+        }
       });
     });
   }
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any) {
-    this.__fields.set(shaderSemantic, value);
+  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
+  setParameter(shaderSemantic: string, value: any): void;
+  setParameter(shaderSemantic: any, value: any): void {
+    if (typeof shaderSemantic === 'string') {
+      this.__fields.set(shaderSemantic, value);
+    } else {
+      this.__fields.set(shaderSemantic.str, value);
+    }
+  }
+  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
+  setTextureParameter(shaderSemantic: string, value: AbstractTexture): void;
+  setTextureParameter(shaderSemantic: any, value: AbstractTexture): void {
+    let shaderSemanticStr: string;
+    if (typeof shaderSemantic === 'string') {
+      shaderSemanticStr = shaderSemantic;
+    } else {
+      shaderSemanticStr = shaderSemantic.str;
+    }
+
+    const array = this.__fields.get(shaderSemanticStr)!;
+    this.__fields.set(shaderSemanticStr, [array[0], value]);
   }
 
-  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture) {
-    const array = this.__fields.get(shaderSemantic)!;
-    this.__fields.set(shaderSemantic, [array[0], value]);
-  }
-
-  getParameter(shaderSemantic: ShaderSemanticsEnum) {
-    return this.__fields.get(shaderSemantic);
+  getParameter(shaderSemantic: ShaderSemanticsEnum): any;
+  getParameter(shaderSemantic: string): any;
+  getParameter(shaderSemantic: any): any {
+    if (typeof shaderSemantic === 'string') {
+      return this.__fields.get(shaderSemantic);
+    } else {
+      return this.__fields.get(shaderSemantic.str);
+    }
   }
 
   setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
