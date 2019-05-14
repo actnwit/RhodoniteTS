@@ -1,6 +1,6 @@
-version: 0.1.1-484-gf5ee-mod
-branch: guncys/feature/improve-specular-ibl
-b2dda0afdcaf1e83a70b84f9d0e115a0e04be09214a24d05af99cd80f693d33a ./dist/rhodonite.js
-0f77107de5f1effd1f4f559ed4ef37f1dc938cb7222663ef73bfd6e76dcdb86f ./dist/rhodonite.min.js
-7020234cd9da3bf91fc30c06132446f6ae6bd3a2c008db6b51c4cc3b19626fe4 ./dist/rhodonite-webgl.js
-bc6ecba870eacdaba359c5d982d1487e929121bef5fe0e65ae88de74244418df ./dist/rhodonite-webgl.min.js
+version: 0.1.1-528-g6be4-mod
+branch: guncys/feature/furnace-test
+68feaac5017f3dd9487eb637ded8306afd8ed5b6db93a997b1f80e421cf4bcd0 ./dist/rhodonite.js
+e59aaa840feb587255d8805ecd88a0c3b54a170733d5cd3ea2d7a181e95a1153 ./dist/rhodonite.min.js
+e4102ab0a1284bd905643e5991baed1ae79fbf91a553feb72fa2b82e48d2ffad ./dist/rhodonite-webgl.js
+1aea83f725543cfb04a8b4cb4589d05562a6d717629c068c1b7b0ada70e913c3 ./dist/rhodonite-webgl.min.js
