@@ -112,7 +112,7 @@ ${this.pointDistanceAttenuation}
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
       accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, mix(reflection, n, lod/(mipCount - 1.0)), lod);`;
     } else {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, n));`;
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, mix(reflection, n, lod/(mipCount - 1.0)));`;
     }
 
     return `${_version}
