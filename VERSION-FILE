@@ -1,6 +1,6 @@
-version: 0.1.1-528-g6be4-mod
-branch: guncys/feature/furnace-test
-68feaac5017f3dd9487eb637ded8306afd8ed5b6db93a997b1f80e421cf4bcd0 ./dist/rhodonite.js
-e59aaa840feb587255d8805ecd88a0c3b54a170733d5cd3ea2d7a181e95a1153 ./dist/rhodonite.min.js
-e4102ab0a1284bd905643e5991baed1ae79fbf91a553feb72fa2b82e48d2ffad ./dist/rhodonite-webgl.js
-1aea83f725543cfb04a8b4cb4589d05562a6d717629c068c1b7b0ada70e913c3 ./dist/rhodonite-webgl.min.js
+version: 0.1.1-533-g39e8-mod
+branch: guncys/master
+7c949a78ac1b065b1a738e7ab6230b7afd463fb4af75c5bc2492ebd077fb3cf2 ./dist/rhodonite.js
+bd72389049ed98cdceac073714a1472e99792567277f5dac87107ae0540f8860 ./dist/rhodonite.min.js
+211f4b1ce272ef6facd97f9c795bf0b539c1dd6df4edeb25f996c46673af3419 ./dist/rhodonite-webgl.js
+17a5ed53b4a36079cd655cd425ef977699c74902dbf7d29e7a0a121bc0f311ba ./dist/rhodonite-webgl.min.js
