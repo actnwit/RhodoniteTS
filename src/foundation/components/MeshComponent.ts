@@ -121,9 +121,9 @@ export default class MeshComponent extends Component {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
-      if (texcoordIdx !== -1) {
+      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
+      if (texcoordIdx !== -1 && normalIdx !== -1) {
         const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
-        const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal);
 
         const positionAccessor = primitive.attributeAccessors[positionIdx];
         const texcoordAccessor = primitive.attributeAccessors[texcoordIdx];
