@@ -58,6 +58,8 @@ export default class CameraControllerComponent extends Component {
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = false;
 
+  private __pinchInOutInitDistance? : number | null = null;
+
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
   private static returnVector3Up = MutableVector3.zero();
@@ -292,12 +294,55 @@ export default class CameraControllerComponent extends Component {
     return this.__wheel_y;
   }
 
+  __getTouchesDistance (event : TouchEvent){
+    const touches = event.changedTouches ;
+
+    const x1 = touches[0].pageX
+    const y1 = touches[0].pageY
+    const x2 = touches[1].pageX
+    const y2 = touches[1].pageY
+
+    return Math.sqrt(Math.pow(x2 - x1 , 2) + Math.pow(y2 - y1 , 2))
+  }
+
+  __pinchInOutStart(event : TouchEvent){
+    this.__pinchInOutInitDistance = null
+  }
+  __pinchInOut(event : TouchEvent){
+    const touches = event.changedTouches 
+    if(touches.length < 2){
+      return
+    }
+    if(!this.__pinchInOutInitDistance){
+      this.__pinchInOutInitDistance = this.__getTouchesDistance(event)
+      return
+    }
+
+    const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
+    const pinchInOutFinalDistance = this.__getTouchesDistance(event)
+    this.__pinchInOutInitDistance = pinchInOutFinalDistance
+    
+    const ratio = pinchInOutInitDistance / pinchInOutFinalDistance
+
+    this.dolly /= 1 / ratio
+    if(this.dolly > 3 ){
+      this.dolly = 3
+    }
+    if(this.dolly < 0.01 ){
+      this.dolly = 0.01
+    }
+  }
+
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
         eventTargetDom.addEventListener("touchstart", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
         eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
+
+        eventTargetDom.addEventListener("touchstart"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchmove"  , this.__pinchInOut.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
       }
       if ("onmouseup" in document) {
         eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
@@ -308,6 +353,7 @@ export default class CameraControllerComponent extends Component {
       if (window.WheelEvent) {
         eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this), {passive: !this.__doPreventDefault});
       }
+
       eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), {passive: !this.__doPreventDefault});
       eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this), {passive: !this.__doPreventDefault});
     }
