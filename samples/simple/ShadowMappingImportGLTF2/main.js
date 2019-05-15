@@ -15,8 +15,10 @@
     return importer.import('gltf.gltf');
   }).then(function (response) {
     const system = Rn.System.getInstance();
-    const entityRepository = Rn.EntityRepository.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
+    const entityRepository = Rn.EntityRepository.getInstance();
+    const componentRepository = Rn.ComponentRepository.getInstance();
+
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
 
@@ -33,7 +35,7 @@
 
 
     //Light
-    const lightPosition = new Rn.Vector3(0.0, 0.5, -0.5);
+    const lightPosition = new Rn.Vector3(0.0, 0.4, -0.5);
 
 
     //cameras
@@ -56,23 +58,16 @@
     entities.push(rootGroupSmallForDepth);
     entities.push(rootGroupLargeForDepth);
 
-    const meshComponentsForDepth = [];
-    const sceneGraphComponentSmallForDepth = rootGroupSmallForDepth.getSceneGraph();
-    for (let sceneGraphComponent of sceneGraphComponentSmallForDepth.children) {
-      meshComponentsForDepth.push(sceneGraphComponent.entity.getComponent(Rn.MeshComponent));
-    }
-    const sceneGraphComponentLargeForDepth = rootGroupLargeForDepth.getSceneGraph();
-    for (let sceneGraphComponent of sceneGraphComponentLargeForDepth.children) {
-      meshComponentsForDepth.push(sceneGraphComponent.entity.getComponent(Rn.MeshComponent));
-    }
-
 
     //primitives for depth shader
-    for (let meshComponent of meshComponentsForDepth) {
+    let meshComponents = componentRepository.getComponentsWithType(Rn.MeshComponent);
+    let meshComponentSIDsForDepth = [];
+    for (let meshComponent of meshComponents) {
       for (let i = 0; i < meshComponent.getPrimitiveNumber(); i++) {
         const primitive = meshComponent.getPrimitiveAt(i);
         primitive.material = Rn.MaterialHelper.createDepthEncodingMaterial();
       }
+      meshComponentSIDsForDepth.push(meshComponent.componentSID);
     }
 
     renderPassFromLight.addEntities([rootGroupSmallForDepth, rootGroupLargeForDepth]);
@@ -84,30 +79,53 @@
     entities.push(rootGroupSmall);
     entities.push(rootGroupLarge);
 
-    const meshComponents = [];
-    const sceneGraphComponentSmall = rootGroupSmall.getSceneGraph();
-    for (let sceneGraphComponent of sceneGraphComponentSmall.children) {
-      meshComponents.push(sceneGraphComponent.entity.getComponent(Rn.MeshComponent));
-    }
-
-    const sceneGraphComponentLarge = rootGroupLarge.getSceneGraph();
-    for (let sceneGraphComponent of sceneGraphComponentLarge.children) {
-      meshComponents.push(sceneGraphComponent.entity.getComponent(Rn.MeshComponent));
-    }
-
-
     //primitives for shadow mapping
     const primitives = [];
     for (let meshComponent of meshComponents) {
+      let meshComponentForDepth = false;
+      for (let i = 0; i < meshComponentSIDsForDepth.length; i++) {
+        if (meshComponent.componentSID === meshComponentSIDsForDepth[i]) meshComponentForDepth = true;
+      }
+      if (meshComponentForDepth) continue;
+
       for (let i = 0; i < meshComponent.getPrimitiveNumber(); i++) {
+        const material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
+
         const primitive = meshComponent.getPrimitiveAt(i);
-        primitive.material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
-        if (primitives.length === 0) {
-          primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.7, 0.6, 0.5, 1));
-        } else {
-          primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.75, 0.65, 0.55, 1));
+        const materialOrigin = primitive.material;
+
+        for (let i in Rn.ShaderSemantics) {
+          const param = materialOrigin.getParameter(Rn.ShaderSemantics[i]);
+          if (param) {
+            if (!material.getParameter(Rn.ShaderSemantics[i])) {
+              if (Rn.ShaderSemantics[i].str === 'baseColorFactor') {
+                material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, param);
+              }
+              if (Rn.ShaderSemantics[i].str === 'baseColorTexture') {
+                material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, param[1]);
+              }
+              continue;
+            }
+            if (Array.isArray(param)) {
+              material.setTextureParameter(Rn.ShaderSemantics[i], param[1]);
+            } else {
+              material.setParameter(Rn.ShaderSemantics[i], param);
+            }
+          }
         }
+        primitive.material = material;
         primitives.push(primitive);
+
+        // for (let i = 0; i < meshComponent.getPrimitiveNumber(); i++) {
+        //   const primitive = meshComponent.getPrimitiveAt(i);
+        //   primitive.material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
+        //   if (primitives.length === 0) {
+        //     primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.7, 0.6, 0.5, 1));
+        //   } else {
+        //     primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.75, 0.65, 0.55, 1));
+        //   }
+        //   primitives.push(primitive);
+        // }
       }
     }
 

@@ -15,10 +15,11 @@
     return importer.importPointCloud('draco.drc', 'texture.jpg');
   }).then(function (response) {
     const system = Rn.System.getInstance();
-    const entityRepository = Rn.EntityRepository.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+    const entityRepository = Rn.EntityRepository.getInstance();
+    const componentRepository = Rn.ComponentRepository.getInstance();
 
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
     //render passes
     const expression = new Rn.Expression();
@@ -57,21 +58,18 @@
     rootGroupForDepth.getTransform().translate = new Rn.Vector3(0, 0, 0);
     entities.push(rootGroupForDepth);
 
-    const meshComponentsForDepth = [];
-    const sceneGraphComponentForDepth = rootGroupForDepth.getSceneGraph();
-    for (let sceneGraphCompo of sceneGraphComponentForDepth.children) {
-      meshComponentsForDepth.push(sceneGraphCompo.entity.getComponent(Rn.MeshComponent));
-    }
-
 
     //primitives for depth shader
-    for (let meshComponent of meshComponentsForDepth) {
+    let meshComponents = componentRepository.getComponentsWithType(Rn.MeshComponent);
+    let meshComponentSIDsForDepth = [];
+    for (let meshComponent of meshComponents) {
       for (let i = 0; i < meshComponent.getPrimitiveNumber(); i++) {
         const primitive = meshComponent.getPrimitiveAt(i);
         primitive.material = Rn.MaterialHelper.createDepthEncodingMaterial();
         // primitive.material.setParameter(Rn.ShaderSemantics.PointSize, 200.0);
         // primitive.material.setParameter(Rn.ShaderSemantics.PointDistanceAttenuation, new Rn.Vector3(0.0, 0.1, 0.01));
       }
+      meshComponentSIDsForDepth.push(meshComponent.componentSID);
     }
 
     renderPassFromLight.addEntities([rootGroupForDepth]);
@@ -82,16 +80,16 @@
     rootGroup.getTransform().translate = new Rn.Vector3(0, 0, 0);
     entities.push(rootGroup);
 
-    const meshComponents = [];
-    const sceneGraphComponent = rootGroup.getSceneGraph();
-    for (let sceneGraphCompo of sceneGraphComponent.children) {
-      meshComponents.push(sceneGraphCompo.entity.getComponent(Rn.MeshComponent));
-    }
-
 
     //primitives for shadow mapping
     const primitives = [];
     for (let meshComponent of meshComponents) {
+      let meshComponentForDepth = false;
+      for (let i = 0; i < meshComponentSIDsForDepth.length; i++) {
+        if (meshComponent.componentSID === meshComponentSIDsForDepth[i]) meshComponentForDepth = true;
+      }
+      if (meshComponentForDepth) continue;
+
       for (let i = 0; i < meshComponent.getPrimitiveNumber(); i++) {
         const material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
 
@@ -137,8 +135,8 @@
     const cameraControllerComponent = cameraEntityMain.getComponent(Rn.CameraControllerComponent);
     cameraControllerComponent.setTarget(rootGroup);
 
-    // renderPassMain.cameraComponent.zFarInner = 10.0;
-    // renderPassFromLight.cameraComponent.zFarInner = 10.0;
+    // renderPassMain.cameraComponent.zFarInner = 15000.0;
+    // renderPassFromLight.cameraComponent.zFarInner = 15000.0;
 
     const startTime = Date.now();
     let p = null;
