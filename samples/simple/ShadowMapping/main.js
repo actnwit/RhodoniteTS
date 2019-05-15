@@ -28,7 +28,7 @@
 
 
     //Light
-    const lightPosition = new Rn.Vector3(0.0, 10.0, 20.0);
+    const lightPosition = new Rn.Vector3(0.0, 3.0, 5.0);
 
 
     //cameras
@@ -53,10 +53,6 @@
 
     const meshComponentSmallForDepth = entitySmallForDepth.getComponent(Rn.MeshComponent);
     const meshComponentLargeForDepth = entityLargeForDepth.getComponent(Rn.MeshComponent);
-    const SceneGraphComponentSmallForDepth = entitySmallForDepth.getComponent(Rn.SceneGraphComponent);
-    const SceneGraphComponentLargeForDepth = entityLargeForDepth.getComponent(Rn.SceneGraphComponent);
-
-    SceneGraphComponentLargeForDepth.addChild(SceneGraphComponentSmallForDepth);
 
 
     //primitives for depth shader
@@ -82,39 +78,40 @@
 
     const meshComponentSmall = entitySmall.getComponent(Rn.MeshComponent);
     const meshComponentLarge = entityLarge.getComponent(Rn.MeshComponent);
-    const SceneGraphComponentSmall = entitySmall.getComponent(Rn.SceneGraphComponent);
-    const SceneGraphComponentLarge = entityLarge.getComponent(Rn.SceneGraphComponent);
-
-    SceneGraphComponentLarge.addChild(SceneGraphComponentSmall);
 
 
     //primitives for shadow mapping
+    const primitives = [];
     const primitiveSmallSquare = new Rn.Plane();
     primitiveSmallSquare.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
-    primitiveSmallSquare.material = Rn.MaterialHelper.createShadowMappingDepthEncodedMaterial(renderPassFromLight);
+    primitiveSmallSquare.material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
     primitiveSmallSquare.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.5, 0.1, 0.4, 1));
     meshComponentSmall.addPrimitive(primitiveSmallSquare);
+    primitives.push(primitiveSmallSquare);
 
     const primitiveLargeSquare = new Rn.Plane();
     primitiveLargeSquare.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
-    primitiveLargeSquare.material = Rn.MaterialHelper.createShadowMappingDepthEncodedMaterial(renderPassFromLight);
+    primitiveLargeSquare.material = Rn.MaterialHelper.createShadowMapping32bitMaterial(renderPassFromLight);
     primitiveLargeSquare.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, new Rn.Vector4(0.1, 0.7, 0.5, 1));
     meshComponentLarge.addPrimitive(primitiveLargeSquare);
+    primitives.push(primitiveLargeSquare);
 
     renderPassMain.addEntities([entitySmall, entityLarge]);
 
 
     //transforming the entities
 
-    entitySmallForDepth.getTransform().translate = new Rn.Vector3(0.0, 0.5, 0.0);
-    entitySmall.getTransform().translate = new Rn.Vector3(0.0, 0.5, 0.0);
     entitySmallForDepth.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
     entitySmall.getTransform().scale = new Rn.Vector3(0.2, 0.2, 0.2);
+    entitySmallForDepth.getTransform().translate = new Rn.Vector3(0.0, 0.0, -1.0);
+    entitySmall.getTransform().translate = new Rn.Vector3(0.0, 0.0, -1.0);
+    entitySmallForDepth.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    entitySmall.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
 
-    entityLargeForDepth.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
-    entityLarge.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     entityLargeForDepth.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
     entityLarge.getTransform().translate = new Rn.Vector3(0, 0, -1.5);
+    entityLargeForDepth.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+    entityLarge.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
 
 
     //camera controller
@@ -132,7 +129,19 @@
     const stats = new Stats();
     stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(stats.domElement);
+
+    let inputValue = 0;
+    let lightEntityPosition = new Rn.MutableVector3(cameraEntityFromLight.getTransform().translate);
+
     const draw = function (time) {
+      lightEntityPosition.x -= inputValue;
+      inputValue = parseFloat(document.getElementById('light_pos').value) / 200;
+      lightEntityPosition.x += inputValue;
+
+      cameraEntityFromLight.getTransform().translate = lightEntityPosition;
+      for (const primitive of primitives) {
+        primitive.material.setParameter(Rn.ShaderSemantics.LightViewProjectionMatrix, cameraComponentFromLight.viewProjectionMatrix);
+      }
 
       if (p == null && count > 0) {
         p = document.createElement('p');
