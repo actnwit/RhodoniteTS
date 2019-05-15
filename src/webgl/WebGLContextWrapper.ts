@@ -1,4 +1,6 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
+import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
+import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;
@@ -16,6 +18,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtEIUI?: OES_element_index_uint;
   public readonly webgl1ExtSTL?: EXT_shader_texture_lod;
   public readonly webgl1ExtDRV?: OES_standard_derivatives;
+  public readonly webgl1ExtDB?: WEBGL_draw_buffers;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -38,6 +41,7 @@ export default class WebGLContextWrapper {
       this.webgl1ExtEIUI = this.__getExtension(WebGLExtension.ElementIndexUint);
       this.webgl1ExtSTL = this.__getExtension(WebGLExtension.ShaderTextureLod);
       this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
+      this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
     }
   }
 
@@ -94,6 +98,33 @@ export default class WebGLContextWrapper {
       this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
     } else {
       this.webgl1ExtIA!.drawElementsInstancedANGLE(primitiveMode, indexCount, type, offset, instanceCount);
+    }
+  }
+
+  colorAttachiment(index: Index) {
+    return this.webgl1ExtDB ?
+      (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`] :
+      (this.__gl as any)[`COLOR_ATTACHMENT${index}`];
+  }
+
+  drawBuffers(buffers: RenderBufferTargetEnum[]) {
+    const gl: any = this.__gl;
+    if (buffers.length === 0) {
+      return;
+    }
+    let buffer = buffers;
+    if (this.isWebGL2) {
+      gl.drawBuffers(buffers.map((buf)=>{return gl[buf.str]}));
+      buffer = gl[buffer[0].str];
+    } else if (this.webgl1ExtDB) {
+      this.webgl1ExtDB.drawBuffersWEBGL(buffers.map((buf)=>{return gl[buf.str]}));
+      buffer = gl[buffer[0].str];
+    }
+
+    if (buffer === gl.NONE) {
+      gl.colorMask(false, false, false, false);
+    } else {
+      gl.colorMask(true, true, true, true);
     }
   }
 

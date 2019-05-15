@@ -27,7 +27,7 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: ShadingModel.Phong.index
+        initialValue: ShadingModel.Constant.index
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

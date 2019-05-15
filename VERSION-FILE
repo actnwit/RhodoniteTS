@@ -1,6 +1,6 @@
-version: 0.1.1-332-gc12f-mod
-branch: 
-bda06ef3638237fc54dce3dc7257ab470ce6c8dda48c7c3be88ecf1407a3c696 ./dist/rhodonite.js
-052014a540016152722691c3849f2d6a187346e092a5b0d01d33c35efd626ce9 ./dist/rhodonite.min.js
-0fddc2fa94e09be20de053bb8673677ad300e4cce7d6b9246c195d1ebae954e8 ./dist/rhodonite-webgl.js
-565717c768c8c2ca22e1079ae910f8fc6386f63ae484d938eb085ad6d9b0f3be ./dist/rhodonite-webgl.min.js
+version: 0.1.1-335-ge4b5-mod
+branch: guncys/feature/texture-seem-less
+9486f7e27b6473b21de648524dc44ed44647cf83198d0ba293d6e77f0ebec793 ./dist/rhodonite.js
+c0a91de09e49550edad6c1fd44cd6593078c94e7fdd5e1802eb07572266d3930 ./dist/rhodonite.min.js
+95d9577bdac90d53401b0fca94c80fd04b89cd766caf5dfc9d2fa7593319ebe0 ./dist/rhodonite-webgl.js
+ca4c905f7b309b478297af814996f949bbf350b5b5547fc1348e6cae891850bc ./dist/rhodonite-webgl.min.js

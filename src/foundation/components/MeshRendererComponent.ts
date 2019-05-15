@@ -19,6 +19,8 @@ import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
 import ModuleManager from '../system/ModuleManager';
 import CubeTexture from '../textures/CubeTexture';
+import Entity from '../core/Entity';
+import RenderPass from '../renderer/RenderPass';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -30,6 +32,9 @@ export default class MeshRendererComponent extends Component {
   private static __staticWebglModule?: any;
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
+  public diffuseCubeMapContribution = 1.0;
+  public specularCubeMapContribution = 1.0;
+  public rotationOfCubeMap = 0;
   public isVisible = true;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
@@ -107,7 +112,7 @@ export default class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  $render() {
+  $render({renderPass}: {renderPass: RenderPass}) {
     if (this.__webglRenderingStrategy!.$render == null) {
       return;
     }
@@ -115,14 +120,14 @@ export default class MeshRendererComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
 
     this.__webglRenderingStrategy!.$render!(this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
-      entity, this.diffuseCubeMap, this.specularCubeMap);
+      entity, renderPass, this.diffuseCubeMap, this.specularCubeMap);
 
     if (this.__meshComponent!.weights.length > 0) {
       this.moveStageTo(ProcessStage.PreRender);
     }
   }
 
-  static common_$load(processApproach: ProcessApproachEnum) {
+  static common_$load({processApproach} : {processApproach: ProcessApproachEnum}) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -213,15 +218,21 @@ export default class MeshRendererComponent extends Component {
 
   }
 
-  static sort_$render(): ComponentSID[] {
+  static sort_$render(renderPass?: RenderPass): ComponentSID[] {
+    let meshComponents;
+    if (renderPass != null) {
+      meshComponents = renderPass.meshComponents;
+    }
     if (MeshRendererComponent.__manualTransparentSids == null) {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
     } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
       return [];
     } else {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, meshComponents);
+      // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
       return sortedMeshComponentSids;
     }
@@ -229,8 +240,12 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = []) {
-    const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], meshComponentsOfRenderPass?: MeshComponent[]) {
+    let meshComponents = meshComponentsOfRenderPass;
+    if (meshComponents == null) {
+      meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+    }
+
     const opaqueMeshComponentSids: ComponentSID[] = [];
     const transparentMeshComponents: MeshComponent[] = [];
     for (let i = 0; i < meshComponents.length; i++) {

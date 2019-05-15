@@ -9,7 +9,7 @@ export type AttributeNames = Array<string>;
 export default abstract class GLSLShader {
   static __instance: GLSLShader;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  constructor() {}
+  constructor() { }
 
   get glsl_rt0() {
     const repo = this.__webglResourceRepository!;
@@ -62,6 +62,15 @@ export default abstract class GLSLShader {
       return 'texture';
     } else {
       return 'texture2D';
+    }
+  }
+
+  get glsl_textureProj() {
+    const repo = this.__webglResourceRepository!;
+    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+      return 'textureProj';
+    } else {
+      return 'texture2DProj';
     }
   }
 
@@ -269,6 +278,26 @@ export default abstract class GLSLShader {
 `;
   }
 
+  get pointSize() {
+    return `
+    uniform float u_pointSize;
+
+    float getPointSize(float instanceId) {
+      return u_pointSize;
+    }
+    `
+  }
+
+  get pointDistanceAttenuation() {
+    return `
+    uniform vec3 u_pointDistanceAttenuation;
+
+    vec3 getPointDistanceAttenuation(float instanceId) {
+      return u_pointDistanceAttenuation;
+    }
+    `
+  }
+
   get pbrUniformDefinition() {
     let shaderText = '';
     shaderText += 'uniform vec2 uMetallicRoughnessFactors;\n';
@@ -292,7 +321,7 @@ export default abstract class GLSLShader {
       shaderText += 'uniform sampler2D u_brdfLutTexture;\n';
       shaderText += 'uniform samplerCube uDiffuseEnvTexture;\n';
       shaderText += 'uniform samplerCube uSpecularEnvTexture;\n';
-      shaderText += 'uniform vec3 uIBLParameters;\n'; // Ka * amount of ambient lights
+      shaderText += 'uniform vec4 uIBLParameters;\n'; // Ka * amount of ambient lights
     }
 
     shaderText += 'uniform vec4 ambient;\n'; // Ka * amount of ambient lights
@@ -301,14 +330,6 @@ export default abstract class GLSLShader {
   }
 
   get pbrMethodDefinition() {
-    let accessSpecularIBLTexture: string;
-    const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCubeLodEXT(u_specularEnvTexture, reflection, lod).rgb);`;
-    } else {
-      accessSpecularIBLTexture = `vec3 specularLight = srgbToLinear(textureCube(u_specularEnvTexture, reflection).rgb);`;
-    }
-
     return `
     const float M_PI = 3.141592653589793;
     const float c_MinRoughness = 0.04;
@@ -365,15 +386,34 @@ export default abstract class GLSLShader {
       return localShadowing * localMasking;
     }
 
+    // The code from https://google.github.io/filament/Filament.html#listing_approximatedspecularv
+    // The idea is from [Heitz14] Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs.
+    float v_SmithGGXCorrelated(float NL, float NV, float alphaRoughness) {
+      float a2 = alphaRoughness * alphaRoughness;
+      float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
+      float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
+      return 0.5 / (GGXV + GGXL);
+    }
+
+    float v_SmithGGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
+      float a = alphaRoughness;
+      float GGXV = NL * (NV * (1.0 - a) + a);
+      float GGXL = NV * (NL * (1.0 - a) + a);
+      return 0.5 / (GGXV + GGXL);
+    }
+
     // The Schlick Approximation to Fresnel
-    vec3 fresnel(vec3 f0, float LH) {
-      return vec3(f0) + (vec3(1.0) - f0) * pow(1.0 - LH, 5.0);
+    vec3 fresnel(vec3 f0, float VH) {
+      return vec3(f0) + (vec3(1.0) - f0) * pow(1.0 - VH, 5.0);
     }
 
     vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {
       float D = d_ggx(NH, alphaRoughness);
-      float G = g_shielding(NL, NV, alphaRoughness);
-      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
+      float V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
+      return vec3(D)*vec3(V)*F;
+//      float G = g_shielding(NL, NV, alphaRoughness);
+//      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
+
     }
 
     vec3 diffuse_brdf(vec3 albedo)
@@ -397,24 +437,11 @@ export default abstract class GLSLShader {
       return pow(value, 1.0/2.2);
     }
 
-    vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness)
+    vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
     {
-      float mipCount = u_iblParameter.x;
-      float lod = (userRoughness * mipCount);
-
-      vec3 brdf = srgbToLinear(texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb);
-      vec3 diffuseLight = srgbToLinear(textureCube(u_diffuseEnvTexture, n).rgb);
-      ${accessSpecularIBLTexture}
-
-      vec3 diffuse = diffuseLight * albedo;
-      vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
-
-      float IBLDiffuseContribution = u_iblParameter.y;
-      float IBLSpecularContribution = u_iblParameter.z;
-      diffuse *= IBLDiffuseContribution;
-      specular *= IBLSpecularContribution;
-      return diffuse + specular;
+      return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
     }
+
     `;
   }
 

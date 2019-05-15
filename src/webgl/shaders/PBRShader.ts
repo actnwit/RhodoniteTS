@@ -45,18 +45,22 @@ ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
-
+uniform vec3 u_viewPosition;
 
 ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
 ${this.processSkinning}
+
+${this.pointSize}
+
+${this.pointDistanceAttenuation}
 `;
 
   };
 
-  vertexShaderBody:string = `
+  vertexShaderBody: string = `
 
   mat4 worldMatrix = getMatrix(a_instanceID);
   mat4 viewMatrix = getViewMatrix(a_instanceID);
@@ -72,7 +76,7 @@ ${this.processSkinning}
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
 
-  if (length(a_normal) > 0.01) {
+  if (abs(length(a_normal)) > 0.01) {
     // if normal exist
     vec3 tangent_inWorld;
     if (!isSkinning) {
@@ -85,6 +89,12 @@ ${this.processSkinning}
   }
   v_baryCentricCoord = a_baryCentricCoord;
 
+  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
+  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
+  vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
+  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
+  float maxPointSize = getPointSize(a_instanceID);
+  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 
@@ -96,6 +106,14 @@ ${this.processSkinning}
     const _def_rt0 = this.glsl_rt0;
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
+
+    let accessSpecularIBLTexture: string;
+    const repo = this.__webglResourceRepository!;
+    if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
+    } else {
+      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
+    }
 
     return `${_version}
 ${this.glsl1ShaderTextureLodExt}
@@ -128,7 +146,7 @@ uniform vec3 u_viewPosition;
 
 uniform samplerCube u_diffuseEnvTexture;
 uniform samplerCube u_specularEnvTexture;
-uniform vec3 u_iblParameter;
+uniform vec4 u_iblParameter;
 
 uniform vec3 u_wireframe;
 
@@ -146,6 +164,33 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
+vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+{
+  float mipCount = u_iblParameter.x;
+  float lod = (userRoughness * mipCount);
+
+  vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
+  vec3 diffuseLight;
+  diffuseLight = srgbToLinear(diffuseTexel.rgb);
+
+  ${accessSpecularIBLTexture}
+
+  vec3 specularLight;
+  specularLight = srgbToLinear(specularTexel.rgb);
+
+  vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
+  vec3 kD = 1.0 - kS;
+  vec3 diffuse = diffuseLight * albedo * kD;
+  vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
+
+  float IBLDiffuseContribution = u_iblParameter.y;
+  float IBLSpecularContribution = u_iblParameter.z;
+  diffuse *= IBLDiffuseContribution;
+  specular *= IBLSpecularContribution;
+  return diffuse + specular;
+}
+
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
   vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
@@ -160,13 +205,15 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
+  float rot = u_iblParameter.w + 3.1415;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
-  if (length(v_tangent_inWorld) > 0.01) {
+  if (abs(length(v_tangent_inWorld)) > 0.01) {
     vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
-    if (length(normal) > 0.01) {
       vec3 tangent_inWorld = normalize(v_tangent_inWorld);
       vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-      normal_inWorld = normalize(v_normal_inWorld);
+      normal_inWorld = normalize(normal_inWorld);
 
       mat3 tbnMat_tangent_to_world = mat3(
         tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
@@ -176,7 +223,6 @@ void main ()
 
       normal = normalize(tbnMat_tangent_to_world * normal);
       normal_inWorld = normal;
-    }
   }
 
 
@@ -199,10 +245,10 @@ void main ()
 
   // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
-  if (length(textureColor) > 0.01) {
+  // if (length(textureColor) > 0.01) {
     baseColor *= srgbToLinear(textureColor.rgb);
     alpha *= textureColor.a;
-  }
+  // }
 
   // Metallic & Roughness
   float userRoughness = u_material.metallicRoughnessFactor.y;
@@ -228,7 +274,7 @@ void main ()
   vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
 
   // NV
-  float NV = clamp(dot(normal_inWorld, viewDirection), 0.001, 1.0);
+  float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
@@ -266,16 +312,15 @@ void main ()
 
       // Fresnel
       vec3 halfVector = normalize(lightDirection + viewDirection);
-      float LH = clamp(dot(lightDirection, halfVector), 0.0, 1.0);
-      vec3 F = fresnel(F0, LH);
+      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
+      vec3 F = fresnel(F0, VH);
 
       // Diffuse
       vec3 diffuseContrib = (vec3(1.0) - F) * diffuse_brdf(albedo);
 
       // Specular
-      float NL = clamp(dot(normal_inWorld, lightDirection), 0.001, 1.0);
+      float NL = clamp(dot(normal_inWorld, lightDirection), 0.0, 1.0);
       float NH = clamp(dot(normal_inWorld, halfVector), 0.0, 1.0);
-      float VH = clamp(dot(viewDirection, halfVector), 0.0, 1.0);
       vec3 specularContrib = cook_torrance_specular_brdf(NH, NL, NV, F, alphaRoughness);
       vec3 diffuseAndSpecular = (diffuseContrib + specularContrib) * vec3(NL) * incidentLight.rgb;
 
@@ -285,9 +330,10 @@ void main ()
   //    rt0.xyz += (vec3(1.0) - F) * diffuse_brdf(albedo);//diffuseContrib;//vec3(NL) * incidentLight.rgb;
     }
 
-    vec3 reflection = reflect(-viewDirection, normal_inWorld);
-    vec3 ibl = IBLContribution(normal_inWorld, NV, reflection, albedo, F0, userRoughness);
+    vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 
+    vec3 F = fresnel(F0, NV);
+    vec3 ibl = IBLContribution(normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
     float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
@@ -342,7 +388,7 @@ void main ()
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_faceNormal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-    VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
+  VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec3, CompositionType.Scalar];

@@ -21,6 +21,7 @@ import Vector4 from '../math/Vector4';
 import MutableVector4 from '../math/MutableVector4';
 import MutableQuaternion from '../math/MutableQuaterion';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
+import RenderPass from '../renderer/RenderPass';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
@@ -142,12 +143,13 @@ export default class Component {
    * Process the components
    * @param param0 params
    */
-  static process({componentType, processStage, processApproach, componentRepository, strategy}: {
+  static process({componentType, processStage, processApproach, componentRepository, strategy, renderPass}: {
     componentType: typeof Component,
     processStage: ProcessStageEnum,
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
-    strategy: WebGLStrategy
+    strategy: WebGLStrategy,
+    renderPass: RenderPass
   }
     ) {
     if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
@@ -164,12 +166,14 @@ export default class Component {
       (component as any)[processStage.getMethodName()]({
         processStage,
         processApproach,
-        strategy
+        strategy,
+        renderPass
       });
     }
   }
 
-  static updateComponentsOfEachProcessStage(componentClass: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
+  static updateComponentsOfEachProcessStage(componentClass: typeof Component,
+    processStage: ProcessStageEnum, componentRepository: ComponentRepository, renderPass: RenderPass) {
     if (!Component.isExistProcessStageMethod(componentClass, processStage, componentRepository)) {
       return;
     }
@@ -182,7 +186,7 @@ export default class Component {
 
       let sids = [];
       if (method != null) {
-        sids = method();
+        sids = method(renderPass);
         for (let i=0; i<sids.length; i++) {
           array[i] = sids[i];
         }

@@ -191,7 +191,7 @@ export default class ModelConverter {
   }
 
   _setupHierarchy(gltfModel: glTF2, rnEntities: Entity[]) {
-    const groupSceneComponents = rnEntities.map(group=>{return group.getSceneGraph();});
+    const groupSceneComponents = rnEntities.map(group => { return group.getSceneGraph(); });
 
     for (let node_i in gltfModel.nodes) {
       const parentNode_i = parseInt(node_i);
@@ -269,7 +269,7 @@ export default class ModelConverter {
         entityRepository.addComponentsToEntity([SkeletalComponent], rnEntity.entityUID);
         skeletalComponent = rnEntity.getComponent(SkeletalComponent) as SkeletalComponent;
 
-//        skeletalComponent.isSkinning = false;
+        //        skeletalComponent.isSkinning = false;
 
         skeletalComponent._jointIndices = node.skin.jointsIndices;
         if (node.skin.bindShapeMatrix != null) {
@@ -339,13 +339,12 @@ export default class ModelConverter {
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
-        group.tryToSetUniqueName(node.name, true);
         rnEntities.push(group);
       }
     }
 
     return rnEntities;
-   }
+  }
 
   private __setupCamera(camera: any, gltfModel: glTF2) {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
@@ -395,7 +394,9 @@ export default class ModelConverter {
         }
       } else {
         // attributes
-        indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+        if (primitive.indices) {
+          indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+        }
         for (let attributeName in primitive.attributes) {
           let attributeAccessor = primitive.attributes[attributeName];
           const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
@@ -403,7 +404,8 @@ export default class ModelConverter {
         }
       }
       const material = this.__setupMaterial(gltfModel, primitive.material);
-      const rnPrimitive = new Primitive(map, rnPrimitiveMode, material, indicesRnAccessor);
+      const rnPrimitive = new Primitive();
+      rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
       // morph targets
       if (primitive.targets != null) {
@@ -430,7 +432,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setupMaterial(gltfModel: any, materialJson: any) : Material|undefined {
+  private __setupMaterial(gltfModel: any, materialJson: any): Material | undefined {
     if (materialJson == null) {
       return void 0;
     }
@@ -456,7 +458,7 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image);
         rnTexture.name = image.name;
         // material.baseColorTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture.texture3DAPIResourseUid);
+        material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
 
       const normalTexture = materialJson.normalTexture;
@@ -467,7 +469,7 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image);
         rnTexture.name = image.name;
         // material.normalTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture.texture3DAPIResourseUid);
+        material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
       }
 
       const occlusionTexture = materialJson.occlusionTexture;
@@ -478,7 +480,7 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image);
         rnTexture.name = image.name;
         // material.occlusionTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture.texture3DAPIResourseUid);
+        material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
       }
 
       let metallicFactor = pbrMetallicRoughness.metallicFactor;
@@ -495,7 +497,7 @@ export default class ModelConverter {
         rnTexture.generateTextureFromImage(image);
         rnTexture.name = image.name;
         // material.metallicRoughnessTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture.texture3DAPIResourseUid);
+        material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
 
       const alphaMode = materialJson.alphaMode;
@@ -512,7 +514,7 @@ export default class ModelConverter {
           case ShadingModel.BlinnPhong.str: param = ShadingModel.BlinnPhong.index; break;
           case ShadingModel.Phong.str: param = ShadingModel.Phong.index; break;
         }
-      material.setParameter(ShaderSemantics.ShadingModel, param);
+        material.setParameter(ShaderSemantics.ShadingModel, param);
       }
     }
 
@@ -524,7 +526,7 @@ export default class ModelConverter {
       rnTexture.generateTextureFromImage(image);
       rnTexture.name = image.name;
       // material.emissiveTexture = rnTexture;
-      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture.texture3DAPIResourseUid);
+      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
     }
 
     const emissiveTexture = materialJson.emissiveTexture;
@@ -535,7 +537,7 @@ export default class ModelConverter {
       rnTexture.generateTextureFromImage(image);
       rnTexture.name = image.name;
       // material.emissiveTexture = rnTexture;
-      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture.texture3DAPIResourseUid);
+      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
     const diffuseColorFactor = materialJson.diffuseColorFactor;
@@ -549,7 +551,7 @@ export default class ModelConverter {
   }
 
   _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
-    if (( byteOffset % alignSize ) != 0) {
+    if ((byteOffset % alignSize) != 0) {
       return new typedArrayClass(arrayBuffer.slice(byteOffset), 0, length);
     } else {
       return new typedArrayClass(arrayBuffer, byteOffset, length);
@@ -685,7 +687,7 @@ export default class ModelConverter {
         }
 
       } else {
-        let dataView:any = new DataView(arrayBuffer, byteOffset, byteLength);
+        let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
         let byteDelta = componentBytes * componentN;
         let littleEndian = true;
         for (let pos = 0; pos < byteLength; pos += byteDelta) {
@@ -739,8 +741,8 @@ export default class ModelConverter {
           case 'SCALAR':
             if (accessor.extras && accessor.extras.weightCount) {
               const array = [];
-              for (let i=0; i<accessor.extras.weightCount; i++) {
-                array.push(dataView[dataViewMethod](pos+componentBytes*i, littleEndian));
+              for (let i = 0; i < accessor.extras.weightCount; i++) {
+                array.push(dataView[dataViewMethod](pos + componentBytes * i, littleEndian));
               }
               typedDataArray.push(array);
             } else {
@@ -750,37 +752,37 @@ export default class ModelConverter {
           case 'VEC2':
             typedDataArray.push(new Vector2(
               dataView[dataViewMethod](pos, littleEndian),
-              dataView[dataViewMethod](pos+componentBytes, littleEndian)
+              dataView[dataViewMethod](pos + componentBytes, littleEndian)
             ));
             break;
           case 'VEC3':
             typedDataArray.push(new Vector3(
               dataView[dataViewMethod](pos, littleEndian),
-              dataView[dataViewMethod](pos+componentBytes, littleEndian),
-              dataView[dataViewMethod](pos+componentBytes*2, littleEndian)
+              dataView[dataViewMethod](pos + componentBytes, littleEndian),
+              dataView[dataViewMethod](pos + componentBytes * 2, littleEndian)
             ));
             break;
           case 'VEC4':
             if (accessor.extras && accessor.extras.quaternionIfVec4) {
               typedDataArray.push(new Quaternion(
                 dataView[dataViewMethod](pos, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
+                dataView[dataViewMethod](pos + componentBytes, littleEndian),
+                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian),
+                dataView[dataViewMethod](pos + componentBytes * 3, littleEndian)
               ));
             } else {
               typedDataArray.push(new Vector4(
                 dataView[dataViewMethod](pos, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes*2, littleEndian),
-                dataView[dataViewMethod](pos+componentBytes*3, littleEndian)
+                dataView[dataViewMethod](pos + componentBytes, littleEndian),
+                dataView[dataViewMethod](pos + componentBytes * 2, littleEndian),
+                dataView[dataViewMethod](pos + componentBytes * 3, littleEndian)
               ));
             }
             break;
           case 'MAT4':
             let matrixComponents = [];
-            for (let i=0; i<16; i++) {
-              matrixComponents[i] = dataView[dataViewMethod](pos+componentBytes*i, littleEndian);
+            for (let i = 0; i < 16; i++) {
+              matrixComponents[i] = dataView[dataViewMethod](pos + componentBytes * i, littleEndian);
             }
             typedDataArray.push(new Matrix44(matrixComponents, true));
             break;
@@ -797,14 +799,14 @@ export default class ModelConverter {
   private __addOffsetToIndices(meshComponent: MeshComponent) {
     const primitiveNumber = meshComponent.getPrimitiveNumber();
     let offsetSum = 0;
-    for (let i=0; i<primitiveNumber; i++) {
+    for (let i = 0; i < primitiveNumber; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
       const indicesAccessor = primitive.indicesAccessor;
       if (indicesAccessor) {
         const elementNumber = indicesAccessor.elementCount;
-        for (let j=0; j<elementNumber; j++) {
+        for (let j = 0; j < elementNumber; j++) {
           const index = indicesAccessor.getScalar(j, {});
-          indicesAccessor.setScalar(j, index+offsetSum, {});
+          indicesAccessor.setScalar(j, index + offsetSum, {});
         }
         offsetSum += elementNumber;
       }
@@ -845,9 +847,9 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __createRnAccessor(accessor: any, byteLength: Byte, rnBuffer: Buffer) {
+  private __createRnAccessor(accessor: any, numOfAttributes: Count, compositionNum: Count, rnBuffer: Buffer) {
     const rnBufferView = rnBuffer.takeBufferView({
-      byteLengthToNeed: byteLength,
+      byteLengthToNeed: numOfAttributes * compositionNum * 4,
       byteStride: 0,
       isAoS: false
     });
@@ -857,7 +859,7 @@ export default class ModelConverter {
       rnAccessor = rnBufferView.takeFlexibleAccessorWithByteOffset({
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
+        count: numOfAttributes,
         byteStride: accessor.byteStride,
         byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
         max: accessor.max,
@@ -867,7 +869,7 @@ export default class ModelConverter {
       rnAccessor = rnBufferView.takeAccessorWithByteOffset({
         compositionType: CompositionType.fromString(accessor.type),
         componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
+        count: numOfAttributes,
         byteOffset: (accessor.byteOffset != null) ? accessor.byteOffset : 0,
         max: accessor.max,
         min: accessor.min
@@ -897,14 +899,14 @@ export default class ModelConverter {
     let dracoGeometry;
     let decodingStatus;
     if (geometryType === draco.TRIANGULAR_MESH) {
-        dracoGeometry = new draco.Mesh();
-        decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
+      dracoGeometry = new draco.Mesh();
+      decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
     } else if (geometryType == draco.POINT_CLOUD) {
-        dracoGeometry = new draco.PointCloud();
-        decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
+      dracoGeometry = new draco.PointCloud();
+      decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
     } else {
-        const errorMsg = 'Unknown geometry type.';
-        console.error(errorMsg);
+      const errorMsg = 'Unknown geometry type.';
+      console.error(errorMsg);
     }
 
     dracoGeometry.geometryType = geometryType; // store
@@ -918,7 +920,6 @@ export default class ModelConverter {
       return void 0;
     }
     draco.destroy(buffer);
-    //console.log('Decoded.');
 
     return dracoGeometry;
   }
@@ -927,32 +928,32 @@ export default class ModelConverter {
     // For mesh, we need to generate the faces.
     const geometryType = dracoGeometry.geometryType;
     if (geometryType !== draco.TRIANGULAR_MESH) {
-        return void 0;
+      return void 0;
     }
 
     let indices;
 
     if (triangleStripDrawMode) {
-        const stripsArray = new draco.DracoInt32Array();
-        const numStrips = decoder.GetTriangleStripsFromMesh(dracoGeometry, stripsArray);
-        indices = new Uint32Array(stripsArray.size());
-        for (var i = 0; i < stripsArray.size(); ++i) {
-            indices[i] = stripsArray.GetValue(i);
-        }
-        draco.destroy(stripsArray);
+      const stripsArray = new draco.DracoInt32Array();
+      decoder.GetTriangleStripsFromMesh(dracoGeometry, stripsArray);
+      indices = new Uint32Array(stripsArray.size());
+      for (var i = 0; i < stripsArray.size(); ++i) {
+        indices[i] = stripsArray.GetValue(i);
+      }
+      draco.destroy(stripsArray);
     } else { // TRIANGLES
-        const numFaces = dracoGeometry.num_faces();
-        const numIndices = numFaces * 3;
-        indices = new Uint32Array(numIndices);
-        const ia = new draco.DracoInt32Array();
-        for (let i = 0; i < numFaces; ++i) {
-            decoder.GetFaceFromMesh(dracoGeometry, i, ia);
-            var index = i * 3;
-            indices[index] = ia.GetValue(0);
-            indices[index + 1] = ia.GetValue(1);
-            indices[index + 2] = ia.GetValue(2);
-        }
-        draco.destroy(ia);
+      const numFaces = dracoGeometry.num_faces();
+      const numIndices = numFaces * 3;
+      indices = new Uint32Array(numIndices);
+      const ia = new draco.DracoInt32Array();
+      for (let i = 0; i < numFaces; ++i) {
+        decoder.GetFaceFromMesh(dracoGeometry, i, ia);
+        var index = i * 3;
+        indices[index] = ia.GetValue(0);
+        indices[index + 1] = ia.GetValue(1);
+        indices[index + 2] = ia.GetValue(2);
+      }
+      draco.destroy(ia);
     }
     return indices;
   }
@@ -960,34 +961,44 @@ export default class ModelConverter {
   private __decodeDraco(primitive: any, rnBuffer: Buffer, gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
     const bufferView = gltfModel.bufferViews[primitive.extensions.KHR_draco_mesh_compression.bufferView];
     const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
-
-    const arraybufferOfRnBufferView = rnBufferView.getUint8Array().buffer;
+    const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array()).buffer;
 
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arraybufferOfRnBufferView);
+    const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arraybufferOfBufferView);
     if (dracoGeometry == null) {
+      draco.destroy(dracoGeometry);
+      draco.destroy(decoder);
+      return void 0;
+    }
+    const numPoints = dracoGeometry.num_points();
+
+    const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
+    if (posAttId == -1) {
+      const errorMsg = 'Position attribute not found in draco.';
+      console.error(errorMsg);
+      draco.destroy(dracoGeometry);
+      draco.destroy(decoder);
       return void 0;
     }
 
     let lengthOfRnBufferForDraco = 0;
-
     if (primitive.indices) {
       const count = primitive.indices.count;
       lengthOfRnBufferForDraco += count * 4;
     }
     for (let attributeName in primitive.attributes) {
       const accessor = primitive.attributes[attributeName];
-      const count = accessor.count;
-      const byteOfComposition = CompositionType.fromString(accessor.type).getNumberOfComponents() * 4;
-      const attributeByteLength = count * byteOfComposition;
+      const compositionNum = CompositionType.fromString(accessor.type).getNumberOfComponents();
+      const attributeByteLength = numPoints * compositionNum * 4;
       lengthOfRnBufferForDraco += attributeByteLength;
     }
 
     const rnDracoBuffer = new Buffer({
       byteLength: lengthOfRnBufferForDraco,
       arrayBuffer: new ArrayBuffer(lengthOfRnBufferForDraco),
-      name: 'Draco'});
+      name: 'Draco'
+    });
 
     const primitiveMode = PrimitiveMode.from(primitive.mode);
     let isTriangleStrip = false;
@@ -996,52 +1007,50 @@ export default class ModelConverter {
     }
 
     const indices = this.__getIndicesFromDraco(draco, decoder, dracoGeometry, isTriangleStrip)!;
-    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length * 4, rnDracoBuffer);
-    for (let i=0; i<indices.length; i++) {
+    const indicesDracoAccessor = this.__createRnAccessor(primitive.indices, indices.length, 1, rnDracoBuffer);
+    for (let i = 0; i < indices.length; i++) {
       indicesDracoAccessor.setScalar(i, indices[i], {});
     }
 
     for (let attributeName in primitive.attributes) {
       const attributeAccessor = primitive.attributes[attributeName];
-      const count = attributeAccessor.count;
-      const byteOfComposition = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents() * 4;
-      const attributeByteLength = count * byteOfComposition;
-      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, attributeByteLength, rnDracoBuffer);
+
+      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
+      const attributeRnDracoAccessor = this.__createRnAccessor(attributeAccessor, numPoints, compositionNum, rnDracoBuffer);
 
       let dracoAttributeName = attributeName;
       if (attributeName === 'TEXCOORD_0') {
         dracoAttributeName = 'TEX_COORD';
       }
 
-      const posAttId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);
-      if (posAttId == -1) {
-        break;
+      const attId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);
+      if (attId === -1) {
+        const errorMsg = attributeName + 'attribute not found in draco.';
+        console.error(errorMsg);
+        continue;
       }
-      const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
-      const posAttributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(dracoGeometry, posAttribute, posAttributeData);
 
-      const numPoints = dracoGeometry.num_points();
-      const compositionNum = CompositionType.fromString(attributeAccessor.type).getNumberOfComponents();
-      const numComponents = numPoints * compositionNum;
+      const attribute = decoder.GetAttribute(dracoGeometry, attId);
+      const attributeData = new draco.DracoFloat32Array();
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData);
 
-      for (let i=0; i<numPoints; i++) {
+      for (let i = 0; i < numPoints; i++) {
         if (compositionNum === 1) {
-          attributeRnDracoAccessor.setScalar(i, posAttributeData.GetValue(i*compositionNum), {});
+          attributeRnDracoAccessor.setScalar(i, attributeData.GetValue(i * compositionNum), {});
         } else if (compositionNum === 2) {
-          attributeRnDracoAccessor.setVec2(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), {});
+          attributeRnDracoAccessor.setVec2(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), {});
         } else if (compositionNum === 3) {
-          attributeRnDracoAccessor.setVec3(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), posAttributeData.GetValue(i*compositionNum+2), {});
+          attributeRnDracoAccessor.setVec3(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), attributeData.GetValue(i * compositionNum + 2), {});
         } else if (compositionNum === 4) {
-          attributeRnDracoAccessor.setVec4(i, posAttributeData.GetValue(i*compositionNum), posAttributeData.GetValue(i*compositionNum+1), posAttributeData.GetValue(i*compositionNum+2), posAttributeData.GetValue(i*compositionNum+3), {});
+          attributeRnDracoAccessor.setVec4(i, attributeData.GetValue(i * compositionNum), attributeData.GetValue(i * compositionNum + 1), attributeData.GetValue(i * compositionNum + 2), attributeData.GetValue(i * compositionNum + 3), {});
         }
       }
 
-//      draco.destroy(posAttributeData);
-
-
+      draco.destroy(attributeData);
       map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnDracoAccessor);
     }
+    draco.destroy(dracoGeometry);
+    draco.destroy(decoder);
 
     return indicesDracoAccessor;
   }

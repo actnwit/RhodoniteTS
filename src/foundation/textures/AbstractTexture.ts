@@ -12,15 +12,15 @@ import MutableVector3 from "../math/MutableVector3";
 import MutableVector4 from "../math/MutableVector4";
 
 export default abstract class AbstractTexture extends RnObject {
-  private __width: Size = 0;
-  private __height: Size = 0;
+  protected __width: Size = 0;
+  protected __height: Size = 0;
 
   private static readonly InvalidTextureUid: TextureUID = -1;
   private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
   private __textureUid: TextureUID;
-  private __img?: HTMLImageElement;
+  protected __img?: HTMLImageElement;
   private __canvasContext?: CanvasRenderingContext2D;
-  public texture3DAPIResourseUid: CGAPIResourceHandle = -1;
+  public cgApiResourceUid: CGAPIResourceHandle = -1;
   protected __isTextureReady = false;
   protected __startedToLoad = false;
   protected __htmlImageElement?: HTMLImageElement;
@@ -68,14 +68,14 @@ export default abstract class AbstractTexture extends RnObject {
    * @param x texture size.
    * @returns a value nearest power of two.
    */
-  _getNearestPowerOfTwo(x: number): number {
+  protected __getNearestPowerOfTwo(x: number): number {
     return Math.pow( 2, Math.round( Math.log( x ) / Math.LN2 ) );
   }
 
   _getResizedCanvas(image: HTMLImageElement) {
     var canvas = document.createElement("canvas");
-    canvas.width = this._getNearestPowerOfTwo(image.width);
-    canvas.height = this._getNearestPowerOfTwo(image.height);
+    canvas.width = this.__getNearestPowerOfTwo(image.width);
+    canvas.height = this.__getNearestPowerOfTwo(image.height);
 
     this.__canvasContext = canvas.getContext("2d")!;
     this.__canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
@@ -102,7 +102,7 @@ export default abstract class AbstractTexture extends RnObject {
         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
       });
 
-    this.texture3DAPIResourseUid = texture;
+    this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
     this.__uri = image.src;
 
@@ -134,7 +134,7 @@ export default abstract class AbstractTexture extends RnObject {
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
           });
 
-        this.texture3DAPIResourseUid = texture;
+        this.cgApiResourceUid = texture;
         this.__isTextureReady = true;
         AbstractTexture.__textureMap.set(texture, this);
 

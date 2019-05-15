@@ -21,6 +21,7 @@ import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
+import DrcPointCloudImporter from './importer/DrcPointCloudImporter';
 import Gltf2Exporter from './exporter/Gltf2Exporter';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -36,6 +37,19 @@ import CubeTexture from './textures/CubeTexture';
 import CameraControllerComponent from './components/CameraControllerComponent';
 import detectFormat from './importer/FormatDetector';
 import Config from './core/Config';
+import Plane from './geometry/Plane';
+import Sphere from './geometry/Sphere';
+import MaterialHelper from './helpers/MaterialHelper';
+import {ShaderSemantics} from './definitions/ShaderSemantics';
+import RenderPass from './renderer/RenderPass';
+import FrameBuffer from './renderer/FrameBuffer';
+import Expression from './renderer/Expression';
+import {HdriFormat} from './definitions/HdriFormat';
+import RenderTargetTexture from './textures/RenderTargetTexture';
+import RenderBuffer from './textures/RenderBuffer';
+import {TextureParameter} from './definitions/TextureParameter';
+import RenderableHelper from './helpers/RenderableHelper';
+import Texture from './textures/Texture';
 
 const Rn = {
   EntityRepository,
@@ -61,6 +75,7 @@ const Rn = {
   ProcessApproach,
   Gltf1Importer,
   Gltf2Importer,
+  DrcPointCloudImporter,
   ModelConverter,
   ModuleManager,
   MemoryManager,
@@ -75,11 +90,24 @@ const Rn = {
   AlphaMode,
   Gltf2Exporter,
   detectFormat,
-  Config
+  Config,
+  Plane,
+  Sphere,
+  MaterialHelper,
+  ShaderSemantics,
+  RenderPass,
+  FrameBuffer,
+  Expression,
+  HdriFormat,
+  RenderTargetTexture,
+  RenderBuffer,
+  TextureParameter,
+  RenderableHelper,
+  Texture,
 };
 export default Rn;
 
-declare var window:any;
+declare var window: any;
 window['Rn'] = Rn;
 
 export type CompositionTypeEnum = CompositionTypeEnum;

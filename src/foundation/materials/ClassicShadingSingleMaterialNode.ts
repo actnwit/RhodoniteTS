@@ -19,9 +19,12 @@ import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
+import AbstractTexture from "../textures/AbstractTexture";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __dummyBlueTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -48,10 +51,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           0,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.SpecularColorFactor,
@@ -68,10 +71,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           1,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.NormalTexture,
@@ -79,10 +82,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           2,
-          ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+          ClassicShadingSingleMaterialNode.__dummyBlueTextureUid
+        ]
       },
       {
         semantic: ShaderSemantics.OcclusionTexture,
@@ -90,10 +93,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           3,
           ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.EmissiveTexture,
@@ -101,10 +104,10 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: new Vector2(
+        initialValue: [
           4,
           ClassicShadingSingleMaterialNode.__dummyBlackTextureUid
-        )
+        ]
       },
       {
         semantic: ShaderSemantics.Shininess,
@@ -128,7 +131,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         componentType: ComponentType.Int,
         isPlural: false,
         isSystem: false,
-        initialValue: ShadingModel.Phong.index
+        initialValue: ShadingModel.Constant.index
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
@@ -143,6 +146,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     }
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
+    ClassicShadingSingleMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
     ClassicShadingSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture(
       "rgba(0, 0, 0, 1)"
     );
