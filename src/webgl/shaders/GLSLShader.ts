@@ -65,6 +65,15 @@ export default abstract class GLSLShader {
     }
   }
 
+  get glsl_textureCube() {
+    const repo = this.__webglResourceRepository!;
+    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+      return 'texture';
+    } else {
+      return 'textureCube';
+    }
+  }
+
   get glsl_textureProj() {
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.isWebGL2) {

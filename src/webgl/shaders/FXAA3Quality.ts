@@ -573,8 +573,8 @@ NOTE the other tuning knobs are now in the shader function inputs!
 #endif
 /*--------------------------------------------------------------------------*/
 #if (FXAA_GLSL_100 == 1)
-    #define FxaaTexTop(t, p) texture2D(t, p, 0.0)
-    #define FxaaTexOff(t, p, o, r) texture2D(t, p + (o * r), 0.0)
+    #define FxaaTexTop(t, p) ${_texture}(t, p, 0.0)
+    #define FxaaTexOff(t, p, o, r) ${_texture}(t, p + (o * r), 0.0)
 #endif
 /*--------------------------------------------------------------------------*/
 #if (FXAA_GLSL_120 == 1)
@@ -583,11 +583,11 @@ NOTE the other tuning knobs are now in the shader function inputs!
     // And at least,
     //  #extension GL_EXT_gpu_shader4 : enable
     //  (or set FXAA_FAST_PIXEL_OFFSET 1 to work like DX9)
-    #define FxaaTexTop(t, p) texture2DLod(t, p, 0.0)
+    #define FxaaTexTop(t, p) ${_texture}Lod(t, p, 0.0)
     #if (FXAA_FAST_PIXEL_OFFSET == 1)
-        #define FxaaTexOff(t, p, o, r) texture2DLodOffset(t, p, 0.0, o)
+        #define FxaaTexOff(t, p, o, r) ${_texture}LodOffset(t, p, 0.0, o)
     #else
-        #define FxaaTexOff(t, p, o, r) texture2DLod(t, p + (o * r), 0.0)
+        #define FxaaTexOff(t, p, o, r) ${_texture}Lod(t, p + (o * r), 0.0)
     #endif
     #if (FXAA_GATHER4_ALPHA == 1)
         // use #extension GL_ARB_gpu_shader5 : enable
@@ -620,14 +620,14 @@ NOTE the other tuning knobs are now in the shader function inputs!
 /*--------------------------------------------------------------------------*/
 #if (FXAA_HLSL_4 == 1)
     #define FxaaInt2 int2
-    struct FxaaTex { SamplerState smpl; Texture2D tex; };
+    struct FxaaTex { SamplerState smpl; ${_texture} tex; };
     #define FxaaTexTop(t, p) t.tex.SampleLevel(t.smpl, p, 0.0)
     #define FxaaTexOff(t, p, o, r) t.tex.SampleLevel(t.smpl, p, 0.0, o)
 #endif
 /*--------------------------------------------------------------------------*/
 #if (FXAA_HLSL_5 == 1)
     #define FxaaInt2 int2
-    struct FxaaTex { SamplerState smpl; Texture2D tex; };
+    struct FxaaTex { SamplerState smpl; ${_texture} tex; };
     #define FxaaTexTop(t, p) t.tex.SampleLevel(t.smpl, p, 0.0)
     #define FxaaTexOff(t, p, o, r) t.tex.SampleLevel(t.smpl, p, 0.0, o)
     #define FxaaTexAlpha4(t, p) t.tex.GatherAlpha(t.smpl, p)

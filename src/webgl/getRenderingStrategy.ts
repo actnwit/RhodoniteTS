@@ -11,7 +11,8 @@ const getRenderingStrategy = function (processApproach: ProcessApproachEnum): We
     return WebGLStrategyUBO.getInstance();
   } else if (processApproach.index === ProcessApproach.TransformFeedbackWebGL2.index) {
     return WebGLStrategyTransformFeedback.getInstance();
-  } else if (processApproach.index === ProcessApproach.UniformWebGL1.index) {
+  } else if (processApproach.index === ProcessApproach.UniformWebGL1.index ||
+    processApproach.index === ProcessApproach.UniformWebGL2.index) {
     return WebGLStrategyUniform.getInstance();
   } else {
     return WebGLStrategyDataTexture.getInstance();
