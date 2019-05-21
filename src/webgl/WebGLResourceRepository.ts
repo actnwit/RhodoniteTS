@@ -547,7 +547,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
     if (renderable instanceof RenderTargetTexture) {
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.ATTA, gl.TEXTURE_2D, renderableWebGLResource, 0);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, renderableWebGLResource, 0);
     } else {
       // It's must be RenderBuffer
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachmentType, gl.RENDERBUFFER, renderableWebGLResource);
