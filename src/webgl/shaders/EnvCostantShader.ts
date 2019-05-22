@@ -68,6 +68,7 @@ ${this.toNormalMatrix}
     const _def_rt0 = this.glsl_rt0;
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
+    const _textureCube = this.glsl_textureCube;
 
     return `${_version}
 precision highp float;
@@ -120,7 +121,7 @@ void main ()
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inLocal);
   envNormal.x *= -1.0;
 
-  vec4 textureColor = textureCube(u_colorEnvTexture, envNormal);
+  vec4 textureColor = ${_textureCube}(u_colorEnvTexture, envNormal);
   diffuseColor *= textureColor.rgb;
 
   diffuseColor = linearToSrgb(diffuseColor);
