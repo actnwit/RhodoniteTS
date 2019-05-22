@@ -39,6 +39,7 @@ import detectFormat from './importer/FormatDetector';
 import Config from './core/Config';
 import Plane from './geometry/Plane';
 import Sphere from './geometry/Sphere';
+import Material from './materials/Material';
 import MaterialHelper from './helpers/MaterialHelper';
 import {ShaderSemantics} from './definitions/ShaderSemantics';
 import RenderPass from './renderer/RenderPass';
@@ -93,6 +94,7 @@ const Rn = {
   Config,
   Plane,
   Sphere,
+  Material,
   MaterialHelper,
   ShaderSemantics,
   RenderPass,
