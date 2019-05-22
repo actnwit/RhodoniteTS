@@ -255,7 +255,7 @@ void main ()
   float userRoughness = u_material.metallicRoughnessFactor.y;
   float metallic = u_material.metallicRoughnessFactor.x;
 
-  vec4 ormTexel = texture2D(u_metallicRoughnessTexture, v_texcoord);
+  vec4 ormTexel = ${_texture}(u_metallicRoughnessTexture, v_texcoord);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
 
@@ -335,7 +335,7 @@ void main ()
 
     vec3 F = fresnel(F0, NV);
     vec3 ibl = IBLContribution(normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
-    float occlusion = texture2D(u_occlusionTexture, v_texcoord).r;
+    float occlusion = ${_texture}(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights
     rt0.xyz += ibl * occlusion;
@@ -345,7 +345,7 @@ void main ()
   }
 
   // Emissive
-  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, v_texcoord).xyz);
+  vec3 emissive = srgbToLinear(${_texture}(u_emissiveTexture, v_texcoord).xyz);
 
   rt0.xyz += emissive;
 

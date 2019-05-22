@@ -103,7 +103,8 @@ export default class System {
     let gl;
     if (approach === ProcessApproach.DataTextureWebGL2 ||
        approach === ProcessApproach.UBOWebGL2 ||
-       approach === ProcessApproach.TransformFeedbackWebGL2
+       approach === ProcessApproach.TransformFeedbackWebGL2 ||
+       approach === ProcessApproach.UniformWebGL2
        ) {
       gl = canvas.getContext('webgl2');
     } else {
