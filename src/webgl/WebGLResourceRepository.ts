@@ -479,8 +479,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
-      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index,
-        format.index, type.index, data);
+      if (this.__glw!.isWebGL2) {
+      gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
+                  format.index, ComponentType.UnsignedByte.index, data);
+      } else {
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, format.index, type.index, data);
+      }
     } else {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
                   format.index, type.index, data);
@@ -494,7 +498,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       }
       if (generateMipmap) {
-        gl.generateMipmap(gl.TEXTURE_2D);
+        if (width === height && width !== 1) {
+          gl.generateMipmap(gl.TEXTURE_2D);
+        }
       }
     }
     return resourceHandle;
