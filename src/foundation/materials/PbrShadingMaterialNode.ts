@@ -14,7 +14,7 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import AbstractTexture from "../textures/AbstractTexture";
-import GcsPBRShader from "../../webgl/shaders/GcsPBRShader";
+import PBRShader from "../../webgl/shaders/PBRShader";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -24,7 +24,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
-    super(GcsPBRShader.getInstance(), 'pbrShading');
+    super(PBRShader.getInstance(), 'pbrShading');
     PbrShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [

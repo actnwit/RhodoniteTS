@@ -106,13 +106,14 @@ ${this.pointDistanceAttenuation}
     const _def_rt0 = this.glsl_rt0;
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
+    const _textureCube = this.glsl_textureCube;
 
     let accessSpecularIBLTexture: string;
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.webgl1ExtSTL) {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
+      accessSpecularIBLTexture = `vec4 specularTexel = ${_textureCube}LodEXT(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z), lod);`;
     } else {
-      accessSpecularIBLTexture = `vec4 specularTexel = textureCube(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
+      accessSpecularIBLTexture = `vec4 specularTexel = ${_textureCube}(u_specularEnvTexture, vec3(-reflection.x, reflection.y, reflection.z));`;
     }
 
     return `${_version}
@@ -169,8 +170,8 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   float mipCount = u_iblParameter.x;
   float lod = (userRoughness * mipCount);
 
-  vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
-  vec4 diffuseTexel = textureCube(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
+  vec3 brdf = ${_texture}(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  vec4 diffuseTexel = ${_textureCube}(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   diffuseLight = srgbToLinear(diffuseTexel.rgb);
 
