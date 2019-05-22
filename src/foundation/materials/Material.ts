@@ -28,12 +28,18 @@ export default class Material extends RnObject {
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
+  private static __materials: Material[] = [];
 
   constructor(materialNodes: AbstractMaterialNode[]) {
     super();
     this.__materialNodes = materialNodes;
 
+    Material.__materials.push(this);
     this.initialize();
+  }
+
+  static getAllMaterials() {
+    return Material.__materials;
   }
 
   setMaterialNodes(materialNodes: AbstractMaterialNode[]) {
@@ -58,10 +64,14 @@ export default class Material extends RnObject {
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
   setParameter(shaderSemantic: string, value: any): void;
   setParameter(shaderSemantic: any, value: any): void {
+    let shaderSemanticStr: string;
     if (typeof shaderSemantic === 'string') {
-      this.__fields.set(shaderSemantic, value);
+      shaderSemanticStr = shaderSemantic;
     } else {
-      this.__fields.set(shaderSemantic.str, value);
+      shaderSemanticStr = shaderSemantic.str;
+    }
+    if (this.__fieldsInfo.has(shaderSemanticStr)) {
+      this.__fields.set(shaderSemanticStr, value);
     }
   }
   setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
@@ -74,8 +84,10 @@ export default class Material extends RnObject {
       shaderSemanticStr = shaderSemantic.str;
     }
 
-    const array = this.__fields.get(shaderSemanticStr)!;
-    this.__fields.set(shaderSemanticStr, [array[0], value]);
+    if (this.__fieldsInfo.has(shaderSemanticStr)) {
+      const array = this.__fields.get(shaderSemanticStr)!;
+      this.__fields.set(shaderSemanticStr, [array[0], value]);
+    }
   }
 
   getParameter(shaderSemantic: ShaderSemanticsEnum): any;
