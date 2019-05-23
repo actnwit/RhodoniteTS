@@ -41,6 +41,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       // {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false},
       {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
       {semantic: ShaderSemantics.Anisotropy, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector2(0, 0)},
+      {semantic: ShaderSemantics.ClearCoatParameter, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector2(0.5, 0.5)},
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
