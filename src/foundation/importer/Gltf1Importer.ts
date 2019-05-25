@@ -6,6 +6,12 @@ export default class Gltf1Importer {
   private constructor() {
   }
 
+  /**
+   * the method to load glTF1 file.
+   * @param uri - uri of glTF file
+   * @param options - options for loading process
+   * @returns a glTF2 based JSON pre-processed
+   */
   async import(uri: string,  options: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
@@ -14,7 +20,7 @@ export default class Gltf1Importer {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultShaderClass: null,
+      defaultMaterial: null,
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],

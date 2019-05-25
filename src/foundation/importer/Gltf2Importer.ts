@@ -16,7 +16,7 @@ export default class Gltf2Importer {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultShaderClass: null,
+      defaultMaterial: null,
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
