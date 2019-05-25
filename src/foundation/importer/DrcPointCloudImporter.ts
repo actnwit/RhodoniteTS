@@ -23,7 +23,7 @@ export default class DrcPointCloudImporter {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultShaderClass: null,
+      defaultMaterial: null,
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
@@ -321,7 +321,7 @@ export default class DrcPointCloudImporter {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultShaderClass: null,
+      defaultMaterial: null,
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],

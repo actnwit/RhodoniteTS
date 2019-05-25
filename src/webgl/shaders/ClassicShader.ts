@@ -193,7 +193,7 @@ void main ()
     shadingColor = diffuseColor;
   }
 
-  rt0 = vec4(shadingColor, alpha);
+  rt0 = vec4(shadingColor * alpha, alpha);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 

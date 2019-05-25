@@ -5,7 +5,7 @@ declare type GltfLoadOption = {
     //        "boo.png": content of file as ArrayBuffer
   },
   loaderExtension: any,
-  defaultShaderClass: any,
+  defaultMaterial: any,
   statesOfElements: [
     {
       targets: any[], //["name_foo", "name_boo"],
@@ -20,5 +20,6 @@ declare type GltfLoadOption = {
       isTextureImageToLoadPreMultipliedAlpha: boolean,
     }
   ],
+  ignoreLists?: []
   extendedJson?: string|Object|ArrayBuffer //   URI string / JSON Object / ArrayBuffer
 }
