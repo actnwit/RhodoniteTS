@@ -55,20 +55,6 @@ const load = async function(time){
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   cameraControllerComponent.setTarget(rootGroup);
 
-  // Env Map
-  const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
-  specularCubeTexture.mipmapLevelNumber = 10;
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
-  diffuseCubeTexture.mipmapLevelNumber = 1;
-  const componentRepository = Rn.ComponentRepository.getInstance();
-  const meshRendererComponents = componentRepository.getComponentsWithType(Rn.MeshRendererComponent);
-  for (let meshRendererComponent of meshRendererComponents) {
-    meshRendererComponent.specularCubeMap = specularCubeTexture;
-    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
-  }
-
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
