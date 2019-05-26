@@ -80,9 +80,9 @@ export default class Gltf1Importer {
   }
 
   _getOptions(defaultOptions: any, json: glTF1, options: any): ImporterOpition {
-    if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
-      for (let optionName in json.asset.extras.loadOptions) {
-        defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
+    if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
+      for (let optionName in json.asset.extras.rnLoaderOptions) {
+        defaultOptions[optionName] = json.asset.extras.rnLoaderOptions[optionName];
       }
     }
 
@@ -127,6 +127,7 @@ export default class Gltf1Importer {
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath;
+    gltfJson.asset.extras.rnLoaderOptions = options;
 
     const result  = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
 
@@ -151,6 +152,7 @@ export default class Gltf1Importer {
 
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath!;
+    gltfJson.asset.extras.rnLoaderOptions = options;
 
     const result = await this._loadInner(undefined, basePath!, gltfJson, options);
 

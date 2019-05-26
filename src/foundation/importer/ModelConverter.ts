@@ -437,6 +437,8 @@ export default class ModelConverter {
       return void 0;
     }
 
+    let options = gltfModel.asset.extras.rnLoaderOptions;
+
     let material: Material;
     if (gltfModel.asset != null && gltfModel.asset.version === '2') {
     } else {
@@ -500,7 +502,10 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
 
-      const alphaMode = materialJson.alphaMode;
+      let alphaMode = materialJson.alphaMode;
+      if (options.alphaMode) {
+        alphaMode = options.alphaMode;
+      }
       if (alphaMode != null) {
         material.alphaMode = AlphaMode.fromString(alphaMode);
       }
