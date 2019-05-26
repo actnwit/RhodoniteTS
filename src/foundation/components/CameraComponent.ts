@@ -297,6 +297,8 @@ export default class CameraComponent extends Component {
       this.upInner = this.up;
       this.cornerInner = this.corner;
       this.parametersInner = this.parameters;
+    } else {
+      this._parametersInner.w = this.parameters.w;
     }
 
     this.moveStageTo(ProcessStage.PreRender);

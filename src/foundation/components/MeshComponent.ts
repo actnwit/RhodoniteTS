@@ -19,6 +19,8 @@ import Vector4 from '../math/Vector4';
 
 export default class MeshComponent extends Component {
   private __primitives: Array<Primitive> = [];
+  private __opaquePrimitives: Array<Primitive> = [];
+  private __transparentPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __viewDepth = -Number.MAX_VALUE;
   public weights = [];
@@ -35,7 +37,12 @@ export default class MeshComponent extends Component {
   }
 
   addPrimitive(primitive: Primitive) {
-    this.__primitives.push(primitive);
+    if (primitive.material == null || !primitive.material.isBlend()) {
+      this.__opaquePrimitives.push(primitive);
+    } else {
+      this.__transparentPrimitives.push(primitive);
+    }
+    this.__primitives = this.__opaquePrimitives.concat(this.__transparentPrimitives);
   }
 
   getPrimitiveAt(i: number) {

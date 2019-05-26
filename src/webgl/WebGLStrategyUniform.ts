@@ -255,6 +255,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.depthMask(true);
       } else {
         gl.enable(gl.BLEND);
+        gl.enable(gl.DEPTH_TEST);
         gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
         gl.depthMask(false);
       }
