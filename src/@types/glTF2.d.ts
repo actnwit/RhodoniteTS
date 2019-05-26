@@ -2,10 +2,10 @@
 type glTF2 = {
   asset: {
     extras?: {
-      loadOptions?:{[s:string]: any},
+      rnLoaderOptions?:{[s:string]: any},
       basePath?: string,
       version?: string,
-      fileType?: string
+      fileType?: string,
     }
   },
   buffers: any[],
@@ -31,10 +31,10 @@ type glTF2 = {
 type glTF1 = {
   asset: {
     extras?: {
-      loadOptions?:{[s:string]: any},
+      rnLoaderOptions?:{[s:string]: any},
       basePath?: string,
       version?: string,
-      fileType?: string
+      fileType?: string,
     }
   },
   buffers: any[],

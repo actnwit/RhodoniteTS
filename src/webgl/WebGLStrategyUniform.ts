@@ -229,15 +229,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    if (meshComponent.componentSID === MeshRendererComponent.firstOpaqueSid) {
-      gl.disable(gl.BLEND);
-      gl.depthMask(true);
-    }
-    if (meshComponent.componentSID == MeshRendererComponent.firstTranparentSid) {
-      gl.enable(gl.BLEND);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-      gl.depthMask(false);
-    }
+    // if (meshComponent.componentSID === MeshRendererComponent.firstOpaqueSid) {
+    //   gl.disable(gl.BLEND);
+    //   gl.enable(gl.DEPTH_TEST);
+    //   gl.depthMask(true);
+    // }
+    // if (meshComponent.componentSID === MeshRendererComponent.firstTranparentSid) {
+    //   gl.enable(gl.BLEND);
+    //   gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+    //   gl.depthMask(false);
+    // }
 
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
@@ -247,6 +248,17 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
+
+      if (material == null || !(material.isBlend())) {
+        gl.disable(gl.BLEND);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+      } else {
+        gl.enable(gl.BLEND);
+        gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+        gl.depthMask(false);
+      }
+
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLShader;
       const shaderProgramUid = material!._shaderProgramUid;
 

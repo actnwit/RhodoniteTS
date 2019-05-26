@@ -570,9 +570,9 @@ export default class DrcPointCloudImporter {
   }
 
   _getOptions(defaultOptions: any, json: glTF2, options: any): ImporterOpition {
-    if (json.asset && json.asset.extras && json.asset.extras.loadOptions) {
-      for (let optionName in json.asset.extras.loadOptions) {
-        defaultOptions[optionName] = json.asset.extras.loadOptions[optionName];
+    if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
+      for (let optionName in json.asset.extras.rnLoaderOptions) {
+        defaultOptions[optionName] = json.asset.extras.rnLoaderOptions[optionName];
       }
     }
 

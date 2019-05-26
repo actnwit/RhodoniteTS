@@ -20,6 +20,7 @@ declare type GltfLoadOption = {
       isTextureImageToLoadPreMultipliedAlpha: boolean,
     }
   ],
+  alphaMode?: string,
   ignoreLists?: []
   extendedJson?: string|Object|ArrayBuffer //   URI string / JSON Object / ArrayBuffer
 }
