@@ -20,6 +20,7 @@ import { HdriFormatEnum, HdriFormat } from "../foundation/definitions/HdriFormat
 import Vector4 from "../foundation/math/Vector4";
 import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { MiscUtil } from "../foundation/misc/MiscUtil";
 
 declare var HDRImage: any;
 
@@ -502,7 +503,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       }
       if (generateMipmap) {
-        if (width === height && width !== 1) {
+        if (width === height && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile())) {
           gl.generateMipmap(gl.TEXTURE_2D);
         }
       }
@@ -640,7 +641,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);
+    if (this.__glw!.isWebGL2) {
+      gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, 0,
+                  format.index, ComponentType.UnsignedByte.index, null);
+    } else {
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);
+    }
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     return resourceHandle;
