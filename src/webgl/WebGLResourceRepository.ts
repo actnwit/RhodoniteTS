@@ -490,22 +490,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
                   format.index, type.index, data);
     }
+
+    const isGenerateMipmap = (width === height && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile()));
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    if (minFilter === TextureParameter.LinearMipmapLinear && width !== height) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    } else {
+    if (isGenerateMipmap) {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    }
+      } else {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      }
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
       if (anisotropy && this.__glw!.webgl1ExtTFA) {
         gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       }
-      if (generateMipmap) {
-        if (width === height && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile())) {
-          gl.generateMipmap(gl.TEXTURE_2D);
-        }
+      if (isGenerateMipmap) {
+        gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
     return resourceHandle;

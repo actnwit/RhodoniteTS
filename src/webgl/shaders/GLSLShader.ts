@@ -338,6 +338,19 @@ export default abstract class GLSLShader {
     return shaderText;
   }
 
+  get mipmapLevel() {
+    return `
+    // https://stackoverflow.com/questions/24388346/how-to-access-automatic-mipmap-level-in-glsl-fragment-shader-texture
+    float mipmapLevel(vec3 uv_as_texel)
+    {
+      vec3  dx_vtc        = dFdx(uv_as_texel);
+      vec3  dy_vtc        = dFdy(uv_as_texel);
+      float delta_max_sqr = max(dot(dx_vtc, dx_vtc), dot(dy_vtc, dy_vtc));
+      float mml = 0.5 * log2(delta_max_sqr);
+      return max( 0.0, mml );
+    }`;
+  }
+
   get pbrMethodDefinition() {
     return `
     const float M_PI = 3.141592653589793;
