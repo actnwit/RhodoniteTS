@@ -51,7 +51,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (PbrShadingMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     PbrShadingMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
     PbrShadingMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
     PbrShadingMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");

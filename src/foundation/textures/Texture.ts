@@ -4,6 +4,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 export default class Texture extends AbstractTexture {
   constructor() {
@@ -30,10 +31,8 @@ export default class Texture extends AbstractTexture {
     this.__width = imgCanvas.width;
     this.__height = imgCanvas.height;
 
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
-    let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    let texture = webGLResourceRepository.createTexture(
       imgCanvas, {
         level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.LinearMipmapLinear,
@@ -62,10 +61,8 @@ export default class Texture extends AbstractTexture {
         this.__width = imgCanvas.width;
         this.__height = imgCanvas.height;
 
-        const moduleManager = ModuleManager.getInstance();
-        const moduleName = 'webgl';
-        const webglModule = (moduleManager.getModule(moduleName)! as any);
-        let texture = webglModule.WebGLResourceRepository.getInstance().createTexture(
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        let texture = webGLResourceRepository.createTexture(
           imgCanvas, {
             level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,

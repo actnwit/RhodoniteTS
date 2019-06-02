@@ -10,6 +10,7 @@ import ComponentRepository from "../foundation/core/ComponentRepository";
 import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
 import ModuleManager from "../foundation/system/ModuleManager";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
+import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 
 declare var effekseer:any;
 
@@ -46,10 +47,8 @@ export default class EffekseerComponent extends Component {
       return;
     }
 
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
-    const glw = webglModule.WebGLResourceRepository.getInstance().currentWebGLContextWrapper;
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
 
     if (glw) {
       effekseer.init(glw.getRawContext());

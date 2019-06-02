@@ -61,7 +61,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
     if (EnvConstantSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     EnvConstantSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
     EnvConstantSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
     EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
