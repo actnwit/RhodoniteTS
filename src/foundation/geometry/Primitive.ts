@@ -299,4 +299,14 @@ export default class Primitive extends RnObject {
     return this.__targets;
   }
 
+  isBlend() {
+    if (this.material == null || !this.material.isBlend()) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  isOpaque() {
+    return !this.isBlend();
+  }
 }

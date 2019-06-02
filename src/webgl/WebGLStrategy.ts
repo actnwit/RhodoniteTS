@@ -12,7 +12,7 @@ import RenderPass from "../foundation/renderer/RenderPass";
 export default interface WebGLStrategy {
   $load(meshComponent: MeshComponent): void;
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle): void;
-  $render?(meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
+  $render?(i: Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
   common_$prerender(): void;
   common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44): boolean;
   attachGPUData(primitive: Primitive): void;
