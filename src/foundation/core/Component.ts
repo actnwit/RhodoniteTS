@@ -164,6 +164,7 @@ export default class Component {
       const componentSid = array[i];
       const component = componentRepository.getComponent(componentType, componentSid)!;
       (component as any)[processStage.getMethodName()]({
+        i,
         processStage,
         processApproach,
         strategy,

@@ -36,6 +36,54 @@ export default class MeshComponent extends Component {
     return WellKnownComponentTIDs.MeshComponentTID;
   }
 
+  isAllBlend() {
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isBlendPartially() {
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isOpaque() {
+    if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isFirstOpaquePrimitiveAt(index: Index) {
+    if (this.__opaquePrimitives.length > 0) {
+      if (index === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      false;
+    }
+  }
+
+  isFirstTransparentPrimitiveAt(index: Index) {
+    if (this.__transparentPrimitives.length > 0) {
+      if (this.__opaquePrimitives.length === index) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      false;
+    }
+  }
+
   addPrimitive(primitive: Primitive) {
     if (primitive.material == null || !primitive.material.isBlend()) {
       this.__opaquePrimitives.push(primitive);
