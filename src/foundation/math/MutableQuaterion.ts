@@ -152,7 +152,6 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     return q;
   }
 
-
   get x():number {
     return this.v[0];
   }

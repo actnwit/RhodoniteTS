@@ -1,18 +1,23 @@
-import { IVector2 } from "./IVector";
+import { IVector2, IVector3, IVector4 } from "./IVector";
+import Vector4 from "./Vector4";
+import Vector3 from "./Vector3";
 
-export default class Vector2 implements IVector2 {
+export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray, y?:number) {
+  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y:number, {type}: {type: T}) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
+    } else if (x == null) {
+      this.v = new type(0);
+      return;
     } else {
-      this.v = new Float32Array(2)
+      this.v = new type(2)
     }
 
-    this.x = ((x as any) as number);
-    this.y = ((y as any) as number);
+    this.v[0] = ((x as any) as number);
+    this.v[1] = ((y as any) as number);
   }
 
   get className() {
@@ -23,22 +28,15 @@ export default class Vector2 implements IVector2 {
     return new Vector2(this.x, this.y);
   }
 
-  static add(lvec: Vector2, rvec: Vector2) {
-    return new Vector2(lvec.x + rvec.x, lvec.y + rvec.y);
+  static add<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
+    return new (lvec.constructor as any)(lvec.x + rvec.x, lvec.y + rvec.y);
   }
 
-  static subtract(lvec: Vector2, rvec: Vector2) {
-    return new Vector2(lvec.x - rvec.x, lvec.y - rvec.y);
+  static subtract<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
+    return new (lvec.constructor as any)(lvec.x - rvec.x, lvec.y - rvec.y);
   }
 
-  multiply(val:number) {
-    this.x *= val;
-    this.y *= val;
-
-    return this;
-  }
-
-  isStrictEqual(vec: Vector2) {
+  isStrictEqual(vec: Vector2_<T>) {
     if (this.x === vec.x && this.y === vec.y) {
       return true;
     } else {
@@ -46,7 +44,7 @@ export default class Vector2 implements IVector2 {
     }
   }
 
-  isEqual(vec: Vector2, delta: number = Number.EPSILON) {
+  isEqual(vec: Vector2_<T>, delta: number = Number.EPSILON) {
     if (Math.abs(vec.x - this.x) < delta &&
       Math.abs(vec.y - this.y) < delta) {
       return true;
@@ -55,27 +53,65 @@ export default class Vector2 implements IVector2 {
     }
   }
 
-  static multiply(vec2:Vector2, val:number) {
-    return new Vector2(vec2.x * val, vec2.y * val);
+  static multiply<T extends TypedArrayConstructor>(vec2:Vector2_<T>, val:number) {
+    return new (vec2.constructor as any)(vec2.x * val, vec2.y * val);
   }
 
   get x() {
     return this.v[0];
   }
 
-  set x(x:number) {
-    this.v[0] = x;
-  }
-
   get y() {
     return this.v[1];
-  }
-
-  set y(y:number) {
-    this.v[1] = y;
   }
 
   get raw() {
     return this.v;
   }
 }
+
+export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
+  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y?:number) {
+    super(x, y!, {type: Float32Array})
+  }
+
+  static zero() {
+    return new Vector2(0, 0);
+  }
+
+  static one() {
+    return new Vector2(1, 1);
+  }
+
+  static dummy() {
+    return new Vector2(null, 0);
+  }
+
+  clone() {
+    return new Vector2(this.x, this.y);
+  }
+}
+
+export class Vector2d extends Vector2_<Float64ArrayConstructor> {
+  constructor(x:number|TypedArray|IVector2|IVector3|IVector4|Array<number>|null, y?:number) {
+    super(x, y!, {type: Float64Array})
+  }
+
+  static zero() {
+    return new Vector2d(0, 0);
+  }
+
+  static one() {
+    return new Vector2d(1, 1);
+  }
+
+  static dummy() {
+    return new Vector2d(null, 0);
+  }
+
+  clone() {
+    return new Vector2d(this.x, this.y);
+  }
+}
+
+export type Vector2f = Vector2;

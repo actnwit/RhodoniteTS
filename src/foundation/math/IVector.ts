@@ -1,3 +1,7 @@
+export interface IScalar {
+  readonly x: number;
+}
+
 export interface IVector2 {
   readonly x: number;
   readonly y: number;
@@ -25,6 +29,7 @@ export interface IVector4 {
   readonly y: number;
   readonly z: number;
   readonly w: number;
+  length(): number;
 }
 
 export interface IMutableVector4 {

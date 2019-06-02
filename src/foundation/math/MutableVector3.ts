@@ -1,11 +1,11 @@
 import Vector2 from "./Vector2";
-import Vector3 from "./Vector3";
+import Vector3, { Vector3_ } from "./Vector3";
 import {IVector3, IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableVector3 extends Vector3 implements IVector3 {
-  constructor(x: number|TypedArray|Vector2|IVector3|IVector4|null, y?: number, z?: number) {
-    super(x as any, y, z);
+export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IVector3 {
+  constructor(x: number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y: number, z: number, {type}: {type: T}) {
+    super(x as any, y, z, {type});
   }
 
   static get compositionType() {
@@ -29,17 +29,6 @@ export default class MutableVector3 extends Vector3 implements IVector3 {
     return this;
   }
 
-  clone() {
-    return new MutableVector3(this.x, this.y, this.z);
-  }
-
-  static one() {
-    return new MutableVector3(1, 1, 1);
-  }
-
-  static dummy() {
-    return new MutableVector3(null);
-  }
 
 
   /**
@@ -178,3 +167,50 @@ export default class MutableVector3 extends Vector3 implements IVector3 {
     return this.v;
   }
 }
+
+
+export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number) {
+    super(x, y!, z!, {type: Float32Array})
+  }
+
+  clone() {
+    return new MutableVector3(this.x, this.y, this.z);
+  }
+
+  static one() {
+    return new MutableVector3(1, 1, 1);
+  }
+
+  static dummy() {
+    return new MutableVector3(null, 0 ,0);
+  }
+
+  static zero() {
+    return new MutableVector3(0, 0, 0);
+  }
+}
+
+export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number) {
+    super(x, y!, z!, {type: Float64Array})
+  }
+
+  clone() {
+    return new MutableVector3d(this.x, this.y, this.z);
+  }
+
+  static one() {
+    return new MutableVector3d(1, 1, 1);
+  }
+
+  static dummy() {
+    return new MutableVector3d(null, 0 ,0);
+  }
+
+  static zero() {
+    return new MutableVector3d(0, 0, 0);
+  }
+}
+
+export type MutableVector3f = MutableVector3;

@@ -1,12 +1,12 @@
 import Vector2 from "./Vector2";
 import Vector3 from "./Vector3";
-import Vector4 from "./Vector4";
-import {IVector4, IMutableVector4} from "./IVector";
+import Vector4, { Vector4_ } from "./Vector4";
+import {IVector4, IMutableVector4, IVector3} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 
-export default class MutableVector4 extends Vector4 implements IMutableVector4 {
-  constructor(x: number|TypedArray|Vector2|Vector3|IVector4|null, y?: number, z?: number, w?: number) {
-    super(x, y, z, w);
+export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector4 {
+  constructor(x: number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y: number, z: number, w: number, {type}: {type: T}) {
+    super(x, y, z, w, {type});
   }
 
   static get compositionType() {
@@ -18,10 +18,6 @@ export default class MutableVector4 extends Vector4 implements IMutableVector4 {
     this.divide(length);
 
     return this;
-  }
-
-  static dummy() {
-    return new MutableVector4(null);
   }
 
   /**
@@ -154,3 +150,58 @@ export default class MutableVector4 extends Vector4 implements IMutableVector4 {
 
 
 }
+
+
+export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number, w?:number) {
+    super(x, y!, z!, w!, {type: Float32Array})
+  }
+
+  clone() {
+    return new MutableVector4(this.x, this.y, this.z, this.w);
+  }
+
+  static one() {
+    return new MutableVector4(1, 1, 1, 1);
+  }
+
+  static dummy() {
+    return new MutableVector4(null, 0, 0, 0);
+  }
+
+  static zero() {
+    return new MutableVector4(0, 0, 0, 0);
+  }
+
+  static zeroWithWOne() {
+    return new MutableVector4(0, 0, 0, 1);
+  }
+}
+
+export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number, w?:number) {
+    super(x, y!, z!, w!, {type: Float64Array})
+  }
+
+  clone() {
+    return new MutableVector4d(this.x, this.y, this.z, this.w);
+  }
+
+  static one() {
+    return new MutableVector4d(1, 1, 1, 1);
+  }
+
+  static dummy() {
+    return new MutableVector4d(null, 0 ,0, 0);
+  }
+
+  static zero() {
+    return new MutableVector4d(0, 0, 0, 0);
+  }
+
+  static zeroWithWOne() {
+    return new MutableVector4d(0, 0, 0, 1);
+  }
+}
+
+export type MutableVector4f = MutableVector4;
