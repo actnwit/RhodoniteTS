@@ -1,3 +1,7 @@
+export interface IScalar {
+  readonly x: number;
+}
+
 export interface IVector2 {
   readonly x: number;
   readonly y: number;

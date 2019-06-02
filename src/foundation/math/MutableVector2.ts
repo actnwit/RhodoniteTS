@@ -6,6 +6,21 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     super(x as any, y, {type});
   }
 
+  set x(x:number) {
+    this.v[0] = x;
+  }
+
+  set y(y:number) {
+    this.v[1] = y;
+  }
+
+  multiply(val:number) {
+    this.x *= val;
+    this.y *= val;
+
+    return this;
+  }
+
 }
 
 export default class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> {

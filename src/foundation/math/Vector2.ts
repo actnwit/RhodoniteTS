@@ -9,12 +9,15 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
+    } else if (x == null) {
+      this.v = new type(0);
+      return;
     } else {
-      this.v = new Float32Array(2)
+      this.v = new type(2)
     }
 
-    this.x = ((x as any) as number);
-    this.y = ((y as any) as number);
+    this.v[0] = ((x as any) as number);
+    this.v[1] = ((y as any) as number);
   }
 
   get className() {
@@ -31,13 +34,6 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
 
   static subtract<T extends TypedArrayConstructor>(lvec: Vector2_<T>, rvec: Vector2_<T>) {
     return new (lvec.constructor as any)(lvec.x - rvec.x, lvec.y - rvec.y);
-  }
-
-  multiply(val:number) {
-    this.x *= val;
-    this.y *= val;
-
-    return this;
   }
 
   isStrictEqual(vec: Vector2_<T>) {
@@ -65,16 +61,8 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     return this.v[0];
   }
 
-  set x(x:number) {
-    this.v[0] = x;
-  }
-
   get y() {
     return this.v[1];
-  }
-
-  set y(y:number) {
-    this.v[1] = y;
   }
 
   get raw() {
