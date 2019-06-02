@@ -144,7 +144,8 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     ) {
       return;
     }
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
     ClassicShadingSingleMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
     ClassicShadingSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture(

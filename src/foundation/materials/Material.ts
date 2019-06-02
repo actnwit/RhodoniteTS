@@ -101,7 +101,7 @@ export default class Material extends RnObject {
   }
 
   setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let args: ShaderSemanticsInfo[] = [];
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
@@ -111,7 +111,7 @@ export default class Material extends RnObject {
   }
 
   setUniformValues(shaderProgramUid: CGAPIResourceHandle, force: boolean) {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     this.__fields.forEach((value, key) => {
       const info = this.__fieldsInfo.get(key)!;
@@ -151,7 +151,7 @@ export default class Material extends RnObject {
   }
 
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string) {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
@@ -496,7 +496,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     if (this.__materialNodes[0].isSingleOperation) {
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform);
     } else {
-      const webglResourceRepository = WebGLResourceRepository.getInstance();
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
 
       const shaderCharCount = (returnValue.vertexShader + returnValue.pixelShader).length;

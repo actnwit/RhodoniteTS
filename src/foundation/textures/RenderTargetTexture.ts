@@ -6,6 +6,7 @@ import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 import { ComponentTypeEnum } from "../main";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
 
@@ -39,10 +40,8 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
   {
     this.__width = width;
     this.__height = height;
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = (moduleManager.getModule(moduleName)! as any);
-    let webGLResourceRepository:WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createRenderTargetTexture(
       {width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT});
     this.cgApiResourceUid = texture;

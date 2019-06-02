@@ -60,7 +60,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
     if (FXAA3QualitySingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     FXAA3QualitySingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
   }
 }
