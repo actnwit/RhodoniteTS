@@ -25,6 +25,7 @@ export interface IVector4 {
   readonly y: number;
   readonly z: number;
   readonly w: number;
+  length(): number;
 }
 
 export interface IMutableVector4 {

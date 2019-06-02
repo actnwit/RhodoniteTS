@@ -24,6 +24,11 @@ export default class MutableVector4 extends Vector4 implements IMutableVector4 {
     return new MutableVector4(null);
   }
 
+  static zero() {
+    return new MutableVector4(0, 0, 0, 0);
+  }
+
+
   /**
    * add value
    */

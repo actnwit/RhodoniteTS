@@ -1,21 +1,21 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-import {IVector4} from './IVector';
+import {IVector4, IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 
-export default class Vector4 implements IVector4 {
+export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|Vector3|IVector4|null, y?:number, z?:number, w?:number) {
+  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y:number, z:number, w:number, {type}: {type: T}) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
     } else if (x == null) {
-      this.v = new Float32Array(0);
+      this.v = new type(0);
       return;
     } else {
-      this.v = new Float32Array(4);
+      this.v = new type(4);
     }
 
     if (Array.isArray(x)) {
@@ -54,10 +54,6 @@ export default class Vector4 implements IVector4 {
     return CompositionType.Vec4;
   }
 
-  static dummy() {
-    return new Vector4(null);
-  }
-
   isDummy() {
     if (this.v.length === 0) {
       return true;
@@ -66,7 +62,7 @@ export default class Vector4 implements IVector4 {
     }
   }
 
-  isStrictEqual(vec:Vector4): boolean {
+  isStrictEqual(vec:Vector4_<T>): boolean {
     if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
     } else {
@@ -74,7 +70,7 @@ export default class Vector4 implements IVector4 {
     }
   }
 
-  isEqual(vec: Vector4, delta: number = Number.EPSILON) {
+  isEqual(vec: Vector4_<T>, delta: number = Number.EPSILON) {
     if (Math.abs(vec.v[0] - this.v[0]) < delta &&
       Math.abs(vec.v[1] - this.v[1]) < delta &&
       Math.abs(vec.v[2] - this.v[2]) < delta &&
@@ -101,20 +97,11 @@ export default class Vector4 implements IVector4 {
   }
 
 
-  copyComponents(vec: Vector4) {
+  copyComponents(vec: Vector4_<T>) {
     this.v[0] = vec.v[0];
     this.v[1] = vec.v[1];
     this.v[2] = vec.v[2];
     this.v[3] = vec.v[3];
-  }
-
-
-  static normalize(vec4:Vector4) {
-    const length = vec4.length();
-    let newVec = new Vector4(vec4.x, vec4.y, vec4.z, vec4.w);
-    newVec = Vector4.divide(newVec, length);
-
-    return newVec;
   }
 
   /**
@@ -157,6 +144,15 @@ export default class Vector4 implements IVector4 {
     return new (lvec4.constructor as any)(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
   }
 
+  static normalize(vec4:IVector4) {
+    const length = vec4.length();
+    let newVec = new (vec4.constructor as any)(vec4.x, vec4.y, vec4.z, vec4.w);
+    newVec = Vector4_.divide(newVec, length);
+
+    return newVec;
+  }
+
+
   toString() {
     return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
   }
@@ -179,4 +175,56 @@ export default class Vector4 implements IVector4 {
 
 }
 
-// GLBoost["Vector4"] = Vector4;
+export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, {type: Float32Array})
+  }
+
+  static zeroWithWOne() {
+    return new Vector4(0, 0, 0, 1);
+  }
+
+  static zero() {
+    return new Vector4(0, 0, 0, 0);
+  }
+
+  static one() {
+    return new Vector4(1, 1, 1, 1);
+  }
+
+  static dummy() {
+    return new Vector4(null, 0, 0, 0);
+  }
+
+  clone() {
+    return new Vector4(this.x, this.y, this.z, this.w);
+  }
+}
+
+export class Vector4d extends Vector4_<Float64ArrayConstructor> {
+  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, {type: Float64Array})
+  }
+
+  static zeroWithWOne() {
+    return new Vector4d(0, 0, 0, 1);
+  }
+
+  static zero() {
+    return new Vector4d(0, 0, 0, 0);
+  }
+
+  static one() {
+    return new Vector4d(1, 1, 1, 1);
+  }
+
+  static dummy() {
+    return new Vector4d(null, 0, 0, 0);
+  }
+
+  clone() {
+    return new Vector4d(this.x, this.y, this.z, this.w);
+  }
+}
+
+export type Vector4f = Vector4;
