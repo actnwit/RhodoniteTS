@@ -466,7 +466,7 @@ export default class CameraControllerComponent extends Component {
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
       newEyeVec = rotateM.multiplyVector(centerToEyeVec).add(this.__centerVec);
-      newCenterVec = this.__centerVec.clone();
+      newCenterVec = new MutableVector3(this.__centerVec);
       this.__newEyeToCenterVec = Vector3.subtract(newCenterVec, newEyeVec);
       this.__newTangentVec = Vector3.cross(
         this.__newUpVec,
@@ -496,7 +496,7 @@ export default class CameraControllerComponent extends Component {
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
       newEyeVec = Vector3.add(rotateM.multiplyVector(centerToEyeVec), this.__centerVec);
-      newCenterVec = this.__centerVec.clone();
+      newCenterVec = new MutableVector3(this.__centerVec);
       this.__newEyeToCenterVec = Vector3.subtract(newCenterVec, newEyeVec);
       this.__newTangentVec = Vector3.cross(
         this.__newUpVec,

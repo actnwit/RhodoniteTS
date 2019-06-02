@@ -38,7 +38,11 @@ export default class MutableVector3 extends Vector3 implements IVector3 {
   }
 
   static dummy() {
-    return new MutableVector3(null);
+    return new MutableVector3(null, 0 ,0);
+  }
+
+  static zero() {
+    return new MutableVector3(0, 0, 0);
   }
 
 

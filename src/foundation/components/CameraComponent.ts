@@ -406,7 +406,7 @@ export default class CameraComponent extends Component {
   }
 
   get worldPosition(): Vector3 {
-    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
+    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3 as MutableVector3);
     return CameraComponent.returnVector3 as Vector3;
   }
 }

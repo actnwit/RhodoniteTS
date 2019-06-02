@@ -73,9 +73,9 @@ export default class AnimationComponent extends Component {
         Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaternion);
         return AnimationComponent.returnQuaternion as Quaternion;
       } else if (start instanceof Vector3) {
-        this.returnVector3.x = start.x * (1 - ratio) + end.x * ratio;
-        this.returnVector3.y = start.y * (1 - ratio) + end.y * ratio;
-        this.returnVector3.z = start.z * (1 - ratio) + end.z * ratio;
+        (this.returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
+        (this.returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
+        (this.returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
         return this.returnVector3;
       } else {
         const returnArray = [];
@@ -96,15 +96,15 @@ export default class AnimationComponent extends Component {
         (ratio*ratio*ratio - ratio*ratio) * outTangent;
     } else {
       if (start instanceof Vector3) {
-        this.returnVector3.x = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.x +
+        (this.returnVector3 as MutableVector3).x = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.x +
         (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.x +
         (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.x +
         (ratio*ratio*ratio - ratio*ratio) * outTangent.x;
-        this.returnVector3.y = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.y +
+        (this.returnVector3 as MutableVector3).y = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.y +
         (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.y +
         (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.y +
         (ratio*ratio*ratio - ratio*ratio) * outTangent.y;
-        this.returnVector3.z = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.z +
+        (this.returnVector3 as MutableVector3).z = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.z +
         (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.z +
         (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.z +
         (ratio*ratio*ratio - ratio*ratio) * outTangent.z;
