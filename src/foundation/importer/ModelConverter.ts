@@ -523,17 +523,6 @@ export default class ModelConverter {
       }
     }
 
-    const diffuseColorTexture = materialJson.diffuseColorTexture;
-    if (diffuseColorTexture != null) {
-      const texture = diffuseColorTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
-      // material.emissiveTexture = rnTexture;
-      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
-    }
-
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null) {
       const texture = emissiveTexture.texture;
@@ -545,14 +534,20 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
-    const diffuseColorFactor = materialJson.diffuseColorFactor;
-    if (diffuseColorFactor != null) {
-      material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
+    if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
+      const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension;
+      loaderExtension.getMaterial(gltfModel, materialJson, material);
     }
 
-
-
     return material;
+  }
+
+  _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+    if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
