@@ -56,7 +56,7 @@ export default class ModelConverter {
     return this.__instance;
   }
 
-  _getDefaultShader(options: ImporterOpition) {
+  _getDefaultShader(options: GltfLoadOption) {
     let defaultShader = null;
 
     // if (options && typeof options.defaultShaderClass !== "undefined") {
