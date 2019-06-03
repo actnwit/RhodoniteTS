@@ -25,7 +25,8 @@ type glTF2 = {
   samplers: any[],
   accessors: any[],
   bufferViews: any[],
-  buffer: any[]
+  buffer: any[],
+  extensionsUsed?: any,
 };
 
 type glTF1 = {
