@@ -63,13 +63,15 @@ const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass(
 const Anisotropy: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 40, singularStr: 'anisotropy', pluralStr: 'anisotropy' });
 const ClearCoatParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 41, singularStr: 'clearcoatParameter', pluralStr: 'clearcoatParameters' });
 const SheenParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 42, singularStr: 'sheenParameter', pluralStr: 'sheenParameters' });
+const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 43, singularStr: 'specularGlossinessFactor', pluralStr: 'specularGlossinessFactors' });
+const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 44, singularStr: 'specularGlossinessTexture', pluralStr: 'specularGlossinessTextures' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
-  ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter];
+  ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -90,5 +92,5 @@ export const ShaderSemantics = Object.freeze({
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, ColorEnvTexture, PointDistanceAttenuation,
-  HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter
+  HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture
 });
