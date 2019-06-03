@@ -2,7 +2,7 @@
 type glTF2 = {
   asset: {
     extras?: {
-      rnLoaderOptions?:{[s:string]: any},
+      rnLoaderOptions?: GltfLoadOption,
       basePath?: string,
       version?: string,
       fileType?: string,

@@ -81,7 +81,7 @@ export default class DrcPointCloudImporter {
       gotText = JSON.stringify(json);
       gltfJson = JSON.parse(gotText);
     });
-    return await this._loadAsTextJson(gltfJson, options as ImporterOpition, defaultOptions, gltfUri).catch((err) => {
+    return await this._loadAsTextJson(gltfJson, options as GltfLoadOption, defaultOptions, gltfUri).catch((err) => {
       console.log('this.__loadAsTextJson error', err);
     });
   }
@@ -557,22 +557,22 @@ export default class DrcPointCloudImporter {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, options as ImporterOpition, defaultOptions, uri).catch((err) => {
+      result = await this._loadAsTextJson(json, options as GltfLoadOption, defaultOptions, uri).catch((err) => {
         console.log('this.__loadAsTextJson error', err);
       });
     }
     else {
-      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as ImporterOpition, defaultOptions, uri).catch((err) => {
+      result = await this._loadAsBinaryJson(dataView, isLittleEndian, arrayBuffer, options as GltfLoadOption, defaultOptions, uri).catch((err) => {
         console.log('this.__loadAsBinaryJson error', err);
       });
     }
     return result;
   }
 
-  _getOptions(defaultOptions: any, json: glTF2, options: any): ImporterOpition {
+  _getOptions(defaultOptions: any, json: glTF2, options: any): GltfLoadOption {
     if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
       for (let optionName in json.asset.extras.rnLoaderOptions) {
-        defaultOptions[optionName] = json.asset.extras.rnLoaderOptions[optionName];
+        defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[optionName];
       }
     }
 
@@ -583,7 +583,7 @@ export default class DrcPointCloudImporter {
     return defaultOptions;
   }
 
-  async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
+  async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string) {
     let gltfVer = dataView.getUint32(4, isLittleEndian);
     if (gltfVer !== 2) {
       throw new Error('invalid version field in this binary glTF file.');
@@ -622,7 +622,7 @@ export default class DrcPointCloudImporter {
     return (result[0] as any)[0];
   }
 
-  async _loadAsTextJson(gltfJson: glTF2, options: ImporterOpition, defaultOptions: GltfLoadOption, uri?: string) {
+  async _loadAsTextJson(gltfJson: glTF2, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string) {
     let basePath: string;
     if (uri) {
       //Set the location of gltf file as basePath
@@ -646,7 +646,7 @@ export default class DrcPointCloudImporter {
     return (result[0] as any)[0];
   }
 
-  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: ImporterOpition) {
+  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: GltfLoadOption) {
     let promises = [];
 
     let resources = {
@@ -663,7 +663,7 @@ export default class DrcPointCloudImporter {
     return Promise.all(promises);
   }
 
-  _loadJsonContent(gltfJson: glTF2, options: ImporterOpition) {
+  _loadJsonContent(gltfJson: glTF2, options: GltfLoadOption) {
 
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
@@ -942,7 +942,7 @@ export default class DrcPointCloudImporter {
     Object.assign(gltfJson, extendedJson);
   }
 
-  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: ImporterOpition, resources: {
+  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: GltfLoadOption, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]

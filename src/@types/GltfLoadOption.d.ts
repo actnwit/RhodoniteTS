@@ -1,5 +1,5 @@
 declare type GltfLoadOption = {
-  files: {
+  files: {[s:string]: ArrayBuffer
     //        "foo.gltf": content of file as ArrayBuffer,
     //        "foo.bin": content of file as ArrayBuffer,
     //        "boo.png": content of file as ArrayBuffer
