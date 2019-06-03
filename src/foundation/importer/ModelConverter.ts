@@ -534,6 +534,22 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
+    // For glTF1.0
+    const diffuseColorTexture = materialJson.diffuseColorTexture;
+    if (diffuseColorTexture != null) {
+      const texture = diffuseColorTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
+    }
+    const diffuseColorFactor = materialJson.diffuseColorFactor;
+    if (diffuseColorFactor != null) {
+      material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
+    }
+
+    // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
       const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension;
       loaderExtension.getMaterial(gltfModel, materialJson, material);
