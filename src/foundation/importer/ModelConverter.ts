@@ -435,7 +435,7 @@ export default class ModelConverter {
   private __generateAppropreateMaterial(gltfModel: glTF2) {
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension &&
-      gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThiisMaterial(gltfModel)) {
+      gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
       const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
       return loaderExtension.generateMaterial();
     }
@@ -444,10 +444,6 @@ export default class ModelConverter {
   }
 
   private __setupMaterial(gltfModel: any, materialJson: any): Material | undefined {
-    if (materialJson == null) {
-      return void 0;
-    }
-
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
     let material: Material = this.__generateAppropreateMaterial(gltfModel);

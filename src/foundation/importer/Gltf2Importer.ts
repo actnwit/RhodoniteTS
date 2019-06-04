@@ -2,6 +2,8 @@ import DataUtil from "../misc/DataUtil";
 import Accessor from "../memory/Accessor";
 import BufferView from "../memory/BufferView";
 
+declare var Rn: any;
+
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
 
@@ -95,6 +97,10 @@ export default class Gltf2Importer {
 
     for (let optionName in options) {
       defaultOptions[optionName] = options[optionName];
+    }
+
+    if (options.loaderExtension && typeof options.loaderExtension === "string") {
+      defaultOptions.loaderExtension = Rn[options.loaderExtension].getInstance();
     }
 
     return defaultOptions;
