@@ -432,6 +432,15 @@ export default class ModelConverter {
     return meshEntity;
   }
 
+  private __generateAppropreateMaterial(gltfModel: glTF2) {
+    if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension) {
+      const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
+      return loaderExtension.generateMaterial();
+    }
+
+    return MaterialHelper.createPbrUberMaterial();
+  }
+
   private __setupMaterial(gltfModel: any, materialJson: any): Material | undefined {
     if (materialJson == null) {
       return void 0;
@@ -439,13 +448,9 @@ export default class ModelConverter {
 
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
-    let material: Material;
-    if (gltfModel.asset != null && gltfModel.asset.version === '2') {
-    } else {
-    }
+    let material: Material = this.__generateAppropreateMaterial(gltfModel);
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
-      material = MaterialHelper.createPbrUberMaterial();
 
       const baseColorFactor = pbrMetallicRoughness.baseColorFactor;
       if (baseColorFactor != null) {
@@ -552,13 +557,13 @@ export default class ModelConverter {
     // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
       const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension;
-      loaderExtension.getMaterial(gltfModel, materialJson, material);
+      loaderExtension.setupMaterial(gltfModel, materialJson, material);
     }
 
     return material;
   }
 
-  _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+  private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
     if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
       return true;
     } else {

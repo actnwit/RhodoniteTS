@@ -8,7 +8,7 @@ import ShadowMapping32bitSingleMaterial from "../materials/ShadowMapping32bitSin
 import RenderPass from "../renderer/RenderPass";
 
 function createPbrUberMaterial() {
-  const materialNode = new PbrShadingMaterialNode;
+  const materialNode = new PbrShadingMaterialNode();
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
@@ -16,7 +16,7 @@ function createPbrUberMaterial() {
 }
 
 function createClassicUberMaterial() {
-  const materialNode = new ClassicShadingSingleMaterialNode;
+  const materialNode = new ClassicShadingSingleMaterialNode();
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
@@ -24,7 +24,7 @@ function createClassicUberMaterial() {
 }
 
 function createEnvConstantMaterial() {
-  const materialNode = new EnvConstantSingleMaterialNode;
+  const materialNode = new EnvConstantSingleMaterialNode();
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
@@ -32,7 +32,7 @@ function createEnvConstantMaterial() {
 }
 
 function createFXAA3QualityMaterial() {
-  const materialNode = new FXAA3QualitySingleMaterialNode;
+  const materialNode = new FXAA3QualitySingleMaterialNode();
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
@@ -40,7 +40,7 @@ function createFXAA3QualityMaterial() {
 }
 
 function createDepthEncodingMaterial() {
-  const materialNode = new DepthEncodingSingleMaterialNode;
+  const materialNode = new DepthEncodingSingleMaterialNode();
   materialNode.isSingleOperation = true;
   const material = new Material([materialNode]);
 
