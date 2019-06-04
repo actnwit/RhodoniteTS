@@ -4,6 +4,7 @@ let p = null;
 const load = async function(time){
   const moduleManager = Rn.ModuleManager.getInstance();
   await moduleManager.loadModule('webgl');
+  await moduleManager.loadModule('pbr');
   const effekseerModule = await moduleManager.loadModule('effekseer');
 
   const importer = Rn.Gltf2Importer.getInstance();
@@ -17,7 +18,7 @@ const load = async function(time){
   const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent);
   effekseerComponent.playJustAfterLoaded = true;
   //effekseerComponent.isLoop = true;
-  effekseerComponent.uri = "https://cdn.rawgit.com/effekseer/EffekseerForWebGL/7a1b035c/Release/Sample/Resource/Laser01.efk";
+  effekseerComponent.uri = '../../../assets/effekseer/HomingLaser.glb';
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
