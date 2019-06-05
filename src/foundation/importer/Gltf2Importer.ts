@@ -99,7 +99,7 @@ export default class Gltf2Importer {
       defaultOptions[optionName] = options[optionName];
     }
 
-    if (options.loaderExtension && typeof options.loaderExtension === "string") {
+    if (options && options.loaderExtension && typeof options.loaderExtension === "string") {
       defaultOptions.loaderExtension = Rn[options.loaderExtension].getInstance();
     }
 
