@@ -110,7 +110,8 @@ export default class Material extends RnObject {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, args);
   }
 
-  setUniformValues(shaderProgramUid: CGAPIResourceHandle, force: boolean) {
+  setUniformValues(force: boolean) {
+    const shaderProgramUid = this._shaderProgramUid;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     this.__fields.forEach((value, key) => {

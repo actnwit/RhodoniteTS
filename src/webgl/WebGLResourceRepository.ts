@@ -306,7 +306,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
+  private __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
     let result = false;
     const value_x = (shaderProgram as any)[identifier + '_value_x'];
     const value_y = (shaderProgram as any)[identifier + '_value_y'];

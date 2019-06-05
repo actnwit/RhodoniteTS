@@ -395,7 +395,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       //from material
       if (material) {
-        material.setUniformValues(shaderProgramUid, force);
+        material.setUniformValues(force);
       }
 
       if (primitive.indicesAccessor) {
