@@ -12,7 +12,7 @@ import SkeletalComponent from "../foundation/components/SkeletalComponent";
 import CameraComponent from "../foundation/components/CameraComponent";
 import Entity from "../foundation/core/Entity";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
-import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo, ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 import EntityRepository from "../foundation/core/EntityRepository";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import LightComponent from "../foundation/components/LightComponent";
@@ -31,6 +31,11 @@ import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44"
 import Vector3 from "../foundation/math/Vector3";
 import { HdriFormat } from "../foundation/definitions/HdriFormat";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
+
+type ShaderVariableArguments = {gl: WebGLRenderingContext, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
+  entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
+  diffuseCube?: CubeTexture, specularCube?: CubeTexture, firstTime:boolean, updateInterval?: ShaderVariableUpdateIntervalEnum};
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
@@ -40,7 +45,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __dummyWhiteTextureUid?: CGAPIResourceHandle;
   private __dummyBlackTextureUid?: CGAPIResourceHandle;
   private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
+  private __shaderSemanticsInfoMap: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   private static __isOpaqueMode = true;
+  private __webglShaderProgram?: WebGLProgram;
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
@@ -89,7 +96,15 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
 
         const args: ShaderSemanticsInfo[] = [
-          { semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true },
+          {
+            semantic: ShaderSemantics.WorldMatrix,
+            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateFunc:({shaderProgramUid, worldMatrix, firstTime, updateInterval}:ShaderVariableArguments)=>
+            {
+              RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime, updateInterval});
+            }
+          },
           { semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true },
@@ -121,7 +136,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           lights.push({ semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
         }
 
-        this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args.concat(lights));
+        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args.concat(lights));
+
+        for (let arg of args) {
+          this.__shaderSemanticsInfoMap.set(arg.semantic!, arg);
+        }
 
         material.setUniformLocations(material._shaderProgramUid);
       }
@@ -234,16 +253,26 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return !WebGLStrategyUniform.__isOpaqueMode;
   }
 
-  private __setUniformBySystem(gl: WebGLRenderingContext, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
-    entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
-    diffuseCube: CubeTexture, specularCube: CubeTexture, firstTime:boolean) {
+  private __setUniformBySystem({gl, primitive, shaderProgramUid,
+    entity, worldMatrix, normalMatrix, renderPass,
+    diffuseCube, specularCube, firstTime}: ShaderVariableArguments) {
+
+    const args: ShaderVariableArguments = {gl, primitive, shaderProgramUid,
+      entity, worldMatrix, normalMatrix, renderPass,
+      diffuseCube, specularCube, firstTime};
     // Uniforms from System
     const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
     this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, { x: vertexHandle.attributesFlags }, { firstTime: firstTime });
 
     /// Matrices
-    RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
+    const shaderSemanticsInfo = this.__shaderSemanticsInfoMap.get(ShaderSemantics.WorldMatrix);
+    if (shaderSemanticsInfo) {
+      args.updateInterval = shaderSemanticsInfo.updateInteval;
+      shaderSemanticsInfo.updateFunc!.call(this, args);
+    }
+    //RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+    //this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
+
     this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime });
     const cameraComponent = renderPass.cameraComponent;
     if (cameraComponent) {
@@ -386,9 +415,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         firstTime = true;
       }
 
-      this.__setUniformBySystem(gl, primitive, shaderProgramUid,
+      this.__setUniformBySystem({gl, primitive, shaderProgramUid,
         entity, worldMatrix, normalMatrix, renderPass,
-        diffuseCube!, specularCube!, firstTime);
+        diffuseCube, specularCube, firstTime});
 
       //from material
       if (material) {

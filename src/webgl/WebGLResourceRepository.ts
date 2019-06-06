@@ -21,6 +21,7 @@ import Vector4 from "../foundation/math/Vector4";
 import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
+import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 
 declare var HDRImage: any;
 
@@ -273,7 +274,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<ShaderSemanticsInfo>) {
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<ShaderSemanticsInfo>): WebGLProgram {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 
@@ -304,6 +305,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
 
     }
+
+    return shaderProgram;
   }
 
   private __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
@@ -356,7 +359,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, updateInterval, delta}: {firstTime?: boolean, updateInterval?:ShaderVariableUpdateIntervalEnum, delta?: number}, index?: Count) {
 
     let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
     if (index != null) {
@@ -370,9 +373,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return false;
     }
 
-    // if (!firstTime && !this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
-    //   return false;
-    // }
+    if (!firstTime) {
+      if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
+        return false;
+      }
+      // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
+      //   return false;
+      // }
+    }
 
     if (isMatrix) {
       if (componentNumber === 4) {
