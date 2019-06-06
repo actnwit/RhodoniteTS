@@ -251,6 +251,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       WebGLStrategyUniform.__isOpaqueMode = false;
     }
 
+    if (renderPass.cullface) {
+      gl.enable(gl.CULL_FACE);
+    } else {
+      gl.disable(gl.CULL_FACE);
+    }
+
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.getPrimitiveAt(i);
