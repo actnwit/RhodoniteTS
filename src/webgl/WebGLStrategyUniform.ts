@@ -95,7 +95,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         // Shader Setup
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
 
-        const args: ShaderSemanticsInfo[] = [
+        let args: ShaderSemanticsInfo[] = [
           {
             semantic: ShaderSemantics.WorldMatrix,
             isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
@@ -197,15 +197,67 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
             semantic: ShaderSemantics.DiffuseEnvTexture,
             compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true,
             updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            // updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            // {
-            // }
+            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
+            {
+              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime, updateInterval });
+            }
           },
-          { semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true },
+          {
+            semantic: ShaderSemantics.SpecularEnvTexture,
+            compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true,
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
+            {
+              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime, updateInterval });
+            }
+          },
+          {
+            semantic: ShaderSemantics.IBLParameter,
+            compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true,
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateFunc:({shaderProgramUid, entity, firstTime, specularCube, updateInterval}: ShaderVariableArguments)=>
+            {
+              let mipmapLevelNumber = 1;
+              if (specularCube) {
+                mipmapLevelNumber = specularCube.mipmapLevelNumber;
+              }
+              const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false,
+                { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
+                  z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
+                { firstTime: firstTime, updateInterval });
+            }
+          },
+          {
+            semantic: ShaderSemantics.HDRIFormat,
+            compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true,
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
+            {
+              const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+              let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+              let specularHdriType = HdriFormat.LDR_SRGB.index;
+              if (meshRenderComponent.diffuseCubeMap) {
+                diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+              }
+              if (meshRenderComponent.specularCubeMap) {
+                specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+              }
+              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false,
+              { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime, updateInterval })
+            }
+          },
+          {
+            semantic: ShaderSemantics.BrdfLutTexture,
+            compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true,
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
+            {
+              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false,
+                { x: 5 }, { firstTime: firstTime, updateInterval });
+            }
+          },
           { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true },
           { semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true },
         ];
 
@@ -218,12 +270,15 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-          lights.push({ semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
+          lights.push({
+            semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true,
+          });
           lights.push({ semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
           lights.push({ semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
         }
 
-        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args.concat(lights));
+        args = args.concat(lights);
+        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
 
         for (let arg of args) {
           this.__shaderSemanticsInfoMap.set(arg.semantic!, arg);
@@ -344,9 +399,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const shaderSemanticsInfo = this.__shaderSemanticsInfoMap.get(shaderSemantic);
     if (shaderSemanticsInfo) {
       args.updateInterval = shaderSemanticsInfo.updateInteval;
-      shaderSemanticsInfo.updateFunc!.call(this, args);
+      return shaderSemanticsInfo.updateFunc!.call(this, args);
     }
-
+    return false;
   }
 
   private __setUniformBySystem({gl, primitive, shaderProgramUid,
@@ -388,7 +443,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     let updated: boolean;
     // Env map
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
+    updated = this.__callUniformUpdateFunc(args, ShaderSemantics.DiffuseEnvTexture);
+    // updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
     if (updated) {
       gl.activeTexture(gl.TEXTURE6);
       if (diffuseCube && diffuseCube.isTextureReady) {
@@ -399,7 +455,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
       }
     }
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
+    updated = this.__callUniformUpdateFunc(args, ShaderSemantics.SpecularEnvTexture);
+    // updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
     if (updated) {
       gl.activeTexture(gl.TEXTURE7);
       if (specularCube && specularCube.isTextureReady) {
@@ -415,7 +472,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       mipmapLevelNumber = specularCube.mipmapLevelNumber;
     }
     const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap }, { firstTime: firstTime })
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false,
+      { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
+        z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
+      { firstTime: firstTime });
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
     if (meshRenderComponent.diffuseCubeMap) {
