@@ -234,6 +234,116 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return !WebGLStrategyUniform.__isOpaqueMode;
   }
 
+  private __setUniformBySystem(gl: WebGLRenderingContext, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
+    entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
+    diffuseCube: CubeTexture, specularCube: CubeTexture, firstTime:boolean) {
+    // Uniforms from System
+    const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, { x: vertexHandle.attributesFlags }, { firstTime: firstTime });
+
+    /// Matrices
+    RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime });
+    const cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent) {
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { firstTime: firstTime });
+
+      // ViewPosition
+      const cameraPosition = cameraComponent.worldPosition;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, { x: cameraPosition.v }, { firstTime: firstTime });
+    }
+
+    // Lights
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, { x: this.__lightComponents!.length }, { firstTime: firstTime });
+    for (let i = 0; i < this.__lightComponents!.length; i++) {
+      if (i >= Config.maxLightNumberInShader) {
+        break;
+      }
+      const lightComponent = this.__lightComponents![i];
+      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+      const worldLightPosition = sceneGraphComponent.worldPosition;
+      const worldLightDirection = lightComponent.direction;
+      const worldLightIntensity = lightComponent.intensity;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, { firstTime: firstTime }, i);
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightDirection, false, 4, 'f', false, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, { firstTime: firstTime }, i);
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightIntensity, false, 4, 'f', false, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, { firstTime: firstTime }, i);
+    }
+
+    /// Skinning
+    const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
+    if (skeletalComponent) {
+      const jointMatrices = skeletalComponent.jointMatrices;
+      const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: true }, { firstTime: firstTime });
+    } else {
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: false }, { firstTime: firstTime });
+    }
+
+    let updated: boolean;
+    // Env map
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
+    if (updated) {
+      gl.activeTexture(gl.TEXTURE6);
+      if (diffuseCube && diffuseCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      }
+    }
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
+    if (updated) {
+      gl.activeTexture(gl.TEXTURE7);
+      if (specularCube && specularCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      }
+    }
+    let mipmapLevelNumber = 1;
+    if (specularCube) {
+      mipmapLevelNumber = specularCube.mipmapLevelNumber;
+    }
+    const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap }, { firstTime: firstTime })
+    let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+    let specularHdriType = HdriFormat.LDR_SRGB.index;
+    if (meshRenderComponent.diffuseCubeMap) {
+      diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+    }
+    if (meshRenderComponent.specularCubeMap) {
+      specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+    }
+
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime })
+
+    // BRDF LUT
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { firstTime: firstTime });
+    if (updated) {
+      gl.activeTexture(gl.TEXTURE5);
+      if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!) as WebGLTexture;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      }
+    }
+
+    // Point size
+    const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { firstTime: firstTime });
+  }
+
   $render(idx:Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
@@ -266,17 +376,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       const material = primitive.material;
 
-      /*
-      if (meshComponent.isFirstOpaquePrimitiveAt(i)) {
-        gl.disable(gl.BLEND);
-        gl.depthMask(true);
-      }
-      if (meshComponent.isFirstTransparentPrimitiveAt(i)) {
-        gl.enable(gl.BLEND);
-        gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-        gl.depthMask(false);
-      }
-*/
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLShader;
       const shaderProgramUid = material!._shaderProgramUid;
 
@@ -287,111 +386,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         firstTime = true;
       }
 
-      // Uniforms from System
-      const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, { x: vertexHandle.attributesFlags }, { firstTime: firstTime });
-
-      /// Matrices
-      RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime });
-      const cameraComponent = renderPass.cameraComponent;
-      if (cameraComponent) {
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { firstTime: firstTime });
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { firstTime: firstTime });
-
-        // ViewPosition
-        const cameraPosition = cameraComponent.worldPosition;
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, { x: cameraPosition.v }, { firstTime: firstTime });
-      }
-
-      // Lights
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, { x: this.__lightComponents!.length }, { firstTime: firstTime });
-      for (let i = 0; i < this.__lightComponents!.length; i++) {
-        if (i >= Config.maxLightNumberInShader) {
-          break;
-        }
-        const lightComponent = this.__lightComponents![i];
-        const sceneGraphComponent = lightComponent.entity.getSceneGraph();
-        const worldLightPosition = sceneGraphComponent.worldPosition;
-        const worldLightDirection = lightComponent.direction;
-        const worldLightIntensity = lightComponent.intensity;
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, { firstTime: firstTime }, i);
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightDirection, false, 4, 'f', false, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, { firstTime: firstTime }, i);
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightIntensity, false, 4, 'f', false, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, { firstTime: firstTime }, i);
-      }
-
-      /// Skinning
-      const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-      if (skeletalComponent) {
-        const jointMatrices = skeletalComponent.jointMatrices;
-        const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime });
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime });
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime });
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: true }, { firstTime: firstTime });
-      } else {
-        this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: false }, { firstTime: firstTime });
-      }
-
-      let updated: boolean;
-      // Env map
-      updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
-      if (updated) {
-        gl.activeTexture(gl.TEXTURE6);
-        if (diffuseCube && diffuseCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!);
-          gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        } else {
-          const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
-          gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        }
-      }
-      updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
-      if (updated) {
-        gl.activeTexture(gl.TEXTURE7);
-        if (specularCube && specularCube.isTextureReady) {
-          const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!);
-          gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        } else {
-          const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!);
-          gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        }
-      }
-      let mipmapLevelNumber = 1;
-      if (specularCube) {
-        mipmapLevelNumber = specularCube.mipmapLevelNumber;
-      }
-      const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false, { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution, z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap }, { firstTime: firstTime })
-      let diffuseHdriType = HdriFormat.LDR_SRGB.index;
-      let specularHdriType = HdriFormat.LDR_SRGB.index;
-      if (meshRenderComponent.diffuseCubeMap) {
-        diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
-      }
-      if (meshRenderComponent.specularCubeMap) {
-        specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
-      }
-
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime })
-
-      // BRDF LUT
-      updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { firstTime: firstTime });
-      if (updated) {
-        gl.activeTexture(gl.TEXTURE5);
-        if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
-          const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!);
-          gl.bindTexture(gl.TEXTURE_2D, texture);
-        } else {
-          const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!);
-          gl.bindTexture(gl.TEXTURE_2D, texture);
-        }
-      }
-
-      // Point size
-      const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { firstTime: firstTime });
+      this.__setUniformBySystem(gl, primitive, shaderProgramUid,
+        entity, worldMatrix, normalMatrix, renderPass,
+        diffuseCube!, specularCube!, firstTime);
 
       //from material
       if (material) {
