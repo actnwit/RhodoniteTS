@@ -19,6 +19,7 @@ export default class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
+  public cullface: boolean = false;
 
   constructor() {
     super();
