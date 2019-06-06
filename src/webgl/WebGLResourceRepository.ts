@@ -356,7 +356,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {force = true, delta}: {force?: boolean, delta?: number}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
 
     let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
     if (index != null) {
@@ -370,7 +370,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return false;
     }
 
-    // if (!force && !this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
+    // if (!firstTime && !this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
     //   return false;
     // }
 

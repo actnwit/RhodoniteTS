@@ -110,7 +110,7 @@ export default class Material extends RnObject {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, args);
   }
 
-  setUniformValues(force: boolean) {
+  setUniformValues(firstTime: boolean) {
     const shaderProgramUid = this._shaderProgramUid;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
@@ -134,12 +134,12 @@ export default class Material extends RnObject {
       let updated;
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (value[0] != null && value[1] != null) {
-          updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value[0] }, { force: force });
+          updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value[0] }, { firstTime: firstTime });
         }
       } else if (info.compositionType !== CompositionType.Scalar) {
-        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, true, { x: value.v }, { force: force });
+        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, true, { x: value.v }, { firstTime: firstTime });
       } else {
-        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value }, { force: force });
+        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value }, { firstTime: firstTime });
       }
       if (updated && value[0] != null && value[1] != null) {
         if (info.compositionType === CompositionType.Texture2D) {
