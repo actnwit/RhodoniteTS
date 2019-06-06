@@ -38,7 +38,7 @@ ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
-${_out} vec3 v_position_inLocal;
+${_out} vec3 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
 ${this.toNormalMatrix}
@@ -57,7 +57,7 @@ ${this.toNormalMatrix}
 
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
-  v_position_inLocal = a_position;
+  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
   v_texcoord = a_texcoord;
 
   `;
@@ -89,14 +89,11 @@ vec3 linearToSrgb(vec3 linearColor) {
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
-${_in} vec3 v_position_inLocal;
+${_in} vec3 v_position_inWorld;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
-
-  // Normal
-  vec3 normal_inWorld = normalize(v_normal_inWorld);
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
@@ -118,7 +115,7 @@ void main ()
   // adapt OpenGL (RenderMan) Cubemap convension
   float rot = 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 envNormal = normalize(rotEnvMatrix * v_position_inLocal);
+  vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
   envNormal.x *= -1.0;
 
   vec4 textureColor = ${_textureCube}(u_colorEnvTexture, envNormal);
