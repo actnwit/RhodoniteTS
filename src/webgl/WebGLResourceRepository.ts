@@ -321,50 +321,46 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   private __isUniformValueDirty(isVector: boolean, shaderProgram: WebGLProgram, identifier: string, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, delta: number = Number.EPSILON) {
-    let result = false;
-    const value_x = (shaderProgram as any)[identifier + '_value_x'];
-    const value_y = (shaderProgram as any)[identifier + '_value_y'];
-    const value_z = (shaderProgram as any)[identifier + '_value_z'];
-    const value_w = (shaderProgram as any)[identifier + '_value_w'];
+    const valueIdentifier = identifier + '_value';
+    const value = (shaderProgram as any)[valueIdentifier];
 
-    if (isVector) {
-      for (let i=0; i<(x as any).length; i++) {
-        if (value_x == null) {
-          result = true;
-          break;
-        }
-        if (Math.abs((x as any)[i] - value_x) >= delta) {
-          result = true;
-          break;
-        }
-      }
-    } else {
-      if (value_x == null) {
-        result = true;
-      } else {
-        const compare = ()=>{
-          if (x != null && Math.abs(x as number - value_x) >= delta) {
-            return true;
-          }
-          if (y != null && Math.abs(y as number - value_y) >= delta) {
-            return true;
-          }
-          if (z != null && Math.abs(z as number - value_z) >= delta) {
-            return true;
-          }
-          if (w != null && Math.abs(w as number - value_w) >= delta) {
-            return true;
-          }
-          return false;
-        }
-        result = compare();
-      }
+    if (value == null) {
+      return true;
     }
 
-    (shaderProgram as any)[identifier + '_value_x'] = x;
-    (shaderProgram as any)[identifier + '_value_y'] = y;
-    (shaderProgram as any)[identifier + '_value_z'] = z;
-    (shaderProgram as any)[identifier + '_value_w'] = w;
+    let result = false;
+
+    if (isVector) {
+      const length = (x as any).length;
+      if (length > 4) {
+        return true;
+      }
+      for (let i=0; i<length; i++) {
+        if (Math.abs((x as any)[i] - value[i]) >= delta) {
+          result = true;
+          break;
+        }
+      }
+      (shaderProgram as any)[valueIdentifier] = x;
+    } else {
+      const compare = ()=>{
+        if (x != null && Math.abs(x as number - value[0]) >= delta) {
+          return true;
+        }
+        if (y != null && Math.abs(y as number - value[1]) >= delta) {
+          return true;
+        }
+        if (z != null && Math.abs(z as number - value[2]) >= delta) {
+          return true;
+        }
+        if (w != null && Math.abs(w as number - value[3]) >= delta) {
+          return true;
+        }
+        return false;
+      }
+      result = compare();
+      (shaderProgram as any)[valueIdentifier] = [x, y, z, w];
+    }
 
     return result;
   }
@@ -387,27 +383,22 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       componentNumber = 4;
     }
 
-    let componentType = 'f';
-    if (info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte) {
-      componentType = 'i';
-    }
-
     let updated = false;
     if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
       if (value[0] != null && value[1] != null) {
-        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, false, { x: value[0] }, { firstTime: firstTime }, index);
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
     } else if (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array) {
-      updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, true, { x: value }, { firstTime: firstTime }, index);
+      updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value }, { firstTime: firstTime }, index);
     } else if (info.compositionType !== CompositionType.Scalar) {
       if (typeof value.v === 'undefined') {
-        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, false, value, { firstTime: firstTime }, index);
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, value, { firstTime: firstTime }, index);
       } else {
-        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, true, { x: value.v }, { firstTime: firstTime }, index);
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value.v }, { firstTime: firstTime }, index);
       }
     } else {
       // if CompositionType.Scalar, then...
-      updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, false, { x: value }, { firstTime: firstTime }, index);
+      updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value }, { firstTime: firstTime }, index);
     }
     if (updated && value[0] != null && value[1] != null) {
       if (info.compositionType === CompositionType.Texture2D) {
@@ -421,7 +412,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValueInner(shaderProgram: WebGLProgram, semanticStr: string, info: ShaderSemanticsInfo, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
+    isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
 
 
     let updateInterval: ShaderVariableUpdateIntervalEnum;
@@ -440,35 +431,73 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       // }
     }
 
-    const gl = this.__glw!.getRawContext();
     let identifier = semanticStr;
     if (index != null) {
       identifier += '_' + index;
     }
-    const program = shaderProgram as any;
+
+    const gl = this.__glw!.getRawContext();
+    const program = (shaderProgram as any)[identifier];
 
     if (isMatrix) {
       if (componentNumber === 4) {
-        gl.uniformMatrix4fv(program[identifier], false, x);
+        gl.uniformMatrix4fv(program, false, x);
       } else {
-        gl.uniformMatrix3fv(program[identifier], false, x);
+        gl.uniformMatrix3fv(program, false, x);
       }
     } else if (isVector) {
-      const funcName = 'uniform' + componentNumber + componentType + 'v';
-      gl[funcName](program[identifier], x);
-    } else {
-      const funcName = 'uniform' + componentNumber + componentType;
+      const componentType = info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte;
       if (componentNumber === 1) {
-        gl[funcName](program[identifier], x);
+        if (componentType) {
+          gl.uniform1iv(program, x);
+        } else {
+          gl.uniform1fv(program, x);
+        }
+      } else if (componentNumber === 2) {
+        if (componentType) {
+          gl.uniform2iv(program, x);
+        } else {
+          gl.uniform2fv(program, x);
+        }
+      } else if (componentNumber === 3) {
+        if (componentType) {
+          gl.uniform3iv(program, x);
+        } else {
+          gl.uniform3fv(program, x);
+        }
+      } else if (componentNumber === 4) {
+        if (componentType) {
+          gl.uniform4iv(program, x);
+        } else {
+          gl.uniform4fv(program, x);
+        }
       }
-      if (componentNumber === 2) {
-        gl[funcName](program[identifier], x, y);
-      }
-      if (componentNumber === 3) {
-        gl[funcName](program[identifier], x, y, z);
-      }
-      if (componentNumber === 4) {
-        gl[funcName](program[identifier], x, y, z, w);
+    } else {
+      const componentType = info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte;
+      if (componentNumber === 1) {
+        if (componentType) {
+          gl.uniform1i(program, x);
+        } else {
+          gl.uniform1f(program, x);
+        }
+      } else if (componentNumber === 2) {
+        if (componentType) {
+          gl.uniform2i(program, x, y);
+        } else {
+          gl.uniform2f(program, x, y);
+        }
+      } else if (componentNumber === 3) {
+        if (componentType) {
+          gl.uniform3i(program, x, y, z);
+        } else {
+          gl.uniform3f(program, x, y, z);
+        }
+      } else if (componentNumber === 4) {
+        if (componentType) {
+          gl.uniform4i(program, x, y, z, w);
+        } else {
+          gl.uniform4f(program, x, y, z, w);
+        }
       }
     }
 

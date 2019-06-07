@@ -50,6 +50,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   // private __shaderSemanticsInfoMap: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   private static __isOpaqueMode = true;
   private __webglShaderProgram?: WebGLProgram;
+  private __lastRenderPassCullFace = false;
+  private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
+
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
@@ -346,9 +349,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
 
     // Point size
-    const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointSize.str, firstTime, { x: 30.0 });
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointDistanceAttenuation.str, firstTime, { x: pointDistanceAttenuation.v });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointDistanceAttenuation.str, firstTime, { x: this.__pointDistanceAttenuation.v });
 
     // Lights
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, this.__lightComponents!.length);
@@ -384,10 +386,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       WebGLStrategyUniform.__isOpaqueMode = false;
     }
 
-    if (renderPass.cullface) {
-      gl.enable(gl.CULL_FACE);
-    } else {
-      gl.disable(gl.CULL_FACE);
+    if (renderPass.cullface !== this.__lastRenderPassCullFace) {
+      if (renderPass.cullface) {
+        gl.enable(gl.CULL_FACE);
+      } else {
+        gl.disable(gl.CULL_FACE);
+      }
+      this.__lastRenderPassCullFace = renderPass.cullface;
     }
 
     const primitiveNum = meshComponent.getPrimitiveNumber();
