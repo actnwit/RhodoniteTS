@@ -33,7 +33,7 @@ import { HdriFormat } from "../foundation/definitions/HdriFormat";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 
-type ShaderVariableArguments = {gl: WebGLRenderingContext, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
+type ShaderVariableArguments = {gl: WebGLRenderingContext, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
   diffuseCube?: CubeTexture, specularCube?: CubeTexture, firstTime:boolean, updateInterval?: ShaderVariableUpdateIntervalEnum};
 
@@ -45,7 +45,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __dummyWhiteTextureUid?: CGAPIResourceHandle;
   private __dummyBlackTextureUid?: CGAPIResourceHandle;
   private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
-  private __shaderSemanticsInfoMap: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
+  // private __shaderSemanticsInfoMap: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   private static __isOpaqueMode = true;
   private __webglShaderProgram?: WebGLProgram;
 
@@ -96,193 +96,41 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
 
         let args: ShaderSemanticsInfo[] = [
-          {
-            semantic: ShaderSemantics.WorldMatrix,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, worldMatrix, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
-              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.NormalMatrix,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, normalMatrix, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.ViewMatrix,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            updateFunc:({shaderProgramUid, renderPass, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const cameraComponent = renderPass.cameraComponent;
-              if (cameraComponent) {
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.ProjectionMatrix,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            updateFunc:({shaderProgramUid, renderPass, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const cameraComponent = renderPass.cameraComponent;
-              if (cameraComponent) {
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.ViewPosition,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-            updateFunc:({shaderProgramUid, renderPass, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const cameraComponent = renderPass.cameraComponent;
-              if (cameraComponent) {
-                // ViewPosition
-                const cameraPosition = cameraComponent.worldPosition;
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, { x: cameraPosition.v }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.BoneMatrix,
-            isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-              if (skeletalComponent) {
-                const jointMatrices = skeletalComponent.jointMatrices;
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.BoneCompressedChank,
-            isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-              if (skeletalComponent) {
-                const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.BoneCompressedInfo,
-            isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-              if (skeletalComponent) {
-                this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime, updateInterval });
-              }
-            }
-          },
-          {
-            semantic: ShaderSemantics.SkinningMode,
-            compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: skeletalComponent != null }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.DiffuseEnvTexture,
-            compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.SpecularEnvTexture,
-            compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.IBLParameter,
-            compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, specularCube, updateInterval}: ShaderVariableArguments)=>
-            {
-              let mipmapLevelNumber = 1;
-              if (specularCube) {
-                mipmapLevelNumber = specularCube.mipmapLevelNumber;
-              }
-              const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false,
-                { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
-                  z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
-                { firstTime: firstTime, updateInterval });
-            }
-          },
-          {
-            semantic: ShaderSemantics.HDRIFormat,
-            compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, entity, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-              let diffuseHdriType = HdriFormat.LDR_SRGB.index;
-              let specularHdriType = HdriFormat.LDR_SRGB.index;
-              if (meshRenderComponent.diffuseCubeMap) {
-                diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
-              }
-              if (meshRenderComponent.specularCubeMap) {
-                specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
-              }
-              this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false,
-              { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime, updateInterval })
-            }
-          },
-          {
-            semantic: ShaderSemantics.BrdfLutTexture,
-            compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            updateFunc:({shaderProgramUid, firstTime, updateInterval}: ShaderVariableArguments)=>
-            {
-              return this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false,
-                { x: 5 }, { firstTime: firstTime, updateInterval });
-            }
-          },
-          { semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          { semantic: ShaderSemantics.LightNumber, isPlural: false, isSystem: true },
+          {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
+          {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.BoneCompressedChank, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.BoneCompressedInfo, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
         ];
 
         if (primitive.primitiveMode.index === gl.POINTS) {
           args.push(
-            { semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true },
-            { semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true },
+            {semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+            {semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           );
         }
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-          lights.push({
-            semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true,
-          });
-          lights.push({ semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
-          lights.push({ semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
+          lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+          lights.push({semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+          lights.push({semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
         }
 
         args = args.concat(lights);
-        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
 
-        for (let arg of args) {
-          this.__shaderSemanticsInfoMap.set(arg.semantic!, arg);
-        }
+        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
 
         material.setUniformLocations(material._shaderProgramUid);
       }
@@ -395,20 +243,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return !WebGLStrategyUniform.__isOpaqueMode;
   }
 
-  private __callUniformUpdateFunc(args: ShaderVariableArguments, shaderSemantic: ShaderSemanticsEnum) {
-    const shaderSemanticsInfo = this.__shaderSemanticsInfoMap.get(shaderSemantic);
-    if (shaderSemanticsInfo) {
-      args.updateInterval = shaderSemanticsInfo.updateInteval;
-      return shaderSemanticsInfo.updateFunc!.call(this, args);
-    }
-    return false;
-  }
-
-  private __setUniformBySystem({gl, primitive, shaderProgramUid,
+  private __setUniformBySystem({gl, shaderProgram, primitive, shaderProgramUid,
     entity, worldMatrix, normalMatrix, renderPass,
     diffuseCube, specularCube, firstTime}: ShaderVariableArguments) {
 
-    const args: ShaderVariableArguments = {gl, primitive, shaderProgramUid,
+    const args: ShaderVariableArguments = {gl, shaderProgram, primitive, shaderProgramUid,
       entity, worldMatrix, normalMatrix, renderPass,
       diffuseCube, specularCube, firstTime};
     // Uniforms from System
@@ -416,35 +255,35 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, { x: vertexHandle.attributesFlags }, { firstTime: firstTime });
 
     /// Matrices
-    this.__callUniformUpdateFunc(args, ShaderSemantics.WorldMatrix);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.NormalMatrix);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.ViewMatrix);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.ProjectionMatrix);
+    RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime });
+    const cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent) {
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { firstTime: firstTime });
 
-    // ViewPosition
-    this.__callUniformUpdateFunc(args, ShaderSemantics.ViewPosition);
+      // ViewPosition
+      const cameraPosition = cameraComponent.worldPosition;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, { x: cameraPosition.v }, { firstTime: firstTime });
+    }
 
     /// Skinning
-    this.__callUniformUpdateFunc(args, ShaderSemantics.BoneMatrix);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.BoneCompressedChank);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.BoneCompressedInfo);
-    this.__callUniformUpdateFunc(args, ShaderSemantics.SkinningMode);
-    // const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    // if (skeletalComponent) {
-    //   const jointMatrices = skeletalComponent.jointMatrices;
-    //   const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-    //   this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime });
-    //   this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime });
-    //   this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime });
-    //   this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: true }, { firstTime: firstTime });
-    // } else {
-    //   this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: false }, { firstTime: firstTime });
-    // }
+    const skeletalComponent = entity.getComponent(SkeletalComponent) as SkeletalComponent;
+    if (skeletalComponent) {
+      const jointMatrices = skeletalComponent.jointMatrices;
+      const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: true }, { firstTime: firstTime });
+    } else {
+      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: false }, { firstTime: firstTime });
+    }
 
     let updated: boolean;
     // Env map
-    updated = this.__callUniformUpdateFunc(args, ShaderSemantics.DiffuseEnvTexture);
-    // updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
     if (updated) {
       gl.activeTexture(gl.TEXTURE6);
       if (diffuseCube && diffuseCube.isTextureReady) {
@@ -455,8 +294,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
       }
     }
-    updated = this.__callUniformUpdateFunc(args, ShaderSemantics.SpecularEnvTexture);
-    // updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
     if (updated) {
       gl.activeTexture(gl.TEXTURE7);
       if (specularCube && specularCube.isTextureReady) {
@@ -467,6 +305,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
       }
     }
+
     let mipmapLevelNumber = 1;
     if (specularCube) {
       mipmapLevelNumber = specularCube.mipmapLevelNumber;
@@ -476,6 +315,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
         z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
       { firstTime: firstTime });
+
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
     if (meshRenderComponent.diffuseCubeMap) {
@@ -484,7 +324,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (meshRenderComponent.specularCubeMap) {
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
-
     this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime })
 
     // BRDF LUT
@@ -554,7 +393,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       const material = primitive.material;
 
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLShader;
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLProgram;
       const shaderProgramUid = material!._shaderProgramUid;
 
       let firstTime = false;
@@ -564,7 +403,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         firstTime = true;
       }
 
-      this.__setUniformBySystem({gl, primitive, shaderProgramUid,
+      this.__setUniformBySystem({gl, shaderProgram, primitive, shaderProgramUid,
         entity, worldMatrix, normalMatrix, renderPass,
         diffuseCube, specularCube, firstTime});
 

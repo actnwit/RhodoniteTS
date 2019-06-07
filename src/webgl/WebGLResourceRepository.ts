@@ -274,9 +274,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: Array<ShaderSemanticsInfo>): WebGLProgram {
+  setupUniformLocations(shaderProgramUid:WebGLResourceHandle, dataArray: ShaderSemanticsInfo[]): WebGLProgram {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
+
+    const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
+    for (let arg of dataArray) {
+      shaderSemanticsInfoMap.set(arg.semantic!.str, arg);
+    }
 
     for (let data of dataArray) {
       let prefix = '';
@@ -304,6 +309,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticSingular);
       }
 
+    }
+
+    if (shaderProgram._shaderSemanticsInfoMap != null) {
+      shaderProgram._shaderSemanticsInfoMap = new Map([...shaderProgram._shaderSemanticsInfoMap, ...shaderSemanticsInfoMap]);
+    } else {
+      shaderProgram._shaderSemanticsInfoMap = shaderSemanticsInfoMap;
     }
 
     return shaderProgram;
@@ -359,9 +370,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setUniformValue(shaderProgramUid:WebGLResourceHandle, uniformSemantic: ShaderSemanticsEnum|string, isMatrix: boolean, componentNumber: number,
-    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, updateInterval, delta}: {firstTime?: boolean, updateInterval?:ShaderVariableUpdateIntervalEnum, delta?: number}, index?: Count) {
+    componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
 
-    let identifier = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
+    let semanticStr = (typeof uniformSemantic === 'string') ? uniformSemantic : uniformSemantic.str;
+    let identifier = semanticStr;
     if (index != null) {
       identifier += '_' + index;
     }
@@ -369,7 +381,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as any;
 
-    if (shaderProgram[identifier] == null) {
+    let updateInterval: ShaderVariableUpdateIntervalEnum;
+    const shaderSemanticsInfo = (shaderProgram as any)._shaderSemanticsInfoMap.get(semanticStr);
+    if (shaderSemanticsInfo) {
+      updateInterval = shaderSemanticsInfo.updateInteval;
+    } else {
       return false;
     }
 
