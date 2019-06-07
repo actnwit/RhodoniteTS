@@ -102,52 +102,23 @@ export default class Material extends RnObject {
 
   setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    let args: ShaderSemanticsInfo[] = [];
+    const map: Map<string, ShaderSemanticsInfo> = new Map();
+    let array: ShaderSemanticsInfo[] = [];
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
-      args = args.concat(semanticsInfoArray);
+      array = array.concat(semanticsInfoArray);
     });
-    webglResourceRepository.setupUniformLocations(shaderProgramUid, args);
+
+    webglResourceRepository.setupUniformLocations(shaderProgramUid, array);
   }
 
-  setUniformValues(force: boolean) {
+  setUniformValues(firstTime: boolean) {
     const shaderProgramUid = this._shaderProgramUid;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
+
     this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
-      let setAsMatrix = false;
-      let componentNumber = info.compositionType!.getNumberOfComponents();
-      if (info.compositionType === CompositionType.Mat3) {
-        setAsMatrix = true;
-        componentNumber = 3;
-      } else if (info.compositionType === CompositionType.Mat4) {
-        setAsMatrix = true;
-        componentNumber = 4;
-      }
-
-      let componentType = 'f';
-      if (info.componentType === ComponentType.Int || info.componentType === ComponentType.Short || info.componentType === ComponentType.Byte) {
-        componentType = 'i';
-      }
-
-      let updated;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        if (value[0] != null && value[1] != null) {
-          updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value[0] }, { force: force });
-        }
-      } else if (info.compositionType !== CompositionType.Scalar) {
-        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, true, { x: value.v }, { force: force });
-      } else {
-        updated = webglResourceRepository.setUniformValue(shaderProgramUid, key, setAsMatrix, componentNumber, componentType, false, { x: value }, { force: force });
-      }
-      if (updated && value[0] != null && value[1] != null) {
-        if (info.compositionType === CompositionType.Texture2D) {
-          webglResourceRepository.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-        } else if (info.compositionType === CompositionType.TextureCube) {
-          webglResourceRepository.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-        }
-      }
+      webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
     });
   }
 

@@ -153,8 +153,8 @@ void main(){
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
+            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true}
           ]);
       }
     }
@@ -406,9 +406,10 @@ void main(){
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram(primitive.material!);
     const gl = glw.getRawContext();
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid) as WebGLProgram;
 
-    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, {x:viewMatrix.v}, {});
-    this.__webglResourceRepository.setUniformValue(material._shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, {x:projectionMatrix.v}, {});
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     return true;
   }

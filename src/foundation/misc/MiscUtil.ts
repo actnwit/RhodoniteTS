@@ -21,4 +21,8 @@ const preventDefaultForDesktopOnly = function(e: Event) {
   }
 }
 
-export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly });
+const isObject = function(o: any) {
+  return (o instanceof Object && !(o instanceof Array)) ? true : false;
+};
+
+export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject });
