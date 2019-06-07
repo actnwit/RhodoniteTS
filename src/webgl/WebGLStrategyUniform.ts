@@ -433,7 +433,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     }
     //    gl.useProgram(null);
-    this.__lastShader = -1;
+    // this.__lastShader = -1;
   }
 
 }
