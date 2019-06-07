@@ -46,9 +46,9 @@ const Mat3: CompositionTypeEnum = new CompositionTypeClass({index:5, str:'MAT3',
 const Mat4: CompositionTypeEnum = new CompositionTypeClass({index:6, str:'MAT4', glslStr: 'mat4', hlslStr:'float4x4', numberOfComponents: 16});
 const Texture2D: CompositionTypeEnum = new CompositionTypeClass({index:7, str:'TEXTURE_2D', glslStr: 'sampler2D', hlslStr:'Texture2D', numberOfComponents: 1});
 const TextureCube: CompositionTypeEnum = new CompositionTypeClass({index:8, str:'TEXTURE_CUBE', glslStr: 'samplerCube', hlslStr:'TextureCube', numberOfComponents: 1});
+const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({index:9, str:'SCALAR_ARRAY', glslStr: 'float[]', hlslStr:'float[]', numberOfComponents: 1});
 
-
-const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube];
+const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray];
 
 function from( index : number ): CompositionTypeEnum {
   return _from({typeList, index}) as CompositionTypeEnum;
@@ -58,4 +58,4 @@ function fromString( str: string ): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, from, fromString });
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, from, fromString });

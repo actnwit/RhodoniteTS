@@ -32,6 +32,8 @@ import Vector3 from "../foundation/math/Vector3";
 import { HdriFormat } from "../foundation/definitions/HdriFormat";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
+import Vector4 from "../foundation/math/Vector4";
+import Vector2 from "../foundation/math/Vector2";
 
 type ShaderVariableArguments = {gl: WebGLRenderingContext, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -96,7 +98,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         material.createProgram(this.vertexShaderMethodDefinitions_uniform);
 
         let args: ShaderSemanticsInfo[] = [
-          {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
+          {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
@@ -252,20 +254,20 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       diffuseCube, specularCube, firstTime};
     // Uniforms from System
     const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.VertexAttributesExistenceArray, false, 1, 'i', true, { x: vertexHandle.attributesFlags }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.VertexAttributesExistenceArray.str, firstTime, vertexHandle.attributesFlags);
 
     /// Matrices
     RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.WorldMatrix, true, 4, 'f', true, { x: WebGLStrategyUniform.transposedMatrix44.v }, { firstTime: firstTime });
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.NormalMatrix, true, 3, 'f', true, { x: normalMatrix.v }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, firstTime, { x: WebGLStrategyUniform.transposedMatrix44.v });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, firstTime, { x: normalMatrix.v });
     const cameraComponent = renderPass.cameraComponent;
     if (cameraComponent) {
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewMatrix, true, 4, 'f', true, { x: cameraComponent.viewMatrix.v }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ProjectionMatrix, true, 4, 'f', true, { x: cameraComponent.projectionMatrix.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, firstTime, { x: cameraComponent.viewMatrix.v });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, firstTime, { x: cameraComponent.projectionMatrix.v });
 
       // ViewPosition
       const cameraPosition = cameraComponent.worldPosition;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.ViewPosition, false, 3, 'f', true, { x: cameraPosition.v }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, firstTime, cameraPosition);
     }
 
     /// Skinning
@@ -273,17 +275,17 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (skeletalComponent) {
       const jointMatrices = skeletalComponent.jointMatrices;
       const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneMatrix, true, 4, 'f', true, { x: jointMatrices! }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedChank, false, 4, 'f', true, { x: jointCompressedChanks! }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BoneCompressedInfo, false, 4, 'f', true, { x: skeletalComponent.jointCompressedInfo!.v }, { firstTime: firstTime });
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: true }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, firstTime, { x: jointMatrices! });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, firstTime, { x: jointCompressedChanks! });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, firstTime, { x: skeletalComponent.jointCompressedInfo!.v });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, firstTime, true);
     } else {
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SkinningMode, false, 1, 'i', false, { x: false }, { firstTime: firstTime });
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, firstTime, false);
     }
 
     let updated: boolean;
     // Env map
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.DiffuseEnvTexture, false, 1, 'i', false, { x: 6 }, { firstTime: firstTime });
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [6, -1]);
     if (updated) {
       gl.activeTexture(gl.TEXTURE6);
       if (diffuseCube && diffuseCube.isTextureReady) {
@@ -294,7 +296,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
       }
     }
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.SpecularEnvTexture, false, 1, 'i', false, { x: 7 }, { firstTime: firstTime });
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [7, -1]);
     if (updated) {
       gl.activeTexture(gl.TEXTURE7);
       if (specularCube && specularCube.isTextureReady) {
@@ -311,10 +313,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       mipmapLevelNumber = specularCube.mipmapLevelNumber;
     }
     const meshRenderComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.IBLParameter, false, 4, 'f', false,
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime,
       { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
         z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
-      { firstTime: firstTime });
+      );
 
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
@@ -324,10 +326,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (meshRenderComponent.specularCubeMap) {
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.HDRIFormat, false, 2, 'i', false, { x: diffuseHdriType, y: specularHdriType }, { firstTime: firstTime })
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType })
 
     // BRDF LUT
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.BrdfLutTexture, false, 1, 'i', false, { x: 5 }, { firstTime: firstTime });
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
     if (updated) {
       gl.activeTexture(gl.TEXTURE5);
       if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
@@ -341,11 +343,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     // Point size
     const pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointSize, false, 1, 'f', false, { x: 30.0 }, { firstTime: firstTime });
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.PointDistanceAttenuation, false, 3, 'f', true, { x: pointDistanceAttenuation.v }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointSize.str, firstTime, { x: 30.0 });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointDistanceAttenuation.str, firstTime, { x: pointDistanceAttenuation.v });
 
     // Lights
-    this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightNumber, false, 1, 'i', false, { x: this.__lightComponents!.length }, { firstTime: firstTime });
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, this.__lightComponents!.length);
     for (let i = 0; i < this.__lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
         break;
@@ -355,9 +357,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const worldLightPosition = sceneGraphComponent.worldPosition;
       const worldLightDirection = lightComponent.direction;
       const worldLightIntensity = lightComponent.intensity;
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightPosition, false, 4, 'f', false, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, { firstTime: firstTime }, i);
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightDirection, false, 4, 'f', false, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, { firstTime: firstTime }, i);
-      this.__webglResourceRepository.setUniformValue(shaderProgramUid, ShaderSemantics.LightIntensity, false, 4, 'f', false, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, { firstTime: firstTime }, i);
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, firstTime, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, i);
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, firstTime, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, i);
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, firstTime, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, i);
     }
   }
 
