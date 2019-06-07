@@ -69,8 +69,8 @@ export default class AnimationComponent extends Component {
       return start * (1 - ratio) + end * ratio;
     } else {
       if (start instanceof Quaternion) {
-        //return Quaternion.qlerp(start, end, ratio);
-        Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaternion);
+        // Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaternion);
+        Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
         return AnimationComponent.returnQuaternion as Quaternion;
       } else if (start instanceof Vector3) {
         (this.returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
