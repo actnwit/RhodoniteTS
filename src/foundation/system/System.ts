@@ -31,6 +31,7 @@ export default class System {
   private __webglStrategy?: WebGLStrategy;
   private __localExpression = new Expression();
   private __localRenderPass = new RenderPass();
+  private __lastEntitiesNumber = -1;
 
   private constructor() {
     this.__localExpression.addRenderPasses([this.__localRenderPass]);
@@ -41,12 +42,13 @@ export default class System {
       throw new Error('Choose a process approach first.');
     }
 
-    let exp = expression;
-    if (expression == null) {
-      exp = this.__localExpression;
+    let exp = (expression != null) ? expression : this.__localExpression;
+    if (exp === this.__localExpression && this.__entityRepository.getEntitiesNumber() !== this.__lastEntitiesNumber) {
       this.__localRenderPass.clearEntities();
       this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
       this.__localRenderPass.cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+
+      this.__lastEntitiesNumber = this.__entityRepository.getEntitiesNumber();
     }
 
 

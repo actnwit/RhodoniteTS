@@ -109,5 +109,9 @@ export default class EntityRepository {
   _getEntities() {
     return this.__entities.concat();
   }
+
+  getEntitiesNumber() {
+    return this.__entities.length;
+  }
 }
 
