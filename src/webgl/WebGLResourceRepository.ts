@@ -397,7 +397,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (value[0] != null && value[1] != null) {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
-    } else if (info.compositionType === CompositionType.ScalarArray) {
+    } else if (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array) {
       updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, true, { x: value }, { firstTime: firstTime }, index);
     } else if (info.compositionType !== CompositionType.Scalar) {
       if (typeof value.v === 'undefined') {
@@ -406,6 +406,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, true, { x: value.v }, { firstTime: firstTime }, index);
       }
     } else {
+      // if CompositionType.Scalar, then...
       updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, componentType, false, { x: value }, { firstTime: firstTime }, index);
     }
     if (updated && value[0] != null && value[1] != null) {
