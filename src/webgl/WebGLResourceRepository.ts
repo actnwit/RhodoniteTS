@@ -280,7 +280,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     for (let arg of dataArray) {
-      shaderSemanticsInfoMap.set(arg.semantic!.str, arg);
+      shaderSemanticsInfoMap.set((arg.semantic != null) ? arg.semantic!.str : arg.semanticStr!, arg);
     }
 
     for (let data of dataArray) {
@@ -423,14 +423,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setUniformValueInner(shaderProgram: WebGLProgram, semanticStr: string, info: ShaderSemanticsInfo, isMatrix: boolean, componentNumber: number,
     componentType: string, isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
 
-    let identifier = semanticStr;
-    if (index != null) {
-      identifier += '_' + index;
-    }
 
-    const gl = this.__glw!.getRawContext();
-
-    const program = shaderProgram as any;
     let updateInterval: ShaderVariableUpdateIntervalEnum;
     if (info) {
       updateInterval = info.updateInteval!;
@@ -446,6 +439,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       //   return false;
       // }
     }
+
+    const gl = this.__glw!.getRawContext();
+    let identifier = semanticStr;
+    if (index != null) {
+      identifier += '_' + index;
+    }
+    const program = shaderProgram as any;
 
     if (isMatrix) {
       if (componentNumber === 4) {
