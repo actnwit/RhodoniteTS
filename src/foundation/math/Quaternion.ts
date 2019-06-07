@@ -146,6 +146,13 @@ export default class Quaternion implements IVector4 {
     }
   }
 
+  static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
+    outQ.x = lhq.x * (1 - ratio) + rhq.x * ratio;
+    outQ.y = lhq.y * (1 - ratio) + rhq.y * ratio;
+    outQ.z = lhq.z * (1 - ratio) + rhq.z * ratio;
+    outQ.w = lhq.w * (1 - ratio) + rhq.w * ratio;
+  }
+
   static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
 
 //    var q = new Quaternion(0, 0, 0, 1);
