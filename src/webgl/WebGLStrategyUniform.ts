@@ -97,14 +97,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
         let args: ShaderSemanticsInfo[] = [
           {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true },
-          {semantic: ShaderSemantics.WorldMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.NormalMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
-          {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
-          {semantic: ShaderSemantics.ViewPosition, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
-          {semantic: ShaderSemantics.BoneMatrix, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.BoneCompressedChank, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.BoneCompressedInfo, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
@@ -123,9 +123,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
         const lights: ShaderSemanticsInfo[] = [];
         for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-          lights.push({semantic: ShaderSemantics.LightPosition, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
-          lights.push({semantic: ShaderSemantics.LightDirection, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
-          lights.push({semantic: ShaderSemantics.LightIntensity, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
+          lights.push({semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+          lights.push({semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+          lights.push({semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
         }
 
         args = args.concat(lights);

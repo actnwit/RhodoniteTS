@@ -14,6 +14,8 @@ import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
+import { ComponentType } from "../foundation/definitions/ComponentType";
+import { CompositionType } from "../foundation/definitions/CompositionType";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -70,8 +72,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, isPlural: false, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, isPlural: false, isSystem: true}
+            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true}
           ]);
       }
     }
