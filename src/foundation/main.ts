@@ -51,6 +51,7 @@ import RenderBuffer from './textures/RenderBuffer';
 import {TextureParameter} from './definitions/TextureParameter';
 import RenderableHelper from './helpers/RenderableHelper';
 import Texture from './textures/Texture';
+import EntityHelper from './helpers/EntityHelper';
 
 const Rn = {
   EntityRepository,
@@ -106,6 +107,7 @@ const Rn = {
   TextureParameter,
   RenderableHelper,
   Texture,
+  EntityHelper,
 };
 export default Rn;
 
