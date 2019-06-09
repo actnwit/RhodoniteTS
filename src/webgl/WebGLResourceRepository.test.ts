@@ -7,6 +7,7 @@ import Primitive from '../foundation/geometry/Primitive';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PrimitiveMode } from '../foundation/definitions/PrimitiveMode';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import MemoryManager from '../foundation/core/MemoryManager';
 
 const puppeteer = require('puppeteer')
 
@@ -55,6 +56,7 @@ function readyBasicVerticesData() {
 }
 
 test('Create WebGL resources.', async () => {
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
   const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
 
   var width   = 64

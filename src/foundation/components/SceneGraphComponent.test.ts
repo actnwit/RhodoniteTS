@@ -5,6 +5,7 @@ import Vector3 from '../math/Vector3';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
+import MemoryManager from '../core/MemoryManager';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -13,6 +14,8 @@ function generateEntity() {
 }
 
 test('create Parents and children.', () => {
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+
   // generate entities
   const sceneEntity = generateEntity();
   const parentEntity = generateEntity();

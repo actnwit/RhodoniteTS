@@ -4,6 +4,7 @@ import ComponentRepository from '../core/ComponentRepository';
 import TransformComponent from './TransformComponent';
 import is from '../misc/IsUtil';
 import Vector3 from '../math/Vector3';
+import MemoryManager from '../core/MemoryManager';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -12,6 +13,8 @@ function generateEntity() {
 }
 
 test('Use translate simply', () => {
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
   transformComponent.translate = new Vector3(1, 0, 0);

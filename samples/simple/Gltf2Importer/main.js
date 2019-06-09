@@ -8,7 +8,7 @@ const load = function(time){
   Promise.all(promises).then(function(){
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'), 0.05);
 
     const entityRepository = Rn.EntityRepository.getInstance();
 

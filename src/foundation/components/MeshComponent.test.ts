@@ -6,6 +6,7 @@ import Primitive from '../geometry/Primitive';
 import { CompositionType } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
+import MemoryManager from '../core/MemoryManager';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -14,6 +15,7 @@ function generateEntity() {
 }
 
 test('Use translate simply', () => {
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
   const firstEntity = generateEntity();
 
   const indices = new Uint32Array([

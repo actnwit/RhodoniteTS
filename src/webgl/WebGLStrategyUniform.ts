@@ -373,27 +373,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    if (idx === 0) {
-      gl.disable(gl.BLEND);
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthMask(true);
-      WebGLStrategyUniform.__isOpaqueMode = true;
-    }
-    if (idx === MeshRendererComponent.firstTranparentIndex) {
-      gl.enable(gl.BLEND);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-      gl.depthMask(false);
-      WebGLStrategyUniform.__isOpaqueMode = false;
-    }
-
-    if (renderPass.cullface !== this.__lastRenderPassCullFace) {
-      if (renderPass.cullface) {
-        gl.enable(gl.CULL_FACE);
-      } else {
-        gl.disable(gl.CULL_FACE);
-      }
-      this.__lastRenderPassCullFace = renderPass.cullface;
-    }
+    this.setWebGLStates(idx, gl, renderPass);
 
     const primitiveNum = meshComponent.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
@@ -441,5 +421,29 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     // this.__lastShader = -1;
   }
 
+
+  private setWebGLStates(idx: number, gl: any, renderPass: RenderPass) {
+    if (idx === 0) {
+      gl.disable(gl.BLEND);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthMask(true);
+      WebGLStrategyUniform.__isOpaqueMode = true;
+    }
+    if (idx === MeshRendererComponent.firstTranparentIndex) {
+      gl.enable(gl.BLEND);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+      gl.depthMask(false);
+      WebGLStrategyUniform.__isOpaqueMode = false;
+    }
+    if (renderPass.cullface !== this.__lastRenderPassCullFace) {
+      if (renderPass.cullface) {
+        gl.enable(gl.CULL_FACE);
+      }
+      else {
+        gl.disable(gl.CULL_FACE);
+      }
+      this.__lastRenderPassCullFace = renderPass.cullface;
+    }
+  }
 }
 
