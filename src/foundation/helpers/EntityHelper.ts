@@ -5,6 +5,7 @@ import MeshComponent from "../components/MeshComponent";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import CameraComponent from "../components/CameraComponent";
 import CameraControllerComponent from "../components/CameraControllerComponent";
+import Entity from "../core/Entity";
 
 function createGroupEntity() {
   return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent]);
@@ -22,4 +23,20 @@ function createCameraWithControllerEntity() {
   return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
 }
 
-export default Object.freeze({createGroupEntity, createMeshEntity, createCameraEntity, createCameraWithControllerEntity});
+function setVisibilityRecursively(entity: Entity, flag: boolean) {
+  const sg = entity.getSceneGraph();
+
+  const func = (entity: Entity, flag: boolean)=>{
+    const mr = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+    if (mr) {
+      mr.isVisible = flag;
+    }
+  }
+  for (let child of sg!.children) {
+    child.applyFunctionRecursively((child: SceneGraphComponent, args: any[])=>{
+      func(child.entity, args[0]);
+    }, [flag]);
+  }
+}
+export default Object.freeze({createGroupEntity, createMeshEntity, createCameraEntity, createCameraWithControllerEntity, setVisibilityRecursively});
+
