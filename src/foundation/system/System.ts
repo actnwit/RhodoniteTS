@@ -11,6 +11,7 @@ import MeshRendererComponent from "../components/MeshRendererComponent";
 import EntityRepository from "../core/EntityRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import CameraComponent from "../components/CameraComponent";
+import MemoryManager from "../core/MemoryManager";
 
 export default class System {
   private static __instance: System;
@@ -95,7 +96,7 @@ export default class System {
 
   }
 
-  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement) {
+  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -112,6 +113,8 @@ export default class System {
     } else {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     }
+
+    MemoryManager.createInstanceIfNotCreated(1 * memoryUsageOrder, 0.5 * memoryUsageOrder, 0.1 * memoryUsageOrder, 0 * memoryUsageOrder);
 
     repo.addWebGLContext(gl!, canvas, true);
     this.__processApproach = approach;

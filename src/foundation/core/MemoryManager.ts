@@ -16,11 +16,24 @@ export default class MemoryManager {
   private static __bufferWidthLength: Size = Math.pow(2, 10);
   private static __bufferHeightLength: Size = Math.pow(2, 10);
 
-  private constructor() {
+  private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
+    // BufferForCPU
+    {
+
+      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * cpuGeneric;
+      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+      const buffer = new Buffer({
+        byteLength: arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: BufferUse.CPUGeneric.toString()
+      });
+      this.__buffers[buffer.name] = buffer;
+    }
 
     // BufferForGPUInstanceData
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/);
+      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuInstanceData;
+      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -31,7 +44,8 @@ export default class MemoryManager {
 
     // BufferForGPUVertexData
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * (MemoryManager.bufferHeightLength + 1)/*width*height*/ * 4/*rgba*/ * 8/*byte*/); // 16MB
+      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
+      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -42,7 +56,8 @@ export default class MemoryManager {
 
     // BufferForUBO
     {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * (MemoryManager.bufferHeightLength)/*width*height*/ * 4/*rgba*/ * 8/*byte*/);//2^14); // 16KB
+      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * UBOGeneric;
+      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
         arrayBuffer: arrayBuffer,
@@ -51,23 +66,21 @@ export default class MemoryManager {
       this.__buffers[buffer.name] = buffer;
     }
 
-    // BufferForCPU
-    {
-      const arrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/);
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
-        name: BufferUse.CPUGeneric.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
+  }
 
+  static createInstanceIfNotCreated(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
+    if (!this.__instance) {
+      this.__instance = new MemoryManager(cpuGeneric, gpuInstanceData, gpuVertexData, UBOGeneric);
+      return this.__instance;
+    }
+    return this.__instance;
+  }
+
+  private __makeMultipleOf4byteSize(memorySize: number) {
+    return memorySize + 4 - memorySize % 4;
   }
 
   static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new MemoryManager();
-    }
     return this.__instance;
   }
 
@@ -81,6 +94,19 @@ export default class MemoryManager {
 
   static get bufferHeightLength(): Size {
     return MemoryManager.__bufferHeightLength;
+  }
+
+  printMemoryUsage() {
+    const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
+    const gpuInstanceData = this.__buffers[BufferUse.GPUInstanceData.toString()];
+    const gpuVertexData = this.__buffers[BufferUse.GPUVertexData.toString()];
+    const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
+
+    console.log(`Memory Usage in Memory Manager:`);
+    console.log(`CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${cpuGeneric.takenSizeInByte/cpuGeneric.byteLength} %) `);
+    console.log(`GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${gpuInstanceData.byteLength} bytes. (${gpuInstanceData.takenSizeInByte/gpuInstanceData.byteLength} %) `);
+    console.log(`GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${gpuVertexData.byteLength} bytes. (${gpuVertexData.takenSizeInByte/gpuVertexData.byteLength} %) `);
+    console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte/uboGeneric.byteLength} %) `);
   }
 
 }
