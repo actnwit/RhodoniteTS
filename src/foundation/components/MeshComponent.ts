@@ -68,7 +68,7 @@ export default class MeshComponent extends Component {
         return false;
       }
     } else {
-      false;
+      return false;
     }
   }
 
@@ -80,7 +80,7 @@ export default class MeshComponent extends Component {
         return false;
       }
     } else {
-      false;
+      return false;
     }
   }
 

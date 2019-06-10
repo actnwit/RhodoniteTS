@@ -247,6 +247,7 @@ export default class Gltf2Exporter {
 
                 return countTexture++
               }
+              return countTexture;
             }
 
             let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);

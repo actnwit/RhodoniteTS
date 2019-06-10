@@ -266,6 +266,7 @@ export default class Quaternion implements IVector4 {
     case 1: return this.y;
     case 2: return this.z;
     case 3: return this.w;
+    default: return void 0;
     }
   }
 
