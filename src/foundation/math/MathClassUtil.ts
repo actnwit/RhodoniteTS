@@ -10,6 +10,7 @@ import MutableMatrix44 from './MutableMatrix44';
 import MutableMatrix33 from './MutableMatrix33';
 import MutableVector4 from './MutableVector4';
 import MutableVector3 from './MutableVector3';
+import MutableVector2 from './MutableVector2';
 
 export default class MathClassUtil {
   constructor() {
@@ -61,10 +62,13 @@ export default class MathClassUtil {
     } else if (compositionType === CompositionType.Mat4) {
       return Matrix44;
     }
+    return void 0;
   }
 
   static getMutableValueClass(compositionType: CompositionTypeEnum): Function|undefined {
-    if (compositionType === CompositionType.Vec3) {
+    if (compositionType === CompositionType.Vec2) {
+      return MutableVector2;
+    } else if (compositionType === CompositionType.Vec3) {
       return MutableVector3;
     } else if (compositionType === CompositionType.Vec4) {
       return MutableVector4;
@@ -72,6 +76,8 @@ export default class MathClassUtil {
       return MutableMatrix33;
     } else if (compositionType === CompositionType.Mat4) {
       return MutableMatrix44;
+    } else {
+      return void 0;
     }
   }
 
@@ -301,6 +307,7 @@ export default class MathClassUtil {
       return arr;
     } else {
       console.error('Non supported type!');
+      return void 0;
     }
   }
 }

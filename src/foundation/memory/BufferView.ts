@@ -67,7 +67,9 @@ export default class BufferView extends RnObject {
 
     if (firstStrideBytes === secondStrideBytes &&
       (firstElementSizeInBytes + secondElementSizeInBytes) < firstElementSizeInBytes) {
-        return true;
+      return true;
+    } else {
+      return false;
     }
   }
 

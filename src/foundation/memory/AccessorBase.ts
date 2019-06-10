@@ -94,7 +94,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.UnsingedInt: return Uint32Array;
       case ComponentType.Float: return Float32Array;
       case ComponentType.Double: return Float64Array;
-      default: console.error('Unexpected ComponentType!');
+      default: console.error('Unexpected ComponentType!'); return void 0;
     }
   }
 
@@ -109,7 +109,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.UnsingedInt: return 'getUint32';
       case ComponentType.Float: return 'getFloat32';
       case ComponentType.Double: return 'getFloat64';
-      default: console.error('Unexpected ComponentType!');
+      default: console.error('Unexpected ComponentType!'); return 'unkown';
     }
   }
 
