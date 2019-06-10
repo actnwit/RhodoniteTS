@@ -10,9 +10,7 @@ import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import Matrix33 from '../math/Matrix33';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
-import Vector4 from '../math/Vector4';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MeshComponent from './MeshComponent';
@@ -32,6 +30,7 @@ export default class SceneGraphComponent extends Component {
   private __isWorldAABBDirty = true;
   private static __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
+  public isVisible = true;
 
   // Skeletal
   public isRootJoint = false;
@@ -255,6 +254,13 @@ export default class SceneGraphComponent extends Component {
       this.__isWorldAABBDirty = false;
     }
     return this.__worldAABB;
+  }
+
+  setVisibilityRecursively(flag: boolean) {
+    this.isVisible = flag;
+    for (let child of this.__children) {
+      child.setVisibilityRecursively(flag);
+    }
   }
 
 }
