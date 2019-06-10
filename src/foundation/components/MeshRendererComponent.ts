@@ -35,7 +35,6 @@ export default class MeshRendererComponent extends Component {
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
-  public isVisible = true;
 
   private static __webglResourceRepository?: WebGLResourceRepository;
   private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
@@ -248,7 +247,7 @@ export default class MeshRendererComponent extends Component {
     const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     for (let i = 0; i < meshComponents.length; i++) {
       const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
-      if (!meshRendererComponent.isVisible) {
+      if (!meshComponents[i].entity.getSceneGraph().isVisible) {
         continue;
       }
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
