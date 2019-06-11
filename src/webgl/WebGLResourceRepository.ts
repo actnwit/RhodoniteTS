@@ -172,7 +172,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
 
-    const attributesFlags = [];
+    const attributesFlags: boolean[] = [];
     for (let i=0; i<VertexAttribute.AttributeTypeNumber; i++) {
       attributesFlags[i] = false;
     }
