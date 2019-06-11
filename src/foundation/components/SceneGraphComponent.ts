@@ -26,7 +26,6 @@ export default class SceneGraphComponent extends Component {
   private __tmpMatrix = MutableMatrix44.identity();
   private static _isAllUpdate = false;
   private __worldAABB = new AABB();
-  private __meshComponent?: MeshComponent;
   private __isWorldAABBDirty = true;
   private static __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
@@ -130,17 +129,14 @@ export default class SceneGraphComponent extends Component {
   }
 
   $create() {
-    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
 
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
-   // if (!this.__isWorldMatrixUpToDate) {
-      //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-      this.__isWorldMatrixUpToDate = true;
-    //}
+
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+    this.__isWorldMatrixUpToDate = true;
   }
 
   static common_$prerender() {
@@ -223,9 +219,10 @@ export default class SceneGraphComponent extends Component {
   calcWorldAABB() {
     const that = this;
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
+      const meshComponent = elem.entity.getComponent(MeshComponent) as MeshComponent;
 
-      if (elem.__meshComponent != null) {
-        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), elem.__meshComponent!.AABB);
+      if (meshComponent != null) {
+        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), meshComponent!.AABB);
       }
 
       var children = elem.children;
