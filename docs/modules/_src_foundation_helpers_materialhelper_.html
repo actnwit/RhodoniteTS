@@ -75,10 +75,13 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createclassicubermaterial" class="tsd-kind-icon">create<wbr>Classic<wbr>Uber<wbr>Material</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createdepthencodingmaterial" class="tsd-kind-icon">create<wbr>Depth<wbr>Encoding<wbr>Material</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createencodeddepthgaussianblurmaterial" class="tsd-kind-icon">create<wbr>Encoded<wbr>Depth<wbr>Gaussian<wbr>Blur<wbr>Material</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createenvconstantmaterial" class="tsd-kind-icon">create<wbr>Env<wbr>Constant<wbr>Material</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createfxaa3qualitymaterial" class="tsd-kind-icon">createFXAA3<wbr>Quality<wbr>Material</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createfurnacetestmaterial" class="tsd-kind-icon">create<wbr>Furnace<wbr>Test<wbr>Material</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createpbrubermaterial" class="tsd-kind-icon">create<wbr>Pbr<wbr>Uber<wbr>Material</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createshadowmapping32bitmaterial" class="tsd-kind-icon">create<wbr>Shadow<wbr>Mapping32bit<wbr>Material</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createshadowmappingdecodematerial" class="tsd-kind-icon">create<wbr>Shadow<wbr>Mapping<wbr>Decode<wbr>Material</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_src_foundation_helpers_materialhelper_.html#createzopbrubermaterial" class="tsd-kind-icon">create<wbr>ZoPbr<wbr>Uber<wbr>Material</a></li>
 							</ul>
 						</section>
 					</div>
@@ -96,7 +99,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L18">src/foundation/helpers/MaterialHelper.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L22">src/foundation/helpers/MaterialHelper.ts:22</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
@@ -107,15 +110,50 @@
 					<a name="createdepthencodingmaterial" class="tsd-anchor"></a>
 					<h3>create<wbr>Depth<wbr>Encoding<wbr>Material</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Depth<wbr>Encoding<wbr>Material<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Depth<wbr>Encoding<wbr>Material<span class="tsd-signature-symbol">(</span>depthPow<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L42">src/foundation/helpers/MaterialHelper.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L54">src/foundation/helpers/MaterialHelper.ts:54</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> depthPow: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="createencodeddepthgaussianblurmaterial" class="tsd-anchor"></a>
+					<h3>create<wbr>Encoded<wbr>Depth<wbr>Gaussian<wbr>Blur<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Encoded<wbr>Depth<wbr>Gaussian<wbr>Blur<wbr>Material<span class="tsd-signature-symbol">(</span>renderPassEncodingDepth<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a>, isHorizontal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, parameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L62">src/foundation/helpers/MaterialHelper.ts:62</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>renderPassEncodingDepth: <a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a></h5>
+								</li>
+								<li>
+									<h5>isHorizontal: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>parameters: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
 						</li>
 					</ul>
@@ -130,7 +168,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L26">src/foundation/helpers/MaterialHelper.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L30">src/foundation/helpers/MaterialHelper.ts:30</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
@@ -147,7 +185,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L34">src/foundation/helpers/MaterialHelper.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L38">src/foundation/helpers/MaterialHelper.ts:38</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="createfurnacetestmaterial" class="tsd-anchor"></a>
+					<h3>create<wbr>Furnace<wbr>Test<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Furnace<wbr>Test<wbr>Material<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L46">src/foundation/helpers/MaterialHelper.ts:46</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
@@ -164,7 +219,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L10">src/foundation/helpers/MaterialHelper.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L14">src/foundation/helpers/MaterialHelper.ts:14</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
@@ -172,24 +227,47 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="createshadowmapping32bitmaterial" class="tsd-anchor"></a>
-					<h3>create<wbr>Shadow<wbr>Mapping32bit<wbr>Material</h3>
+					<a name="createshadowmappingdecodematerial" class="tsd-anchor"></a>
+					<h3>create<wbr>Shadow<wbr>Mapping<wbr>Decode<wbr>Material</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Shadow<wbr>Mapping32bit<wbr>Material<span class="tsd-signature-symbol">(</span>renderPass<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Shadow<wbr>Mapping<wbr>Decode<wbr>Material<span class="tsd-signature-symbol">(</span>renderPassEncodingDepth<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol"> | </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol">[]</span>, mode<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_src_foundation_definitions_shadowmapping_.shadowmappingenum.html" class="tsd-signature-type">ShadowMappingEnum</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/helpers/MaterialHelper.ts#L50">src/foundation/helpers/MaterialHelper.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L78">src/foundation/helpers/MaterialHelper.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>renderPass: <a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a></h5>
+									<h5>renderPassEncodingDepth: <a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol"> | </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> mode: <a href="../interfaces/_src_foundation_definitions_shadowmapping_.shadowmappingenum.html" class="tsd-signature-type">ShadowMappingEnum</a><span class="tsd-signature-symbol"> =&nbsp;ShadowMapping.Standard</span></h5>
 								</li>
 							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a>
+							</h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="createzopbrubermaterial" class="tsd-anchor"></a>
+					<h3>create<wbr>ZoPbr<wbr>Uber<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>ZoPbr<wbr>Uber<wbr>Material<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/helpers/MaterialHelper.ts#L95">src/foundation/helpers/MaterialHelper.ts:95</a></li>
+								</ul>
+							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
 						</li>
 					</ul>
@@ -216,16 +294,25 @@
 						<a href="_src_foundation_helpers_materialhelper_.html#createdepthencodingmaterial" class="tsd-kind-icon">create<wbr>Depth<wbr>Encoding<wbr>Material</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_foundation_helpers_materialhelper_.html#createencodeddepthgaussianblurmaterial" class="tsd-kind-icon">create<wbr>Encoded<wbr>Depth<wbr>Gaussian<wbr>Blur<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_foundation_helpers_materialhelper_.html#createenvconstantmaterial" class="tsd-kind-icon">create<wbr>Env<wbr>Constant<wbr>Material</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_foundation_helpers_materialhelper_.html#createfxaa3qualitymaterial" class="tsd-kind-icon">createFXAA3<wbr>Quality<wbr>Material</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_foundation_helpers_materialhelper_.html#createfurnacetestmaterial" class="tsd-kind-icon">create<wbr>Furnace<wbr>Test<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_src_foundation_helpers_materialhelper_.html#createpbrubermaterial" class="tsd-kind-icon">create<wbr>Pbr<wbr>Uber<wbr>Material</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_src_foundation_helpers_materialhelper_.html#createshadowmapping32bitmaterial" class="tsd-kind-icon">create<wbr>Shadow<wbr>Mapping32bit<wbr>Material</a>
+						<a href="_src_foundation_helpers_materialhelper_.html#createshadowmappingdecodematerial" class="tsd-kind-icon">create<wbr>Shadow<wbr>Mapping<wbr>Decode<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_src_foundation_helpers_materialhelper_.html#createzopbrubermaterial" class="tsd-kind-icon">create<wbr>ZoPbr<wbr>Uber<wbr>Material</a>
 					</li>
 				</ul>
 			</nav>
