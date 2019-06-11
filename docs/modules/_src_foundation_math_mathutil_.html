@@ -98,7 +98,7 @@
 					<div class="tsd-signature tsd-kind-icon">Math<wbr>Util<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L100">src/foundation/math/MathUtil.ts:100</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L100">src/foundation/math/MathUtil.ts:100</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -113,7 +113,7 @@
 					<div class="tsd-signature tsd-kind-icon">to<wbr>Half<wbr>Float<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">toHalf</span><span class="tsd-signature-symbol"> =&nbsp;(function() {var floatView &#x3D; new Float32Array(1);var int32View &#x3D; new Int32Array(floatView.buffer);/* This method is faster than the OpenEXR implementation (very often* used, eg. in Ogre), with the additional benefit of rounding, inspired* by James Tursa?s half-precision code. */return function toHalf(val: number) {floatView[0] &#x3D; val;var x &#x3D; int32View[0];var bits &#x3D; (x &gt;&gt; 16) &amp; 0x8000; /* Get the sign */var m &#x3D; (x &gt;&gt; 12) &amp; 0x07ff; /* Keep one extra bit for rounding */var e &#x3D; (x &gt;&gt; 23) &amp; 0xff; /* Using int is faster here *//* If zero, or denormal, or exponent underflows too much for a denormal* half, return signed zero. */if (e &lt; 103) {return bits;}/* If NaN, return NaN. If Inf or exponent overflow, return Inf. */if (e &gt; 142) {bits |&#x3D; 0x7c00;/* If exponent was 0xff and one mantissa bit was set, it means NaN,* not Inf, so make sure we set one mantissa bit too. */bits |&#x3D; ((e &#x3D;&#x3D; 255) ? 0 : 1) &amp;&amp; (x &amp; 0x007fffff);return bits;}/* If exponent underflows but not too much, return a denormal */if (e &lt; 113) {m |&#x3D; 0x0800;/* Extra rounding may overflow and set mantissa to 0 and exponent* to 1, which is OK. */bits |&#x3D; (m &gt;&gt; (114 - e)) + ((m &gt;&gt; (113 - e)) &amp; 1);return bits;}bits |&#x3D; ((e - 112) &lt;&lt; 10) | (m &gt;&gt; 1);/* Extra rounding. An overflow will set mantissa to 0 and increment* the exponent, which is OK. */bits +&#x3D; m &amp; 1;return bits;};}())</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L13">src/foundation/math/MathUtil.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L13">src/foundation/math/MathUtil.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -130,7 +130,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L8">src/foundation/math/MathUtil.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L8">src/foundation/math/MathUtil.ts:8</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -153,7 +153,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L69">src/foundation/math/MathUtil.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L69">src/foundation/math/MathUtil.ts:69</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -185,7 +185,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L73">src/foundation/math/MathUtil.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L73">src/foundation/math/MathUtil.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -211,7 +211,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L78">src/foundation/math/MathUtil.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L78">src/foundation/math/MathUtil.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -246,7 +246,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/2f0666a/src/foundation/math/MathUtil.ts#L4">src/foundation/math/MathUtil.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/math/MathUtil.ts#L4">src/foundation/math/MathUtil.ts:4</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
