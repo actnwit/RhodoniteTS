@@ -67,6 +67,15 @@ export default class CameraControllerComponent extends Component {
   private __maximum_y?: number;
   private __minimum_y?: number;
 
+  private __mouseDownFunc = this.__mouseDown.bind(this);
+  private __mouseUpFunc = this.__mouseUp.bind(this);
+  private __mouseMoveFunc = this.__mouseMove.bind(this);
+  private __pinchInOutStartFunc = this.__pinchInOutStart.bind(this);
+  private __pinchInOutFunc = this.__pinchInOut.bind(this);
+  private __mouseWheelFunc = this.__mouseWheel.bind(this);
+  private __mouseDblClickFunc = this.__mouseDblClick.bind(this);
+  private __contextMenuFunc = this.__contextMenu.bind(this);
+
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
@@ -260,7 +269,7 @@ export default class CameraControllerComponent extends Component {
     this.dolly += evt.deltaY / 600;
   };
 
-  __contexMenu(evt: Event) {
+  __contextMenu(evt: Event) {
     if (evt.preventDefault) {
       this.__tryToPreventDefault(evt);
     } else {
@@ -321,7 +330,7 @@ export default class CameraControllerComponent extends Component {
     const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
     const pinchInOutFinalDistance = this.__getTouchesDistance(event)
     this.__pinchInOutInitDistance = pinchInOutFinalDistance
-    
+
     const ratio = pinchInOutInitDistance / pinchInOutFinalDistance
 
     this.dolly /= 1 / ratio
@@ -336,50 +345,46 @@ export default class CameraControllerComponent extends Component {
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
-        eventTargetDom.addEventListener("touchstart", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchend", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchmove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchstart", this.__mouseDownFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend", this.__mouseUpFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchmove", this.__mouseMoveFunc, {passive: !this.__doPreventDefault});
 
-        eventTargetDom.addEventListener("touchstart"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchmove"  , this.__pinchInOut.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchend"  , this.__pinchInOutStart.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchstart"  , this.__pinchInOutStartFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchmove"  , this.__pinchInOutFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchend"  , this.__pinchInOutStartFunc, {passive: !this.__doPreventDefault});
       }
       if ("onmouseup" in document) {
-        eventTargetDom.addEventListener("mousedown", this.__mouseDown.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("mouseup", this.__mouseUp.bind(this), {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("mousemove", this.__mouseMove.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, {passive: !this.__doPreventDefault});
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this.__mouseWheel.bind(this), {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("wheel", this.__mouseWheelFunc, {passive: !this.__doPreventDefault});
       }
 
-      eventTargetDom.addEventListener("contextmenu", this.__contexMenu.bind(this), {passive: !this.__doPreventDefault});
-      eventTargetDom.addEventListener("dblclick", this.__mouseDblClick.bind(this), {passive: !this.__doPreventDefault});
+      eventTargetDom.addEventListener("contextmenu", this.__contextMenuFunc, {passive: !this.__doPreventDefault});
+      eventTargetDom.addEventListener("dblclick", this.__mouseDblClickFunc, {passive: !this.__doPreventDefault});
     }
   }
 
   unregisterEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
-        eventTargetDom.removeEventListener("touchstart", this.__mouseDown.bind(this));
-        eventTargetDom.removeEventListener("touchend", this.__mouseUp.bind(this));
-        (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMove.bind(this));
+        eventTargetDom.removeEventListener("touchstart", this.__mouseDownFunc);
+        eventTargetDom.removeEventListener("touchend", this.__mouseUpFunc);
+        (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMoveFunc);
       }
       if ("onmouseup" in document) {
-        eventTargetDom.removeEventListener("mousedown", this.__mouseDown.bind(this));
-        eventTargetDom.removeEventListener("mouseup", this.__mouseUp.bind(this));
-        (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMove.bind(this));
+        eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
+        eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
+        (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMoveFunc);
       }
       if (window.WheelEvent) {
-        eventTargetDom.removeEventListener("wheel", this.__mouseWheel.bind(this));
+        eventTargetDom.removeEventListener("wheel", this.__mouseWheelFunc);
       }
-      eventTargetDom.removeEventListener(
-        "contextmenu",
-        this.__contexMenu.bind(this),
-        false
-      );
-      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClick.bind(this));
+      eventTargetDom.removeEventListener("contextmenu", this.__contextMenuFunc);
+      eventTargetDom.removeEventListener("dblclick", this.__mouseDblClickFunc);
     }
   }
 
