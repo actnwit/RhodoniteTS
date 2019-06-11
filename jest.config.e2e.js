@@ -12,6 +12,6 @@ module.exports = {
     "json",
     "node"
   ],
-  "setupTestFrameworkScriptFile": require.resolve("./setup.js"),
+  "setupFilesAfterEnv": [require.resolve("./setup.js")],
   "rootDir": process.cwd(),
 };
