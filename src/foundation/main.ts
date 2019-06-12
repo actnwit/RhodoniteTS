@@ -110,6 +110,7 @@ const Rn = {
   EntityHelper,
 };
 export default Rn;
+export type Rn = typeof Rn;
 
 declare var window: any;
 window['Rn'] = Rn;

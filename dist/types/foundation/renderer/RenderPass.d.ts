@@ -1,0 +1,30 @@
+import RnObject from "../core/RnObject";
+import Entity from "../core/Entity";
+import FrameBuffer from "./FrameBuffer";
+import MeshComponent from "../components/MeshComponent";
+import Vector4 from "../math/Vector4";
+import CameraComponent from "../components/CameraComponent";
+export default class RenderPass extends RnObject {
+    private __entities;
+    private __meshComponents?;
+    private __frameBuffer?;
+    private __viewport?;
+    toClearColorBuffer: boolean;
+    toClearDepthBuffer: boolean;
+    toClearStencilBuffer: boolean;
+    clearColor: Vector4;
+    clearDepth: number;
+    clearStencil: number;
+    cameraComponent?: CameraComponent;
+    cullface: boolean;
+    constructor();
+    addEntities(entities: Entity[]): void;
+    readonly entities: Entity[];
+    clearEntities(): void;
+    private __collectMeshComponents;
+    readonly meshComponents: MeshComponent[] | undefined;
+    setFramebuffer(framebuffer: FrameBuffer): void;
+    getFramebuffer(): FrameBuffer | undefined;
+    setViewport(vec: Vector4): void;
+    getViewport(): Vector4 | undefined;
+}
