@@ -41,6 +41,7 @@ import Expression from './renderer/Expression';
 import RenderTargetTexture from './textures/RenderTargetTexture';
 import RenderBuffer from './textures/RenderBuffer';
 import Texture from './textures/Texture';
+import ZoGltfLoaderExtension from './importer/ZoGltfLoaderExtension';
 declare const Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;
@@ -77,6 +78,7 @@ declare const Rn: {
         UnsingedInt: ComponentTypeEnum;
         Float: ComponentTypeEnum;
         Double: ComponentTypeEnum;
+        Bool: ComponentTypeEnum;
         HalfFloat: ComponentTypeEnum;
         from: (index: number) => ComponentTypeEnum;
         fromTypedArray: (typedArray: TypedArray) => ComponentTypeEnum;
@@ -161,6 +163,12 @@ declare const Rn: {
         from: (index: number) => import("./definitions/AlphaMode").AlphaModeEnum;
         fromString: (str: string) => import("./definitions/AlphaMode").AlphaModeEnum;
     }>;
+    ShadowMapping: Readonly<{
+        Standard: import("./definitions/ShadowMapping").ShadowMappingEnum;
+        Variance: import("./definitions/ShadowMapping").ShadowMappingEnum;
+        from: (index: number) => import("./definitions/ShadowMapping").ShadowMappingEnum;
+        fromString: (str: string) => import("./definitions/ShadowMapping").ShadowMappingEnum;
+    }>;
     Gltf2Exporter: typeof Gltf2Exporter;
     detectFormat: typeof detectFormat;
     Config: {
@@ -175,8 +183,11 @@ declare const Rn: {
         createClassicUberMaterial: () => Material;
         createEnvConstantMaterial: () => Material;
         createFXAA3QualityMaterial: () => Material;
-        createDepthEncodingMaterial: () => Material;
-        createShadowMapping32bitMaterial: (renderPass: RenderPass) => Material;
+        createFurnaceTestMaterial: () => Material;
+        createDepthEncodingMaterial: (depthPow?: number) => Material;
+        createEncodedDepthGaussianBlurMaterial: (renderPassEncodingDepth: RenderPass, isHorizontal: boolean, parameters: any) => Material;
+        createShadowMappingDecodeMaterial: (renderPassEncodingDepth: RenderPass | RenderPass[], mode?: import("./definitions/ShadowMapping").ShadowMappingEnum) => Material | undefined;
+        createZoPbrUberMaterial: () => Material;
     }>;
     ShaderSemantics: Readonly<{
         WorldMatrix: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -218,8 +229,6 @@ declare const Rn: {
         PointDistanceAttenuation: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         HDRIFormat: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         ScreenInfo: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
-        DepthTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
-        LightViewProjectionMatrix: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         Anisotropy: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         ClearCoatParameter: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         SheenParameter: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -286,9 +295,10 @@ declare const Rn: {
         createCameraEntity: () => import("./core/Entity").default;
         createCameraWithControllerEntity: () => import("./core/Entity").default;
     }>;
+    ZoGltfLoaderExtension: typeof ZoGltfLoaderExtension;
 };
 export default Rn;
-export declare type Rn = typeof Rn;
+export declare type RnType = typeof Rn;
 export declare type CompositionTypeEnum = CompositionTypeEnum;
 export declare type ComponentTypeEnum = ComponentTypeEnum;
 export declare type VertexAttributeEnum = VertexAttributeEnum;
