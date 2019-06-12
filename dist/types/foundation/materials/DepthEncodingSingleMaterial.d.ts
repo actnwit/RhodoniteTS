@@ -4,6 +4,6 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
     private static __dummyBlackTextureUid;
     private static __dummyBlackCubeTextureUid;
     private static __pbrCookTorranceBrdfLutDataUrlUid;
-    constructor();
+    constructor(depthPow: number);
     static initDefaultTextures(): Promise<void>;
 }

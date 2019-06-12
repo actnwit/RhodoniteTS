@@ -1,6 +1,6 @@
 import RnObject from "../core/RnObject";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
 import AbstractTexture from "../textures/AbstractTexture";
 export default class Material extends RnObject {
     private __materialNodes;
@@ -12,6 +12,7 @@ export default class Material extends RnObject {
     private static __materials;
     constructor(materialNodes: AbstractMaterialNode[]);
     static getAllMaterials(): Material[];
+    readonly fieldsInfoEntries: () => IterableIterator<[string, ShaderSemanticsInfo]>;
     setMaterialNodes(materialNodes: AbstractMaterialNode[]): void;
     initialize(): void;
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;

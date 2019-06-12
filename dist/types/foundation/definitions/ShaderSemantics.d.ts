@@ -68,8 +68,6 @@ export declare const ShaderSemantics: Readonly<{
     PointDistanceAttenuation: ShaderSemanticsEnum;
     HDRIFormat: ShaderSemanticsEnum;
     ScreenInfo: ShaderSemanticsEnum;
-    DepthTexture: ShaderSemanticsEnum;
-    LightViewProjectionMatrix: ShaderSemanticsEnum;
     Anisotropy: ShaderSemanticsEnum;
     ClearCoatParameter: ShaderSemanticsEnum;
     SheenParameter: ShaderSemanticsEnum;
