@@ -1,0 +1,30 @@
+import Component from "../foundation/core/Component";
+import EntityRepository from "../foundation/core/EntityRepository";
+import Vector3 from "../foundation/math/Vector3";
+export default class EffekseerComponent extends Component {
+    private __effect?;
+    private __handle?;
+    private __speed;
+    private __timer?;
+    uri?: string;
+    playJustAfterLoaded: boolean;
+    isLoop: boolean;
+    private __sceneGraphComponent?;
+    private __transformComponent?;
+    private static __isInitialized;
+    private static __tmp_indentityMatrix;
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
+    $create(): void;
+    static readonly componentTID: ComponentTID;
+    static common_$load(): void;
+    $load(): void;
+    cancelLoop(): void;
+    play(): void;
+    static common_$logic(): void;
+    $prerender(): void;
+    static common_$render(): void;
+    playSpeed: any;
+    translate: Vector3;
+    rotate: any;
+    scale: any;
+}
