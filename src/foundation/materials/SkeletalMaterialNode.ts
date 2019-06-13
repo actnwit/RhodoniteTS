@@ -10,8 +10,8 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
     super(SkeletalShader.getInstance(), 'skinning');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: true, isSystem: true},
-      {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, isPlural: false, isSystem: true},
+      {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: true, isSystem: true},
+      {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, min:0, max:1, isPlural: false, isSystem: true},
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 

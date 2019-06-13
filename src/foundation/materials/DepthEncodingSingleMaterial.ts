@@ -37,7 +37,9 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
         semantic: ShaderSemantics.PointSize,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
-        isPlural: false,
+        min: 0,
+        max: 100,
+      isPlural: false,
         isSystem: false,
         initialValue: 100.0
       },
@@ -45,6 +47,8 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
         semantic: ShaderSemantics.PointDistanceAttenuation,
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
+        min: 0,
+        max: 1,
         isPlural: false,
         isSystem: false,
         initialValue: new Vector3(0.0, 0.1, 0.01)

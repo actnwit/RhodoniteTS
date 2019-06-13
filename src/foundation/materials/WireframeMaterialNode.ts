@@ -11,7 +11,7 @@ export default class WireframeMaterialNode extends AbstractMaterialNode {
     super(WireframeShader.getInstance(), 'wireframe');
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
+      {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, min:0, max:10, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 

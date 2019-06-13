@@ -52,6 +52,7 @@ import {TextureParameter} from './definitions/TextureParameter';
 import RenderableHelper from './helpers/RenderableHelper';
 import Texture from './textures/Texture';
 import EntityHelper from './helpers/EntityHelper';
+import MathClassUtil from './math/MathClassUtil';
 
 const Rn = {
   EntityRepository,
@@ -108,6 +109,7 @@ const Rn = {
   RenderableHelper,
   Texture,
   EntityHelper,
+  MathClassUtil
 };
 export default Rn;
 export type RnType = typeof Rn;

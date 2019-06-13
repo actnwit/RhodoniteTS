@@ -72,8 +72,8 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, isPlural: false, isSystem: true}
+            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
           ]);
       }
     }
@@ -99,7 +99,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
       const primitive = meshComponent!.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       this.__vertexHandles[i] = vertexHandles;
-      WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUid, vertexHandles);
+      WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUID, vertexHandles);
 
     }
   }
@@ -112,7 +112,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.getPrimitiveAt(i);
      // if (this.__isLoaded(i) && this.__isVAOSet) {
-      this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
+      this.__vertexHandles[i] = WebGLStrategyUBO.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUID)!;
         //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
       //  continue;
      // }

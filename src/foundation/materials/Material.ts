@@ -38,6 +38,10 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  get fieldsInfoArray() {
+    return Array.from(this.__fieldsInfo.values())
+  }
+
   static getAllMaterials() {
     return Material.__materials;
   }
@@ -74,6 +78,7 @@ export default class Material extends RnObject {
       this.__fields.set(shaderSemanticStr, value);
     }
   }
+
   setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
   setTextureParameter(shaderSemantic: string, value: AbstractTexture): void;
   setTextureParameter(shaderSemantic: any, value: AbstractTexture): void {

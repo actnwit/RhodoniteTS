@@ -28,21 +28,21 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     PbrShadingMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
-      {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [0, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
-      {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
-      {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [1, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
-      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [2, PbrShadingMaterialNode.__dummyBlueTextureUid]},
-      {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [3, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
-      {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: [4, PbrShadingMaterialNode.__dummyBlackTextureUid]},
+      {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, min: 0, max: 2, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
+      {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [0, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+      {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, min: 0, max: 2, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
+      {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [1, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+      {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [2, PbrShadingMaterialNode.__dummyBlueTextureUid]},
+      {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [3, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+      {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [4, PbrShadingMaterialNode.__dummyBlackTextureUid]},
 //      {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(6, PbrShadingMaterialNode.__pbrCookTorranceBrdfLutDataUrlUid)},
       // {semantic: ShaderSemantics.DiffuseEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(7, PbrShadingMaterialNode.dummyBlackCubeTextureUid)},
       // {semantic: ShaderSemantics.SpecularEnvTexture, compositionType: CompositionType.TextureCube, componentType: ComponentType.Int, isPlural: false, isSystem: false, initialValue: new Vector2(8, PbrShadingMaterialNode.dummyBlackCubeTextureUid)},
       // {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false},
-      {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
-      {semantic: ShaderSemantics.Anisotropy, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector2(0, 0)},
-      {semantic: ShaderSemantics.ClearCoatParameter, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector2(0.0, 0.5)},
-      {semantic: ShaderSemantics.SheenParameter, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, isPlural: false, isSystem: false, initialValue: new Vector2(0.0, 0.0)},
+      {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, min: 0, max: 10, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
+      {semantic: ShaderSemantics.Anisotropy, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, min: -1, max: 1, isPlural: false, isSystem: false, initialValue: new Vector2(0, 0)},
+      {semantic: ShaderSemantics.ClearCoatParameter, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, min: 0, max: 1, isPlural: false, isSystem: false, initialValue: new Vector2(0.0, 0.5)},
+      {semantic: ShaderSemantics.SheenParameter, compositionType: CompositionType.Vec2, componentType: ComponentType.Float, min: 0, max: 1, isPlural: false, isSystem: false, initialValue: new Vector2(0.0, 0.0)},
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
