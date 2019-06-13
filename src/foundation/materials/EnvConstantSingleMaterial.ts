@@ -37,6 +37,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         semantic: ShaderSemantics.DiffuseColorFactor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
+        min: 0,
+        max: 2,
         isPlural: false,
         prefix: "material.",
         isSystem: false,
@@ -46,6 +48,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         semantic: ShaderSemantics.ColorEnvTexture,
         compositionType: CompositionType.TextureCube,
         componentType: ComponentType.Int,
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
         isSystem: false,
         initialValue: [

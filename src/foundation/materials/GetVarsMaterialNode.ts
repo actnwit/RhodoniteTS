@@ -23,6 +23,8 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({
         semantic: inShaderSocket.name,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
         isPlural: false,
         compositionType: inShaderSocket.compositionType,
         componentType: inShaderSocket.componentType,
@@ -37,6 +39,8 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({
         semantic: inShaderSocket.name,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
         isPlural: false,
         compositionType: inShaderSocket.compositionType,
         componentType: inShaderSocket.componentType,

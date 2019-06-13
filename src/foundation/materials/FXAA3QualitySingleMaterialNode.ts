@@ -37,6 +37,8 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         semantic: ShaderSemantics.BaseColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
         isSystem: false,
         initialValue: [
@@ -48,6 +50,8 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         semantic: ShaderSemantics.ScreenInfo,
         compositionType: CompositionType.Vec2,
         componentType: ComponentType.Float,
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
         isSystem: false,
         initialValue: new Vector2(0, 0)

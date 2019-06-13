@@ -1,7 +1,8 @@
 export default class RnObject {
   private readonly __objectUid: ObjectUID = -1;
-  static currentMaxObjectCount = -1;
+  private static __objects: RnObject[] = [];
   static readonly InvalidObjectUID = -1;
+  static currentMaxObjectCount = RnObject.InvalidObjectUID;
   private __uniqueName: string;
   private static __uniqueNames: string[] = [];
   private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
@@ -9,13 +10,19 @@ export default class RnObject {
 
   constructor() {
     this.__objectUid = ++RnObject.currentMaxObjectCount;
+    RnObject.__objects[this.__objectUid] = this;
 
     this.__uniqueName = 'entity_of_uid_' + this.__objectUid;
     RnObject.__uniqueNames[this.__objectUid] =  this.__uniqueName;
+
   }
 
-  get objectUid(): ObjectUID {
+  get objectUID(): ObjectUID {
     return this.__objectUid;
+  }
+
+  getRnObject(objectUid: ObjectUID) {
+    return RnObject.__objects[objectUid];
   }
 
   /**

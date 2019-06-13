@@ -84,8 +84,8 @@ function fromString(str: string): ShaderSemanticsEnum {
 
 export type ShaderSemanticsInfo = {
   semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count,
-  compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, isSystem: boolean, initialValue?: any,
-  updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum
+  compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
+  isSystem: boolean, initialValue?: any, updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum
 };
 
 export const ShaderSemantics = Object.freeze({

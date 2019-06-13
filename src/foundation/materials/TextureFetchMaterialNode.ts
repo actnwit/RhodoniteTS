@@ -17,6 +17,8 @@ export default class TextureFetchMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.GeneralTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
         isSystem: false,
         semanticStr: `generalTexture_${this.materialNodeUid}`

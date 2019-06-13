@@ -17,6 +17,8 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.Shininess,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
+        min: 0,
+        max: Number.MAX_VALUE,
         isPlural: false,
         isSystem: false,
         initialValue: 5
@@ -25,6 +27,8 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.ShadingModel,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
+        min: 0,
+        max: 3,
         isPlural: false,
         isSystem: false,
         initialValue: ShadingModel.Constant.index
