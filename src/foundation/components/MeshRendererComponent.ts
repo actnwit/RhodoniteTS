@@ -233,7 +233,7 @@ export default class MeshRendererComponent extends Component {
   }
 
   private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], renderPass: RenderPass) {
-    const sceneGraphComponents = renderPass.sceneGraphComponents!;
+    const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
     const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -268,6 +268,8 @@ export default class MeshRendererComponent extends Component {
     } else {
       meshComponents = renderPass!.meshComponents!;
     }
+
+    meshComponents = Array.from(new Set(meshComponents));
 
     const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
     const transparentPartiallyMeshComponents: MeshComponent[] = [];
