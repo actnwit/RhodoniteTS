@@ -9,6 +9,7 @@ import CameraComponent from "../components/CameraComponent";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
+  private __sceneGraphComponents?: SceneGraphComponent[] = [];
   private __meshComponents?: MeshComponent[];
   private __frameBuffer?: FrameBuffer;
   private __viewport?: Vector4;
@@ -41,7 +42,9 @@ export default class RenderPass extends RnObject {
     }
 
     this.__meshComponents = void 0;
+    this.__sceneGraphComponents = void 0;
     this.__collectMeshComponents();
+    this.__collectSceneGraphComponents();
   }
 
   get entities(): Entity[] {
@@ -50,8 +53,18 @@ export default class RenderPass extends RnObject {
 
   clearEntities() {
     this.__meshComponents = void 0;
+    this.__sceneGraphComponents = void 0;
     this.__entities = [];
   }
+
+  private __collectSceneGraphComponents() {
+    if (this.__sceneGraphComponents == null) {
+      this.__sceneGraphComponents = this.__entities.map((entity)=>{
+        return entity.getSceneGraph();
+      });
+    }
+  }
+
 
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
@@ -68,6 +81,11 @@ export default class RenderPass extends RnObject {
   get meshComponents() {
     this.__collectMeshComponents();
     return this.__meshComponents;
+  }
+
+  get sceneGraphComponents() {
+    this.__collectSceneGraphComponents();
+    return this.__sceneGraphComponents;
   }
 
   setFramebuffer(framebuffer: FrameBuffer) {
