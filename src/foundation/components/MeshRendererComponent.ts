@@ -236,7 +236,8 @@ export default class MeshRendererComponent extends Component {
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    const componentRepository = ComponentRepository.getInstance();
+    const cameraComponent = componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     if (cameraComponent) {
       cameraComponent.updateFrustum();
       const frustum = cameraComponent.frustum;
@@ -276,10 +277,10 @@ export default class MeshRendererComponent extends Component {
     const transparentCompletelyMeshComponents: MeshComponent[] = [];
 
     for (let i = 0; i < meshComponents.length; i++) {
-      const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       if (!meshComponents[i].entity.getSceneGraph().isVisible) {
         continue;
       }
+      const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (transparentMeshComponentSids.length === 0 && meshComponent.isBlendPartially()) {

@@ -15,7 +15,7 @@ export default class Entity extends RnObject {
   private __isAlive: Boolean;
   private static __instance: Entity;
 
-  private __entityRepository: EntityRepository;
+  private __components: Component[] = [] // index is ComponentTID
 
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
@@ -28,12 +28,10 @@ export default class Entity extends RnObject {
    * @param isAlive Whether this entity alive or not
    * @param entityComponent The instance of EntityComponent (Dependency Injection)
    */
-  constructor(entityUID: EntityUID, isAlive: Boolean, entityComponent: EntityRepository) {
+  constructor(entityUID: EntityUID, isAlive: Boolean) {
     super();
     this.__entity_uid = entityUID;
     this.__isAlive = isAlive;
-    this.__entityRepository = entityComponent;
-
   }
 
   /**
@@ -43,21 +41,17 @@ export default class Entity extends RnObject {
     return this.__entity_uid;
   }
 
+  _setComponent(component: Component) {
+    this.__components[(component.constructor as any).componentTID] = component;
+  }
+
+
   /**
    * Get the component of the specified type that the entity has
    * @param componentType
    */
   getComponent(componentType: typeof Component): Component | null {
-    const map = this.__entityRepository._components[this.entityUID];
-    if (map != null) {
-      const component = map.get(componentType.componentTID);
-      if (component != null) {
-        return component;
-      } else {
-        return null;
-      }
-    }
-    return null;
+    return this.__components[componentType.componentTID];
   }
 
   /**
