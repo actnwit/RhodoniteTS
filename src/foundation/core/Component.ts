@@ -109,16 +109,22 @@ export default class Component {
   }
 
   /**
-   * Get the unique ID of the entity corresponding to the component
+   * Get the unique ID of the entity corresponding to the component.
    */
   get entityUID() {
     return this.__entityUid;
   }
 
+  /**
+   * Get the current process stage of the component.
+   */
   get currentProcessStage() {
     return this.__currentProcessStage;
   }
 
+  /**
+   * Get true or false whether the specified ProcessStage exists in Component.
+   */
   static isExistProcessStageMethod(componentType: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
     const component = componentRepository.getComponent(componentType, 0)!;
     if (component == null) {
@@ -131,6 +137,9 @@ export default class Component {
     return true;
   }
 
+  /**
+   * Get true or false whether the specified ProcessStage exists in Component.
+   */
   isExistProcessStageMethod(processStage: ProcessStageEnum) {
     if ((this as any)[processStage.getMethodName()] == null) {
       return false;
@@ -175,6 +184,9 @@ export default class Component {
     }
   }
 
+  /**
+   * Update all components at each process stage.
+   */
   static updateComponentsOfEachProcessStage(componentClass: typeof Component,
     processStage: ProcessStageEnum, componentRepository: ComponentRepository, renderPass: RenderPass) {
     if (!Component.isExistProcessStageMethod(componentClass, processStage, componentRepository)) {
@@ -208,6 +220,9 @@ export default class Component {
     }
   }
 
+  /**
+   * get byte length of sum of member fields in the component class
+   */
   static getByteLengthSumOfMembers(bufferUse: BufferUseEnum, componentClass: Function) {
     const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass)!
     return byteLengthSumOfMembers.get(bufferUse)!;
@@ -216,10 +231,16 @@ export default class Component {
   static setupBufferView() {
   }
 
+  /**
+   * register a dependency for the other components.
+   */
   registerDependency(component: Component, isMust: boolean) {
 
   }
 
+  /**
+   * take a buffer view from the buffer.
+   */
   static takeBufferView(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte, count: Count) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
 
@@ -236,6 +257,9 @@ export default class Component {
     }
   }
 
+  /**
+   * take one memory area for the specified member for all same type of the component instances.
+   */
   takeOne(memberName: string, dataClassType: any, initValues: number[]): any {
     if (!(this as any)['_'+memberName].isDummy()) {
       return;
@@ -256,10 +280,16 @@ export default class Component {
     return null;
   }
 
+  /**
+   * get the taken accessor for the member field.
+   */
   static getAccessor(memberName: string, componentClass:Function): Accessor {
     return this.__accessors.get(componentClass)!.get(memberName)!;
   }
 
+  /**
+   * take one accessor for the member field.
+   */
   static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count) {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
