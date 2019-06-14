@@ -18,6 +18,7 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import MutableVector4 from '../math/MutableVector4';
 import CameraControllerComponent from './CameraControllerComponent';
 import MutableVector3 from '../math/MutableVector3';
+import Frustum from '../geometry/Frustum';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();
@@ -48,6 +49,8 @@ export default class CameraComponent extends Component {
   public static main: ComponentSID = -1;
   private static invertedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
+
+  private __frustum = new Frustum();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -408,6 +411,14 @@ export default class CameraComponent extends Component {
   get worldPosition(): Vector3 {
     this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3 as MutableVector3);
     return CameraComponent.returnVector3 as Vector3;
+  }
+
+  updateFrustum() {
+    this.__frustum.update(this.viewMatrix, this.projectionMatrix);
+  }
+
+  get frustum() {
+    return this.__frustum;
   }
 }
 ComponentRepository.registerComponentClass(CameraComponent);

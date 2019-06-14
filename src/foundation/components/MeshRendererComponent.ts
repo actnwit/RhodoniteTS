@@ -21,6 +21,8 @@ import ModuleManager from '../system/ModuleManager';
 import CubeTexture from '../textures/CubeTexture';
 import Entity from '../core/Entity';
 import RenderPass from '../renderer/RenderPass';
+import { Visibility } from '../definitions/visibility';
+import { sign } from 'crypto';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -213,19 +215,15 @@ export default class MeshRendererComponent extends Component {
   }
 
   static sort_$render(renderPass?: RenderPass): ComponentSID[] {
-    let meshComponents;
-    if (renderPass != null) {
-      meshComponents = renderPass.meshComponents;
-    }
     if (MeshRendererComponent.__manualTransparentSids == null) {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, meshComponents);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, renderPass);
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
     } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
       return [];
     } else {
-      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, meshComponents);
+      const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, renderPass);
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
 
       return sortedMeshComponentSids;
@@ -234,17 +232,59 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], meshComponentsOfRenderPass?: MeshComponent[]) {
-    let meshComponents = meshComponentsOfRenderPass;
-    if (meshComponents == null) {
-      meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], renderPass?: RenderPass) {
+    // let meshComponents = meshComponentsOfRenderPass;
+    // if (meshComponents == null) {
+    //   meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
+    // }
+    let topLevelSceneGraphComponents;
+    if (renderPass == null) {
+      topLevelSceneGraphComponents = SceneGraphComponent.getTopLevelComponents();
+    } else {
+      topLevelSceneGraphComponents = renderPass.entities.map((entity: Entity)=>{
+        return entity.getSceneGraph()!
+      });
+    }
+
+
+    let meshComponents: MeshComponent[] = [];
+    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    if (cameraComponent) {
+      cameraComponent.updateFrustum();
+      const frustum = cameraComponent.frustum;
+      const frustumCullingRecursively = (sg: SceneGraphComponent)=>{
+        const result = frustum.culling(sg);
+        if (result === Visibility.Visible) {
+          const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
+          for (let sg of sgs) {
+            const mesh = sg.entity.getComponent(MeshComponent) as MeshComponent;
+            if (mesh) {
+              meshComponents!.push(mesh);
+            }
+          }
+        } else if (result === Visibility.Neutral) {
+          const children = sg.children;
+          const mesh = sg.entity.getComponent(MeshComponent) as MeshComponent;
+          if (mesh) {
+            meshComponents!.push(mesh);
+          }
+          for (let child of children) {
+            frustumCullingRecursively(child);
+          }
+        }
+      };
+
+      for (let tlsg of topLevelSceneGraphComponents) {
+        frustumCullingRecursively(tlsg);
+      }
+    } else {
+      meshComponents = renderPass!.meshComponents!;
     }
 
     const opaqueAndTransparentPartiallyMeshComponentSids: ComponentSID[] = [];
     const transparentPartiallyMeshComponents: MeshComponent[] = [];
     const transparentCompletelyMeshComponents: MeshComponent[] = [];
 
-    const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     for (let i = 0; i < meshComponents.length; i++) {
       const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       if (!meshComponents[i].entity.getSceneGraph().isVisible) {
@@ -269,6 +309,7 @@ export default class MeshRendererComponent extends Component {
       }
     }
 
+    // Sort transparent meshes
     const transparentPartiallyOrAllMeshComponents = transparentPartiallyMeshComponents.concat(transparentCompletelyMeshComponents);
     transparentPartiallyOrAllMeshComponents.sort(function (a, b) {
       if (a.viewDepth < b.viewDepth)
@@ -285,8 +326,13 @@ export default class MeshRendererComponent extends Component {
     }
 
     MeshRendererComponent.__firstTransparentIndex = opaqueAndTransparentPartiallyMeshComponentSids.length;
+
+    // Concat opaque and transparent meshes
     const sortedMeshComponentSids = opaqueAndTransparentPartiallyMeshComponentSids.concat(transparentMeshComponentSids);
+
+    // Add terminator
     sortedMeshComponentSids.push(Component.invalidComponentSID);
+
     return sortedMeshComponentSids;
   }
 
