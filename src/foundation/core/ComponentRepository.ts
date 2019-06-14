@@ -82,6 +82,10 @@ export default class ComponentRepository {
     return null;
   }
 
+  _getComponents(componentClass: typeof Component): Array<Component>|undefined {
+    return this.__components.get(componentClass.componentTID);
+  }
+
   static getMemoryBeginIndex(componentTid: ComponentTID) {
     let memoryBeginIndex = 0;
     for (let i=0; i<componentTid; i++) {

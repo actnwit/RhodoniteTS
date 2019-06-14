@@ -299,14 +299,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       }
 
       let identifier = semanticSingular;
-      if (data.index != null) {
-        identifier += '_' + data.index;
+
+      let location;
+      if (data.isPlural) {
+        location = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticPlural);
+      } else {
+        location = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticSingular);
       }
 
-      if (data.isPlural) {
-        shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticPlural);
+      if (data.index != null) {
+        if (shaderProgram[identifier] == null) {
+          shaderProgram[identifier] = [];
+        }
+        shaderProgram[identifier][data.index] = location;
       } else {
-        shaderProgram[identifier] = gl.getUniformLocation(shaderProgram, 'u_'+prefix+semanticSingular);
+        shaderProgram[identifier] = location;
       }
 
     }
@@ -372,6 +379,23 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     if (info == null) {
       return false;
     }
+
+    let updateInterval: ShaderVariableUpdateIntervalEnum;
+    if (info) {
+      updateInterval = info.updateInteval!;
+    } else {
+      return false;
+    }
+
+    if (!firstTime) {
+      if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
+        return false;
+      }
+      // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
+      //   return false;
+      // }
+    }
+
     const key = semanticStr;
     let setAsMatrix = false;
     let componentNumber = info.compositionType!.getNumberOfComponents();
@@ -414,30 +438,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   setUniformValueInner(shaderProgram: WebGLProgram, semanticStr: string, info: ShaderSemanticsInfo, isMatrix: boolean, componentNumber: number,
     isVector: boolean, {x, y, z, w}: {x: number|TypedArray|Array<number>|Array<boolean>|boolean, y?: number|boolean, z?: number|boolean, w?: number|boolean}, {firstTime = true, delta}: {firstTime?: boolean, delta?: number}, index?: Count) {
 
-
-    let updateInterval: ShaderVariableUpdateIntervalEnum;
-    if (info) {
-      updateInterval = info.updateInteval!;
-    } else {
-      return false;
-    }
-
-    if (!firstTime) {
-      if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
-        return false;
-      }
-      // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
-      //   return false;
-      // }
-    }
-
     let identifier = semanticStr;
+    let program;
     if (index != null) {
-      identifier += '_' + index;
+      program = (shaderProgram as any)[identifier][index];
+    } else {
+      program = (shaderProgram as any)[identifier];
     }
 
     const gl = this.__glw!.getRawContext();
-    const program = (shaderProgram as any)[identifier];
 
     if (isMatrix) {
       if (componentNumber === 4) {

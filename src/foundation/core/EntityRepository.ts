@@ -30,7 +30,7 @@ export default class EntityRepository {
   }
 
   createEntity(componentClasses: Array<typeof Component>): Entity {
-    const entity = new Entity(++this.__entity_uid_count, true, this);
+    const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
 
     return this.addComponentsToEntity(componentClasses, entity.entityUID);
@@ -48,6 +48,7 @@ export default class EntityRepository {
       }
       if (component != null) {
         map.set(componentClass.componentTID, component);
+        entity._setComponent(component);
       }
     }
 

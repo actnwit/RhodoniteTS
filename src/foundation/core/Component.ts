@@ -167,13 +167,14 @@ export default class Component {
     }
 
     const array = this.__componentsOfProcessStages.get(processStage)!;
+    const components: Component[]|undefined = componentRepository._getComponents(componentType);
     for (let i=0; i<array.length; ++i) {
-      if (array[i] === Component.invalidComponentSID) {
-        break;
-      }
       const componentSid = array[i];
-      const component = componentRepository.getComponent(componentType, componentSid)!;
-      (component as any)[processStage.getMethodName()]({
+      if (componentSid === Component.invalidComponentSID) {
+        return;
+      }
+      const component = components![componentSid];
+      (component! as any)[processStage.getMethodName()]({
         i,
         processStage,
         processApproach,
