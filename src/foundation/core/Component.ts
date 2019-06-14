@@ -143,13 +143,14 @@ export default class Component {
    * Process the components
    * @param param0 params
    */
-  static process({componentType, processStage, processApproach, componentRepository, strategy, renderPass}: {
+  static process({componentType, processStage, processApproach, componentRepository, strategy, renderPass, renderPassTickCount}: {
     componentType: typeof Component,
     processStage: ProcessStageEnum,
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
     strategy: WebGLStrategy,
-    renderPass: RenderPass
+    renderPass: RenderPass,
+    renderPassTickCount: Count
   }
     ) {
     if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
@@ -168,7 +169,8 @@ export default class Component {
         processStage,
         processApproach,
         strategy,
-        renderPass
+        renderPass,
+        renderPassTickCount
       });
     }
   }

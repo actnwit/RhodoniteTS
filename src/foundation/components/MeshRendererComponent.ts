@@ -108,7 +108,7 @@ export default class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  $render({i, renderPass}: {i: Index, renderPass: RenderPass}) {
+  $render({i, renderPass, renderPassTickCount}: {i: Index, renderPass: RenderPass, renderPassTickCount: Count}) {
     if (this.__webglRenderingStrategy!.$render == null) {
       return;
     }
@@ -116,7 +116,7 @@ export default class MeshRendererComponent extends Component {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
 
     this.__webglRenderingStrategy!.$render!(i, this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
-      entity, renderPass, this.diffuseCubeMap, this.specularCubeMap);
+      entity, renderPass, renderPassTickCount, this.diffuseCubeMap, this.specularCubeMap);
 
     if (this.__meshComponent!.weights.length > 0) {
       this.moveStageTo(ProcessStage.PreRender);

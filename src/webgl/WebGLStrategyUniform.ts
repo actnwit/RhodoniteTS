@@ -52,6 +52,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __webglShaderProgram?: WebGLProgram;
   private __lastRenderPassCullFace = false;
   private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
+  private __lastRenderPassTickCount = -1;
 
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
@@ -104,9 +105,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
+          {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
           {semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: true, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
@@ -116,7 +117,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           {semantic: ShaderSemantics.IBLParameter, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.HDRIFormat, compositionType: CompositionType.Vec2, componentType: ComponentType.Int, min: 0, max: 5, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.BrdfLutTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
+          {semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
         ];
 
         if (primitive.primitiveMode.index === gl.POINTS) {
@@ -369,7 +370,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
   }
 
-  $render(idx:Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
+  $render(idx:Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
@@ -394,6 +395,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const shaderProgramUid = material!._shaderProgramUid;
 
       let firstTime = false;
+      if (renderPassTickCount !== this.__lastRenderPassTickCount) {
+        firstTime = true;
+      }
       if (shaderProgramUid !== this.__lastShader) {
         gl.useProgram(shaderProgram);
         this.__lastShader = shaderProgramUid;
@@ -419,6 +423,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
     //    gl.useProgram(null);
     // this.__lastShader = -1;
+
+    this.__lastRenderPassTickCount = renderPassTickCount;
   }
 
 
