@@ -79,24 +79,24 @@ export default class Frustum {
     const center = aabb.centerPoint;
     const centerToCorner = aabb.lengthCenterToCorner;
 
-    const top = this.clipping(this.top, center, centerToCorner);
-    const bottom = this.clipping(this.bottom, center, centerToCorner);
+
     const right = this.clipping(this.right, center, centerToCorner);
     const left = this.clipping(this.left, center, centerToCorner);
-    const zNear = this.clipping(this.zNear, center, centerToCorner);
-    const zFar = this.clipping(this.zFar, center, centerToCorner);
-    const sum = top.index + bottom.index + right.index + left.index + zNear.index + zFar.index;
-
-    if (top === Visibility.Invisible && bottom === Visibility.Visible || top === Visibility.Visible && bottom === Visibility.Invisible) {
-      return Visibility.Invisible;
-    }
     if (right === Visibility.Invisible && left === Visibility.Visible || right === Visibility.Visible && left === Visibility.Invisible) {
       return Visibility.Invisible;
     }
+    const zNear = this.clipping(this.zNear, center, centerToCorner);
+    const zFar = this.clipping(this.zFar, center, centerToCorner);
     if (zNear === Visibility.Invisible && zFar === Visibility.Visible || zNear === Visibility.Visible && zFar === Visibility.Invisible) {
       return Visibility.Invisible;
     }
+    const top = this.clipping(this.top, center, centerToCorner);
+    const bottom = this.clipping(this.bottom, center, centerToCorner);
+    if (top === Visibility.Invisible && bottom === Visibility.Visible || top === Visibility.Visible && bottom === Visibility.Invisible) {
+      return Visibility.Invisible;
+    }
 
+    const sum = top.index + bottom.index + right.index + left.index + zNear.index + zFar.index;
     if (sum === 6) {
       return Visibility.Visible;
     }
