@@ -214,7 +214,7 @@ export default class MeshRendererComponent extends Component {
 
   }
 
-  static sort_$render(renderPass?: RenderPass): ComponentSID[] {
+  static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (MeshRendererComponent.__manualTransparentSids == null) {
       const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(void 0, renderPass);
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
@@ -232,20 +232,8 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], renderPass?: RenderPass) {
-    // let meshComponents = meshComponentsOfRenderPass;
-    // if (meshComponents == null) {
-    //   meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent) as MeshComponent[];
-    // }
-    let topLevelSceneGraphComponents;
-    if (renderPass == null) {
-      topLevelSceneGraphComponents = SceneGraphComponent.getTopLevelComponents();
-    } else {
-      topLevelSceneGraphComponents = renderPass.entities.map((entity: Entity)=>{
-        return entity.getSceneGraph()!
-      });
-    }
-
+  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], renderPass: RenderPass) {
+    const sceneGraphComponents = renderPass.sceneGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
     const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -274,7 +262,7 @@ export default class MeshRendererComponent extends Component {
         }
       };
 
-      for (let tlsg of topLevelSceneGraphComponents) {
+      for (let tlsg of sceneGraphComponents) {
         frustumCullingRecursively(tlsg);
       }
     } else {
