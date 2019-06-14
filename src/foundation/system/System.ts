@@ -33,6 +33,7 @@ export default class System {
   private __localExpression = new Expression();
   private __localRenderPass = new RenderPass();
   private __lastEntitiesNumber = -1;
+  private __renderPassTickCount = 0;
 
   private constructor() {
     this.__localExpression.addRenderPasses([this.__localRenderPass]);
@@ -86,8 +87,11 @@ export default class System {
             processApproach:this.__processApproach,
             componentRepository: this.__componentRepository,
             strategy: this.__webglStrategy!,
-            renderPass: renderPass
+            renderPass: renderPass,
+            renderPassTickCount: this.__renderPassTickCount
           });
+
+          this.__renderPassTickCount++;
         }
 
       });
