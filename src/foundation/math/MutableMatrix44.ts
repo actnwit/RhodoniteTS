@@ -399,6 +399,9 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     return this;
   }
 
+  static zero() {
+    return new MutableMatrix44(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  }
 
   public set m00(val) {
     this.v[0] = val;  }

@@ -18,6 +18,7 @@ import MutableVector3 from '../math/MutableVector3';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
+  private static __sceneGraphs: SceneGraphComponent[] = [];
   public isAbleToBeParent: boolean;
   private __children: Array<SceneGraphComponent> = [];
   private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
@@ -46,6 +47,7 @@ export default class SceneGraphComponent extends Component {
 
     const thisClass = SceneGraphComponent;
 
+    SceneGraphComponent.__sceneGraphs.push(this);
 //    this.__currentProcessStage = ProcessStage.Logic;
 
     this.isAbleToBeParent = false;
@@ -56,6 +58,12 @@ export default class SceneGraphComponent extends Component {
 
     //this.__updatedProperly = false;
 
+  }
+
+  static getTopLevelComponents(): SceneGraphComponent[] {
+    return SceneGraphComponent.__sceneGraphs.filter((sg: SceneGraphComponent)=>{
+      return sg.isTopLevel;
+    });
   }
 
   isJoint() {
@@ -96,6 +104,10 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
+  get isTopLevel() {
+    return this.__parent == null;
+  }
+
   get children() {
     return this.__children;
   }
@@ -129,7 +141,6 @@ export default class SceneGraphComponent extends Component {
   }
 
   $create() {
-
     this.moveStageTo(ProcessStage.Logic);
   }
 
