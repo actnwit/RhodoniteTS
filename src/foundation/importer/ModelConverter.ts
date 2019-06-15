@@ -505,13 +505,6 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
 
-      let alphaMode = materialJson.alphaMode;
-      if (options.alphaMode) {
-        alphaMode = options.alphaMode;
-      }
-      if (alphaMode != null) {
-        material.alphaMode = AlphaMode.fromString(alphaMode);
-      }
     } else {
       material = MaterialHelper.createClassicUberMaterial();
       let param: Index = ShadingModel.Phong.index;
@@ -535,6 +528,14 @@ export default class ModelConverter {
       rnTexture.name = image.name;
       // material.emissiveTexture = rnTexture;
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
+    }
+
+    let alphaMode = materialJson.alphaMode;
+    if (options != null && options.alphaMode) {
+      alphaMode = options.alphaMode;
+    }
+    if (alphaMode != null) {
+      material.alphaMode = AlphaMode.fromString(alphaMode);
     }
 
     // For glTF1.0
