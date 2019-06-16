@@ -10,7 +10,7 @@ import RnObject from './RnObject';
  * Entity can acquire those functions by having components on themselves.
  */
 export default class Entity extends RnObject {
-  private __entity_uid: number;
+  private readonly __entity_uid: number;
   static readonly invalidEntityUID = -1;
   private __isAlive: Boolean;
   private static __instance: Entity;

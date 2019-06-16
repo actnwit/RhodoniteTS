@@ -33,6 +33,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import Component from "../core/Component";
 import { VertexAttributeEnum } from "../main";
 import Accessor from "../memory/Accessor";
+import Mesh from "../geometry/Mesh";
 
 declare var DracoDecoderModule: any;
 
@@ -376,6 +377,7 @@ export default class ModelConverter {
     let rnPrimitiveMode = PrimitiveMode.Triangles;
 
     const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
+    const rnMesh = new Mesh();
 
     for (let i in mesh.primitives) {
       let primitive = mesh.primitives[i];
@@ -422,11 +424,13 @@ export default class ModelConverter {
         rnPrimitive.setTargets(targets);
       }
 
-      meshComponent.addPrimitive(rnPrimitive);
+      rnMesh.addPrimitive(rnPrimitive);
     }
 
+    meshComponent.setMesh(rnMesh);
+
     if (mesh.weights) {
-      meshComponent.weights = mesh.weights;
+      meshComponent.mesh!.weights = mesh.weights;
     }
 
     return meshEntity;
@@ -817,10 +821,10 @@ export default class ModelConverter {
   }
 
   private __addOffsetToIndices(meshComponent: MeshComponent) {
-    const primitiveNumber = meshComponent.getPrimitiveNumber();
+    const primitiveNumber = meshComponent.mesh!.getPrimitiveNumber();
     let offsetSum = 0;
     for (let i = 0; i < primitiveNumber; i++) {
-      const primitive = meshComponent.getPrimitiveAt(i);
+      const primitive = meshComponent.mesh!.getPrimitiveAt(i);
       const indicesAccessor = primitive.indicesAccessor;
       if (indicesAccessor) {
         const elementNumber = indicesAccessor.elementCount;

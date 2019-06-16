@@ -138,9 +138,14 @@ void main(){
   }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
       if (material) {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -222,10 +227,10 @@ void main(){
     let tmpSumIndexCount = 0;
     entities.forEach((entity:Entity, i)=>{
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
-      if (meshComponent) {
-        primitiveIds[i] = meshComponent.getPrimitiveAt(0)!.primitiveUid;
+      if (meshComponent && meshComponent.mesh) {
+        primitiveIds[i] = meshComponent.mesh.getPrimitiveAt(0)!.primitiveUid;
         entityIds[i] = entity.entityUID;
-        const indexCountOfPrimitive = meshComponent.getPrimitiveAt(0)!.indicesAccessor!.elementCount;
+        const indexCountOfPrimitive = meshComponent.mesh.getPrimitiveAt(0)!.indicesAccessor!.elementCount;
         indexCountToSubtract[i] = tmpSumIndexCount + indexCountOfPrimitive;
         tmpSumIndexCount += indexCountOfPrimitive;
       }

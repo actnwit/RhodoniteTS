@@ -232,8 +232,8 @@ export default class SceneGraphComponent extends Component {
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
       const meshComponent = elem.entity.getComponent(MeshComponent) as MeshComponent;
 
-      if (meshComponent != null) {
-        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), meshComponent!.AABB);
+      if (meshComponent != null && meshComponent.mesh != null) {
+        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), meshComponent.mesh.AABB);
       }
 
       var children = elem.children;

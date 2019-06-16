@@ -40,7 +40,9 @@ const load = function(time){
     primitiveFxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, framebufferFxaaTarget.colorAttachments[0]);
     primitiveFxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(800, 800));
     const meshComponentFxaa = entityFxaa.getComponent(Rn.MeshComponent);
-    meshComponentFxaa.addPrimitive(primitiveFxaa);
+    const meshFxaa = new Rn.Mesh();
+    meshFxaa.addPrimitive(primitiveFxaa);
+    meshComponentFxaa.setMesh(meshFxaa);
     entityFxaa.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
     renderPassFxaa.addEntities([entityFxaa]);
     const cameraEntityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
@@ -75,7 +77,7 @@ const load = function(time){
   //   const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
     //const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
     //const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-    const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+    const promise = importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
   // const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf');
   //  const promise = importer.import('../../../assets/gltf/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf');
@@ -110,7 +112,9 @@ const load = function(time){
     sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
     spherePrimitive.generate({radius: 10000, widthSegments: 40, heightSegments: 40, material: sphereMaterial});
     const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
-    sphereMeshComponent.addPrimitive(spherePrimitive);
+    const sphereMesh = new Rn.Mesh();
+    sphereMesh.addPrimitive(spherePrimitive);
+    sphereMeshComponent.setMesh(sphereMesh);
     sphereEntity.getTransform().scale = new Rn.Vector3(1, 1, 1);
 
     renderPass.addEntities([rootGroup, sphereEntity]);
@@ -144,7 +148,9 @@ const load = function(time){
 
     sphere2Primitive.generate({radius: 50, widthSegments: 40, heightSegments: 40, material: sphere2PbrMaterial});
     const sphere2MeshComponent = sphere2Entity.getComponent(Rn.MeshComponent);
-    sphere2MeshComponent.addPrimitive(sphere2Primitive);
+    const sphere2Mesh = new Rn.Mesh();
+    sphere2Mesh.addPrimitive(sphere2Primitive);
+    sphere2MeshComponent.setMesh(sphere2Mesh);
     cameraControllerComponent.setTarget(sphere2Entity);
     const sphere2MeshRendererComponent = sphere2Entity.getComponent(Rn.MeshRendererComponent);
     window.sphere2MeshRendererComponent = sphere2MeshRendererComponent;

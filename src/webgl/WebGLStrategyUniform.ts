@@ -87,9 +87,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private constructor() { }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
       if (material) {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -144,12 +149,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   async $load(meshComponent: MeshComponent) {
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
 
     this.setupShaderProgram(meshComponent);
 
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.primitiveUid, vertexHandles);
     }
@@ -169,11 +178,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
     const vertexHandles = [];
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
 
-    if (meshComponent.weights.length > 0) {
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
+
+    if (meshComponent.mesh.weights.length > 0) {
       for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent!.getPrimitiveAt(i);
+        const primitive = meshComponent!.mesh.getPrimitiveAt(i);
         vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
         this.__webglResourceRepository.resendVertexBuffer(primitive, vertexHandles[i].vboHandles);
       }
@@ -181,7 +195,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     for (let i = 0; i < primitiveNum; i++) {
 
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
       if (!vertexHandles[i].setComplete) {
 
@@ -376,9 +390,15 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     this.setWebGLStates(idx, gl, renderPass);
 
-    const primitiveNum = meshComponent.getPrimitiveNumber();
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+
     for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.getPrimitiveAt(i);
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
       if (WebGLStrategyUniform.isOpaqueMode() && primitive.isBlend()) {
         continue;
       }

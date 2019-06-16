@@ -8,6 +8,7 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PrimitiveMode } from '../foundation/definitions/PrimitiveMode';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import MemoryManager from '../foundation/core/MemoryManager';
+import Mesh from '../foundation/geometry/Mesh';
 
 const puppeteer = require('puppeteer')
 
@@ -69,8 +70,9 @@ test('Create WebGL resources.', async () => {
 
   const primitive = readyBasicVerticesData();
   const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
-  meshComponent.addPrimitive(primitive);
-
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
 
   const ib_uid = repo.createIndexBuffer(primitive.indicesAccessor!);
   const ib_handle = repo.getWebGLResource(ib_uid);
@@ -102,7 +104,10 @@ test('Create WebGL resources. 2', async () => {
 
   const primitive = readyBasicVerticesData();
   const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
-  meshComponent.addPrimitive(primitive);
+  const mesh = new Mesh();
+
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
 
 });
 

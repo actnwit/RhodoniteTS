@@ -7,6 +7,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import MemoryManager from '../core/MemoryManager';
+import Mesh from '../geometry/Mesh';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -46,7 +47,9 @@ test('Use translate simply', () => {
   });
 
   const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
-  meshComponent.addPrimitive(primitive);
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+  meshComponent.setMesh(mesh);
 
  // expect(transformComponent.translate.isEqual(new Vector3(1, 0, 0))).toBe(true);
 });
