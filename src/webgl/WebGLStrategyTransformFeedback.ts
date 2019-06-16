@@ -260,7 +260,6 @@ void main(){
     if (isHalfFloatMode) {
       halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
       let convertLength = buffer.takenSizeInByte / 4; //components
-      convertLength /= 2; // bytes
       for (let i=0; i<convertLength; i++) {
         halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
       }

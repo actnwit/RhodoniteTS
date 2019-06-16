@@ -4,7 +4,6 @@ import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
-import Quaternion from '../math/Quaternion';
 import Matrix44 from '../math/Matrix44';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
@@ -13,13 +12,6 @@ import ComponentRepository from './ComponentRepository';
 import Config from './Config';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
-import { CompositionType } from '../definitions/CompositionType';
-import MutableMatrix33 from '../math/MutableMatrix33';
-import Matrix33 from '../math/Matrix33';
-import Vector3 from '../math/Vector3';
-import Vector4 from '../math/Vector4';
-import MutableVector4 from '../math/MutableVector4';
-import MutableQuaternion from '../math/MutableQuaterion';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 
@@ -41,6 +33,7 @@ export default class Component {
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
   private static __members:Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
+  private __byteOffsetOfThisComponent: Byte = -1;
 
   private __isAlive: Boolean;
   protected __entityUid: EntityUID;
@@ -250,12 +243,13 @@ export default class Component {
     }
 
     const bufferViews = this.__bufferViews.get(componentClass)!;
-
     if (!bufferViews.has(bufferUse)) {
-      bufferViews.set(bufferUse,
-        buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false})
-        );
+      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false});
+      bufferViews.set(bufferUse, bufferView);
+      return bufferView;
     }
+
+    return void 0;
   }
 
   /**
@@ -300,10 +294,11 @@ export default class Component {
 
     if (!accessors.has(memberName)) {
       const bufferViews = this.__bufferViews.get(componentClass)!
-      accessors.set(memberName,
-        bufferViews.get(bufferUse)!.takeAccessor(
-          {compositionType: compositionType, componentType, count: count})
-      );
+      const accessor = bufferViews.get(bufferUse)!.takeAccessor({compositionType: compositionType, componentType, count: count});
+      accessors.set(memberName, accessor);
+      return accessor;
+    } else {
+      return void 0;
     }
   }
 
@@ -399,7 +394,8 @@ export default class Component {
           );
         });
         if (infoArray.length > 0) {
-          Component.takeBufferView(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
+          const bufferView = Component.takeBufferView(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
+          this.__byteOffsetOfThisComponent = bufferView!.byteOffset;
         }
       }
 
@@ -407,7 +403,9 @@ export default class Component {
       for (let bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
         infoArray.forEach(info=>{
-          Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType, count);
+          const accessor = Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType, count);
+          (this as any)['_byteOffsetOfAccessorInBuffer_'+info.memberName] = accessor!.byteOffsetInBuffer;
+          (this as any)['_byteOffsetOfAccessorInComponent_'+info.memberName] = accessor!.byteOffsetInBufferView;
         });
       }
     }
@@ -426,6 +424,57 @@ export default class Component {
 
   get entity() {
     return this.__entityRepository.getEntity(this.__entityUid);
+  }
+
+  static getDataByteInfoInner(component: Component, memberName: string) {
+    const data = (component as any)['_'+memberName];
+    const typedArray = data.v as TypedArray;
+    const byteOffsetInBuffer = typedArray.byteOffset;
+    const byteLength = typedArray.byteLength;
+    const componentNumber = typedArray.length;
+    const locationOffsetInBuffer = byteOffsetInBuffer / 4 / 4; // 4byte is the size of Float32Array, and texel fetch is 4 components unit.
+    const byteOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_'+memberName] + component.componentSID * componentNumber * 4;
+    const locationOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_'+memberName] + component.componentSID * componentNumber;
+    const thisComponentByteOffsetInBuffer = component.__byteOffsetOfThisComponent;
+    const thisComponentLocationOffsetInBuffer = component.__byteOffsetOfThisComponent / 4 / 4;
+
+    return {
+      byteLength,
+      byteOffsetInBuffer,
+      byteOffsetInThisComponent,
+      locationOffsetInBuffer,
+      locationOffsetInThisComponent,
+      thisComponentByteOffsetInBuffer,
+      thisComponentLocationOffsetInBuffer,
+      componentNumber
+    };
+  }
+
+  getDataByteInfo(memberName: string) {
+    return Component.getDataByteInfoInner(this, memberName);
+  }
+
+  static getDataByteInfoByComponentSID(componentType: typeof Component, componentSID: ComponentSID, memberName: string) {
+    const component = ComponentRepository.getInstance().getComponent(componentType, componentSID);
+    if (component) {
+      return Component.getDataByteInfoInner(component, memberName);
+    }
+
+    return void 0;
+  }
+
+  static getDataByteInfoByEntityUID(componentType: typeof Component, entityUID: EntityUID, memberName: string) {
+    const component = EntityRepository.getInstance().getComponentOfEntity(entityUID, componentType);
+    if (component) {
+      return Component.getDataByteInfoInner(component, memberName);
+    }
+
+    return void 0;
+  }
+
+  static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
+    const component = ComponentRepository.getInstance().getComponent(componentType, 0);
+    return (component as any)['_byteOffsetOfAccessorInBuffer_'+memberName] / 4 / 4;
   }
 
   // $create() {

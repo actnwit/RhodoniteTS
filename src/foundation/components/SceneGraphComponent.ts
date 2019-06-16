@@ -13,8 +13,8 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
-import MeshComponent from './MeshComponent';
 import MutableVector3 from '../math/MutableVector3';
+import MeshComponent from './MeshComponent';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -54,6 +54,7 @@ export default class SceneGraphComponent extends Component {
     this.beAbleToBeParent(true);
     this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
     this.submitToAllocation();
 
     //this.__updatedProperly = false;
@@ -230,7 +231,7 @@ export default class SceneGraphComponent extends Component {
   calcWorldAABB() {
     const that = this;
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
-      const meshComponent = elem.entity.getComponent(MeshComponent) as MeshComponent;
+      const meshComponent = elem.entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
 
       if (meshComponent != null && meshComponent.mesh != null) {
         elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), meshComponent.mesh.AABB);

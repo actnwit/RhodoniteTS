@@ -18,6 +18,8 @@ import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
+import Component from "../foundation/core/Component";
+import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -59,15 +61,15 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
   mat4 getMatrix(float instanceId)
   {
-    float index = instanceId;
+    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')}.0 + 4.0 * instanceId;
     float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
     float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
     vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
   //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
 
-    vec4 col0 = fetchElement(u_dataTexture, index * 4.0 + 0.0, arg);
-   vec4 col1 = fetchElement(u_dataTexture, index * 4.0 + 1.0, arg);
-   vec4 col2 = fetchElement(u_dataTexture, index * 4.0 + 2.0, arg);
+    vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
+    vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
+    vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
 
     mat4 matrix = mat4(
       col0.x, col1.x, col2.x, 0.0,
@@ -188,7 +190,6 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     if (isHalfFloatMode) {
       halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
       let convertLength = buffer.takenSizeInByte / 4; //components
-      convertLength /= 2; // bytes
       for (let i=0; i<convertLength; i++) {
         halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
       }
