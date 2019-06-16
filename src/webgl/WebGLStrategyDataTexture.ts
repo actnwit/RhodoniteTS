@@ -95,9 +95,14 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
       if (material) {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -129,11 +134,17 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       return;
     }
     this.__meshComponent = meshComponent;
+
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
     this.setupShaderProgram(meshComponent);
 
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
       this.__vertexHandles[i] = vertexHandles;
       WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUID, vertexHandles);
@@ -145,9 +156,15 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     if (this.__isVAOSet) {
       return;
     }
-    const primitiveNum = meshComponent!.getPrimitiveNumber();
+
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent!.getPrimitiveAt(i);
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
      // if (this.__isLoaded(i) && this.__isVAOSet) {
       this.__vertexHandles[i] = WebGLStrategyDataTexture.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUID)!;
         //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;

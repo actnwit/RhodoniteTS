@@ -73,7 +73,9 @@
 
 
     const meshComponent = entity.getComponent(Rn.MeshComponent);
-    meshComponent.addPrimitive(primitive);
+    const mesh = new Rn.Mesh();
+    mesh.addPrimitive(primitive);
+    meshComponent.setMesh(mesh);
     entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
     const meshComponent2 = entity2.getComponent(Rn.MeshComponent);
 
@@ -81,7 +83,10 @@
     primitive2.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
     primitive2.material = Rn.MaterialHelper.createClassicUberMaterial();
     primitive2.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, framebuffer.colorAttachments[0]);
-    meshComponent2.addPrimitive(primitive2);
+
+    const mesh2 = new Rn.Mesh();
+    mesh2.addPrimitive(primitive2);
+    meshComponent2.setMesh(mesh2);
     entity2.getTransform().rotate = new Rn.Vector3(-Math.PI*2/3, 0, 0);
     entity2.getTransform().translate = new Rn.Vector3(0, 0, 0);
 
@@ -91,7 +96,9 @@
     primitive_fxaa.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, framebuffer_fxaatarget.colorAttachments[0]);
     primitive_fxaa.material.setParameter(Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(600, 600));
     const meshComponent_fxaa = entity_fxaa.getComponent(Rn.MeshComponent);
-    meshComponent_fxaa.addPrimitive(primitive_fxaa);
+    const mesh_fxaa = new Rn.Mesh();
+    mesh_fxaa.addPrimitive(primitive_fxaa);
+    meshComponent_fxaa.setMesh(mesh_fxaa);
     entity_fxaa.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
     entity_fxaa.getTransform().translate = new Rn.Vector3(0, 0, 0);
 

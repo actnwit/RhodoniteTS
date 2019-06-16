@@ -125,15 +125,15 @@ export default class Gltf2Exporter {
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
-      if (meshComponent) {
+      if (meshComponent && meshComponent.mesh) {
         json.meshes[count] = {};
         const mesh = json.meshes[count];
         mesh.primitives = [];
-        const primitiveCount = meshComponent.getPrimitiveNumber();
+        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for(let j=0; j<primitiveCount; j++) {
           mesh.primitives[j] = {};
           const primitive = mesh.primitives[j];
-          const rnPrimitive = meshComponent.getPrimitiveAt(j);
+          const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
           const indicesAccessor = rnPrimitive.indicesAccessor;
 
           if (indicesAccessor) {
@@ -175,11 +175,11 @@ export default class Gltf2Exporter {
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
-      if (meshComponent) {
+      if (meshComponent && meshComponent.mesh) {
         const mesh = json.meshes[countMesh++];
-        const primitiveCount = meshComponent.getPrimitiveNumber();
+        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for(let j=0; j<primitiveCount; j++) {
-          const rnPrimitive = meshComponent.getPrimitiveAt(j);
+          const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
           const primitive = mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
 
@@ -352,10 +352,10 @@ export default class Gltf2Exporter {
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
-      if (meshComponent) {
-        const primitiveCount = meshComponent.getPrimitiveNumber();
+      if (meshComponent && meshComponent.mesh) {
+        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for(let j=0; j<primitiveCount; j++) {
-          const primitive = meshComponent.getPrimitiveAt(j);
+          const primitive = meshComponent.mesh.getPrimitiveAt(j);
           const indicesAccessor = primitive.indicesAccessor;
 
           if (indicesAccessor) {

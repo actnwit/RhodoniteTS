@@ -18,6 +18,7 @@ type ComponentSID = number;
 type MaterialUID = number;
 type MaterialNodeUID = number;
 type TextureUID = number;
+type MeshUID = number;
 
 type WebGLResourceHandle = number;
 

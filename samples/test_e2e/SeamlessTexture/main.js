@@ -29,7 +29,9 @@
     entities.push(entity);
 
     const meshComponent = entity.getComponent(Rn.MeshComponent);
-    meshComponent.addPrimitive(primitive);
+    const mesh = new Rn.Mesh();
+    mesh.addPrimitive(primitive);
+    meshComponent.setMesh(mesh);
     entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);;
 
     const startTime = Date.now();

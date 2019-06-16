@@ -118,8 +118,12 @@ export default class MeshRendererComponent extends Component {
     this.__webglRenderingStrategy!.$render!(i, this.__meshComponent!, this.__sceneGraphComponent!.worldMatrixInner, this.__sceneGraphComponent!.normalMatrixInner,
       entity, renderPass, renderPassTickCount, this.diffuseCubeMap, this.specularCubeMap);
 
-    if (this.__meshComponent!.weights.length > 0) {
-      this.moveStageTo(ProcessStage.PreRender);
+    if (this.__meshComponent!.mesh) {
+      if (this.__meshComponent!.mesh.weights.length > 0) {
+        this.moveStageTo(ProcessStage.PreRender);
+      }
+    } else {
+      MeshComponent.alertNoMeshSet(this.__meshComponent!);
     }
   }
 
@@ -194,24 +198,26 @@ export default class MeshRendererComponent extends Component {
 
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
     const meshComponent = meshComponents[0] as MeshComponent;
-    const primitiveNum = meshComponent.getPrimitiveNumber();
-    const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
-    for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent.getPrimitiveAt(i);
-      if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix)) {
-        break;
+    if (meshComponent.mesh) {
+      const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+      const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
+      for(let i=0; i<primitiveNum; i++) {
+        const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+        if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix)) {
+          break;
+        }
+
+        MeshRendererComponent.__webGLStrategy!.attachVertexData(i, primitive, glw, MeshRendererComponent.__instanceIDBufferUid);
+        MeshRendererComponent.__webGLStrategy!.attatchShaderProgram(primitive.material!);
+        MeshRendererComponent.__webGLStrategy!.attachGPUData(primitive);
+
+        const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
+  //      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);
+        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
       }
-
-      MeshRendererComponent.__webGLStrategy!.attachVertexData(i, primitive, glw, MeshRendererComponent.__instanceIDBufferUid);
-      MeshRendererComponent.__webGLStrategy!.attatchShaderProgram(primitive.material!);
-      MeshRendererComponent.__webGLStrategy!.attachGPUData(primitive);
-
-      const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
-//      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);
-      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
-
+    } else {
+      MeshComponent.alertNoMeshSet(meshComponent);
     }
-
   }
 
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
@@ -283,19 +289,23 @@ export default class MeshRendererComponent extends Component {
       const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
-        if (transparentMeshComponentSids.length === 0 && meshComponent.isBlendPartially()) {
-          transparentPartiallyMeshComponents.push(meshComponent);
-          opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
-        } else if (transparentMeshComponentSids.length === 0 && meshComponent.isAllBlend()) {
-          transparentCompletelyMeshComponents.push(meshComponent);
-        }
-
-        if (meshComponent.isOpaque()) {
-          opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
-        } else {
-          if (cameraComponent) {
-            meshComponent.calcViewDepth(cameraComponent);
+        if (meshComponent.mesh) {
+          if (transparentMeshComponentSids.length === 0 && meshComponent.mesh.isBlendPartially()) {
+            transparentPartiallyMeshComponents.push(meshComponent);
+            opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
+          } else if (transparentMeshComponentSids.length === 0 && meshComponent.mesh.isAllBlend()) {
+            transparentCompletelyMeshComponents.push(meshComponent);
           }
+
+          if (meshComponent.mesh.isOpaque()) {
+            opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
+          } else {
+            if (cameraComponent) {
+              meshComponent.calcViewDepth(cameraComponent);
+            }
+          }
+        } else {
+          MeshComponent.alertNoMeshSet(meshComponent);
         }
       }
     }
