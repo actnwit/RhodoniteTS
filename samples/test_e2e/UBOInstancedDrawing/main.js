@@ -100,7 +100,6 @@
     return primitive;
   }
 
-  //Rn.Config.maxEntityNumber = 1024;
 
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   const system = Rn.System.getInstance();

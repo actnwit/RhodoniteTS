@@ -54,13 +54,17 @@ export default class Entity extends RnObject {
     return this.__components[componentType.componentTID];
   }
 
+  getComponentByComponentTID(componentTID: ComponentTID): Component | null {
+    return this.__components[componentTID];
+  }
+
   /**
    * Get the TransformComponent of the entity.
    * It's a shortcut method of getComponent(TransformComponent).
    */
   getTransform(): TransformComponent {
     if (this.__transformComponent == null) {
-      this.__transformComponent = this.getComponent(TransformComponent) as TransformComponent;
+      this.__transformComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.TransformComponentTID) as TransformComponent;
     }
     return this.__transformComponent;
   }
@@ -71,7 +75,7 @@ export default class Entity extends RnObject {
    */
   getSceneGraph(): SceneGraphComponent {
     if (this.__sceneGraphComponent == null) {
-      this.__sceneGraphComponent = this.getComponent(SceneGraphComponent) as SceneGraphComponent;
+      this.__sceneGraphComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.SceneGraphComponentTID) as SceneGraphComponent;
     }
     return this.__sceneGraphComponent;
   }
