@@ -1,4 +1,4 @@
-test('regression test Gltf2Importer', async () => {
+test('regression test MultiPass', async () => {
   jest.setTimeout(60000);
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/MultiPass');
