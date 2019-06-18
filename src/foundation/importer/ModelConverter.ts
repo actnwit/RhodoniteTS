@@ -34,6 +34,7 @@ import Component from "../core/Component";
 import { VertexAttributeEnum } from "../main";
 import Accessor from "../memory/Accessor";
 import Mesh from "../geometry/Mesh";
+import MutableVector4 from "../math/MutableVector4";
 
 declare var DracoDecoderModule: any;
 
@@ -470,17 +471,6 @@ export default class ModelConverter {
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
 
-      const normalTexture = materialJson.normalTexture;
-      if (normalTexture != null) {
-        const texture = normalTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.normalTexture = rnTexture;
-        material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
-      }
-
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
         const texture = occlusionTexture.texture;
@@ -556,6 +546,18 @@ export default class ModelConverter {
     if (diffuseColorFactor != null) {
       material.setParameter(ShaderSemantics.DiffuseColorFactor, new Vector4(diffuseColorFactor));
     }
+
+    const normalTexture = materialJson.normalTexture;
+    if (normalTexture != null) {
+      const texture = normalTexture.texture;
+      const image = texture.image.image;
+      const rnTexture = new Texture();
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+      material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
+    }
+
+    ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
 
     // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
@@ -1077,5 +1079,28 @@ export default class ModelConverter {
     draco.destroy(decoder);
 
     return indicesDracoAccessor;
+  }
+
+  static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformName: string, textureRotationName: string) {
+    if (textureJson && textureJson.extensions && textureJson.extensions.KHR_texture_transform) {
+      let transform = MutableVector4.zero();
+      let rotation = 0;
+
+      const transformJson = textureJson.extensions.KHR_texture_transform;
+      if (transformJson.scale != null) {
+        transform.x = transformJson.scale[0];
+        transform.y = transformJson.scale[1];
+      }
+      if (transformJson.offset != null) {
+        transform.z = transformJson.offset[0];
+        transform.w = transformJson.offset[1];
+      }
+      if (transformJson.rotation != null) {
+        rotation = transformJson.rotation;
+      }
+
+      rnMaterial.setParameter(textureTransformName, transform);
+      rnMaterial.setParameter(textureRotationName, rotation);
+    }
   }
 }
