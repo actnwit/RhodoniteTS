@@ -11,6 +11,8 @@ import { BufferUse } from '../definitions/BufferUse';
 import AABB from '../math/AABB';
 import Material from '../materials/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
+import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
 
 type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -24,6 +26,7 @@ export default class Primitive extends RnObject {
   private static __headerAccessor?: Accessor;
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
+  private __vertexHandles?: VertexHandles;
 
   constructor() {
     super();
@@ -308,5 +311,18 @@ export default class Primitive extends RnObject {
   }
   isOpaque() {
     return !this.isBlend();
+  }
+
+  create3DAPIVertexData() {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__vertexHandles = webglResourceRepository.createVertexDataResources(this);
+  }
+
+  delete3DAPIVertexData() {
+    if (this.__vertexHandles == null) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
   }
 }
