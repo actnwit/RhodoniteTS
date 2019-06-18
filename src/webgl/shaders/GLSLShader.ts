@@ -464,6 +464,28 @@ export default abstract class GLSLShader {
       return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
     }
 
+    vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2 detailUv) {
+      vec3 t = ${this.glsl_texture}(baseMap,   baseUv).xyz * 2.0 - 1.0;
+      vec3 u = ${this.glsl_texture}(detailMap, detailUv).xyz * 2.0 - 1.0;
+      vec3 r = normalize(vec3(t.xy + u.xy, t.z));
+      return r;
+    }
+
+    vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
+      mat3 translationMat = mat3(1,0,0, 0,1,0, offset.x, offset.y, 1);
+      mat3 rotationMat = mat3(
+          cos(rotation), sin(rotation), 0,
+         -sin(rotation), cos(rotation), 0,
+                      0,             0, 1
+      );
+      mat3 scaleMat = mat3(scale.x,0,0, 0,scale.y,0, 0,0,1);
+
+      mat3 matrix = translationMat * rotationMat * scaleMat;
+      vec2 uvTransformed = ( matrix * vec3(uv.xy, 1) ).xy;
+
+      return uvTransformed;
+    }
+
     `;
   }
 
