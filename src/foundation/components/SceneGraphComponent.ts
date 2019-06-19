@@ -241,7 +241,7 @@ export default class SceneGraphComponent extends Component {
       const meshComponent = elem.entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
 
       if (meshComponent != null && meshComponent.mesh != null) {
-        elem.__worldAABB = AABB.multiplyMatrix(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB);
+        AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
       }
 
       var children = elem.children;
