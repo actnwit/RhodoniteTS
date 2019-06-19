@@ -88,56 +88,67 @@ export default class AnimationComponent extends Component {
   }
 
   static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, deltaInput: number, compositionType: CompositionTypeEnum) {
+    const ratio2 = ratio*ratio;
+    const ratio3 = ratio2*ratio;
     if (compositionType === CompositionType.Scalar) {
-
-      return (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent;
+      return (2*ratio3 - 3*ratio2 + 1) * start +
+        (ratio3 - 2*ratio2 + ratio) * inTangent +
+        (-2*ratio3 + 3*ratio2) * end +
+        (ratio3 - ratio2) * outTangent;
     } else {
       if (start instanceof Vector3) {
-        (this.returnVector3 as MutableVector3).x = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.x +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.x +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.x +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.x;
-        (this.returnVector3 as MutableVector3).y = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.y +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.y +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.y +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.y;
-        (this.returnVector3 as MutableVector3).z = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.z +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.z +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.z +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.z;
+        (this.returnVector3 as MutableVector3).x = (2*ratio3 - 3*ratio2 + 1) * start.x +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.x +
+        (-2*ratio3 + 3*ratio2) * end.x +
+        (ratio3 - ratio2) * outTangent.x;
+        (this.returnVector3 as MutableVector3).y = (2*ratio3 - 3*ratio2 + 1) * start.y +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.y +
+        (-2*ratio3 + 3*ratio2) * end.y +
+        (ratio3 - ratio2) * outTangent.y;
+        (this.returnVector3 as MutableVector3).z = (2*ratio3 - 3*ratio2 + 1) * start.z +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.z +
+        (-2*ratio3 + 3*ratio2) * end.z +
+        (ratio3 - ratio2) * outTangent.z;
         return this.returnVector3;
       } else if (start instanceof Quaternion) {
-        this.returnQuaternion.x = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.x +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.x +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.x +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.x;
-        this.returnQuaternion.y = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.y +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.y +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.y +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.y;
-        this.returnQuaternion.z = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.z +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.z +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.z +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.z;
-        this.returnQuaternion.w = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.w +
-        (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent.w +
-        (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.w +
-        (ratio*ratio*ratio - ratio*ratio) * outTangent.w;
+        this.returnQuaternion.x = (2*ratio3 - 3*ratio2 + 1) * start.x +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.x +
+        (-2*ratio3 + 3*ratio2) * end.x +
+        (ratio3 - ratio2) * outTangent.x;
+        this.returnQuaternion.y = (2*ratio3 - 3*ratio2 + 1) * start.y +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.y +
+        (-2*ratio3 + 3*ratio2) * end.y +
+        (ratio3 - ratio2) * outTangent.y;
+        this.returnQuaternion.z = (2*ratio3 - 3*ratio2 + 1) * start.z +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.z +
+        (-2*ratio3 + 3*ratio2) * end.z +
+        (ratio3 - ratio2) * outTangent.z;
+        this.returnQuaternion.w = (2*ratio3 - 3*ratio2 + 1) * start.w +
+        (ratio3 - 2*ratio2 + ratio) * inTangent.w +
+        (-2*ratio3 + 3*ratio2) * end.w +
+        (ratio3 - ratio2) * outTangent.w;
         return this.returnQuaternion;
       } else {
         const returnArray = [];
         for (let j=0; j<start.length; j++) {
-          returnArray[j] = (2*ratio*ratio*ratio - 3*ratio*ratio + 1) * start.x +
-          (ratio*ratio*ratio - 2*ratio*ratio + ratio) * inTangent[j] +
-          (-2*ratio*ratio*ratio + 3*ratio*ratio) * end.x +
-          (ratio*ratio*ratio - ratio*ratio) * outTangent[j];
+          returnArray[j] = (2*ratio3 - 3*ratio2 + 1) * start.x +
+          (ratio3 - 2*ratio2 + ratio) * inTangent[j] +
+          (-2*ratio3 + 3*ratio2) * end.x +
+          (ratio3 - ratio2) * outTangent[j];
         }
         return returnArray;
       }
     }
+  }
+
+  private static __isClamped(idx: number, inputArray: number[]) {
+    if (idx < 0) {
+      return true;
+    }
+    if (idx >= inputArray.length) {
+      return true;
+    }
+    return false;
   }
 
   static interpolate(line: AnimationLine, input: number) {
@@ -147,21 +158,12 @@ export default class AnimationComponent extends Component {
     const compositionType = line.outputCompositionType;
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : Animation.Linear;
 
-    const isClamped = (idx:number)=> {
-      if (idx < 0) {
-        return true;
-      }
-      if (idx >= inputArray.length) {
-        return true;
-      }
-      return false;
-    }
     if (method === Animation.CubicSpline) {
       for (let i = 0; i<inputArray.length-1; i++) {
         if (inputArray[i] <= input && input < inputArray[i+1]) {
-          const i_minus_b = isClamped(i-1);
-          const i_plus_b = isClamped(i+1);
-          const i_pp_b = isClamped(i+2);
+          const i_minus_b = AnimationComponent.__isClamped(i-1, inputArray);
+          const i_plus_b = AnimationComponent.__isClamped(i+1, inputArray);
+          const i_pp_b = AnimationComponent.__isClamped(i+2, inputArray);
           let m_i = MathClassUtil.init(outputArray[0], 0);
           if (!i_minus_b) {
             m_i = MathClassUtil.multiplyNumber(
