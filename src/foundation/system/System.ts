@@ -48,7 +48,6 @@ export default class System {
     if (exp === this.__localExpression && this.__entityRepository.getEntitiesNumber() !== this.__lastEntitiesNumber) {
       this.__localRenderPass.clearEntities();
       this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
-      this.__localRenderPass.cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
 
       this.__lastEntitiesNumber = this.__entityRepository.getEntitiesNumber();
     }

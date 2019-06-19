@@ -278,7 +278,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, firstTime, WebGLStrategyUniform.transposedMatrix44);
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, firstTime, normalMatrix);
-    const cameraComponent = renderPass.cameraComponent;
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
     if (cameraComponent) {
       this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, firstTime, cameraComponent.viewMatrix);
       this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, firstTime, cameraComponent.projectionMatrix);

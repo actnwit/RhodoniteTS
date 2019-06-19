@@ -15,6 +15,7 @@ import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
+import AnimationComponent from './AnimationComponent';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -31,6 +32,7 @@ export default class SceneGraphComponent extends Component {
   private static __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
+  private __animationComponent?: AnimationComponent;
 
   // Skeletal
   public isRootJoint = false;
@@ -142,6 +144,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   $create() {
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  $load() {
+    this.__animationComponent = this.entity.getComponent(AnimationComponent) as AnimationComponent;
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -230,27 +237,25 @@ export default class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     const that = this;
-    var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent) {
+    var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
       const meshComponent = elem.entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
 
       if (meshComponent != null && meshComponent.mesh != null) {
-        elem.__worldAABB = AABB.multiplyMatrix(new Matrix44(elem.worldMatrixInner), meshComponent.mesh.AABB);
+        AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
       }
 
       var children = elem.children;
       for (let i = 0; i < children.length; i++) {
-        var aabb = mergeAABBRecursively(children[i]);
-        if (aabb instanceof AABB) {
-          elem.__worldAABB.mergeAABB(aabb);
+        var aabb = mergeAABBRecursively(children[i], true);
+        if (flg && elem.__animationComponent == null) {
+          elem.worldAABB.mergeAABB(aabb);
         } else {
-          console.assert("calculation of AABB error!");
+          elem.__worldAABB.mergeAABB(aabb);
         }
       }
 
       return elem.__worldAABB;
-
-      return new AABB();
-    })(this);
+    })(this, false);
 
     this.__worldAABB.mergeAABB(aabb);
 

@@ -27,6 +27,7 @@ export default class SkeletalComponent extends Component {
   public isSkinning = true;
   public isOptimizingMode = true;
   private __boneCompressedInfo = MutableVector4.zero();
+  private static __scaleVec3 = MutableVector3.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -96,10 +97,9 @@ export default class SkeletalComponent extends Component {
         const joint = this.__joints[i];
         let globalJointTransform = null;
         let inverseBindMatrix = joint._inverseBindMatrix!;
-        globalJointTransform = new Matrix44(joint.worldMatrixInner);
+        globalJointTransform = joint.worldMatrixInner;
         matrices[i] = MutableMatrix44.identity();
-        //matrices[i] = Matrix44.multiply(matrices[i], Matrix44.invert(new Matrix44(this.__sceneGraphComponent!.worldMatrixInner)));
-        matrices[i] = MutableMatrix44.multiply(matrices[i], globalJointTransform);
+        matrices[i] = MutableMatrix44.multiply(matrices[i], globalJointTransform as any as Matrix44);
         matrices[i] = MutableMatrix44.multiply(matrices[i], inverseBindMatrix);
         if (this._bindShapeMatrix) {
           matrices[i] = MutableMatrix44.multiply(matrices[i], this._bindShapeMatrix); // only for glTF1
@@ -115,23 +115,21 @@ export default class SkeletalComponent extends Component {
       let tZArray = [];
       for (let i=0; i<matrices.length; i++) {
         let m = matrices[i];
-        let scale = new Vector3(
-          Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02),
-          Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12),
-          Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22)
-        );
+        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
+        SkeletalComponent.__scaleVec3.x =  Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
+        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
 
-        matrices[i].m00 /= scale.x;
-        matrices[i].m01 /= scale.x;
-        matrices[i].m02 /= scale.x;
-        matrices[i].m10 /= scale.y;
-        matrices[i].m11 /= scale.y;
-        matrices[i].m12 /= scale.y;
-        matrices[i].m20 /= scale.z;
-        matrices[i].m21 /= scale.z;
-        matrices[i].m22 /= scale.z;
+        matrices[i].m00 /= SkeletalComponent.__scaleVec3.x;
+        matrices[i].m01 /= SkeletalComponent.__scaleVec3.x;
+        matrices[i].m02 /= SkeletalComponent.__scaleVec3.x;
+        matrices[i].m10 /= SkeletalComponent.__scaleVec3.y;
+        matrices[i].m11 /= SkeletalComponent.__scaleVec3.y;
+        matrices[i].m12 /= SkeletalComponent.__scaleVec3.y;
+        matrices[i].m20 /= SkeletalComponent.__scaleVec3.z;
+        matrices[i].m21 /= SkeletalComponent.__scaleVec3.z;
+        matrices[i].m22 /= SkeletalComponent.__scaleVec3.z;
 
-        scales.push(Math.max(scale.x, scale.y, scale.z));
+        scales.push(Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z));
         let t = matrices[i].getTranslate();
         tXArray.push(Math.abs(t.x));
         tYArray.push(Math.abs(t.y));

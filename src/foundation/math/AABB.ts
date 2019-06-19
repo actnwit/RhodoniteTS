@@ -10,6 +10,7 @@ export default class AABB {
   private __lengthCenterToCorner = 0;
   private __isCenterPointDirty = false;
   private __isLengthCenterToCornerDirty = false;
+  private static __tmpVector3 = MutableVector3.zero();
 
   constructor() {
   }
@@ -163,26 +164,104 @@ export default class AABB {
      }
     var newAabb = new AABB();
 
-    let AABB_0 = new Vector4(aabb.__min.x, aabb.__min.y, aabb.__min.z, 1);
-    let AABB_1 = new Vector4(aabb.__max.x, aabb.__min.y, aabb.__min.z, 1);
-    let AABB_2 = new Vector4(aabb.__min.x, aabb.__max.y, aabb.__min.z, 1);
-    let AABB_3 = new Vector4(aabb.__min.x, aabb.__min.y, aabb.__max.z, 1);
-    let AABB_4 = new Vector4(aabb.__min.x, aabb.__max.y, aabb.__max.z, 1);
-    let AABB_5 = new Vector4(aabb.__max.x, aabb.__min.y, aabb.__max.z, 1);
-    let AABB_6 = new Vector4(aabb.__max.x, aabb.__max.y, aabb.__min.z, 1);
-    let AABB_7 = new Vector4(aabb.__max.x, aabb.__max.y, aabb.__max.z, 1);
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_0)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_1)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_2)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_3)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_4)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_5)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_6)));
-    newAabb.addPosition(new Vector3(matrix.multiplyVector(AABB_7)));
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__min.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__min.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__min.z;
+    newAabb.addPosition(AABB.__tmpVector3);
+
+    AABB.__tmpVector3.x = aabb.__max.x;
+    AABB.__tmpVector3.y = aabb.__max.y;
+    AABB.__tmpVector3.z = aabb.__max.z;
+    newAabb.addPosition(AABB.__tmpVector3);
 
     return newAabb;
   }
 
+  static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB) {
+    if (aabb.isVanilla()) {
+      return aabb.clone();
+    }
+
+   AABB.__tmpVector3.x = aabb.__min.x;
+   AABB.__tmpVector3.y = aabb.__min.y;
+   AABB.__tmpVector3.z = aabb.__min.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__max.x;
+   AABB.__tmpVector3.y = aabb.__min.y;
+   AABB.__tmpVector3.z = aabb.__min.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__min.x;
+   AABB.__tmpVector3.y = aabb.__max.y;
+   AABB.__tmpVector3.z = aabb.__min.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__min.x;
+   AABB.__tmpVector3.y = aabb.__min.y;
+   AABB.__tmpVector3.z = aabb.__max.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__min.x;
+   AABB.__tmpVector3.y = aabb.__max.y;
+   AABB.__tmpVector3.z = aabb.__max.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__max.x;
+   AABB.__tmpVector3.y = aabb.__min.y;
+   AABB.__tmpVector3.z = aabb.__max.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__max.x;
+   AABB.__tmpVector3.y = aabb.__max.y;
+   AABB.__tmpVector3.z = aabb.__min.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   AABB.__tmpVector3.x = aabb.__max.x;
+   AABB.__tmpVector3.y = aabb.__max.y;
+   AABB.__tmpVector3.z = aabb.__max.z;
+   matrix.multiplyVectorToVec3(AABB.__tmpVector3 as any as Vector4, AABB.__tmpVector3);
+   outAabb.addPosition(AABB.__tmpVector3);
+
+   return outAabb;
+ }
 
   toString() {
     return 'AABB_min: ' + this.__min + '\n' + 'AABB_max: ' + this.__max + '\n'

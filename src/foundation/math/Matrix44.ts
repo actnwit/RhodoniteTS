@@ -8,6 +8,7 @@ import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
+import MutableVector4 from './MutableVector4';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -376,6 +377,26 @@ export default class Matrix44 implements IMatrix44 {
     var w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
 
     return new Vector4(x, y, z, w);
+  }
+
+  multiplyVectorTo(vec: Vector4, outVec: MutableVector4) {
+    const x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
+    const y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
+    const z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+    const w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
+    outVec.x = x;
+    outVec.y = y;
+    outVec.z = z;
+    outVec.w = w;
+  }
+
+  multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3) {
+    const x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
+    const y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
+    const z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+    outVec.x = x;
+    outVec.y = y;
+    outVec.z = z;
   }
 
   multiplyVector3(vec: Vector3) {
