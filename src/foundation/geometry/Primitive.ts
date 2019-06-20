@@ -332,4 +332,8 @@ export default class Primitive extends RnObject {
 
     return true;
   }
+
+  get vertexHandles() {
+    return this.__vertexHandles;
+  }
 }
