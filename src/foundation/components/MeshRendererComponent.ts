@@ -26,7 +26,6 @@ import { sign } from 'crypto';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
-  __vertexHandles: Array<VertexHandles> = [];
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map()
   private __webglRenderingStrategy?: WebGLStrategy;
   private __sceneGraphComponent?: SceneGraphComponent;

@@ -110,7 +110,7 @@ const load = function(time){
     environmentCubeTexture.mipmapLevelNumber = 1;
     environmentCubeTexture.loadTextureImagesAsync();
     sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-    spherePrimitive.generate({radius: 10000, widthSegments: 40, heightSegments: 40, material: sphereMaterial});
+    spherePrimitive.generate({radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial});
     const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
     const sphereMesh = new Rn.Mesh();
     sphereMesh.addPrimitive(spherePrimitive);
@@ -124,12 +124,12 @@ const load = function(time){
     // specularCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/specular/specular';
     specularCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/specular/specular';
     specularCubeTexture.isNamePosNeg = true;
-    specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+    specularCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
     specularCubeTexture.mipmapLevelNumber = 10;
     const diffuseCubeTexture = new Rn.CubeTexture();
     // diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/diffuse/diffuse';
     diffuseCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/diffuse/diffuse';
-    diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+    diffuseCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
     diffuseCubeTexture.mipmapLevelNumber = 1;
     diffuseCubeTexture.isNamePosNeg = true;
     const componentRepository = Rn.ComponentRepository.getInstance();

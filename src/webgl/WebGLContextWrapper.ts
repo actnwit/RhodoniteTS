@@ -75,6 +75,16 @@ export default class WebGLContextWrapper {
     }
   }
 
+  deleteVertexArray(vertexArray: WebGLVertexArrayObject|WebGLVertexArrayObjectOES) {
+    if (this.isWebGL2) {
+      this.__gl.createVertexArray(vertexArray);
+    } else {
+      if (this.webgl1ExtVAO != null) {
+        this.webgl1ExtVAO.deleteVertexArrayOES(vertexArray as WebGLVertexArrayObjectOES);
+      }
+    }
+  }
+
   bindVertexArray(vao: WebGLVertexArrayObjectOES|null) {
     if (this.isWebGL2) {
       this.__gl.bindVertexArray(vao);

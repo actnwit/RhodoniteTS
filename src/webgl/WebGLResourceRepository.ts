@@ -1119,4 +1119,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       gl.clear(bufferBit);
     }
   }
+
+  deleteVertexDataResources(vertexHandles: VertexHandles) {
+    const gl = this.__glw!.getRawContext();
+
+    const iboHandle = vertexHandles.iboHandle;
+    if (iboHandle) {
+      const ibo = this.getWebGLResource(iboHandle);
+      gl.deleteBuffer(ibo);
+    }
+
+    const vboHandles = vertexHandles.vboHandles;
+    for (let vboHandle of vboHandles) {
+      const vbo = this.getWebGLResource(vboHandle);
+      gl.deleteBuffer(vbo);
+    }
+
+    const vaoHandle = vertexHandles.vaoHandle;
+    const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
+    this.__glw!.deleteVertexArray(vao);
+  }
 }
