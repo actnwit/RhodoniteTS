@@ -10,6 +10,7 @@ import Accessor from "../memory/Accessor";
 import Vector2 from "../math/Vector2";
 import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import Entity from "../core/Entity";
 
 export default class Mesh {
   private readonly __meshUID: MeshUID;
@@ -23,6 +24,9 @@ export default class Mesh {
   public weights = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
+  private __variationVBOUid: CGAPIResourceRepository = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  public _instances: Mesh[] = [];
+  public _attatchedEntityUID = Entity.invalidEntityUID;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -41,9 +45,16 @@ export default class Mesh {
   }
 
   setMesh(mesh: Mesh) {
+    if (mesh.isInstanceMesh()) {
+      console.error(`Don't set InstanceMesh.`);
+      return false;
+    }
     this.__primitives.length = 0;
     this.__instanceOf = mesh;
+    mesh._instances.push(this);
     this.__instanceIdx = mesh.instanceIndex + 1;
+
+    return true;
   }
 
   isAllBlend(): boolean {
@@ -455,5 +466,16 @@ export default class Mesh {
 
   get meshUID() {
     return this.__meshUID;
+  }
+
+  generateVariationVBO() {
+    const instanceNum = this._instances.length;
+    const entityUIDs = new Float32Array(instanceNum);
+    for (var i = 0; i < instanceNum; i++) {
+      entityUIDs[i] = this._instances[i]._attatchedEntityUID;
+    }
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
   }
 }
