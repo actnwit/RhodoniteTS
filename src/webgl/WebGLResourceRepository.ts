@@ -1158,4 +1158,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.deleteVertexArray(vao);
   }
+
+  deleteVertexBuffer(vboUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    const vbo = this.getWebGLResource(vboUid);
+    gl.deleteBuffer(vbo);
+  }
 }
