@@ -20,6 +20,7 @@ import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import Mesh from "../foundation/geometry/Mesh";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -121,23 +122,28 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   private __isLoaded(meshComponent: MeshComponent) {
     if (meshComponent.mesh == null) {
-      return true;
+      return false;
     }
 
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    let count = 0;
-    for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      if (primitive.vertexHandles != null) {
-        count++;
+    if (meshComponent.mesh.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+      let count = 0;
+      for(let i=0; i<primitiveNum; i++) {
+        const primitive = meshComponent.mesh.getPrimitiveAt(i);
+        if (primitive.vertexHandles != null) {
+          count++;
+        }
       }
-    }
 
-    if (primitiveNum === count) {
-      return true;
+      if (primitiveNum === count) {
+        return true;
+      } else {
+        return false;
+      }
     } else {
       return false;
     }
+
   }
 
   $load(meshComponent: MeshComponent) {
@@ -152,11 +158,12 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     this.setupShaderProgram(meshComponent);
 
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
       primitive.create3DAPIVertexData();
     }
+    meshComponent.mesh.updateVariationVBO();
   }
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
@@ -308,6 +315,12 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
+
+    const meshes: Mesh[] = Mesh.originalMeshes;
+
+    for (let mesh of meshes) {
+
+    }
 
     return true;
   }
