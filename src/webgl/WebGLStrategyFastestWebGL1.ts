@@ -144,7 +144,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     if (this.__isLoaded(meshComponent)) {
       return;
     }
-    this.__meshComponent = meshComponent;
 
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
