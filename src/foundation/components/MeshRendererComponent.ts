@@ -46,6 +46,7 @@ export default class MeshRendererComponent extends Component {
   private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
   private static __manualTransparentSids?: ComponentSID[];
+  public _readyForRendering = false;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -102,7 +103,7 @@ export default class MeshRendererComponent extends Component {
 
   $prerender() {
 
-    this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, MeshRendererComponent.__instanceIDBufferUid);
+    this.__webglRenderingStrategy!.$prerender(this.__meshComponent!, this, MeshRendererComponent.__instanceIDBufferUid);
 
     this.moveStageTo(ProcessStage.Render);
   }

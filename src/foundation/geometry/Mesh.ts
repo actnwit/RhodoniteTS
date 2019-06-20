@@ -522,4 +522,8 @@ export default class Mesh {
 
     return false;
   }
+
+  get instanceCountIncludeOriginal() {
+    return this.__instances.length + 1;
+  }
 }

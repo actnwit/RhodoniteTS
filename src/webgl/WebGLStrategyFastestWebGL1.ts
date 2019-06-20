@@ -21,12 +21,14 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import Mesh from "../foundation/geometry/Mesh";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import ComponentRepository from "../foundation/core/ComponentRepository";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __isVAOSet = false;
+  private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   private constructor(){}
 
@@ -166,8 +168,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     meshComponent.mesh.updateVariationVBO();
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
-    if (this.__isVAOSet) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
+    if (meshRendererComponent._readyForRendering) {
       return;
     }
 
@@ -179,12 +181,28 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(primitive.vertexHandles!, primitive, instanceIDBufferUid);
+      this.__webglResourceRepository.setVertexDataToPipeline(primitive.vertexHandles!, primitive, meshComponent.mesh.variationVBOUid);
     }
-    this.__isVAOSet = true;
+    meshRendererComponent._readyForRendering = true;
   }
 
   common_$prerender(): void {
+    // Setup Vertex Data
+    // const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent)! as MeshComponent[];
+    // for (let meshComponent of meshComponents) {
+    //   if (meshComponent.mesh) {
+    //     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+    //     for(let i=0; i<primitiveNum; i++) {
+    //       const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+    //       const glw = this.__webglResourceRepository!.currentWebGLContextWrapper!;
+    //       this.attachVertexDataInner(meshComponent.mesh, primitive, glw, meshComponent.mesh.variationVBOUid);
+    //     }
+    //   }
+    // }
+
+
+
+    // Setup Data Texture
     let isHalfFloatMode = false;
     if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
       this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
@@ -277,13 +295,20 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   attatchShaderProgram(material: Material): void {
     const shaderProgramUid = material._shaderProgramUid;
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
-    gl.useProgram(shaderProgram);
+
+    if (shaderProgramUid !== this.__lastShader) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+      gl.useProgram(shaderProgram);
+      this.__lastShader = shaderProgramUid;
+    }
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+  }
+
+  attachVertexDataInner(mesh: Mesh, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vertexHandles = primitive.vertexHandles!;
     const vao = this.__webglResourceRepository.getWebGLResource(vertexHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
@@ -292,7 +317,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       glw.bindVertexArray(vao);
     }
     else {
-      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, instanceIDBufferUid);
+      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, mesh.variationVBOUid);
       const ibo = this.__webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
@@ -319,10 +344,19 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const meshes: Mesh[] = Mesh.originalMeshes;
 
     for (let mesh of meshes) {
+      const primitiveNum = mesh.getPrimitiveNumber();
+      for(let i=0; i<primitiveNum; i++) {
+        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
+      }
 
+      if (primitive.indicesAccessor) {
+        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
+      } else {
+        glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), mesh.instanceCountIncludeOriginal);
+      }
     }
 
-    return true;
+    return false;
   }
 
 }

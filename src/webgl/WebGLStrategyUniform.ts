@@ -173,7 +173,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;

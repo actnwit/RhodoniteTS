@@ -111,6 +111,14 @@ export default class WebGLContextWrapper {
     }
   }
 
+  drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number) {
+    if (this.isWebGL2) {
+      this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
+    } else {
+      this.webgl1ExtIA!.drawArraysInstancedANGLE(primitiveMode, first, count, instanceCount);
+    }
+  }
+
   colorAttachiment(index: Index) {
     return this.webgl1ExtDB ?
       (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`] :

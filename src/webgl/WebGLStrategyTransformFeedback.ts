@@ -23,6 +23,7 @@ import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import ClassicShaderader from "./shaders/ClassicShader";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -198,7 +199,7 @@ void main(){
     this.__isVertexReady = true;
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
   private __setupUBOPrimitiveHeaderData() {

@@ -20,6 +20,7 @@ import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -154,7 +155,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     }
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (this.__isVAOSet) {
       return;
     }
