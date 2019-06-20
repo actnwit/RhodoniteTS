@@ -25,10 +25,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  // private __shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __meshComponent?: MeshComponent;
-  private __vertexHandles: Array<VertexHandles> = [];
-  private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __isVAOSet = false;
 
   private constructor(){}
@@ -123,16 +119,29 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
 
 
-  private __isLoaded(index: Index) {
-    if (this.__vertexHandles[index] != null) {
+  private __isLoaded(meshComponent: MeshComponent) {
+    if (meshComponent.mesh == null) {
+      return true;
+    }
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+    let count = 0;
+    for(let i=0; i<primitiveNum; i++) {
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
+      if (primitive.vertexHandles != null) {
+        count++;
+      }
+    }
+
+    if (primitiveNum === count) {
       return true;
     } else {
-      return false
+      return false;
     }
   }
 
   $load(meshComponent: MeshComponent) {
-    if (this.__isLoaded(0)) {
+    if (this.__isLoaded(meshComponent)) {
       return;
     }
     this.__meshComponent = meshComponent;
@@ -147,10 +156,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-      this.__vertexHandles[i] = vertexHandles;
-      WebGLStrategyFastestWebGL1.__vertexHandleOfPrimitiveObjectUids.set(primitive.objectUID, vertexHandles);
-
+      primitive.create3DAPIVertexData();
     }
   }
 
@@ -167,12 +173,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
-     // if (this.__isLoaded(i) && this.__isVAOSet) {
-      this.__vertexHandles[i] = WebGLStrategyFastestWebGL1.__vertexHandleOfPrimitiveObjectUids.get(primitive.objectUID)!;
-        //this.__vertexShaderProgramHandles[i] = MeshRendererComponent.__shaderProgramHandleOfPrimitiveObjectUids.get(primitive.objectUid)!;
-      //  continue;
-     // }
-      this.__webglResourceRepository.setVertexDataToPipeline(this.__vertexHandles[i], primitive, instanceIDBufferUid);
+      this.__webglResourceRepository.setVertexDataToPipeline(primitive.vertexHandles!, primitive, instanceIDBufferUid);
     }
     this.__isVAOSet = true;
   }
@@ -277,16 +278,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
-    const vaoHandles = this.__vertexHandles[i];
-    const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
+    const vertexHandles = primitive.vertexHandles!;
+    const vao = this.__webglResourceRepository.getWebGLResource(vertexHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
       glw.bindVertexArray(vao);
     }
     else {
-      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!);
+      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, instanceIDBufferUid);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }
