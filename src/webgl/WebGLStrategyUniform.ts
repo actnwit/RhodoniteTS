@@ -42,12 +42,10 @@ type ShaderVariableArguments = {gl: WebGLRenderingContext, shaderProgram: WebGLP
 export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  private static __vertexHandleOfPrimitiveObjectUids: Map<ObjectUID, VertexHandles> = new Map();
   private __lightComponents?: LightComponent[];
   private __dummyWhiteTextureUid?: CGAPIResourceHandle;
   private __dummyBlackTextureUid?: CGAPIResourceHandle;
   private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
-  // private __shaderSemanticsInfoMap: Map<ShaderSemanticsEnum, ShaderSemanticsInfo> = new Map();
   private static __isOpaqueMode = true;
   private __webglShaderProgram?: WebGLProgram;
   private __lastRenderPassCullFace = false;
@@ -159,8 +157,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      const vertexHandles = this.__webglResourceRepository.createVertexDataResources(primitive);
-      WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.set(primitive.primitiveUid, vertexHandles);
+      primitive.create3DAPIVertexData();
     }
 
     this.__dummyWhiteTextureUid = this.__webglResourceRepository.createDummyTexture();
@@ -177,7 +174,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
-    const vertexHandles = [];
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -188,21 +184,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (meshComponent.mesh.weights.length > 0) {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-        vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-        this.__webglResourceRepository.resendVertexBuffer(primitive, vertexHandles[i].vboHandles);
+        this.__webglResourceRepository.resendVertexBuffer(primitive, primitive.vertexHandles!.vboHandles);
       }
     }
 
     for (let i = 0; i < primitiveNum; i++) {
-
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      vertexHandles[i] = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-      if (!vertexHandles[i].setComplete) {
-
-        //continue;
-      }
-      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles[i], primitive, instanceIDBufferUid);
-      vertexHandles[i].setComplete = true;
+      this.__webglResourceRepository.setVertexDataToPipeline(primitive.vertexHandles!, primitive, instanceIDBufferUid);
     }
   }
 
@@ -218,8 +206,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
-    const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-    const vaoHandles = vertexHandle;
+    const vaoHandles = primitive.vertexHandles!;
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
@@ -267,12 +254,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     entity, worldMatrix, normalMatrix, renderPass,
     diffuseCube, specularCube, firstTime}: ShaderVariableArguments) {
 
-    const args: ShaderVariableArguments = {gl, shaderProgram, primitive, shaderProgramUid,
-      entity, worldMatrix, normalMatrix, renderPass,
-      diffuseCube, specularCube, firstTime};
     // Uniforms from System
-    const vertexHandle = WebGLStrategyUniform.__vertexHandleOfPrimitiveObjectUids.get(primitive.primitiveUid)!;
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.VertexAttributesExistenceArray.str, firstTime, vertexHandle.attributesFlags);
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.VertexAttributesExistenceArray.str, firstTime, primitive.vertexHandles!.attributesFlags);
 
     /// Matrices
     RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
