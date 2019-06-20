@@ -314,15 +314,22 @@ export default class Primitive extends RnObject {
   }
 
   create3DAPIVertexData() {
+    if (this.__vertexHandles != null) {
+      return false;
+    }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__vertexHandles = webglResourceRepository.createVertexDataResources(this);
+
+    return true;
   }
 
   delete3DAPIVertexData() {
     if (this.__vertexHandles == null) {
-      return;
+      return false;
     }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
+
+    return true;
   }
 }
