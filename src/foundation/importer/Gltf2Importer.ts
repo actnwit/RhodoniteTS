@@ -326,6 +326,14 @@ export default class Gltf2Importer {
     }
   }
 
+  private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
+    if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   _loadDependenciesOfMaterials(gltfJson: glTF2) {
     // Material
     if (gltfJson.materials) {
@@ -354,6 +362,23 @@ export default class Gltf2Importer {
         const emissiveTexture = material.emissiveTexture;
         if (emissiveTexture !== void 0) {
           emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
+        }
+
+        if (material.extensions && material.extensions.ZOZO_materials_pbrMultiLayer) {
+          const zMaterial = material.extensions.ZOZO_materials_pbrMultiLayer
+          let diffuseTexture = zMaterial.diffuseTexture;
+          if (diffuseTexture !== void 0) {
+            diffuseTexture.texture = gltfJson.textures[diffuseTexture.index];
+          }
+          let specularGlossinessTexture = zMaterial.specularGlossinessTexture;
+          if (specularGlossinessTexture !== void 0) {
+            specularGlossinessTexture.texture = gltfJson.textures[specularGlossinessTexture.index];
+          }
+        }
+        if (this._checkRnGltfLoaderOptionsExist(gltfJson) &&
+          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
+          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures) {
+          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(gltfJson, material);
         }
       }
     }
