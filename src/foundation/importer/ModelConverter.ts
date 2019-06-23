@@ -327,7 +327,8 @@ export default class ModelConverter {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
         if (node.mesh.name) {
-          meshEntity.tryToSetUniqueName(node.mesh.name, true);
+          const meshComponent = meshEntity.getComponent(MeshComponent)!;
+          meshComponent.tryToSetUniqueName(node.mesh.name, true);
         }
         rnEntities.push(meshEntity);
       } else if (node.camera != null) {
