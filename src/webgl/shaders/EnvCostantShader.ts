@@ -81,7 +81,8 @@ uniform Material u_material;
 
 uniform int u_shadingModel;
 
-uniform vec3 u_viewPosition;
+uniform float u_envRotation;
+
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -113,7 +114,7 @@ void main ()
   // diffuseColorTexture
 
   // adapt OpenGL (RenderMan) Cubemap convension
-  float rot = 3.1415;
+  float rot = u_envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
   envNormal.x *= -1.0;

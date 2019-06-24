@@ -57,6 +57,16 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
           EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid
         ]
       },
+      {
+        semanticStr: 'envRotation',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Float,
+        min: -Math.PI,
+        max: Math.PI,
+        isPlural: false,
+        isSystem: false,
+        initialValue: 0
+      },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
