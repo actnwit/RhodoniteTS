@@ -56,4 +56,11 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
   get fbo() {
     return this.__fbo;
   }
+
+  destroy3DAPIResources() {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
+
+    return true;
+  }
 }
