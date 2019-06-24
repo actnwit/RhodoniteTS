@@ -23,6 +23,7 @@ import Entity from '../core/Entity';
 import RenderPass from '../renderer/RenderPass';
 import { Visibility } from '../definitions/visibility';
 import { sign } from 'crypto';
+import RnObject from '../core/RnObject';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -225,8 +226,6 @@ export default class MeshRendererComponent extends Component {
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner();
 
       return sortedMeshComponentSids;
-    } else if (MeshRendererComponent.__manualTransparentSids.length === 0) {
-      return [];
     } else {
       const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids, renderPass);
       // const sortedMeshComponentSids = MeshRendererComponent.sort_$render_inner(MeshRendererComponent.__manualTransparentSids);
@@ -237,7 +236,7 @@ export default class MeshRendererComponent extends Component {
     return [];
   }
 
-  private static sort_$render_inner(transparentMeshComponentSids: ComponentSID[] = [], renderPass: RenderPass) {
+  private static sort_$render_inner(transparentMeshComponentSids_: ComponentSID[] = [], renderPass: RenderPass) {
     const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
 
     let meshComponents: MeshComponent[] = [];
@@ -289,10 +288,10 @@ export default class MeshRendererComponent extends Component {
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (meshComponent.mesh) {
-          if (transparentMeshComponentSids.length === 0 && meshComponent.mesh.isBlendPartially()) {
+          if (transparentMeshComponentSids_.length === 0 && meshComponent.mesh.isBlendPartially()) {
             transparentPartiallyMeshComponents.push(meshComponent);
             opaqueAndTransparentPartiallyMeshComponentSids.push(meshComponent.componentSID);
-          } else if (transparentMeshComponentSids.length === 0 && meshComponent.mesh.isAllBlend()) {
+          } else if (transparentMeshComponentSids_.length === 0 && meshComponent.mesh.isAllBlend()) {
             transparentCompletelyMeshComponents.push(meshComponent);
           }
 
@@ -319,10 +318,13 @@ export default class MeshRendererComponent extends Component {
       return 0;
     });
 
-    if (transparentMeshComponentSids.length === 0) {
+    let transparentMeshComponentSids;
+    if (transparentMeshComponentSids_.length === 0) {
       transparentMeshComponentSids = transparentPartiallyOrAllMeshComponents.map((meshComponent) => {
         return meshComponent.componentSID;
       });
+    } else {
+      transparentMeshComponentSids = transparentMeshComponentSids_;
     }
 
     MeshRendererComponent.__firstTransparentIndex = opaqueAndTransparentPartiallyMeshComponentSids.length;
@@ -338,6 +340,24 @@ export default class MeshRendererComponent extends Component {
 
   static set manualTransparentSids(sids: ComponentSID[]) {
     MeshRendererComponent.__manualTransparentSids = sids;
+  }
+
+  static set manualTransparentEntityNames(names: string[]) {
+    MeshRendererComponent.__manualTransparentSids = [];
+    for (let name of names) {
+      const entity = RnObject.getRnObjectByName(name) as Entity;
+      if (entity) {
+        const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+        if (meshComponent) {
+          const mesh = meshComponent.mesh;
+          if (mesh) {
+            if (!mesh.isOpaque()) {
+              MeshRendererComponent.__manualTransparentSids.push(meshComponent.componentSID);
+            }
+          }
+        }
+      }
+    }
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);
