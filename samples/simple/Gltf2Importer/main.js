@@ -102,6 +102,7 @@ const load = function(time){
     const spherePrimitive = new Rn.Sphere();
     window.sphereEntity = sphereEntity;
     const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+    window.sphereMaterial = sphereMaterial;
     const environmentCubeTexture = new Rn.CubeTexture();
     // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
     environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
@@ -220,8 +221,7 @@ function rotEnv(rot) {
     const meshRendererComponent = window.meshRendererComponents[i];
     meshRendererComponent.rotationOfCubeMap = rot;
   }
-  // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, -rot, 0);
+  window.sphereMaterial.setParameter('envRotation', rot);
 }
 
 function setDiffuseCubeMapContribution(value) {
