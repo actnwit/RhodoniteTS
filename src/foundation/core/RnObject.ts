@@ -7,6 +7,7 @@ export default class RnObject {
   private static __uniqueNames: string[] = [];
   private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
   private __conbinedTagString: string = ''; // Tag string allows alphabet, digit and underscore (_) only
+  private static __objectsByNameMap: Map<string, RnObject> = new Map();
 
   constructor() {
     this.__objectUid = ++RnObject.currentMaxObjectCount;
@@ -14,15 +15,19 @@ export default class RnObject {
 
     this.__uniqueName = 'entity_of_uid_' + this.__objectUid;
     RnObject.__uniqueNames[this.__objectUid] =  this.__uniqueName;
-
+    RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
   get objectUID(): ObjectUID {
     return this.__objectUid;
   }
 
-  getRnObject(objectUid: ObjectUID) {
+  static getRnObject(objectUid: ObjectUID) {
     return RnObject.__objects[objectUid];
+  }
+
+  static getRnObjectByName(uniqueName: string) {
+    return RnObject.__objectsByNameMap.get(uniqueName);
   }
 
   /**
