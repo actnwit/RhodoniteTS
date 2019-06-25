@@ -407,7 +407,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         firstTime = true;
       }
       if (firstTime) {
-        glw.unbindTextures();
+        //glw.unbindTextures();
       }
 
       this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
@@ -429,7 +429,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
     //    gl.useProgram(null);
     // this.__lastShader = -1;
-
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
 

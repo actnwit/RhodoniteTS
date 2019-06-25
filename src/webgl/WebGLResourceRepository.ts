@@ -582,11 +582,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture();
-
     const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
     this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(0, texture);
     if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
       if (this.__glw!.isWebGL2) {
       gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGBA8.index, width, height, border,
@@ -617,7 +617,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
   }
@@ -630,11 +630,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture();
-
     const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
     this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(0, texture);
 
     let s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc")
     if (s3tc) {
@@ -654,7 +654,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
   }
@@ -772,9 +772,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const texture = gl.createTexture();
     const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
     this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(0, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
@@ -795,7 +796,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     } else {
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, 0, format.index, type.index, null);
     }
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
   }
@@ -807,11 +808,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture();
-
     const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
     this.__webglResources.set(resourceHandle, texture!);
 
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    this.__glw!.bindTextureCube(0, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     if (mipLevelCount >= 2) {
@@ -843,7 +844,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       loadImageToGPU(image.posZ, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, i);
       loadImageToGPU(image.negZ, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, i);
     }
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    this.__glw!.unbindTextureCube(0);
 
     return resourceHandle;
   }
@@ -995,11 +996,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, {level, width, height, format, type}:
     {level:Index, width:Size, height:Size, format:PixelFormatEnum, type:ComponentTypeEnum}) {
     const gl = this.__glw!.getRawContext();;
-    const texture = this.getWebGLResource(textureUid);
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(0, texture);
     gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.__glw!.unbindTexture2D(0);
 
   }
 
@@ -1007,7 +1008,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const fbo = this.getWebGLResource(frameBufferObjectHandle);
     const gl = this.__glw!.getRawContext();
     if (fbo != null) {
-      gl.deleteFrameBufferObject(fbo!);
+      gl.deleteFramebuffer(fbo!);
       this.__webglResources.delete(frameBufferObjectHandle);
     }
   }
@@ -1016,7 +1017,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const gl = this.__glw!.getRawContext();
 
     const renderBuffer = this.getWebGLResource(renderBufferUid)!;
-    gl.deleteRenderBuffer(renderBuffer)
+    gl.deleteRenderbuffer(renderBuffer)
     this.__webglResources.delete(renderBufferUid);
 
   }
