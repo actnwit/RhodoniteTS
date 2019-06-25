@@ -271,6 +271,12 @@ export default class Gltf2Importer {
         node.camera = gltfJson.cameras[node.cameraIndex];
       }
 
+      // Lights
+      if (node.extensions !== void 0 && gltfJson.extensions !== void 0 && gltfJson.extensions.KHR_lights_punctual !== void 0) {
+        node.extensions.KHR_lights_punctual.lightIndex = node.extensions.KHR_lights_punctual.light;
+        node.extensions.KHR_lights_punctual.light = gltfJson.extensions.KHR_lights_punctual.lights[node.extensions.KHR_lights_punctual.lightIndex];
+      }
+
     }
   }
 
@@ -423,7 +429,6 @@ export default class Gltf2Importer {
 
     }
   }
-
 
   _loadDependenciesOfAnimations(gltfJson: glTF2) {
     if (gltfJson.animations) {
