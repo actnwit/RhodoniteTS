@@ -27,6 +27,7 @@ type glTF2 = {
   bufferViews: any[],
   buffer: any[],
   extensionsUsed?: any,
+  extensions?: any
 };
 
 type glTF1 = {
