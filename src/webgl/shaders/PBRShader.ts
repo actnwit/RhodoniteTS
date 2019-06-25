@@ -349,8 +349,6 @@ void main ()
 
   rt0.xyz += emissive;
 
-  rt0.xyz = linearToSrgb(rt0.xyz);
-
 
   // Wireframe
   float threshold = 0.001;
