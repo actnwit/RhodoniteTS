@@ -241,7 +241,10 @@ export default class MeshRendererComponent extends Component {
 
     let meshComponents: MeshComponent[] = [];
     const componentRepository = ComponentRepository.getInstance();
-    const cameraComponent = componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
     if (cameraComponent) {
       cameraComponent.updateFrustum();
       const frustum = cameraComponent.frustum;
