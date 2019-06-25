@@ -36,7 +36,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.BaseColorTexture,
-        compositionType: CompositionType.TextureCube,
+        compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         min: 0,
         max: 10,
