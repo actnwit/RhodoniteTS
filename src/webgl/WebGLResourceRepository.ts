@@ -69,8 +69,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return ++this.__resourceCounter;
   }
 
-  getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | undefined {
-    return this.__webglResources.get(WebGLResourceHandle)
+  getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | null {
+    const result = this.__webglResources.get(WebGLResourceHandle);
+    return (result != null) ? result : null;
   }
 
   createIndexBuffer(accsessor: Accessor) {
@@ -148,17 +149,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
-    const gl = this.__glw!.getRawContext();
-    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
-    const texture = this.getWebGLResource(textureUid);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    this.__glw!.bindTexture2D(textureSlotIndex, texture);
   }
 
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
-    const gl = this.__glw!.getRawContext();
-    gl.activeTexture(gl['TEXTURE' + textureSlotIndex]);
-    const texture = this.getWebGLResource(textureUid);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    this.__glw!.bindTextureCube(textureSlotIndex, texture);
   }
 
   createVertexDataResources(primitive: Primitive): VertexHandles
@@ -620,6 +617,45 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return resourceHandle;
+  }
+
+  createAtfTexture(atf: any, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
+    {
+      level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, width: Size, height: Size, border: Size, format: PixelFormatEnum,
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
+    }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContext();
+
+    const texture = gl.createTexture();
+
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, texture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    let s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc")
+    if (s3tc) {
+      gl.compressedTexImage2D(gl.TEXTURE_2D, level, s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT, atf.width, atf.height, border, atf.dataArray)
+    }
+
+    let etc1 = gl.getExtension("WEBGL_compressed_texture_etc1")
+    if (etc1) {
+      gl.compressedTexImage2D(gl.TEXTURE_2D, level, etc1.COMPRESSED_RGB_ETC1_WEBGL, atf.width, atf.height, border, atf.dataArray)
+    }
+
+    let pvrtc = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc")
+    if (pvrtc) {
+      gl.compressedTexImage2D(gl.TEXTURE_2D, level, pvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, atf.width, atf.height, border, atf.dataArray)
+    }
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
     return resourceHandle;
   }
 
@@ -714,7 +750,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   unbindFramebuffer() {
     const gl = this.__glw!.getRawContext();
-    gl.bindFramebuffer(null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
   createRenderTargetTexture(
@@ -807,6 +843,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       loadImageToGPU(image.posZ, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, i);
       loadImageToGPU(image.negZ, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, i);
     }
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
 
     return resourceHandle;
   }
@@ -962,6 +999,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texSubImage2D(gl.TEXTURE_2D, level, 0, 0, width, height, format.index, type.index, typedArray);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
   }
 
