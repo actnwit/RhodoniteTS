@@ -122,8 +122,6 @@ void main ()
   vec4 textureColor = ${_textureCube}(u_colorEnvTexture, envNormal);
   diffuseColor *= textureColor.rgb;
 
-  diffuseColor = linearToSrgb(diffuseColor);
-
   rt0 = vec4(diffuseColor, alpha);
 
   ${_def_fragColor}
