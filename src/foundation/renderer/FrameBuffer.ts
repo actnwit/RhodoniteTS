@@ -52,11 +52,6 @@ export default class FrameBuffer extends RnObject {
     return this.cgApiResourceUid;
   }
 
-  discard() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
-  }
-
   setColorAttachmentAt(index: Index, renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
@@ -105,6 +100,27 @@ export default class FrameBuffer extends RnObject {
     webglResourceRepository.attachDepthStencilBufferToFrameBufferObject(this, renderable);
 
     return true;
+  }
+
+  destroy3DAPIResources() {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
+
+    if (this.depthAttachment) {
+      this.depthAttachment.destroy3DAPIResources();
+    }
+
+    if (this.depthStancilAttachment) {
+      this.depthStancilAttachment.destroy3DAPIResources();
+    }
+
+    if (this.stencilAttachement) {
+      this.stencilAttachement.destroy3DAPIResources();
+    }
+
+    for (let colorAttachment of this.colorAttachments) {
+      colorAttachment.destroy3DAPIResources();
+    }
   }
 
 }

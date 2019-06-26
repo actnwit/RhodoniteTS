@@ -6,6 +6,7 @@ import FXAA3QualitySingleMaterialNode from "../materials/FXAA3QualitySingleMater
 import DepthEncodingSingleMaterialNode from "../materials/DepthEncodingSingleMaterial";
 import ShadowMapping32bitSingleMaterial from "../materials/ShadowMapping32bitSingleMaterial";
 import RenderPass from "../renderer/RenderPass";
+import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
 
 function createPbrUberMaterial() {
   const materialNode = new PbrShadingMaterialNode();
@@ -54,7 +55,16 @@ function createShadowMapping32bitMaterial(renderPass: RenderPass) {
   return material;
 }
 
+function createGammaCorrectionMaterial() {
+  const materialNode = new GammaCorrectionSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+  const material = new Material([materialNode]);
+
+  return material;
+}
+
 export default Object.freeze({
   createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial,
-  createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMapping32bitMaterial
+  createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMapping32bitMaterial,
+  createGammaCorrectionMaterial
 });

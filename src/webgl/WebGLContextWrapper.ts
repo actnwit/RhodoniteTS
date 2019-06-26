@@ -19,6 +19,10 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtSTL?: EXT_shader_texture_lod;
   public readonly webgl1ExtDRV?: OES_standard_derivatives;
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
+  public readonly webgl2ExtTFL?: OES_texture_float_linear;
+  private __activeTextures2D: WebGLTexture[] = [];
+  private __activeTexturesCube: WebGLTexture[] = [];
+  private __isDebugMode = false;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -143,6 +147,128 @@ export default class WebGLContextWrapper {
       gl.colorMask(false, false, false, false);
     } else {
       gl.colorMask(true, true, true, true);
+    }
+  }
+
+  private __activeTexture(activeTextureIndex: number) {
+    switch (activeTextureIndex) {
+      case 0:
+        this.__gl.activeTexture(this.__gl.TEXTURE0);
+        break;
+      case 1:
+        this.__gl.activeTexture(this.__gl.TEXTURE1);
+        break;
+      case 2:
+        this.__gl.activeTexture(this.__gl.TEXTURE2);
+        break;
+      case 3:
+        this.__gl.activeTexture(this.__gl.TEXTURE3);
+        break;
+      case 4:
+        this.__gl.activeTexture(this.__gl.TEXTURE4);
+        break;
+      case 5:
+        this.__gl.activeTexture(this.__gl.TEXTURE5);
+        break;
+      case 6:
+        this.__gl.activeTexture(this.__gl.TEXTURE6);
+        break;
+      case 7:
+        this.__gl.activeTexture(this.__gl.TEXTURE7);
+        break;
+      case 8:
+        this.__gl.activeTexture(this.__gl.TEXTURE8);
+        break;
+      case 9:
+        this.__gl.activeTexture(this.__gl.TEXTURE9);
+        break;
+      case 10:
+        this.__gl.activeTexture(this.__gl.TEXTURE10);
+        break;
+      case 11:
+        this.__gl.activeTexture(this.__gl.TEXTURE11);
+        break;
+      case 12:
+        this.__gl.activeTexture(this.__gl.TEXTURE12);
+        break;
+      case 13:
+        this.__gl.activeTexture(this.__gl.TEXTURE13);
+        break;
+      case 14:
+        this.__gl.activeTexture(this.__gl.TEXTURE14);
+        break;
+      case 15:
+        this.__gl.activeTexture(this.__gl.TEXTURE15);
+        break;
+    }
+  }
+
+  bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
+    if (this.__isDebugMode) {
+      if (texture) {
+        this.__activeTextures2D[activeTextureIndex] = texture;
+      }
+      if (texture) {
+        if ((texture as any)._bound_as === 'CUBE_MAP') {
+          debugger
+        }
+        (texture as any)._bound_as = '2D';
+      }
+    }
+
+    this.__activeTexture(activeTextureIndex);
+    this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
+  }
+
+  bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
+    if (this.__isDebugMode) {
+      if (texture) {
+        this.__activeTexturesCube[activeTextureIndex] = texture;
+      }
+      if (texture) {
+        if ((texture as any)._bound_as === '2D') {
+          debugger
+        }
+        (texture as any)._bound_as = 'CUBE_MAP';
+      }
+    }
+    this.__activeTexture(activeTextureIndex);
+    this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
+  }
+
+  unbindTexture2D(activeTextureIndex: Index) {
+    if (this.__isDebugMode) {
+      delete this.__activeTextures2D[activeTextureIndex];
+    }
+    this.__activeTexture(activeTextureIndex);
+    this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
+  }
+
+  unbindTextureCube(activeTextureIndex: Index) {
+    if (this.__isDebugMode) {
+      delete this.__activeTexturesCube[activeTextureIndex];
+    }
+    this.__activeTexture(activeTextureIndex);
+    this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
+  }
+
+  unbindTextures() {
+    for (let i = 0; i < this.__activeTextures2D.length; i++) {
+      if (this.__activeTextures2D[i] == null) {
+        continue;
+      }
+      this.__activeTexture(i);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
+      delete this.__activeTextures2D[i];
+    }
+
+    for (let i = 0; i < this.__activeTexturesCube.length; i++) {
+      if (this.__activeTexturesCube[i] == null) {
+        continue;
+      }
+      this.__activeTexture(i);
+      this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
+      delete this.__activeTexturesCube[i];
     }
   }
 

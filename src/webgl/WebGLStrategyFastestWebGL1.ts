@@ -285,9 +285,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   attachGPUData(primitive: Primitive): void {
     const material = primitive.material!;
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
     const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__dataTextureUid)! as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+    glw.bindTexture2D(0, dataTexture);
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
     var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     gl.uniform1i(uniform_dataTexture, 0);

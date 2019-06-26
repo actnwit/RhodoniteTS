@@ -21,63 +21,43 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
+import GammaCorrectionShader from "../../webgl/shaders/GammaCorrectionShader";
 
-export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
+export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
-    super(EnvConstantShader.getInstance(), "envConstantShading");
-    EnvConstantSingleMaterialNode.initDefaultTextures();
+    super(GammaCorrectionShader.getInstance(), "GammaCorrection");
+    GammaCorrectionSingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.DiffuseColorFactor,
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        min: 0,
-        max: 2,
-        isPlural: false,
-        prefix: "material.",
-        isSystem: false,
-        initialValue: new Vector4(1, 1, 1, 1)
-      },
-      {
-        semantic: ShaderSemantics.ColorEnvTexture,
-        compositionType: CompositionType.TextureCube,
+        semantic: ShaderSemantics.BaseColorTexture,
+        compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         min: 0,
-        max: Number.MAX_SAFE_INTEGER,
+        max: 10,
         isPlural: false,
         isSystem: false,
         initialValue: [
           0,
-          EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid
+          GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid
         ]
-      },
-      {
-        semanticStr: 'envRotation',
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        min: -Math.PI,
-        max: Math.PI,
-        isPlural: false,
-        isSystem: false,
-        initialValue: 0
-      },
+      }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
   static async initDefaultTextures() {
-    if (EnvConstantSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    if (GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return;
     }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    EnvConstantSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    EnvConstantSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
+    GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
+    GammaCorrectionSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
+    GammaCorrectionSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
   }
 }

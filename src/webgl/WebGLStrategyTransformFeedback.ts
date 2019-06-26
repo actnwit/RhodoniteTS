@@ -362,20 +362,20 @@ void main(){
   attachGPUData(primitive: Primitive): void {
     const material = primitive.material!;
     {
-      const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
       const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__instanceDataTextureUid)! as WebGLTexture;
-      gl.activeTexture(gl.TEXTURE0)
-      gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+      glw.bindTexture2D(0, dataTexture);
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
       var uniform_instanceDataTexture = gl.getUniformLocation(shaderProgram, 'u_instanceDataTexture');
       gl.uniform1i(uniform_instanceDataTexture, 0);
     }
 
     {
-      const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
       const dataTexture = this.__webglResourceRepository.getWebGLResource(this.__vertexDataTextureUid)! as WebGLTexture;
-      gl.activeTexture(gl.TEXTURE1)
-      gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+      glw.bindTexture2D(1, dataTexture);
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
       var uniform_vertexDataTexture = gl.getUniformLocation(shaderProgram, 'u_vertexDataTexture');
       gl.uniform1i(uniform_vertexDataTexture, 1);

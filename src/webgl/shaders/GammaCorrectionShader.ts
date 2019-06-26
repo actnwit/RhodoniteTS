@@ -7,17 +7,17 @@ import { CompositionType } from "../../foundation/definitions/CompositionType";
 
 export type AttributeNames = Array<string>;
 
-export default class EnvConstantShader extends GLSLShader {
-  static __instance: EnvConstantShader;
+export default class GammaCorrectionShader extends GLSLShader {
+  static __instance: GammaCorrectionShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
   private constructor() {
     super();
   }
 
-  static getInstance(): EnvConstantShader {
+  static getInstance(): GammaCorrectionShader {
     if (!this.__instance) {
-      this.__instance = new EnvConstantShader();
+      this.__instance = new GammaCorrectionShader();
     }
     return this.__instance;
   }
@@ -34,11 +34,7 @@ ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
-${_in} vec4 a_joint;
-${_in} vec4 a_weight;
 ${_out} vec3 v_color;
-${_out} vec3 v_normal_inWorld;
-${_out} vec3 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
 ${this.toNormalMatrix}
@@ -55,9 +51,6 @@ ${this.toNormalMatrix}
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
 
-  v_color = a_color;
-  v_normal_inWorld = normalMatrix * a_normal;
-  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
   v_texcoord = a_texcoord;
 
   `;
@@ -73,56 +66,26 @@ ${this.toNormalMatrix}
     return `${_version}
 precision highp float;
 
-struct Material {
-  vec4 diffuseColorFactor;
-};
-uniform samplerCube u_colorEnvTexture;
-uniform Material u_material;
-
-uniform int u_shadingModel;
-
-uniform float u_envRotation;
-
+uniform sampler2D u_baseColorTexture;
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
 }
 
-${_in} vec3 v_color;
-${_in} vec3 v_normal_inWorld;
-${_in} vec3 v_position_inWorld;
+vec3 srgbToLinear(vec3 srgbColor) {
+  return pow(srgbColor, vec3(2.2));
+}
+
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
 
-  // diffuseColor
-  vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
-  float alpha = 1.0;
-  if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
-  } else if (v_color == diffuseColor) {
-    diffuseColor = u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
-  } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
-    diffuseColor = v_color;
-  } else {
-    diffuseColor = vec3(1.0, 1.0, 1.0);
-  }
+  vec4 baseColor = ${_texture}(u_baseColorTexture, v_texcoord);
 
-  // diffuseColorTexture
+  baseColor.rgb = linearToSrgb(baseColor.rgb);
 
-  // adapt OpenGL (RenderMan) Cubemap convension
-  float rot = u_envRotation + 3.1415;
-  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
-  envNormal.x *= -1.0;
-
-  vec4 textureColor = ${_textureCube}(u_colorEnvTexture, envNormal);
-  diffuseColor *= textureColor.rgb;
-
-  rt0 = vec4(diffuseColor, alpha);
+  rt0 = vec4(baseColor.rgb, 1.0);
 
   ${_def_fragColor}
 }

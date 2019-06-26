@@ -15,6 +15,7 @@ export default class LightComponent extends Component {
   private __direction = new Vector3(0, 1, 0);
   public spotExponent = 1.0;
   public spotCutoff = 30; // in degree
+  public range = -1;
   private __sceneGraphComponent?: SceneGraphComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {

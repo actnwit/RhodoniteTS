@@ -35,6 +35,8 @@ import { VertexAttributeEnum } from "../main";
 import Accessor from "../memory/Accessor";
 import Mesh from "../geometry/Mesh";
 import MutableVector4 from "../math/MutableVector4";
+import LightComponent from "../components/LightComponent";
+import { LightType } from "../definitions/LightType";
 
 declare var DracoDecoderModule: any;
 
@@ -94,6 +96,11 @@ export default class ModelConverter {
 
   private __generateCameraEntity(gltfModel: glTF2): Entity {
     const entity = this.__generateEntity([TransformComponent, SceneGraphComponent, CameraComponent], gltfModel);
+    return entity;
+  }
+
+  private __generateLightEntity(gltfModel: glTF2): Entity {
+    const entity = this.__generateEntity([TransformComponent, SceneGraphComponent, LightComponent], gltfModel);
     return entity;
   }
 
@@ -327,7 +334,8 @@ export default class ModelConverter {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
         if (node.mesh.name) {
-          meshEntity.tryToSetUniqueName(node.mesh.name, true);
+          const meshComponent = meshEntity.getComponent(MeshComponent)!;
+          meshComponent.tryToSetUniqueName(node.mesh.name, true);
         }
         rnEntities.push(meshEntity);
       } else if (node.camera != null) {
@@ -336,6 +344,9 @@ export default class ModelConverter {
           cameraEntity.tryToSetUniqueName(node.name, true);
         }
         rnEntities.push(cameraEntity);
+      } else if (node.extensions && node.extensions.KHR_lights_punctual) {
+        const lightEntity = this.__setupLight(node.extensions.KHR_lights_punctual.light, gltfModel);
+        rnEntities.push(lightEntity);
       } else {
         const group = this.__generateGroupEntity(gltfModel);
         if (node.name) {
@@ -346,6 +357,28 @@ export default class ModelConverter {
     }
 
     return rnEntities;
+  }
+
+  private __setupLight(light: any, gltfModel: glTF2) {
+    const lightEntity = this.__generateLightEntity(gltfModel);
+    const lightComponent = lightEntity.getComponent(LightComponent)! as LightComponent;
+    if (light.name != null) {
+      lightComponent.tryToSetUniqueName(light.name, true);
+      lightComponent.type = LightType.fromString(light.type);
+      let color = new Vector3(1, 1, 1);
+      let intensity = 1;
+      if (light.color != null) {
+        color = new Vector3(light.color);
+      }
+      if (light.intensity != null) {
+        intensity = light.intensity;
+      }
+      lightComponent.intensity = Vector3.multiply(color, intensity);
+      if (light.range != null) {
+        lightComponent.range = light.range;
+      }
+    }
+    return lightEntity;
   }
 
   private __setupCamera(camera: any, gltfModel: glTF2) {

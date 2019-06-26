@@ -27,10 +27,12 @@ const load = function(time){
     renderPass.cameraComponent = cameraComponent;
     const renderPassFxaa = new Rn.RenderPass();
     renderPassFxaa.toClearColorBuffer = true;
+    const renderPassGamma = new Rn.RenderPass();
 
-    expression.addRenderPasses([renderPass, renderPassFxaa]);
+    expression.addRenderPasses([renderPass, renderPassFxaa, renderPassGamma]);
 
     const framebufferFxaaTarget = Rn.RenderableHelper.createTexturesForRenderTarget(800, 800, 1, {})
+    const framebufferGammaTarget = Rn.RenderableHelper.createTexturesForRenderTarget(800, 800, 1, {})
     renderPass.setFramebuffer(framebufferFxaaTarget);
 
     const entityFxaa = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
@@ -50,8 +52,21 @@ const load = function(time){
     cameraEntityFxaa.getTransform().translate = new Rn.Vector3(0.0, 0.0, 1.0);
     cameraComponentFxaa.type = Rn.CameraType.Orthographic;
     renderPassFxaa.cameraComponent = cameraComponentFxaa;
+    renderPassFxaa.setFramebuffer(framebufferGammaTarget);
     // Setting FXAA [end]
 
+    const entityGamma = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+    const primitiveGamma = new Rn.Plane();
+    primitiveGamma.generate({width: 2, height: 2, uSpan: 1, vSpan: 1, isUVRepeat: false});
+    primitiveGamma.material = Rn.MaterialHelper.createGammaCorrectionMaterial();
+    primitiveGamma.material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, framebufferGammaTarget.colorAttachments[0]);
+    const meshComponentGamma = entityGamma.getComponent(Rn.MeshComponent);
+    const meshGamma = new Rn.Mesh();
+    meshGamma.addPrimitive(primitiveGamma);
+    meshComponentGamma.setMesh(meshGamma);
+    entityGamma.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);
+    renderPassGamma.cameraComponent = cameraComponentFxaa;
+    renderPassGamma.addEntities([entityGamma]);
 
     // Lights
     // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
@@ -102,6 +117,7 @@ const load = function(time){
     const spherePrimitive = new Rn.Sphere();
     window.sphereEntity = sphereEntity;
     const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+    window.sphereMaterial = sphereMaterial;
     const environmentCubeTexture = new Rn.CubeTexture();
     // environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/papermill/environment/environment';
     environmentCubeTexture.baseUriToLoad = '../../../assets/ibl/shanghai_bund/environment/environment';
@@ -220,8 +236,7 @@ function rotEnv(rot) {
     const meshRendererComponent = window.meshRendererComponents[i];
     meshRendererComponent.rotationOfCubeMap = rot;
   }
-  // window.sphere2MeshRendererComponent.rotationOfCubeMap = rot;
-  window.sphereEntity.getTransform().rotate = new Rn.Vector3(0, -rot, 0);
+  window.sphereMaterial.setParameter('envRotation', rot);
 }
 
 function setDiffuseCubeMapContribution(value) {

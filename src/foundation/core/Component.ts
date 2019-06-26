@@ -14,13 +14,14 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
+import RnObject from './RnObject';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
 /**
  * Component is a functional unit that can be added to an Entity instance.
  */
-export default class Component {
+export default class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
@@ -49,6 +50,8 @@ export default class Component {
    * @param entityRepository The instance of the EntityRepository class (Dependency Injection)
    */
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
+    super();
+
     this.__entityUid = entityUid
     this._component_sid = componentSid;
     this.__isAlive = true;

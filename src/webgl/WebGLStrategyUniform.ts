@@ -35,7 +35,7 @@ import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "
 import Vector4 from "../foundation/math/Vector4";
 import Vector2 from "../foundation/math/Vector2";
 
-type ShaderVariableArguments = {gl: WebGLRenderingContext, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
+type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
   diffuseCube?: CubeTexture, specularCube?: CubeTexture, firstTime:boolean, updateInterval?: ShaderVariableUpdateIntervalEnum};
 
@@ -253,7 +253,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return !WebGLStrategyUniform.__isOpaqueMode;
   }
 
-  private __setUniformBySystem({gl, shaderProgram, primitive, shaderProgramUid,
+  private __setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
     entity, worldMatrix, normalMatrix, renderPass,
     diffuseCube, specularCube, firstTime}: ShaderVariableArguments) {
 
@@ -298,24 +298,22 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     // Env map
     updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [6, -1]);
     if (updated) {
-      gl.activeTexture(gl.TEXTURE6);
       if (diffuseCube && diffuseCube.isTextureReady) {
         const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        glw.bindTextureCube(7, texture);
       } else {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        glw.bindTextureCube(7, texture);
       }
     }
     updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [7, -1]);
     if (updated) {
-      gl.activeTexture(gl.TEXTURE7);
       if (specularCube && specularCube.isTextureReady) {
         const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        glw.bindTextureCube(8, texture);
       } else {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        glw.bindTextureCube(8, texture);
       }
     }
 
@@ -342,13 +340,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     // BRDF LUT
     updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
     if (updated) {
-      gl.activeTexture(gl.TEXTURE5);
       if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        glw.bindTexture2D(5, texture);
       } else {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!) as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        glw.bindTexture2D(5, texture);
       }
     }
 
@@ -412,8 +409,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         this.__lastShader = shaderProgramUid;
         firstTime = true;
       }
+      if (firstTime) {
+        //glw.unbindTextures();
+      }
 
-      this.__setUniformBySystem({gl, shaderProgram, primitive, shaderProgramUid,
+      this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
         entity, worldMatrix, normalMatrix, renderPass,
         diffuseCube, specularCube, firstTime});
 
@@ -432,7 +432,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
     //    gl.useProgram(null);
     // this.__lastShader = -1;
-
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
 
