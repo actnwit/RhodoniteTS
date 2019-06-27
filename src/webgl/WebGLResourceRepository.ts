@@ -205,6 +205,30 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return {vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false};
   }
 
+  createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles
+   {
+    const gl = this.__glw!.getRawContext();
+
+    let iboHandle;
+    if (primitive.hasIndices()) {
+      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
+    }
+
+    const attributesFlags: boolean[] = [];
+    for (let i=0; i<VertexAttribute.AttributeTypeNumber; i++) {
+      attributesFlags[i] = false;
+    }
+    const vboHandles:Array<WebGLResourceHandle> = [];
+    primitive.attributeAccessors.forEach((accessor, i)=>{
+      const vboHandle = this.createVertexBuffer(accessor);
+      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
+      attributesFlags[slotIdx] = true;
+      vboHandles.push(vboHandle);
+    });
+
+    return {vaoHandle: -1, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false};
+  }
+
   createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
     {vertexShaderStr:string, fragmentShaderStr?:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>}) {
 
@@ -1194,6 +1218,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const vaoHandle = vertexHandles.vaoHandle;
+    const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
+    this.__glw!.deleteVertexArray(vao);
+  }
+
+  deleteVertexArray(vaoHandle: WebGLResourceHandle) {
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.deleteVertexArray(vao);
   }

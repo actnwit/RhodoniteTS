@@ -178,36 +178,29 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return;
     }
 
+    if (meshComponent.mesh.isInstanceMesh()) {
+      meshRendererComponent._readyForRendering = true;
+      return;
+    }
+
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      this.__webglResourceRepository.setVertexDataToPipeline(primitive.vertexHandles!, primitive, meshComponent.mesh.variationVBOUid);
+      this.__webglResourceRepository.setVertexDataToPipeline(
+        { vaoHandle: meshComponent.mesh.vaoUid, iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
+        primitive, meshComponent.mesh.variationVBOUid);
     }
     meshRendererComponent._readyForRendering = true;
   }
 
   common_$prerender(): void {
-    // Setup Vertex Data
-    // const meshComponents = ComponentRepository.getInstance().getComponentsWithType(MeshComponent)! as MeshComponent[];
-    // for (let meshComponent of meshComponents) {
-    //   if (meshComponent.mesh) {
-    //     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    //     for(let i=0; i<primitiveNum; i++) {
-    //       const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-    //       const glw = this.__webglResourceRepository!.currentWebGLContextWrapper!;
-    //       this.attachVertexDataInner(meshComponent.mesh, primitive, glw, meshComponent.mesh.variationVBOUid);
-    //     }
-    //   }
-    // }
-
-
 
     // Setup Data Texture
     let isHalfFloatMode = false;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-      this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-      isHalfFloatMode = true;
-    }
+    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
+    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+    //   isHalfFloatMode = true;
+    // }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
@@ -281,7 +274,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
     }
 
-  };
+  }
 
   attachGPUData(primitive: Primitive): void {
     const material = primitive.material!;
@@ -292,7 +285,13 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid);
     var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     gl.uniform1i(uniform_dataTexture, 0);
-  };
+  }
+
+  attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {
+    this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
+    var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    gl.uniform1i(uniform_dataTexture, 0);
+  }
 
   attatchShaderProgram(material: Material): void {
     const shaderProgramUid = material._shaderProgramUid;
@@ -311,7 +310,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   attachVertexDataInner(mesh: Mesh, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vertexHandles = primitive.vertexHandles!;
-    const vao = this.__webglResourceRepository.getWebGLResource(vertexHandles.vaoHandle) as WebGLVertexArrayObjectOES;
+    const vao = this.__webglResourceRepository.getWebGLResource(mesh.vaoUid) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
@@ -332,28 +331,40 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
-    const material = primitive.material!;
+  common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    this.attatchShaderProgram(material);
     const gl = glw.getRawContext();
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid) as WebGLProgram;
-
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     const meshes: Mesh[] = Mesh.originalMeshes;
-
     for (let mesh of meshes) {
       const primitiveNum = mesh.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
-        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
-      }
+        const primitive = mesh.getPrimitiveAt(i);
 
-      if (primitive.indicesAccessor) {
-        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
-      } else {
-        glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), mesh.instanceCountIncludeOriginal);
+        const shaderProgramUid = primitive.material!._shaderProgramUid;
+        if (shaderProgramUid === -1) {
+          continue;
+        }
+
+        if (shaderProgramUid !== this.__lastShader) {
+          const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+          gl.useProgram(shaderProgram);
+
+          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
+          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
+          var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+          gl.uniform1i(uniform_dataTexture, 0);
+        }
+        this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
+        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
+
+        if (primitive.indicesAccessor) {
+          glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
+        } else {
+          glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), mesh.instanceCountIncludeOriginal);
+        }
+
+        this.__lastShader = shaderProgramUid;
       }
     }
 

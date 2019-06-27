@@ -24,6 +24,7 @@ export default class Mesh {
   public weights = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
+  private __vaoUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __instances: Mesh[] = [];
   public _attatchedEntityUID = Entity.invalidEntityUID;
@@ -38,8 +39,20 @@ export default class Mesh {
     return this.__originalMeshes;
   }
 
-  get variationVBOUid() {
-    return this.__variationVBOUid;
+  get variationVBOUid(): CGAPIResourceHandle {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.variationVBOUid;
+    } else {
+      return this.__variationVBOUid;
+    }
+  }
+
+  get vaoUid(): CGAPIResourceHandle {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.vaoUid;
+    } else {
+      return this.__vaoUid;
+    }
   }
 
   _addMeshToInstanceArray(mesh: Mesh) {
@@ -488,38 +501,50 @@ export default class Mesh {
     return this.__meshUID;
   }
 
-  updateVariationVBO() {
-    if (!this.__instancesDirty) {
-      return false;
-    }
+  updateVariationVBO(): boolean {
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVariationVBO()
+    } else {
+      if (!this.__instancesDirty) {
+        return false;
+      }
 
-    if (this.__variationVBOUid != CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-    }
-
-    const instanceNum = this.__instances.length;
-    const entityUIDs = new Float32Array(instanceNum+1);
-    entityUIDs[0] = this._attatchedEntityUID;
-    for (var i = 1; i < instanceNum; i++) {
-      entityUIDs[i] = this.__instances[i]._attatchedEntityUID;
-    }
-
-    this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
-
-    this.__instancesDirty = false;
-
-    return true;
-  }
-
-  deleteVariationVBO() {
-    if (this.__variationVBOUid != CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+
+      this.__vaoUid = webglResourceRepository.createVertexArray();
+
+      if (this.__variationVBOUid != CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+      }
+
+      const instanceNum = this.__instances.length;
+      const entityUIDs = new Float32Array(instanceNum+1);
+      entityUIDs[0] = this._attatchedEntityUID;
+      for (var i = 0; i < instanceNum; i++) {
+        entityUIDs[i+1] = this.__instances[i]._attatchedEntityUID;
+      }
+
+      this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
+
+      this.__instancesDirty = false;
+
       return true;
     }
 
+  }
+
+  deleteVariationVBO() {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVariationVBO()
+    } else {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+        webglResourceRepository.deleteVertexArray(this.__vaoUid);
+        return true;
+      }
+    }
     return false;
   }
 
