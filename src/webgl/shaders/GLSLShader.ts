@@ -56,6 +56,15 @@ export default abstract class GLSLShader {
     }
   }
 
+  get glsl_vertex_centroid_out() {
+    const repo = this.__webglResourceRepository!;
+    if (repo.currentWebGLContextWrapper!.isWebGL2) {
+      return 'centroid out';
+    } else {
+      return 'varying';
+    }
+  }
+
   get glsl_texture() {
     const repo = this.__webglResourceRepository!;
     if (repo.currentWebGLContextWrapper!.isWebGL2) {
