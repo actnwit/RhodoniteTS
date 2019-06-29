@@ -297,20 +297,20 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (updated) {
       if (diffuseCube && diffuseCube.isTextureReady) {
         const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
-        glw.bindTextureCube(7, texture);
+        glw.bindTextureCube(6, texture);
       } else {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        glw.bindTextureCube(7, texture);
+        glw.bindTextureCube(6, texture);
       }
     }
     updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [7, -1]);
     if (updated) {
       if (specularCube && specularCube.isTextureReady) {
         const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
-        glw.bindTextureCube(8, texture);
+        glw.bindTextureCube(7, texture);
       } else {
         const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        glw.bindTextureCube(8, texture);
+        glw.bindTextureCube(7, texture);
       }
     }
 
