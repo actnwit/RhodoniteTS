@@ -318,7 +318,7 @@ export default class Primitive extends RnObject {
       return false;
     }
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__vertexHandles = webglResourceRepository.createVertexDataResources(this);
+    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
   }

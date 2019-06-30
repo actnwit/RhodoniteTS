@@ -17,6 +17,7 @@ import AABB from '../math/AABB';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
+import Entity from '../core/Entity';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -34,10 +35,17 @@ export default class MeshComponent extends Component {
 
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
+    mesh._attatchedEntityUID = this.entityUID;
   }
 
   unsetMesh() {
+    if (this.__mesh == null) {
+      return false;
+    }
+    this.__mesh._attatchedEntityUID = Entity.invalidEntityUID;
     this.__mesh = void 0;
+
+    return true;
   }
 
   get mesh() {

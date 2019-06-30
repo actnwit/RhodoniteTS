@@ -113,6 +113,25 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
   }
 
+  createVertexBufferFromTypedArray(typedArray: TypedArray) {
+    const gl = this.__glw!.getRawContext();;
+
+    if (gl == null) {
+      throw new Error("No WebGLRenderingContext set as Default.");
+    }
+
+    const vbo = gl.createBuffer();
+    const resourceHandle = this.getResourceNumber();
+    this.__webglResources.set(resourceHandle, vbo!);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    return resourceHandle;
+
+  }
+
   resendVertexBuffer(primitive: Primitive, vboHandles: Array<WebGLResourceHandle>) {
     const gl = this.__glw!.getRawContext();;
 
@@ -184,6 +203,30 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     return {vaoHandle: vaoHandle, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false};
+  }
+
+  createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles
+   {
+    const gl = this.__glw!.getRawContext();
+
+    let iboHandle;
+    if (primitive.hasIndices()) {
+      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
+    }
+
+    const attributesFlags: boolean[] = [];
+    for (let i=0; i<VertexAttribute.AttributeTypeNumber; i++) {
+      attributesFlags[i] = false;
+    }
+    const vboHandles:Array<WebGLResourceHandle> = [];
+    primitive.attributeAccessors.forEach((accessor, i)=>{
+      const vboHandle = this.createVertexBuffer(accessor);
+      const slotIdx = primitive.attributeSemantics[i].getAttributeSlot();
+      attributesFlags[slotIdx] = true;
+      vboHandles.push(vboHandle);
+    });
+
+    return {vaoHandle: -1, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false};
   }
 
   createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
@@ -1177,5 +1220,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vaoHandle = vertexHandles.vaoHandle;
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.deleteVertexArray(vao);
+  }
+
+  deleteVertexArray(vaoHandle: WebGLResourceHandle) {
+    const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
+    this.__glw!.deleteVertexArray(vao);
+  }
+
+  deleteVertexBuffer(vboUid: WebGLResourceHandle) {
+    const gl = this.__glw!.getRawContext();
+    const vbo = this.getWebGLResource(vboUid);
+    gl.deleteBuffer(vbo);
   }
 }

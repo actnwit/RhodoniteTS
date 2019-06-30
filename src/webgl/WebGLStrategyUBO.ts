@@ -16,6 +16,7 @@ import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import { CompositionType } from "../foundation/definitions/CompositionType";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -113,7 +114,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     }
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (this.__isVAOSet) {
       return;
     }

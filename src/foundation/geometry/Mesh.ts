@@ -10,6 +10,7 @@ import Accessor from "../memory/Accessor";
 import Vector2 from "../math/Vector2";
 import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import Entity from "../core/Entity";
 
 export default class Mesh {
   private readonly __meshUID: MeshUID;
@@ -23,9 +24,40 @@ export default class Mesh {
   public weights = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
+  private __vaoUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __instances: Mesh[] = [];
+  public _attatchedEntityUID = Entity.invalidEntityUID;
+  private __instancesDirty = true;
+  private static __originalMeshes: Mesh[] = [];
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
+  }
+
+  static get originalMeshes() {
+    return this.__originalMeshes;
+  }
+
+  get variationVBOUid(): CGAPIResourceHandle {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.variationVBOUid;
+    } else {
+      return this.__variationVBOUid;
+    }
+  }
+
+  get vaoUid(): CGAPIResourceHandle {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.vaoUid;
+    } else {
+      return this.__vaoUid;
+    }
+  }
+
+  _addMeshToInstanceArray(mesh: Mesh) {
+    this.__instances.push(mesh);
+    this.__instancesDirty = true;
   }
 
   addPrimitive(primitive: Primitive) {
@@ -38,12 +70,24 @@ export default class Mesh {
       this.__transparentPrimitives.push(primitive);
     }
     this.__primitives = this.__opaquePrimitives.concat(this.__transparentPrimitives);
+
+    Mesh.__originalMeshes.push(this);
   }
 
   setMesh(mesh: Mesh) {
+    if (mesh.isInstanceMesh()) {
+      console.error(`Don't set InstanceMesh.`);
+      return false;
+    }
     this.__primitives.length = 0;
     this.__instanceOf = mesh;
+    mesh._addMeshToInstanceArray(this);
     this.__instanceIdx = mesh.instanceIndex + 1;
+
+    // Remove this from original meshe list
+    Mesh.__originalMeshes = Mesh.__originalMeshes.filter(mesh => mesh !== this);
+
+    return true;
   }
 
   isAllBlend(): boolean {
@@ -455,5 +499,56 @@ export default class Mesh {
 
   get meshUID() {
     return this.__meshUID;
+  }
+
+  updateVariationVBO(): boolean {
+
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVariationVBO()
+    } else {
+      if (!this.__instancesDirty) {
+        return false;
+      }
+
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+      this.__vaoUid = webglResourceRepository.createVertexArray();
+
+      if (this.__variationVBOUid != CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+      }
+
+      const instanceNum = this.__instances.length;
+      const entityUIDs = new Float32Array(instanceNum+1);
+      entityUIDs[0] = this._attatchedEntityUID;
+      for (var i = 0; i < instanceNum; i++) {
+        entityUIDs[i+1] = this.__instances[i]._attatchedEntityUID;
+      }
+
+      this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
+
+      this.__instancesDirty = false;
+
+      return true;
+    }
+
+  }
+
+  deleteVariationVBO() {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.updateVariationVBO()
+    } else {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+        webglResourceRepository.deleteVertexArray(this.__vaoUid);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get instanceCountIncludeOriginal() {
+    return this.__instances.length + 1;
   }
 }

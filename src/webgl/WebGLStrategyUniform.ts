@@ -173,7 +173,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     );
   }
 
-  $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle) {
+  $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -206,6 +206,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+  }
+
+  attachVertexDataInner(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vaoHandles = primitive.vertexHandles!;
     const vao = this.__webglResourceRepository.getWebGLResource(vaoHandles.vaoHandle) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
@@ -390,7 +393,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       //this.attatchShaderProgram(primitive.material!);
 
-      this.attachVertexData(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
+      this.attachVertexDataInner(i, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
 

@@ -117,7 +117,7 @@ export default class System {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     }
 
-    MemoryManager.createInstanceIfNotCreated(1 * memoryUsageOrder, 0.5 * memoryUsageOrder, 0.1 * memoryUsageOrder, 0 * memoryUsageOrder);
+    MemoryManager.createInstanceIfNotCreated(1 * memoryUsageOrder, 1 * memoryUsageOrder, 0.1 * memoryUsageOrder, 0 * memoryUsageOrder);
 
     repo.addWebGLContext(gl!, canvas, true);
     this.__processApproach = approach;
