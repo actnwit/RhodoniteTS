@@ -43,6 +43,7 @@ export default class RnObject {
         if (RnObject.__uniqueNames.indexOf(newName) === -1) {
           this.__uniqueName = newName;
           RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
+          RnObject.__objectsByNameMap.set(this.__uniqueName, this);
           return true;
         }
       }
@@ -50,7 +51,7 @@ export default class RnObject {
     } else {
       this.__uniqueName = name;
       RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
-
+      RnObject.__objectsByNameMap.set(this.__uniqueName, this);
       return true;
     }
   }
