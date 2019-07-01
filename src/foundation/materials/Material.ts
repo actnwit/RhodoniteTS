@@ -14,7 +14,6 @@ import Vector2 from "../math/Vector2";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
 import GLSLShader, { AttributeNames } from "../../webgl/shaders/GLSLShader";
-import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { pathExists } from "fs-extra";
 import { VertexAttributeEnum } from "../main";
 import { VertexAttribute } from "../definitions/VertexAttribute";
@@ -31,6 +30,7 @@ export default class Material extends RnObject {
   private static __materials: Material[] = [];
   private __materialTid: Index;
   private static __materialTidCount = -1;
+  private static __materialTids: Map<string, Index> = new Map();
 
   private static __materialTypes: Map<string, AbstractMaterialNode[]> = new Map();
   // private static __memberInfo: Map<
@@ -44,6 +44,10 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  get materialTID() {
+    return this.__materialTid;
+  }
+
   get fieldsInfoArray() {
     return Array.from(this.__fieldsInfo.values())
   }
@@ -51,7 +55,7 @@ export default class Material extends RnObject {
   static createMaterial(materialName: string) {
     if (Material.__materialTypes.has(materialName)) {
       const materialNodes = Material.__materialTypes.get(materialName)!;
-      return new Material(++Material.__materialTidCount, materialNodes);
+      return new Material(Material.__materialTids.get(materialName)!, materialNodes);
     }
 
     return void 0;
@@ -60,6 +64,11 @@ export default class Material extends RnObject {
   static registerMaterial(materialName: string, materialNodes: AbstractMaterialNode[]) {
     if (!Material.__materialTypes.has(materialName)) {
       Material.__materialTypes.set(materialName, materialNodes);
+      Material.__materialTids.set(materialName, ++Material.__materialTidCount);
+      return true;
+    } else {
+      console.info(`${materialName} is already registered.`);
+      return false;
     }
   }
 

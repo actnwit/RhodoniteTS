@@ -115,3 +115,15 @@ test('Material works correctly', () => {
   getVars(outvec4outColor){outColor=vec4(1.0,0.0,0.0,1.0);}voidadd(invec4lfs,invec4rhs,outvec4outValue){outValue=lfs+rhs;}voidend(invec4inColor){vec4rt0=inColor;gl_FragColor=rt0;}voidmain(){vec4outColor_0_to_inColor_4;getVars(outColor_0_to_inColor_4);end(outColor_0_to_inColor_4);}
  `.replace(/\s+/g, ""))
 });
+
+test('MaterialTID are processed correctly', () => {
+
+  Material.registerMaterial('MyMaterial0', []);
+  const material0 = Material.createMaterial('MyMaterial0')!;
+  Material.registerMaterial('MyMaterial1', []);
+  const material1a = Material.createMaterial('MyMaterial1')!;
+  const material1b = Material.createMaterial('MyMaterial1')!;
+
+  expect(material1b.materialTID).toEqual(1);
+
+});
