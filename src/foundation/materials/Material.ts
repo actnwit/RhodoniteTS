@@ -137,23 +137,15 @@ export default class Material extends RnObject {
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo)=>{
-        if (semanticsInfo.semantic != null) {
-          this.__fields.set(semanticsInfo.semantic.str!, semanticsInfo.initialValue);
-          this.__fieldsInfo.set(semanticsInfo.semantic.str!, semanticsInfo);
-        } else {
-          this.__fields.set(semanticsInfo.semanticStr!, semanticsInfo.initialValue);
-          this.__fieldsInfo.set(semanticsInfo.semanticStr!, semanticsInfo);
-        }
-
-        // const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
-        // this.__fields.set(
-        //   propertyName,
-        //   MathClassUtil.initWithFloat32Array(
-        //     semanticsInfo.initialValue,
-        //     semanticsInfo.initialValue,
-        //     (typeof semanticsInfo.initialValue.v !== 'undefined' ? semanticsInfo.initialValue.v : void 0)
-        //     ));
-        // this.__fieldsInfo.set(propertyName, semanticsInfo);
+        const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
+        this.__fields.set(
+          propertyName,
+          MathClassUtil.initWithFloat32Array(
+            semanticsInfo.initialValue,
+            semanticsInfo.initialValue,
+            (typeof semanticsInfo.initialValue.v !== 'undefined' ? semanticsInfo.initialValue.v : void 0)
+            ));
+        this.__fieldsInfo.set(propertyName, semanticsInfo);
       });
     });
   }
@@ -168,10 +160,18 @@ export default class Material extends RnObject {
       shaderSemanticStr = shaderSemantic.str;
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
-      // this.__fieldsInfo.set(shaderSemanticStr, value);
-      this.__fields.set(shaderSemanticStr, value);
-      // const valueObj = this.__fields.get(shaderSemanticStr);
-      // MathClassUtil._setForce(valueObj, value);
+      // this.__fields.set(shaderSemanticStr, value);
+
+      const valueObj = this.__fields.get(shaderSemanticStr);
+      if (isNaN(valueObj)) { // if not number
+        MathClassUtil._setForce(valueObj, value);
+        this.__fields.set(shaderSemanticStr, valueObj);
+      } else {
+        this.__fields.set(shaderSemanticStr, value);
+      }
+
+      // this.__fields.set(shaderSemanticStr, value);
+
     }
   }
 
