@@ -7,6 +7,7 @@ import { LightType } from '../definitions/LightType';
 import Vector3 from '../math/Vector3';
 import SceneGraphComponent from './SceneGraphComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
+import Config from '../core/Config';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
@@ -20,6 +21,8 @@ export default class LightComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
+
+    this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber/100));
 
   }
 

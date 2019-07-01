@@ -61,7 +61,7 @@ export default class TransformComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'invMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', Matrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
-    this.submitToAllocation();
+    this.submitToAllocation(this.maxNumberOfComponent);
 
     this._is_translate_updated = true;
     this._is_euler_angles_updated = true;
