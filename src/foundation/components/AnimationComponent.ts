@@ -164,7 +164,7 @@ export default class AnimationComponent extends Component {
           const i_minus_b = AnimationComponent.__isClamped(i-1, inputArray);
           const i_plus_b = AnimationComponent.__isClamped(i+1, inputArray);
           const i_pp_b = AnimationComponent.__isClamped(i+2, inputArray);
-          let m_i = MathClassUtil.init(outputArray[0], 0);
+          let m_i = MathClassUtil.initWithScalar(outputArray[0], 0);
           if (!i_minus_b) {
             m_i = MathClassUtil.multiplyNumber(
               MathClassUtil.add(
@@ -172,7 +172,7 @@ export default class AnimationComponent extends Component {
               , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i], outputArray[i-1]), MathClassUtil.subtract(inputArray[i], inputArray[i-1]))
               ), 1/2);
           }
-          let m_iplus = MathClassUtil.init(outputArray[0], 0);
+          let m_iplus = MathClassUtil.initWithScalar(outputArray[0], 0);
           if (!(i_plus_b || i_pp_b)) {
             m_iplus = MathClassUtil.multiplyNumber(
               MathClassUtil.add(

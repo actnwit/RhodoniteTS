@@ -29,8 +29,8 @@ type PropertyName = string;
 
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
-  private __fields: Map<string, any> = new Map();
-  private __fieldsInfo: Map<string, ShaderSemanticsInfo> = new Map();
+  private __fields: Map<PropertyName, any> = new Map();
+  private __fieldsInfo: Map<PropertyName, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -113,7 +113,6 @@ export default class Material extends RnObject {
       Material.__materialTypes.set(materialTypeName, materialNodes);
 
       const materialTid = ++Material.__materialTidCount;
-      console.trace('materialTID:', materialTid);
       Material.__materialTids.set(materialTypeName, materialTid);
       Material.__maxInstances.set(materialTypeName, maxInstancesNumber);
 
@@ -145,7 +144,16 @@ export default class Material extends RnObject {
           this.__fields.set(semanticsInfo.semanticStr!, semanticsInfo.initialValue);
           this.__fieldsInfo.set(semanticsInfo.semanticStr!, semanticsInfo);
         }
-        
+
+        // const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
+        // this.__fields.set(
+        //   propertyName,
+        //   MathClassUtil.initWithFloat32Array(
+        //     semanticsInfo.initialValue,
+        //     semanticsInfo.initialValue,
+        //     (typeof semanticsInfo.initialValue.v !== 'undefined' ? semanticsInfo.initialValue.v : void 0)
+        //     ));
+        // this.__fieldsInfo.set(propertyName, semanticsInfo);
       });
     });
   }
@@ -160,7 +168,10 @@ export default class Material extends RnObject {
       shaderSemanticStr = shaderSemantic.str;
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
+      // this.__fieldsInfo.set(shaderSemanticStr, value);
       this.__fields.set(shaderSemanticStr, value);
+      // const valueObj = this.__fields.get(shaderSemanticStr);
+      // MathClassUtil._setForce(valueObj, value);
     }
   }
 

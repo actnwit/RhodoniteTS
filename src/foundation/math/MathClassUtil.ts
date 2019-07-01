@@ -11,6 +11,11 @@ import MutableMatrix33 from './MutableMatrix33';
 import MutableVector4 from './MutableVector4';
 import MutableVector3 from './MutableVector3';
 import MutableVector2 from './MutableVector2';
+import Scalar from './Scalar';
+import MutableQuaternion from './MutableQuaterion';
+import RowMajarMatrix44 from './RowMajarMatrix44';
+import MutableRowMajarMatrix44 from './MutableRowMajarMatrix44';
+import MutableScalar from './MutableScalar';
 
 export default class MathClassUtil {
   constructor() {
@@ -125,11 +130,11 @@ export default class MathClassUtil {
 
   static vectorToArray(element:Vector2|Vector3|Vector4|Quaternion) {
     if(element instanceof Vector2) {
-      return [element.x, element.y];
+      return [element.x, element.v];
     } else if (element instanceof Vector3) {
-      return [element.x, element.y, element.z];
+      return [element.x, element.v, element.z];
     } else if (element instanceof Vector4 || element instanceof Quaternion) {
-      return [element.x, element.y, element.z, element.w];
+      return [element.x, element.v, element.z, element.w];
     } else {
       return element;
     }
@@ -288,7 +293,7 @@ export default class MathClassUtil {
     }
   }
 
-  static init(objForDetectType: any, val: number) {
+  static initWithScalar(objForDetectType: any, val: number) {
     if (isFinite(objForDetectType)) { // number?
       return val;
     } else if (objForDetectType instanceof Vector2) {
@@ -303,6 +308,145 @@ export default class MathClassUtil {
       const arr: number[] = [];
       for (let i=0; i<objForDetectType.length; i++) {
         arr[i] = val;
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+      return void 0;
+    }
+  }
+
+  static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array) {
+    let obj;
+
+    if (objForDetectType != null && !Number.isNaN(objForDetectType)) {
+      obj = new (objForDetectType.constructor as any)(floatArray);
+    }
+    if (isFinite(objForDetectType)) { // number?
+      return val;
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+      floatArray[0] = val.x;
+      obj = (obj == null) ? new Scalar(floatArray) : obj;
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+      floatArray[0] = val.x;
+      floatArray[1] = val.v;
+      obj = (obj == null) ? new Vector2(floatArray) : obj;
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+      floatArray[0] = val.x;
+      floatArray[1] = val.v;
+      floatArray[2] = val.z;
+      obj = (obj == null) ? new Vector3(floatArray) : obj;
+    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+      floatArray[0] = val.x;
+      floatArray[1] = val.v;
+      floatArray[2] = val.z;
+      floatArray[3] = val.w;
+      obj = (obj == null) ? new Vector4(floatArray) : obj;
+    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
+      floatArray[0] = val.x;
+      floatArray[1] = val.v;
+      floatArray[2] = val.z;
+      floatArray[3] = val.w;
+      obj = (obj == null) ? new Quaternion(floatArray) : obj;
+    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+      obj = (obj == null) ? new Matrix33(floatArray) : obj;
+      obj.m00 = val.m00;
+      obj.m01 = val.m01;
+      obj.m02 = val.m02;
+      obj.m10 = val.m10;
+      obj.m11 = val.m11;
+      obj.m12 = val.m12;
+      obj.m20 = val.m20;
+      obj.m21 = val.m21;
+      obj.m22 = val.m22;
+    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
+      objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
+      obj = (obj == null) ? new Matrix44(floatArray) : obj;
+      obj.m00 = val.m00;
+      obj.m01 = val.m01;
+      obj.m02 = val.m02;
+      obj.m03 = val.m03;
+      obj.m10 = val.m10;
+      obj.m11 = val.m11;
+      obj.m12 = val.m12;
+      obj.m13 = val.m13;
+      obj.m20 = val.m20;
+      obj.m21 = val.m21;
+      obj.m22 = val.m22;
+      obj.m23 = val.m23;
+      obj.m30 = val.m30;
+      obj.m31 = val.m31;
+      obj.m32 = val.m32;
+      obj.m33 = val.m33;
+    } else if (Array.isArray(objForDetectType)) {
+      const arr: number[] = [];
+      for (let i=0; i<objForDetectType.length; i++) {
+        arr[i] = val[i];
+      }
+      return arr;
+    } else {
+      console.error('Non supported type!');
+      return void 0;
+    }
+
+    return obj;
+  }
+
+  static _setForce(objForDetectType: any, val: any) {
+    const obj = objForDetectType as any;
+    if (isFinite(objForDetectType)) { // number?
+      return val;
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+      objForDetectType.v[0] = val.v[0];
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
+    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
+    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+      obj.m00 = val.m00;
+      obj.m01 = val.m01;
+      obj.m02 = val.m02;
+      obj.m10 = val.m10;
+      obj.m11 = val.m11;
+      obj.m12 = val.m12;
+      obj.m20 = val.m20;
+      obj.m21 = val.m21;
+      obj.m22 = val.m22;
+    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
+      objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
+      obj.m00 = val.m00;
+      obj.m01 = val.m01;
+      obj.m02 = val.m02;
+      obj.m03 = val.m03;
+      obj.m10 = val.m10;
+      obj.m11 = val.m11;
+      obj.m12 = val.m12;
+      obj.m13 = val.m13;
+      obj.m20 = val.m20;
+      obj.m21 = val.m21;
+      obj.m22 = val.m22;
+      obj.m23 = val.m23;
+      obj.m30 = val.m30;
+      obj.m31 = val.m31;
+      obj.m32 = val.m32;
+      obj.m33 = val.m33;
+    } else if (Array.isArray(objForDetectType)) {
+      const arr: number[] = [];
+      for (let i=0; i<objForDetectType.length; i++) {
+        arr[i] = val.v[i];
       }
       return arr;
     } else {
