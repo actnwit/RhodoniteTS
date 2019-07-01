@@ -21,6 +21,7 @@ import AbstractTexture from "../textures/AbstractTexture";
 import MemoryManager from "../core/MemoryManager";
 import { BufferUse } from "../definitions/BufferUse";
 import Config from "../core/Config";
+import BufferView from "../memory/BufferView";
 
 
 export default class Material extends RnObject {
@@ -37,11 +38,14 @@ export default class Material extends RnObject {
   private static __materialTids: Map<string, Index> = new Map();
   private static __materialTypes: Map<string, AbstractMaterialNode[]> = new Map();
   private static __maxInstances: Map<string, number> = new Map();
+  private __materialTypeName: string;
+  private static __bufferViews: Map<string, BufferView> = new Map();
 
-  private constructor(materialTid: Index, materialNodes: AbstractMaterialNode[]) {
+  private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
     this.__materialNodes = materialNodes;
     this.__materialTid = materialTid;
+    this.__materialTypeName = materialTypeName;
 
     Material.__materials.push(this);
     this.initialize();
@@ -55,28 +59,49 @@ export default class Material extends RnObject {
     return Array.from(this.__fieldsInfo.values())
   }
 
-  static createMaterial(materialName: string) {
-    if (Material.__materialTypes.has(materialName)) {
-      const materialNodes = Material.__materialTypes.get(materialName)!;
-      return new Material(Material.__materialTids.get(materialName)!, materialNodes);
+  static createMaterial(materialTypeName: string) {
+    if (Material.__materialTypes.has(materialTypeName)) {
+      const materialNodes = Material.__materialTypes.get(materialTypeName)!;
+      return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);
     }
 
     return void 0;
   }
 
-  static registerMaterial(materialName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber: number = Config.maxMaterialInstanceForEachType) {
-    if (!Material.__materialTypes.has(materialName)) {
-      Material.__materialTypes.set(materialName, materialNodes);
+  private static __allocateMemory(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
+    let sumSizeInByte = 0;
+    for (let materialNode of materialNodes) {
+      for (let semanticInfo of materialNode._semanticsInfoArray) {
+        const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
+        const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
+        sumSizeInByte += compsitionNumber * componentSizeInByte;
+      }
+    }
+
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+    const bufferView = buffer.takeBufferView({
+      byteLengthToNeed: sumSizeInByte * Material.__maxInstances.get(materialTypeName)!,
+      byteStride: 0,
+      isAoS: false
+    });
+    this.__bufferViews.set(materialTypeName, bufferView);
+
+    return bufferView;
+  }
+
+  static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber: number = Config.maxMaterialInstanceForEachType) {
+    if (!Material.__materialTypes.has(materialTypeName)) {
+      Material.__materialTypes.set(materialTypeName, materialNodes);
 
       const materialTid = ++Material.__materialTidCount;
-      Material.__materialTids.set(materialName, materialTid);
-      Material.__maxInstances.set(materialName, maxInstancesNumber);
+      Material.__materialTids.set(materialTypeName, materialTid);
+      Material.__maxInstances.set(materialTypeName, maxInstancesNumber);
 
-      // const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+      Material.__allocateMemory(materialTypeName, materialNodes);
 
       return true;
     } else {
-      console.info(`${materialName} is already registered.`);
+      console.info(`${materialTypeName} is already registered.`);
       return false;
     }
   }
