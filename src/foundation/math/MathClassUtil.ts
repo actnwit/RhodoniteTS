@@ -318,38 +318,34 @@ export default class MathClassUtil {
 
   static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array) {
     let obj;
-
-    if (objForDetectType != null && !Number.isNaN(objForDetectType)) {
-      obj = new (objForDetectType.constructor as any)(floatArray);
-    }
     if (isFinite(objForDetectType)) { // number?
       return val;
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       floatArray[0] = val.x;
-      obj = (obj == null) ? new Scalar(floatArray) : obj;
+      obj = new MutableScalar(floatArray);
     } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       floatArray[0] = val.x;
-      floatArray[1] = val.v;
-      obj = (obj == null) ? new Vector2(floatArray) : obj;
+      floatArray[1] = val.y;
+      obj = new MutableVector2(floatArray);
     } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       floatArray[0] = val.x;
-      floatArray[1] = val.v;
+      floatArray[1] = val.y;
       floatArray[2] = val.z;
-      obj = (obj == null) ? new Vector3(floatArray) : obj;
+      obj = new MutableVector3(floatArray);
     } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
       floatArray[0] = val.x;
-      floatArray[1] = val.v;
+      floatArray[1] = val.y;
       floatArray[2] = val.z;
       floatArray[3] = val.w;
-      obj = (obj == null) ? new Vector4(floatArray) : obj;
+      obj = new MutableVector4(floatArray);
     } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
       floatArray[0] = val.x;
-      floatArray[1] = val.v;
+      floatArray[1] = val.y;
       floatArray[2] = val.z;
       floatArray[3] = val.w;
-      obj = (obj == null) ? new Quaternion(floatArray) : obj;
+      obj = new MutableQuaternion(floatArray);
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
-      obj = (obj == null) ? new Matrix33(floatArray) : obj;
+      obj = (obj == null) ? new MutableMatrix33(floatArray) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -361,7 +357,7 @@ export default class MathClassUtil {
       obj.m22 = val.m22;
     } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
       objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
-      obj = (obj == null) ? new Matrix44(floatArray) : obj;
+      obj = new MutableMatrix44(floatArray);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -393,7 +389,7 @@ export default class MathClassUtil {
   }
 
   static _setForce(objForDetectType: any, val: any) {
-    const obj = objForDetectType as any;
+    let obj = objForDetectType as any;
     if (isFinite(objForDetectType)) { // number?
       return val;
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
@@ -416,6 +412,9 @@ export default class MathClassUtil {
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+      if (objForDetectType instanceof Matrix33) {
+        obj = new Matrix33((objForDetectType as any).v);
+      }
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -427,6 +426,9 @@ export default class MathClassUtil {
       obj.m22 = val.m22;
     } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
       objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
+      if (objForDetectType instanceof Matrix44 || objForDetectType instanceof RowMajarMatrix44) {
+        obj = new Matrix33((objForDetectType as any).v);
+      }
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -444,11 +446,10 @@ export default class MathClassUtil {
       obj.m32 = val.m32;
       obj.m33 = val.m33;
     } else if (Array.isArray(objForDetectType)) {
-      const arr: number[] = [];
       for (let i=0; i<objForDetectType.length; i++) {
-        arr[i] = val.v[i];
+        objForDetectType[i] = val.v[i];
       }
-      return arr;
+      return objForDetectType;
     } else {
       console.error('Non supported type!');
       return void 0;
