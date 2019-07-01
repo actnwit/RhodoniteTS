@@ -7,11 +7,23 @@ import DepthEncodingSingleMaterialNode from "../materials/DepthEncodingSingleMat
 import ShadowMapping32bitSingleMaterial from "../materials/ShadowMapping32bitSingleMaterial";
 import RenderPass from "../renderer/RenderPass";
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
+import AbstractMaterialNode from "../materials/AbstractMaterialNode";
+
+function findOrCreateMaterial(materialName: string, materialNodes: AbstractMaterialNode[]): Material {
+  const material = Material.createMaterial(materialName);
+  if (material) {
+    return material;
+  }
+
+  Material.registerMaterial(materialName, materialNodes);
+
+  return Material.createMaterial(materialName)!;
+}
 
 function createPbrUberMaterial() {
   const materialNode = new PbrShadingMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('PbrUber', [materialNode]);
 
   return material;
 }
@@ -19,7 +31,7 @@ function createPbrUberMaterial() {
 function createClassicUberMaterial() {
   const materialNode = new ClassicShadingSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('ClassicUber', [materialNode]);
 
   return material;
 }
@@ -27,7 +39,7 @@ function createClassicUberMaterial() {
 function createEnvConstantMaterial() {
   const materialNode = new EnvConstantSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('EnvConstant', [materialNode]);
 
   return material;
 }
@@ -35,7 +47,7 @@ function createEnvConstantMaterial() {
 function createFXAA3QualityMaterial() {
   const materialNode = new FXAA3QualitySingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('FXAA3Quality', [materialNode]);
 
   return material;
 }
@@ -43,7 +55,7 @@ function createFXAA3QualityMaterial() {
 function createDepthEncodingMaterial() {
   const materialNode = new DepthEncodingSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('DepthEncodeing', [materialNode]);
 
   return material;
 }
@@ -51,14 +63,14 @@ function createDepthEncodingMaterial() {
 function createShadowMapping32bitMaterial(renderPass: RenderPass) {
   const materialNode = new ShadowMapping32bitSingleMaterial(renderPass);
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('ShadowMapping32bit', [materialNode]);
   return material;
 }
 
 function createGammaCorrectionMaterial() {
   const materialNode = new GammaCorrectionSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = new Material([materialNode]);
+  const material = findOrCreateMaterial('GammaCorrection', [materialNode]);
 
   return material;
 }

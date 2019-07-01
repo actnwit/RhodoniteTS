@@ -29,10 +29,16 @@ export default class Material extends RnObject {
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __materials: Material[] = [];
+  private __materialTid: Index;
+  private static __materialTidCount = -1;
 
-  constructor(materialNodes: AbstractMaterialNode[]) {
+  private static __materialTypes: Map<string, AbstractMaterialNode[]> = new Map();
+  // private static __memberInfo: Map<
+
+  private constructor(materialTid: Index, materialNodes: AbstractMaterialNode[]) {
     super();
     this.__materialNodes = materialNodes;
+    this.__materialTid = materialTid;
 
     Material.__materials.push(this);
     this.initialize();
@@ -40,6 +46,21 @@ export default class Material extends RnObject {
 
   get fieldsInfoArray() {
     return Array.from(this.__fieldsInfo.values())
+  }
+
+  static createMaterial(materialName: string) {
+    if (Material.__materialTypes.has(materialName)) {
+      const materialNodes = Material.__materialTypes.get(materialName)!;
+      return new Material(++Material.__materialTidCount, materialNodes);
+    }
+
+    return void 0;
+  }
+
+  static registerMaterial(materialName: string, materialNodes: AbstractMaterialNode[]) {
+    if (!Material.__materialTypes.has(materialName)) {
+      Material.__materialTypes.set(materialName, materialNodes);
+    }
   }
 
   static getAllMaterials() {

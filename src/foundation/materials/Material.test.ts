@@ -9,7 +9,8 @@ import { ShaderSemantics } from "../definitions/ShaderSemantics";
 
 test('Material works correctly', () => {
 
-  const material = new Material([]);
+  Material.registerMaterial('MyMaterial', []);
+  const material = Material.createMaterial('MyMaterial')!;
 
   const getVarsMaterialNode = new GetVarsMaterialNode();
   getVarsMaterialNode.addVertexInputAndOutput(
