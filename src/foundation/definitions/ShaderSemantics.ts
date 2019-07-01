@@ -88,11 +88,17 @@ export type ShaderSemanticsInfo = {
   isSystem: boolean, initialValue?: any, updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum
 };
 
+
+function infoToString(semanticInfo: ShaderSemanticsInfo): string|undefined {
+  return (semanticInfo.semantic != null) ? semanticInfo.semantic.str : semanticInfo.semanticStr;
+}
+
 export const ShaderSemantics = Object.freeze({
   WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, fromString, PointSize, ColorEnvTexture, PointDistanceAttenuation,
-  HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture
+  VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
+  HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
+  from, fromString, infoToString
 });

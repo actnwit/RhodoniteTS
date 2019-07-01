@@ -5,7 +5,7 @@ import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics } from "../definitions/ShaderSemantics";
 import { CompositionType } from "../definitions/CompositionType";
 import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
@@ -22,7 +22,10 @@ import MemoryManager from "../core/MemoryManager";
 import { BufferUse } from "../definitions/BufferUse";
 import Config from "../core/Config";
 import BufferView from "../memory/BufferView";
+import Accessor from "../memory/Accessor";
 
+type MaterialTypeName = string;
+type PropertyName = string;
 
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
@@ -35,11 +38,12 @@ export default class Material extends RnObject {
   private __materialTid: Index;
   private static __materialTidCount = -1;
 
-  private static __materialTids: Map<string, Index> = new Map();
-  private static __materialTypes: Map<string, AbstractMaterialNode[]> = new Map();
-  private static __maxInstances: Map<string, number> = new Map();
-  private __materialTypeName: string;
-  private static __bufferViews: Map<string, BufferView> = new Map();
+  private static __materialTids: Map<MaterialTypeName, Index> = new Map();
+  private static __materialTypes: Map<MaterialTypeName, AbstractMaterialNode[]> = new Map();
+  private static __maxInstances: Map<MaterialTypeName, number> = new Map();
+  private __materialTypeName: MaterialTypeName;
+  private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
+  private static __accessors: Map<MaterialTypeName, Map<PropertyName, Accessor>> = new Map();
 
   private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
@@ -68,13 +72,16 @@ export default class Material extends RnObject {
     return void 0;
   }
 
-  private static __allocateMemory(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
+  private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     let sumSizeInByte = 0;
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
         const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
         sumSizeInByte += compsitionNumber * componentSizeInByte;
+        if (!this.__accessors.has(materialTypeName)) {
+          this.__accessors.set(materialTypeName, new Map());
+        }
       }
     }
 
@@ -86,6 +93,18 @@ export default class Material extends RnObject {
     });
     this.__bufferViews.set(materialTypeName, bufferView);
 
+    for (let materialNode of materialNodes) {
+      for (let semanticInfo of materialNode._semanticsInfoArray) {
+        const properties = this.__accessors.get(materialTypeName)!;
+        const accessor = bufferView.takeAccessor({
+          compositionType: semanticInfo.compositionType,
+          componentType: semanticInfo.componentType,
+          count: Material.__maxInstances.get(materialTypeName)!
+        });
+        properties.set(ShaderSemantics.infoToString(semanticInfo)!, accessor);
+      }
+    }
+
     return bufferView;
   }
 
@@ -94,10 +113,11 @@ export default class Material extends RnObject {
       Material.__materialTypes.set(materialTypeName, materialNodes);
 
       const materialTid = ++Material.__materialTidCount;
+      console.trace('materialTID:', materialTid);
       Material.__materialTids.set(materialTypeName, materialTid);
       Material.__maxInstances.set(materialTypeName, maxInstancesNumber);
 
-      Material.__allocateMemory(materialTypeName, materialNodes);
+      Material.__allocateBufferView(materialTypeName, materialNodes);
 
       return true;
     } else {
@@ -125,6 +145,7 @@ export default class Material extends RnObject {
           this.__fields.set(semanticsInfo.semanticStr!, semanticsInfo.initialValue);
           this.__fieldsInfo.set(semanticsInfo.semanticStr!, semanticsInfo);
         }
+        
       });
     });
   }
