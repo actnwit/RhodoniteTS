@@ -9,68 +9,68 @@ import RenderPass from "../renderer/RenderPass";
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
 import AbstractMaterialNode from "../materials/AbstractMaterialNode";
 
-function findOrCreateMaterial(materialName: string, materialNodes: AbstractMaterialNode[]): Material {
+function findOrCreateMaterial(materialName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const material = Material.createMaterial(materialName);
   if (material) {
     return material;
   }
 
-  Material.registerMaterial(materialName, materialNodes);
+  Material.registerMaterial(materialName, materialNodes, maxInstancesNumber);
 
   return Material.createMaterial(materialName)!;
 }
 
-function createPbrUberMaterial() {
+function createPbrUberMaterial(maxInstancesNumber?: number) {
   const materialNode = new PbrShadingMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('PbrUber', [materialNode]);
+  const material = findOrCreateMaterial('PbrUber', [materialNode], maxInstancesNumber);
 
   return material;
 }
 
-function createClassicUberMaterial() {
+function createClassicUberMaterial(maxInstancesNumber?: number) {
   const materialNode = new ClassicShadingSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('ClassicUber', [materialNode]);
+  const material = findOrCreateMaterial('ClassicUber', [materialNode], maxInstancesNumber);
 
   return material;
 }
 
-function createEnvConstantMaterial() {
+function createEnvConstantMaterial(maxInstancesNumber?: number) {
   const materialNode = new EnvConstantSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('EnvConstant', [materialNode]);
+  const material = findOrCreateMaterial('EnvConstant', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 10);
 
   return material;
 }
 
-function createFXAA3QualityMaterial() {
+function createFXAA3QualityMaterial(maxInstancesNumber?: number) {
   const materialNode = new FXAA3QualitySingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('FXAA3Quality', [materialNode]);
+  const material = findOrCreateMaterial('FXAA3Quality', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 10);
 
   return material;
 }
 
-function createDepthEncodingMaterial() {
+function createDepthEncodingMaterial(maxInstancesNumber?: number) {
   const materialNode = new DepthEncodingSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('DepthEncodeing', [materialNode]);
+  const material = findOrCreateMaterial('DepthEncodeing', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
 
   return material;
 }
 
-function createShadowMapping32bitMaterial(renderPass: RenderPass) {
+function createShadowMapping32bitMaterial(renderPass: RenderPass, maxInstancesNumber?: number) {
   const materialNode = new ShadowMapping32bitSingleMaterial(renderPass);
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('ShadowMapping32bit', [materialNode]);
+  const material = findOrCreateMaterial('ShadowMapping32bit', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
   return material;
 }
 
-function createGammaCorrectionMaterial() {
+function createGammaCorrectionMaterial(maxInstancesNumber?: number) {
   const materialNode = new GammaCorrectionSingleMaterialNode();
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('GammaCorrection', [materialNode]);
+  const material = findOrCreateMaterial('GammaCorrection', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 10);
 
   return material;
 }

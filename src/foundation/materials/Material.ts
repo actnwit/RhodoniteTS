@@ -18,6 +18,9 @@ import { pathExists } from "fs-extra";
 import { VertexAttributeEnum } from "../main";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import AbstractTexture from "../textures/AbstractTexture";
+import MemoryManager from "../core/MemoryManager";
+import { BufferUse } from "../definitions/BufferUse";
+import Config from "../core/Config";
 
 
 export default class Material extends RnObject {
@@ -30,10 +33,10 @@ export default class Material extends RnObject {
   private static __materials: Material[] = [];
   private __materialTid: Index;
   private static __materialTidCount = -1;
-  private static __materialTids: Map<string, Index> = new Map();
 
+  private static __materialTids: Map<string, Index> = new Map();
   private static __materialTypes: Map<string, AbstractMaterialNode[]> = new Map();
-  // private static __memberInfo: Map<
+  private static __maxInstances: Map<string, number> = new Map();
 
   private constructor(materialTid: Index, materialNodes: AbstractMaterialNode[]) {
     super();
@@ -61,10 +64,16 @@ export default class Material extends RnObject {
     return void 0;
   }
 
-  static registerMaterial(materialName: string, materialNodes: AbstractMaterialNode[]) {
+  static registerMaterial(materialName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber: number = Config.maxMaterialInstanceForEachType) {
     if (!Material.__materialTypes.has(materialName)) {
       Material.__materialTypes.set(materialName, materialNodes);
-      Material.__materialTids.set(materialName, ++Material.__materialTidCount);
+
+      const materialTid = ++Material.__materialTidCount;
+      Material.__materialTids.set(materialName, materialTid);
+      Material.__maxInstances.set(materialName, maxInstancesNumber);
+
+      // const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+
       return true;
     } else {
       console.info(`${materialName} is already registered.`);
