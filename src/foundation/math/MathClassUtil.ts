@@ -413,7 +413,7 @@ export default class MathClassUtil {
       objForDetectType.v[3] = val.v[3];
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
       if (objForDetectType instanceof Matrix33) {
-        obj = new Matrix33((objForDetectType as any).v);
+        obj = new MutableMatrix33((objForDetectType as any).v);
       }
       obj.m00 = val.m00;
       obj.m01 = val.m01;
@@ -427,7 +427,7 @@ export default class MathClassUtil {
     } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
       objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
       if (objForDetectType instanceof Matrix44 || objForDetectType instanceof RowMajarMatrix44) {
-        obj = new Matrix33((objForDetectType as any).v);
+        obj = new MutableMatrix44((objForDetectType as any).v);
       }
       obj.m00 = val.m00;
       obj.m01 = val.m01;

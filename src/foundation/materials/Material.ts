@@ -98,7 +98,7 @@ export default class Material extends RnObject {
         const properties = this.__accessors.get(materialTypeName)!;
         const accessor = bufferView.takeAccessor({
           compositionType: semanticInfo.compositionType,
-          componentType: semanticInfo.componentType,
+          componentType: ComponentType.Float,
           count: Material.__maxInstances.get(materialTypeName)!
         });
         properties.set(ShaderSemantics.infoToString(semanticInfo)!, accessor);
@@ -138,13 +138,16 @@ export default class Material extends RnObject {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo)=>{
         const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
+        const accessorMap = Material.__accessors.get(this.__materialTypeName);
+        const accessor = accessorMap!.get(propertyName) as Accessor;
+        const typedArray = accessor.takeOne() as Float32Array;
         this.__fields.set(
           propertyName,
           MathClassUtil.initWithFloat32Array(
             semanticsInfo.initialValue,
             semanticsInfo.initialValue,
-            (typeof semanticsInfo.initialValue.v !== 'undefined' ? semanticsInfo.initialValue.v : void 0)
-            ));
+            typedArray
+          ));
         this.__fieldsInfo.set(propertyName, semanticsInfo);
       });
     });
@@ -160,8 +163,6 @@ export default class Material extends RnObject {
       shaderSemanticStr = shaderSemantic.str;
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
-      // this.__fields.set(shaderSemanticStr, value);
-
       const valueObj = this.__fields.get(shaderSemanticStr);
       if (isNaN(valueObj)) { // if not number
         MathClassUtil._setForce(valueObj, value);
@@ -169,8 +170,6 @@ export default class Material extends RnObject {
       } else {
         this.__fields.set(shaderSemanticStr, value);
       }
-
-      // this.__fields.set(shaderSemanticStr, value);
 
     }
   }
