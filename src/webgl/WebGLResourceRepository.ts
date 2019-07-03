@@ -230,7 +230,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   createShaderProgram({vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics}:
-    {vertexShaderStr:string, fragmentShaderStr?:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>}) {
+    {vertexShaderStr:string, fragmentShaderStr:string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum>}) {
 
     const gl = this.__glw!.getRawContext();
 
@@ -239,42 +239,31 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
-
     gl.shaderSource(vertexShader, vertexShaderStr);
-
     gl.compileShader(vertexShader);
     this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
 
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, fragmentShaderStr);
+    gl.compileShader(fragmentShader);
+    this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
+
     const shaderProgram = gl.createProgram()!;
     gl.attachShader(shaderProgram, vertexShader);
-
-    let fragmentShader;
-    if (fragmentShaderStr != null) {
-      fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
-      gl.shaderSource(fragmentShader, fragmentShaderStr);
-      gl.compileShader(fragmentShader);
-      this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
-      gl.attachShader(shaderProgram, fragmentShader);
-    }
-
+    gl.attachShader(shaderProgram, fragmentShader);
 
     attributeNames.forEach((attributeName, i)=>{
       gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName)
     });
 
     gl.linkProgram(shaderProgram);
+    this.__checkShaderProgramLinkStatus(shaderProgram, vertexShaderStr, fragmentShaderStr);
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, shaderProgram);
 
-
-    this.__checkShaderProgramLinkStatus(shaderProgram);
-
     gl.deleteShader(vertexShader);
-
-    if (fragmentShaderStr != null) {
-      gl.deleteShader(fragmentShader);
-    }
+    gl.deleteShader(fragmentShader);
 
     return resourceHandle;
   }
@@ -305,11 +294,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
   }
 
-  private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram) {
+  private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram, vertexShaderText: string, fragmentShaderText: string) {
     const gl = this.__glw!.getRawContext();
 
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      console.log(this.__addLineNumber('Vertex Shader:'));
+      console.log(this.__addLineNumber(vertexShaderText));
+      console.log(this.__addLineNumber('Fragment Shader:'));
+      console.log(this.__addLineNumber(fragmentShaderText));
       throw new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
     }
   }
