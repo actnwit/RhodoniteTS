@@ -136,7 +136,7 @@ export default class Material extends RnObject {
   initialize() {
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
-      semanticsInfoArray.forEach((semanticsInfo)=>{
+      semanticsInfoArray.forEach((semanticsInfo) => {
         const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
         const accessorMap = Material.__accessors.get(this.__materialTypeName);
         const accessor = accessorMap!.get(propertyName) as Accessor;
@@ -163,9 +163,9 @@ export default class Material extends RnObject {
       shaderSemanticStr = shaderSemantic.str;
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
-      const valueObj = this.__fields.get(shaderSemanticStr);
+      let valueObj = this.__fields.get(shaderSemanticStr);
       if (isNaN(valueObj)) { // if not number
-        MathClassUtil._setForce(valueObj, value);
+        valueObj = MathClassUtil._setForce(valueObj, value);
         this.__fields.set(shaderSemanticStr, valueObj);
       } else {
         this.__fields.set(shaderSemanticStr, value);
