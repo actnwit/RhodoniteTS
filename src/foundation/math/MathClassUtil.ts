@@ -386,28 +386,7 @@ export default class MathClassUtil {
 
   static _setForce(objForDetectType: any, val: any) {
     let obj = objForDetectType as any;
-    if (isFinite(objForDetectType)) { // number?
-      return val;
-    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
-      objForDetectType.v[0] = val.v[0];
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-      objForDetectType.v[2] = val.v[2];
-    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-      objForDetectType.v[2] = val.v[2];
-      objForDetectType.v[3] = val.v[3];
-    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-      objForDetectType.v[2] = val.v[2];
-      objForDetectType.v[3] = val.v[3];
-    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+    if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
       if (objForDetectType instanceof Matrix33) {
         obj = new MutableMatrix33((objForDetectType as any).v);
       }
@@ -420,6 +399,7 @@ export default class MathClassUtil {
       obj.m20 = val.m20;
       obj.m21 = val.m21;
       obj.m22 = val.m22;
+      return obj;
     } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
       objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
       if (objForDetectType instanceof Matrix44 || objForDetectType instanceof RowMajarMatrix44) {
@@ -441,15 +421,39 @@ export default class MathClassUtil {
       obj.m31 = val.m31;
       obj.m32 = val.m32;
       obj.m33 = val.m33;
+      return obj;
+    }
+
+    if (isFinite(objForDetectType)) { // number?
+      return val;
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+      objForDetectType.v[0] = val.v[0];
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
+    } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
     } else if (Array.isArray(objForDetectType)) {
-      for (let i=0; i<objForDetectType.length; i++) {
+      for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val.v[i];
       }
-      return objForDetectType;
     } else {
       console.error('Non supported type!');
       return void 0;
     }
+    return objForDetectType;
   }
 }
 
