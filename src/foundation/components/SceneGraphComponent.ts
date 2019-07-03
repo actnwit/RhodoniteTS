@@ -57,9 +57,7 @@ export default class SceneGraphComponent extends Component {
     this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
-    this.submitToAllocation();
-
-    //this.__updatedProperly = false;
+    this.submitToAllocation(this.maxNumberOfComponent);
 
   }
 

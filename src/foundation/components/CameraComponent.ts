@@ -19,6 +19,7 @@ import MutableVector4 from '../math/MutableVector4';
 import CameraControllerComponent from './CameraControllerComponent';
 import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
+import Config from '../core/Config';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();
@@ -54,6 +55,8 @@ export default class CameraComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
+
+    this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber/100));
 
     this.registerMember(BufferUse.CPUGeneric, 'eyeInner', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);

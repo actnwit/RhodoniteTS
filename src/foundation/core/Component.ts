@@ -15,6 +15,7 @@ import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
+import { thisExpression } from '@babel/types';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 
@@ -40,6 +41,7 @@ export default class Component extends RnObject {
   protected __entityUid: EntityUID;
   protected __memoryManager: MemoryManager;
   protected __entityRepository: EntityRepository;
+  private __maxComponentNumber: Count = Config.maxEntityNumber;
 
   /**
    * The constructor of the Component class.
@@ -78,6 +80,14 @@ export default class Component extends RnObject {
     });
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
+  }
+
+  set maxNumberOfComponent(value: number) {
+    this.__maxComponentNumber = value;
+  }
+
+  get maxNumberOfComponent() {
+    return this.__maxComponentNumber;
   }
 
   /**
@@ -363,7 +373,7 @@ export default class Component extends RnObject {
    * Allocate memory of self member fields
    * @param count a number of entities to need allocate
    */
-  submitToAllocation(count: Count = Config.maxEntityNumber) {
+  submitToAllocation(count: Count) {
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
