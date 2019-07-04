@@ -41,6 +41,11 @@ export default class Entity extends RnObject {
     return this.__entity_uid;
   }
 
+  /**
+   * @private
+   * Sets a component to this entity.
+   * @param component The component to set.
+   */
   _setComponent(component: Component) {
     this.__components[(component.constructor as any).componentTID] = component;
   }
@@ -54,6 +59,10 @@ export default class Entity extends RnObject {
     return this.__components[componentType.componentTID];
   }
 
+  /**
+   * Gets the component corresponding to the ComponentTID.
+   * @param componentTID The ComponentTID to get the component.
+   */
   getComponentByComponentTID(componentTID: ComponentTID): Component | null {
     return this.__components[componentTID];
   }
