@@ -63,9 +63,14 @@ export default class Material extends RnObject {
     return Array.from(this.__fieldsInfo.values())
   }
 
-  static createMaterial(materialTypeName: string) {
+  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
     if (Material.__materialTypes.has(materialTypeName)) {
-      const materialNodes = Material.__materialTypes.get(materialTypeName)!;
+      let materialNodes;
+      if (materialNodes_) {
+        materialNodes = materialNodes_;
+      } else {
+        materialNodes = Material.__materialTypes.get(materialTypeName)!;
+      }
       return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);
     }
 
