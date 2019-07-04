@@ -9,15 +9,15 @@ import RenderPass from "../renderer/RenderPass";
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
 import AbstractMaterialNode from "../materials/AbstractMaterialNode";
 
-function findOrCreateMaterial(materialName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
-  const material = Material.createMaterial(materialName);
+function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
+  const material = Material.createMaterial(materialName, materialNodes);
   if (material) {
     return material;
   }
 
-  Material.registerMaterial(materialName, materialNodes, maxInstancesNumber);
+  Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);
 
-  return Material.createMaterial(materialName)!;
+  return Material.createMaterial(materialName, materialNodes)!;
 }
 
 function createPbrUberMaterial(maxInstancesNumber?: number) {
