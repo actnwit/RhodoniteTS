@@ -157,7 +157,11 @@ export default class RnObject {
     }
   }
 
-  matchTagConbliedAsFree(stringArray: string[]) {
+  /**
+   * Comfirm that this object's tags includes given an array of string.
+   * @param stringArray an array of string.
+   */
+  matchTagsAsFreeStrings(stringArray: string[]) {
     let regExpStr = '^';
 
     for (let i=0; i<stringArray.length; i++) {
@@ -171,7 +175,11 @@ export default class RnObject {
     }
   }
 
-  matchTagConblied(tags: RnTags) {
+  /**
+   * Comfirm that this object's tags includes given set of tags.
+   * @param tags The set of tags.
+   */
+  matchTags(tags: RnTags) {
     let regExpStr = '^';
 
     for (let tagName in tags) {
