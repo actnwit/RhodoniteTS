@@ -374,7 +374,7 @@ export default class MathClassUtil {
       obj.m31 = val.m31;
       obj.m32 = val.m32;
       obj.m33 = val.m33;
-    } else if (Array.isArray(objForDetectType) || ArrayBuffer.isView(objForDetectType)) {
+    } else if (Array.isArray(objForDetectType) || ArrayBuffer.isView(objForDetectType) || ArrayBuffer.isView(objForDetectType.v)) {
       return objForDetectType;
     } else {
       console.error('Non supported type!');
@@ -449,6 +449,25 @@ export default class MathClassUtil {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val.v[i];
       }
+    } else if (!isNaN(objForDetectType.length)) {
+      obj = { v: new Float32Array(objForDetectType.length) };
+      for (let i = 0; i < objForDetectType.length; i++) {
+        if (Array.isArray(val)) {
+          obj.v[i] = val[i];
+        } else {
+          obj.v[i] = val.v[i];
+        }
+      }
+      return obj;
+    } else if (!isNaN(objForDetectType.v.length)) {
+      for (let i = 0; i < objForDetectType.v.length; i++) {
+        if (Array.isArray(val)) {
+          objForDetectType.v[i] = val[i];
+        } else {
+          objForDetectType.v[i] = val.v[i];
+        }
+      }
+      return objForDetectType;
     } else {
       console.error('Non supported type!');
       return void 0;
