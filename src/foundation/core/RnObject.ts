@@ -1,3 +1,7 @@
+
+/**
+ * The root class of the objects in Rhodonite
+ */
 export default class RnObject {
   private readonly __objectUid: ObjectUID = -1;
   private static __objects: RnObject[] = [];
@@ -18,14 +22,26 @@ export default class RnObject {
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
+
+  /**
+   * Gets the objectUID of the object.
+   */
   get objectUID(): ObjectUID {
     return this.__objectUid;
   }
 
+  /**
+   * Gets the object by corresponding to the objectUID.
+   * @param objectUid The objectUID of the object.
+   */
   static getRnObject(objectUid: ObjectUID) {
     return RnObject.__objects[objectUid];
   }
 
+  /**
+   * Gets the object by the unique name.
+   * @param uniqueName The unique name of the object.
+   */
   static getRnObjectByName(uniqueName: string) {
     return RnObject.__objectsByNameMap.get(uniqueName);
   }
@@ -56,6 +72,10 @@ export default class RnObject {
     }
   }
 
+  /**
+   * Validate the string of tags.
+   * @param val The string to be validated
+   */
   validateTagString(val: string) {
     var reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
     if(reg.test(val)) {
@@ -64,6 +84,11 @@ export default class RnObject {
     return true;
   }
 
+  /**
+   * Tries to set tag (name and value).
+   * @param tagName The tag name.
+   * @param tagValue Tha value of the tag.
+   */
   tryToSetTag(tagName: string, tagValue: string) {
     if (this.validateTagString(tagName)) {
       if (this.validateTagString(tagValue)) {
@@ -79,16 +104,28 @@ export default class RnObject {
     return false;
   }
 
+  /**
+   * Gets the value of the tag.
+   * @param tagName The tag name.
+   */
   getTagValue(tagName: string) {
     return this.__tags[tagName];
   }
 
+  /**
+   * Gets the tag object.
+   * @param tagName The tag name.
+   */
   getTag(tagName: string) {
     const tag :any = {};
     tag[tagName] = this.__tags[tagName];
     return tag;
   }
 
+  /**
+   * Gets the boolean value whether this object has the tag or not.
+   * @param tagName The tag name.
+   */
   hasTag(tagName: string) {
     if (this.__tags[tagName] != null) {
       return true;
@@ -97,12 +134,21 @@ export default class RnObject {
     }
   }
 
+  /**
+   * Remove the tag.
+   * @param tagName The tag name.
+   */
   removeTag(tagName: string) {
     const strToDelete = `${tagName}:${this.__tags[tagName]}` + ' ';
     this.__conbinedTagString.replace(this.__conbinedTagString, "");
     delete this.__tags[tagName];
   }
 
+  /**
+   * Confirms the matching of the tag name and tag value.
+   * @param tagName The tag name.
+   * @param tagValue The tag value.
+   */
   matchTag(tagName: string, tagValue: string) {
     if (this.__tags[tagName] === tagValue) {
       return true;
