@@ -12,6 +12,12 @@ import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
 
+/**
+ * The Mesh class.
+ * This mesh object has primitives (geometries) or a reference of 'original mesh'.
+ * If the latter, this mesh object is an 'instanced mesh', which has no primitives.
+ * Instanced meshes refer original mesh's primitives when drawing.
+ */
 export default class Mesh {
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
@@ -35,7 +41,10 @@ export default class Mesh {
     this.__meshUID = ++Mesh.__mesh_uid_count;
   }
 
-  static get originalMeshes() {
+  /**
+   * Gets original (Non instanced) meshes.
+   */
+  static get originalMeshes(): Mesh[] {
     return this.__originalMeshes;
   }
 
@@ -55,6 +64,11 @@ export default class Mesh {
     }
   }
 
+  /**
+   * @private
+   * Adds the other mesh to this mesh as instanced meshes.
+   * @param mesh The other mesh.
+   */
   _addMeshToInstanceArray(mesh: Mesh) {
     this.__instances.push(mesh);
     this.__instancesDirty = true;
