@@ -27,6 +27,10 @@ import Accessor from "../memory/Accessor";
 type MaterialTypeName = string;
 type PropertyName = string;
 
+/**
+ * The material class.
+ * This class has one or more material nodes.
+ */
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<PropertyName, any> = new Map();
@@ -55,6 +59,9 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  /**
+   * Gets materialTID.
+   */
   get materialTID() {
     return this.__materialTid;
   }
