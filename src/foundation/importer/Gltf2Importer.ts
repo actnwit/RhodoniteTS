@@ -4,12 +4,18 @@ import BufferView from "../memory/BufferView";
 
 declare var Rn: any;
 
+/**
+ * The glTF2 Importer class.
+ */
 export default class Gltf2Importer {
   private static __instance: Gltf2Importer;
 
   private constructor() {
   }
 
+  /**
+   * Import glTF2 file or arraybuffers.
+   */
   async import(uri: string,  options: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {

@@ -7,6 +7,9 @@ import Vector4 from "../math/Vector4";
 
 declare var window: any;
 
+/**
+ * The glTF2 format Exporter class.
+ */
 export default class Gltf2Exporter {
   private static __instance: Gltf2Exporter;
   private static __entityRepository = EntityRepository.getInstance();
@@ -21,6 +24,10 @@ export default class Gltf2Exporter {
     return this.__instance;
   }
 
+  /**
+   * Exports All scene data in the rhodonite system as glTF2 format.
+   * @param filename 
+   */
   export(filename: string) {
     const entities = Gltf2Exporter.__entityRepository._getEntities();
     const json: any = {

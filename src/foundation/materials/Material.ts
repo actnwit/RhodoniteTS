@@ -27,6 +27,10 @@ import Accessor from "../memory/Accessor";
 type MaterialTypeName = string;
 type PropertyName = string;
 
+/**
+ * The material class.
+ * This class has one or more material nodes.
+ */
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<PropertyName, any> = new Map();
@@ -55,6 +59,9 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  /**
+   * Gets materialTID.
+   */
   get materialTID() {
     return this.__materialTid;
   }
@@ -63,6 +70,12 @@ export default class Material extends RnObject {
     return Array.from(this.__fieldsInfo.values())
   }
 
+
+  /**
+   * Creates an instance of this Material class.
+   * @param materialTypeName The material type to create.
+   * @param materialNodes_ The material nodes to add to the created materlal.
+   */
   static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
     if (Material.__materialTypes.has(materialTypeName)) {
       let materialNodes;
@@ -113,6 +126,12 @@ export default class Material extends RnObject {
     return bufferView;
   }
 
+  /**
+   * Registers the material type.
+   * @param materialTypeName The type name of the material.
+   * @param materialNodes The material nodes to register.
+   * @param maxInstancesNumber The maximum number to create the material instances.
+   */
   static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber: number = Config.maxMaterialInstanceForEachType) {
     if (!Material.__materialTypes.has(materialTypeName)) {
       Material.__materialTypes.set(materialTypeName, materialNodes);

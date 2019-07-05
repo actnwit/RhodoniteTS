@@ -29,6 +29,10 @@ export default class EntityRepository {
 
   }
 
+  /**
+   * Creates an entity which has the given types of the components
+   * @param componentClasses The class objects of the components.
+   */
   createEntity(componentClasses: Array<typeof Component>): Entity {
     const entity = new Entity(++this.__entity_uid_count, true);
     this.__entities[this.__entity_uid_count] = entity;
@@ -36,6 +40,11 @@ export default class EntityRepository {
     return this.addComponentsToEntity(componentClasses, entity.entityUID);
   }
 
+  /**
+   * Add components to the entity.
+   * @param componentClasses The class objects to set to the entity.
+   * @param entityUid The entityUID of the entity.
+   */
   addComponentsToEntity(componentClasses: Array<typeof Component>, entityUid: EntityUID) {
     const entity: Entity = this.getEntity(entityUid);
 
@@ -55,6 +64,11 @@ export default class EntityRepository {
     return entity;
   }
 
+  /**
+   * Remove components from the entity.
+   * @param componentClasses The class object of the components to remove.
+   * @param entityUid The entityUID of the entity.
+   */
   removeComponentsFromEntity(componentClasses: Array<typeof Component>, entityUid: EntityUID) {
     const entity: Entity = this.getEntity(entityUid);
 
@@ -70,10 +84,19 @@ export default class EntityRepository {
     return entity;
   }
 
+  /**
+   * Gets the entity corresponding to the entityUID.
+   * @param entityUid The entityUID of the entity.
+   */
   getEntity(entityUid: EntityUID) {
     return this.__entities[entityUid];
   }
 
+  /**
+   * Gets the specified component from the entity.
+   * @param entityUid The entity to get the component from.
+   * @param componentType The class object of the component to get.
+   */
   getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null {
     const entity = this._components[entityUid];
     let component = null;
@@ -88,16 +111,24 @@ export default class EntityRepository {
     return component;
   }
 
+  /**
+   * Search entities by the given tags.
+   * @param tags The tags to search
+   */
   searchByTags(tags: RnTags) {
     const matchEntites = [];
     for (let entity of this.__entities) {
-      if (entity.matchTagConblied(tags)) {
+      if (entity.matchTags(tags)) {
         matchEntites.push(entity);
       }
     }
     return matchEntites;
   }
 
+  /**
+   * Gets entity by the unique name.
+   * @param uniqueName The unique name of the entity.
+   */
   getEntityByUniqueName(uniqueName: string) {
     for (let entity of this.__entities) {
       if (entity.uniqueName === uniqueName) {
@@ -107,10 +138,17 @@ export default class EntityRepository {
     return void 0;
   }
 
+  /**
+   * @private
+   * Gets all entities.
+   */
   _getEntities() {
     return this.__entities.concat();
   }
 
+  /**
+   * Gets the number of all entities.
+   */
   getEntitiesNumber() {
     return this.__entities.length;
   }

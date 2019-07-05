@@ -3,6 +3,9 @@ import is from '../misc/IsUtil';
 import EntityRepository from './EntityRepository';
 import Config from './Config';
 
+/**
+ * The class that generates and manages all kinds of components.
+ */
 export default class ComponentRepository {
   private static __instance: ComponentRepository;
   private __component_sid_count_map: Map<ComponentTID, number>;
@@ -25,6 +28,9 @@ export default class ComponentRepository {
     thisClass.__componentClasses.delete(componentTID);
   }
 
+  /**
+   * Gets the singleton instance of the ComponentRepository.
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new ComponentRepository();
@@ -32,10 +38,20 @@ export default class ComponentRepository {
     return this.__instance;
   }
 
+  /**
+   * Gets the class object of the component corresponding to specified ComponentTID.
+   * @param componentTid The componentTID to get the class object.
+   */
   static getComponentClass(componentTid: ComponentTID) {
     return this.__componentClasses.get(componentTid);
   }
 
+  /**
+   * Creates an instance of the component for the entity.
+   * @param componentTid The componentTID to create the instance.
+   * @param entityUid The entityUID of the entity.
+   * @param entityRepository the reference of the entityRepository.
+   */
   createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
@@ -65,10 +81,20 @@ export default class ComponentRepository {
     return null;
   }
 
+  /**
+   * Get the instance of the component corresponding to the component class and componentSID.
+   * @param componentClass The class object to get the component.
+   * @param componentSid The componentSID to get the component.
+   */
   getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
     return this.getComponentFromComponentTID(componentClass.componentTID, componentSid);
   }
 
+  /**
+   * Get the instance of the component corresponding to the componentTID and componentSID.
+   * @param componentTid The componentTID to get the component.
+   * @param componentSid The componentSID to get the component.
+   */
   getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID) {
     const map = this.__components.get(componentTid);
     if (map != null) {
@@ -82,6 +108,11 @@ export default class ComponentRepository {
     return null;
   }
 
+  /**
+   * @private
+   * Gets an array of components corresponding to the class object of the component.
+   * @param componentClass The class object of the component.
+   */
   _getComponents(componentClass: typeof Component): Array<Component>|undefined {
     return this.__components.get(componentClass.componentTID);
   }
@@ -99,6 +130,10 @@ export default class ComponentRepository {
     return memoryBeginIndex;
   }
 
+  /**
+   * Gets an array of components corresponding to the class object of the component.
+   * @param componentType The class object of the component.
+   */
   getComponentsWithType(componentType: typeof Component): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
     if (components == null) {
@@ -107,6 +142,9 @@ export default class ComponentRepository {
     return components;
   }
 
+  /**
+   * Gets all componentTIDs.
+   */
   getComponentTIDs(): Array<ComponentTID> {
     const indices = [];
     for (let type of this.__components.keys()) {

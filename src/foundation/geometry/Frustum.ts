@@ -8,6 +8,9 @@ import { Visibility } from "../definitions/visibility";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import AABB from "../math/AABB";
 
+/**
+ * The view frustum class.
+ */
 export default class Frustum {
   public top = MutableVector4.zero();
   public bottom = MutableVector4.zero();
@@ -22,6 +25,11 @@ export default class Frustum {
 
   }
 
+  /**
+   * Updates this view frustum data from the view and projection matrices.
+   * @param viewMatrix The view matrix.
+   * @param projectionMatrix The projection matrix.
+   */
   update(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     Matrix44.multiplyTo(projectionMatrix, viewMatrix, this.__vp);
 
@@ -63,6 +71,12 @@ export default class Frustum {
 
   }
 
+  /**
+   * Do clipping test (Inside / outside / neutral) of the plane of the view frustum.
+   * @param plane The plane of the view frustum.
+   * @param point The point to test.
+   * @param bias The bias value.
+   */
   clipping(plane: Vector4, point: Vector3, bias: number) {
     const dot = Vector3.dotProduct(plane as any as Vector3, point);
     const d = dot + plane.w;
@@ -75,6 +89,10 @@ export default class Frustum {
     }
   }
 
+  /**
+   * Do culling test (Inside / outside / neutral) of the entity against to the view frustum.
+   * @param sg The SceneGraphComponent object of the entity.
+   */
   culling(sg: SceneGraphComponent) {
     const aabb = sg.worldAABB;
     const center = aabb.centerPoint;
