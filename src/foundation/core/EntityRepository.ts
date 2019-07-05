@@ -118,7 +118,7 @@ export default class EntityRepository {
   searchByTags(tags: RnTags) {
     const matchEntites = [];
     for (let entity of this.__entities) {
-      if (entity.matchTagConblied(tags)) {
+      if (entity.matchTags(tags)) {
         matchEntites.push(entity);
       }
     }

@@ -74,6 +74,10 @@ export default class Mesh {
     this.__instancesDirty = true;
   }
 
+  /**
+   * Adds primitive.
+   * @param primitive The primitive object.
+   */
   addPrimitive(primitive: Primitive) {
     this.__instanceOf = void 0;
     this.__instanceIdx = 0;
@@ -88,6 +92,10 @@ export default class Mesh {
     Mesh.__originalMeshes.push(this);
   }
 
+  /**
+   * Sets mesh.
+   * @param mesh The mesh.
+   */
   setMesh(mesh: Mesh) {
     if (mesh.isInstanceMesh()) {
       console.error(`Don't set InstanceMesh.`);
@@ -104,6 +112,9 @@ export default class Mesh {
     return true;
   }
 
+  /**
+   * Gets true if these primitives are all 'Blend' type
+   */
   isAllBlend(): boolean {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.isAllBlend();
@@ -116,6 +127,9 @@ export default class Mesh {
     }
   }
 
+  /**
+   * Gets true if some primitives are 'Blend' type
+   */
   isBlendPartially(): boolean {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.isBlendPartially();
@@ -128,6 +142,9 @@ export default class Mesh {
     }
   }
 
+  /**
+   * Gets true if these primitives are all 'Opaque' type
+   */
   isOpaque(): boolean {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.isOpaque();
@@ -489,6 +506,9 @@ export default class Mesh {
     }
   }
 
+  /**
+   * Gets AABB in local space.
+   */
   get AABB() {
     if (this.__localAABB.isVanilla()) {
       for (let primitive of this.__primitives) {
