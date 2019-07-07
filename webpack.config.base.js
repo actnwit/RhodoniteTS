@@ -7,6 +7,14 @@ module.exports = {
         test: /\.ts$/,
         exclude: [/node_modules/],
         loader: 'ts-loader'
+      },
+      {
+        test: /\.(glsl|vs|fs|vert|frag)$/,
+        exclude: /node_modules/,
+        use: [
+          'raw-loader',
+          'glslify-loader'
+        ]
       }
     ]
   },
