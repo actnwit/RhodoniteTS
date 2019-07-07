@@ -21,6 +21,7 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import FXAA3QualityShader from "../../webgl/shaders/FXAA3Quality";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -37,6 +38,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         semantic: ShaderSemantics.BaseColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -50,6 +52,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         semantic: ShaderSemantics.ScreenInfo,
         compositionType: CompositionType.Vec2,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,

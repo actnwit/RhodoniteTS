@@ -6,6 +6,7 @@ import WireframeShader from "../../webgl/shaders/WireframeShader";
 import Vector3 from "../math/Vector3";
 import ClassicShadingShader from "../../webgl/shaders/ClassicShadingShader";
 import { ShadingModel } from "../definitions/ShadingModel";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
 
@@ -17,6 +18,7 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.Shininess,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
         isPlural: false,
@@ -27,6 +29,7 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.ShadingModel,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
         isPlural: false,

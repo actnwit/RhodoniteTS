@@ -22,6 +22,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
 import GammaCorrectionShader from "../../webgl/shaders/GammaCorrectionShader";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -38,6 +39,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
         semantic: ShaderSemantics.BaseColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
         isPlural: false,

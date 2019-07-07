@@ -2,6 +2,7 @@ import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 import { CompositionType } from "./CompositionType";
 import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
+import { ShaderTypeEnum } from "./ShaderType";
 
 export interface ShaderSemanticsEnum extends EnumIO {
   singularStr: string;
@@ -85,7 +86,7 @@ function fromString(str: string): ShaderSemanticsEnum {
 export type ShaderSemanticsInfo = {
   semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count,
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum
+  isSystem: boolean, initialValue?: any, updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum
 };
 
 

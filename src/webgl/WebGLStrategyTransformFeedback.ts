@@ -24,6 +24,7 @@ import ClassicShaderader from "./shaders/ClassicShader";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import { ShaderType } from "../foundation/definitions/ShaderType";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -159,8 +160,10 @@ void main(){
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
+            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
           ]);
       }
     }
