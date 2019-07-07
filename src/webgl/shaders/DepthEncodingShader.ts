@@ -6,10 +6,11 @@ import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ComponentRepository from '../../foundation/core/ComponentRepository';
 import CameraComponent from '../../foundation/components/CameraComponent';
+import ISingleShader from "./ISingleShader";
 
 export type AttributeNames = Array<string>;
 
-export default class DepthEncodingShader extends GLSLShader {
+export default class DepthEncodingShader extends GLSLShader implements ISingleShader {
   static __instance: DepthEncodingShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -52,7 +53,7 @@ uniform float u_pointSize;
   gl_Position = v_position_inLocal;
   `;
 
-  get fragmentShaderSimple() {
+  getFragmentShader() {
     const _in = this.glsl_fragment_in;
 
     const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -96,8 +97,8 @@ void main ()
     return '';
   }
 
-  get pixelShaderBody() {
-    return this.fragmentShaderSimple;
+  getPixelShaderBody() {
+    return this.getFragmentShader();
   }
 
   attributeNames: AttributeNames = ['a_position'];

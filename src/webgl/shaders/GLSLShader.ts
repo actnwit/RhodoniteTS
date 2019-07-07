@@ -120,6 +120,10 @@ export default abstract class GLSLShader {
     `
   }
 
+  getGlslVertexShaderProperies(str: string = '') {
+    return str;
+  }
+
   get glsl1ShaderTextureLodExt() {
     const ext = WebGLResourceRepository.getInstance().currentWebGLContextWrapper!.webgl1ExtSTL;
     return (ext != null) ? '#extension GL_EXT_shader_texture_lod : require' : '';
@@ -510,7 +514,6 @@ export default abstract class GLSLShader {
   abstract get vertexShaderDefinitions(): string;
   abstract get pixelShaderDefinitions(): string;
   abstract get vertexShaderBody(): string;
-  abstract get pixelShaderBody(): string;
   abstract get attributeNames(): AttributeNames;
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;

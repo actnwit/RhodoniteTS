@@ -35,6 +35,7 @@ import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "
 import Vector4 from "../foundation/math/Vector4";
 import Vector2 from "../foundation/math/Vector2";
 import Mesh from "../foundation/geometry/Mesh";
+import MemoryManager from "../foundation/core/MemoryManager";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -91,6 +92,21 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       return;
     }
 
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+      const returnType = info.compositionType.getGlslStr(info.componentType);
+      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        return '';
+      }
+      let str = `
+      ${returnType} get_${memberName}(float instanceId) {
+          return u_${memberName};
+        }
+      `
+      return str;
+    };
+
+
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -103,7 +119,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         const gl = glw.getRawContext();
 
         // Shader Setup
-        material.createProgram(this.vertexShaderMethodDefinitions_uniform);
+        material.createProgram(this.vertexShaderMethodDefinitions_uniform, getShaderProperty);
 
         let args: ShaderSemanticsInfo[] = [
           {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },

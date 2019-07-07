@@ -1,9 +1,8 @@
 import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
-import Config from "../../foundation/core/Config";
-import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
+import ISingleShader from "./ISingleShader";
 
 export type AttributeNames = Array<string>;
 
@@ -14,7 +13,7 @@ export type AttributeNames = Array<string>;
  * The modification for GLSL 100 is referred from Three.js, https://github.com/mrdoob/three.js/blob/5ba4c25bcb74577e1b1e14906f345135610a94f3/examples/js/shaders/FXAAShader.js
  * The original FXAA code is https://github.com/NVIDIAGameWorks/GraphicsSamples/blob/80e8ba8f5e8935821513207033490735dd3279d8/samples/es3-kepler/FXAA/FXAA3_11.h
  */
-export default class FXAA3QualityShader extends GLSLShader {
+export default class FXAA3QualityShader extends GLSLShader implements ISingleShader {
   static instance: FXAA3QualityShader;
 
   private constructor() {
@@ -53,7 +52,7 @@ ${_out} vec2 v_texcoord;
   gl_Position = projectionMatrix * viewMatrix * position_inWorld;
   `;
 
-  get fragmentShaderSimple() {
+  getFragmentShader() {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -1223,8 +1222,8 @@ void main() {
 
   }
 
-  get pixelShaderBody() {
-    return this.fragmentShaderSimple;
+  getPixelShaderBody() {
+    return this.getFragmentShader();
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];

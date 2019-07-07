@@ -4,10 +4,11 @@ import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
+import ISingleShader from "./ISingleShader";
 
 export type AttributeNames = Array<string>;
 
-export default class ClassicShader extends GLSLShader {
+export default class ClassicShader extends GLSLShader implements ISingleShader {
   static __instance: ClassicShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -79,7 +80,7 @@ ${this.pointDistanceAttenuation}
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
   `;
 
-  get fragmentShaderSimple() {
+  getFragmentShader(args: Object) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -206,8 +207,8 @@ void main ()
     return '';
   }
 
-  get pixelShaderBody() {
-    return this.fragmentShaderSimple;
+  getPixelShaderBody(args: Object) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];

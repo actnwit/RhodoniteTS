@@ -23,6 +23,7 @@ import { BufferUse } from "../definitions/BufferUse";
 import Config from "../core/Config";
 import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
+import ISingleShader from "../../webgl/shaders/ISingleShader";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -254,8 +255,8 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
+    let propertiesStr = '';
     if (propertySetter) {
-      let propertiesStr = "";
       this.__fields.forEach((value, key) => {
         const info = this.__fieldsInfo.get(key);
         propertiesStr += propertySetter(this.__materialTypeName, info!, key);
@@ -271,10 +272,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 ` +
       vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderDefinitions +
+//      glslShader.getGlslVertexShaderProperies(propertiesStr) +
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = glslShader.pixelShaderBody;
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody();
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 

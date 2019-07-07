@@ -122,9 +122,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           str += `        vec2 val = col0.xy;`; break;
         case CompositionType.Scalar:
           if (info.componentType === ComponentType.Int) {
-            str += `        float val = col0.x;`; break;
-          } else {
             str += `        int val = int(col0.x);`; break;
+          } else {
+            str += `        float val = col0.x;`; break;
           }
         case CompositionType.Mat4:
           str += `
