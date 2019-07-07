@@ -21,6 +21,7 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -37,6 +38,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         semantic: ShaderSemantics.DiffuseColorFactor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
         isPlural: false,
@@ -48,6 +50,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         semantic: ShaderSemantics.ColorEnvTexture,
         compositionType: CompositionType.TextureCube,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -61,6 +64,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         semanticStr: 'envRotation',
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
         isPlural: false,

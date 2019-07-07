@@ -20,6 +20,7 @@ import Vector3 from "../math/Vector3";
 import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -40,6 +41,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.DiffuseColorFactor,
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
         isPlural: false,
@@ -51,6 +53,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.DiffuseColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -64,6 +67,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.SpecularColorFactor,
         compositionType: CompositionType.Vec2,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
         isPlural: false,
@@ -75,6 +79,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.SpecularColorTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -88,6 +93,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.NormalTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -101,6 +107,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.OcclusionTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -114,6 +121,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.EmissiveTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,
@@ -127,6 +135,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.Shininess,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
         isPlural: false,
@@ -137,6 +146,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.Wireframe,
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
         isPlural: false,
@@ -147,6 +157,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.ShadingModel,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
         isPlural: false,

@@ -5,6 +5,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import WireframeShader from "../../webgl/shaders/WireframeShader";
 import Vector3 from "../math/Vector3";
 import TextureFetchShader from "../../webgl/shaders/TextureFetchShader";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class TextureFetchMaterialNode extends AbstractMaterialNode {
 
@@ -17,6 +18,7 @@ export default class TextureFetchMaterialNode extends AbstractMaterialNode {
         semantic: ShaderSemantics.GeneralTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
         isPlural: false,

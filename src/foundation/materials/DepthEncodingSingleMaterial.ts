@@ -21,6 +21,7 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import DepthEncodingShader from "../../webgl/shaders/DepthEncodingShader";
 import AbstractTexture from "../textures/AbstractTexture";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -37,9 +38,10 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
         semantic: ShaderSemantics.PointSize,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 100,
-      isPlural: false,
+        isPlural: false,
         isSystem: false,
         initialValue: 100.0
       },
@@ -47,6 +49,7 @@ export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNod
         semantic: ShaderSemantics.PointDistanceAttenuation,
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
         isPlural: false,

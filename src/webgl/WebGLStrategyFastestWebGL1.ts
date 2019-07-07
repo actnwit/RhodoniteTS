@@ -23,6 +23,7 @@ import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import Mesh from "../foundation/geometry/Mesh";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import ComponentRepository from "../foundation/core/ComponentRepository";
+import { ShaderType } from "../foundation/definitions/ShaderType";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -171,8 +172,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
+            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},
+            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
           ]);
       }
     }

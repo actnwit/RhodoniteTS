@@ -7,6 +7,7 @@ import GetVarsShader from "../../webgl/shaders/GetVarsShader";
 import { AttributeNames } from "../../webgl/shaders/GLSLShader";
 import { VertexAttributeEnum, CompositionTypeEnum } from "../main";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
+import { ShaderType } from "../definitions/ShaderType";
 
 export default class GetVarsMaterialNode extends AbstractMaterialNode {
   constructor() {
@@ -23,6 +24,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({
         semantic: inShaderSocket.name,
+        stage: ShaderType.VertexShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         isPlural: false,
@@ -39,6 +41,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({
         semantic: inShaderSocket.name,
+        stage: ShaderType.PixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         isPlural: false,
