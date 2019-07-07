@@ -46,7 +46,7 @@ ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
-${this.processSkinning}
+${this.processGeometryWithSkinningOptionally}
 
 ${this.pointSize}
 

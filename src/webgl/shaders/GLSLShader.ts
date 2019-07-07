@@ -260,7 +260,7 @@ export default abstract class GLSLShader {
     `;
   }
 
-  get processSkinning() {
+  get processGeometryWithSkinningOptionally() {
 
     return `
     uniform int u_skinningMode;
