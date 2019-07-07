@@ -1,7 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "../WebGLResourceRepository";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
-import { ShaderSemantics, ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../../foundation/definitions/ShaderSemantics";
 import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
@@ -118,6 +118,10 @@ export default abstract class GLSLShader {
     return `
     }
     `
+  }
+
+  getGlslVertexShaderProperies(str: string = '') {
+    return str;
   }
 
   get glsl1ShaderTextureLodExt() {
@@ -510,7 +514,6 @@ export default abstract class GLSLShader {
   abstract get vertexShaderDefinitions(): string;
   abstract get pixelShaderDefinitions(): string;
   abstract get vertexShaderBody(): string;
-  abstract get pixelShaderBody(): string;
   abstract get attributeNames(): AttributeNames;
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;

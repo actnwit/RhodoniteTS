@@ -25,4 +25,9 @@ const isObject = function(o: any) {
   return (o instanceof Object && !(o instanceof Array)) ? true : false;
 };
 
-export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject });
+// https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused
+const fillTemplate = function(templateString: string, templateVars: string){
+  return new Function("return `"+templateString +"`;").call(templateVars);
+}
+
+export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate });

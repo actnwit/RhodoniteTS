@@ -23,9 +23,13 @@ import { BufferUse } from "../definitions/BufferUse";
 import Config from "../core/Config";
 import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
+import ISingleShader from "../../webgl/shaders/ISingleShader";
 
 type MaterialTypeName = string;
 type PropertyName = string;
+
+type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => string;
+
 
 /**
  * The material class.
@@ -103,7 +107,7 @@ export default class Material extends RnObject {
       }
     }
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: sumSizeInByte * Material.__maxInstances.get(materialTypeName)!,
       byteStride: 0,
@@ -246,10 +250,20 @@ export default class Material extends RnObject {
     });
   }
 
-  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string) {
+  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
+
+    let propertiesStr = '';
+    if (propertySetter) {
+      this.__fields.forEach((value, key) => {
+        const info = this.__fieldsInfo.get(key);
+        propertiesStr += propertySetter(this.__materialTypeName, info!, key);
+      });
+      console.log('propertiesStr', propertiesStr);
+    }
+
 
     // Shader Construction
     let vertexShader = glslShader.glslBegin +
@@ -258,10 +272,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 ` +
       vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderDefinitions +
+//      glslShader.getGlslVertexShaderProperies(propertiesStr) +
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = glslShader.pixelShaderBody;
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody();
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 
@@ -587,10 +602,10 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     return { vertexShader, pixelShader, attributeNames, attributeSemantics };
   }
 
-  createProgram(vertexShaderMethodDefinitions_uniform: string) {
+  createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
 
     if (this.__materialNodes[0].isSingleOperation) {
-      return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform);
+      return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
     } else {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
@@ -622,5 +637,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     } else {
       return false;
     }
+  }
+
+  static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, memberName: string) {
+    const properties = this.__accessors.get(materialTypeName);
+    const accessor = properties!.get(memberName);
+    return accessor!.byteOffsetInBuffer / 4 / 4;
   }
 }

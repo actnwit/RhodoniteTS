@@ -6,10 +6,11 @@ import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ComponentRepository from '../../foundation/core/ComponentRepository';
 import CameraComponent from '../../foundation/components/CameraComponent';
+import ISingleShader from "./ISingleShader";
 
 export type AttributeNames = Array<string>;
 
-export default class ShadowMapping32bitClassicShader extends GLSLShader {
+export default class ShadowMapping32bitClassicShader extends GLSLShader implements ISingleShader {
   static __instance: ShadowMapping32bitClassicShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
@@ -98,7 +99,7 @@ ${this.pointDistanceAttenuation}
   v_texcoord_1 = tMatrix * v_projPosition_from_light;
   `;
 
-  get fragmentShaderSimple() {
+  getFragmentShader() {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -260,8 +261,8 @@ void main ()
     return '';
   }
 
-  get pixelShaderBody() {
-    return this.fragmentShaderSimple;
+  getPixelShaderBody() {
+    return this.getFragmentShader();
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord_0', 'a_joint', 'a_weight', 'a_instanceID', 'a_texcoord_1'];
