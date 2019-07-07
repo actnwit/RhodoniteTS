@@ -14,7 +14,7 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
-import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
@@ -101,6 +101,64 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return;
     }
 
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+      const returnType = info.compositionType.getGlslStr(info.componentType);
+      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+      let str = `
+      ${returnType} get_${memberName}(float instanceId) {
+
+        float index = ${index}.0 + 4.0 * instanceId;
+        float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+        float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+        vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+        vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
+`;
+      switch(info.compositionType) {
+        case CompositionType.Vec4:
+          str += `        vec4 val = col0;`; break;
+        case CompositionType.Vec3:
+          str += `        vec3 val = col0.xyz;`; break;
+        case CompositionType.Vec2:
+          str += `        vec2 val = col0.xy;`; break;
+        case CompositionType.Scalar:
+          if (info.componentType === ComponentType.Int) {
+            str += `        float val = col0.x;`; break;
+          } else {
+            str += `        int val = int(col0.x);`; break;
+          }
+        case CompositionType.Mat4:
+          str += `
+          vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
+          vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+          mat4 val = mat4(
+            col0.x, col1.x, col2.x, 0.0,
+            col0.y, col1.y, col2.y, 0.0,
+            col0.z, col1.z, col2.z, 0.0,
+            col0.w, col1.w, col2.w, 1.0
+            );
+          `; break;
+        case CompositionType.Mat4:
+          str += `
+          vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
+          vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+          mat3 val = mat3(
+            col0.x, col0.w, col1.z,
+            col0.y, col1.x, col1.w,
+            col0.z, col1.y, col2.x,
+            );
+          `; break;
+        default:
+          // console.error('unknown composition type', info.compositionType.str, memberName);
+          return '';
+      }
+
+      str += `
+          return val;
+        }
+      `
+      return str;
+    };
+
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
@@ -110,7 +168,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           return;
         }
 
-        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture);
+        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
             {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true},

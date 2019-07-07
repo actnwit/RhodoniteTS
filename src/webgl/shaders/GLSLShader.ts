@@ -1,7 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "../WebGLResourceRepository";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
-import { ShaderSemantics, ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../../foundation/definitions/ShaderSemantics";
 import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
 
 export type AttributeNames = Array<string>;
