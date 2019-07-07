@@ -1,4 +1,6 @@
 
+const webpack = require('webpack');
+
 module.exports = {
   entry: './src/foundation/main.ts',
   mode: 'development',
@@ -26,5 +28,10 @@ module.exports = {
   },
    optimization: {
      namedChunks: true
-  }
+  },
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
+  ]
 };
