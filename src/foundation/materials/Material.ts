@@ -24,6 +24,7 @@ import Config from "../core/Config";
 import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
+import { ShaderType } from "../definitions/ShaderType";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -255,13 +256,17 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let propertiesStr = '';
+    let vertexPropertiesStr = '';
+    let pixelPropertiesStr = '';
     if (propertySetter) {
       this.__fields.forEach((value, key) => {
         const info = this.__fieldsInfo.get(key);
-        propertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        if (info!.stage === ShaderType.VertexShader) {
+          vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        } else if (info!.stage === ShaderType.PixelShader) {
+          pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        }
       });
-      console.log('propertiesStr', propertiesStr);
     }
 
 
@@ -272,11 +277,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 ` +
       vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderDefinitions +
-//      glslShader.getGlslVertexShaderProperies(propertiesStr) +
+      glslShader.getGlslVertexShaderProperies(vertexPropertiesStr) +
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody();
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({propeties: pixelPropertiesStr});
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 

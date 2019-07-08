@@ -80,7 +80,7 @@ ${this.pointDistanceAttenuation}
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
   `;
 
-  getFragmentShader(args: Object) {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -115,6 +115,8 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
+
+  ${(typeof args.properties !== 'undefined') ? args.properties : '' }
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
