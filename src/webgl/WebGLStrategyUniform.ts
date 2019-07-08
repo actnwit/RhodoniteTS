@@ -99,9 +99,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         return '';
       }
+
       let str = `
       ${returnType} get_${memberName}(float instanceId) {
-          return u_${memberName};
+          return u_${ShaderSemantics.fullSemanticStr(info)};
         }
       `
       return str;

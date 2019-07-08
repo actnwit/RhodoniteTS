@@ -94,6 +94,27 @@ function infoToString(semanticInfo: ShaderSemanticsInfo): string|undefined {
   return (semanticInfo.semantic != null) ? semanticInfo.semantic.str : semanticInfo.semanticStr;
 }
 
+function infoToPluralString(semanticInfo: ShaderSemanticsInfo): string|undefined {
+  return (semanticInfo.semantic != null) ? semanticInfo.semantic.pluralStr : semanticInfo.semanticStr;
+}
+
+
+function fullSemanticStr(info: ShaderSemanticsInfo) {
+  let prefix = '';
+  if (info.prefix != null) {
+    prefix = info.prefix;
+  }
+  return prefix+infoToString(info);
+}
+
+function fullSemanticPluralStr(info: ShaderSemanticsInfo) {
+  let prefix = '';
+  if (info.prefix != null) {
+    prefix = info.prefix;
+  }
+  return prefix+infoToPluralString(info);
+}
+
 export const ShaderSemantics = Object.freeze({
   WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
@@ -101,5 +122,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, infoToString
+  from, fromString, infoToString, fullSemanticStr, fullSemanticPluralStr
 });

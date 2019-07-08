@@ -113,10 +113,11 @@ ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
+
 void main ()
 {
-
-  ${(typeof args.properties !== 'undefined') ? args.properties : '' }
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);

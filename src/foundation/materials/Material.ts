@@ -281,7 +281,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({propeties: pixelPropertiesStr});
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({getters: pixelPropertiesStr});
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 

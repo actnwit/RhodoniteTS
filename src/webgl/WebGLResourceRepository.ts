@@ -11,7 +11,7 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
 import Component from "../foundation/core/Component";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import IRenderable from "../foundation/textures/IRenderable";
@@ -315,27 +315,20 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     for (let data of dataArray) {
-      let prefix = '';
-      if (data.prefix != null) {
-        prefix = data.prefix;
-      }
       let semanticSingular: string;
-      let semanticPlural: string;
       if (data.semantic) {
         semanticSingular = data.semantic.singularStr;
-        semanticPlural = data.semantic.pluralStr;
       } else {
         semanticSingular = data.semanticStr!;
-        semanticPlural = data.semanticStr!;
       }
 
       let identifier = semanticSingular;
 
       let location;
       if (data.isPlural) {
-        location = gl.getUniformLocation(shaderProgram, 'u_' + prefix + semanticPlural);
+        location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticPluralStr(data));
       } else {
-        location = gl.getUniformLocation(shaderProgram, 'u_' + prefix + semanticSingular);
+        location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticStr(data));
       }
 
       if (data.index != null) {
