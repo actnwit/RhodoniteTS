@@ -30,6 +30,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __shaderProgram: WebGLProgram;
 
   private constructor(){}
 
@@ -407,17 +408,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           continue;
         }
 
+        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
         if (shaderProgramUid !== this.__lastShader) {
           const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
           gl.useProgram(shaderProgram);
 
-          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
-          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
           var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
           gl.uniform1i(uniform_dataTexture, 0);
+          WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
         }
         this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
-        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
@@ -428,6 +428,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         this.__lastShader = shaderProgramUid;
       }
     }
+    const shaderProgram = WebGLStrategyFastestWebGL1.__shaderProgram;
+    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
+    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     return false;
   }
