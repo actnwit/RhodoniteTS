@@ -118,7 +118,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           offset = 3;
           break;
         default:
-          console.error('unknown composition type', info.compositionType.str, memberName);
+          // console.error('unknown composition type', info.compositionType.str, memberName);
           // return '';
       }
 
@@ -431,7 +431,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
           var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
           gl.uniform1i(uniform_dataTexture, 0);
-          this.__materialSIDLocation = gl.getUniformLocation(WebGLStrategyFastestWebGL1.__shaderProgram, 'u_materialSID');
+          this.__materialSIDLocation = gl.getUniformLocation(shaderProgram, 'u_materialSID');
 
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
         }
