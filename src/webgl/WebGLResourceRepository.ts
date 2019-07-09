@@ -442,13 +442,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       } else {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value.v }, { firstTime: firstTime }, index);
       }
-    } else {
+    } else if (info.compositionType !== CompositionType.Scalar) {
       if (typeof value.v === 'undefined') {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, value, { firstTime: firstTime }, index);
       } else {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value.v }, { firstTime: firstTime }, index);
       }
+    } else {
+      // if CompositionType.Scalar, then...
+      if (typeof value.v === 'undefined') {
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value }, { firstTime: firstTime }, index);
+      } else {
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value.v }, { firstTime: firstTime }, index);
+      }
     }
+
     if (updated && value[0] != null && value[1] != null) {
       if (info.compositionType === CompositionType.Texture2D) {
         this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
