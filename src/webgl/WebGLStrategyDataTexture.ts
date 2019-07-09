@@ -198,10 +198,10 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
   common_$prerender(): void {
     let isHalfFloatMode = false;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-      this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-      isHalfFloatMode = true;
-    }
+    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
+    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+    //   isHalfFloatMode = true;
+    // }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
