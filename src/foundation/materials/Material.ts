@@ -2,7 +2,7 @@ import RnObject from "../core/RnObject";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
-import { AlphaMode } from "../definitions/AlphaMode";
+import { AlphaMode, AlphaModeEnum } from "../definitions/AlphaMode";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics } from "../definitions/ShaderSemantics";
@@ -25,6 +25,7 @@ import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../definitions/ShaderType";
+import MeshRendererComponent from "../components/MeshRendererComponent";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -41,7 +42,7 @@ export default class Material extends RnObject {
   private __fields: Map<PropertyName, any> = new Map();
   private __fieldsInfo: Map<PropertyName, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  public alphaMode = AlphaMode.Opaque;
+  private __alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __materials: Material[] = [];
   private __materialTid: Index;
@@ -75,6 +76,15 @@ export default class Material extends RnObject {
 
   get fieldsInfoArray() {
     return Array.from(this.__fieldsInfo.values())
+  }
+
+  set alphaMode(mode: AlphaModeEnum) {
+    this.__alphaMode = mode;
+    MeshRendererComponent.setDirtyUpdateSeparating();
+  }
+
+  get alphaMode() {
+    return this.__alphaMode;
   }
 
 
