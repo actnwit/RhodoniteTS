@@ -89,17 +89,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         initialValue: 5
       },
       {
-        semantic: ShaderSemantics.Wireframe,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 10,
-        isPlural: false,
-        isSystem: false,
-        initialValue: new Vector3(0, 0, 1)
-      },
-      {
         semantic: ShaderSemantics.ShadingModel,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
