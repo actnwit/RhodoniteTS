@@ -41,6 +41,7 @@ ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
+${_out} float v_instanceID;
 
 uniform vec3 u_viewPosition;
 ${this.toNormalMatrix}
@@ -78,6 +79,7 @@ ${this.pointDistanceAttenuation}
   gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
+  v_instanceID = a_instanceID;
   `;
 
   getFragmentShader(args: any) {
@@ -89,6 +91,16 @@ ${this.pointDistanceAttenuation}
 
     return `${_version}
 precision highp float;
+
+uniform sampler2D u_dataTexture;
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+{
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return ${_texture}( tex, vec2(x, y) );
+}
 
 struct Material {
   vec4 diffuseColorFactor;
@@ -112,6 +124,7 @@ ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
+${_in} float v_instanceID;
 ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
@@ -122,16 +135,19 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
+  vec4 diffuseColorFactor = get_diffuseColorFactor(v_instanceID);
+
+
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
+  if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
+    diffuseColor = v_color * diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
-    diffuseColor = u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
-  } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
+  } else if (diffuseColorFactor.rgb == diffuseColor) {
     diffuseColor = v_color;
   } else {
     diffuseColor = vec3(1.0, 1.0, 1.0);
@@ -179,6 +195,9 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
+      float shininess = get_shininess(v_instanceID);
+      int shadingModel = get_shadingModel(v_instanceID);
+
       if (u_shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
@@ -198,8 +217,8 @@ void main ()
   }
 
   rt0 = vec4(shadingColor * alpha, alpha);
-  //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
-
+  // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
+  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 
   ${_def_fragColor}
 }
