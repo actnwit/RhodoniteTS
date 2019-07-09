@@ -80,7 +80,7 @@ ${this.pointDistanceAttenuation}
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
   `;
 
-  getFragmentShader(args: Object) {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -89,6 +89,16 @@ ${this.pointDistanceAttenuation}
 
     return `${_version}
 precision highp float;
+
+uniform sampler2D u_dataTexture;
+
+vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+{
+  float t = (index + 0.5) * invSize.x;
+  float x = fract(t);
+  float y = (floor(t) + 0.5) * invSize.y;
+  return ${_texture}( tex, vec2(x, y) );
+}
 
 struct Material {
   vec4 diffuseColorFactor;
@@ -108,27 +118,35 @@ uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 uniform vec3 u_viewPosition;
 
+uniform float u_materialSID;
+
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
+
 void main ()
 {
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
+  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID);
+
+
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
+  if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
+    diffuseColor = v_color * diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
-    diffuseColor = u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
-  } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
+  } else if (diffuseColorFactor.rgb == diffuseColor) {
     diffuseColor = v_color;
   } else {
     diffuseColor = vec3(1.0, 1.0, 1.0);
@@ -176,15 +194,18 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      if (u_shadingModel == 2) {// BLINN
+      float shininess = get_shininess(u_materialSID);
+      int shadingModel = get_shadingModel(u_materialSID);
+
+      if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
         vec3 halfVector = normalize(lightDirection + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), u_shininess);
+        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
       } else if (u_shadingModel == 3) { // PHONG
         vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
         vec3 R = reflect(lightDirection, normal_inWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), u_shininess);
+        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }
 
     }
@@ -195,8 +216,8 @@ void main ()
   }
 
   rt0 = vec4(shadingColor * alpha, alpha);
-  //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
-
+  // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
+  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 
   ${_def_fragColor}
 }

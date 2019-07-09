@@ -14,7 +14,7 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
-import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
@@ -104,6 +104,21 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       return;
     }
 
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+      const returnType = info.compositionType.getGlslStr(info.componentType);
+      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        return '';
+      }
+
+      let str = `
+      ${returnType} get_${memberName}(float instanceId) {
+          return u_${ShaderSemantics.fullSemanticStr(info)};
+        }
+      `
+      return str;
+    };
+
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
@@ -113,7 +128,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
           return;
         }
 
-        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture);
+        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
             {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
@@ -183,10 +198,10 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
 
   common_$prerender(): void {
     let isHalfFloatMode = false;
-    if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-      this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-      isHalfFloatMode = true;
-    }
+    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
+    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+    //   isHalfFloatMode = true;
+    // }
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
     const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());

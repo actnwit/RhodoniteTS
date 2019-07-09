@@ -19,7 +19,7 @@ import { VertexAttribute } from "../foundation/definitions/VertexAttribute";
 import { PrimitiveMode } from "../foundation/definitions/PrimitiveMode";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
-import { ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import ClassicShaderader from "./shaders/ClassicShader";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
@@ -145,6 +145,21 @@ void main(){
       return;
     }
 
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+      const returnType = info.compositionType.getGlslStr(info.componentType);
+      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        return '';
+      }
+
+      let str = `
+      ${returnType} get_${memberName}(float instanceId) {
+          return u_${ShaderSemantics.fullSemanticStr(info)};
+        }
+      `
+      return str;
+    };
+
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -155,7 +170,7 @@ void main(){
         }
 
         // Shader Setup
-        material.createProgram(this.__transformFeedbackShaderText);
+        material.createProgram(this.__transformFeedbackShaderText, getShaderProperty);
 
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,

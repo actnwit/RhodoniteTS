@@ -30,6 +30,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private static __shaderProgram: WebGLProgram;
+  private __materialSIDLocation?: WebGLUniformLocation;
+
 
   private constructor(){}
 
@@ -105,10 +108,24 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
       const returnType = info.compositionType.getGlslStr(info.componentType);
       const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+
+      let offset = 1;
+      switch(info.compositionType) {
+        case CompositionType.Mat4:
+          offset = 4;
+          break;
+        case CompositionType.Mat3:
+          offset = 3;
+          break;
+        default:
+          // console.error('unknown composition type', info.compositionType.str, memberName);
+          // return '';
+      }
+
       let str = `
       ${returnType} get_${memberName}(float instanceId) {
 
-        float index = ${index}.0 + 4.0 * instanceId;
+        float index = ${index}.0 + ${offset}.0 * instanceId;
         float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
         float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
         vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
@@ -138,7 +155,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             col0.w, col1.w, col2.w, 1.0
             );
           `; break;
-        case CompositionType.Mat4:
+        case CompositionType.Mat3:
           str += `
           vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
           vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
@@ -149,7 +166,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             );
           `; break;
         default:
-          // console.error('unknown composition type', info.compositionType.str, memberName);
+          console.error('unknown composition type', info.compositionType.str, memberName);
           return '';
       }
 
@@ -407,17 +424,19 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           continue;
         }
 
+        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
         if (shaderProgramUid !== this.__lastShader) {
           const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
           gl.useProgram(shaderProgram);
 
-          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
-          this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
           var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
           gl.uniform1i(uniform_dataTexture, 0);
+          this.__materialSIDLocation = gl.getUniformLocation(shaderProgram, 'u_materialSID');
+
+          WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
         }
+        gl.uniform1f(this.__materialSIDLocation, primitive.material!.materialSID);
         this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
-        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
@@ -428,6 +447,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         this.__lastShader = shaderProgramUid;
       }
     }
+    const shaderProgram = WebGLStrategyFastestWebGL1.__shaderProgram;
+    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
+    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     return false;
   }

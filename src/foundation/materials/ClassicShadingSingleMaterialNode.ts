@@ -21,6 +21,7 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
+import Scalar from "../math/Scalar";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -64,32 +65,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         ]
       },
       {
-        semantic: ShaderSemantics.SpecularColorFactor,
-        compositionType: CompositionType.Vec2,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 2,
-        isPlural: false,
-        prefix: "material.",
-        isSystem: false,
-        initialValue: new Vector2(1, 1)
-      },
-      {
-        semantic: ShaderSemantics.SpecularColorTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
-        isSystem: false,
-        initialValue: [
-          1,
-          ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        ]
-      },
-      {
         semantic: ShaderSemantics.NormalTexture,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
@@ -104,34 +79,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         ]
       },
       {
-        semantic: ShaderSemantics.OcclusionTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
-        isSystem: false,
-        initialValue: [
-          3,
-          ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
-        ]
-      },
-      {
-        semantic: ShaderSemantics.EmissiveTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
-        isSystem: false,
-        initialValue: [
-          4,
-          ClassicShadingSingleMaterialNode.__dummyBlackTextureUid
-        ]
-      },
-      {
         semantic: ShaderSemantics.Shininess,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
@@ -140,18 +87,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: Number.MAX_VALUE,
         isPlural: false,
         isSystem: false,
-        initialValue: 5
-      },
-      {
-        semantic: ShaderSemantics.Wireframe,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 10,
-        isPlural: false,
-        isSystem: false,
-        initialValue: new Vector3(0, 0, 1)
+        initialValue: new Scalar(5)
       },
       {
         semantic: ShaderSemantics.ShadingModel,
@@ -162,7 +98,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: 3,
         isPlural: false,
         isSystem: false,
-        initialValue: ShadingModel.Constant.index
+        initialValue: new Scalar(ShadingModel.Constant.index)
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

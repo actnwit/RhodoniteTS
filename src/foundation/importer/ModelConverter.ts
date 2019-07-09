@@ -470,7 +470,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __generateAppropreateMaterial(gltfModel: glTF2) {
+  private __generateAppropreateMaterial(gltfModel: glTF2, materialJson: any) {
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
@@ -478,13 +478,17 @@ export default class ModelConverter {
       return loaderExtension.generateMaterial();
     }
 
-    return MaterialHelper.createPbrUberMaterial();
+    if (materialJson.pbrMetallicRoughness) {
+      return MaterialHelper.createPbrUberMaterial();
+    } else {
+      return MaterialHelper.createClassicUberMaterial();
+    }
   }
 
   private __setupMaterial(gltfModel: any, materialJson: any): Material | undefined {
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
-    let material: Material = this.__generateAppropreateMaterial(gltfModel);
+    let material: Material = this.__generateAppropreateMaterial(gltfModel, materialJson);
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 
@@ -533,7 +537,6 @@ export default class ModelConverter {
       }
 
     } else {
-      material = MaterialHelper.createClassicUberMaterial();
       let param: Index = ShadingModel.Phong.index;
       if (materialJson.extras && materialJson.extras.technique) {
         switch (materialJson.extras.technique) {

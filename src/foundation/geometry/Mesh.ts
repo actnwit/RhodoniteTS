@@ -553,7 +553,7 @@ export default class Mesh {
       }
 
       const instanceNum = this.__instances.length;
-      const entityUIDs = new Float32Array(instanceNum+1);
+      const entityUIDs = new Float32Array(instanceNum+1); // instances and original
       entityUIDs[0] = this._attatchedEntityUID;
       for (var i = 0; i < instanceNum; i++) {
         entityUIDs[i+1] = this.__instances[i]._attatchedEntityUID;

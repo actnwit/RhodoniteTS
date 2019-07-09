@@ -130,6 +130,8 @@
 
       entities.push(entity);
       const meshComponent = entity.getComponent(Rn.MeshComponent);
+
+      // Instansing
       if (i === 0) {
         meshComponent.setMesh(originalMesh);
       } else {

@@ -24,6 +24,7 @@ import Config from "../core/Config";
 import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
+import { ShaderType } from "../definitions/ShaderType";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -47,6 +48,8 @@ export default class Material extends RnObject {
   private static __materialTidCount = -1;
 
   private static __materialTids: Map<MaterialTypeName, Index> = new Map();
+  private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
+  private __materialSid: Index = -1;
   private static __materialTypes: Map<MaterialTypeName, AbstractMaterialNode[]> = new Map();
   private static __maxInstances: Map<MaterialTypeName, number> = new Map();
   private __materialTypeName: MaterialTypeName;
@@ -145,6 +148,7 @@ export default class Material extends RnObject {
       Material.__maxInstances.set(materialTypeName, maxInstancesNumber);
 
       Material.__allocateBufferView(materialTypeName, materialNodes);
+      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
 
       return true;
     } else {
@@ -161,13 +165,22 @@ export default class Material extends RnObject {
     this.__materialNodes = materialNodes;
   }
 
+  get materialSID() {
+    return this.__materialSid;
+  }
+
   initialize() {
+    let countOfThisType = Material.__materialInstanceCountOfType.get(this.__materialTypeName) as number;
+    this.__materialSid = countOfThisType++;
+    Material.__materialInstanceCountOfType.set(this.__materialTypeName, countOfThisType);
+
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo) => {
         const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
         const accessorMap = Material.__accessors.get(this.__materialTypeName);
         const accessor = accessorMap!.get(propertyName) as Accessor;
+
         const typedArray = accessor.takeOne() as Float32Array;
         this.__fields.set(
           propertyName,
@@ -255,13 +268,17 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let propertiesStr = '';
+    let vertexPropertiesStr = '';
+    let pixelPropertiesStr = '';
     if (propertySetter) {
       this.__fields.forEach((value, key) => {
         const info = this.__fieldsInfo.get(key);
-        propertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        if (info!.stage === ShaderType.VertexShader) {
+          vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        } else if (info!.stage === ShaderType.PixelShader) {
+          pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
+        }
       });
-      console.log('propertiesStr', propertiesStr);
     }
 
 
@@ -272,11 +289,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 ` +
       vertexShaderMethodDefinitions_uniform +
       glslShader.vertexShaderDefinitions +
-//      glslShader.getGlslVertexShaderProperies(propertiesStr) +
+      glslShader.getGlslVertexShaderProperies(vertexPropertiesStr) +
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody();
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({getters: pixelPropertiesStr});
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 

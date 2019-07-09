@@ -427,7 +427,11 @@ export default class MathClassUtil {
     if (isFinite(objForDetectType)) { // number?
       return val;
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
-      objForDetectType.v[0] = val.v[0];
+      if (typeof val.v === 'undefined') {
+        objForDetectType.v[0] = val;
+      } else {
+        objForDetectType.v[0] = val.v[0];
+      }
     } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
