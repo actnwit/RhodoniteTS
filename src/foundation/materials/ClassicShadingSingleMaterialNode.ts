@@ -21,6 +21,7 @@ import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
+import Scalar from "../math/Scalar";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -86,7 +87,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: Number.MAX_VALUE,
         isPlural: false,
         isSystem: false,
-        initialValue: 5
+        initialValue: new Scalar(5)
       },
       {
         semantic: ShaderSemantics.ShadingModel,
@@ -97,7 +98,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: 3,
         isPlural: false,
         isSystem: false,
-        initialValue: ShadingModel.Constant.index
+        initialValue: new Scalar(ShadingModel.Constant.index)
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
