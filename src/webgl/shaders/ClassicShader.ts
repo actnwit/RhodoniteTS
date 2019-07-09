@@ -198,15 +198,15 @@ void main ()
       float shininess = get_shininess(v_instanceID);
       int shadingModel = get_shadingModel(v_instanceID);
 
-      if (u_shadingModel == 2) {// BLINN
+      if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
         vec3 halfVector = normalize(lightDirection + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), u_shininess);
+        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
       } else if (u_shadingModel == 3) { // PHONG
         vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
         vec3 R = reflect(lightDirection, normal_inWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), u_shininess);
+        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }
 
     }
