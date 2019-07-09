@@ -41,7 +41,6 @@ ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
-${_out} float v_instanceID;
 
 uniform vec3 u_viewPosition;
 ${this.toNormalMatrix}
@@ -79,7 +78,6 @@ ${this.pointDistanceAttenuation}
   gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
-  v_instanceID = a_instanceID;
   `;
 
   getFragmentShader(args: any) {
@@ -120,11 +118,12 @@ uniform Light u_lights[${Config.maxLightNumberInShader}];
 uniform int u_lightNumber;
 uniform vec3 u_viewPosition;
 
+uniform float u_materialSID;
+
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
-${_in} float v_instanceID;
 ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
@@ -135,7 +134,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(v_instanceID);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID);
 
 
   // diffuseColor
@@ -195,8 +194,8 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float shininess = get_shininess(v_instanceID);
-      int shadingModel = get_shadingModel(v_instanceID);
+      float shininess = get_shininess(u_materialSID);
+      int shadingModel = get_shadingModel(u_materialSID);
 
       if (shadingModel == 2) {// BLINN
         // ViewDirection
