@@ -172,6 +172,7 @@ export default class Component extends RnObject {
       return;
     }
 
+    const methodName = processStage.getMethodName();
     const array = this.__componentsOfProcessStages.get(processStage)!;
     const components: Component[]|undefined = componentRepository._getComponents(componentType);
     for (let i=0; i<array.length; ++i) {
@@ -180,7 +181,7 @@ export default class Component extends RnObject {
         return;
       }
       const component = components![componentSid];
-      (component! as any)[processStage.getMethodName()]({
+      (component! as any)[methodName]({
         i,
         processStage,
         processApproach,

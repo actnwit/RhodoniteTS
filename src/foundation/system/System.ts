@@ -53,10 +53,11 @@ export default class System {
     }
 
 
-    this.__processStages.forEach(stage=>{
+    for (let stage of this.__processStages) {
       const methodName = stage.getMethodName();
+      const commonMethodName = 'common_'+methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
-      componentTids.forEach(componentTid=>{
+      for (let componentTid of componentTids) {
 
         let loopN = 1;
         let renderPass;
@@ -74,7 +75,7 @@ export default class System {
           }
 
           const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
-          const componentClass_commonMethod = (componentClass as any)['common_'+methodName];
+          const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
             componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass});
           }
@@ -92,11 +93,8 @@ export default class System {
 
           this.__renderPassTickCount++;
         }
-
-      });
-    });
-
-
+      }
+    }
   }
 
   setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1) {
