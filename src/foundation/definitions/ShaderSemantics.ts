@@ -83,10 +83,17 @@ function fromString(str: string): ShaderSemanticsEnum {
   return _fromString({ typeList, str }) as ShaderSemanticsEnum;
 }
 
+
+type UpdateFunc = (
+  {shaderProgram, firstTime, propertyName, value, args}:
+  {shaderProgram: WebGLProgram, firstTime: boolean, propertyName: string, value: any, args?: Object})
+   => void;
+
 export type ShaderSemanticsInfo = {
   semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count,
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateFunc?: Function, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum
+  isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
+  xName?: string, yName?: string, zName?: string, wName?: string
 };
 
 
