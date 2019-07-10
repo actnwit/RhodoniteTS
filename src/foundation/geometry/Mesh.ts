@@ -11,7 +11,6 @@ import Vector2 from "../math/Vector2";
 import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
-import MeshRendererComponent from "../components/MeshRendererComponent";
 
 /**
  * The Mesh class.
@@ -91,8 +90,6 @@ export default class Mesh {
     this.__primitives = this.__opaquePrimitives.concat(this.__transparentPrimitives);
 
     Mesh.__originalMeshes.push(this);
-
-    MeshRendererComponent.setDirtyUpdateSeparating();
   }
 
   /**
