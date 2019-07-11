@@ -3,6 +3,7 @@ import { CompositionType } from "./CompositionType";
 import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
+import Material from "../materials/Material";
 
 export interface ShaderSemanticsEnum extends EnumIO {
   singularStr: string;
@@ -90,7 +91,7 @@ type UpdateFunc = (
    => void;
 
 export type ShaderSemanticsInfo = {
-  semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count,
+  semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count,
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string
@@ -122,6 +123,32 @@ function fullSemanticPluralStr(info: ShaderSemanticsInfo) {
   return prefix+infoToPluralString(info);
 }
 
+const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+  const returnType = info.compositionType.getGlslStr(info.componentType);
+  if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+    return '';
+  }
+
+  let methodName = memberName.split('___')[0];
+  methodName = methodName.replace('.', '_');
+  let str = '';
+  let variableName = ShaderSemantics.fullSemanticStr(info);
+  if (memberName.indexOf('___') !== -1) {
+    if (memberName.indexOf('___0') === -1) {
+      return '';
+    }
+    variableName = variableName.replace(/\[.+?\]/g, `[${info.index}]`);
+  }
+
+  str = `
+  ${returnType} get_${methodName}(float instanceId, int index) {
+    return u_${variableName};
+  }
+  `
+
+  return str;
+};
+
 export const ShaderSemantics = Object.freeze({
   WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
@@ -129,5 +156,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, infoToString, fullSemanticStr, fullSemanticPluralStr
+  from, fromString, infoToString, fullSemanticStr, fullSemanticPluralStr, getShaderProperty
 });

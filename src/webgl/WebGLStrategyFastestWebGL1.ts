@@ -24,6 +24,7 @@ import Mesh from "../foundation/geometry/Mesh";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import LightComponent from "../foundation/components/LightComponent";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -32,6 +33,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __shaderProgram: WebGLProgram;
   private __materialSIDLocation?: WebGLUniformLocation;
+  private __lightComponents?: LightComponent[];
 
 
   private constructor(){}
@@ -107,7 +109,29 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
       const returnType = info.compositionType.getGlslStr(info.componentType);
-      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+
+      const indexArray = [];
+      let arrayStr = ``;
+      let maxIndex = 1;
+      let methodName = memberName;
+      if (memberName.indexOf('___') !== -1) {
+        if (memberName.indexOf('___0') === -1) {
+          return '';
+        }
+        for (let i=0; i<info.maxIndex!; i++) {
+          const newMemberName = memberName.replace('___0', `___${i}`)
+          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, newMemberName)!;
+          indexArray.push(index)
+        }
+        maxIndex = info.maxIndex!;
+        methodName = memberName.split('___')[0];
+      } else {
+        const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+        indexArray.push(index)
+      }
+      arrayStr += `float[${maxIndex}] indices = float[](`
+
+      methodName = methodName.replace('.', '_');
 
       let offset = 1;
       switch(info.compositionType) {
@@ -122,10 +146,18 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           // return '';
       }
 
-      let str = `
-      ${returnType} get_${memberName}(float instanceId) {
+      indexArray.forEach((idx, i)=> {
+        arrayStr += `${idx}.0`;
+        if (i !== maxIndex-1) {
+          arrayStr += ', '
+        }
+      });
+      arrayStr += `);`;
 
-        float index = ${index}.0 + ${offset}.0 * instanceId;
+      let str = `
+      ${returnType} get_${methodName}(float instanceId, int index) {
+        ${arrayStr}
+        float index = indices[index] + ${offset}.0 * instanceId;
         float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
         float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
         vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
@@ -352,6 +384,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
     }
 
+    const componentRepository = ComponentRepository.getInstance();
+    this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+
   }
 
   attachGPUData(primitive: Primitive): void {
@@ -409,6 +444,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return this.__instance;
   }
 
+  private __setupMaterial(material: Material) {
+    material.setParameter(ShaderSemantics.LightNumber, this.__lightComponents!.length);
+  }
+
   common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
@@ -437,6 +476,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         }
         gl.uniform1f(this.__materialSIDLocation, primitive.material!.materialSID);
         this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
+
+        this.__setupMaterial(primitive.material!);
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);

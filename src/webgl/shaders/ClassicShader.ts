@@ -134,7 +134,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
 
 
   // diffuseColor
@@ -160,12 +160,15 @@ void main ()
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
-  if (u_shadingModel > 0) {
+  int shadingModel = get_shadingModel(u_materialSID, 0);
+  if (shadingModel > 0) {
+
+    int lightNumber = get_lightNumber(u_materialSID, 0);
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
-      if (i >= u_lightNumber) {
+      if (i >= lightNumber) {
         break;
       }
 
@@ -194,8 +197,8 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float shininess = get_shininess(u_materialSID);
-      int shadingModel = get_shadingModel(u_materialSID);
+      float shininess = get_shininess(u_materialSID, 0);
+      int shadingModel = get_shadingModel(u_materialSID, 0);
 
       if (shadingModel == 2) {// BLINN
         // ViewDirection

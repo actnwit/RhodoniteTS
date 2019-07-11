@@ -25,6 +25,7 @@ import BufferView from "../memory/BufferView";
 import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../definitions/ShaderType";
+import { thisExpression } from "@babel/types";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -126,7 +127,7 @@ export default class Material extends RnObject {
           componentType: ComponentType.Float,
           count: Material.__maxInstances.get(materialTypeName)!
         });
-        properties.set(ShaderSemantics.infoToString(semanticInfo)!, accessor);
+        properties.set(this.__getPropertyName(semanticInfo), accessor);
       }
     }
 
@@ -169,6 +170,15 @@ export default class Material extends RnObject {
     return this.__materialSid;
   }
 
+  private static __getPropertyName(semanticInfo: ShaderSemanticsInfo) {
+    const propertyName = ShaderSemantics.infoToString(semanticInfo)!;
+    let indexStr = ''
+    if (semanticInfo.index != null) {
+      indexStr = '___' + semanticInfo.index;
+    }
+    return propertyName+indexStr;
+  }
+
   initialize() {
     let countOfThisType = Material.__materialInstanceCountOfType.get(this.__materialTypeName) as number;
     this.__materialSid = countOfThisType++;
@@ -177,7 +187,7 @@ export default class Material extends RnObject {
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo) => {
-        const propertyName = ShaderSemantics.infoToString(semanticsInfo)!;
+        const propertyName = Material.__getPropertyName(semanticsInfo);
         const accessorMap = Material.__accessors.get(this.__materialTypeName);
         const accessor = accessorMap!.get(propertyName) as Accessor;
 
@@ -201,7 +211,7 @@ export default class Material extends RnObject {
     if (typeof shaderSemantic === 'string') {
       shaderSemanticStr = shaderSemantic;
     } else {
-      shaderSemanticStr = shaderSemantic.str;
+      shaderSemanticStr = Material.__getPropertyName(shaderSemantic);
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
       let valueObj = this.__fields.get(shaderSemanticStr);
@@ -222,7 +232,7 @@ export default class Material extends RnObject {
     if (typeof shaderSemantic === 'string') {
       shaderSemanticStr = shaderSemantic;
     } else {
-      shaderSemanticStr = shaderSemantic.str;
+      shaderSemanticStr = Material.__getPropertyName(shaderSemantic);
     }
 
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
@@ -237,7 +247,7 @@ export default class Material extends RnObject {
     if (typeof shaderSemantic === 'string') {
       return this.__fields.get(shaderSemantic);
     } else {
-      return this.__fields.get(shaderSemantic.str);
+      return this.__fields.get(Material.__getPropertyName(shaderSemantic));
     }
   }
 

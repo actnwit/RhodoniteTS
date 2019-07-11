@@ -22,6 +22,8 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
 import Scalar from "../math/Scalar";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import Config from "../core/Config";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -37,7 +39,9 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     super(ClassicShader.getInstance(), "classicShading");
     ClassicShadingSingleMaterialNode.initDefaultTextures();
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.DiffuseColorFactor,
         compositionType: CompositionType.Vec4,
@@ -98,9 +102,91 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: 3,
         isPlural: false,
         isSystem: false,
-        initialValue: new Scalar(ShadingModel.Constant.index)
-      }
+        initialValue: new Scalar(ShadingModel.Phong.index)
+      },
+      {
+        semantic: ShaderSemantics.LightNumber,
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader,
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
+        isPlural: false,
+        isSystem: true,
+        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        initialValue: new Scalar(0),
+        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram?: WebGLProgram, firstTime: boolean, args?: any})=>{
+          // console.log(args);
+          webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+        }
+      },
     ];
+
+    // const lights: ShaderSemanticsInfo[] = [];
+    // for (let i = 0; i < Config.maxLightNumberInShader; i++) {
+    //   (function(idx){
+    //   lights.push(
+    //     {
+    //       semantic: ShaderSemantics.LightPosition,
+    //       compositionType: CompositionType.Vec4,
+    //       componentType: ComponentType.Float,
+    //       stage: ShaderType.PixelShader,
+    //       min: -Number.MAX_VALUE,
+    //       max: Number.MAX_VALUE,
+    //       isPlural: false,
+    //       prefix: `lights[${idx}].`,
+    //       index: idx,
+    //       isSystem: true,
+    //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
+    //       initialValue: new Vector4(0, 0, 0, 1),
+    //       updateFunc:
+    //         ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+    //         // console.log(idx);
+    //         webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length, idx);
+    //       }
+    //     });
+    //   lights.push(
+    //     {
+    //     semantic: ShaderSemantics.LightDirection,
+    //     compositionType: CompositionType.Vec4,
+    //     componentType: ComponentType.Float,
+    //     stage: ShaderType.PixelShader,
+    //     min: -1,
+    //     max: 1,
+    //     isPlural: false,
+    //     prefix: `lights[${i}].`,
+    //     index: i,
+    //     isSystem: true,
+    //     initialValue: new Vector4(0, 1, 0, 1),
+    //     updateInteval: ShaderVariableUpdateInterval.EveryTime,
+    //     updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+    //       // console.log(i);
+    //       //webglResourceRepository.setUniformValue(shaderPrograms![i], ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+    //     }
+    //   });
+    //   lights.push(
+    //     {
+    //       semantic: ShaderSemantics.LightIntensity,
+    //       compositionType: CompositionType.Vec4,
+    //       componentType: ComponentType.Float,
+    //       stage: ShaderType.PixelShader,
+    //       min: 0,
+    //       max: 10,
+    //       isPlural: false,
+    //       prefix: `lights[${i}].`,
+    //       index: i,
+    //       isSystem: true,
+    //       initialValue: new Vector4(1, 1, 1, 1),
+    //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
+    //       updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+    //         // console.log(i);
+    //      //   webglResourceRepository.setUniformValue(shaderPrograms![i], ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+    //       }
+    //     });
+    //   })(i);
+    // }
+    // shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
+
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
