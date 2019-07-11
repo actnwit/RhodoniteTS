@@ -28,7 +28,7 @@ export default class Matrix33 implements IMatrix33 {
  {
 
     const _isColumnMajor = (arguments.length === 10) ? isColumnMajor : m1;
-    const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : false;
+    const _notCopyFloatArray = (arguments.length === 3) ? notCopyFloatArray : m2;
     const m = m0;
 
     if (m == null) {

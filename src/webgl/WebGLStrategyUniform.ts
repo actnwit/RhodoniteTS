@@ -268,7 +268,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     return false;
   }
 
@@ -446,7 +446,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       //from material
       if (material) {
-        material.setUniformValues(firstTime, {lightComponents: this.__lightComponents});
+        material.setUniformValues(firstTime, {lightComponents: this.__lightComponents, renderPass: renderPass});
       }
 
       if (primitive.indicesAccessor) {

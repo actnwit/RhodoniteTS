@@ -172,17 +172,29 @@ void main ()
         break;
       }
 
-      vec3 lightDirection = u_lights[i].lightDirection.xyz;
-      float lightType = u_lights[i].lightPosition.w;
-      float spotCosCutoff = u_lights[i].lightDirection.w;
-      float spotExponent = u_lights[i].lightIntensity.w;
+      // vec3 lightDirection = u_lights[i].lightDirection.xyz;
+      // float lightType = u_lights[i].lightPosition.w;
+      // float spotCosCutoff = u_lights[i].lightDirection.w;
+      // float spotExponent = u_lights[i].lightIntensity.w;
+
+      vec4 gotLightDirection = get_lightDirection(u_materialSID, i);
+      vec4 gotLightPosition = get_lightPosition(u_materialSID, i);
+      vec4 gotLightIntensity = get_lightIntensity(u_materialSID, i);
+      vec3 lightDirection = gotLightDirection.xyz;
+      vec3 lightIntensity = gotLightIntensity.xyz;
+      vec3 lightPosition = gotLightPosition.xyz;
+      float lightType = gotLightPosition.w;
+      float spotCosCutoff = gotLightDirection.w;
+      float spotExponent = gotLightIntensity.w;
 
       if (0.75 < lightType) { // is pointlight or spotlight
-        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+        // lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+        lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
       }
       float spotEffect = 1.0;
       if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        // spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        spotEffect = dot(lightDirection, lightDirection);
         if (spotEffect > spotCosCutoff) {
           spotEffect = pow(spotEffect, spotExponent);
         } else {
@@ -190,8 +202,8 @@ void main ()
         }
       }
 
-      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
-//      incidentLight *= M_PI;
+      // vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
+      vec3 incidentLight = spotEffect * lightIntensity;
 
 
 
@@ -200,13 +212,15 @@ void main ()
       float shininess = get_shininess(u_materialSID, 0);
       int shadingModel = get_shadingModel(u_materialSID, 0);
 
+      vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+
       if (shadingModel == 2) {// BLINN
         // ViewDirection
-        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
         vec3 halfVector = normalize(lightDirection + viewDirection);
         specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
-      } else if (u_shadingModel == 3) { // PHONG
-        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+      } else if (shadingModel == 3) { // PHONG
+        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
         vec3 R = reflect(lightDirection, normal_inWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }

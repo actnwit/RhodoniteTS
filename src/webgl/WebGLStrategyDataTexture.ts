@@ -22,6 +22,7 @@ import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -304,7 +305,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const material = primitive.material!;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram(material);

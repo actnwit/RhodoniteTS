@@ -55,7 +55,7 @@ export default class SceneGraphComponent extends Component {
     this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
     this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.registerMember(BufferUse.CPUGeneric, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.GPUInstanceData, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation(this.maxNumberOfComponent);
 
@@ -154,6 +154,7 @@ export default class SceneGraphComponent extends Component {
 
     this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
     this.__isWorldMatrixUpToDate = true;
+    const normal = this.normalMatrix;
   }
 
   static common_$prerender() {

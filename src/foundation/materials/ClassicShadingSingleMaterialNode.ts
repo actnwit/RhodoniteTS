@@ -24,6 +24,8 @@ import { ShaderType } from "../definitions/ShaderType";
 import Scalar from "../math/Scalar";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 import Config from "../core/Config";
+import ComponentRepository from "../core/ComponentRepository";
+import CameraComponent from "../components/CameraComponent";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =
@@ -102,7 +104,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         max: 3,
         isPlural: false,
         isSystem: false,
-        initialValue: new Scalar(ShadingModel.Phong.index)
+        initialValue: new Scalar(ShadingModel.Constant.index)
       },
       {
         semantic: ShaderSemantics.LightNumber,
@@ -115,9 +117,31 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(0),
-        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram?: WebGLProgram, firstTime: boolean, args?: any})=>{
+        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
           // console.log(args);
-          webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+          webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+        }
+      },
+      {
+        semantic: ShaderSemantics.ViewPosition,
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isPlural: false,
+        isSystem: true,
+        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        initialValue: new Vector3(0,0.0),
+        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+          let cameraComponent = args.renderPass.cameraComponent;
+          if (cameraComponent == null) {
+            cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+          }
+          if (cameraComponent) {
+            const cameraPosition = cameraComponent.worldPosition;
+            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, firstTime, cameraPosition);
+          }
         }
       },
     ];

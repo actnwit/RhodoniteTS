@@ -27,6 +27,8 @@ import { ShaderType } from "../foundation/definitions/ShaderType";
 import LightComponent from "../foundation/components/LightComponent";
 import Config from "../foundation/core/Config";
 import Vector4 from "../foundation/math/Vector4";
+import RenderPass from "../foundation/renderer/RenderPass";
+import CameraComponent from "../foundation/components/CameraComponent";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -97,7 +99,29 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   }
 
   mat3 getNormalMatrix(float instanceId) {
-    return u_normalMatrix;
+    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')}.0 + 3.0 * instanceId;
+    float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+    float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+    vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+
+    vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
+    vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
+    vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+
+    mat3 matrix = mat3(
+      col0.x, col0.y, col0.z,
+      col0.w, col1.x, col1.y,
+      col1.z, col1.w, col2.x
+      );
+    // mat3 matrix = mat3(
+    //   col0.x, col0.w, col1.z,
+    //   col0.y, col1.x, col1.w,
+    //   col0.z, col1.y, col2.x
+    //   );
+
+
+    return matrix;
   }
 
   `;
@@ -231,6 +255,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
               stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true}
           ]);
+
+        material.setUniformLocations(material._shaderProgramUid);
       }
     }
   }
@@ -449,7 +475,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return this.__instance;
   }
 
-  private __setupMaterial(material: Material) {
+  private __setupMaterial(material: Material, renderPass: RenderPass) {
     material.setParameter(ShaderSemantics.LightNumber, this.__lightComponents!.length);
 
     for (let i = 0; i < this.__lightComponents!.length; i++) {
@@ -465,9 +491,17 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       material.setParameter(ShaderSemantics.LightDirection, worldLightDirection, i);
       material.setParameter(ShaderSemantics.LightIntensity, worldLightIntensity, i);
     }
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
+    if (cameraComponent) {
+      const cameraPosition = cameraComponent.worldPosition;
+      material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+    }
   }
 
-  common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
@@ -488,16 +522,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           gl.useProgram(shaderProgram);
 
           var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-          gl.uniform1i(uniform_dataTexture, 0);
+          gl.uniform1i(uniform_dataTexture, 7);
           this.__materialSIDLocation = gl.getUniformLocation(shaderProgram, 'u_materialSID');
 
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
         }
         gl.uniform1f(this.__materialSIDLocation, primitive.material!.materialSID);
-        this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
+        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-        this.__setupMaterial(primitive.material!);
-        // primitive.material!.setUniformValues(true, {lightComponents: this.__lightComponents})
+        this.__setupMaterial(primitive.material!, renderPass);
+        primitive.material!.setUniformValuesForOnlyTextures(true);
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);

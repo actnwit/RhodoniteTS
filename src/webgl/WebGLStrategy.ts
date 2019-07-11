@@ -15,7 +15,7 @@ export default interface WebGLStrategy {
   $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
   $render?(i: Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
   common_$prerender(): void;
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44): boolean;
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
   attachGPUData(primitive: Primitive): void;
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;

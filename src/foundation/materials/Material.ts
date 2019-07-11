@@ -114,7 +114,8 @@ export default class Material extends RnObject {
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: sumSizeInByte * Material.__maxInstances.get(materialTypeName)!,
-      byteStride: 0,
+      byteStride: 16,
+      byteAlign: 16,
       isAoS: false
     });
     this.__bufferViews.set(materialTypeName, bufferView);
@@ -125,7 +126,8 @@ export default class Material extends RnObject {
         const accessor = bufferView.takeAccessor({
           compositionType: semanticInfo.compositionType,
           componentType: ComponentType.Float,
-          count: Material.__maxInstances.get(materialTypeName)!
+          count: Material.__maxInstances.get(materialTypeName)!,
+          byteAlign: 16
         });
         properties.set(this.__getPropertyName(semanticInfo), accessor);
       }
@@ -277,6 +279,24 @@ export default class Material extends RnObject {
         updateFunc({shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args})
       } else {
         webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+      }
+    });
+  }
+
+  setUniformValuesForOnlyTextures(firstTime: boolean, args?: Object) {
+    const shaderProgramUid = this._shaderProgramUid;
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
+
+    this.__fields.forEach((value, key) => {
+      const info = this.__fieldsInfo.get(key)!;
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        const updateFunc = info.updateFunc;
+        if (updateFunc) {
+          updateFunc({shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args})
+        } else {
+          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+        }
       }
     });
   }
