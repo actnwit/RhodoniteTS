@@ -204,14 +204,17 @@ export default class Material extends RnObject {
     });
   }
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
-  setParameter(shaderSemantic: string, value: any): void;
-  setParameter(shaderSemantic: any, value: any): void {
+  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index): void;
+  setParameter(shaderSemantic: string, value: any, index?: Index): void;
+  setParameter(shaderSemantic: any, value: any, index?: Index): void {
     let shaderSemanticStr: string;
     if (typeof shaderSemantic === 'string') {
       shaderSemanticStr = shaderSemantic;
     } else {
-      shaderSemanticStr = Material.__getPropertyName(shaderSemantic);
+      shaderSemanticStr = shaderSemantic.str;
+    }
+    if (index != null) {
+      shaderSemanticStr += `___${index}`;
     }
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
       let valueObj = this.__fields.get(shaderSemanticStr);
@@ -232,7 +235,7 @@ export default class Material extends RnObject {
     if (typeof shaderSemantic === 'string') {
       shaderSemanticStr = shaderSemantic;
     } else {
-      shaderSemanticStr = Material.__getPropertyName(shaderSemantic);
+      shaderSemanticStr = shaderSemantic.str;
     }
 
     if (this.__fieldsInfo.has(shaderSemanticStr)) {
@@ -247,7 +250,7 @@ export default class Material extends RnObject {
     if (typeof shaderSemantic === 'string') {
       return this.__fields.get(shaderSemantic);
     } else {
-      return this.__fields.get(Material.__getPropertyName(shaderSemantic));
+      return this.__fields.get(shaderSemantic.str);
     }
   }
 

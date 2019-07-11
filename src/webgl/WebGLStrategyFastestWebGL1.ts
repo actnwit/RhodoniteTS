@@ -25,6 +25,8 @@ import MeshRendererComponent from "../foundation/components/MeshRendererComponen
 import ComponentRepository from "../foundation/core/ComponentRepository";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import LightComponent from "../foundation/components/LightComponent";
+import Config from "../foundation/core/Config";
+import Vector4 from "../foundation/math/Vector4";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -129,7 +131,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
         indexArray.push(index)
       }
-      arrayStr += `float[${maxIndex}] indices = float[](`
+      arrayStr += `float indices[${maxIndex}];`
 
       methodName = methodName.replace('.', '_');
 
@@ -147,21 +149,24 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
 
       indexArray.forEach((idx, i)=> {
-        arrayStr += `${idx}.0`;
-        if (i !== maxIndex-1) {
-          arrayStr += ', '
-        }
+        arrayStr += `\nindices[${i}] = ${idx}.0;`
       });
-      arrayStr += `);`;
 
       let str = `
-      ${returnType} get_${methodName}(float instanceId, int index) {
+      ${returnType} get_${methodName}(float instanceId, const int index) {
         ${arrayStr}
-        float index = indices[index] + ${offset}.0 * instanceId;
+        float idx = 0.0;
+        for (int i=0; i<${maxIndex}; i++) {
+          idx = indices[i] + ${offset}.0 * instanceId;
+          if (i == index) {
+            break;
+          }
+        }
+        // float idx = indices[index] + ${offset}.0 * instanceId;
         float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
         float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
         vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-        vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
+        vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
 `;
       switch(info.compositionType) {
         case CompositionType.Vec4:
@@ -446,6 +451,20 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   private __setupMaterial(material: Material) {
     material.setParameter(ShaderSemantics.LightNumber, this.__lightComponents!.length);
+
+    for (let i = 0; i < this.__lightComponents!.length; i++) {
+      if (i >= Config.maxLightNumberInShader) {
+        break;
+      }
+      const lightComponent = this.__lightComponents![i];
+      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+      const worldLightPosition = sceneGraphComponent.worldPosition;
+      const worldLightDirection = lightComponent.direction;
+      const worldLightIntensity = lightComponent.intensity;
+      material.setParameter(ShaderSemantics.LightPosition, new Vector4(worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index), i);
+      material.setParameter(ShaderSemantics.LightDirection, worldLightDirection, i);
+      material.setParameter(ShaderSemantics.LightIntensity, worldLightIntensity, i);
+    }
   }
 
   common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
@@ -478,6 +497,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         this.__webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
 
         this.__setupMaterial(primitive.material!);
+        // primitive.material!.setUniformValues(true, {lightComponents: this.__lightComponents})
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
