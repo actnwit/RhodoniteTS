@@ -515,8 +515,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    const meshes: Mesh[] = Mesh.originalMeshes;
-    for (let mesh of meshes) {
+    // const meshes: Mesh[] = Mesh.originalMeshes;
+
+    for (let meshComponent of renderPass.meshComponents!) {
+      const mesh = meshComponent.mesh!;
+      if (!(mesh && mesh.isOriginalMesh())) {
+        continue;
+      }
+
       const primitiveNum = mesh.getPrimitiveNumber();
       for(let i=0; i<primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);

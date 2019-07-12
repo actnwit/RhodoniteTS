@@ -531,6 +531,10 @@ export default class Mesh {
     }
   }
 
+  isOriginalMesh() {
+    return !this.isInstanceMesh();
+  }
+
   get meshUID() {
     return this.__meshUID;
   }
