@@ -133,32 +133,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-
-      const indexArray = [];
-      let arrayStr = ``;
-      let maxIndex = 1;
-      let methodName = memberName;
-      if (memberName.indexOf('___') !== -1) {
-        if (memberName.indexOf('___0') === -1) {
-          return '';
-        }
-        for (let i=0; i<info.maxIndex!; i++) {
-          const newMemberName = memberName.replace('___0', `___${i}`)
-          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, newMemberName)!;
-          indexArray.push(index)
-        }
-        maxIndex = info.maxIndex!;
-        methodName = memberName.split('___')[0];
-      } else {
-        const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-        indexArray.push(index)
-      }
-      arrayStr += `float indices[${maxIndex}];`
-
-      methodName = methodName.replace('.', '_');
-
+    const getOffset = (info: ShaderSemanticsInfo) => {
       let offset = 1;
       switch(info.compositionType) {
         case CompositionType.Mat4:
@@ -171,22 +146,57 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           // console.error('unknown composition type', info.compositionType.str, memberName);
           // return '';
       }
+      return offset;
+    }
 
-      indexArray.forEach((idx, i)=> {
-        arrayStr += `\nindices[${i}] = ${idx}.0;`
-      });
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+      const returnType = info.compositionType.getGlslStr(info.componentType);
+
+      const indexArray = [];
+      let maxIndex = 1;
+      let methodName = memberName;
+      let index = -1;
+      let indexStr;
+
+      if (memberName.indexOf('___') !== -1) {
+        if (memberName.indexOf('___0') === -1) {
+          return '';
+        }
+        const offset = getOffset(info);
+
+        for (let i=0; i<info.maxIndex!; i++) {
+          const newMemberName = memberName.replace('___0', `___${i}`)
+          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, newMemberName)!;
+          indexArray.push(index)
+        }
+        maxIndex = info.maxIndex!;
+        methodName = memberName.split('___')[0];
+
+        let arrayStr = `float indices[${maxIndex}];`
+        indexArray.forEach((idx, i)=> {
+          arrayStr += `\nindices[${i}] = ${idx}.0;`
+        });
+
+        indexStr = `
+          ${arrayStr}
+          float idx = 0.0;
+          for (int i=0; i<${maxIndex}; i++) {
+            idx = indices[i] + ${offset}.0 * instanceId;
+            if (i == index) {
+              break;
+            }
+          }`;
+      } else {
+        const offset = getOffset(info);
+        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+        indexStr = `float idx = ${index}.0 + ${offset}.0 * instanceId;`;
+      }
+
+      methodName = methodName.replace('.', '_');
 
       let str = `
       ${returnType} get_${methodName}(float instanceId, const int index) {
-        ${arrayStr}
-        float idx = 0.0;
-        for (int i=0; i<${maxIndex}; i++) {
-          idx = indices[i] + ${offset}.0 * instanceId;
-          if (i == index) {
-            break;
-          }
-        }
-        // float idx = indices[index] + ${offset}.0 * instanceId;
+        ${indexStr}
         float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
         float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
         vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
