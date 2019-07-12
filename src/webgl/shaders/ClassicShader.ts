@@ -163,7 +163,7 @@ void main ()
   int shadingModel = get_shadingModel(u_materialSID, 0);
   if (shadingModel > 0) {
 
-    int lightNumber = get_lightNumber(u_materialSID, 0);
+    int lightNumber = get_lightNumber(0.0, 0);
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
@@ -177,9 +177,9 @@ void main ()
       // float spotCosCutoff = u_lights[i].lightDirection.w;
       // float spotExponent = u_lights[i].lightIntensity.w;
 
-      vec4 gotLightDirection = get_lightDirection(u_materialSID, i);
-      vec4 gotLightPosition = get_lightPosition(u_materialSID, i);
-      vec4 gotLightIntensity = get_lightIntensity(u_materialSID, i);
+      vec4 gotLightDirection = get_lightDirection(0.0, i);
+      vec4 gotLightPosition = get_lightPosition(0.0, i);
+      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
       vec3 lightDirection = gotLightDirection.xyz;
       vec3 lightIntensity = gotLightIntensity.xyz;
       vec3 lightPosition = gotLightPosition.xyz;
@@ -212,7 +212,7 @@ void main ()
       float shininess = get_shininess(u_materialSID, 0);
       int shadingModel = get_shadingModel(u_materialSID, 0);
 
-      vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+      vec3 viewPosition = get_viewPosition(0.0, 0);
 
       if (shadingModel == 2) {// BLINN
         // ViewDirection

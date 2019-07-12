@@ -501,6 +501,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       material.setParameter(ShaderSemantics.LightDirection, worldLightDirection, i);
       material.setParameter(ShaderSemantics.LightIntensity, worldLightIntensity, i);
     }
+  }
+
+  private __setupMaterialEveryFrame(material: Material, renderPass: RenderPass) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -541,12 +544,15 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           gl.uniform1i(uniform_dataTexture, 7);
           this.__materialSIDLocation = gl.getUniformLocation(shaderProgram, 'u_materialSID');
 
+          this.__setupMaterial(primitive.material!, renderPass);
+
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
         }
         gl.uniform1f(this.__materialSIDLocation, primitive.material!.materialSID);
         this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-        this.__setupMaterial(primitive.material!, renderPass);
+        this.__setupMaterialEveryFrame(primitive.material!, renderPass);
+
         primitive.material!.setUniformValuesForOnlyTextures(true);
 
         if (primitive.indicesAccessor) {

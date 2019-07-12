@@ -40,11 +40,13 @@ type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInf
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<PropertyName, any> = new Map();
+  private static __soloDatumFields: Map<MaterialTypeName, Map<PropertyName, any>> = new Map();
   private __fieldsInfo: Map<PropertyName, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __materials: Material[] = [];
+  private static __instancesByTypes: Map<MaterialTypeName, Material> = new Map();
   private __materialTid: Index;
   private static __materialTidCount = -1;
 
@@ -64,6 +66,7 @@ export default class Material extends RnObject {
     this.__materialTypeName = materialTypeName;
 
     Material.__materials.push(this);
+    Material.__instancesByTypes.set(materialTypeName, this);
     this.initialize();
   }
 
@@ -129,7 +132,26 @@ export default class Material extends RnObject {
           count: Material.__maxInstances.get(materialTypeName)!,
           byteAlign: 16
         });
-        properties.set(this.__getPropertyName(semanticInfo), accessor);
+
+        const propertyName = this.__getPropertyName(semanticInfo);
+        if (semanticInfo.soloDatum) {
+          const typedArray = accessor.takeOne() as Float32Array;
+          let map = this.__soloDatumFields.get(materialTypeName);
+          if (map == null) {
+            map = new Map();
+            this.__soloDatumFields.set(materialTypeName, map);
+          }
+
+          map.set(
+            propertyName,
+            MathClassUtil.initWithFloat32Array(
+              semanticInfo.initialValue,
+              semanticInfo.initialValue,
+              typedArray
+            ));
+        } else {
+          properties.set(propertyName, accessor);
+        }
       }
     }
 
@@ -190,18 +212,20 @@ export default class Material extends RnObject {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo) => {
         const propertyName = Material.__getPropertyName(semanticsInfo);
-        const accessorMap = Material.__accessors.get(this.__materialTypeName);
-        const accessor = accessorMap!.get(propertyName) as Accessor;
-
-        const typedArray = accessor.takeOne() as Float32Array;
-        this.__fields.set(
-          propertyName,
-          MathClassUtil.initWithFloat32Array(
-            semanticsInfo.initialValue,
-            semanticsInfo.initialValue,
-            typedArray
-          ));
         this.__fieldsInfo.set(propertyName, semanticsInfo);
+        if (!semanticsInfo.soloDatum) {
+          const accessorMap = Material.__accessors.get(this.__materialTypeName);
+          const accessor = accessorMap!.get(propertyName) as Accessor;
+
+          const typedArray = accessor.takeOne() as Float32Array;
+          this.__fields.set(
+            propertyName,
+            MathClassUtil.initWithFloat32Array(
+              semanticsInfo.initialValue,
+              semanticsInfo.initialValue,
+              typedArray
+            ));
+        }
       });
     });
   }
@@ -218,14 +242,20 @@ export default class Material extends RnObject {
     if (index != null) {
       shaderSemanticStr += `___${index}`;
     }
-    if (this.__fieldsInfo.has(shaderSemanticStr)) {
-      let valueObj = this.__fields.get(shaderSemanticStr);
+
+    const info = this.__fieldsInfo.get(shaderSemanticStr);
+    if (info != null) {
+      let valueObj;
+      if (info.soloDatum) {
+        valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticStr);
+      } else {
+        valueObj = this.__fields.get(shaderSemanticStr);
+      }
       if (isNaN(valueObj)) { // if not number
-        valueObj = MathClassUtil._setForce(valueObj, value);
+        MathClassUtil._setForce(valueObj, value);
       } else {
         this.__fields.set(shaderSemanticStr, value);
       }
-
     }
   }
 
@@ -248,11 +278,23 @@ export default class Material extends RnObject {
   getParameter(shaderSemantic: ShaderSemanticsEnum): any;
   getParameter(shaderSemantic: string): any;
   getParameter(shaderSemantic: any): any {
+    let shaderSemanticStr: string;
     if (typeof shaderSemantic === 'string') {
-      return this.__fields.get(shaderSemantic);
+      shaderSemanticStr = shaderSemantic;
     } else {
-      return this.__fields.get(shaderSemantic.str);
+      shaderSemanticStr = shaderSemantic.str;
     }
+
+    const info = this.__fieldsInfo.get(shaderSemanticStr);
+    if (info != null) {
+      if (info.soloDatum) {
+        return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticStr);
+      } else {
+        return this.__fields.get(shaderSemanticStr);
+      }
+    }
+
+    return void 0;
   }
 
   setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
@@ -308,7 +350,7 @@ export default class Material extends RnObject {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
     if (propertySetter) {
-      this.__fields.forEach((value, key) => {
+      this.__fieldsInfo.forEach((value, key) => {
         const info = this.__fieldsInfo.get(key);
         if (info!.stage === ShaderType.VertexShader) {
           vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
@@ -694,8 +736,15 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
   }
 
   static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, memberName: string) {
-    const properties = this.__accessors.get(materialTypeName);
-    const accessor = properties!.get(memberName);
-    return accessor!.byteOffsetInBuffer / 4 / 4;
+    const material = Material.__instancesByTypes.get(materialTypeName)!;
+    const info = material.__fieldsInfo.get(memberName)!;
+    if (info.soloDatum) {
+      const value = Material.__soloDatumFields.get(material.__materialTypeName)!.get(memberName);
+      return (value.v as Float32Array).byteOffset / 4 / 4;
+    } else {
+      const properties = this.__accessors.get(materialTypeName);
+      const accessor = properties!.get(memberName);
+      return accessor!.byteOffsetInBuffer / 4 / 4;
+    }
   }
 }

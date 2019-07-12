@@ -117,6 +117,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(0),
+        soloDatum: true,
         updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
           // console.log(args);
           webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
@@ -133,6 +134,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Vector3(0,0.0),
+        soloDatum: true,
         updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
           let cameraComponent = args.renderPass.cameraComponent;
           if (cameraComponent == null) {
@@ -164,6 +166,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: new Vector4(0, 0, 0, 1),
+          soloDatum: true,
           updateFunc:
             ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
             // console.log(idx);
@@ -191,6 +194,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         initialValue: new Vector4(0, 1, 0, 1),
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: true,
         updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
           const lightComponent = args.lightComponents![idx];
           if (lightComponent == null) {
@@ -215,6 +219,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           isSystem: true,
           initialValue: new Vector4(1, 1, 1, 1),
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          soloDatum: true,
           updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
             const lightComponent = args.lightComponents![idx];
             if (lightComponent == null) {
