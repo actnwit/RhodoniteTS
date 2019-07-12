@@ -352,9 +352,10 @@ export default class Material extends RnObject {
     if (propertySetter) {
       this.__fieldsInfo.forEach((value, key) => {
         const info = this.__fieldsInfo.get(key);
-        if (info!.stage === ShaderType.VertexShader) {
+        if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
           vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
-        } else if (info!.stage === ShaderType.PixelShader) {
+        }
+        if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
           pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
         }
       });

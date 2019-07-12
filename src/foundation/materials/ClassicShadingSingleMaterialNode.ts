@@ -127,7 +127,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         semantic: ShaderSemantics.ViewPosition,
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
+        stage: ShaderType.VertexAndPixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         isPlural: false,
