@@ -22,6 +22,7 @@ import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
@@ -104,21 +105,6 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
       return;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        return '';
-      }
-
-      let str = `
-      ${returnType} get_${memberName}(float instanceId) {
-          return u_${ShaderSemantics.fullSemanticStr(info)};
-        }
-      `
-      return str;
-    };
-
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
@@ -128,7 +114,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
           return;
         }
 
-        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
+        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, ShaderSemantics.getShaderProperty);
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
             {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
@@ -319,7 +305,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const material = primitive.material!;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram(material);

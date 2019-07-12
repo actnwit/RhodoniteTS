@@ -71,7 +71,8 @@ ${this.pointDistanceAttenuation}
   v_texcoord = a_texcoord;
 
   vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
+  vec3 viewPosition = get_viewPosition(0.0, 0);
+  float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
   vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
   float maxPointSize = getPointSize(a_instanceID);
@@ -134,7 +135,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
 
 
   // diffuseColor
@@ -160,26 +161,34 @@ void main ()
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
-  if (u_shadingModel > 0) {
+  int shadingModel = get_shadingModel(u_materialSID, 0);
+  if (shadingModel > 0) {
+
+    int lightNumber = get_lightNumber(0.0, 0);
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
-      if (i >= u_lightNumber) {
+      if (i >= lightNumber) {
         break;
       }
 
-      vec3 lightDirection = u_lights[i].lightDirection.xyz;
-      float lightType = u_lights[i].lightPosition.w;
-      float spotCosCutoff = u_lights[i].lightDirection.w;
-      float spotExponent = u_lights[i].lightIntensity.w;
+      vec4 gotLightDirection = get_lightDirection(0.0, i);
+      vec4 gotLightPosition = get_lightPosition(0.0, i);
+      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
+      vec3 lightDirection = gotLightDirection.xyz;
+      vec3 lightIntensity = gotLightIntensity.xyz;
+      vec3 lightPosition = gotLightPosition.xyz;
+      float lightType = gotLightPosition.w;
+      float spotCosCutoff = gotLightDirection.w;
+      float spotExponent = gotLightIntensity.w;
 
       if (0.75 < lightType) { // is pointlight or spotlight
-        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+        lightDirection = normalize(lightPosition - v_position_inWorld.xyz);
       }
       float spotEffect = 1.0;
       if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        spotEffect = dot(lightDirection, lightDirection);
         if (spotEffect > spotCosCutoff) {
           spotEffect = pow(spotEffect, spotExponent);
         } else {
@@ -187,23 +196,24 @@ void main ()
         }
       }
 
-      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
-//      incidentLight *= M_PI;
+      vec3 incidentLight = spotEffect * lightIntensity;
 
 
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float shininess = get_shininess(u_materialSID);
-      int shadingModel = get_shadingModel(u_materialSID);
+      float shininess = get_shininess(u_materialSID, 0);
+      int shadingModel = get_shadingModel(u_materialSID, 0);
+
+      vec3 viewPosition = get_viewPosition(0.0, 0);
 
       if (shadingModel == 2) {// BLINN
         // ViewDirection
-        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
         vec3 halfVector = normalize(lightDirection + viewDirection);
         specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
-      } else if (u_shadingModel == 3) { // PHONG
-        vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+      } else if (shadingModel == 3) { // PHONG
+        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
         vec3 R = reflect(lightDirection, normal_inWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }

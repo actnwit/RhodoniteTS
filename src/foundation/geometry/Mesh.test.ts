@@ -4,6 +4,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import MemoryManager from '../core/MemoryManager';
 import Mesh from '../geometry/Mesh';
+import ModuleManager from '../system/ModuleManager';
 
 function generatePrimitive() {
   const indices = new Uint32Array([
@@ -30,8 +31,10 @@ function generatePrimitive() {
 }
 
 
-test('mesh.instanceIndex is correct', () => {
+test('mesh.instanceIndex is correct', async () => {
   MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  await ModuleManager.getInstance().loadModule('webgl');
+
   const primitive = generatePrimitive();
 
   const mesh = new Mesh();
@@ -45,8 +48,10 @@ test('mesh.instanceIndex is correct', () => {
   expect(mesh2.instanceIndex).toBe(1);
 });
 
-test('mesh.isInstanceMesh() is correct', () => {
+test('mesh.isInstanceMesh() is correct', async () => {
   MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  await ModuleManager.getInstance().loadModule('webgl');
+
   const primitive = generatePrimitive();
 
   const mesh = new Mesh();

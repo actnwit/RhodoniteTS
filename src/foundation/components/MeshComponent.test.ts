@@ -8,6 +8,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import MemoryManager from '../core/MemoryManager';
 import Mesh from '../geometry/Mesh';
+import ModuleManager from '../system/ModuleManager';
 
 function generateEntity() {
   const repo = EntityRepository.getInstance();
@@ -15,7 +16,9 @@ function generateEntity() {
   return entity;
 }
 
-test('Use translate simply', () => {
+test('Use translate simply', async () => {
+  await ModuleManager.getInstance().loadModule('webgl');
+
   MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
   const firstEntity = generateEntity();
 

@@ -55,6 +55,7 @@ import EntityHelper from './helpers/EntityHelper';
 import MathClassUtil from './math/MathClassUtil';
 import Mesh from './geometry/Mesh';
 import { MathUtil } from './math/MathUtil';
+import Component from './core/Component';
 
 
 const Rn = {
@@ -115,6 +116,7 @@ const Rn = {
   MathClassUtil,
   Mesh,
   MathUtil,
+  Component
 };
 export default Rn;
 export type RnType = typeof Rn;

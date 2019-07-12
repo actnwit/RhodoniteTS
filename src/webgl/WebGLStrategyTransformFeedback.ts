@@ -25,6 +25,7 @@ import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;
@@ -145,21 +146,6 @@ void main(){
       return;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        return '';
-      }
-
-      let str = `
-      ${returnType} get_${memberName}(float instanceId) {
-          return u_${ShaderSemantics.fullSemanticStr(info)};
-        }
-      `
-      return str;
-    };
-
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -170,7 +156,7 @@ void main(){
         }
 
         // Shader Setup
-        material.createProgram(this.__transformFeedbackShaderText, getShaderProperty);
+        material.createProgram(this.__transformFeedbackShaderText, ShaderSemantics.getShaderProperty);
 
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
@@ -424,7 +410,7 @@ void main(){
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const material = primitive.material!;
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     this.attatchShaderProgram(primitive.material!);

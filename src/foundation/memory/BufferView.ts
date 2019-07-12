@@ -81,18 +81,19 @@ export default class BufferView extends RnObject {
     return this.__raw;
   }
 
-  takeAccessor({compositionType, componentType, count, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number}): Accessor {
+  takeAccessor({compositionType, componentType, count, max, min, byteAlign = 4}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number, byteAlign?: Byte}): Accessor {
     const byteStride = this.byteStride;
 
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min});
+    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min, byteAlign});
 
     return accessor;
   }
 
-  takeFlexibleAccessor({compositionType, componentType, count, byteStride, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number}): FlexibleAccessor {
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min});
+  takeFlexibleAccessor({compositionType, componentType, count, byteStride, max, min, byteAlign = 4}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number, byteAlign?: Byte}): FlexibleAccessor {
+
+    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min, byteAlign});
 
     return accessor;
 
@@ -115,8 +116,8 @@ export default class BufferView extends RnObject {
 
   }
 
-  private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any, max?: number, min?: number}): AccessorBase {
+  private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any, max?: number, min?: number, byteAlign: Byte}): AccessorBase {
     let byteOffset = 0;
     if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
@@ -126,15 +127,15 @@ export default class BufferView extends RnObject {
       this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
     }
 
-    if (byteOffset % 4 !== 0) {
+    if (byteOffset % byteAlign !== 0) {
       console.info('Padding bytes added because byteOffset is not 4byte aligned.');
-      byteOffset += 4 - byteOffset % 4;
+      byteOffset += byteAlign - byteOffset % byteAlign;
     }
 
-    if (this.__byteOffset % 4 !== 0) {
+    if (this.__byteOffset % byteAlign !== 0) {
       console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
-      this.__byteOffset += 4 - this.__byteOffset % 4;
-      this.buffer._addTakenByteIndex(4 - this.__byteOffset % 4);
+      this.__byteOffset += byteAlign - this.__byteOffset % byteAlign;
+      this.buffer._addTakenByteIndex(byteAlign - this.__byteOffset % byteAlign);
     }
 
 
