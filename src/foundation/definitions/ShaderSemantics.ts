@@ -137,16 +137,23 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
     if (memberName.indexOf('___0') === -1) {
       return '';
     }
-    variableName = variableName.replace(/\[.+?\]/g, `[${info.index}]`);
+    variableName = variableName.replace(/\[.+?\]/g, `[i]`);
+    str += `
+    for (int i=0; i<${info.maxIndex}; i++) {
+      if (i == index) {
+        return u_${variableName};
+      }
+    }`;
+  } else {
+    str += `return u_${variableName};`;
   }
 
-  str = `
+  return `
   ${returnType} get_${methodName}(float instanceId, int index) {
-    return u_${variableName};
+    ${str}
   }
-  `
+  `;
 
-  return str;
 };
 
 export const ShaderSemantics = Object.freeze({
