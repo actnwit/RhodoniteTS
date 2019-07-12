@@ -216,7 +216,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       this.__webglResourceRepository.setVertexDataToPipeline(
-        { vaoHandle: meshComponent.mesh.vaoUid, iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
+        { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
         primitive, instanceIDBufferUid);
     }
   }
@@ -235,9 +235,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
-  attachVertexDataInner(mesh: Mesh, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+  attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vaoHandles = primitive.vertexHandles!;
-    const vao = this.__webglResourceRepository.getWebGLResource(mesh.vaoUid) as WebGLVertexArrayObjectOES;
+    const vao = this.__webglResourceRepository.getWebGLResource(mesh.getVaoUids(primitiveIndex)) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
@@ -420,7 +420,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       //this.attatchShaderProgram(primitive.material!);
 
-      this.attachVertexDataInner(meshComponent.mesh, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
+      this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
 

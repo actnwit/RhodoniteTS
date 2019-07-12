@@ -30,7 +30,7 @@ export default class Mesh {
   public weights = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
-  private __vaoUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __instances: Mesh[] = [];
   public _attatchedEntityUID = Entity.invalidEntityUID;
@@ -56,11 +56,11 @@ export default class Mesh {
     }
   }
 
-  get vaoUid(): CGAPIResourceHandle {
+  getVaoUids(index: Index): CGAPIResourceHandle {
     if (this.isInstanceMesh()) {
-      return this.__instanceOf!.vaoUid;
+      return this.__instanceOf!.getVaoUids(index);
     } else {
-      return this.__vaoUid;
+      return this.__vaoUids[index];
     }
   }
 
@@ -550,7 +550,9 @@ export default class Mesh {
 
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-      this.__vaoUid = webglResourceRepository.createVertexArray();
+      this.__primitives.forEach((prim, i)=>{
+        this.__vaoUids[i] = webglResourceRepository.createVertexArray();
+      });
 
       if (this.__variationVBOUid != CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
@@ -579,7 +581,9 @@ export default class Mesh {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
-        webglResourceRepository.deleteVertexArray(this.__vaoUid);
+        this.__vaoUids.forEach((vaoUid: CGAPIResourceHandle) => {
+          webglResourceRepository.deleteVertexArray(vaoUid);
+        });
         return true;
       }
     }

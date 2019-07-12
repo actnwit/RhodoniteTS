@@ -338,7 +338,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       this.__webglResourceRepository.setVertexDataToPipeline(
-        { vaoHandle: meshComponent.mesh.vaoUid, iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
+        { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
         primitive, meshComponent.mesh.variationVBOUid);
     }
     meshRendererComponent._readyForRendering = true;
@@ -462,9 +462,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
-  attachVertexDataInner(mesh: Mesh, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+  attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vertexHandles = primitive.vertexHandles!;
-    const vao = this.__webglResourceRepository.getWebGLResource(mesh.vaoUid) as WebGLVertexArrayObjectOES;
+    const vao = this.__webglResourceRepository.getWebGLResource(mesh.getVaoUids(primitiveIndex)) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
@@ -535,7 +535,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           continue;
         }
 
-        this.attachVertexDataInner(mesh, primitive, glw, mesh.variationVBOUid);
+        this.attachVertexDataInner(mesh, primitive, i, glw, mesh.variationVBOUid);
         if (shaderProgramUid !== this.__lastShader) {
           const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
           gl.useProgram(shaderProgram);
