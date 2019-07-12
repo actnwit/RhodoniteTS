@@ -222,7 +222,6 @@ export default class Material extends RnObject {
       let valueObj = this.__fields.get(shaderSemanticStr);
       if (isNaN(valueObj)) { // if not number
         valueObj = MathClassUtil._setForce(valueObj, value);
-        this.__fields.set(shaderSemanticStr, valueObj);
       } else {
         this.__fields.set(shaderSemanticStr, value);
       }
