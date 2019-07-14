@@ -93,22 +93,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       return;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        return '';
-      }
-
-      let str = `
-      ${returnType} get_${memberName}(float instanceId) {
-          return u_${ShaderSemantics.fullSemanticStr(info)};
-        }
-      `
-      return str;
-    };
-
-
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -121,7 +105,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         const gl = glw.getRawContext();
 
         // Shader Setup
-        material.createProgram(this.vertexShaderMethodDefinitions_uniform, getShaderProperty);
+        material.createProgram(this.vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
 
         let args: ShaderSemanticsInfo[] = [
           {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
@@ -232,7 +216,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       this.__webglResourceRepository.setVertexDataToPipeline(
-        { vaoHandle: meshComponent.mesh.vaoUid, iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
+        { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
         primitive, instanceIDBufferUid);
     }
   }
@@ -251,9 +235,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
   }
 
-  attachVertexDataInner(mesh: Mesh, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
+  attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
     const vaoHandles = primitive.vertexHandles!;
-    const vao = this.__webglResourceRepository.getWebGLResource(mesh.vaoUid) as WebGLVertexArrayObjectOES;
+    const vao = this.__webglResourceRepository.getWebGLResource(mesh.getVaoUids(primitiveIndex)) as WebGLVertexArrayObjectOES;
     const gl = glw.getRawContext();
 
     if (vao != null) {
@@ -284,7 +268,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     return false;
   }
 
@@ -436,7 +420,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       //this.attatchShaderProgram(primitive.material!);
 
-      this.attachVertexDataInner(meshComponent.mesh, primitive, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
+      this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
       const material = primitive.material;
 
@@ -462,7 +446,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       //from material
       if (material) {
-        material.setUniformValues(firstTime);
+        material.setUniformValues(firstTime, {lightComponents: this.__lightComponents, renderPass: renderPass});
       }
 
       if (primitive.indicesAccessor) {

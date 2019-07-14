@@ -9,6 +9,7 @@ import { PrimitiveMode } from '../foundation/definitions/PrimitiveMode';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import MemoryManager from '../foundation/core/MemoryManager';
 import Mesh from '../foundation/geometry/Mesh';
+import ModuleManager from '../foundation/system/ModuleManager';
 
 const puppeteer = require('puppeteer')
 
@@ -59,6 +60,7 @@ function readyBasicVerticesData() {
 test('Create WebGL resources.', async () => {
   MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
   const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  await ModuleManager.getInstance().loadModule('webgl')
 
   var width   = 64
   var height  = 64
@@ -93,6 +95,7 @@ test('Create WebGL resources.', async () => {
 
 test('Create WebGL resources. 2', async () => {
   const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  await ModuleManager.getInstance().loadModule('webgl')
 
   var width   = 64
   var height  = 64

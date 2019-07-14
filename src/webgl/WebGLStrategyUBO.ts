@@ -18,6 +18,7 @@ import { ComponentType } from "../foundation/definitions/ComponentType";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import RenderPass from "../foundation/renderer/RenderPass";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;
@@ -64,21 +65,6 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
       return;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-      const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        return '';
-      }
-
-      let str = `
-      ${returnType} get_${memberName}(float instanceId) {
-          return u_${ShaderSemantics.fullSemanticStr(info)};
-        }
-      `
-      return str;
-    };
-
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for(let i=0; i<primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -89,7 +75,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
         }
 
         // Shader Setup
-        material.createProgram(this.vertexShaderMethodDefinitions_UBO, getShaderProperty);
+        material.createProgram(this.vertexShaderMethodDefinitions_UBO, ShaderSemantics.getShaderProperty);
 
 
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
@@ -225,7 +211,7 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const material = primitive.material!;
     this.attatchShaderProgram(material);

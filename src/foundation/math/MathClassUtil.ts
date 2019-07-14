@@ -386,7 +386,26 @@ export default class MathClassUtil {
 
   static _setForce(objForDetectType: any, val: any) {
     let obj = objForDetectType as any;
-    if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
+
+    if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+      if (typeof val.v === 'undefined') {
+        objForDetectType.v[0] = val;
+      } else {
+        objForDetectType.v[0] = val.v[0];
+      }
+    } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
       if (objForDetectType instanceof Matrix33) {
         obj = new MutableMatrix33((objForDetectType as any).v);
       }
@@ -422,28 +441,6 @@ export default class MathClassUtil {
       obj.m32 = val.m32;
       obj.m33 = val.m33;
       return obj;
-    }
-
-    if (isFinite(objForDetectType)) { // number?
-      return val;
-    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
-      if (typeof val.v === 'undefined') {
-        objForDetectType.v[0] = val;
-      } else {
-        objForDetectType.v[0] = val.v[0];
-      }
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-      objForDetectType.v[2] = val.v[2];
-    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
-      objForDetectType.v[0] = val.v[0];
-      objForDetectType.v[1] = val.v[1];
-      objForDetectType.v[2] = val.v[2];
-      objForDetectType.v[3] = val.v[3];
     } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
@@ -472,12 +469,10 @@ export default class MathClassUtil {
         }
       }
       return objForDetectType;
-    } else {
-      console.error('Non supported type!');
-      return void 0;
     }
-    return objForDetectType;
+
+    // maybe objForDetectType is number
+    return val;
   }
 }
 
-//GLBoost["MathClassUtil"] = MathClassUtil;

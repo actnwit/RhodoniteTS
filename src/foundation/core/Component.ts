@@ -279,7 +279,7 @@ export default class Component extends RnObject {
     } else if (dataClassType === RowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, true);
     } else {
-      (this as any)['_'+memberName] = new dataClassType(taken);
+      (this as any)['_'+memberName] = new dataClassType(taken, false, true);
     }
 
     for (let i=0; i<(this as any)['_'+memberName].v.length; ++i) {

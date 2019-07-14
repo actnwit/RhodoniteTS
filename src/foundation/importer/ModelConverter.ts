@@ -106,6 +106,8 @@ export default class ModelConverter {
 
   convertToRhodoniteObject(gltfModel: glTF2) {
 
+    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
+
     // load binary data
     // for (let accessor of gltfModel.accessors) {
     //   this._accessBinaryWithAccessor(accessor);
@@ -329,7 +331,11 @@ export default class ModelConverter {
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
       if (node.mesh != null) {
-        const meshEntity = this.__setupMesh(node.mesh, rnBuffer, gltfModel);
+        let meshIdxOrName = node.meshIndex;
+        if (meshIdxOrName == null) {
+          meshIdxOrName = node.meshNames[0];
+        }
+        const meshEntity = this.__setupMesh(node.mesh, meshIdxOrName, rnBuffer, gltfModel);
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -406,66 +412,75 @@ export default class ModelConverter {
     return cameraEntity;
   }
 
-  private __setupMesh(mesh: any, rnBuffer: Buffer, gltfModel: glTF2) {
+  private __setupMesh(mesh: any, meshIndex: Index, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
+    const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-
     const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
     const rnMesh = new Mesh();
 
-    for (let i in mesh.primitives) {
-      let primitive = mesh.primitives[i];
-      if (primitive.mode != null) {
-        rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
-      }
-      // indices
-      let indicesRnAccessor;
-      const map: Map<VertexAttributeEnum, Accessor> = new Map();
-
-      if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
-        indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
-
-        if (indicesRnAccessor == null) {
-          break;
+    let originalRnMesh = rnMesh;
+    // if (existingRnMesh != null) {
+    //   rnMesh.setMesh(existingRnMesh);
+    //   originalRnMesh = existingRnMesh;
+    // } else {
+      for (let i in mesh.primitives) {
+        let primitive = mesh.primitives[i];
+        if (primitive.mode != null) {
+          rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
         }
-      } else {
-        // attributes
-        if (primitive.indices) {
-          indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
-        }
-        for (let attributeName in primitive.attributes) {
-          let attributeAccessor = primitive.attributes[attributeName];
-          const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-          map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
-        }
-      }
-      const material = this.__setupMaterial(gltfModel, primitive.material);
-      const rnPrimitive = new Primitive();
-      rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
+        // indices
+        let indicesRnAccessor;
+        const map: Map<VertexAttributeEnum, Accessor> = new Map();
 
-      // morph targets
-      if (primitive.targets != null) {
-        const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-        for (let target of primitive.targets) {
-          const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
-          for (let attributeName in target) {
-            let attributeAccessor = target[attributeName];
-            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-            targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
+        if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
+          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
+
+          if (indicesRnAccessor == null) {
+            break;
           }
-          targets.push(targetMap);
+        } else {
+          // attributes
+          if (primitive.indices) {
+            indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+          }
+          for (let attributeName in primitive.attributes) {
+            let attributeAccessor = primitive.attributes[attributeName];
+            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+            map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
+          }
         }
-        rnPrimitive.setTargets(targets);
+        const material = this.__setupMaterial(gltfModel, primitive.material);
+        const rnPrimitive = new Primitive();
+        rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
+
+        // morph targets
+        if (primitive.targets != null) {
+          const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
+          for (let target of primitive.targets) {
+            const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
+            for (let attributeName in target) {
+              let attributeAccessor = target[attributeName];
+              const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
+            }
+            targets.push(targetMap);
+          }
+          rnPrimitive.setTargets(targets);
+        }
+
+        rnMesh.addPrimitive(rnPrimitive);
+
       }
 
-      rnMesh.addPrimitive(rnPrimitive);
-    }
+      if (mesh.weights) {
+        meshComponent.mesh!.weights = mesh.weights;
+      }
+    // }
 
     meshComponent.setMesh(rnMesh);
 
-    if (mesh.weights) {
-      meshComponent.mesh!.weights = mesh.weights;
-    }
+    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = originalRnMesh;
 
     return meshEntity;
   }

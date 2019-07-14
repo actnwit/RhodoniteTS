@@ -190,7 +190,7 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
   }
 
-  static common_$render(){
+  static common_$render({renderPass}: {renderPass: RenderPass}){
     MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     let viewMatrix = MeshRendererComponent.__tmp_indentityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_indentityMatrix;
@@ -202,14 +202,14 @@ export default class MeshRendererComponent extends Component {
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
     const meshComponent = meshComponents[0] as MeshComponent;
     if (meshComponent.mesh!.getPrimitiveNumber() === 0) {
-      MeshRendererComponent.__webGLStrategy!.common_$render(new Primitive(), viewMatrix, projectionMatrix);
+      MeshRendererComponent.__webGLStrategy!.common_$render(new Primitive(), viewMatrix, projectionMatrix, renderPass);
     } else {
       if (meshComponent.mesh) {
         const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
         const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
         for(let i=0; i<primitiveNum; i++) {
           const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-          if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix)) {
+          if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix, renderPass)) {
             break;
           }
 
