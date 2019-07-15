@@ -69,6 +69,13 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The glTF2 Importer class.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -99,6 +106,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#__loadfromarraybuffer" class="tsd-kind-icon">__load<wbr>From<wbr>Array<wbr>Buffer</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_accessarraybufferasimage" class="tsd-kind-icon">_access<wbr>Array<wbr>Buffer<wbr>AsImage</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_accessbinaryasimage" class="tsd-kind-icon">_access<wbr>Binary<wbr>AsImage</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_checkrngltfloaderoptionsexist" class="tsd-kind-icon">_check<wbr>RnGltf<wbr>Loader<wbr>Options<wbr>Exist</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_getimagetype" class="tsd-kind-icon">_get<wbr>Image<wbr>Type</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_getoptions" class="tsd-kind-icon">_get<wbr>Options</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_imgload" class="tsd-kind-icon">_img<wbr>Load</a></li>
@@ -137,7 +145,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L8">src/foundation/importer/Gltf2Importer.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L12">src/foundation/importer/Gltf2Importer.ts:12</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_src_foundation_importer_gltf2importer_.gltf2importer.html" class="tsd-signature-type">Gltf2Importer</a></h4>
@@ -153,7 +161,7 @@
 					<div class="tsd-signature tsd-kind-icon">__instance<span class="tsd-signature-symbol">:</span> <a href="_src_foundation_importer_gltf2importer_.gltf2importer.html" class="tsd-signature-type">Gltf2Importer</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L8">src/foundation/importer/Gltf2Importer.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L12">src/foundation/importer/Gltf2Importer.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -164,13 +172,13 @@
 					<a name="__loadfromarraybuffer" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __load<wbr>From<wbr>Array<wbr>Buffer</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">__load<wbr>From<wbr>Array<wbr>Buffer<span class="tsd-signature-symbol">(</span>arrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">__load<wbr>From<wbr>Array<wbr>Buffer<span class="tsd-signature-symbol">(</span>arrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">__type</span>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L68">src/foundation/importer/Gltf2Importer.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L75">src/foundation/importer/Gltf2Importer.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -179,10 +187,10 @@
 									<h5>arrayBuffer: <span class="tsd-signature-type">ArrayBuffer</span></h5>
 								</li>
 								<li>
-									<h5>options: <span class="tsd-signature-type">__type</span></h5>
+									<h5>defaultOptions: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
-									<h5>defaultOptions: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">__type</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> uri: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
@@ -202,7 +210,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L697">src/foundation/importer/Gltf2Importer.ts:697</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L722">src/foundation/importer/Gltf2Importer.ts:722</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -228,7 +236,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L684">src/foundation/importer/Gltf2Importer.ts:684</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L709">src/foundation/importer/Gltf2Importer.ts:709</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -250,6 +258,29 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_checkrngltfloaderoptionsexist" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _check<wbr>RnGltf<wbr>Loader<wbr>Options<wbr>Exist</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_check<wbr>RnGltf<wbr>Loader<wbr>Options<wbr>Exist<span class="tsd-signature-symbol">(</span>gltfModel<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L342">src/foundation/importer/Gltf2Importer.ts:342</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>gltfModel: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="_getimagetype" class="tsd-anchor"></a>
 					<h3>_get<wbr>Image<wbr>Type</h3>
@@ -260,7 +291,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L717">src/foundation/importer/Gltf2Importer.ts:717</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L742">src/foundation/importer/Gltf2Importer.ts:742</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -277,13 +308,13 @@
 					<a name="_getoptions" class="tsd-anchor"></a>
 					<h3>_get<wbr>Options</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_get<wbr>Options<span class="tsd-signature-symbol">(</span>defaultOptions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, json<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></li>
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Options<span class="tsd-signature-symbol">(</span>defaultOptions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, json<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L91">src/foundation/importer/Gltf2Importer.ts:91</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L98">src/foundation/importer/Gltf2Importer.ts:98</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -292,13 +323,13 @@
 									<h5>defaultOptions: <span class="tsd-signature-type">any</span></h5>
 								</li>
 								<li>
-									<h5>json: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>json: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
 									<h5>options: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -312,7 +343,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L708">src/foundation/importer/Gltf2Importer.ts:708</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L733">src/foundation/importer/Gltf2Importer.ts:733</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -332,13 +363,13 @@
 					<a name="_loadasbinaryjson" class="tsd-anchor"></a>
 					<h3>_load<wbr>AsBinary<wbr>Json</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>AsBinary<wbr>Json<span class="tsd-signature-symbol">(</span>dataView<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DataView</span>, isLittleEndian<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, arrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>AsBinary<wbr>Json<span class="tsd-signature-symbol">(</span>dataView<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DataView</span>, isLittleEndian<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, arrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L109">src/foundation/importer/Gltf2Importer.ts:109</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L116">src/foundation/importer/Gltf2Importer.ts:116</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -353,10 +384,10 @@
 									<h5>arrayBuffer: <span class="tsd-signature-type">ArrayBuffer</span></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
-									<h5>defaultOptions: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>defaultOptions: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> uri: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
@@ -370,25 +401,25 @@
 					<a name="_loadastextjson" class="tsd-anchor"></a>
 					<h3>_load<wbr>AsText<wbr>Json</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>AsText<wbr>Json<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>AsText<wbr>Json<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, defaultOptions<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, uri<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L149">src/foundation/importer/Gltf2Importer.ts:149</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L156">src/foundation/importer/Gltf2Importer.ts:156</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
-									<h5>defaultOptions: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>defaultOptions: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> uri: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
@@ -402,19 +433,19 @@
 					<a name="_loaddependenciesofaccessors" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfAccessors</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfAccessors<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfAccessors<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L445">src/foundation/importer/Gltf2Importer.ts:445</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L470">src/foundation/importer/Gltf2Importer.ts:470</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -425,19 +456,19 @@
 					<a name="_loaddependenciesofanimations" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfAnimations</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfAnimations<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfAnimations<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L415">src/foundation/importer/Gltf2Importer.ts:415</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L440">src/foundation/importer/Gltf2Importer.ts:440</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -448,19 +479,19 @@
 					<a name="_loaddependenciesofbufferviews" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfBuffer<wbr>Views</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfBuffer<wbr>Views<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfBuffer<wbr>Views<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L456">src/foundation/importer/Gltf2Importer.ts:456</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L481">src/foundation/importer/Gltf2Importer.ts:481</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -471,19 +502,19 @@
 					<a name="_loaddependenciesofjoints" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfJoints</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfJoints<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfJoints<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L390">src/foundation/importer/Gltf2Importer.ts:390</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L416">src/foundation/importer/Gltf2Importer.ts:416</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -494,19 +525,19 @@
 					<a name="_loaddependenciesofmaterials" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfMaterials</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfMaterials<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfMaterials<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L329">src/foundation/importer/Gltf2Importer.ts:329</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L350">src/foundation/importer/Gltf2Importer.ts:350</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -517,19 +548,19 @@
 					<a name="_loaddependenciesofmeshes" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfMeshes</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfMeshes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfMeshes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L277">src/foundation/importer/Gltf2Importer.ts:277</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L290">src/foundation/importer/Gltf2Importer.ts:290</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -540,19 +571,19 @@
 					<a name="_loaddependenciesofnodes" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfNodes</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfNodes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfNodes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L238">src/foundation/importer/Gltf2Importer.ts:238</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L245">src/foundation/importer/Gltf2Importer.ts:245</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -563,19 +594,19 @@
 					<a name="_loaddependenciesofscenes" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfScenes</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfScenes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfScenes<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L229">src/foundation/importer/Gltf2Importer.ts:229</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L236">src/foundation/importer/Gltf2Importer.ts:236</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -586,19 +617,19 @@
 					<a name="_loaddependenciesoftextures" class="tsd-anchor"></a>
 					<h3>_load<wbr>Dependencies<wbr>OfTextures</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfTextures<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Dependencies<wbr>OfTextures<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L374">src/foundation/importer/Gltf2Importer.ts:374</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L400">src/foundation/importer/Gltf2Importer.ts:400</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -609,13 +640,13 @@
 					<a name="_loadinner" class="tsd-anchor"></a>
 					<h3>_load<wbr>Inner</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Inner<span class="tsd-signature-symbol">(</span>arrayBufferBinary<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, basePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Inner<span class="tsd-signature-symbol">(</span>arrayBufferBinary<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, basePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L174">src/foundation/importer/Gltf2Importer.ts:174</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L181">src/foundation/importer/Gltf2Importer.ts:181</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -627,10 +658,10 @@
 									<h5>basePath: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -641,22 +672,22 @@
 					<a name="_loadjsoncontent" class="tsd-anchor"></a>
 					<h3>_load<wbr>Json<wbr>Content</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Json<wbr>Content<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Json<wbr>Content<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L191">src/foundation/importer/Gltf2Importer.ts:191</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L198">src/foundation/importer/Gltf2Importer.ts:198</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -667,13 +698,13 @@
 					<a name="_loadresources" class="tsd-anchor"></a>
 					<h3>_load<wbr>Resources</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_load<wbr>Resources<span class="tsd-signature-symbol">(</span>arrayBufferBinary<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, basePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, resources<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_load<wbr>Resources<span class="tsd-signature-symbol">(</span>arrayBufferBinary<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, basePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a>, resources<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L482">src/foundation/importer/Gltf2Importer.ts:482</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L507">src/foundation/importer/Gltf2Importer.ts:507</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -685,10 +716,10 @@
 									<h5>basePath: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5>options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 								<li>
 									<h5>resources: <span class="tsd-signature-type">object</span></h5>
@@ -713,19 +744,19 @@
 					<a name="_mergeextendedjson" class="tsd-anchor"></a>
 					<h3>_merge<wbr>Extended<wbr>Json</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">_merge<wbr>Extended<wbr>Json<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, extendedData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">_merge<wbr>Extended<wbr>Json<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, extendedData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L466">src/foundation/importer/Gltf2Importer.ts:466</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L491">src/foundation/importer/Gltf2Importer.ts:491</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
 									<h5>extendedData: <span class="tsd-signature-type">any</span></h5>
@@ -745,7 +776,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L689">src/foundation/importer/Gltf2Importer.ts:689</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L714">src/foundation/importer/Gltf2Importer.ts:714</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -768,22 +799,27 @@
 					<a name="import" class="tsd-anchor"></a>
 					<h3>import</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">import<span class="tsd-signature-symbol">(</span>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">import<span class="tsd-signature-symbol">(</span>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L13">src/foundation/importer/Gltf2Importer.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L20">src/foundation/importer/Gltf2Importer.ts:20</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Import glTF2 file or arraybuffers.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>uri: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>options: <a href="../modules/_src__types_gltfloadoption_d_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/_src_types_gltf_.html#gltfloadoption" class="tsd-signature-type">GltfLoadOption</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -800,7 +836,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/Gltf2Importer.ts#L737">src/foundation/importer/Gltf2Importer.ts:737</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/Gltf2Importer.ts#L762">src/foundation/importer/Gltf2Importer.ts:762</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_src_foundation_importer_gltf2importer_.gltf2importer.html" class="tsd-signature-type">Gltf2Importer</a></h4>
@@ -841,6 +877,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_accessbinaryasimage" class="tsd-kind-icon">_access<wbr>Binary<wbr>AsImage</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_checkrngltfloaderoptionsexist" class="tsd-kind-icon">_check<wbr>RnGltf<wbr>Loader<wbr>Options<wbr>Exist</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_foundation_importer_gltf2importer_.gltf2importer.html#_getimagetype" class="tsd-kind-icon">_get<wbr>Image<wbr>Type</a>

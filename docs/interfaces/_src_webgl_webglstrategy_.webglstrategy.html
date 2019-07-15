@@ -81,6 +81,7 @@
 				<h3>Implemented by</h3>
 				<ul class="tsd-hierarchy">
 					<li><a href="../classes/_src_webgl_webglstrategydatatexture_.webglstrategydatatexture.html" class="tsd-signature-type">WebGLStrategyDataTexture</a></li>
+					<li><a href="../classes/_src_webgl_webglstrategyfastestwebgl1_.webglstrategyfastestwebgl1.html" class="tsd-signature-type">WebGLStrategyFastestWebGL1</a></li>
 					<li><a href="../classes/_src_webgl_webglstrategytransformfeedback_.webglstrategytransformfeedback.html" class="tsd-signature-type">WebGLStrategyTransformFeedback</a></li>
 					<li><a href="../classes/_src_webgl_webglstrategyubo_.webglstrategyubo.html" class="tsd-signature-type">WebGLStrategyUBO</a></li>
 					<li><a href="../classes/_src_webgl_webglstrategyuniform_.webglstrategyuniform.html" class="tsd-signature-type">WebGLStrategyUniform</a></li>
@@ -118,7 +119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L13">src/webgl/WebGLStrategy.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L15">src/webgl/WebGLStrategy.ts:15</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -135,13 +136,13 @@
 					<a name="_prerender" class="tsd-anchor"></a>
 					<h3>$prerender</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">$prerender<span class="tsd-signature-symbol">(</span>meshComponent<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a>, instanceIDBufferUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">$prerender<span class="tsd-signature-symbol">(</span>meshComponent<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a>, meshRendererComponent<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_components_meshrenderercomponent_.meshrenderercomponent.html" class="tsd-signature-type">MeshRendererComponent</a>, instanceIDBufferUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L14">src/webgl/WebGLStrategy.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L16">src/webgl/WebGLStrategy.ts:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -150,7 +151,10 @@
 									<h5>meshComponent: <a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a></h5>
 								</li>
 								<li>
-									<h5>instanceIDBufferUid: <a href="../modules/_src__types_defined_d_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a></h5>
+									<h5>meshRendererComponent: <a href="../classes/_src_foundation_components_meshrenderercomponent_.meshrenderercomponent.html" class="tsd-signature-type">MeshRendererComponent</a></h5>
+								</li>
+								<li>
+									<h5>instanceIDBufferUid: <a href="../modules/_src_types_commontypes_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -161,19 +165,19 @@
 					<a name="_render" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> $render</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">$render<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#index" class="tsd-signature-type">Index</a>, meshComponent<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a>, worldMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_rowmajarmatrix44_.rowmajarmatrix44.html" class="tsd-signature-type">RowMajarMatrix44</a>, normalMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix33_.matrix33.html" class="tsd-signature-type">Matrix33</a>, entity<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_core_entity_.entity.html" class="tsd-signature-type">Entity</a>, renderPass<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a>, diffuseCube<span class="tsd-signature-symbol">?: </span><a href="../classes/_src_foundation_textures_cubetexture_.cubetexture.html" class="tsd-signature-type">CubeTexture</a>, specularCube<span class="tsd-signature-symbol">?: </span><a href="../classes/_src_foundation_textures_cubetexture_.cubetexture.html" class="tsd-signature-type">CubeTexture</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">$render<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#index" class="tsd-signature-type">Index</a>, meshComponent<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a>, worldMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_rowmajarmatrix44_.rowmajarmatrix44.html" class="tsd-signature-type">RowMajarMatrix44</a>, normalMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix33_.matrix33.html" class="tsd-signature-type">Matrix33</a>, entity<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_core_entity_.entity.html" class="tsd-signature-type">Entity</a>, renderPass<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a>, renderPassTickCount<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#count" class="tsd-signature-type">Count</a>, diffuseCube<span class="tsd-signature-symbol">?: </span><a href="../classes/_src_foundation_textures_cubetexture_.cubetexture.html" class="tsd-signature-type">CubeTexture</a>, specularCube<span class="tsd-signature-symbol">?: </span><a href="../classes/_src_foundation_textures_cubetexture_.cubetexture.html" class="tsd-signature-type">CubeTexture</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L15">src/webgl/WebGLStrategy.ts:15</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L17">src/webgl/WebGLStrategy.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>i: <a href="../modules/_src__types_defined_d_.html#index" class="tsd-signature-type">Index</a></h5>
+									<h5>i: <a href="../modules/_src_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
 								</li>
 								<li>
 									<h5>meshComponent: <a href="../classes/_src_foundation_components_meshcomponent_.meshcomponent.html" class="tsd-signature-type">MeshComponent</a></h5>
@@ -189,6 +193,9 @@
 								</li>
 								<li>
 									<h5>renderPass: <a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a></h5>
+								</li>
+								<li>
+									<h5>renderPassTickCount: <a href="../modules/_src_types_commontypes_.html#count" class="tsd-signature-type">Count</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> diffuseCube: <a href="../classes/_src_foundation_textures_cubetexture_.cubetexture.html" class="tsd-signature-type">CubeTexture</a></h5>
@@ -211,7 +218,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L18">src/webgl/WebGLStrategy.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L20">src/webgl/WebGLStrategy.ts:20</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -228,13 +235,13 @@
 					<a name="attachvertexdata" class="tsd-anchor"></a>
 					<h3>attach<wbr>Vertex<wbr>Data</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">attach<wbr>Vertex<wbr>Data<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, primitive<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a>, glw<span class="tsd-signature-symbol">: </span><a href="../classes/_src_webgl_webglcontextwrapper_.webglcontextwrapper.html" class="tsd-signature-type">WebGLContextWrapper</a>, instanceIDBufferUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">attach<wbr>Vertex<wbr>Data<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, primitive<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a>, glw<span class="tsd-signature-symbol">: </span><a href="../classes/_src_webgl_webglcontextwrapper_.webglcontextwrapper.html" class="tsd-signature-type">WebGLContextWrapper</a>, instanceIDBufferUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L19">src/webgl/WebGLStrategy.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L21">src/webgl/WebGLStrategy.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -249,7 +256,7 @@
 									<h5>glw: <a href="../classes/_src_webgl_webglcontextwrapper_.webglcontextwrapper.html" class="tsd-signature-type">WebGLContextWrapper</a></h5>
 								</li>
 								<li>
-									<h5>instanceIDBufferUid: <a href="../modules/_src__types_defined_d_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a></h5>
+									<h5>instanceIDBufferUid: <a href="../modules/_src_types_commontypes_.html#webglresourcehandle" class="tsd-signature-type">WebGLResourceHandle</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -266,7 +273,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L21">src/webgl/WebGLStrategy.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L23">src/webgl/WebGLStrategy.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -289,7 +296,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L16">src/webgl/WebGLStrategy.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L18">src/webgl/WebGLStrategy.ts:18</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -300,13 +307,13 @@
 					<a name="common__render" class="tsd-anchor"></a>
 					<h3>common_<wbr>$render</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">common_<wbr>$render<span class="tsd-signature-symbol">(</span>primitive<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a>, viewMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, projectionMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">common_<wbr>$render<span class="tsd-signature-symbol">(</span>primitive<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_geometry_primitive_.primitive.html" class="tsd-signature-type">Primitive</a>, viewMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, projectionMatrix<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a>, renderPass<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/webgl/WebGLStrategy.ts#L17">src/webgl/WebGLStrategy.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/webgl/WebGLStrategy.ts#L19">src/webgl/WebGLStrategy.ts:19</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -319,6 +326,9 @@
 								</li>
 								<li>
 									<h5>projectionMatrix: <a href="../classes/_src_foundation_math_matrix44_.matrix44.html" class="tsd-signature-type">Matrix44</a></h5>
+								</li>
+								<li>
+									<h5>renderPass: <a href="../classes/_src_foundation_renderer_renderpass_.renderpass.html" class="tsd-signature-type">RenderPass</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>

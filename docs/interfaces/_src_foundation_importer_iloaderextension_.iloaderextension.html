@@ -77,12 +77,6 @@
 					</li>
 				</ul>
 			</section>
-			<section class="tsd-panel">
-				<h3>Implemented by</h3>
-				<ul class="tsd-hierarchy">
-					<li><a href="../classes/_src_foundation_importer_zogltfloaderextension_.zogltfloaderextension.html" class="tsd-signature-type">ZoGltfLoaderExtension</a></li>
-				</ul>
-			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -92,6 +86,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#generatematerial" class="tsd-kind-icon">generate<wbr>Material</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#isneededtousethismaterial" class="tsd-kind-icon">is<wbr>Needed<wbr>ToUse<wbr>This<wbr>Material</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#settextures" class="tsd-kind-icon">set<wbr>Textures</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#setupmaterial" class="tsd-kind-icon">setup<wbr>Material</a></li>
 							</ul>
 						</section>
@@ -110,7 +105,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/ILoaderExtension.ts#L4">src/foundation/importer/ILoaderExtension.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/ILoaderExtension.ts#L5">src/foundation/importer/ILoaderExtension.ts:5</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -121,19 +116,19 @@
 					<a name="isneededtousethismaterial" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> is<wbr>Needed<wbr>ToUse<wbr>This<wbr>Material</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Needed<wbr>ToUse<wbr>This<wbr>Material<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Needed<wbr>ToUse<wbr>This<wbr>Material<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/ILoaderExtension.ts#L5">src/foundation/importer/ILoaderExtension.ts:5</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/ILoaderExtension.ts#L6">src/foundation/importer/ILoaderExtension.ts:6</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -141,22 +136,48 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="setupmaterial" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> setup<wbr>Material</h3>
+					<a name="settextures" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> set<wbr>Textures</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">setup<wbr>Material<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a>, materialJson<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, material<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Textures<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, materialJson_<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/importer/ILoaderExtension.ts#L6">src/foundation/importer/ILoaderExtension.ts:6</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/ILoaderExtension.ts#L7">src/foundation/importer/ILoaderExtension.ts:7</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gltfJson: <a href="../modules/_src__types_gltf2_d_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
+								</li>
+								<li>
+									<h5>materialJson_: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="setupmaterial" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> setup<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">setup<wbr>Material<span class="tsd-signature-symbol">(</span>gltfJson<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a>, materialJson<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, material<span class="tsd-signature-symbol">: </span><a href="../classes/_src_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/importer/ILoaderExtension.ts#L8">src/foundation/importer/ILoaderExtension.ts:8</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>gltfJson: <a href="../modules/_src_types_gltf_.html#gltf2" class="tsd-signature-type">glTF2</a></h5>
 								</li>
 								<li>
 									<h5>materialJson: <span class="tsd-signature-type">any</span></h5>
@@ -194,6 +215,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#isneededtousethismaterial" class="tsd-kind-icon">is<wbr>Needed<wbr>ToUse<wbr>This<wbr>Material</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#settextures" class="tsd-kind-icon">set<wbr>Textures</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_src_foundation_importer_iloaderextension_.iloaderextension.html#setupmaterial" class="tsd-kind-icon">setup<wbr>Material</a>

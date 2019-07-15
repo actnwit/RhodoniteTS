@@ -69,6 +69,13 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The root class of the objects in Rhodonite</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -111,6 +118,9 @@
 							<li>
 								<a href="_src_foundation_memory_buffer_.buffer.html" class="tsd-signature-type">Buffer</a>
 							</li>
+							<li>
+								<a href="_src_foundation_core_component_.component.html" class="tsd-signature-type">Component</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
@@ -133,6 +143,8 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_foundation_core_rnobject_.rnobject.html#__tags" class="tsd-kind-icon">__tags</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_src_foundation_core_rnobject_.rnobject.html#__uniquename" class="tsd-kind-icon">__unique<wbr>Name</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#__objects" class="tsd-kind-icon">__objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#__objectsbynamemap" class="tsd-kind-icon">__objects<wbr>ByName<wbr>Map</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#__uniquenames" class="tsd-kind-icon">__unique<wbr>Names</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#currentmaxobjectcount" class="tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count</a></li>
 							</ul>
@@ -140,7 +152,7 @@
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#objectuid" class="tsd-kind-icon">object<wbr>Uid</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#objectuid" class="tsd-kind-icon">objectUID</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a></li>
 							</ul>
 						</section>
@@ -151,12 +163,14 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#gettagvalue" class="tsd-kind-icon">get<wbr>Tag<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#hastag" class="tsd-kind-icon">has<wbr>Tag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#matchtag" class="tsd-kind-icon">match<wbr>Tag</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#matchtagconblied" class="tsd-kind-icon">match<wbr>Tag<wbr>Conblied</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#matchtagconbliedasfree" class="tsd-kind-icon">match<wbr>Tag<wbr>Conblied<wbr>AsFree</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#matchtags" class="tsd-kind-icon">match<wbr>Tags</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#matchtagsasfreestrings" class="tsd-kind-icon">match<wbr>Tags<wbr>AsFree<wbr>Strings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#trytosettag" class="tsd-kind-icon">try<wbr>ToSet<wbr>Tag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#trytosetuniquename" class="tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_foundation_core_rnobject_.rnobject.html#validatetagstring" class="tsd-kind-icon">validate<wbr>Tag<wbr>String</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#getrnobject" class="tsd-kind-icon">get<wbr>RnObject</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_src_foundation_core_rnobject_.rnobject.html#getrnobjectbyname" class="tsd-kind-icon">get<wbr>RnObject<wbr>ByName</a></li>
 							</ul>
 						</section>
 					</div>
@@ -174,7 +188,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L8">src/foundation/core/RnObject.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L15">src/foundation/core/RnObject.ts:15</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></h4>
@@ -190,27 +204,27 @@
 					<div class="tsd-signature tsd-kind-icon">__conbined<wbr>Tag<wbr>String<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L8">src/foundation/core/RnObject.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L14">src/foundation/core/RnObject.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__objectuid" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __object<wbr>Uid</h3>
-					<div class="tsd-signature tsd-kind-icon">__object<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
+					<div class="tsd-signature tsd-kind-icon">__object<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_src_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L2">src/foundation/core/RnObject.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L7">src/foundation/core/RnObject.ts:7</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__tags" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __tags</h3>
-					<div class="tsd-signature tsd-kind-icon">__tags<span class="tsd-signature-symbol">:</span> <a href="../modules/_src__types_defined_d_.html#rntags" class="tsd-signature-type">RnTags</a></div>
+					<div class="tsd-signature tsd-kind-icon">__tags<span class="tsd-signature-symbol">:</span> <a href="../modules/_src_types_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L7">src/foundation/core/RnObject.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L13">src/foundation/core/RnObject.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -220,7 +234,7 @@
 					<div class="tsd-signature tsd-kind-icon">__unique<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L5">src/foundation/core/RnObject.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L11">src/foundation/core/RnObject.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -230,7 +244,27 @@
 					<div class="tsd-signature tsd-kind-icon">Invalid<wbr>ObjectUID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L4">src/foundation/core/RnObject.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L9">src/foundation/core/RnObject.ts:9</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__objects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __objects</h3>
+					<div class="tsd-signature tsd-kind-icon">__objects<span class="tsd-signature-symbol">:</span> <a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L8">src/foundation/core/RnObject.ts:8</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="__objectsbynamemap" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __objects<wbr>ByName<wbr>Map</h3>
+					<div class="tsd-signature tsd-kind-icon">__objects<wbr>ByName<wbr>Map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L15">src/foundation/core/RnObject.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -240,17 +274,17 @@
 					<div class="tsd-signature tsd-kind-icon">__unique<wbr>Names<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L6">src/foundation/core/RnObject.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L12">src/foundation/core/RnObject.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="currentmaxobjectcount" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> current<wbr>Max<wbr>Object<wbr>Count</h3>
-					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;RnObject.InvalidObjectUID</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L3">src/foundation/core/RnObject.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L10">src/foundation/core/RnObject.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -259,18 +293,23 @@
 				<h2>Accessors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="objectuid" class="tsd-anchor"></a>
-					<h3>object<wbr>Uid</h3>
+					<h3>objectUID</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectUid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectUID<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L17">src/foundation/core/RnObject.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L30">src/foundation/core/RnObject.ts:30</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/_src__types_defined_d_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h4>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the objectUID of the object.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_src_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -284,7 +323,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L132">src/foundation/core/RnObject.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L200">src/foundation/core/RnObject.ts:200</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -309,13 +348,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L73">src/foundation/core/RnObject.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L120">src/foundation/core/RnObject.ts:120</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the tag object.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -332,13 +379,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L69">src/foundation/core/RnObject.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L112">src/foundation/core/RnObject.ts:112</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the value of the tag.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -355,13 +410,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L79">src/foundation/core/RnObject.ts:79</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L130">src/foundation/core/RnObject.ts:130</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the boolean value whether this object has the tag or not.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -378,16 +441,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L93">src/foundation/core/RnObject.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L153">src/foundation/core/RnObject.ts:153</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Confirms the matching of the tag name and tag value.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 								<li>
 									<h5>tagValue: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag value.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -395,22 +469,30 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="matchtagconblied" class="tsd-anchor"></a>
-					<h3>match<wbr>Tag<wbr>Conblied</h3>
+					<a name="matchtags" class="tsd-anchor"></a>
+					<h3>match<wbr>Tags</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">match<wbr>Tag<wbr>Conblied<span class="tsd-signature-symbol">(</span>tags<span class="tsd-signature-symbol">: </span><a href="../modules/_src__types_defined_d_.html#rntags" class="tsd-signature-type">RnTags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">match<wbr>Tags<span class="tsd-signature-symbol">(</span>tags<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L115">src/foundation/core/RnObject.ts:115</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L183">src/foundation/core/RnObject.ts:183</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Comfirm that this object&#39;s tags includes given set of tags.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tags: <a href="../modules/_src__types_defined_d_.html#rntags" class="tsd-signature-type">RnTags</a></h5>
+									<h5>tags: <a href="../modules/_src_types_commontypes_.html#rntags" class="tsd-signature-type">RnTags</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The set of tags.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -418,22 +500,30 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="matchtagconbliedasfree" class="tsd-anchor"></a>
-					<h3>match<wbr>Tag<wbr>Conblied<wbr>AsFree</h3>
+					<a name="matchtagsasfreestrings" class="tsd-anchor"></a>
+					<h3>match<wbr>Tags<wbr>AsFree<wbr>Strings</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">match<wbr>Tag<wbr>Conblied<wbr>AsFree<span class="tsd-signature-symbol">(</span>stringArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">match<wbr>Tags<wbr>AsFree<wbr>Strings<span class="tsd-signature-symbol">(</span>stringArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L101">src/foundation/core/RnObject.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L165">src/foundation/core/RnObject.ts:165</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Comfirm that this object&#39;s tags includes given an array of string.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>stringArray: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>an array of string.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -450,13 +540,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L87">src/foundation/core/RnObject.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L142">src/foundation/core/RnObject.ts:142</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove the tag.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -473,16 +571,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L54">src/foundation/core/RnObject.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L93">src/foundation/core/RnObject.ts:93</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Tries to set tag (name and value).</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tagName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The tag name.</p>
+									</div>
 								</li>
 								<li>
 									<h5>tagValue: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Tha value of the tag.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -499,7 +608,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L26">src/foundation/core/RnObject.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L55">src/foundation/core/RnObject.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -533,16 +642,89 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/58966eb/src/foundation/core/RnObject.ts#L46">src/foundation/core/RnObject.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L80">src/foundation/core/RnObject.ts:80</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Validate the string of tags.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>val: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The string to be validated</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="getrnobject" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>RnObject</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>RnObject<span class="tsd-signature-symbol">(</span>objectUid<span class="tsd-signature-symbol">: </span><a href="../modules/_src_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L38">src/foundation/core/RnObject.ts:38</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the object by corresponding to the objectUID.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>objectUid: <a href="../modules/_src_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The objectUID of the object.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="getrnobjectbyname" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>RnObject<wbr>ByName</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>RnObject<wbr>ByName<span class="tsd-signature-symbol">(</span>uniqueName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/aa274e98/src/foundation/core/RnObject.ts#L46">src/foundation/core/RnObject.ts:46</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the object by the unique name.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>uniqueName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The unique name of the object.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="_src_foundation_core_rnobject_.rnobject.html" class="tsd-signature-type">RnObject</a>
+							</h4>
 						</li>
 					</ul>
 				</section>
@@ -585,13 +767,19 @@
 								<a href="_src_foundation_core_rnobject_.rnobject.html#invalidobjectuid" class="tsd-kind-icon">Invalid<wbr>ObjectUID</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_foundation_core_rnobject_.rnobject.html#__objects" class="tsd-kind-icon">__objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="_src_foundation_core_rnobject_.rnobject.html#__objectsbynamemap" class="tsd-kind-icon">__objects<wbr>ByName<wbr>Map</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
 								<a href="_src_foundation_core_rnobject_.rnobject.html#__uniquenames" class="tsd-kind-icon">__unique<wbr>Names</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_src_foundation_core_rnobject_.rnobject.html#currentmaxobjectcount" class="tsd-kind-icon">current<wbr>Max<wbr>Object<wbr>Count</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="_src_foundation_core_rnobject_.rnobject.html#objectuid" class="tsd-kind-icon">object<wbr>Uid</a>
+								<a href="_src_foundation_core_rnobject_.rnobject.html#objectuid" class="tsd-kind-icon">objectUID</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_src_foundation_core_rnobject_.rnobject.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a>
@@ -609,10 +797,10 @@
 								<a href="_src_foundation_core_rnobject_.rnobject.html#matchtag" class="tsd-kind-icon">match<wbr>Tag</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_foundation_core_rnobject_.rnobject.html#matchtagconblied" class="tsd-kind-icon">match<wbr>Tag<wbr>Conblied</a>
+								<a href="_src_foundation_core_rnobject_.rnobject.html#matchtags" class="tsd-kind-icon">match<wbr>Tags</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_foundation_core_rnobject_.rnobject.html#matchtagconbliedasfree" class="tsd-kind-icon">match<wbr>Tag<wbr>Conblied<wbr>AsFree</a>
+								<a href="_src_foundation_core_rnobject_.rnobject.html#matchtagsasfreestrings" class="tsd-kind-icon">match<wbr>Tags<wbr>AsFree<wbr>Strings</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_foundation_core_rnobject_.rnobject.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a>
@@ -625,6 +813,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_foundation_core_rnobject_.rnobject.html#validatetagstring" class="tsd-kind-icon">validate<wbr>Tag<wbr>String</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_src_foundation_core_rnobject_.rnobject.html#getrnobject" class="tsd-kind-icon">get<wbr>RnObject</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_src_foundation_core_rnobject_.rnobject.html#getrnobjectbyname" class="tsd-kind-icon">get<wbr>RnObject<wbr>ByName</a>
 							</li>
 						</ul>
 					</li>
