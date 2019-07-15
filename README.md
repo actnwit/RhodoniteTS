@@ -65,7 +65,7 @@ $ yarn build
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.4/fetch.min.js"></script> <!-- only for IE11 support -- >
   <script src="../../../dist/rhodonite.min.ie11.js"></script> <!-- only for IE11 support -- >
   <script>
-    // All Rhodonite classes you need is are window.Rn object.
+    // All Rhodonite classes you need are window.Rn object.
     const promises = [];
     const promise1 = Rn.ModuleManager.getInstance().loadModule('webgl');
     const promise2 = Rn.ModuleManager.getInstance().loadModule('pbr');
