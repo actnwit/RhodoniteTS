@@ -1,18 +1,19 @@
 import { RnType } from '../../../dist/types/foundation/main'
 import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
 import CameraControllerComponent from '../../../dist/types/foundation/components/CameraControllerComponent';
-import Material from '../../../dist/types/foundation/materials/Material';
-import WebGLStrategyUniform from '../../../dist/types/webgl/WebGLStrategyUniform';
+import Entity from '../../../dist/types/foundation/core/Entity';
 
 declare const Rn: RnType;
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function() {
+const setupRenderPassEntityUidOutput = function(rootGroup: Entity) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
+  Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
 
   renderPass.material = entityUidOutputMaterial;
+
+  renderPass.addEntities([rootGroup]);
 
   return renderPass;
 }
@@ -27,7 +28,6 @@ const load = async function(time){
   const entityRepository = Rn.EntityRepository.getInstance();
 
   const expression = new Rn.Expression();
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput();
 
 
   // Camera
@@ -61,6 +61,8 @@ const load = async function(time){
 //  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
+  expression.addRenderPasses([renderPassEntityUidOutput]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
@@ -106,7 +108,7 @@ const load = async function(time){
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process();
+    system.process(expression);
     count++;
 
     requestAnimationFrame(draw);
