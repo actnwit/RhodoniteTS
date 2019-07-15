@@ -16,14 +16,14 @@ Rhodonite is a WebGL library written in TypeScript.
 
 ### Setup Project
 
-```
+```bash
 $ yarn install
 $ yarn setup
 ```
 
 ### Library build command
 
-```
+```bash
 $ yarn build
 ```
 
@@ -33,7 +33,7 @@ $ yarn build
 
 #### For modern browsers (excludes IE11)
 
-```
+```html
 <body>
   <canvas id="world"></canvas>
   <script src="../../../dist/rhodonite.min.js"></script>
@@ -135,19 +135,19 @@ $ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolutio
 
 ## Building API Documents
 
-```
+```bash
 $ yarn doc
 ```
 
 ## Testing Rhodonite
 
-```
+```bash
 $ yarn test
 ```
 
 ## Watching Test Samples
 
-```
+```bash
 $ yarn serv
 ```
 
