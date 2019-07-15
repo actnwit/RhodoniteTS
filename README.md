@@ -16,14 +16,14 @@ Rhodonite is a WebGL library written in TypeScript.
 
 ### Setup Project
 
-```
+```bash
 $ yarn install
 $ yarn setup
 ```
 
 ### Library build command
 
-```
+```bash
 $ yarn build
 ```
 
@@ -33,7 +33,7 @@ $ yarn build
 
 #### For modern browsers (excludes IE11)
 
-```
+```html
 <body>
   <canvas id="world"></canvas>
   <script src="../../../dist/rhodonite.min.js"></script>
@@ -56,7 +56,7 @@ $ yarn build
 
 #### For All browsers which support WebGL (include IE11)
 
-```
+```html
 <body>
   <canvas id="world"></canvas>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script> <!-- only for IE11 support -- >
@@ -87,7 +87,7 @@ $ yarn build
 
 #### HTML
 
-```
+```html
 <body>
   <canvas id="world"></canvas>
   <script src="../../../dist/rhodonite.min.js"></script>
@@ -97,9 +97,9 @@ $ yarn build
 </body>
 ```
 
-#### main.ts (compiled to main.js)
+#### main.ts (will be compiled to main.js)
 
-```
+```typescript
 import { RnType } from '../../../dist/types/foundation/main'
 import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
 // import CameraComponent from '../../../src/types/foundation/components/CameraComponent'; // Don't refer from 'src' directory
@@ -127,7 +127,7 @@ async function load() {
 }
 ```
 
-For build main.js, Use the following command.
+For build main.ts, Use the following command.
 
 ```
 $ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolution node
@@ -135,19 +135,19 @@ $ npx tsc ./main.ts --lib es2015,dom --target es5 --module umd --moduleResolutio
 
 ## Building API Documents
 
-```
+```bash
 $ yarn doc
 ```
 
 ## Testing Rhodonite
 
-```
+```bash
 $ yarn test
 ```
 
 ## Watching Test Samples
 
-```
+```bash
 $ yarn serv
 ```
 
