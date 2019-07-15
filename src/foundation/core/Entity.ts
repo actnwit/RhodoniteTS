@@ -8,7 +8,7 @@ import { ComponentTID, EntityUID } from '../../types/CommonTypes';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
- * Entity can acquire those functions by having components on themselves.
+ * Entities can acquire various functions by having components on themselves.
  */
 export default class Entity extends RnObject {
   private readonly __entity_uid: number;

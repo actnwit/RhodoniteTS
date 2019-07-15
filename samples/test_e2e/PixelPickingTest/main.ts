@@ -1,6 +1,5 @@
 import { RnType } from '../../../dist/types/foundation/main'
 import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
-import LightComponent from '../../../dist/types/foundation/components/LightComponent';
 import CameraControllerComponent from '../../../dist/types/foundation/components/CameraControllerComponent';
 
 declare const Rn: RnType;
@@ -21,18 +20,6 @@ const load = async function(time){
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
-
-
-  // Lights
-  // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
-  // lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
-  const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent]);
-  lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
-  const lightComponent2 = lightEntity2.getComponent(Rn.LightComponent) as LightComponent;
-  lightComponent2.intensity = new Rn.Vector3(1, 1, 1);
-  //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
-  //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 
 //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
