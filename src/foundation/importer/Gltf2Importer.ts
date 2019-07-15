@@ -1,6 +1,7 @@
 import DataUtil from "../misc/DataUtil";
 import Accessor from "../memory/Accessor";
 import BufferView from "../memory/BufferView";
+import { glTF2, GltfLoadOption } from "../../types/glTF";
 
 declare var Rn: any;
 

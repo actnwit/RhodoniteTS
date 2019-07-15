@@ -80,3 +80,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 (0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-832-g2188-mod branch: feature/picking';
 
 (0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-833-g88ae-mod branch: feature/picking';
+
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-834-g1410-mod branch: feature/picking';
+
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-834-g1410-mod branch: feature/picking';

@@ -1,6 +1,6 @@
-version: 0.1.1-833-g88ae-mod
+version: 0.1.1-834-g1410-mod
 branch: feature/picking
-dc3b87f3666e8f1173f4a1a59017cc36b9d164ed9dd16145c76e87b23b681fec ./dist/rhodonite.js
-b74de9919847964f2b45c4ae5bed7ca3e7dea3d998f527a6bec1069fb52f446b ./dist/rhodonite.min.js
-1891cbd475e1d759aeaddb6451f0cb57ce5388502deb220ad632bb10e767b054 ./dist/rhodonite-webgl.js
-d48875a8183e339571ac0503b288ae09b1b70152a2c8d26e04ffadefac48922d ./dist/rhodonite-webgl.min.js
+2e5dbd81bab865d4f53d01dac9af3807c505ff21e3302f5dc9f7ea2890e71bea ./dist/rhodonite.js
+0e48e7aec0497fc95481df70b730de484263674b76055a5936f06db5d6677b1a ./dist/rhodonite.min.js
+46a8e1dd20ea688d4a033d9decd1b7ed67455b412b04ab65c3578ac7c12d9ce3 ./dist/rhodonite-webgl.js
+9f222cfb3820ddc8325d1688849be80a21ab809f96f8194b2f8c77f6058117d9 ./dist/rhodonite-webgl.min.js

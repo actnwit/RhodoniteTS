@@ -1,4 +1,5 @@
 import DataUtil from "../misc/DataUtil";
+import { glTF1, GltfLoadOption } from "../../types/glTF";
 
 declare var Rn: any;
 

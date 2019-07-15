@@ -2,6 +2,7 @@ import Entity from "../core/Entity";
 import Buffer from "../memory/Buffer";
 import Material from "../materials/Material";
 import { Byte, Size } from "../../types/CommonTypes";
+import { GltfLoadOption, glTF2 } from "../../types/glTF";
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */

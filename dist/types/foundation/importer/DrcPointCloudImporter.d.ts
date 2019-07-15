@@ -1,3 +1,4 @@
+import { glTF2, GltfLoadOption } from "../../types/glTF";
 export default class DrcPointCloudImporter {
     private static __instance;
     private constructor();

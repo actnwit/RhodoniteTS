@@ -1,3 +1,4 @@
+import { glTF2, GltfLoadOption } from "../../types/glTF";
 /**
  * The glTF2 Importer class.
  */

@@ -1,3 +1,4 @@
+import { glTF1, GltfLoadOption } from "../../types/glTF";
 export default class Gltf1Importer {
     private static __instance;
     private constructor();
