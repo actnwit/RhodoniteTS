@@ -1,9 +1,21 @@
 import { RnType } from '../../../dist/types/foundation/main'
 import CameraComponent from '../../../dist/types/foundation/components/CameraComponent';
 import CameraControllerComponent from '../../../dist/types/foundation/components/CameraControllerComponent';
+import Material from '../../../dist/types/foundation/materials/Material';
+import WebGLStrategyUniform from '../../../dist/types/webgl/WebGLStrategyUniform';
 
 declare const Rn: RnType;
 declare const window: any;
+
+const setupRenderPassEntityUidOutput = function() {
+  const renderPass = new Rn.RenderPass();
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
+
+  renderPass.material = entityUidOutputMaterial;
+
+  return renderPass;
+}
 
 const load = async function(time){
   await Rn.ModuleManager.getInstance().loadModule('webgl');
@@ -14,12 +26,18 @@ const load = async function(time){
 
   const entityRepository = Rn.EntityRepository.getInstance();
 
+  const expression = new Rn.Expression();
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput();
+
+
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+
+
 
 
 //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');

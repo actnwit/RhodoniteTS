@@ -8,6 +8,7 @@ import ShadowMapping32bitSingleMaterial from "../materials/ShadowMapping32bitSin
 import RenderPass from "../renderer/RenderPass";
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
 import AbstractMaterialNode from "../materials/AbstractMaterialNode";
+import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterial";
 
 function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const material = Material.createMaterial(materialName, materialNodes);
@@ -75,8 +76,16 @@ function createGammaCorrectionMaterial(maxInstancesNumber?: number) {
   return material;
 }
 
+function createEntityUIDOutputMaterial(maxInstancesNumber?: number) {
+  const materialNode = new EntityUIDOutputSingleMaterialNode();
+  materialNode.isSingleOperation = true;
+  const material = findOrCreateMaterial('EntityUIDOutput', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 10);
+
+  return material;
+}
+
 export default Object.freeze({
   createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial,
   createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMapping32bitMaterial,
-  createGammaCorrectionMaterial
+  createGammaCorrectionMaterial, createEntityUIDOutputMaterial
 });
