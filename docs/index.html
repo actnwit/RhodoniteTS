@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>typescript</title>
+	<title>rhodonite-ts</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">typescript</a>
+					<a href="index.html" class="title">rhodonite-ts</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> typescript</h1>
+			<h1> rhodonite-ts</h1>
 		</div>
 	</div>
 </header>
@@ -64,10 +64,26 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="read-this-">Read This!</h1>
-				<p><strong>These files are not meant to be edited by hand.</strong>
-					If you need to make modifications, the respective files should be changed within the repository&#39;s top-level <code>src</code> directory.
-				Running <code>jake LKG</code> will then appropriately update the files in this directory.</p>
+				<h1 id="rhodonite">Rhodonite</h1>
+				<p>Rhodonite is a WebGL library written in TypeScript.</p>
+				<h2 id="feature">Feature</h2>
+				<ul>
+					<li>Entity Component System</li>
+					<li>Original high speed drawing system with data texture</li>
+				</ul>
+				<h2 id="building-rhodonite">Building Rhodonite</h2>
+				<h3 id="prerequisites">Prerequisites</h3>
+				<ul>
+					<li>Node.js 8.x or later</li>
+					<li>yarn package manager</li>
+				</ul>
+				<h3 id="setup-project">Setup Project</h3>
+				<pre><code><span class="hljs-variable">$ </span>yarn install
+<span class="hljs-variable">$ </span>yarn setup</code></pre><h3 id="build-command">Build command</h3>
+				<pre><code><span class="hljs-variable">$ </span>yarn build</code></pre><h2 id="building-api-documents">Building API Documents</h2>
+				<pre><code><span class="hljs-variable">$ </span>yarn doc</code></pre><h2 id="testing-rhodonite">Testing Rhodonite</h2>
+				<pre><code><span class="hljs-meta">$</span><span class="bash"> yarn <span class="hljs-built_in">test</span></span></code></pre><h2 id="watching-test-samples">Watching Test Samples</h2>
+				<pre><code><span class="hljs-variable">$ </span>yarn serv</code></pre><p>Then, access <a href="http://localhost:8082/">http://localhost:8082/</a> with your web browser.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -76,800 +92,470 @@
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
-					<li class="label tsd-is-external">
-						<span>Internals</span>
-					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_effekseer_effekseercomponent_.html">"src/effekseer/<wbr>Effekseer<wbr>Component"</a>
+						<a href="modules/_effekseer_effekseercomponent_.html">"effekseer/<wbr>Effekseer<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_effekseer_main_.html">"src/effekseer/main"</a>
+						<a href="modules/_effekseer_main_.html">"effekseer/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_animationcomponent_.html">"src/foundation/components/<wbr>Animation<wbr>Component"</a>
+						<a href="modules/_foundation_components_animationcomponent_.html">"foundation/components/<wbr>Animation<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_cameracomponent_.html">"src/foundation/components/<wbr>Camera<wbr>Component"</a>
+						<a href="modules/_foundation_components_cameracomponent_.html">"foundation/components/<wbr>Camera<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_cameracontrollercomponent_.html">"src/foundation/components/<wbr>Camera<wbr>Controller<wbr>Component"</a>
+						<a href="modules/_foundation_components_cameracontrollercomponent_.html">"foundation/components/<wbr>Camera<wbr>Controller<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_lightcomponent_.html">"src/foundation/components/<wbr>Light<wbr>Component"</a>
+						<a href="modules/_foundation_components_lightcomponent_.html">"foundation/components/<wbr>Light<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_meshcomponent_.html">"src/foundation/components/<wbr>Mesh<wbr>Component"</a>
+						<a href="modules/_foundation_components_meshcomponent_.html">"foundation/components/<wbr>Mesh<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_meshrenderercomponent_.html">"src/foundation/components/<wbr>Mesh<wbr>Renderer<wbr>Component"</a>
+						<a href="modules/_foundation_components_meshrenderercomponent_.html">"foundation/components/<wbr>Mesh<wbr>Renderer<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_scenegraphcomponent_.html">"src/foundation/components/<wbr>Scene<wbr>Graph<wbr>Component"</a>
+						<a href="modules/_foundation_components_scenegraphcomponent_.html">"foundation/components/<wbr>Scene<wbr>Graph<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_skeletalcomponent_.html">"src/foundation/components/<wbr>Skeletal<wbr>Component"</a>
+						<a href="modules/_foundation_components_skeletalcomponent_.html">"foundation/components/<wbr>Skeletal<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_transformcomponent_.html">"src/foundation/components/<wbr>Transform<wbr>Component"</a>
+						<a href="modules/_foundation_components_transformcomponent_.html">"foundation/components/<wbr>Transform<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_components_wellknowncomponenttids_.html">"src/foundation/components/<wbr>Well<wbr>Known<wbr>ComponentTIDs"</a>
+						<a href="modules/_foundation_components_wellknowncomponenttids_.html">"foundation/components/<wbr>Well<wbr>Known<wbr>ComponentTIDs"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_component_.html">"src/foundation/core/<wbr>Component"</a>
+						<a href="modules/_foundation_core_component_.html">"foundation/core/<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_componentrepository_.html">"src/foundation/core/<wbr>Component<wbr>Repository"</a>
+						<a href="modules/_foundation_core_componentrepository_.html">"foundation/core/<wbr>Component<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_config_.html">"src/foundation/core/<wbr>Config"</a>
+						<a href="modules/_foundation_core_config_.html">"foundation/core/<wbr>Config"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_context_.html">"src/foundation/core/<wbr>Context"</a>
+						<a href="modules/_foundation_core_context_.html">"foundation/core/<wbr>Context"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_entity_.html">"src/foundation/core/<wbr>Entity"</a>
+						<a href="modules/_foundation_core_entity_.html">"foundation/core/<wbr>Entity"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_entityrepository_.html">"src/foundation/core/<wbr>Entity<wbr>Repository"</a>
+						<a href="modules/_foundation_core_entityrepository_.html">"foundation/core/<wbr>Entity<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_memorymanager_.html">"src/foundation/core/<wbr>Memory<wbr>Manager"</a>
+						<a href="modules/_foundation_core_memorymanager_.html">"foundation/core/<wbr>Memory<wbr>Manager"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_core_rnobject_.html">"src/foundation/core/<wbr>RnObject"</a>
+						<a href="modules/_foundation_core_rnobject_.html">"foundation/core/<wbr>RnObject"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_alphamode_.html">"src/foundation/definitions/<wbr>Alpha<wbr>Mode"</a>
+						<a href="modules/_foundation_definitions_alphamode_.html">"foundation/definitions/<wbr>Alpha<wbr>Mode"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_animation_.html">"src/foundation/definitions/<wbr>Animation"</a>
+						<a href="modules/_foundation_definitions_animation_.html">"foundation/definitions/<wbr>Animation"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_bufferuse_.html">"src/foundation/definitions/<wbr>Buffer<wbr>Use"</a>
+						<a href="modules/_foundation_definitions_bufferuse_.html">"foundation/definitions/<wbr>Buffer<wbr>Use"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_cameratype_.html">"src/foundation/definitions/<wbr>Camera<wbr>Type"</a>
+						<a href="modules/_foundation_definitions_cameratype_.html">"foundation/definitions/<wbr>Camera<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_componenttype_.html">"src/foundation/definitions/<wbr>Component<wbr>Type"</a>
+						<a href="modules/_foundation_definitions_componenttype_.html">"foundation/definitions/<wbr>Component<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_compositiontype_.html">"src/foundation/definitions/<wbr>Composition<wbr>Type"</a>
+						<a href="modules/_foundation_definitions_compositiontype_.html">"foundation/definitions/<wbr>Composition<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_hdriformat_.html">"src/foundation/definitions/<wbr>Hdri<wbr>Format"</a>
+						<a href="modules/_foundation_definitions_hdriformat_.html">"foundation/definitions/<wbr>Hdri<wbr>Format"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_lighttype_.html">"src/foundation/definitions/<wbr>Light<wbr>Type"</a>
+						<a href="modules/_foundation_definitions_lighttype_.html">"foundation/definitions/<wbr>Light<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_pixelformat_.html">"src/foundation/definitions/<wbr>Pixel<wbr>Format"</a>
+						<a href="modules/_foundation_definitions_pixelformat_.html">"foundation/definitions/<wbr>Pixel<wbr>Format"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_primitivemode_.html">"src/foundation/definitions/<wbr>Primitive<wbr>Mode"</a>
+						<a href="modules/_foundation_definitions_primitivemode_.html">"foundation/definitions/<wbr>Primitive<wbr>Mode"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_processapproach_.html">"src/foundation/definitions/<wbr>Process<wbr>Approach"</a>
+						<a href="modules/_foundation_definitions_processapproach_.html">"foundation/definitions/<wbr>Process<wbr>Approach"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_processstage_.html">"src/foundation/definitions/<wbr>Process<wbr>Stage"</a>
+						<a href="modules/_foundation_definitions_processstage_.html">"foundation/definitions/<wbr>Process<wbr>Stage"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_renderbuffertarget_.html">"src/foundation/definitions/<wbr>Render<wbr>Buffer<wbr>Target"</a>
+						<a href="modules/_foundation_definitions_renderbuffertarget_.html">"foundation/definitions/<wbr>Render<wbr>Buffer<wbr>Target"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_shadernode_.html">"src/foundation/definitions/<wbr>Shader<wbr>Node"</a>
+						<a href="modules/_foundation_definitions_shadernode_.html">"foundation/definitions/<wbr>Shader<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_shadersemantics_.html">"src/foundation/definitions/<wbr>Shader<wbr>Semantics"</a>
+						<a href="modules/_foundation_definitions_shadersemantics_.html">"foundation/definitions/<wbr>Shader<wbr>Semantics"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_shadertype_.html">"src/foundation/definitions/<wbr>Shader<wbr>Type"</a>
+						<a href="modules/_foundation_definitions_shadertype_.html">"foundation/definitions/<wbr>Shader<wbr>Type"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_shadervariableupdateinterval_.html">"src/foundation/definitions/<wbr>Shader<wbr>Variable<wbr>Update<wbr>Interval"</a>
+						<a href="modules/_foundation_definitions_shadervariableupdateinterval_.html">"foundation/definitions/<wbr>Shader<wbr>Variable<wbr>Update<wbr>Interval"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_shadingmodel_.html">"src/foundation/definitions/<wbr>Shading<wbr>Model"</a>
+						<a href="modules/_foundation_definitions_shadingmodel_.html">"foundation/definitions/<wbr>Shading<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_textureparameter_.html">"src/foundation/definitions/<wbr>Texture<wbr>Parameter"</a>
+						<a href="modules/_foundation_definitions_textureparameter_.html">"foundation/definitions/<wbr>Texture<wbr>Parameter"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_vertexattribute_.html">"src/foundation/definitions/<wbr>Vertex<wbr>Attribute"</a>
+						<a href="modules/_foundation_definitions_vertexattribute_.html">"foundation/definitions/<wbr>Vertex<wbr>Attribute"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_definitions_visibility_.html">"src/foundation/definitions/visibility"</a>
+						<a href="modules/_foundation_definitions_visibility_.html">"foundation/definitions/visibility"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_exporter_gltf2exporter_.html">"src/foundation/exporter/<wbr>Gltf2<wbr>Exporter"</a>
+						<a href="modules/_foundation_exporter_gltf2exporter_.html">"foundation/exporter/<wbr>Gltf2<wbr>Exporter"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_geometry_frustum_.html">"src/foundation/geometry/<wbr>Frustum"</a>
+						<a href="modules/_foundation_geometry_frustum_.html">"foundation/geometry/<wbr>Frustum"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_geometry_mesh_.html">"src/foundation/geometry/<wbr>Mesh"</a>
+						<a href="modules/_foundation_geometry_mesh_.html">"foundation/geometry/<wbr>Mesh"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_geometry_plane_.html">"src/foundation/geometry/<wbr>Plane"</a>
+						<a href="modules/_foundation_geometry_plane_.html">"foundation/geometry/<wbr>Plane"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_geometry_primitive_.html">"src/foundation/geometry/<wbr>Primitive"</a>
+						<a href="modules/_foundation_geometry_primitive_.html">"foundation/geometry/<wbr>Primitive"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_geometry_sphere_.html">"src/foundation/geometry/<wbr>Sphere"</a>
+						<a href="modules/_foundation_geometry_sphere_.html">"foundation/geometry/<wbr>Sphere"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_helpers_entityhelper_.html">"src/foundation/helpers/<wbr>Entity<wbr>Helper"</a>
+						<a href="modules/_foundation_helpers_entityhelper_.html">"foundation/helpers/<wbr>Entity<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_helpers_materialhelper_.html">"src/foundation/helpers/<wbr>Material<wbr>Helper"</a>
+						<a href="modules/_foundation_helpers_materialhelper_.html">"foundation/helpers/<wbr>Material<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_helpers_renderablehelper_.html">"src/foundation/helpers/<wbr>Renderable<wbr>Helper"</a>
+						<a href="modules/_foundation_helpers_renderablehelper_.html">"foundation/helpers/<wbr>Renderable<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_drcpointcloudimporter_.html">"src/foundation/importer/<wbr>Drc<wbr>Point<wbr>Cloud<wbr>Importer"</a>
+						<a href="modules/_foundation_importer_drcpointcloudimporter_.html">"foundation/importer/<wbr>Drc<wbr>Point<wbr>Cloud<wbr>Importer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_formatdetector_.html">"src/foundation/importer/<wbr>Format<wbr>Detector"</a>
+						<a href="modules/_foundation_importer_formatdetector_.html">"foundation/importer/<wbr>Format<wbr>Detector"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_gltf1importer_.html">"src/foundation/importer/<wbr>Gltf1<wbr>Importer"</a>
+						<a href="modules/_foundation_importer_gltf1importer_.html">"foundation/importer/<wbr>Gltf1<wbr>Importer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_gltf2importer_.html">"src/foundation/importer/<wbr>Gltf2<wbr>Importer"</a>
+						<a href="modules/_foundation_importer_gltf2importer_.html">"foundation/importer/<wbr>Gltf2<wbr>Importer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_iloaderextension_.html">"src/foundation/importer/ILoader<wbr>Extension"</a>
+						<a href="modules/_foundation_importer_iloaderextension_.html">"foundation/importer/ILoader<wbr>Extension"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_modelconverter_.html">"src/foundation/importer/<wbr>Model<wbr>Converter"</a>
+						<a href="modules/_foundation_importer_modelconverter_.html">"foundation/importer/<wbr>Model<wbr>Converter"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_importer_rhodoniteimportextension_.html">"src/foundation/importer/<wbr>Rhodonite<wbr>Import<wbr>Extension"</a>
+						<a href="modules/_foundation_importer_rhodoniteimportextension_.html">"foundation/importer/<wbr>Rhodonite<wbr>Import<wbr>Extension"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_main_.html">"src/foundation/main"</a>
+						<a href="modules/_foundation_main_.html">"foundation/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_abstractmaterialnode_.html">"src/foundation/materials/<wbr>Abstract<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_abstractmaterialnode_.html">"foundation/materials/<wbr>Abstract<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_addmaterialnode_.html">"src/foundation/materials/<wbr>Add<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_addmaterialnode_.html">"foundation/materials/<wbr>Add<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_classicshadingmaterialnode_.html">"src/foundation/materials/<wbr>Classic<wbr>Shading<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_classicshadingmaterialnode_.html">"foundation/materials/<wbr>Classic<wbr>Shading<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_classicshadingsinglematerialnode_.html">"src/foundation/materials/<wbr>Classic<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_classicshadingsinglematerialnode_.html">"foundation/materials/<wbr>Classic<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_depthencodingsinglematerial_.html">"src/foundation/materials/<wbr>Depth<wbr>Encoding<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_depthencodingsinglematerial_.html">"foundation/materials/<wbr>Depth<wbr>Encoding<wbr>Single<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_endmaterialnode_.html">"src/foundation/materials/<wbr>End<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_endmaterialnode_.html">"foundation/materials/<wbr>End<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_entityuidoutputsinglematerial_.html">"src/foundation/materials/<wbr>EntityUIDOutput<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_entityuidoutputsinglematerial_.html">"foundation/materials/<wbr>EntityUIDOutput<wbr>Single<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_envconstantsinglematerial_.html">"src/foundation/materials/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_envconstantsinglematerial_.html">"foundation/materials/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_fxaa3qualitysinglematerialnode_.html">"src/foundation/materials/FXAA3<wbr>Quality<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_fxaa3qualitysinglematerialnode_.html">"foundation/materials/FXAA3<wbr>Quality<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_gammacorrectionsinglematerialnode_.html">"src/foundation/materials/<wbr>Gamma<wbr>Correction<wbr>Single<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_gammacorrectionsinglematerialnode_.html">"foundation/materials/<wbr>Gamma<wbr>Correction<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_getvarsmaterialnode_.html">"src/foundation/materials/<wbr>Get<wbr>Vars<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_getvarsmaterialnode_.html">"foundation/materials/<wbr>Get<wbr>Vars<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_material_.html">"src/foundation/materials/<wbr>Material"</a>
+						<a href="modules/_foundation_materials_material_.html">"foundation/materials/<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_pbrshadingmaterialnode_.html">"src/foundation/materials/<wbr>Pbr<wbr>Shading<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_pbrshadingmaterialnode_.html">"foundation/materials/<wbr>Pbr<wbr>Shading<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_shadowmapping32bitsinglematerial_.html">"src/foundation/materials/<wbr>Shadow<wbr>Mapping32bit<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_shadowmapping32bitsinglematerial_.html">"foundation/materials/<wbr>Shadow<wbr>Mapping32bit<wbr>Single<wbr>Material"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_skeletalmaterialnode_.html">"src/foundation/materials/<wbr>Skeletal<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_skeletalmaterialnode_.html">"foundation/materials/<wbr>Skeletal<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_texturefetchmaterialnode_.html">"src/foundation/materials/<wbr>Texture<wbr>Fetch<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_texturefetchmaterialnode_.html">"foundation/materials/<wbr>Texture<wbr>Fetch<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_materials_wireframematerialnode_.html">"src/foundation/materials/<wbr>Wireframe<wbr>Material<wbr>Node"</a>
+						<a href="modules/_foundation_materials_wireframematerialnode_.html">"foundation/materials/<wbr>Wireframe<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_aabb_.html">"src/foundation/math/AABB"</a>
+						<a href="modules/_foundation_math_aabb_.html">"foundation/math/AABB"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_colorrgb_.html">"src/foundation/math/<wbr>Color<wbr>Rgb"</a>
+						<a href="modules/_foundation_math_colorrgb_.html">"foundation/math/<wbr>Color<wbr>Rgb"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_icolor_.html">"src/foundation/math/IColor"</a>
+						<a href="modules/_foundation_math_icolor_.html">"foundation/math/IColor"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_imatrix_.html">"src/foundation/math/IMatrix"</a>
+						<a href="modules/_foundation_math_imatrix_.html">"foundation/math/IMatrix"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_ivector_.html">"src/foundation/math/IVector"</a>
+						<a href="modules/_foundation_math_ivector_.html">"foundation/math/IVector"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_logquaternion_.html">"src/foundation/math/<wbr>Log<wbr>Quaternion"</a>
+						<a href="modules/_foundation_math_logquaternion_.html">"foundation/math/<wbr>Log<wbr>Quaternion"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mathclassutil_.html">"src/foundation/math/<wbr>Math<wbr>Class<wbr>Util"</a>
+						<a href="modules/_foundation_math_mathclassutil_.html">"foundation/math/<wbr>Math<wbr>Class<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mathutil_.html">"src/foundation/math/<wbr>Math<wbr>Util"</a>
+						<a href="modules/_foundation_math_mathutil_.html">"foundation/math/<wbr>Math<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_matrix33_.html">"src/foundation/math/<wbr>Matrix33"</a>
+						<a href="modules/_foundation_math_matrix33_.html">"foundation/math/<wbr>Matrix33"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_matrix44_.html">"src/foundation/math/<wbr>Matrix44"</a>
+						<a href="modules/_foundation_math_matrix44_.html">"foundation/math/<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablecolorrgb_.html">"src/foundation/math/<wbr>Mutable<wbr>Color<wbr>Rgb"</a>
+						<a href="modules/_foundation_math_mutablecolorrgb_.html">"foundation/math/<wbr>Mutable<wbr>Color<wbr>Rgb"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablematrix33_.html">"src/foundation/math/<wbr>Mutable<wbr>Matrix33"</a>
+						<a href="modules/_foundation_math_mutablematrix33_.html">"foundation/math/<wbr>Mutable<wbr>Matrix33"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablematrix44_.html">"src/foundation/math/<wbr>Mutable<wbr>Matrix44"</a>
+						<a href="modules/_foundation_math_mutablematrix44_.html">"foundation/math/<wbr>Mutable<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablequaterion_.html">"src/foundation/math/<wbr>Mutable<wbr>Quaterion"</a>
+						<a href="modules/_foundation_math_mutablequaterion_.html">"foundation/math/<wbr>Mutable<wbr>Quaterion"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablerowmajarmatrix44_.html">"src/foundation/math/<wbr>Mutable<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
+						<a href="modules/_foundation_math_mutablerowmajarmatrix44_.html">"foundation/math/<wbr>Mutable<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablescalar_.html">"src/foundation/math/<wbr>Mutable<wbr>Scalar"</a>
+						<a href="modules/_foundation_math_mutablescalar_.html">"foundation/math/<wbr>Mutable<wbr>Scalar"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablevector2_.html">"src/foundation/math/<wbr>Mutable<wbr>Vector2"</a>
+						<a href="modules/_foundation_math_mutablevector2_.html">"foundation/math/<wbr>Mutable<wbr>Vector2"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablevector3_.html">"src/foundation/math/<wbr>Mutable<wbr>Vector3"</a>
+						<a href="modules/_foundation_math_mutablevector3_.html">"foundation/math/<wbr>Mutable<wbr>Vector3"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_mutablevector4_.html">"src/foundation/math/<wbr>Mutable<wbr>Vector4"</a>
+						<a href="modules/_foundation_math_mutablevector4_.html">"foundation/math/<wbr>Mutable<wbr>Vector4"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_quaternion_.html">"src/foundation/math/<wbr>Quaternion"</a>
+						<a href="modules/_foundation_math_quaternion_.html">"foundation/math/<wbr>Quaternion"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_rowmajarmatrix44_.html">"src/foundation/math/<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
+						<a href="modules/_foundation_math_rowmajarmatrix44_.html">"foundation/math/<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_scalar_.html">"src/foundation/math/<wbr>Scalar"</a>
+						<a href="modules/_foundation_math_scalar_.html">"foundation/math/<wbr>Scalar"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_vector2_.html">"src/foundation/math/<wbr>Vector2"</a>
+						<a href="modules/_foundation_math_vector2_.html">"foundation/math/<wbr>Vector2"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_vector3_.html">"src/foundation/math/<wbr>Vector3"</a>
+						<a href="modules/_foundation_math_vector3_.html">"foundation/math/<wbr>Vector3"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_math_vector4_.html">"src/foundation/math/<wbr>Vector4"</a>
+						<a href="modules/_foundation_math_vector4_.html">"foundation/math/<wbr>Vector4"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_memory_accessor_.html">"src/foundation/memory/<wbr>Accessor"</a>
+						<a href="modules/_foundation_memory_accessor_.html">"foundation/memory/<wbr>Accessor"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_memory_accessorbase_.html">"src/foundation/memory/<wbr>Accessor<wbr>Base"</a>
+						<a href="modules/_foundation_memory_accessorbase_.html">"foundation/memory/<wbr>Accessor<wbr>Base"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_memory_buffer_.html">"src/foundation/memory/<wbr>Buffer"</a>
+						<a href="modules/_foundation_memory_buffer_.html">"foundation/memory/<wbr>Buffer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_memory_bufferview_.html">"src/foundation/memory/<wbr>Buffer<wbr>View"</a>
+						<a href="modules/_foundation_memory_bufferview_.html">"foundation/memory/<wbr>Buffer<wbr>View"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_memory_flexibleaccessor_.html">"src/foundation/memory/<wbr>Flexible<wbr>Accessor"</a>
+						<a href="modules/_foundation_memory_flexibleaccessor_.html">"foundation/memory/<wbr>Flexible<wbr>Accessor"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_misc_datautil_.html">"src/foundation/misc/<wbr>Data<wbr>Util"</a>
+						<a href="modules/_foundation_misc_datautil_.html">"foundation/misc/<wbr>Data<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_misc_enumio_.html">"src/foundation/misc/<wbr>EnumIO"</a>
+						<a href="modules/_foundation_misc_enumio_.html">"foundation/misc/<wbr>EnumIO"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_misc_isutil_.html">"src/foundation/misc/<wbr>IsUtil"</a>
+						<a href="modules/_foundation_misc_isutil_.html">"foundation/misc/<wbr>IsUtil"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_misc_miscutil_.html">"src/foundation/misc/<wbr>Misc<wbr>Util"</a>
+						<a href="modules/_foundation_misc_miscutil_.html">"foundation/misc/<wbr>Misc<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_renderer_cgapiresourcerepository_.html">"src/foundation/renderer/CGAPIResource<wbr>Repository"</a>
+						<a href="modules/_foundation_renderer_cgapiresourcerepository_.html">"foundation/renderer/CGAPIResource<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_renderer_expression_.html">"src/foundation/renderer/<wbr>Expression"</a>
+						<a href="modules/_foundation_renderer_expression_.html">"foundation/renderer/<wbr>Expression"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_renderer_framebuffer_.html">"src/foundation/renderer/<wbr>Frame<wbr>Buffer"</a>
+						<a href="modules/_foundation_renderer_framebuffer_.html">"foundation/renderer/<wbr>Frame<wbr>Buffer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_renderer_renderpass_.html">"src/foundation/renderer/<wbr>Render<wbr>Pass"</a>
+						<a href="modules/_foundation_renderer_renderpass_.html">"foundation/renderer/<wbr>Render<wbr>Pass"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_system_modulemanager_.html">"src/foundation/system/<wbr>Module<wbr>Manager"</a>
+						<a href="modules/_foundation_system_modulemanager_.html">"foundation/system/<wbr>Module<wbr>Manager"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_system_system_.html">"src/foundation/system/<wbr>System"</a>
+						<a href="modules/_foundation_system_system_.html">"foundation/system/<wbr>System"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_abstracttexture_.html">"src/foundation/textures/<wbr>Abstract<wbr>Texture"</a>
+						<a href="modules/_foundation_textures_abstracttexture_.html">"foundation/textures/<wbr>Abstract<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_cubetexture_.html">"src/foundation/textures/<wbr>Cube<wbr>Texture"</a>
+						<a href="modules/_foundation_textures_cubetexture_.html">"foundation/textures/<wbr>Cube<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_irenderable_.html">"src/foundation/textures/IRenderable"</a>
+						<a href="modules/_foundation_textures_irenderable_.html">"foundation/textures/IRenderable"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_renderbuffer_.html">"src/foundation/textures/<wbr>Render<wbr>Buffer"</a>
+						<a href="modules/_foundation_textures_renderbuffer_.html">"foundation/textures/<wbr>Render<wbr>Buffer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_rendertargettexture_.html">"src/foundation/textures/<wbr>Render<wbr>Target<wbr>Texture"</a>
+						<a href="modules/_foundation_textures_rendertargettexture_.html">"foundation/textures/<wbr>Render<wbr>Target<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_foundation_textures_texture_.html">"src/foundation/textures/<wbr>Texture"</a>
+						<a href="modules/_foundation_textures_texture_.html">"foundation/textures/<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_pbr_main_.html">"src/pbr/main"</a>
+						<a href="modules/_pbr_main_.html">"pbr/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_sparkgear_sparkgearcomponent_.html">"src/sparkgear/<wbr>Spark<wbr>Gear<wbr>Component"</a>
+						<a href="modules/_sparkgear_sparkgearcomponent_.html">"sparkgear/<wbr>Spark<wbr>Gear<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_sparkgear_main_.html">"src/sparkgear/main"</a>
+						<a href="modules/_sparkgear_main_.html">"sparkgear/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_types_commontypes_.html">"src/types/<wbr>Common<wbr>Types"</a>
+						<a href="modules/_types_commontypes_.html">"types/<wbr>Common<wbr>Types"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_types_gltf_.html">"src/types/glTF"</a>
+						<a href="modules/_types_gltf_.html">"types/glTF"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglcontextwrapper_.html">"src/webgl/<wbr>WebGLContext<wbr>Wrapper"</a>
+						<a href="modules/_webgl_webglcontextwrapper_.html">"webgl/<wbr>WebGLContext<wbr>Wrapper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglextension_.html">"src/webgl/<wbr>WebGLExtension"</a>
+						<a href="modules/_webgl_webglextension_.html">"webgl/<wbr>WebGLExtension"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglresourcerepository_.html">"src/webgl/<wbr>WebGLResource<wbr>Repository"</a>
+						<a href="modules/_webgl_webglresourcerepository_.html">"webgl/<wbr>WebGLResource<wbr>Repository"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategy_.html">"src/webgl/<wbr>WebGLStrategy"</a>
+						<a href="modules/_webgl_webglstrategy_.html">"webgl/<wbr>WebGLStrategy"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategydatatexture_.html">"src/webgl/<wbr>WebGLStrategy<wbr>Data<wbr>Texture"</a>
+						<a href="modules/_webgl_webglstrategydatatexture_.html">"webgl/<wbr>WebGLStrategy<wbr>Data<wbr>Texture"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategyfastestwebgl1_.html">"src/webgl/<wbr>WebGLStrategy<wbr>Fastest<wbr>WebGL1"</a>
+						<a href="modules/_webgl_webglstrategyfastestwebgl1_.html">"webgl/<wbr>WebGLStrategy<wbr>Fastest<wbr>WebGL1"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategytransformfeedback_.html">"src/webgl/<wbr>WebGLStrategy<wbr>Transform<wbr>Feedback"</a>
+						<a href="modules/_webgl_webglstrategytransformfeedback_.html">"webgl/<wbr>WebGLStrategy<wbr>Transform<wbr>Feedback"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategyubo_.html">"src/webgl/<wbr>WebGLStrategyUBO"</a>
+						<a href="modules/_webgl_webglstrategyubo_.html">"webgl/<wbr>WebGLStrategyUBO"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_webglstrategyuniform_.html">"src/webgl/<wbr>WebGLStrategy<wbr>Uniform"</a>
+						<a href="modules/_webgl_webglstrategyuniform_.html">"webgl/<wbr>WebGLStrategy<wbr>Uniform"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_getrenderingstrategy_.html">"src/webgl/get<wbr>Rendering<wbr>Strategy"</a>
+						<a href="modules/_webgl_getrenderingstrategy_.html">"webgl/get<wbr>Rendering<wbr>Strategy"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_main_.html">"src/webgl/main"</a>
+						<a href="modules/_webgl_main_.html">"webgl/main"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_addshader_.html">"src/webgl/shaders/<wbr>Add<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_addshader_.html">"webgl/shaders/<wbr>Add<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_classicshader_.html">"src/webgl/shaders/<wbr>Classic<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_classicshader_.html">"webgl/shaders/<wbr>Classic<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_classicshadingshader_.html">"src/webgl/shaders/<wbr>Classic<wbr>Shading<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_classicshadingshader_.html">"webgl/shaders/<wbr>Classic<wbr>Shading<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_depthencodingshader_.html">"src/webgl/shaders/<wbr>Depth<wbr>Encoding<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_depthencodingshader_.html">"webgl/shaders/<wbr>Depth<wbr>Encoding<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_endshader_.html">"src/webgl/shaders/<wbr>End<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_endshader_.html">"webgl/shaders/<wbr>End<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_entityuidoutputsingleshader_.html">"src/webgl/shaders/<wbr>EntityUIDOutput<wbr>Single<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_entityuidoutputsingleshader_.html">"webgl/shaders/<wbr>EntityUIDOutput<wbr>Single<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_envcostantshader_.html">"src/webgl/shaders/<wbr>Env<wbr>Costant<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_envcostantshader_.html">"webgl/shaders/<wbr>Env<wbr>Costant<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_fxaa3quality_.html">"src/webgl/shaders/FXAA3<wbr>Quality"</a>
+						<a href="modules/_webgl_shaders_fxaa3quality_.html">"webgl/shaders/FXAA3<wbr>Quality"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_glslshader_.html">"src/webgl/shaders/GLSLShader"</a>
+						<a href="modules/_webgl_shaders_glslshader_.html">"webgl/shaders/GLSLShader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_gammacorrectionshader_.html">"src/webgl/shaders/<wbr>Gamma<wbr>Correction<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_gammacorrectionshader_.html">"webgl/shaders/<wbr>Gamma<wbr>Correction<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_getvarsshader_.html">"src/webgl/shaders/<wbr>Get<wbr>Vars<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_getvarsshader_.html">"webgl/shaders/<wbr>Get<wbr>Vars<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_isingleshader_.html">"src/webgl/shaders/ISingle<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_isingleshader_.html">"webgl/shaders/ISingle<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_pbrshader_.html">"src/webgl/shaders/PBRShader"</a>
+						<a href="modules/_webgl_shaders_pbrshader_.html">"webgl/shaders/PBRShader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_shadowmapping32bitclassicshader_.html">"src/webgl/shaders/<wbr>Shadow<wbr>Mapping32bit<wbr>Classic<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_shadowmapping32bitclassicshader_.html">"webgl/shaders/<wbr>Shadow<wbr>Mapping32bit<wbr>Classic<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_skeletalshader_.html">"src/webgl/shaders/<wbr>Skeletal<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_skeletalshader_.html">"webgl/shaders/<wbr>Skeletal<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_subsetofpriincipledpbrshader_.html">"src/webgl/shaders/<wbr>Subset<wbr>OfPriincipled<wbr>Pbr<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_subsetofpriincipledpbrshader_.html">"webgl/shaders/<wbr>Subset<wbr>OfPriincipled<wbr>Pbr<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_texturefetchshader_.html">"src/webgl/shaders/<wbr>Texture<wbr>Fetch<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_texturefetchshader_.html">"webgl/shaders/<wbr>Texture<wbr>Fetch<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_webgl_shaders_wireframeshader_.html">"src/webgl/shaders/<wbr>Wireframe<wbr>Shader"</a>
-					</li>
-					<li class="label tsd-is-external">
-						<span>Externals</span>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__babel_parser_typings_babel_parser_d_.html">"node_<wbr>modules/@babel/parser/typings/babel-<wbr>parser.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__babel_types_lib_index_d_.html">"node_<wbr>modules/@babel/types/lib/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_babel__core_index_d_.html">"node_<wbr>modules/@types/babel__core/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_babel__generator_index_d_.html">"node_<wbr>modules/@types/babel__generator/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_babel__template_index_d_.html">"node_<wbr>modules/@types/babel__template/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_babel__traverse_index_d_.html">"node_<wbr>modules/@types/babel__traverse/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_events_index_d_.html">"node_<wbr>modules/@types/events/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_fs_extra_index_d_.html">"node_<wbr>modules/@types/fs-<wbr>extra/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_glob_index_d_.html">"node_<wbr>modules/@types/glob/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_highlight_js_index_d_.html">"node_<wbr>modules/@types/highlight.js/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_istanbul_lib_coverage_index_d_.html">"node_<wbr>modules/@types/istanbul-<wbr>lib-<wbr>coverage/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_istanbul_lib_report_index_d_.html">"node_<wbr>modules/@types/istanbul-<wbr>lib-<wbr>report/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_istanbul_reports_index_d_.html">"node_<wbr>modules/@types/istanbul-<wbr>reports/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_jest_diff_index_d_.html">"node_<wbr>modules/@types/jest-<wbr>diff/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_jest_index_d_.html">"node_<wbr>modules/@types/jest/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_array_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/array.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_collection_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/collection.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_common_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/common.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_date_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/date.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_function_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/function.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_lang_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/lang.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_math_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/math.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_number_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/number.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_object_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/object.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_seq_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/seq.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_string_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/string.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_common_util_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/common/util.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_lodash_ts3_1_index_d_.html">"node_<wbr>modules/@types/lodash/ts3.1/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_marked_index_d_.html">"node_<wbr>modules/@types/marked/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_minimatch_index_d_.html">"node_<wbr>modules/@types/minimatch/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_assert_d_.html">"node_<wbr>modules/@types/node/assert.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_async_hooks_d_.html">"node_<wbr>modules/@types/node/async_<wbr>hooks.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_base_d_.html">"node_<wbr>modules/@types/node/base.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_buffer_d_.html">"node_<wbr>modules/@types/node/buffer.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_child_process_d_.html">"node_<wbr>modules/@types/node/child_<wbr>process.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_cluster_d_.html">"node_<wbr>modules/@types/node/cluster.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_console_d_.html">"node_<wbr>modules/@types/node/console.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_constants_d_.html">"node_<wbr>modules/@types/node/constants.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_crypto_d_.html">"node_<wbr>modules/@types/node/crypto.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_dgram_d_.html">"node_<wbr>modules/@types/node/dgram.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_dns_d_.html">"node_<wbr>modules/@types/node/dns.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_domain_d_.html">"node_<wbr>modules/@types/node/domain.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_events_d_.html">"node_<wbr>modules/@types/node/events.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_fs_d_.html">"node_<wbr>modules/@types/node/fs.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_globals_d_.html">"node_<wbr>modules/@types/node/globals.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_http_d_.html">"node_<wbr>modules/@types/node/http.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_http2_d_.html">"node_<wbr>modules/@types/node/http2.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_https_d_.html">"node_<wbr>modules/@types/node/https.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_inspector_d_.html">"node_<wbr>modules/@types/node/inspector.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_module_d_.html">"node_<wbr>modules/@types/node/module.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_net_d_.html">"node_<wbr>modules/@types/node/net.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_os_d_.html">"node_<wbr>modules/@types/node/os.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_path_d_.html">"node_<wbr>modules/@types/node/path.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_perf_hooks_d_.html">"node_<wbr>modules/@types/node/perf_<wbr>hooks.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_process_d_.html">"node_<wbr>modules/@types/node/process.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_punycode_d_.html">"node_<wbr>modules/@types/node/punycode.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_querystring_d_.html">"node_<wbr>modules/@types/node/querystring.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_readline_d_.html">"node_<wbr>modules/@types/node/readline.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_repl_d_.html">"node_<wbr>modules/@types/node/repl.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_stream_d_.html">"node_<wbr>modules/@types/node/stream.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_string_decoder_d_.html">"node_<wbr>modules/@types/node/string_<wbr>decoder.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_timers_d_.html">"node_<wbr>modules/@types/node/timers.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_tls_d_.html">"node_<wbr>modules/@types/node/tls.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_trace_events_d_.html">"node_<wbr>modules/@types/node/trace_<wbr>events.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_ts3_2_globals_d_.html">"node_<wbr>modules/@types/node/ts3.2/globals.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_ts3_2_index_d_.html">"node_<wbr>modules/@types/node/ts3.2/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_ts3_2_util_d_.html">"node_<wbr>modules/@types/node/ts3.2/util.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_tty_d_.html">"node_<wbr>modules/@types/node/tty.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_url_d_.html">"node_<wbr>modules/@types/node/url.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_util_d_.html">"node_<wbr>modules/@types/node/util.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_v8_d_.html">"node_<wbr>modules/@types/node/v8.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_vm_d_.html">"node_<wbr>modules/@types/node/vm.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_worker_threads_d_.html">"node_<wbr>modules/@types/node/worker_<wbr>threads.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_node_zlib_d_.html">"node_<wbr>modules/@types/node/zlib.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_shelljs_index_d_.html">"node_<wbr>modules/@types/shelljs/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_stack_utils_index_d_.html">"node_<wbr>modules/@types/stack-<wbr>utils/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_webgl_ext_index_d_.html">"node_<wbr>modules/@types/webgl-<wbr>ext/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_webgl2_index_d_.html">"node_<wbr>modules/@types/webgl2/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules__types_yargs_index_d_.html">"node_<wbr>modules/@types/yargs/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_jest_diff_build_index_d_.html">"node_<wbr>modules/jest-<wbr>diff/build/index.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_jest_diff_build_types_d_.html">"node_<wbr>modules/jest-<wbr>diff/build/types.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_dom_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.dom.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_collection_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.collection.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_core_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.core.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_generator_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.generator.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_iterable_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.iterable.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_promise_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.promise.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_proxy_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.proxy.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_reflect_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.reflect.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_symbol_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.symbol.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2015_symbol_wellknown_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2015.symbol.wellknown.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2016_array_include_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2016.array.include.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2016_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2016.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_intl_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.intl.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_object_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.object.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_sharedmemory_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.sharedmemory.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_string_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.string.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2017_typedarrays_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2017.typedarrays.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2018_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2018.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2018_intl_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2018.intl.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2018_promise_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2018.promise.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es2018_regexp_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es2018.regexp.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.es5.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_esnext_asynciterable_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.esnext.asynciterable.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_esnext_bigint_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.esnext.bigint.d"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_typedoc_node_modules_typescript_lib_lib_esnext_intl_d_.html">"node_<wbr>modules/typedoc/node_<wbr>modules/typescript/lib/lib.esnext.intl.d"</a>
+						<a href="modules/_webgl_shaders_wireframeshader_.html">"webgl/shaders/<wbr>Wireframe<wbr>Shader"</a>
 					</li>
 				</ul>
 			</nav>
