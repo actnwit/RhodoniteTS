@@ -19,7 +19,7 @@
     "test-e2e": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
     "test-e2e-update": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest ./samples/test_e2e --runInBand --config jest.config.e2e.js --updateSnapshot",
     "test-coverage": "jest --coverage",
-    "doc": "typedoc --includeDeclarations --exclude '**/*.test.ts' --out ./docs/ ./src/"
+    "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",

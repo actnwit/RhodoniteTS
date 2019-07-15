@@ -39,7 +39,7 @@ $ yarn doc
 $ yarn test
 ```
 
-## Watching E2E Test Sample
+## Watching Test Samples
 
 ```
 $ yarn serv
