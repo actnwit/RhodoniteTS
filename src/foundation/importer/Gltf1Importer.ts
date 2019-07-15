@@ -14,7 +14,7 @@ export default class Gltf1Importer {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  async import(uri: string,  options: GltfLoadOption) {
+  async import(uri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
@@ -48,7 +48,7 @@ export default class Gltf1Importer {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__loadFromArrayBuffer((options.files as any)[fileName], options, defaultOptions, void 0);
+          return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options, void 0);
         }
       }
     }
@@ -58,11 +58,11 @@ export default class Gltf1Importer {
     const response = await fetch(uri);
     const arrayBuffer = await response.arrayBuffer();
 
-    return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri);
+    return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, options, uri);
 
   }
 
-  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, uri?: string) {
+  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, options?: {}, uri?: string) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     // Magic field
