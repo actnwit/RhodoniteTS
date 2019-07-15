@@ -7,6 +7,7 @@ import Vector4 from "../math/Vector4";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { EntityUID } from "../../types/CommonTypes";
+import Material from "../materials/Material";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
@@ -23,6 +24,7 @@ export default class RenderPass extends RnObject {
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
   public cullface: boolean = false;
+  public material?: Material;
 
   constructor() {
     super();
