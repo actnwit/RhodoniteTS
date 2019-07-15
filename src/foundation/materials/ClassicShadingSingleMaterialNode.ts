@@ -26,6 +26,7 @@ import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdat
 import Config from "../core/Config";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle =

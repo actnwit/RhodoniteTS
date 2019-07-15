@@ -1,3 +1,4 @@
+import { glTF1, GltfLoadOption } from "../../types/glTF";
 export default class Gltf1Importer {
     private static __instance;
     private constructor();
@@ -7,7 +8,7 @@ export default class Gltf1Importer {
      * @param options - options for loading process
      * @returns a glTF2 based JSON pre-processed
      */
-    import(uri: string, options: GltfLoadOption): Promise<any>;
+    import(uri: string, options?: GltfLoadOption): Promise<any>;
     private __loadFromArrayBuffer;
     _getOptions(defaultOptions: any, json: glTF1, options: any): GltfLoadOption;
     _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<any>;

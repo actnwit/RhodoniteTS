@@ -4,6 +4,7 @@ import Vector3 from "../math/Vector3";
 import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "./CameraComponent";
 import Entity from "../core/Entity";
+import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
 export default class CameraControllerComponent extends Component {
     private __isKeyUp;
     private __movedMouseYOnCanvas;

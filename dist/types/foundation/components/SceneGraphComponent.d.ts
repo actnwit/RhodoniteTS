@@ -6,8 +6,10 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 export default class SceneGraphComponent extends Component {
     private __parent?;
+    private static __sceneGraphs;
     isAbleToBeParent: boolean;
     private __children;
     private _worldMatrix;
@@ -20,6 +22,7 @@ export default class SceneGraphComponent extends Component {
     private static __originVector3;
     private static returnVector3;
     isVisible: boolean;
+    private __animationComponent?;
     isRootJoint: boolean;
     jointIndex: number;
     _inverseBindMatrix?: Matrix44;
@@ -28,12 +31,14 @@ export default class SceneGraphComponent extends Component {
     private static __bufferView;
     private static invertedMatrix44;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
+    static getTopLevelComponents(): SceneGraphComponent[];
     isJoint(): boolean;
     static readonly componentTID: ComponentTID;
     beAbleToBeParent(flag: boolean): void;
     setWorldMatrixDirty(): void;
     addChild(sg: SceneGraphComponent): void;
     applyFunctionRecursively(func: Function, args: any[]): void;
+    readonly isTopLevel: boolean;
     readonly children: SceneGraphComponent[];
     readonly parent: SceneGraphComponent | undefined;
     readonly worldMatrixInner: MutableRowMajarMatrix44;
@@ -41,6 +46,7 @@ export default class SceneGraphComponent extends Component {
     readonly normalMatrixInner: MutableMatrix33;
     readonly normalMatrix: import("../math/Matrix33").default;
     $create(): void;
+    $load(): void;
     $logic(): void;
     static common_$prerender(): void;
     isWorldMatrixUpToDateRecursively(): boolean;

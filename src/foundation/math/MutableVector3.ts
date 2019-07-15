@@ -2,6 +2,7 @@ import Vector2 from "./Vector2";
 import Vector3, { Vector3_ } from "./Vector3";
 import {IVector3, IVector4} from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
+import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
 
 export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T> implements IVector3 {
   constructor(x: number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y: number, z: number, {type}: {type: T}) {

@@ -14,6 +14,7 @@ import { MathUtil } from '../math/MathUtil';
 import Vector4 from '../math/Vector4';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];

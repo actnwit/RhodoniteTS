@@ -1,6 +1,7 @@
 import DataUtil from "../misc/DataUtil";
 import Accessor from "../memory/Accessor";
 import BufferView from "../memory/BufferView";
+import { glTF2, GltfLoadOption } from "../../types/glTF";
 
 declare var Rn: any;
 
@@ -16,7 +17,7 @@ export default class Gltf2Importer {
   /**
    * Import glTF2 file or arraybuffers.
    */
-  async import(uri: string,  options: GltfLoadOption) {
+  async import(uri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
@@ -50,7 +51,7 @@ export default class Gltf2Importer {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          return await this.__loadFromArrayBuffer((options.files as any)[fileName], options, defaultOptions, void 0).catch((err)=>{
+          return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options, void 0).catch((err)=>{
             console.log('this.__loadFromArrayBuffer error', err);
           });
         }
@@ -65,13 +66,13 @@ export default class Gltf2Importer {
     };
     const arrayBuffer = await response!.arrayBuffer();
 
-    return await this.__loadFromArrayBuffer(arrayBuffer, options, defaultOptions, uri).catch((err)=>{
+    return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, options, uri).catch((err)=>{
       console.log('this.__loadFromArrayBuffer error', err);
     });;
 
   }
 
-  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, uri?: string) {
+  private async __loadFromArrayBuffer(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, options?: {}, uri?: string) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     // Magic field

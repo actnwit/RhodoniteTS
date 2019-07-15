@@ -1,7 +1,14 @@
+import { glTF2, GltfLoadOption } from "../../types/glTF";
+/**
+ * The glTF2 Importer class.
+ */
 export default class Gltf2Importer {
     private static __instance;
     private constructor();
-    import(uri: string, options: GltfLoadOption): Promise<any>;
+    /**
+     * Import glTF2 file or arraybuffers.
+     */
+    import(uri: string, options?: GltfLoadOption): Promise<any>;
     private __loadFromArrayBuffer;
     _getOptions(defaultOptions: any, json: glTF2, options: any): GltfLoadOption;
     _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string): Promise<any>;
@@ -11,6 +18,7 @@ export default class Gltf2Importer {
     _loadDependenciesOfScenes(gltfJson: glTF2): void;
     _loadDependenciesOfNodes(gltfJson: glTF2): void;
     _loadDependenciesOfMeshes(gltfJson: glTF2): void;
+    private _checkRnGltfLoaderOptionsExist;
     _loadDependenciesOfMaterials(gltfJson: glTF2): void;
     _loadDependenciesOfTextures(gltfJson: glTF2): void;
     _loadDependenciesOfJoints(gltfJson: glTF2): void;

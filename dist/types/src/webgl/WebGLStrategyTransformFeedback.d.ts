@@ -1,0 +1,36 @@
+import MeshComponent from "../foundation/components/MeshComponent";
+import WebGLStrategy from "./WebGLStrategy";
+import Primitive from "../foundation/geometry/Primitive";
+import WebGLContextWrapper from "./WebGLContextWrapper";
+import Matrix44 from "../foundation/math/Matrix44";
+import Material from "../foundation/materials/Material";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import RenderPass from "../foundation/renderer/RenderPass";
+export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
+    private static __instance;
+    private __webglResourceRepository;
+    private __instanceDataTextureUid;
+    private __vertexDataTextureUid;
+    private __primitiveHeaderUboUid;
+    private __indexCountToSubtractUboUid;
+    private __entitiesUidUboUid;
+    private __primitiveUidUboUid;
+    private __isVertexReady;
+    private __vertexHandle?;
+    private constructor();
+    private readonly __transformFeedbackShaderText;
+    private readonly __transformFeedbackFragmentShaderText;
+    setupShaderProgram(meshComponent: MeshComponent): void;
+    $load(meshComponent: MeshComponent): void;
+    $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
+    private __setupUBOPrimitiveHeaderData;
+    private __setupGPUInstanceMetaData;
+    private __setupGPUInstanceData;
+    private __setupGPUVertexData;
+    common_$prerender(): void;
+    attachGPUData(primitive: Primitive): void;
+    attatchShaderProgram(material: Material): void;
+    attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
+    static getInstance(): WebGLStrategyTransformFeedback;
+    common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
+}

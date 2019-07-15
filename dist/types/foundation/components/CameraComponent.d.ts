@@ -6,6 +6,8 @@ import { CameraTypeEnum } from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
 import { WebGLStrategy } from '../../webgl/main';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import Frustum from '../geometry/Frustum';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 export default class CameraComponent extends Component {
     private readonly _eye;
     private _eyeInner;
@@ -27,6 +29,7 @@ export default class CameraComponent extends Component {
     static main: ComponentSID;
     private static invertedMatrix44;
     private static returnVector3;
+    private __frustum;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     type: CameraTypeEnum;
     readonly eye: Vector3;
@@ -68,4 +71,6 @@ export default class CameraComponent extends Component {
     }): void;
     $prerender(): void;
     readonly worldPosition: Vector3;
+    updateFrustum(): void;
+    readonly frustum: Frustum;
 }

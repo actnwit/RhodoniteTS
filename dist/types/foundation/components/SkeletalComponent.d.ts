@@ -3,6 +3,7 @@ import EntityRepository from '../core/EntityRepository';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableVector4 from '../math/MutableVector4';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
 export default class SkeletalComponent extends Component {
     _jointIndices: Index[];
     private __joints;
@@ -15,6 +16,7 @@ export default class SkeletalComponent extends Component {
     isSkinning: boolean;
     isOptimizingMode: boolean;
     private __boneCompressedInfo;
+    private static __scaleVec3;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static readonly componentTID: ComponentTID;
     joints: SceneGraphComponent[];

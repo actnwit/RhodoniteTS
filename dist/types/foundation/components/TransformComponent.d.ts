@@ -5,6 +5,7 @@ import Matrix44 from '../math/Matrix44';
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
 import MutableMatrix44 from '../math/MutableMatrix44';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 export default class TransformComponent extends Component {
     private _translate;
     private _rotate;

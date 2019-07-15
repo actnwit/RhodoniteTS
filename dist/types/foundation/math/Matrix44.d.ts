@@ -6,6 +6,8 @@ import RowMajarMatrix44 from './RowMajarMatrix44';
 import { IMatrix44 } from './IMatrix';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
+import MutableVector4 from './MutableVector4';
+import { TypedArray } from '../../types/CommonTypes';
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
 export default class Matrix44 implements IMatrix44 {
@@ -56,12 +58,15 @@ export default class Matrix44 implements IMatrix44 {
      */
     static transpose(mat: Matrix44): Matrix44;
     multiplyVector(vec: Vector4): Vector4;
+    multiplyVectorTo(vec: Vector4, outVec: MutableVector4): void;
+    multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3): void;
     multiplyVector3(vec: Vector3): Vector3;
     multiplyVector3To(vec: Vector3, outVec: MutableVector3): void;
     /**
      * multiply zero matrix and zero matrix(static version)
      */
     static multiply(l_m: Matrix44, r_m: Matrix44): Matrix44;
+    static multiplyTo(l_m: Matrix44, r_m: Matrix44, out: MutableMatrix44): void;
     determinant(): number;
     static determinant(m: Matrix44): number;
     static invert(m: Matrix44 | RowMajarMatrix44): Matrix44;

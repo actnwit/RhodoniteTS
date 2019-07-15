@@ -1,6 +1,7 @@
 import RnObject from "../core/RnObject";
 import IRenderable from "../textures/IRenderable";
 import { RenderBufferTargetEnum } from "../definitions/RenderBufferTarget";
+import { Index, Size, CGAPIResourceHandle } from "../../types/CommonTypes";
 export default class FrameBuffer extends RnObject {
     private __entities?;
     private __colorAttachments;
@@ -19,9 +20,9 @@ export default class FrameBuffer extends RnObject {
     readonly depthStancilAttachment: IRenderable | undefined;
     create(width: Size, height: Size): number;
     readonly framebufferUID: number;
-    discard(): void;
     setColorAttachmentAt(index: Index, renderable: IRenderable): boolean;
     setDepthAttachment(renderable: IRenderable): boolean;
     setStencilAttachment(renderable: IRenderable): boolean;
     setDepthStencilAttachment(renderable: IRenderable): boolean;
+    destroy3DAPIResources(): void;
 }

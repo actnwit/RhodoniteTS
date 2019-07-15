@@ -22,6 +22,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import DepthEncodingShader from "../../webgl/shaders/DepthEncodingShader";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class DepthEncodingSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

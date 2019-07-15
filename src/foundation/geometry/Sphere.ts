@@ -10,6 +10,7 @@ import { ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/Material";
 import Vector3 from "../math/Vector3";
+import { Size } from "../../types/CommonTypes";
 
 export default class Sphere extends Primitive {
   constructor() {

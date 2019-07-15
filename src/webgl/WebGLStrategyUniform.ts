@@ -32,11 +32,10 @@ import Vector3 from "../foundation/math/Vector3";
 import { HdriFormat } from "../foundation/definitions/HdriFormat";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
-import Vector4 from "../foundation/math/Vector4";
-import Vector2 from "../foundation/math/Vector2";
 import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
+import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -446,7 +445,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
       //from material
       if (material) {
-        material.setUniformValues(firstTime, {lightComponents: this.__lightComponents, renderPass: renderPass});
+        material.setUniformValues(firstTime, {
+          entity: entity,
+          lightComponents: this.__lightComponents,
+          renderPass: renderPass
+        });
       }
 
       if (primitive.indicesAccessor) {

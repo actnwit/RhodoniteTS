@@ -26,6 +26,7 @@ import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
+import { Index, CGAPIResourceHandle, Count } from "../../types/CommonTypes";
 
 type MaterialTypeName = string;
 type PropertyName = string;

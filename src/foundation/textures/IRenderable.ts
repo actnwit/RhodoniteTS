@@ -1,4 +1,5 @@
 import { RenderBufferTargetEnum } from "../definitions/RenderBufferTarget";
+import { CGAPIResourceHandle, Size } from "../../types/CommonTypes";
 
 export default interface IRenderable {
   width: Size,

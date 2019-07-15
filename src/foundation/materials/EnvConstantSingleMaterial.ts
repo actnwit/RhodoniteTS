@@ -22,6 +22,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

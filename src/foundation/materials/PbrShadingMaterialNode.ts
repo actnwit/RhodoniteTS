@@ -16,6 +16,7 @@ import Vector3 from "../math/Vector3";
 import AbstractTexture from "../textures/AbstractTexture";
 import PBRShader from "../../webgl/shaders/PBRShader";
 import { ShaderType } from "../definitions/ShaderType";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

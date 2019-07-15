@@ -1,6 +1,7 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
+import { Index, Size } from "../types/CommonTypes";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext|any;

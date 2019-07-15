@@ -1,4 +1,5 @@
 import RnObject from "../core/RnObject";
+import { CGAPIResourceHandle, Size } from "../../types/CommonTypes";
 export default abstract class AbstractTexture extends RnObject {
     protected __width: Size;
     protected __height: Size;

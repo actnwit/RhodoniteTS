@@ -13,6 +13,7 @@ import FrameBuffer from "../foundation/renderer/FrameBuffer";
 import { HdriFormatEnum } from "../foundation/definitions/HdriFormat";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
 export declare type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
@@ -32,17 +33,19 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     addWebGLContext(gl: WebGLRenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean): void;
     readonly currentWebGLContextWrapper: WebGLContextWrapper | undefined;
     private getResourceNumber;
-    getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | undefined;
+    getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | null;
     createIndexBuffer(accsessor: Accessor): number;
     createVertexBuffer(accessor: Accessor): number;
+    createVertexBufferFromTypedArray(typedArray: TypedArray): number;
     resendVertexBuffer(primitive: Primitive, vboHandles: Array<WebGLResourceHandle>): void;
     createVertexArray(): number;
     bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle): void;
     bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle): void;
     createVertexDataResources(primitive: Primitive): VertexHandles;
+    createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles;
     createShaderProgram({ vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }: {
         vertexShaderStr: string;
-        fragmentShaderStr?: string;
+        fragmentShaderStr: string;
         attributeNames: AttributeNames;
         attributeSemantics: Array<VertexAttributeEnum>;
     }): number;
@@ -67,6 +70,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         vboHandles: Array<WebGLResourceHandle>;
     }, primitive: Primitive, instanceIDBufferUid?: WebGLResourceHandle): void;
     createTexture(data: DirectTextureData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
+        level: Index;
+        internalFormat: TextureParameterEnum | PixelFormatEnum;
+        width: Size;
+        height: Size;
+        border: Size;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        magFilter: TextureParameterEnum;
+        minFilter: TextureParameterEnum;
+        wrapS: TextureParameterEnum;
+        wrapT: TextureParameterEnum;
+        generateMipmap: boolean;
+        anisotropy: boolean;
+    }): WebGLResourceHandle;
+    createAtfTexture(atf: any, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
         level: Index;
         internalFormat: TextureParameterEnum | PixelFormatEnum;
         width: Size;
@@ -152,5 +170,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle): void;
     setViewport(viewport?: Vector4): void;
     clearFrameBuffer(renderPass: RenderPass): void;
+    deleteVertexDataResources(vertexHandles: VertexHandles): void;
+    deleteVertexArray(vaoHandle: WebGLResourceHandle): void;
+    deleteVertexBuffer(vboUid: WebGLResourceHandle): void;
 }
 export {};

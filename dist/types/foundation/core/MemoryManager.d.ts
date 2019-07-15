@@ -1,5 +1,6 @@
 import Buffer from '../memory/Buffer';
 import { BufferUseEnum } from '../definitions/BufferUse';
+import { Size } from '../../types/CommonTypes';
 /**
  * Usage
  * const mm = MemoryManager.getInstance();

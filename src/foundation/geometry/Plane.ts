@@ -9,6 +9,7 @@ import Accessor from "../memory/Accessor";
 import { ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/Material";
+import { Size } from "../../types/CommonTypes";
 
 export default class Plane extends Primitive {
   constructor() {

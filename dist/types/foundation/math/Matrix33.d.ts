@@ -2,6 +2,7 @@ import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
 import Quaternion from './Quaternion';
 import { IMatrix33 } from './IMatrix';
+import { TypedArray } from '../../types/CommonTypes';
 export default class Matrix33 implements IMatrix33 {
     v: TypedArray;
     constructor(m: null);

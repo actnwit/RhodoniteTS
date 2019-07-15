@@ -26,6 +26,7 @@ import Material from "../foundation/materials/Material";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { WebGLResourceHandle, CGAPIResourceHandle } from "../types/CommonTypes";
 
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
   private static __instance: WebGLStrategyTransformFeedback;

@@ -3,6 +3,7 @@ import Quaternion from "./Quaternion";
 import { IMutableMatrix33 } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
+import { Index } from "../../types/CommonTypes";
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
     constructor(m: null);
     constructor(m: Float32Array, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
@@ -47,7 +48,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
      * zero matrix
      */
     zero(): this;
-    raw(): TypedArray;
+    raw(): import("../../types/CommonTypes").TypedArray;
     flattenAsArray(): number[];
     _swap(l: Index, r: Index): void;
     /**

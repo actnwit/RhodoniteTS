@@ -3,6 +3,7 @@ import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
+import { CGAPIResourceHandle, TextureUID, Size } from "../../types/CommonTypes";
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;

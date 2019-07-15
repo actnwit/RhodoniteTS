@@ -15,6 +15,7 @@ import { ProcessStage } from "../definitions/ProcessStage";
 import Entity from "../core/Entity";
 import Vector4 from "../math/Vector4";
 import Matrix44 from "../math/Matrix44";
+import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
 
 declare var window: any;
 
@@ -318,7 +319,7 @@ export default class CameraControllerComponent extends Component {
     this.__pinchInOutInitDistance = null
   }
   __pinchInOut(event : TouchEvent){
-    const touches = event.changedTouches 
+    const touches = event.changedTouches
     if(touches.length < 2){
       return
     }
@@ -327,7 +328,7 @@ export default class CameraControllerComponent extends Component {
       return
     }
 
-    const pinchInOutInitDistance  = this.__pinchInOutInitDistance 
+    const pinchInOutInitDistance  = this.__pinchInOutInitDistance
     const pinchInOutFinalDistance = this.__getTouchesDistance(event)
     this.__pinchInOutInitDistance = pinchInOutFinalDistance
 

@@ -23,6 +23,7 @@ import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, ObjectUID } from "../types/CommonTypes";
 
 export default class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;

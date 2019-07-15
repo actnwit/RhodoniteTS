@@ -5,6 +5,7 @@ import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
+import { Index } from "../../types/CommonTypes";
 
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
 

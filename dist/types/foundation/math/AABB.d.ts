@@ -1,5 +1,6 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
+import { Index } from '../../types/CommonTypes';
 export default class AABB {
     private __min;
     private __max;
@@ -7,6 +8,7 @@ export default class AABB {
     private __lengthCenterToCorner;
     private __isCenterPointDirty;
     private __isLengthCenterToCornerDirty;
+    private static __tmpVector3;
     constructor();
     clone(): AABB;
     minPoint: Vector3;
@@ -21,5 +23,6 @@ export default class AABB {
     readonly sizeY: number;
     readonly sizeZ: number;
     static multiplyMatrix(matrix: Matrix44, aabb: AABB): AABB;
+    static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB): AABB;
     toString(): string;
 }

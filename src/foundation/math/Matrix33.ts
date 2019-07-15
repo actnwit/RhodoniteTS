@@ -5,6 +5,7 @@ import Quaternion from './Quaternion';
 import {IMatrix33} from './IMatrix';
 import MutableMatrix33 from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
+import { TypedArray } from '../../types/CommonTypes';
 
 export default class Matrix33 implements IMatrix33 {
   v: TypedArray;

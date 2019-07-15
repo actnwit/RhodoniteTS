@@ -41,7 +41,9 @@ import Expression from './renderer/Expression';
 import RenderTargetTexture from './textures/RenderTargetTexture';
 import RenderBuffer from './textures/RenderBuffer';
 import Texture from './textures/Texture';
-import ZoGltfLoaderExtension from './importer/ZoGltfLoaderExtension';
+import MathClassUtil from './math/MathClassUtil';
+import Mesh from './geometry/Mesh';
+import Component from './core/Component';
 declare const Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;
@@ -78,10 +80,9 @@ declare const Rn: {
         UnsingedInt: ComponentTypeEnum;
         Float: ComponentTypeEnum;
         Double: ComponentTypeEnum;
-        Bool: ComponentTypeEnum;
         HalfFloat: ComponentTypeEnum;
         from: (index: number) => ComponentTypeEnum;
-        fromTypedArray: (typedArray: TypedArray) => ComponentTypeEnum;
+        fromTypedArray: (typedArray: import("../types/CommonTypes").TypedArray) => ComponentTypeEnum;
     }>;
     VertexAttribute: Readonly<{
         Unknown: VertexAttributeEnum;
@@ -128,6 +129,7 @@ declare const Rn: {
         DataTextureWebGL2: import("./definitions/ProcessApproach").ProcessApproachEnum;
         UBOWebGL2: import("./definitions/ProcessApproach").ProcessApproachEnum;
         TransformFeedbackWebGL2: import("./definitions/ProcessApproach").ProcessApproachEnum;
+        FastestWebGL1: import("./definitions/ProcessApproach").ProcessApproachEnum;
     }>;
     Gltf1Importer: typeof Gltf1Importer;
     Gltf2Importer: typeof Gltf2Importer;
@@ -163,31 +165,24 @@ declare const Rn: {
         from: (index: number) => import("./definitions/AlphaMode").AlphaModeEnum;
         fromString: (str: string) => import("./definitions/AlphaMode").AlphaModeEnum;
     }>;
-    ShadowMapping: Readonly<{
-        Standard: import("./definitions/ShadowMapping").ShadowMappingEnum;
-        Variance: import("./definitions/ShadowMapping").ShadowMappingEnum;
-        from: (index: number) => import("./definitions/ShadowMapping").ShadowMappingEnum;
-        fromString: (str: string) => import("./definitions/ShadowMapping").ShadowMappingEnum;
-    }>;
     Gltf2Exporter: typeof Gltf2Exporter;
     detectFormat: typeof detectFormat;
     Config: {
         maxEntityNumber: number;
         maxLightNumberInShader: number;
+        maxMaterialInstanceForEachType: number;
     };
     Plane: typeof Plane;
     Sphere: typeof Sphere;
     Material: typeof Material;
     MaterialHelper: Readonly<{
-        createPbrUberMaterial: () => Material;
-        createClassicUberMaterial: () => Material;
-        createEnvConstantMaterial: () => Material;
-        createFXAA3QualityMaterial: () => Material;
-        createFurnaceTestMaterial: () => Material;
-        createDepthEncodingMaterial: (depthPow?: number) => Material;
-        createEncodedDepthGaussianBlurMaterial: (renderPassEncodingDepth: RenderPass, isHorizontal: boolean, parameters: any) => Material;
-        createShadowMappingDecodeMaterial: (renderPassEncodingDepth: RenderPass | RenderPass[], mode?: import("./definitions/ShadowMapping").ShadowMappingEnum) => Material | undefined;
-        createZoPbrUberMaterial: () => Material;
+        createPbrUberMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createClassicUberMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createEnvConstantMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createFXAA3QualityMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createDepthEncodingMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createShadowMapping32bitMaterial: (renderPass: RenderPass, maxInstancesNumber?: number | undefined) => Material;
+        createGammaCorrectionMaterial: (maxInstancesNumber?: number | undefined) => Material;
     }>;
     ShaderSemantics: Readonly<{
         WorldMatrix: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -223,17 +218,25 @@ declare const Rn: {
         VertexAttributesExistenceArray: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         BoneCompressedChank: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         BoneCompressedInfo: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
-        fromString: (str: string) => import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         PointSize: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         ColorEnvTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         PointDistanceAttenuation: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         HDRIFormat: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         ScreenInfo: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        DepthTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        LightViewProjectionMatrix: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         Anisotropy: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         ClearCoatParameter: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         SheenParameter: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         SpecularGlossinessFactor: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         SpecularGlossinessTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        from: (index: number) => import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        fromString: (str: string) => import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        infoToString: (semanticInfo: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string | undefined;
+        fullSemanticStr: (info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string;
+        fullSemanticPluralStr: (info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string;
+        getShaderProperty: (materialTypeName: string, info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo, memberName: string) => string;
+        EntityUID: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
     }>;
     RenderPass: typeof RenderPass;
     FrameBuffer: typeof FrameBuffer;
@@ -295,7 +298,17 @@ declare const Rn: {
         createCameraEntity: () => import("./core/Entity").default;
         createCameraWithControllerEntity: () => import("./core/Entity").default;
     }>;
-    ZoGltfLoaderExtension: typeof ZoGltfLoaderExtension;
+    MathClassUtil: typeof MathClassUtil;
+    Mesh: typeof Mesh;
+    MathUtil: Readonly<{
+        radianToDegree: (rad: number) => number;
+        degreeToRadian: (deg: number) => number;
+        toHalfFloat: (val: number) => number;
+        isPowerOfTwo: (x: number) => boolean;
+        isPowerOfTwoTexture: (width: number, height: number) => boolean;
+        packNormalizedVec4ToVec2: (x: number, y: number, z: number, w: number, criteria: number) => number[];
+    }>;
+    Component: typeof Component;
 };
 export default Rn;
 export declare type RnType = typeof Rn;

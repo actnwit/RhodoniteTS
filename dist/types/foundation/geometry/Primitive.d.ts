@@ -6,6 +6,8 @@ import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { CompositionTypeEnum } from '../definitions/CompositionType';
 import AABB from '../math/AABB';
 import Material from '../materials/Material';
+import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 declare type Attributes = Map<VertexAttributeEnum, Accessor>;
 export default class Primitive extends RnObject {
     private __mode;
@@ -17,6 +19,7 @@ export default class Primitive extends RnObject {
     private static __headerAccessor?;
     private __aabb;
     private __targets;
+    private __vertexHandles?;
     constructor();
     setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor): void;
     static readonly maxPrimitiveCount: number;
@@ -51,5 +54,8 @@ export default class Primitive extends RnObject {
     readonly targets: Array<Attributes>;
     isBlend(): boolean;
     isOpaque(): boolean;
+    create3DAPIVertexData(): boolean;
+    delete3DAPIVertexData(): boolean;
+    readonly vertexHandles: VertexHandles | undefined;
 }
 export {};

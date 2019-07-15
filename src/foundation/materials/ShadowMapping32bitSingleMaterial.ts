@@ -16,6 +16,7 @@ import ShadowMapping32bitClassicShader from "../../webgl/shaders/ShadowMapping32
 import RenderPass from "../renderer/RenderPass";
 import Matrix44 from "../math/Matrix44";
 import { ShaderType } from "../definitions/ShaderType";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
