@@ -9,6 +9,7 @@ import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import Accessor from "./Accessor";
+import { Byte, Index, Count, TypedArrayConstructor, TypedArray } from "../../types/CommonTypes";
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;

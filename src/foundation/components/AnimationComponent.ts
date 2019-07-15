@@ -14,6 +14,7 @@ import MeshComponent from "./MeshComponent";
 import Vector4 from "../math/Vector4";
 import MutableVector4 from "../math/MutableVector4";
 import MathClassUtil from "../math/MathClassUtil";
+import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
 
 
 type AnimationLine = {

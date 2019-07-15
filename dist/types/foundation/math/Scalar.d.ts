@@ -1,4 +1,5 @@
 import { IScalar } from "./IVector";
+import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
 export declare class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     v: TypedArray;
     constructor(x: number | TypedArray | null, { type }: {

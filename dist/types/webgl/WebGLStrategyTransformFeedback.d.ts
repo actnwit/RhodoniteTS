@@ -4,6 +4,9 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import Matrix44 from "../foundation/math/Matrix44";
 import Material from "../foundation/materials/Material";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import RenderPass from "../foundation/renderer/RenderPass";
+import { WebGLResourceHandle } from "../types/CommonTypes";
 export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     private static __instance;
     private __webglResourceRepository;
@@ -20,7 +23,7 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     private readonly __transformFeedbackFragmentShaderText;
     setupShaderProgram(meshComponent: MeshComponent): void;
     $load(meshComponent: MeshComponent): void;
-    $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle): void;
+    $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     private __setupUBOPrimitiveHeaderData;
     private __setupGPUInstanceMetaData;
     private __setupGPUInstanceData;
@@ -30,5 +33,5 @@ export default class WebGLStrategyTransformFeedback implements WebGLStrategy {
     attatchShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyTransformFeedback;
-    common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44): boolean;
+    common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
 }

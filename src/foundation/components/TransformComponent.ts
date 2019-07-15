@@ -14,6 +14,7 @@ import MutableQuaternion from '../math/MutableQuaterion';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 
 // import AnimationComponent from './AnimationComponent';
 

@@ -1,5 +1,6 @@
 import RnObject from "../core/RnObject";
 import BufferView from "./BufferView";
+import { Byte, Size } from "../../types/CommonTypes";
 
 export default class Buffer extends RnObject {
   private __byteLength: Size = 0;

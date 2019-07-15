@@ -8,6 +8,7 @@ import ComponentRepository from "../foundation/core/ComponentRepository";
 import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
 import ModuleManager from "../foundation/system/ModuleManager";
+import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
 
 declare var window: any;
 declare var Module: any;

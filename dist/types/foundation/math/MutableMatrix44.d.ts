@@ -4,6 +4,7 @@ import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Vector3 from "./Vector3";
+import { Index } from "../../types/CommonTypes";
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
 export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix44 {
@@ -63,6 +64,7 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
      * zero matrix
      */
     zero(): this;
+    static zero(): MutableMatrix44;
     m00: any;
     m10: any;
     m20: any;

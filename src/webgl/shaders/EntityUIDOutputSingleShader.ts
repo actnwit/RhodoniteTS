@@ -76,7 +76,7 @@ ${this.toNormalMatrix}
     return `${_version}
 precision highp float;
 
-uniform vec3 u_entityUID;
+uniform float u_entityUID;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;

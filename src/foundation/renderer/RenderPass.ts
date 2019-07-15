@@ -6,6 +6,7 @@ import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
+import { EntityUID } from "../../types/CommonTypes";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];

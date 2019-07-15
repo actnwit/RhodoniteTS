@@ -7,12 +7,14 @@ import Matrix44 from "../foundation/math/Matrix44";
 import Matrix33 from "../foundation/math/Matrix33";
 import Entity from "../foundation/core/Entity";
 import CubeTexture from "../foundation/textures/CubeTexture";
+import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import Material from "../foundation/materials/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
+import Mesh from "../foundation/geometry/Mesh";
+import { WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
 export default class WebGLStrategyUniform implements WebGLStrategy {
     private static __instance;
     private __webglResourceRepository;
-    private static __vertexHandleOfPrimitiveObjectUids;
     private __lightComponents?;
     private __dummyWhiteTextureUid?;
     private __dummyBlackTextureUid?;
@@ -21,6 +23,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     private __webglShaderProgram?;
     private __lastRenderPassCullFace;
     private __pointDistanceAttenuation;
+    private __lastRenderPassTickCount;
     private __pbrCookTorranceBrdfLutDataUrlUid?;
     private vertexShaderMethodDefinitions_uniform;
     private __lastShader;
@@ -28,17 +31,18 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     private constructor();
     setupShaderProgram(meshComponent: MeshComponent): void;
     $load(meshComponent: MeshComponent): Promise<void>;
-    $prerender(meshComponent: MeshComponent, instanceIDBufferUid: WebGLResourceHandle): void;
+    $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     common_$prerender(): void;
     attachGPUData(primitive: Primitive): void;
     attatchShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
+    attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     dettachVertexData(glw: WebGLContextWrapper): void;
     static getInstance(): WebGLStrategyUniform;
-    common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44): boolean;
+    common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
     static isOpaqueMode(): boolean;
     static isTransparentMode(): boolean;
     private __setUniformBySystem;
-    $render(idx: Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
+    $render(idx: Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
     private setWebGLStates;
 }

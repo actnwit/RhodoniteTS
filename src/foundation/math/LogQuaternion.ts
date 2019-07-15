@@ -4,6 +4,7 @@ import Vector4 from './Vector4';
 import {IVector3} from './IVector';
 import {IColorRgb} from './IColor';
 import Quaternion from './Quaternion';
+import { TypedArray } from '../../types/CommonTypes';
 
 export default class LogQuaternion implements IVector3 {
   v: TypedArray;

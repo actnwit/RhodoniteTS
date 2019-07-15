@@ -1,5 +1,6 @@
 import Buffer from '../memory/Buffer';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
+import { Size } from '../../types/CommonTypes';
 
 /**
  * Usage

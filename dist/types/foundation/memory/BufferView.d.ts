@@ -4,6 +4,7 @@ import Accessor from "./AccessorBase";
 import { CompositionTypeEnum } from "../definitions/CompositionType";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import FlexibleAccessor from "./FlexibleAccessor";
+import { Byte, Count } from "../../types/CommonTypes";
 export default class BufferView extends RnObject {
     private __buffer;
     private __byteOffset;
@@ -30,20 +31,22 @@ export default class BufferView extends RnObject {
     recheckIsSoA(): boolean;
     readonly isAoS: boolean;
     getUint8Array(): Uint8Array;
-    takeAccessor({ compositionType, componentType, count, max, min }: {
+    takeAccessor({ compositionType, componentType, count, max, min, byteAlign }: {
         compositionType: CompositionTypeEnum;
         componentType: ComponentTypeEnum;
         count: Count;
         max?: number;
         min?: number;
+        byteAlign?: Byte;
     }): Accessor;
-    takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min }: {
+    takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign }: {
         compositionType: CompositionTypeEnum;
         componentType: ComponentTypeEnum;
         count: Count;
         byteStride: Byte;
         max?: number;
         min?: number;
+        byteAlign?: Byte;
     }): FlexibleAccessor;
     takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffset, max, min }: {
         compositionType: CompositionTypeEnum;

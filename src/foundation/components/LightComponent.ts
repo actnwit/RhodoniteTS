@@ -8,6 +8,7 @@ import Vector3 from '../math/Vector3';
 import SceneGraphComponent from './SceneGraphComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
 import Config from '../core/Config';
+import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;

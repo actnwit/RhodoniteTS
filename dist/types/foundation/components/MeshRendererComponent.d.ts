@@ -1,12 +1,11 @@
 import Component from '../core/Component';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import EntityRepository from '../core/EntityRepository';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CubeTexture from '../textures/CubeTexture';
 import RenderPass from '../renderer/RenderPass';
+import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
 export default class MeshRendererComponent extends Component {
     private __meshComponent?;
-    __vertexHandles: Array<VertexHandles>;
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
     private __webglRenderingStrategy?;
     private __sceneGraphComponent?;
@@ -26,6 +25,7 @@ export default class MeshRendererComponent extends Component {
     private static __cameraComponent?;
     private static __firstTransparentIndex;
     private static __manualTransparentSids?;
+    _readyForRendering: boolean;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static readonly componentTID: ComponentTID;
     static readonly firstTranparentIndex: number;
@@ -34,9 +34,10 @@ export default class MeshRendererComponent extends Component {
     }): void;
     $load(): void;
     $prerender(): void;
-    $render({ i, renderPass }: {
+    $render({ i, renderPass, renderPassTickCount }: {
         i: Index;
         renderPass: RenderPass;
+        renderPassTickCount: Count;
     }): void;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
@@ -44,8 +45,11 @@ export default class MeshRendererComponent extends Component {
     static common_$prerender(): CGAPIResourceHandle;
     private static __isReady;
     private static __setupInstanceIDBuffer;
-    static common_$render(): void;
-    static sort_$render(renderPass?: RenderPass): ComponentSID[];
+    static common_$render({ renderPass }: {
+        renderPass: RenderPass;
+    }): void;
+    static sort_$render(renderPass: RenderPass): ComponentSID[];
     private static sort_$render_inner;
     static manualTransparentSids: ComponentSID[];
+    static manualTransparentEntityNames: string[];
 }

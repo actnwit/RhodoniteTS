@@ -1,4 +1,5 @@
 import { EnumClass, EnumIO } from "../misc/EnumIO";
+import { Index } from "../../types/CommonTypes";
 export interface VertexAttributeEnum extends EnumIO {
     getAttributeSlot(): Index;
     shaderStr: string;

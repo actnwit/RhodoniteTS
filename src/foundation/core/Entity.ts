@@ -4,6 +4,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import RnObject from './RnObject';
+import { ComponentTID, EntityUID } from '../../types/CommonTypes';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.

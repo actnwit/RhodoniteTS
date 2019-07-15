@@ -18,6 +18,7 @@ import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
+import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;

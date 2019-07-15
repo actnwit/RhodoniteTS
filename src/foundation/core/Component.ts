@@ -16,6 +16,7 @@ import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
 import { thisExpression } from '@babel/types';
+import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
 
 type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
 

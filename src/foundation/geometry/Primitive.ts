@@ -13,6 +13,7 @@ import Material from '../materials/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
+import { PrimitiveUID, TypedArray, Count } from '../../types/CommonTypes';
 
 type Attributes = Map<VertexAttributeEnum, Accessor>;
 

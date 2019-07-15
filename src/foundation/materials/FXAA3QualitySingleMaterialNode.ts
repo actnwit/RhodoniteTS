@@ -22,6 +22,7 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import FXAA3QualityShader from "../../webgl/shaders/FXAA3Quality";
 import { ShaderType } from "../definitions/ShaderType";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

@@ -15,7 +15,7 @@ export default class MathClassUtil {
     static isAcceptableArrayForQuaternion(element: Array<number>): boolean;
     static arrayToQuaternion(element: Array<number>): Quaternion;
     static makeSubArray(array: Array<any>, componentN: number): any;
-    static vectorToArray(element: Vector2 | Vector3 | Vector4 | Quaternion): number[];
+    static vectorToArray(element: Vector2 | Vector3 | Vector4 | Quaternion): (number | Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array)[];
     /**
      * discriminate which Vector instance
      * @param element any Vector instance
@@ -28,5 +28,7 @@ export default class MathClassUtil {
     static subtract(lhs: any, rhs: any): any;
     static multiplyNumber(lhs: any, rhs: number): any;
     static divideNumber(lhs: any, rhs: number): any;
-    static init(objForDetectType: any, val: number): number | number[] | Vector2 | Vector4 | Vector3 | Quaternion | undefined;
+    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector2 | Vector4 | Vector3 | Quaternion | undefined;
+    static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array): any;
+    static _setForce(objForDetectType: any, val: any): any;
 }

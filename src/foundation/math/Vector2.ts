@@ -1,6 +1,7 @@
 import { IVector2, IVector3, IVector4 } from "./IVector";
 import Vector4 from "./Vector4";
 import Vector3 from "./Vector3";
+import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
 
 export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   v: TypedArray;

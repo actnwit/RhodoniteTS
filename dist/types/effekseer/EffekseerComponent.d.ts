@@ -1,6 +1,7 @@
 import Component from "../foundation/core/Component";
 import EntityRepository from "../foundation/core/EntityRepository";
 import Vector3 from "../foundation/math/Vector3";
+import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
 export default class EffekseerComponent extends Component {
     private __effect?;
     private __handle?;

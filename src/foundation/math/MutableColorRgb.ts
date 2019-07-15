@@ -3,6 +3,7 @@ import Vector4 from './Vector4';
 import {IVector3} from './IVector';
 import {IMutableColorRgb} from './IColor';
 import ColorRgb from './ColorRgb';
+import { TypedArray } from '../../types/CommonTypes';
 
 export default class MutableColorRgb extends ColorRgb implements IVector3, IMutableColorRgb {
 

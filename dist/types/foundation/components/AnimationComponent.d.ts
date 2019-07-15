@@ -5,6 +5,7 @@ import { CompositionTypeEnum } from "../definitions/CompositionType";
 import Quaternion from "../math/Quaternion";
 import MutableVector3 from "../math/MutableVector3";
 import MutableQuaternion from "../math/MutableQuaterion";
+import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
 declare type AnimationLine = {
     input: number[];
     output: any[];
@@ -31,6 +32,7 @@ export default class AnimationComponent extends Component {
     setAnimation(animationAttributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum): void;
     static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum): number | number[] | MutableVector3 | Quaternion;
     static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, deltaInput: number, compositionType: CompositionTypeEnum): number | number[] | MutableVector3 | MutableQuaternion;
+    private static __isClamped;
     static interpolate(line: AnimationLine, input: number): any;
     getStartInputValueOfAnimation(): number;
     getEndInputValueOfAnimation(): number;

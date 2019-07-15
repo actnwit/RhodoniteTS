@@ -8,6 +8,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import RowMajarMatrix44 from './RowMajarMatrix44';
 import MutableQuaternion from './MutableQuaterion';
 import LogQuaternion from './LogQuaternion';
+import { TypedArray } from '../../types/CommonTypes';
 
 export default class Quaternion implements IVector4 {
   v: TypedArray;

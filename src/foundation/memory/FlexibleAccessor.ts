@@ -2,6 +2,7 @@ import AccessorBase from "./AccessorBase";
 import BufferView from "./BufferView";
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { CompositionType, CompositionTypeEnum } from "../definitions/CompositionType";
+import { Count, Byte } from "../../types/CommonTypes";
 
 
 export default class FlexibleAccessor extends AccessorBase {

@@ -20,6 +20,7 @@ import CameraControllerComponent from './CameraControllerComponent';
 import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
 import Config from '../core/Config';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();

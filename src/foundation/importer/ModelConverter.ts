@@ -37,6 +37,7 @@ import Mesh from "../geometry/Mesh";
 import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
+import { Count, Byte, Size, Index } from "../../types/CommonTypes";
 
 declare var DracoDecoderModule: any;
 

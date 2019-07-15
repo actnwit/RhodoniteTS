@@ -19,6 +19,7 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import RenderPass from "../foundation/renderer/RenderPass";
+import { WebGLResourceHandle, ObjectUID, CGAPIResourceHandle, Index } from "../types/CommonTypes";
 
 export default class WebGLStrategyUBO implements WebGLStrategy {
   private static __instance: WebGLStrategyUBO;

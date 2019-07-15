@@ -4,6 +4,7 @@ import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import RowMajarMatrix44 from './RowMajarMatrix44';
 import MutableQuaternion from './MutableQuaterion';
+import { TypedArray } from '../../types/CommonTypes';
 export default class Quaternion implements IVector4 {
     v: TypedArray;
     constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number);

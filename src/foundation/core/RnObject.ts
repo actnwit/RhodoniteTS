@@ -1,3 +1,4 @@
+import { RnTags, ObjectUID } from "../../types/CommonTypes";
 
 /**
  * The root class of the objects in Rhodonite

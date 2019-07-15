@@ -4,6 +4,7 @@ import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
 import Material from "../materials/Material";
+import { Count } from "../../types/CommonTypes";
 
 export interface ShaderSemanticsEnum extends EnumIO {
   singularStr: string;

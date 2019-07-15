@@ -29,6 +29,7 @@ import Config from "../foundation/core/Config";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle } from "../types/CommonTypes";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;

@@ -3,6 +3,7 @@ import Quaternion from "./Quaternion";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Matrix44 from "./Matrix44";
 import Vector3 from "./Vector3";
+import { Index } from "../../types/CommonTypes";
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
 export default class MutableRowMajarMatrix44 extends RowMajarMatrix44 {

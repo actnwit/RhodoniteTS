@@ -1,5 +1,7 @@
 import Entity from "../core/Entity";
 import Buffer from "../memory/Buffer";
+import Material from "../materials/Material";
+import { Byte, Size } from "../../types/CommonTypes";
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -16,6 +18,7 @@ export default class ModelConverter {
     private __generateGroupEntity;
     private __generateMeshEntity;
     private __generateCameraEntity;
+    private __generateLightEntity;
     convertToRhodoniteObject(gltfModel: glTF2): Entity;
     _setupCamera(gltfModel: glTF2): void;
     private createRnBuffer;
@@ -24,6 +27,7 @@ export default class ModelConverter {
     __setupAnimation(gltfModel: glTF2, rnEntities: Entity[]): void;
     _setupSkeleton(gltfModel: glTF2, rnEntities: Entity[]): void;
     __setupObjects(gltfModel: glTF2, rnBuffer: Buffer): Entity[];
+    private __setupLight;
     private __setupCamera;
     private __setupMesh;
     private __generateAppropreateMaterial;
@@ -42,4 +46,5 @@ export default class ModelConverter {
     private __getGeometryFromDracoBuffer;
     __getIndicesFromDraco(draco: any, decoder: any, dracoGeometry: any, triangleStripDrawMode: boolean): Uint32Array | undefined;
     private __decodeDraco;
+    static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformName: string, textureRotationName: string): void;
 }

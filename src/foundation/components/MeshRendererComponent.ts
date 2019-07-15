@@ -26,6 +26,7 @@ import { sign } from 'crypto';
 import RnObject from '../core/RnObject';
 import WebGLStrategyFastestWebGL1 from '../../webgl/WebGLStrategyFastestWebGL1';
 import Primitive from '../geometry/Primitive';
+import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;

@@ -2,6 +2,7 @@ import RnObject from "../core/RnObject";
 import IRenderable from "./IRenderable";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { TextureParameterEnum } from "../definitions/TextureParameter";
+import { Size, CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width: number = 0;

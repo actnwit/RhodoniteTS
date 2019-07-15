@@ -4,6 +4,7 @@ import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Matrix44 from "./Matrix44";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
+import { Index } from "../../types/CommonTypes";
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;

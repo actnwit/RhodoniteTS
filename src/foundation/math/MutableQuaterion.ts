@@ -5,6 +5,7 @@ import {IVector4} from "./IVector";
 import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
 import RowMajarMatrix44 from "./RowMajarMatrix44";
+import { TypedArray } from "../../types/CommonTypes";
 
 export default class MutableQuaternion extends Quaternion implements IVector4 {
 

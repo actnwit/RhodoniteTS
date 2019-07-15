@@ -1,3 +1,4 @@
+import { Size } from "../../types/CommonTypes";
 declare function radianToDegree(rad: number): number;
 declare function degreeToRadian(deg: number): number;
 /**

@@ -7,6 +7,7 @@ import { ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 import { ComponentTypeEnum } from "../main";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import { Size } from "../../types/CommonTypes";
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
 

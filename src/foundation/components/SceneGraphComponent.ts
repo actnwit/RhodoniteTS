@@ -16,6 +16,7 @@ import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent

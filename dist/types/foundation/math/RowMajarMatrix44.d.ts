@@ -4,6 +4,8 @@ import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
 import MutableVector3 from './MutableVector3';
 import MutableRowMajarMatrix44 from './MutableRowMajarMatrix44';
+import MutableVector4 from './MutableVector4';
+import { TypedArray } from '../../types/CommonTypes';
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
 export default class RowMajarMatrix44 {
@@ -53,6 +55,8 @@ export default class RowMajarMatrix44 {
     static transpose(mat: RowMajarMatrix44): RowMajarMatrix44;
     static transposeTo(mat: RowMajarMatrix44, outMat: MutableRowMajarMatrix44): void;
     multiplyVector(vec: Vector4): Vector4;
+    multiplyVectorTo(vec: Vector4, outVec: MutableVector4): void;
+    multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3): void;
     multiplyVector3(vec: Vector3): Vector3;
     multiplyVector3To(vec: Vector3, outVec: MutableVector3): void;
     /**

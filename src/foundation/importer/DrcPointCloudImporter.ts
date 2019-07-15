@@ -5,6 +5,7 @@ import { CompositionType, CompositionTypeEnum } from '../definitions/Composition
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from '../definitions/VertexAttribute';
 import Accessor from "../memory/Accessor";
+import { TypedArray } from "../../types/CommonTypes";
 
 declare var DracoDecoderModule: any;
 
