@@ -142,11 +142,15 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
     }
     variableName = variableName.replace(/\[.+?\]/g, `[i]`);
     str += `
+    ${returnType} val;
     for (int i=0; i<${info.maxIndex}; i++) {
       if (i == index) {
-        return u_${variableName};
+        val = u_${variableName};
+        break;
       }
-    }`;
+    }
+    return val;
+    `;
   } else {
     str += `return u_${variableName};`;
   }
