@@ -100,7 +100,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   }
 
   mat3 getNormalMatrix(float instanceId) {
-    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')}.0 + 4.0 * instanceId;
+    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')}.0 + 3.0 * instanceId;
     float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
     float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
     vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
