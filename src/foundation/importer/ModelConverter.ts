@@ -422,10 +422,10 @@ export default class ModelConverter {
     const rnMesh = new Mesh();
 
     let originalRnMesh = rnMesh;
-    // if (existingRnMesh != null) {
-    //   rnMesh.setMesh(existingRnMesh);
-    //   originalRnMesh = existingRnMesh;
-    // } else {
+    if (existingRnMesh != null) {
+      rnMesh.setMesh(existingRnMesh);
+      originalRnMesh = existingRnMesh;
+    } else {
       for (let i in mesh.primitives) {
         let primitive = mesh.primitives[i];
         if (primitive.mode != null) {
@@ -478,7 +478,7 @@ export default class ModelConverter {
       if (mesh.weights) {
         meshComponent.mesh!.weights = mesh.weights;
       }
-    // }
+    }
 
     meshComponent.setMesh(rnMesh);
 
