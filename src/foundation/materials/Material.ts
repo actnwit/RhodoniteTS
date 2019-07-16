@@ -201,7 +201,7 @@ export default class Material extends RnObject {
     if (semanticInfo.index != null) {
       indexStr = '___' + semanticInfo.index;
     }
-    return propertyName+indexStr;
+    return propertyName + indexStr;
   }
 
   initialize() {
@@ -253,7 +253,8 @@ export default class Material extends RnObject {
         valueObj = this.__fields.get(shaderSemanticStr);
       }
       if (isNaN(valueObj)) { // if not number
-        MathClassUtil._setForce(valueObj, value);
+        valueObj = MathClassUtil._setForce(valueObj, value);
+        this.__fields.set(shaderSemanticStr, valueObj);
       } else {
         this.__fields.set(shaderSemanticStr, value);
       }
@@ -318,7 +319,7 @@ export default class Material extends RnObject {
     this.__fields.forEach((value, key) => {
       const updateFunc = this.__fieldsInfo.get(key)!.updateFunc;
       if (updateFunc) {
-        updateFunc({shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args})
+        updateFunc({ shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
       } else {
         webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
       }
@@ -335,7 +336,7 @@ export default class Material extends RnObject {
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         const updateFunc = info.updateFunc;
         if (updateFunc) {
-          updateFunc({shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args})
+          updateFunc({ shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
         } else {
           webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
         }
@@ -374,7 +375,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({getters: pixelPropertiesStr});
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr });
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 
