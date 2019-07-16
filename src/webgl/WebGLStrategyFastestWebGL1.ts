@@ -115,7 +115,13 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       col0.w, col1.x, col1.y,
       col1.z, col1.w, col2.x
       );
-    // mat3 matrix = mat3(
+      // mat3 matrix = mat3(
+      //   col0.x, col0.y, col0.z,
+      //   col1.x, col1.y, col1.z,
+      //   col2.x, col2.y, col2.z
+      //   );
+  
+      // mat3 matrix = mat3(
     //   col0.x, col0.w, col1.z,
     //   col0.y, col1.x, col1.w,
     //   col0.z, col1.y, col2.x
@@ -499,8 +505,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const worldLightDirection = lightComponent.direction;
       const worldLightIntensity = lightComponent.intensity;
       material.setParameter(ShaderSemantics.LightPosition, new Vector4(worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index), i);
-      material.setParameter(ShaderSemantics.LightDirection, worldLightDirection, i);
-      material.setParameter(ShaderSemantics.LightIntensity, worldLightIntensity, i);
+      material.setParameter(ShaderSemantics.LightDirection, new Vector4(worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0), i);
+      material.setParameter(ShaderSemantics.LightIntensity, new Vector4(worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0), i);
     }
   }
 

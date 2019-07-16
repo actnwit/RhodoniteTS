@@ -56,6 +56,7 @@ import MathClassUtil from './math/MathClassUtil';
 import Mesh from './geometry/Mesh';
 import { MathUtil } from './math/MathUtil';
 import Component from './core/Component';
+import WebGLStrategyUniform from '../webgl/WebGLStrategyUniform';
 
 
 const Rn = {
@@ -116,7 +117,8 @@ const Rn = {
   MathClassUtil,
   Mesh,
   MathUtil,
-  Component
+  Component,
+  WebGLStrategyUniform
 };
 export default Rn;
 export type RnType = typeof Rn;

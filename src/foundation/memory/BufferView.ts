@@ -129,12 +129,12 @@ export default class BufferView extends RnObject {
     }
 
     if (byteOffset % byteAlign !== 0) {
-      console.info('Padding bytes added because byteOffset is not 4byte aligned.');
+      console.info(`Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`);
       byteOffset += byteAlign - byteOffset % byteAlign;
     }
 
     if (this.__byteOffset % byteAlign !== 0) {
-      console.info('Padding bytes added because byteOffsetFromBuffer is not 4byte aligned.');
+      console.info(`Padding bytes added because byteOffsetFromBuffer is not ${byteAlign}byte aligned.`);
       this.__byteOffset += byteAlign - this.__byteOffset % byteAlign;
       this.buffer._addTakenByteIndex(byteAlign - this.__byteOffset % byteAlign);
     }

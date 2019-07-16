@@ -343,17 +343,25 @@ export default class Mesh {
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
   }
 
-  getPrimitiveAt(i: number) {
-    if (this.weights.length > 0) {
-      this.__calcMorphPrimitives();
-      return this.__morphPrimitives[i];
+  getPrimitiveAt(i: number): Primitive {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.getPrimitiveAt(i);
     } else {
-      return this.__primitives[i];
+      if (this.weights.length > 0) {
+        this.__calcMorphPrimitives();
+        return this.__morphPrimitives[i];
+      } else {
+        return this.__primitives[i];
+      }
     }
   }
 
-  getPrimitiveNumber() {
-    return this.__primitives.length;
+  getPrimitiveNumber(): number {
+    if (this.isInstanceMesh()) {
+      return this.__instanceOf!.getPrimitiveNumber();
+    } else {
+      return this.__primitives.length;
+    }
   }
 
   __calcFaceNormals() {

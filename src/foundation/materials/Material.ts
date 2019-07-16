@@ -118,7 +118,7 @@ export default class Material extends RnObject {
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: sumSizeInByte * Material.__maxInstances.get(materialTypeName)!,
-      byteStride: 16,
+      byteStride: 0,
       byteAlign: 16,
       isAoS: false
     });
@@ -127,10 +127,26 @@ export default class Material extends RnObject {
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const properties = this.__accessors.get(materialTypeName)!;
-        const accessor = bufferView.takeAccessor({
+        const bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
+        let alignedBytes = 0;
+        if (bytes <= 16) {
+          alignedBytes = 16;
+        } else if (16 < bytes && bytes <= 32) {
+          alignedBytes = 32;
+        } else if (32 < bytes && bytes <= 48) {
+          alignedBytes = 48;
+        } else if (48 < bytes && bytes <= 64) {
+          alignedBytes = 64;
+        } else {
+          alignedBytes = 64;
+          console.warn('Unsupported size');
+        }
+
+        const accessor = bufferView.takeFlexibleAccessor({
           compositionType: semanticInfo.compositionType,
           componentType: ComponentType.Float,
           count: Material.__maxInstances.get(materialTypeName)!,
+          byteStride: alignedBytes,
           byteAlign: 16
         });
 

@@ -258,7 +258,7 @@ export default class Component extends RnObject {
 
     const bufferViews = this.__bufferViews.get(componentClass)!;
     if (!bufferViews.has(bufferUse)) {
-      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false});
+      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false, byteAlign: 16 });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
     }
@@ -308,7 +308,23 @@ export default class Component extends RnObject {
 
     if (!accessors.has(memberName)) {
       const bufferViews = this.__bufferViews.get(componentClass)!
-      const accessor = bufferViews.get(bufferUse)!.takeAccessor({compositionType: compositionType, componentType, count: count});
+
+      const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+      let alignedBytes = 0;
+      if (bytes <= 16) {
+        alignedBytes = 16;
+      } else if (16 < bytes && bytes <= 32) {
+        alignedBytes = 32;
+      } else if (32 < bytes && bytes <= 48) {
+        alignedBytes = 48;
+      } else if (48 < bytes && bytes <= 64) {
+        alignedBytes = 64;
+      } else {
+        alignedBytes = 64;
+        console.warn('Unsupported size');
+      }
+
+      const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({compositionType: compositionType, componentType, count: count, byteStride: alignedBytes, byteAlign: 16 });
       accessors.set(memberName, accessor);
       return accessor;
     } else {

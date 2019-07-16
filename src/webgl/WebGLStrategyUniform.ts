@@ -49,7 +49,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __dummyBlackTextureUid?: CGAPIResourceHandle;
   private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
   private static __isOpaqueMode = true;
-  private __webglShaderProgram?: WebGLProgram;
   private __lastRenderPassCullFace = false;
   private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
   private __lastRenderPassTickCount = -1;
@@ -57,7 +56,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
-  private vertexShaderMethodDefinitions_uniform: string =
+  private static __vertexShaderMethodDefinitions_uniform: string =
     `
   uniform mat4 u_worldMatrix;
   uniform mat4 u_viewMatrix;
@@ -104,8 +103,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         const gl = glw.getRawContext();
 
         // Shader Setup
-        material.createProgram(this.vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
-
         let args: ShaderSemanticsInfo[] = [
           {semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
             stage: ShaderType.VertexShader, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
@@ -162,11 +159,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
         args = args.concat(lights);
 
-        this.__webglShaderProgram = this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
-
-        material.setUniformLocations(material._shaderProgramUid);
+        WebGLStrategyUniform.setupMaterial(material, args);
       }
     }
+  }
+
+  static setupMaterial(material: Material, args: ShaderSemanticsInfo[]) {
+    material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
+    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
+    material.setUniformLocations(material._shaderProgramUid);
   }
 
   async $load(meshComponent: MeshComponent) {
@@ -417,14 +419,18 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (WebGLStrategyUniform.isTransparentMode() && primitive.isOpaque()) {
         continue;
       }
-      //this.attatchShaderProgram(primitive.material!);
 
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      const material = primitive.material;
+      let material: Material;
+      if (renderPass.material != null) {
+        material = renderPass.material;
+      } else {
+        material =  primitive.material!;
+      }
 
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLProgram;
-      const shaderProgramUid = material!._shaderProgramUid;
+      const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = false;
       if (renderPassTickCount !== this.__lastRenderPassTickCount) {
