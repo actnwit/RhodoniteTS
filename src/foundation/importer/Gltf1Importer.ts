@@ -435,7 +435,7 @@ export default class Gltf1Importer {
                 origMaterial.diffuseColorTexture.texture = (gltfJson.textures as any)[value];
 
               } else if (valueName === 'emission' && textureStr.match(/_normal$/)) {
-                origMaterial.emissionTexure = {};
+                origMaterial.emissionTexture = {};
                 origMaterial.emissionTexture.texture = (gltfJson.textures as any)[value];
               }
               origMaterial.extras = {};
