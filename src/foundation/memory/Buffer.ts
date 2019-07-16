@@ -30,7 +30,7 @@ export default class Buffer extends RnObject {
 
   takeBufferView({byteLengthToNeed, byteStride, isAoS, byteAlign = 4} : {byteLengthToNeed: Byte, byteStride: Byte, isAoS: boolean, byteAlign?: Byte}) {
     if (byteLengthToNeed % byteAlign !== 0) {
-      console.info('Padding bytes added because byteLengthToNeed must be a multiple of 4.');
+      console.info(`Padding bytes added because byteLengthToNeed must be a multiple of ${byteAlign}.`);
       byteLengthToNeed += byteAlign - (byteLengthToNeed % byteAlign);
     }
     // if (byteStride % 4 !== 0) {

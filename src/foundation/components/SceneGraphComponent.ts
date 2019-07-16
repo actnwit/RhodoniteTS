@@ -155,7 +155,8 @@ export default class SceneGraphComponent extends Component {
 
     this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
     this.__isWorldMatrixUpToDate = true;
-    const normal = this.normalMatrix;
+    const normal = this.normalMatrixInner;
+    // console.log(normal.toString());
   }
 
   static common_$prerender() {

@@ -258,7 +258,7 @@ export default class Component extends RnObject {
 
     const bufferViews = this.__bufferViews.get(componentClass)!;
     if (!bufferViews.has(bufferUse)) {
-      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false});
+      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false, byteAlign: 64 });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
     }
@@ -308,7 +308,7 @@ export default class Component extends RnObject {
 
     if (!accessors.has(memberName)) {
       const bufferViews = this.__bufferViews.get(componentClass)!
-      const accessor = bufferViews.get(bufferUse)!.takeAccessor({compositionType: compositionType, componentType, count: count});
+      const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({compositionType: compositionType, componentType, count: count, byteStride: 64, byteAlign: 64 });
       accessors.set(memberName, accessor);
       return accessor;
     } else {
