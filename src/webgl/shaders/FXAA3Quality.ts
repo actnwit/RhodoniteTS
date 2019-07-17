@@ -43,9 +43,9 @@ ${_out} vec2 v_texcoord;
   };
 
   vertexShaderBody: string = `
-  mat4 worldMatrix = getMatrix(a_instanceID);
-  mat4 viewMatrix = getViewMatrix(a_instanceID);
-  mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(a_instanceID);
+  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
 
   v_texcoord = a_texcoord;
   vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);

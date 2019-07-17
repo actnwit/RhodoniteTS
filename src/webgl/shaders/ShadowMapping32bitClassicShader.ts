@@ -65,10 +65,10 @@ ${this.pointDistanceAttenuation}
   };
 
   vertexShaderBody: string = `
-  mat4 worldMatrix = getMatrix(a_instanceID);
-  mat4 viewMatrix = getViewMatrix(a_instanceID);
-  mat4 projectionMatrix = getProjectionMatrix(a_instanceID);
-  mat3 normalMatrix = getNormalMatrix(a_instanceID);
+  mat4 worldMatrix = get_worldMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(a_instanceID);
+  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
