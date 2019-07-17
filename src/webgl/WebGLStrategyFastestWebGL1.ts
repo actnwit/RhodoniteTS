@@ -244,7 +244,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             );
           `; break;
         default:
-          console.error('unknown composition type', info.compositionType.str, memberName);
+          // console.error('unknown composition type', info.compositionType.str, memberName);
           return '';
       }
 
