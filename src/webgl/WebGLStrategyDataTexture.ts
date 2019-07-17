@@ -63,7 +63,7 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     return ${_texture}( tex, vec2(x, y) );
   }
 
-  mat4 getMatrix(float instanceId)
+  mat4 get_worldMatrix(float instanceId)
   {
     float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')}.0 + 4.0 * instanceId;
     float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
@@ -85,15 +85,15 @@ export default class WebGLStrategyDataTexture implements WebGLStrategy {
     return matrix;
   }
 
-  mat4 getViewMatrix(float instanceId) {
+  mat4 get_viewMatrix(float instanceId) {
     return u_viewMatrix;
   }
 
-  mat4 getProjectionMatrix(float instanceId) {
+  mat4 get_projectionMatrix(float instanceId) {
     return u_projectionMatrix;
   }
 
-  mat3 getNormalMatrix(float instanceId) {
+  mat3 get_normalMatrix(float instanceId) {
     return u_normalMatrix;
   }
 

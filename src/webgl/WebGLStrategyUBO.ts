@@ -39,20 +39,20 @@ export default class WebGLStrategyUBO implements WebGLStrategy {
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
 
-  mat4 getMatrix(float instanceId) {
+  mat4 get_worldMatrix(float instanceId) {
     float index = instanceId;
     return transpose(u_matrix.world[int(index)]);
   }
 
-  mat4 getViewMatrix(float instanceId) {
+  mat4 get_viewMatrix(float instanceId) {
     return u_viewMatrix;
   }
 
-  mat4 getProjectionMatrix(float instanceId) {
+  mat4 get_projectionMatrix(float instanceId) {
     return u_projectionMatrix;
   }
 
-  mat3 getNormalMatrix(float instanceId) {
+  mat3 get_normalMatrix(float instanceId) {
     return u_normalMatrix;
   }
 
