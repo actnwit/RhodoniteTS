@@ -300,6 +300,18 @@ export default abstract class GLSLShader {
 `;
   }
 
+  get fetchElement() {
+    return `
+    vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+    {
+      float t = (index + 0.5) * invSize.x;
+      float x = fract(t);
+      float y = (floor(t) + 0.5) * invSize.y;
+      return ${this.glsl_texture}( tex, vec2(x, y) );
+    }
+    `;
+  }
+
   get pointSize() {
     return `
     uniform float u_pointSize;
