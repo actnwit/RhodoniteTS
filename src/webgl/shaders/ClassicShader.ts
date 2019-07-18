@@ -93,13 +93,7 @@ precision highp float;
 
 uniform sampler2D u_dataTexture;
 
-vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
-{
-  float t = (index + 0.5) * invSize.x;
-  float x = fract(t);
-  float y = (floor(t) + 0.5) * invSize.y;
-  return ${_texture}( tex, vec2(x, y) );
-}
+${this.fetchElement}
 
 struct Material {
   vec4 diffuseColorFactor;
