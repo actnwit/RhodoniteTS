@@ -452,9 +452,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       //from material
       if (material) {
         material.setUniformValues(firstTime, {
+          glw: glw,
           entity: entity,
           lightComponents: this.__lightComponents,
-          renderPass: renderPass
+          renderPass: renderPass,
+          diffuseCube: diffuseCube,
+          specularCube: specularCube
         });
       }
 
