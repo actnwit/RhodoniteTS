@@ -201,6 +201,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       methodName = methodName.replace('.', '_');
 
+      let intStr = '';
+      if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
+        intStr = 'i';
+      }
+
       let str = `
       ${returnType} get_${methodName}(float instanceId, const int index) {
         ${indexStr}
@@ -209,19 +214,21 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
         vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
 `;
+
       switch(info.compositionType) {
         case CompositionType.Vec4:
-          str += `        vec4 val = col0;`; break;
+          str += `        ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
         case CompositionType.Vec3:
-          str += `        vec3 val = col0.xyz;`; break;
+          str += `        ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
         case CompositionType.Vec2:
-          str += `        vec2 val = col0.xy;`; break;
+          str += `        ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
         case CompositionType.Scalar:
           if (info.componentType === ComponentType.Int) {
-            str += `        int val = int(col0.x);`; break;
+            str += `        int val = int(col0.x);`;
           } else {
-            str += `        float val = col0.x;`; break;
+            str += `        float val = col0.x;`;
           }
+          break;
         case CompositionType.Mat4:
           str += `
           vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
