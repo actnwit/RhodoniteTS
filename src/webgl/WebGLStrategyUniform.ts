@@ -366,16 +366,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType })
 
     // BRDF LUT
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
-    if (updated) {
-      if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
-        glw.bindTexture2D(5, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!) as WebGLTexture;
-        glw.bindTexture2D(5, texture);
-      }
-    }
+    // updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
+    // if (updated) {
+    //   if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
+    //     glw.bindTexture2D(5, texture);
+    //   } else {
+    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTextureUid!) as WebGLTexture;
+    //     glw.bindTexture2D(5, texture);
+    //   }
+    // }
 
     // Point size
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.PointSize.str, firstTime, { x: 30.0 });

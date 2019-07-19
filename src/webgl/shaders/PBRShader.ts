@@ -171,7 +171,6 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   float mipCount = u_iblParameter.x;
   float lod = (userRoughness * mipCount);
 
-  vec3 brdf = ${_texture}(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
   vec4 diffuseTexel = ${_textureCube}(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
   vec3 diffuseLight;
   diffuseLight = srgbToLinear(diffuseTexel.rgb);
@@ -184,7 +183,9 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   vec3 kS = fresnelSchlickRoughness(F0, NV, userRoughness);
   vec3 kD = 1.0 - kS;
   vec3 diffuse = diffuseLight * albedo * kD;
-  vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
+  // vec3 brdf = ${_texture}(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  // vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
+  vec3 specular = specularLight * envBRDFApprox(F0, userRoughness, NV);
 
   float IBLDiffuseContribution = u_iblParameter.y;
   float IBLSpecularContribution = u_iblParameter.z;
