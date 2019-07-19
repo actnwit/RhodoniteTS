@@ -30,6 +30,7 @@ import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
 import { WebGLResourceHandle, Index, CGAPIResourceHandle } from "../types/CommonTypes";
+import CubeTexture from "../foundation/textures/CubeTexture";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -567,7 +568,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         this.__setupMaterialEveryFrame(primitive.material!, renderPass);
 
-        primitive.material!.setUniformValuesForOnlyTextures(true);
+        const meshRendererComponent = meshComponent.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+
+        primitive.material!.setUniformValues(true, {
+          glw: glw,
+          entity: meshComponent.entity,
+          lightComponents: this.__lightComponents,
+          renderPass: renderPass,
+          diffuseCube: meshRendererComponent.diffuseCubeMap,
+          specularCube: meshRendererComponent.specularCubeMap
+        });
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
