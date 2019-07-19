@@ -452,6 +452,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       //from material
       if (material) {
         material.setUniformValues(firstTime, {
+          setUniform: true,
           glw: glw,
           entity: entity,
           lightComponents: this.__lightComponents,

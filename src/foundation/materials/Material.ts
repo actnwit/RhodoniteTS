@@ -335,7 +335,7 @@ export default class Material extends RnObject {
     this.__fields.forEach((value, key) => {
       const updateFunc = this.__fieldsInfo.get(key)!.updateFunc;
       if (updateFunc) {
-        updateFunc({ shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
+        updateFunc({ material: this, shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
       } else {
         webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
       }
@@ -352,7 +352,7 @@ export default class Material extends RnObject {
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         const updateFunc = info.updateFunc;
         if (updateFunc) {
-          updateFunc({ shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
+          updateFunc({ material: this, shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
         } else {
           webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
         }

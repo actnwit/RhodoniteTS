@@ -89,9 +89,9 @@ function fromString(str: string): ShaderSemanticsEnum {
 
 
 type UpdateFunc = (
-  {shaderProgram, firstTime, propertyName, value, args}:
-  {shaderProgram: WebGLProgram, firstTime: boolean, propertyName: string, value: any, args?: Object})
-   => void;
+  { material, shaderProgram, firstTime, propertyName, value, args }:
+    { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, propertyName: string, value: any, args?: Object })
+  => void;
 
 export type ShaderSemanticsInfo = {
   semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count,
