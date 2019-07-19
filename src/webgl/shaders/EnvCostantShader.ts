@@ -63,7 +63,7 @@ ${this.toNormalMatrix}
 
   `;
 
-  getFragmentShader() {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -83,7 +83,12 @@ uniform Material u_material;
 uniform int u_shadingModel;
 
 uniform float u_envRotation;
+uniform float u_materialSID;
+uniform sampler2D u_dataTexture;
 
+${this.fetchElement}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -100,13 +105,14 @@ void main ()
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  if (v_color != diffuseColor && u_material.diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
+  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
+    diffuseColor = v_color * diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
-    diffuseColor = u_material.diffuseColorFactor.rgb;
-    alpha = u_material.diffuseColorFactor.a;
-  } else if (u_material.diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = diffuseColorFactor.rgb;
+    alpha = diffuseColorFactor.a;
+  } else if (diffuseColorFactor.rgb == diffuseColor) {
     diffuseColor = v_color;
   } else {
     diffuseColor = vec3(1.0, 1.0, 1.0);
@@ -115,7 +121,8 @@ void main ()
   // diffuseColorTexture
 
   // adapt OpenGL (RenderMan) Cubemap convension
-  float rot = u_envRotation + 3.1415;
+  float envRotation = get_envRotation(u_materialSID, 0);
+  float rot = envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
   envNormal.x *= -1.0;
@@ -134,8 +141,8 @@ void main ()
     return '';
   }
 
-  getPixelShaderBody() {
-    return this.getFragmentShader();
+  getPixelShaderBody(args: Object) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];

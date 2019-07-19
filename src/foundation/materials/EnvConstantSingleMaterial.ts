@@ -23,6 +23,7 @@ import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
+import Scalar from "../math/Scalar";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -70,7 +71,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         max: Math.PI,
         isPlural: false,
         isSystem: false,
-        initialValue: 0
+        initialValue: new Scalar(0)
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
