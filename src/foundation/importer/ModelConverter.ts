@@ -495,7 +495,7 @@ export default class ModelConverter {
       return loaderExtension.generateMaterial();
     }
 
-    if (materialJson.pbrMetallicRoughness) {
+    if (materialJson != null && materialJson.pbrMetallicRoughness) {
       return MaterialHelper.createPbrUberMaterial();
     } else {
       return MaterialHelper.createClassicUberMaterial();
@@ -506,6 +506,11 @@ export default class ModelConverter {
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
     let material: Material = this.__generateAppropreateMaterial(gltfModel, materialJson);
+
+    if (materialJson == null) {
+      return material;
+    }
+
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
 
