@@ -562,6 +562,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           this.__setupMaterial(primitive.material!, renderPass);
 
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
+          this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
+          this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
         }
         gl.uniform1f(this.__materialSIDLocation, primitive.material!.materialSID);
         this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
