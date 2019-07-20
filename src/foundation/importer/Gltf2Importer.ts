@@ -658,6 +658,24 @@ export default class Gltf2Importer {
       // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
+      if(imageUri.match(/atf$/)){
+        promisesToLoadResources.push(new Promise(async (resolve, reject) => {
+          let atf : any = await getAtf(imageUri)
+          if(!atf){
+            console.log("read not completed")
+            return
+          }
+
+          imageJson.atf = atf
+          resolve(gltfJson);
+        }));
+      } else if (imageJson.uri != null && imageJson.uri.match(/atf$/)) {
+        promisesToLoadResources.push(new Promise(async (resolve, reject) => {
+          let atf : any = await getAtfAsArrayBuffer(options.files[imageJson.uri]);
+        if(!atf){
+          console.log("read not completed")
+          return
+        }
 
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
