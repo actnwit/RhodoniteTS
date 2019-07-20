@@ -342,15 +342,15 @@ export default class Material extends RnObject {
     });
   }
 
-  setUniformValuesForOnlyTextures(firstTime: boolean, args?: Object) {
+  setUniformValuesForOnlyTexturesAndWithUpdateFunc(firstTime: boolean, args?: Object) {
     const shaderProgramUid = this._shaderProgramUid;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
 
     this.__fields.forEach((value, key) => {
       const info = this.__fieldsInfo.get(key)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        const updateFunc = info.updateFunc;
+      const updateFunc = info.updateFunc;
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube || updateFunc) {
         if (updateFunc) {
           updateFunc({ material: this, shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
         } else {
