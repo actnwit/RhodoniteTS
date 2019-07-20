@@ -47,6 +47,7 @@ ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
 uniform vec3 u_viewPosition;
+uniform float u_materialSID;
 
 ${this.toNormalMatrix}
 
@@ -91,7 +92,8 @@ ${this.pointDistanceAttenuation}
   v_baryCentricCoord = a_baryCentricCoord;
 
   vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
+  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
   vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
   float maxPointSize = getPointSize(a_instanceID);
@@ -101,7 +103,7 @@ ${this.pointDistanceAttenuation}
 
   `;
 
-  getFragmentShader() {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -121,6 +123,9 @@ ${this.pointDistanceAttenuation}
 ${this.glsl1ShaderTextureLodExt}
 ${this.glsl1ShaderDerivativeExt}
 precision highp float;
+
+uniform sampler2D u_dataTexture;
+uniform float u_materialSID;
 
 struct Material {
   vec4 baseColorFactor;
@@ -151,6 +156,7 @@ uniform samplerCube u_specularEnvTexture;
 uniform vec4 u_iblParameter;
 
 uniform vec3 u_wireframe;
+uniform bool u_isOutputHDR;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -166,9 +172,16 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
+uniform ivec2 u_hdriFormat;
+
+${this.fetchElement}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
+
 vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
-  float mipCount = u_iblParameter.x;
+  vec4 iblParameter = get_iblParameter(u_materialSID, 0);
+  float mipCount = iblParameter.x;
   float lod = (userRoughness * mipCount);
 
   vec4 diffuseTexel = ${_textureCube}(u_diffuseEnvTexture, vec3(-n.x, n.y, n.z));
@@ -187,8 +200,8 @@ vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, fl
   // vec3 specular = specularLight * (F0 * brdf.x + brdf.y);
   vec3 specular = specularLight * envBRDFApprox(F0, userRoughness, NV);
 
-  float IBLDiffuseContribution = u_iblParameter.y;
-  float IBLSpecularContribution = u_iblParameter.z;
+  float IBLDiffuseContribution = iblParameter.y;
+  float IBLSpecularContribution = iblParameter.z;
   diffuse *= IBLDiffuseContribution;
   specular *= IBLSpecularContribution;
   return diffuse + specular;
@@ -208,7 +221,8 @@ void main ()
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-  float rot = u_iblParameter.w + 3.1415;
+  vec4 iblParameter = get_iblParameter(u_materialSID, 0);
+  float rot = iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
@@ -233,13 +247,14 @@ void main ()
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  if (v_color != baseColor && u_material.baseColorFactor.rgb != baseColor) {
-    baseColor = v_color * u_material.baseColorFactor.rgb;
-    alpha = u_material.baseColorFactor.a;
+  vec4 baseColorFactor = get_baseColorFactor(u_materialSID, 0);
+  if (v_color != baseColor && baseColorFactor.rgb != baseColor) {
+    baseColor = v_color * baseColorFactor.rgb;
+    alpha = baseColorFactor.a;
   } else if (v_color == baseColor) {
-    baseColor = u_material.baseColorFactor.rgb;
-    alpha = u_material.baseColorFactor.a;
-  } else if (u_material.baseColorFactor.rgb == baseColor) {
+    baseColor = baseColorFactor.rgb;
+    alpha = baseColorFactor.a;
+  } else if (baseColorFactor.rgb == baseColor) {
     baseColor = v_color;
   } else {
     baseColor = vec3(1.0, 1.0, 1.0);
@@ -254,8 +269,9 @@ void main ()
   // }
 
   // Metallic & Roughness
-  float userRoughness = u_material.metallicRoughnessFactor.y;
-  float metallic = u_material.metallicRoughnessFactor.x;
+  vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(u_materialSID, 0);
+  float userRoughness = metallicRoughnessFactor.y;
+  float metallic = metallicRoughnessFactor.x;
 
   vec4 ormTexel = ${_texture}(u_metallicRoughnessTexture, v_texcoord);
   userRoughness = ormTexel.g * userRoughness;
@@ -274,7 +290,8 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewDirection = normalize(u_viewPosition - v_position_inWorld.xyz);
+  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
 
   // NV
   float NV = clamp(abs(dot(normal_inWorld, viewDirection)), 0.0, 1.0);
@@ -284,33 +301,39 @@ void main ()
   // Lighting
   if (length(normal_inWorld) > 0.02) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
+    int lightNumber = get_lightNumber(0.0, 0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
-      if (i >= u_lightNumber) {
+      if (i >= lightNumber) {
         break;
       }
 
       // Light
-      vec3 lightDirection = u_lights[i].lightDirection.xyz;
-      float lightType = u_lights[i].lightPosition.w;
-      float spotCosCutoff = u_lights[i].lightDirection.w;
-      float spotExponent = u_lights[i].lightIntensity.w;
+      vec4 gotLightDirection = get_lightDirection(0.0, i);
+      vec4 gotLightPosition = get_lightPosition(0.0, i);
+      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
+      vec3 lightDirection = gotLightDirection.xyz;
+      vec3 lightIntensity = gotLightIntensity.xyz;
+      vec3 lightPosition = gotLightPosition.xyz;
+      float lightType = gotLightPosition.w;
+      float spotCosCutoff = gotLightDirection.w;
+      float spotExponent = gotLightIntensity.w;
 
       if (0.75 < lightType) { // is pointlight or spotlight
-        lightDirection = normalize(u_lights[i].lightPosition.xyz - v_position_inWorld.xyz);
+        lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
       }
       float spotEffect = 1.0;
       if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(u_lights[i].lightDirection.xyz, lightDirection);
+        spotEffect = dot(lightDirection.xyz, lightDirection);
         if (spotEffect > spotCosCutoff) {
           spotEffect = pow(spotEffect, spotExponent);
         } else {
           spotEffect = 0.0;
         }
       }
-      //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * u_lights[i].lightIntensity.xyz;
+      //diffuse += 1.0 * max(0.0, dot(normal_inWorld, lightDirection)) * spotEffect * lightIntensity.xyz;
 
       // IncidentLight
-      vec3 incidentLight = spotEffect * u_lights[i].lightIntensity.xyz;
+      vec3 incidentLight = spotEffect * lightIntensity.xyz;
       incidentLight *= M_PI;
 
       // Fresnel
@@ -354,9 +377,10 @@ void main ()
 
   // Wireframe
   float threshold = 0.001;
-  float wireframeWidthInner = u_wireframe.z;
+  vec3 wireframe = get_wireframe(u_materialSID, 0);
+  float wireframeWidthInner = wireframe.z;
   float wireframeWidthRelativeScale = 1.0;
-  if (u_wireframe.x > 0.5 && u_wireframe.y < 0.5) {
+  if (wireframe.x > 0.5 && wireframe.y < 0.5) {
     rt0.a = 0.0;
   }
   vec4 wireframeResult = rt0;
@@ -367,9 +391,9 @@ void main ()
   wireframeResult.rgb = wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified);
   wireframeResult.a = max(rt0.a, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale/1.0));
 
-  if (u_wireframe.x > 0.5) {
+  if (wireframe.x > 0.5) {
     rt0 = wireframeResult;
-    if (u_wireframe.y < 0.5 && rt0.a == 0.0) {
+    if (wireframe.y < 0.5 && rt0.a == 0.0) {
       discard;
     }
   }
@@ -383,8 +407,8 @@ void main ()
     return '';
   }
 
-  getPixelShaderBody() {
-    return this.getFragmentShader();
+  getPixelShaderBody(args: Object) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_faceNormal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
