@@ -32,6 +32,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       } else {
         return 'i' + this.__glslStr;
       }
+    } else if (componentType === ComponentType.Bool) {
+      return 'bool';
     }
     return 'unknown';
   }

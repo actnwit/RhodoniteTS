@@ -107,7 +107,12 @@ export default class Gltf2Importer {
     }
 
     if (options && options.loaderExtension && typeof options.loaderExtension === "string") {
-      defaultOptions.loaderExtension = Rn[options.loaderExtension].getInstance();
+      if (Rn[options.loaderExtension] != null) {
+        defaultOptions.loaderExtension = Rn[options.loaderExtension].getInstance();
+      } else {
+        console.error(`${options.loaderExtension} not found!`);
+        defaultOptions.loaderExtension = void 0;
+      }
     }
 
     return defaultOptions;
