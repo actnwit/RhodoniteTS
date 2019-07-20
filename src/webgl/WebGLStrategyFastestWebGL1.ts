@@ -226,6 +226,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         case CompositionType.Scalar:
           if (info.componentType === ComponentType.Int) {
             str += `        int val = int(col0.x);`;
+          } else if (info.componentType === ComponentType.Bool) {
+            str += `        bool val = bool(col0.x);`;
           } else {
             str += `        float val = col0.x;`;
           }
