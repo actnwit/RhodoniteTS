@@ -1,12 +1,8 @@
-import RnObject from "../core/RnObject";
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
-import MutableColorRgb from "../math/MutableColorRgb";
 import Vector2 from "../math/Vector2";
 import { ComponentType } from "../definitions/ComponentType";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import ModuleManager from "../system/ModuleManager";
 import { PixelFormat } from "../definitions/PixelFormat";
@@ -18,9 +14,13 @@ import PBRShader from "../../webgl/shaders/PBRShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
-import Scalar from "../math/Scalar";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
+import Material from "./Material";
+import MeshRendererComponent from "../components/MeshRendererComponent";
+import { HdriFormat } from "../definitions/HdriFormat";
+import Scalar from "../math/Scalar";
+import Config from "../core/Config";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -35,7 +35,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
+    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
         {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 2, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
@@ -78,7 +78,219 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
             }
           }
         },
+        {
+          semantic: ShaderSemantics.IBLParameter,
+          compositionType: CompositionType.Vec4,
+          componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader,
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          isPlural: false,
+          isSystem: true,
+          initialValue: new Vector4(1, 1, 1, 1),
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          updateFunc: ({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            let mipmapLevelNumber = 1;
+            if (args.specularCube) {
+              mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
+            }
+            const meshRenderComponent = args.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+
+            if (args.setUniformValue) {
+              webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime,
+                { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
+                  z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
+                );
+            } else {
+              material.setParameter(ShaderSemantics.IBLParameter,
+                new Vector4(mipmapLevelNumber, meshRenderComponent!.diffuseCubeMapContribution,
+                meshRenderComponent!.specularCubeMapContribution, meshRenderComponent!.rotationOfCubeMap));
+            }
+          }
+        },
+        {
+          semantic: ShaderSemantics.HDRIFormat,
+          compositionType: CompositionType.Vec2,
+          componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader,
+          min: 0,
+          max: 5,
+          isPlural: false,
+          isSystem: true,
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: new Vector2(0, 0),
+          updateFunc: ({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            // console.log(args);
+            let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+            let specularHdriType = HdriFormat.LDR_SRGB.index;
+            const meshRenderComponent = args.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+            if (meshRenderComponent.diffuseCubeMap) {
+              diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+            }
+            if (meshRenderComponent.specularCubeMap) {
+              specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+            }
+            if (args.setUniform) {
+              webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType });
+            } else {
+              material.setParameter(ShaderSemantics.HDRIFormat, new Vector2(diffuseHdriType, specularHdriType));
+            }
+          }
+        },
+        {
+          semantic: ShaderSemantics.LightNumber,
+          compositionType: CompositionType.Scalar,
+          componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader,
+          min: 0,
+          max: Number.MAX_SAFE_INTEGER,
+          isPlural: false,
+          isSystem: true,
+          updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+          initialValue: new Scalar(0),
+          soloDatum: true,
+          updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
+          }
+        },
+        {
+          semantic: ShaderSemantics.DiffuseEnvTexture,
+          compositionType: CompositionType.TextureCube,
+          componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader, min: 0,
+          max: Number.MAX_SAFE_INTEGER,
+          isPlural: false,
+          isSystem: true,
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: [5, PbrShadingMaterialNode.__dummyWhiteTextureUid],
+          updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            let updated: boolean;
+            // Env map
+            updated = webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
+            if (updated) {
+              const diffuseCube = args.diffuseCube;
+              if (diffuseCube && diffuseCube.isTextureReady) {
+                const texture = webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
+                args.glw.bindTextureCube(5, texture);
+              } else {
+                const texture = webglResourceRepository.getWebGLResource(PbrShadingMaterialNode.__dummyBlackCubeTextureUid!) as WebGLTexture;
+                args.glw.bindTextureCube(5, texture);
+              }
+            }
+          }
+        },
+        {
+          semantic: ShaderSemantics.SpecularEnvTexture,
+          compositionType: CompositionType.TextureCube,
+          componentType: ComponentType.Int,
+          stage: ShaderType.PixelShader,
+          min: 0,
+          max: Number.MAX_SAFE_INTEGER,
+          isPlural: false,
+          isSystem: true,
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: [6, PbrShadingMaterialNode.__dummyWhiteTextureUid],
+          updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            const updated = webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
+            if (updated) {
+              const specularCube = args.specularCube;
+              if (specularCube && specularCube.isTextureReady) {
+                const texture = webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
+                args.glw.bindTextureCube(6, texture);
+              } else {
+                const texture = webglResourceRepository.getWebGLResource(PbrShadingMaterialNode.__dummyBlackCubeTextureUid!) as WebGLTexture;
+                args.glw.bindTextureCube(6, texture);
+              }
+            }
+          }
+        },
       ];
+
+    const lights: ShaderSemanticsInfo[] = [];
+    for (let i = 0; i < Config.maxLightNumberInShader; i++) {
+      (function(idx){
+      lights.push(
+        {
+          semantic: ShaderSemantics.LightPosition,
+          compositionType: CompositionType.Vec4,
+          componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader,
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          isPlural: false,
+          prefix: `lights[${idx}].`,
+          index: idx,
+          maxIndex: 4,
+          isSystem: true,
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          initialValue: new Vector4(0, 0, 0, 1),
+          soloDatum: true,
+          updateFunc:
+            ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            // console.log(idx);
+            const lightComponent = args.lightComponents![idx];
+            if (lightComponent == null) {
+              return;
+            }
+            const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+            const worldLightPosition = sceneGraphComponent.worldPosition;
+            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, firstTime, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, idx);
+          },
+        });
+      lights.push(
+        {
+        semantic: ShaderSemantics.LightDirection,
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        stage: ShaderType.PixelShader,
+        min: -1,
+        max: 1,
+        isPlural: false,
+        prefix: `lights[${idx}].`,
+        index: idx,
+        maxIndex: 4,
+        isSystem: true,
+        initialValue: new Vector4(0, 1, 0, 1),
+        updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        soloDatum: true,
+        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+          const lightComponent = args.lightComponents![idx];
+          if (lightComponent == null) {
+            return;
+          }
+        const worldLightDirection = lightComponent.direction;
+          webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, firstTime, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, idx);
+        }
+      });
+      lights.push(
+        {
+          semantic: ShaderSemantics.LightIntensity,
+          compositionType: CompositionType.Vec4,
+          componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader,
+          min: 0,
+          max: 10,
+          isPlural: false,
+          prefix: `lights[${idx}].`,
+          index: idx,
+          maxIndex: 4,
+          isSystem: true,
+          initialValue: new Vector4(1, 1, 1, 1),
+          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          soloDatum: true,
+          updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
+            const lightComponent = args.lightComponents![idx];
+            if (lightComponent == null) {
+              return;
+            }
+            const worldLightIntensity = lightComponent.intensity;
+            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, firstTime, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, idx);
+          }
+        });
+      })(i);
+    }
+
+    shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
