@@ -56,7 +56,7 @@ ${this.toNormalMatrix}
 
   `;
 
-  getFragmentShader() {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -68,6 +68,10 @@ ${this.toNormalMatrix}
 precision highp float;
 
 uniform sampler2D u_baseColorTexture;
+
+${this.fetchElement}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -97,8 +101,8 @@ void main ()
     return '';
   }
 
-  getPixelShaderBody() {
-    return this.getFragmentShader();
+  getPixelShaderBody(args: Object) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
