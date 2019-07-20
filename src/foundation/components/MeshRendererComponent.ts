@@ -192,7 +192,11 @@ export default class MeshRendererComponent extends Component {
   }
 
   static common_$render({renderPass}: {renderPass: RenderPass}){
-    MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+
+    MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
+    if (MeshRendererComponent.__cameraComponent == null) {
+      MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
     let viewMatrix = MeshRendererComponent.__tmp_indentityMatrix;
     let projectionMatrix = MeshRendererComponent.__tmp_indentityMatrix;
     if (MeshRendererComponent.__cameraComponent) {
