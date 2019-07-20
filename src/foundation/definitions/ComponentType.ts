@@ -17,16 +17,18 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   }
 }
 
-const Unknown: ComponentTypeEnum = new ComponentTypeClass({index:5119, str:'UNKNOWN', sizeInBytes: 0});
-const Byte: ComponentTypeEnum = new ComponentTypeClass({index:5120, str:'BYTE', sizeInBytes: 1});
-const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({index:5121, str:'UNSIGNED_BYTE', sizeInBytes: 1});
-const Short: ComponentTypeEnum = new ComponentTypeClass({index:5122, str:'SHORT', sizeInBytes: 2});
-const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({index:5123, str:'UNSIGNED_SHORT', sizeInBytes: 2});
-const Int: ComponentTypeEnum = new ComponentTypeClass({index:5124, str:'INT', sizeInBytes: 4});
-const UnsingedInt: ComponentTypeEnum = new ComponentTypeClass({index:5125, str:'UNSIGNED_INT', sizeInBytes: 4});
-const Float: ComponentTypeEnum = new ComponentTypeClass({index:5126, str:'FLOAT', sizeInBytes: 4});
-const Double: ComponentTypeEnum = new ComponentTypeClass({index:5127, str:'DOUBLE', sizeInBytes: 8});
-const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({index:0x8D61, str:'HALF_FLOAT_OES', sizeInBytes: 2});
+const Unknown: ComponentTypeEnum = new ComponentTypeClass({ index: 5119, str: 'UNKNOWN', sizeInBytes: 0 });
+const Byte: ComponentTypeEnum = new ComponentTypeClass({ index: 5120, str: 'BYTE', sizeInBytes: 1 });
+const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({ index: 5121, str: 'UNSIGNED_BYTE', sizeInBytes: 1 });
+const Short: ComponentTypeEnum = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
+const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
+const Int: ComponentTypeEnum = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
+const UnsingedInt: ComponentTypeEnum = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
+const Float: ComponentTypeEnum = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
+const Double: ComponentTypeEnum = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
+const Bool: ComponentTypeEnum = new ComponentTypeClass({ index: 35670, str: 'BOOL', sizeInBytes: 1 });
+const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
+
 
 const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
 
@@ -56,4 +58,4 @@ function fromTypedArray(typedArray: TypedArray) : ComponentTypeEnum {
   return Unknown;
 }
 
-export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat, from, fromTypedArray });
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, Bool, HalfFloat, from, fromTypedArray });
