@@ -13,6 +13,10 @@ import { CGAPIResourceHandle } from "../../types/CommonTypes";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Texture from "../textures/Texture";
 import CubeTexture from "../textures/CubeTexture";
+import LightComponent from "../components/LightComponent";
+import Config from "../core/Config";
+import CameraComponent from "../components/CameraComponent";
+import SkeletalComponent from "../components/SkeletalComponent";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -148,5 +152,50 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   static setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {
     this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, true, normalMatrix);
+  }
+
+  static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent) {
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
+
+    const cameraPosition = cameraComponent.worldPosition;
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+  }
+
+  static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent) {
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+  }
+
+  static setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent) {
+    if (skeletalComponent) {
+      const jointMatrices = skeletalComponent.jointMatrices;
+      const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
+      if (jointMatrices != null) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, true, jointMatrices );
+      }
+      if (jointCompressedChanks != null) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, true, skeletalComponent.jointCompressedInfo);
+      }
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
+    } else {
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, false);
+    }
+  }
+
+  static setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[]) {
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, true, lightComponents!.length);
+    for (let i = 0; i < lightComponents!.length; i++) {
+      if (i >= Config.maxLightNumberInShader) {
+        break;
+      }
+      const lightComponent = lightComponents![i];
+      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+      const worldLightPosition = sceneGraphComponent.worldPosition;
+      const worldLightDirection = lightComponent.direction;
+      const worldLightIntensity = lightComponent.intensity;
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, true, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, i);
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, true, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, i);
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, true, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, i);
+    }
   }
 }
