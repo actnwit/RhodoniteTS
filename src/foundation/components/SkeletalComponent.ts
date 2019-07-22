@@ -117,9 +117,8 @@ export default class SkeletalComponent extends Component {
       for (let i=0; i<matrices.length; i++) {
         let m = matrices[i];
         SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
-        SkeletalComponent.__scaleVec3.x =  Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
-        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
-
+        SkeletalComponent.__scaleVec3.y = Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
+        SkeletalComponent.__scaleVec3.z = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
         matrices[i].m00 /= SkeletalComponent.__scaleVec3.x;
         matrices[i].m01 /= SkeletalComponent.__scaleVec3.x;
         matrices[i].m02 /= SkeletalComponent.__scaleVec3.x;
