@@ -91,6 +91,8 @@ ${this.pointDistanceAttenuation}
     return `${_version}
 precision highp float;
 
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+
 uniform sampler2D u_dataTexture;
 
 ${this.fetchElement}
@@ -155,6 +157,7 @@ void main ()
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
+#ifdef RN_IS_LIGHTING
   int shadingModel = get_shadingModel(u_materialSID, 0);
   if (shadingModel > 0) {
 
@@ -218,6 +221,9 @@ void main ()
   } else {
     shadingColor = diffuseColor;
   }
+#else
+  shadingColor = diffuseColor;
+#endif
 
   rt0 = vec4(shadingColor * alpha, alpha);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);

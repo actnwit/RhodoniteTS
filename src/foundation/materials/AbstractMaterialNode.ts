@@ -50,6 +50,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   public readonly shader: GLSLShader;
   public readonly shaderFunctionName: string;
   public isSingleOperation = false;
+  protected __definitions = '';
 
   protected static __webglResourceRepository?: WebGLResourceRepository;
   private static __transposedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -69,6 +70,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
 
+  }
+
+  get definitions() {
+    return this.__definitions;
   }
 
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {

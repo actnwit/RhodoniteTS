@@ -398,6 +398,7 @@ export default class Material extends RnObject {
 
     // Shader Construction
     let vertexShader = glslShader.glslBegin +
+      materialNode.definitions +
       `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 ` +
@@ -407,7 +408,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr });
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 

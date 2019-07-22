@@ -30,7 +30,7 @@ function createPbrUberMaterial(maxInstancesNumber?: number) {
 }
 
 function createClassicUberMaterial(maxInstancesNumber?: number) {
-  const materialNode = new ClassicShadingSingleMaterialNode();
+  const materialNode = new ClassicShadingSingleMaterialNode({isLighting: true, isSkinning: false});
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial('ClassicUber', [materialNode], maxInstancesNumber);
 
