@@ -981,7 +981,7 @@ export default class DrcPointCloudImporter {
     //   if (shaderUri.match(/^data:/)) {
     //     promisesToLoadResources.push(
     //       new Promise((resolve, rejected) => {
-    //         let arrayBuffer = DataUtil.base64ToArrayBuffer(shaderUri);
+    //         let arrayBuffer = DataUtil.dataUriToArrayBuffer(shaderUri);
     //         resources.shaders[i].shaderText = DataUtil.arrayBufferToString(arrayBuffer);
     //         resources.shaders[i].shaderType = shaderType;
     //         resolve();
@@ -1025,7 +1025,7 @@ export default class DrcPointCloudImporter {
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            let arrayBuffer = DataUtil.base64ToArrayBuffer(bufferInfo.uri);
+            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
             resources.buffers[i] = arrayBuffer;
             bufferInfo.buffer = arrayBuffer;
             resolve(gltfJson);

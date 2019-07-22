@@ -23,6 +23,8 @@ import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
+import DataUtil from "../foundation/misc/DataUtil";
+
 
 declare var HDRImage: any;
 
@@ -1006,6 +1008,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
   }
 
+  createDummyBlackCubeTexture() {
+    const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==';
+    const arrayBuffer = this.__createDummyTextureInner(base64);
+    const typedArray = new Uint8Array(arrayBuffer);
+    return this.createCubeTexture(1, [{ posX: typedArray, negX: typedArray, posY: typedArray, negY: typedArray, posZ: typedArray, negZ: typedArray }], 1, 1);
+  }
+
   createDummyCubeTexture(rgbaStr = 'rgba(0,0,0,1)') {
     var canvas = document.createElement("canvas");
     canvas.width = 1;
@@ -1087,6 +1096,31 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     ctx.fillRect(0, 0, 1, 1);
 
     return this.createTexture(canvas, {
+      level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+    });
+  }
+
+  createDummyBlackTexture() {
+    const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==';
+    return this.__createDummyTextureInner(base64);
+  }
+
+  createDummyWhiteTexture() {
+    const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5/hPwAIAgL/4d1j8wAAAABJRU5ErkJggg==';
+    return this.__createDummyTextureInner(base64);
+  }
+
+  createDummyNormalTexture() {
+    const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsr///HwAGgAL+v1RumAAAAABJRU5ErkJggg==';
+    return this.__createDummyTextureInner(base64);
+  }
+
+
+  __createDummyTextureInner(base64: string) {
+    const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
+    return this.createTexture(new Uint8Array(arrayBuffer), {
       level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
       border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false

@@ -18,16 +18,10 @@ import Matrix44 from "../math/Matrix44";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
-export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlueTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends AbstractMaterialNode {
 
   constructor(renderPass: RenderPass) {
     super(ShadowMapping32bitClassicShader.getInstance(), "envConstantShading");
-    ShadowMapping32bitSingleMaterial.initDefaultTextures();
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.DiffuseColorFactor,
@@ -52,7 +46,7 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           0,
-          ShadowMapping32bitSingleMaterial.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       },
       {
@@ -78,7 +72,7 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           1,
-          ShadowMapping32bitSingleMaterial.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       },
       {
@@ -92,7 +86,7 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           2,
-          ShadowMapping32bitSingleMaterial.__dummyBlueTextureUid
+          AbstractMaterialNode.__dummyBlueTexture
         ]
       },
       {
@@ -106,7 +100,7 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           3,
-          ShadowMapping32bitSingleMaterial.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       },
       {
@@ -120,7 +114,7 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           4,
-          ShadowMapping32bitSingleMaterial.__dummyBlackTextureUid
+          AbstractMaterialNode.__dummyBlackTexture
         ]
       },
       {
@@ -220,6 +214,5 @@ export default class ShadowMapping32bitSingleMaterial extends AbstractMaterialNo
   }
 
   static async initDefaultTextures() {
-
   }
 }

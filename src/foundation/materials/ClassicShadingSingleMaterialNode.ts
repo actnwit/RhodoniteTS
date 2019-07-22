@@ -29,14 +29,6 @@ import CameraComponent from "../components/CameraComponent";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlueTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
     super(ClassicShader.getInstance(), "classicShading");
@@ -68,7 +60,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           0,
-          ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       },
       {
@@ -82,7 +74,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: false,
         initialValue: [
           2,
-          ClassicShadingSingleMaterialNode.__dummyBlueTextureUid
+          AbstractMaterialNode.__dummyBlueTexture
         ]
       },
       {
@@ -238,19 +230,5 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
   }
 
   static async initDefaultTextures() {
-    if (
-      ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid !==
-      CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
-      return;
-    }
-
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    ClassicShadingSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    ClassicShadingSingleMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
-    ClassicShadingSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture(
-      "rgba(0, 0, 0, 1)"
-    );
-    ClassicShadingSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
   }
 }

@@ -31,7 +31,7 @@ export default class DataUtil {
     }
   }
 
-  static base64ToArrayBuffer(dataUri: string) {
+  static dataUriToArrayBuffer(dataUri: string) {
     let splittedDataUri = dataUri.split(',');
     let type = splittedDataUri[0].split(':')[1].split(';')[0];
     let byteString = DataUtil.atob(splittedDataUri[1]);
@@ -63,6 +63,16 @@ export default class DataUtil {
     let b64 = null;
     b64 = DataUtil.btoa(str);
     return b64;
+  }
+
+  static base64ToArrayBuffer(base64: string) {
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array( len );
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
   }
 
   static UInt8ArrayToDataURL(uint8array: Uint8Array, width: number, height: number) {

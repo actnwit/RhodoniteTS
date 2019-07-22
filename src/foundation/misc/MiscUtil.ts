@@ -30,4 +30,8 @@ const fillTemplate = function(templateString: string, templateVars: string){
   return new Function("return `"+templateString +"`;").call(templateVars);
 }
 
-export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate });
+const isNode = function() {
+  return (typeof process !== "undefined" && typeof require !== "undefined");
+}
+
+export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode });

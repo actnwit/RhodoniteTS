@@ -79,4 +79,24 @@ export default class Texture extends AbstractTexture {
       this.__img.src = imageUri;
     });
   }
+
+  generate1x1TextureFrom(rgbaStr: string = "rgba(255,255,255,1)") {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = rgbaStr;
+    ctx.fillRect(0, 0, 1, 1);
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createTexture(canvas, {
+      level: 0, internalFormat: PixelFormat.RGBA, width: 1, height: 1,
+      border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+      wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
+    });
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(texture, this);
+  }
 }

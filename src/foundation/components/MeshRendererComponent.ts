@@ -27,6 +27,7 @@ import RnObject from '../core/RnObject';
 import WebGLStrategyFastestWebGL1 from '../../webgl/WebGLStrategyFastestWebGL1';
 import Primitive from '../geometry/Primitive';
 import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
+import AbstractMaterialNode from '../materials/AbstractMaterialNode';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
@@ -143,6 +144,8 @@ export default class MeshRendererComponent extends Component {
     // ResourceRepository
     MeshRendererComponent.__webglResourceRepository = webglModule.WebGLResourceRepository.getInstance();
 
+    AbstractMaterialNode.initDefaultTextures();
+
   }
 
   static common_$prerender(): CGAPIResourceHandle {
@@ -228,7 +231,7 @@ export default class MeshRendererComponent extends Component {
         }
       } else {
         MeshComponent.alertNoMeshSet(meshComponent);
-      }      
+      }
     }
   }
 

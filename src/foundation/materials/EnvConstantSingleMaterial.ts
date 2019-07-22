@@ -26,10 +26,6 @@ import { CGAPIResourceHandle } from "../../types/CommonTypes";
 import Scalar from "../math/Scalar";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
     super(EnvConstantShader.getInstance(), "envConstantShading");
@@ -59,7 +55,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         isSystem: false,
         initialValue: [
           0,
-          EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid
+          AbstractMaterialNode.__dummyBlackCubeTexture
         ]
       },
       {
@@ -78,12 +74,5 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
   }
 
   static async initDefaultTextures() {
-    if (EnvConstantSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    EnvConstantSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    EnvConstantSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    EnvConstantSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
   }
 }
