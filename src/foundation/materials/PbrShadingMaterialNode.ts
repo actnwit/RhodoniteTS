@@ -23,10 +23,6 @@ import Scalar from "../math/Scalar";
 import Config from "../core/Config";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlueTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
@@ -40,17 +36,17 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 2, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
         {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [0, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture]},
         {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 2, isPlural: false, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
         {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [1, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture]},
         {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [2, PbrShadingMaterialNode.__dummyBlueTextureUid]},
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [2, AbstractMaterialNode.__dummyBlueTexture]},
         {semantic: ShaderSemantics.OcclusionTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [3, PbrShadingMaterialNode.__dummyWhiteTextureUid]},
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [3, AbstractMaterialNode.__dummyWhiteTexture]},
         {semantic: ShaderSemantics.EmissiveTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [4, PbrShadingMaterialNode.__dummyBlackTextureUid]},
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isPlural: false, isSystem: false, initialValue: [4, AbstractMaterialNode.__dummyBlackTexture]},
         {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 10, isPlural: false, isSystem: false, initialValue: new Vector3(0, 0, 1)},
         { semanticStr: 'isOutputHDR', compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
@@ -162,7 +158,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           isPlural: false,
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [5, PbrShadingMaterialNode.__dummyWhiteTextureUid],
+          initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture],
           updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
             let updated: boolean;
             // Env map
@@ -173,7 +169,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
                 const texture = webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
                 args.glw.bindTextureCube(5, texture);
               } else {
-                const texture = webglResourceRepository.getWebGLResource(PbrShadingMaterialNode.__dummyBlackCubeTextureUid!) as WebGLTexture;
+                const texture = webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
                 args.glw.bindTextureCube(5, texture);
               }
             }
@@ -189,7 +185,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           isPlural: false,
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [6, PbrShadingMaterialNode.__dummyWhiteTextureUid],
+          initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture],
           updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
             const updated = webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
             if (updated) {
@@ -198,7 +194,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
                 const texture = webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
                 args.glw.bindTextureCube(6, texture);
               } else {
-                const texture = webglResourceRepository.getWebGLResource(PbrShadingMaterialNode.__dummyBlackCubeTextureUid!) as WebGLTexture;
+                const texture = webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
                 args.glw.bindTextureCube(6, texture);
               }
             }
@@ -295,15 +291,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   }
 
   static async initDefaultTextures() {
-    if (PbrShadingMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    PbrShadingMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    PbrShadingMaterialNode.__dummyBlueTextureUid = webglResourceRepository.createDummyTexture("rgba(127.5, 127.5, 255, 1)");
-    PbrShadingMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    PbrShadingMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
-
     // const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
     // this.__pbrCookTorranceBrdfLutDataUrlUid = await webglResourceRepository.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
     //   {

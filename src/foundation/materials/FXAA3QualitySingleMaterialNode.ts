@@ -25,10 +25,6 @@ import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
     super(FXAA3QualityShader.getInstance(), "FXAA3QualityShading");
@@ -46,7 +42,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         isSystem: false,
         initialValue: [
           0,
-          FXAA3QualitySingleMaterialNode.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       },
       {
@@ -65,10 +61,5 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
   }
 
   static async initDefaultTextures() {
-    if (FXAA3QualitySingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    FXAA3QualitySingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
   }
 }

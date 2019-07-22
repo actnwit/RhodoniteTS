@@ -455,6 +455,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           setUniform: true,
           glw: glw,
           entity: entity,
+          worldMatrix: worldMatrix,
+          normalMatrix: normalMatrix,
           lightComponents: this.__lightComponents,
           renderPass: renderPass,
           diffuseCube: diffuseCube,

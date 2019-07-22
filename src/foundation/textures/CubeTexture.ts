@@ -30,4 +30,17 @@ export default class CubeTexture extends AbstractTexture {
     });
   }
 
+  load1x1Texture(rgbaStr = 'rgba(0,0,0,1)') {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = rgbaStr;
+    ctx.fillRect(0, 0, 1, 1);
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+    this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(1, [{ posX: canvas, negX: canvas, posY: canvas, negY: canvas, posZ: canvas, negZ: canvas }], 1, 1);
+    this.__isTextureReady = true;
+  }
+
 }

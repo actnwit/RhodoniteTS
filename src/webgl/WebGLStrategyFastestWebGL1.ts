@@ -572,11 +572,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         this.__setupMaterialEveryFrame(primitive.material!, renderPass);
 
-        const meshRendererComponent = meshComponent.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+        const entity = meshComponent.entity;
+        const meshRendererComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
 
         primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
           glw: glw,
-          entity: meshComponent.entity,
+          entity: entity,
+          worldMatrix: entity.getSceneGraph().worldMatrixInner,
+          normalMatrix: entity.getSceneGraph().normalMatrixInner,
           lightComponents: this.__lightComponents,
           renderPass: renderPass,
           diffuseCube: meshRendererComponent.diffuseCubeMap,

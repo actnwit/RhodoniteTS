@@ -1,10 +1,18 @@
 import RnObject from "../core/RnObject";
-import { ShaderSemanticsInfo, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import GLSLShader from "../../webgl/shaders/GLSLShader";
+import MutableRowMajarMatrix44 from "../math/MutableRowMajarMatrix44";
+import RowMajarMatrix44 from "../math/RowMajarMatrix44";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import Matrix44 from "../math/Matrix44";
+import { CGAPIResourceHandle } from "../../types/CommonTypes";
+import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
+import Texture from "../textures/Texture";
+import CubeTexture from "../textures/CubeTexture";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -36,12 +44,21 @@ export default abstract class AbstractMaterialNode extends RnObject {
   public readonly shaderFunctionName: string;
   public isSingleOperation = false;
 
+  protected static __webglResourceRepository?: WebGLResourceRepository;
+  private static __transposedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  protected static __dummyWhiteTexture = new Texture();
+  protected static __dummyBlueTexture = new Texture();
+  protected static __dummyBlackTexture = new Texture();
+  protected static __dummyBlackCubeTexture = new CubeTexture();
+
+
   constructor(shader: GLSLShader, shaderFunctionName: string) {
     super();
     this.shader = shader;
     this.shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
+
   }
 
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {
@@ -110,5 +127,26 @@ export default abstract class AbstractMaterialNode extends RnObject {
       }
     }
     return void 0;
+  }
+
+  public static initDefaultTextures() {
+    if (this.__dummyWhiteTexture.isTextureReady) {
+      return;
+    }
+    AbstractMaterialNode.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+    this.__dummyWhiteTexture.generate1x1TextureFrom();
+    this.__dummyBlueTexture.generate1x1TextureFrom("rgba(127.5, 127.5, 255, 1)");
+    this.__dummyBlackTexture.generate1x1TextureFrom("rgba(0, 0, 0, 1)");
+    this.__dummyBlackCubeTexture.load1x1Texture("rgba(0, 0, 0, 1)");
+  }
+
+  static setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: RowMajarMatrix44) {
+    RowMajarMatrix44.transposeTo(worldMatrix, this.__transposedMatrix44);
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, true, this.__transposedMatrix44);
+  }
+
+  static setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, true, normalMatrix);
   }
 }

@@ -26,10 +26,6 @@ import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
-  private static __dummyWhiteTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __dummyBlackCubeTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   constructor() {
     super(GammaCorrectionShader.getInstance(), "GammaCorrection");
@@ -47,7 +43,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
         isSystem: false,
         initialValue: [
           0,
-          GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid
+          AbstractMaterialNode.__dummyWhiteTexture
         ]
       }
     ];
@@ -55,12 +51,5 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
   }
 
   static async initDefaultTextures() {
-    if (GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return;
-    }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    GammaCorrectionSingleMaterialNode.__dummyWhiteTextureUid = webglResourceRepository.createDummyTexture();
-    GammaCorrectionSingleMaterialNode.__dummyBlackTextureUid = webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    GammaCorrectionSingleMaterialNode.__dummyBlackCubeTextureUid = webglResourceRepository.createDummyCubeTexture();
   }
 }
