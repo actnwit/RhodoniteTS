@@ -575,16 +575,19 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         const entity = meshComponent.entity;
         const meshRendererComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
 
-        primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
-          glw: glw,
-          entity: entity,
-          worldMatrix: entity.getSceneGraph().worldMatrixInner,
-          normalMatrix: entity.getSceneGraph().normalMatrixInner,
-          lightComponents: this.__lightComponents,
-          renderPass: renderPass,
-          diffuseCube: meshRendererComponent.diffuseCubeMap,
-          specularCube: meshRendererComponent.specularCubeMap
-        });
+        // primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
+        primitive.material!.setParemetersForGPU({
+          material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime:true,
+          args:{
+            glw: glw,
+            entity: entity,
+            worldMatrix: entity.getSceneGraph().worldMatrixInner,
+            normalMatrix: entity.getSceneGraph().normalMatrixInner,
+            lightComponents: this.__lightComponents,
+            renderPass: renderPass,
+            diffuseCube: meshRendererComponent.diffuseCubeMap,
+            specularCube: meshRendererComponent.specularCubeMap
+        }});
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);

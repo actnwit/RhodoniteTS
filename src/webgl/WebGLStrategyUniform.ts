@@ -36,6 +36,7 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import MatCapSingleMaterialNode from "../foundation/materials/MatCapSingleMaterialNode";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -445,13 +446,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         //glw.unbindTextures();
       }
 
-      this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
-        entity, worldMatrix, normalMatrix, renderPass,
-        diffuseCube, specularCube, firstTime});
+      // this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
+      //   entity, worldMatrix, normalMatrix, renderPass,
+      //   diffuseCube, specularCube, firstTime});
 
       //from material
       if (material) {
-        material.setUniformValues(firstTime, {
+        // material.setUniformValues(firstTime, {
+        material.setParemetersForGPU({material, shaderProgram, firstTime, args:{
           setUniform: true,
           glw: glw,
           entity: entity,
@@ -461,7 +463,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           renderPass: renderPass,
           diffuseCube: diffuseCube,
           specularCube: specularCube
-        });
+        }});
       }
 
       if (primitive.indicesAccessor) {

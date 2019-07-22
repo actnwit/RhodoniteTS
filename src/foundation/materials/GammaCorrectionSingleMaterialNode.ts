@@ -24,6 +24,9 @@ import AbstractTexture from "../textures/AbstractTexture";
 import GammaCorrectionShader from "../../webgl/shaders/GammaCorrectionShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
+import ComponentRepository from "../core/ComponentRepository";
+import CameraComponent from "../components/CameraComponent";
+import Material from "./Material";
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
 
@@ -51,5 +54,24 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
   }
 
   static async initDefaultTextures() {
+  }
+
+  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+
+    if (args.setUniform) {
+      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
+      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+    }
+
+    /// Matrices
+    let cameraComponent = args.renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
+    if (cameraComponent) {
+      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    }
+
   }
 }

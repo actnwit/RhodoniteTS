@@ -27,8 +27,13 @@ import Config from "../core/Config";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
+import Material from "./Material";
+import SkeletalComponent from "../components/SkeletalComponent";
+import MeshRendererComponent from "../components/MeshRendererComponent";
+import { HdriFormat } from "../definitions/HdriFormat";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
+  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   constructor() {
     super(ClassicShader.getInstance(), "classicShading");
@@ -110,11 +115,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(0),
-        soloDatum: true,
-        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
-          // console.log(args);
-          webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, firstTime, args!.lightComponents!.length);
-        }
+        soloDatum: true
       },
       {
         semantic: ShaderSemantics.ViewPosition,
@@ -127,17 +128,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Vector3(0,0.0),
-        soloDatum: true,
-        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
-          let cameraComponent = args.renderPass.cameraComponent;
-          if (cameraComponent == null) {
-            cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-          }
-          if (cameraComponent) {
-            const cameraPosition = cameraComponent.worldPosition;
-            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, firstTime, cameraPosition);
-          }
-        }
+        soloDatum: true
       },
     ];
 
@@ -159,18 +150,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: new Vector4(0, 0, 0, 1),
-          soloDatum: true,
-          updateFunc:
-            ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
-            // console.log(idx);
-            const lightComponent = args.lightComponents![idx];
-            if (lightComponent == null) {
-              return;
-            }
-            const sceneGraphComponent = lightComponent.entity.getSceneGraph();
-            const worldLightPosition = sceneGraphComponent.worldPosition;
-            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, firstTime, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, idx);
-          }
+          soloDatum: true
         });
       lights.push(
         {
@@ -187,15 +167,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         isSystem: true,
         initialValue: new Vector4(0, 1, 0, 1),
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        soloDatum: true,
-        updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
-          const lightComponent = args.lightComponents![idx];
-          if (lightComponent == null) {
-            return;
-          }
-        const worldLightDirection = lightComponent.direction;
-          webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, firstTime, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, idx);
-        }
+        soloDatum: true
       });
       lights.push(
         {
@@ -212,15 +184,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           isSystem: true,
           initialValue: new Vector4(1, 1, 1, 1),
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          soloDatum: true,
-          updateFunc: ({shaderProgram, firstTime, args}: {shaderProgram: WebGLProgram, firstTime: boolean, args?: any})=>{
-            const lightComponent = args.lightComponents![idx];
-            if (lightComponent == null) {
-              return;
-            }
-            const worldLightIntensity = lightComponent.intensity;
-            webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, firstTime, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, idx);
-          }
+          soloDatum: true
         });
       })(i);
     }
@@ -230,5 +194,99 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
   }
 
   static async initDefaultTextures() {
+  }
+
+  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+
+    if (args.setUniform) {
+      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
+      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+    }
+
+    /// Matrices
+    let cameraComponent = args.renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
+    if (cameraComponent) {
+      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    }
+
+    /// Skinning
+    const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
+    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent);
+
+
+    let updated: boolean;
+    // Env map
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
+    if (updated) {
+      if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(args.diffuseCube.cgApiResourceUid!) as WebGLTexture;
+        args.glw.bindTextureCube(5, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+        args.glw.bindTextureCube(5, texture);
+      }
+    }
+    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
+    if (updated) {
+      if (args.specularCube && args.specularCube.isTextureReady) {
+        const texture = this.__webglResourceRepository.getWebGLResource(args.specularCube.cgApiResourceUid!) as WebGLTexture;
+        args.glw.bindTextureCube(6, texture);
+      } else {
+        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+        args.glw.bindTextureCube(6, texture);
+      }
+    }
+
+    let mipmapLevelNumber = 1;
+    if (args.specularCube) {
+      mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
+    }
+    const meshRenderComponent = args.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+    let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+    let specularHdriType = HdriFormat.LDR_SRGB.index;
+    if (meshRenderComponent.diffuseCubeMap) {
+      diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+    }
+    if (meshRenderComponent.specularCubeMap) {
+      specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+    }
+    if (args.setUniform) {
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime,
+        { x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
+          z: meshRenderComponent!.specularCubeMapContribution, w: meshRenderComponent!.rotationOfCubeMap },
+        );
+      this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType })
+    } else {
+      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      tmp_vector4.x = mipmapLevelNumber;
+      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      tmp_vector2.x = diffuseHdriType;
+      tmp_vector2.y = specularHdriType;
+      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector2);
+    }
+
+    // BRDF LUT
+    // updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
+    // if (updated) {
+    //   if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
+    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
+    //     glw.bindTexture2D(5, texture);
+    //   } else {
+    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTexture!) as WebGLTexture;
+    //     glw.bindTexture2D(5, texture);
+    //   }
+    // }
+
+    // Lights
+    AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+
   }
 }

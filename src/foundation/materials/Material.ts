@@ -360,6 +360,22 @@ export default class Material extends RnObject {
     });
   }
 
+  setParemetersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+    this.__materialNodes.forEach((materialNode)=>{
+      if (materialNode.setParametersForGPU) {
+        materialNode.setParametersForGPU({material, shaderProgram, firstTime, args});
+      }
+    });
+
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__fields.forEach((value, key) => {
+      const info = this.__fieldsInfo.get(key)!;
+      if (!info.isSystem) {
+        webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+      }
+    });
+  }
+
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
