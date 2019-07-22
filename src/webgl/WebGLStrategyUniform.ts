@@ -36,7 +36,6 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
-import MatCapSingleMaterialNode from "../foundation/materials/MatCapSingleMaterialNode";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
