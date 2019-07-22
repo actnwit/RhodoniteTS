@@ -17,6 +17,9 @@ import LightComponent from "../components/LightComponent";
 import Config from "../core/Config";
 import CameraComponent from "../components/CameraComponent";
 import SkeletalComponent from "../components/SkeletalComponent";
+import Material from "./Material";
+import MutableVector2 from "../math/MutableVector2";
+import MutableVector4 from "../math/MutableVector4";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -54,6 +57,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected static __dummyBlueTexture = new Texture();
   protected static __dummyBlackTexture = new Texture();
   protected static __dummyBlackCubeTexture = new CubeTexture();
+
+  protected static __tmp_vector4 = MutableVector4.zero();
+  protected static __tmp_vector2 = MutableVector2.zero();
 
 
   constructor(shader: GLSLShader, shaderFunctionName: string) {
@@ -154,15 +160,23 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, true, normalMatrix);
   }
 
-  static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent) {
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
-
+  static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
     const cameraPosition = cameraComponent.worldPosition;
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+    if (setUniform) {
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+    } else {
+      material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
+      material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+    }
   }
 
-  static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent) {
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+  static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
+    if (setUniform) {
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+    } else {
+      material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
+    }
   }
 
   static setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent) {
@@ -182,7 +196,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  static setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[]) {
+  static setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
     this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, true, lightComponents!.length);
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
@@ -193,9 +207,35 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const worldLightPosition = sceneGraphComponent.worldPosition;
       const worldLightDirection = lightComponent.direction;
       const worldLightIntensity = lightComponent.intensity;
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, true, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, i);
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, true, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, i);
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, true, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, i);
+
+      if (setUniform) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, true, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, i);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, true, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, i);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, true, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, i);
+      } else {
+        const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+        __tmp_vector4.x = worldLightPosition.x;
+        __tmp_vector4.y = worldLightPosition.y;
+        __tmp_vector4.z = worldLightPosition.z;
+        __tmp_vector4.w = lightComponent.type.index;
+        material.setParameter(ShaderSemantics.LightPosition, __tmp_vector4, i);
+
+        __tmp_vector4.x = worldLightDirection.x;
+        __tmp_vector4.y = worldLightDirection.y;
+        __tmp_vector4.z = worldLightDirection.z;
+        __tmp_vector4.w = 0;
+        material.setParameter(ShaderSemantics.LightDirection, __tmp_vector4, i);
+
+        __tmp_vector4.x = worldLightIntensity.x;
+        __tmp_vector4.y = worldLightIntensity.y;
+        __tmp_vector4.z = worldLightIntensity.z;
+        __tmp_vector4.w = 0;
+        material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
+      }
     }
+  }
+
+  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+
   }
 }
