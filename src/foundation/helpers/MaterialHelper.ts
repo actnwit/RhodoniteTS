@@ -22,7 +22,7 @@ function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMate
 }
 
 function createPbrUberMaterial(maxInstancesNumber?: number) {
-  const materialNode = new PbrShadingMaterialNode();
+  const materialNode = new PbrShadingMaterialNode({isSkinning: true, isLighting: true});
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial('PbrUber', [materialNode], maxInstancesNumber);
 
