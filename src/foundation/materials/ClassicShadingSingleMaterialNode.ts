@@ -235,7 +235,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent);
+    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
 
     let updated: boolean;
