@@ -308,6 +308,7 @@ export default abstract class GLSLShader {
       mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
 
       // Skeletal
+#ifdef RN_IS_SKINNING
       isSkinning = false;
       if (u_skinningMode == 1) {
         mat4 skinMat = getSkinMatrix();
@@ -322,7 +323,12 @@ export default abstract class GLSLShader {
         outNormalMatrix = inNormalMatrix;
         v_normal_inWorld = normalize(inNormalMatrix * a_normal);
       }
-
+#else
+      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+      outNormalMatrix = inNormalMatrix;
+      v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+#endif
       return isSkinning;
     }
 `;
