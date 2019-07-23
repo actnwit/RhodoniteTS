@@ -89,7 +89,21 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
-    this.__semantics = shaderSemanticsInfoArray;
+    const infoArray: ShaderSemanticsInfo[] = [];
+    for (let info of shaderSemanticsInfoArray) {
+      if (info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array ||  info.compositionType == CompositionType.Vec2Array) {
+        for (let i = 0; i<info.maxIndex!; i++) {
+          const anotherInfo = Object.assign({}, info);
+          anotherInfo.index = i;
+          anotherInfo.maxIndex = info.maxIndex;
+          infoArray.push(anotherInfo);
+        }
+      } else {
+        infoArray.push(info);
+      }
+      infoArray.push()
+    }
+    this.__semantics = infoArray;
   }
 
   addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
@@ -192,7 +206,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, true, jointMatrices );
       }
       if (jointCompressedChanks != null) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
+        // this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, true, skeletalComponent.jointCompressedInfo);
       }
       this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);

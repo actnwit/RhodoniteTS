@@ -140,7 +140,11 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
     if (memberName.indexOf('___0') === -1) {
       return '';
     }
-    variableName = variableName.replace(/\[.+?\]/g, `[i]`);
+    if (variableName.match(/\[.+?\]/)) {
+      variableName = variableName.replace(/\[.+?\]/g, `[i]`);
+    } else {
+      variableName += '[i]';
+    }
     str += `
     ${returnType} val;
     for (int i=0; i<${info.maxIndex}; i++) {

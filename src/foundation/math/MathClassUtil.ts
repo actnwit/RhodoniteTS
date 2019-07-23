@@ -316,7 +316,7 @@ export default class MathClassUtil {
     }
   }
 
-  static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array) {
+  static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum) {
     let obj;
     if (isFinite(objForDetectType)) { // number?
       return val;
@@ -374,6 +374,15 @@ export default class MathClassUtil {
       obj.m31 = val.m31;
       obj.m32 = val.m32;
       obj.m33 = val.m33;
+    } else if (objForDetectType == null) {
+      let vec;
+      switch (floatArray.length) {
+        case 4: vec = new Vector4(floatArray); break;
+        case 3: vec = new Vector3(floatArray); break;
+        case 2: vec = new Vector2(floatArray); break;
+        case 1: vec = new Scalar(floatArray); break;
+      }
+      return vec;
     } else if (Array.isArray(objForDetectType) || ArrayBuffer.isView(objForDetectType) || ArrayBuffer.isView(objForDetectType.v)) {
       return objForDetectType;
     } else {
@@ -392,19 +401,23 @@ export default class MathClassUtil {
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
+      return objForDetectType;
     } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
+      return objForDetectType;
     } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
+      return objForDetectType;
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       if (typeof val.v === 'undefined') {
         objForDetectType.v[0] = val;
       } else {
         objForDetectType.v[0] = val.v[0];
       }
+      return objForDetectType;
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
       if (objForDetectType instanceof Matrix33) {
         obj = new MutableMatrix33((objForDetectType as any).v);
@@ -446,10 +459,13 @@ export default class MathClassUtil {
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
+      return objForDetectType;
     } else if (Array.isArray(objForDetectType)) {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val.v[i];
       }
+      return objForDetectType;
+
     } else if (!isNaN(objForDetectType.length)) {
       obj = { v: new Float32Array(objForDetectType.length) };
       for (let i = 0; i < objForDetectType.length; i++) {

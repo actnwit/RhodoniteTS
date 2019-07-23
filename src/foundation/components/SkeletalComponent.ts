@@ -15,6 +15,9 @@ import Vector4 from '../math/Vector4';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
+import MeshComponent from './MeshComponent';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -29,6 +32,7 @@ export default class SkeletalComponent extends Component {
   public isOptimizingMode = true;
   private __boneCompressedInfo = MutableVector4.zero();
   private static __scaleVec3 = MutableVector3.zero();
+  private static __tmp_vector4 = MutableVector4.zero();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -109,6 +113,9 @@ export default class SkeletalComponent extends Component {
     }
 
     if (this.isOptimizingMode) {
+      const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+      const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
+
       this.__qtArray = new Float32Array(matrices.length * 4);
       const scales = [];
       let tXArray = [];
@@ -144,6 +151,7 @@ export default class SkeletalComponent extends Component {
       this.__boneCompressedInfo.z = maxZ*1.1;
       this.__boneCompressedInfo.w = maxScale;
 
+
       // console.log('getScale are ...');
       for (let i=0; i<matrices.length; i++) {
         let s = matrices[i].getScale();
@@ -160,6 +168,20 @@ export default class SkeletalComponent extends Component {
         this.__qtArray[i*4+2] = vec2TPacked[0];
         this.__qtArray[i*4+3] = vec2TPacked[1];
       }
+
+      for (let i=0; i<matrices.length; i++) {
+        for (let j=0; j<maxPrimitive; j++) {
+          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+          if (primitive.getAttribute(VertexAttribute.Joints0)) {
+            SkeletalComponent.__tmp_vector4.x = this.__qtArray[i*4+0];
+            SkeletalComponent.__tmp_vector4.y = this.__qtArray[i*4+1];
+            SkeletalComponent.__tmp_vector4.z = this.__qtArray[i*4+2];
+            SkeletalComponent.__tmp_vector4.w = this.__qtArray[i*4+3];
+            primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, SkeletalComponent.__tmp_vector4, i);
+          }
+        }
+      }
+
     } else {
       flatMatrices = [];
       for (let i=0; i<matrices.length; i++) {

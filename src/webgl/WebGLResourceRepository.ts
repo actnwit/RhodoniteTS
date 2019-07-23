@@ -439,7 +439,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (value[0] != null && value[1] != null) {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
-    } else if (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array) {
+    } else if (index == null && info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array) {
       if (typeof value.v === 'undefined') {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value }, { firstTime: firstTime }, index);
       } else {

@@ -155,7 +155,8 @@ export default class Material extends RnObject {
             MathClassUtil.initWithFloat32Array(
               semanticInfo.initialValue,
               semanticInfo.initialValue,
-              typedArray
+              typedArray,
+              semanticInfo.compositionType
             ));
         } else {
           properties.set(propertyName, accessor);
@@ -231,7 +232,8 @@ export default class Material extends RnObject {
             MathClassUtil.initWithFloat32Array(
               semanticsInfo.initialValue,
               semanticsInfo.initialValue,
-              typedArray
+              typedArray,
+              semanticsInfo.compositionType
             ));
         }
       });
@@ -388,7 +390,11 @@ export default class Material extends RnObject {
 
 
     // Shader Construction
-    let vertexShader = glslShader.glslBegin +
+    let vertexShader;
+    if ((glslShader as any as ISingleShader).getVertexShaderBody) {
+     vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+    } else {
+      vertexShader = glslShader.glslBegin +
       materialNode.definitions +
       `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
@@ -399,6 +405,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
+    }
+
     let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
     const shaderCharCount = (vertexShader + fragmentShader).length;

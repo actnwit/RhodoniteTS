@@ -48,7 +48,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `
-  uniform sampler2D u_dataTexture;
+  uniform highp sampler2D u_dataTexture;
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
@@ -62,7 +62,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   //   return ${_texture}( tex, arg * (index + 0.5) );
   // }
 
-  vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
   {
     float t = (index + 0.5) * invSize.x;
     float x = fract(t);
@@ -180,14 +180,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         maxIndex = info.maxIndex!;
         methodName = memberName.split('___')[0];
 
-        let arrayStr = `float indices[${maxIndex}];`
+        let arrayStr = `highp float indices[${maxIndex}];`
         indexArray.forEach((idx, i)=> {
           arrayStr += `\nindices[${i}] = ${idx}.0;`
         });
 
         indexStr = `
           ${arrayStr}
-          float idx = 0.0;
+          highp float idx = 0.0;
           for (int i=0; i<${maxIndex}; i++) {
             idx = indices[i] + ${offset}.0 * instanceId;
             if (i == index) {
@@ -197,7 +197,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       } else {
         const offset = getOffset(info);
         index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
-        indexStr = `float idx = ${index}.0 + ${offset}.0 * instanceId;`;
+        indexStr = `highp float idx = ${index}.0 + ${offset}.0 * instanceId;`;
       }
 
       methodName = methodName.replace('.', '_');
@@ -208,28 +208,31 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
 
       let str = `
-      ${returnType} get_${methodName}(float instanceId, const int index) {
+      highp ${returnType} get_${methodName}(highp float instanceId, const int index) {
         ${indexStr}
-        float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-        float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-        vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-        vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
+        highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+        highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+        highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+        highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
 `;
 
       switch(info.compositionType) {
         case CompositionType.Vec4:
-          str += `        ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
+        case CompositionType.Vec4Array:
+          str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
         case CompositionType.Vec3:
-          str += `        ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
+        case CompositionType.Vec3Array:
+          str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
         case CompositionType.Vec2:
-          str += `        ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
+        case CompositionType.Vec2Array:
+          str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
         case CompositionType.Scalar:
           if (info.componentType === ComponentType.Int) {
             str += `        int val = int(col0.x);`;
           } else if (info.componentType === ComponentType.Bool) {
             str += `        bool val = bool(col0.x);`;
           } else {
-            str += `        float val = col0.x;`;
+            str += `       highp float val = col0.x;`;
           }
           break;
         case CompositionType.Mat4:
