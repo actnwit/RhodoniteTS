@@ -267,20 +267,21 @@ export default abstract class GLSLShader {
       highp vec4 boneCompressedChanksY = get_boneCompressedChank(u_materialSID, int(a_joint.y));
       highp vec4 boneCompressedChanksZ = get_boneCompressedChank(u_materialSID, int(a_joint.z));
       highp vec4 boneCompressedChanksW = get_boneCompressedChank(u_materialSID, int(a_joint.w));
+      highp vec4 boneCompressedInfo = get_boneCompressedInfo(u_materialSID, 0);
 
       highp vec2 criteria = vec2(4096.0, 4096.0);
       highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
         unpackedVec2ToNormalizedVec4(boneCompressedChanksX.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*u_boneCompressedInfo);
+          unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
         unpackedVec2ToNormalizedVec4(boneCompressedChanksY.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
         unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
         unpackedVec2ToNormalizedVec4(boneCompressedChanksW.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*boneCompressedInfo);
 
       // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
       // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
@@ -310,7 +311,8 @@ export default abstract class GLSLShader {
       // Skeletal
 #ifdef RN_IS_SKINNING
       isSkinning = false;
-      if (u_skinningMode == 1) {
+      int skinningMode = get_skinningMode(u_materialSID, 0);
+      if (skinningMode == 1) {
         mat4 skinMat = getSkinMatrix();
         v_position_inWorld = skinMat * vec4(a_position, 1.0);
         outNormalMatrix = toNormalMatrix(skinMat);
