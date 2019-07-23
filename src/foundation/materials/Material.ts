@@ -129,17 +129,8 @@ export default class Material extends RnObject {
         const properties = this.__accessors.get(materialTypeName)!;
         const bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
         let alignedBytes = 0;
-        if (bytes <= 16) {
-          alignedBytes = 16;
-        } else if (16 < bytes && bytes <= 32) {
-          alignedBytes = 32;
-        } else if (32 < bytes && bytes <= 48) {
-          alignedBytes = 48;
-        } else if (48 < bytes && bytes <= 64) {
-          alignedBytes = 64;
-        } else {
-          alignedBytes = 64;
-          console.warn('Unsupported size');
+        if (bytes % 16 !== 0) {
+          alignedBytes + 16 - bytes % 16;
         }
 
         const accessor = bufferView.takeFlexibleAccessor({
