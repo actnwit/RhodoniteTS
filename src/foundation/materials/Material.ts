@@ -71,6 +71,10 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  get materialTypeName() {
+    return this.__materialTypeName;
+  }
+
   /**
    * Gets materialTID.
    */
@@ -780,6 +784,18 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const properties = this.__accessors.get(materialTypeName);
       const accessor = properties!.get(memberName);
       return accessor!.byteOffsetInBuffer / 4 / 4;
+    }
+  }
+
+  static getAccessorOfMemberOfMaterial(materialTypeName: string, memberName: string) {
+    const material = Material.__instancesByTypes.get(materialTypeName)!;
+    const info = material.__fieldsInfo.get(memberName)!;
+    if (info.soloDatum) {
+      return void 0;
+    } else {
+      const properties = this.__accessors.get(materialTypeName);
+      const accessor = properties!.get(memberName);
+      return accessor;
     }
   }
 }
