@@ -18,6 +18,8 @@ import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/Common
 import MeshComponent from './MeshComponent';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -94,7 +96,7 @@ export default class SkeletalComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic() {
+  $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
     let flatMatrices: number[] = [];
     const matrices: MutableMatrix44[] = [];
     if (this.isSkinning) {
@@ -113,6 +115,7 @@ export default class SkeletalComponent extends Component {
     }
 
     if (this.isOptimizingMode) {
+      const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
       const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
       const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
 
@@ -177,7 +180,9 @@ export default class SkeletalComponent extends Component {
             SkeletalComponent.__tmp_vector4.y = this.__qtArray[i*4+1];
             SkeletalComponent.__tmp_vector4.z = this.__qtArray[i*4+2];
             SkeletalComponent.__tmp_vector4.w = this.__qtArray[i*4+3];
-            primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, SkeletalComponent.__tmp_vector4, i);
+            if (processApproach === ProcessApproach.FastestWebGL1) {
+              primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, SkeletalComponent.__tmp_vector4, i);
+            }
           }
         }
       }

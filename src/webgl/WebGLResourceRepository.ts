@@ -331,7 +331,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (data.isPlural) {
         location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticPluralStr(data));
       } else {
-        location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticStr(data));
+        let shaderVarName = ShaderSemantics.fullSemanticStr(data);
+        if (data.index != null && data.soloDatum == null) {
+          if (shaderVarName.match(/\[.+?\]/)) {
+            shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${data.index}]`);
+          } else {
+            shaderVarName += `[${data.index}]`;
+          }
+        }
+        location = gl.getUniformLocation(shaderProgram, 'u_' + shaderVarName);
+
       }
 
       if (data.index != null) {
@@ -439,7 +448,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       if (value[0] != null && value[1] != null) {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
-    } else if (index == null && info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array) {
+    } else if (index == null && (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array)) {
       if (typeof value.v === 'undefined') {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value }, { firstTime: firstTime }, index);
       } else {

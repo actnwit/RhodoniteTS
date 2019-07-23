@@ -49,7 +49,7 @@ ${_out} vec2 v_texcoord;
 uniform float u_materialSID;
 uniform vec3 u_viewPosition;
 //uniform mat4 u_boneMatrices[100];
-uniform highp vec4 u_boneCompressedChank[90];
+uniform highp vec4 u_boneCompressedChank[250];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
