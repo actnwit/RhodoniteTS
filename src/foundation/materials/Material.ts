@@ -364,13 +364,15 @@ export default class Material extends RnObject {
       }
     });
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
-      if (!info.isSystem) {
-        webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
-      }
-    });
+    if (args.setUniform) {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      this.__fields.forEach((value, key) => {
+        const info = this.__fieldsInfo.get(key)!;
+        if (!info.isSystem) {
+          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+        }
+      });
+    }
   }
 
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
