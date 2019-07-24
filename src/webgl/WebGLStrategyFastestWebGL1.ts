@@ -208,7 +208,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
 
       let str = `
-      highp ${returnType} get_${methodName}(highp float instanceId, const int index) {
+      ${returnType} get_${methodName}(highp float instanceId, const int index) {
         ${indexStr}
         highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
         highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
@@ -232,7 +232,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           } else if (info.componentType === ComponentType.Bool) {
             str += `        bool val = bool(col0.x);`;
           } else {
-            str += `       highp float val = col0.x;`;
+            str += `       float val = col0.x;`;
           }
           break;
         case CompositionType.Mat4:
