@@ -134,7 +134,7 @@ export default class Material extends RnObject {
         const bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
         let alignedBytes = 0;
         if (bytes % 16 !== 0) {
-          alignedBytes + 16 - bytes % 16;
+          alignedBytes = bytes + 16 - bytes % 16;
         }
 
         const accessor = bufferView.takeFlexibleAccessor({
