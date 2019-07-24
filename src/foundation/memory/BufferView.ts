@@ -122,10 +122,18 @@ export default class BufferView extends RnObject {
     let byteOffset = 0;
     if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
-      this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;
+      if (byteStride === 0) {
+        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;
+      } else {
+        this.__takenByteIndex += byteStride * count;
+      }
     } else {
       byteOffset = this.__takenByteIndex;
-      this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+      if (byteStride === 0) {
+        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+      } else {
+        this.__takenByteIndex += byteStride;
+      }
     }
 
     if (byteOffset % byteAlign !== 0) {
