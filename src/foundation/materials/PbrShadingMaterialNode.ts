@@ -29,8 +29,8 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
 
   constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
     super(PBRShader.getInstance(), 'pbrShading'
-    + isSkinning ? '_+skinning' : ''
-    + isLighting ? '' : '-lighting'
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting')
     );
     PbrShadingMaterialNode.initDefaultTextures();
 

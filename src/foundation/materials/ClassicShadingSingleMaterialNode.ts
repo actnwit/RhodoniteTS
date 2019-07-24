@@ -38,8 +38,8 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
 
   constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
     super(ClassicShader.getInstance(), "classicShading"
-      + isSkinning ? '_+skinning' : ''
-      + isLighting ? '' : '-lighting');
+      + (isSkinning ? '+skinning' : '')
+      + (isLighting ? '' : '-lighting'));
     ClassicShadingSingleMaterialNode.initDefaultTextures();
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
