@@ -52,7 +52,7 @@ ${_out} vec2 v_texcoord;
   gl_Position = projectionMatrix * viewMatrix * position_inWorld;
   `;
 
-  getFragmentShader() {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -102,6 +102,11 @@ ${_out} vec2 v_texcoord;
 
 uniform sampler2D u_baseColorTexture;
 uniform vec2 u_screenInfo;
+uniform float u_materialSID;
+
+${this.fetchElement}
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
 #define FXAA_PC 1
 #define FXAA_QUALITY_PRESET 12
@@ -1193,13 +1198,14 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main() {
 
+    vec2 screenInfo = get_screenInfo(u_materialSID, 0);
     rt0 = FxaaPixelShader(
             v_texcoord,
             vec4(0.0),
             u_baseColorTexture,
             u_baseColorTexture,
             u_baseColorTexture,
-            1.0/u_screenInfo,
+            1.0/screenInfo,
             vec4(0.0),
             vec4(0.0),
             vec4(0.0),
@@ -1222,8 +1228,8 @@ void main() {
 
   }
 
-  getPixelShaderBody() {
-    return this.getFragmentShader();
+  getPixelShaderBody(args: Object) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];
