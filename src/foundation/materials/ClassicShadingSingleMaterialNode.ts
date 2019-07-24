@@ -153,7 +153,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
-            isSystem: false,
+            isSystem: true,
             updateInteval: ShaderVariableUpdateInterval.EveryTime,
             initialValue: new Vector4(0, 0, 0, 1),
             soloDatum: true
@@ -170,7 +170,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           prefix: `lights[${idx}].`,
           index: idx,
           maxIndex: 4,
-          isSystem: false,
+          isSystem: true,
           initialValue: new Vector4(0, 1, 0, 1),
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: true
@@ -187,7 +187,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
-            isSystem: false,
+            isSystem: true,
             initialValue: new Vector4(1, 1, 1, 1),
             updateInteval: ShaderVariableUpdateInterval.EveryTime,
             soloDatum: true
@@ -202,12 +202,12 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime });
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 90, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime });
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: 1, isPlural: false, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
+        stage: ShaderType.VertexShader, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
