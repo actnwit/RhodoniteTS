@@ -36,7 +36,6 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
-import MatCapSingleMaterialNode from "../foundation/materials/MatCapSingleMaterialNode";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -148,17 +147,17 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           );
         }
 
-        const lights: ShaderSemanticsInfo[] = [];
-        for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-          lights.push({semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
-          lights.push({semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader, min: -1, max: 1, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
-          lights.push({semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader, min: 0, max: 10, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
-        }
+        // const lights: ShaderSemanticsInfo[] = [];
+        // for (let i = 0; i < Config.maxLightNumberInShader; i++) {
+        //   lights.push({semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+        //     stage: ShaderType.PixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+        //   lights.push({semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+        //     stage: ShaderType.PixelShader, min: -1, max: 1, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime});
+        //   lights.push({semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+        //     stage: ShaderType.PixelShader, min: 0, max: 10, isPlural: false, prefix: `lights[${i}].`, index: i, isSystem: true });
+        // }
 
-        args = args.concat(lights);
+        // args = args.concat(lights);
 
         WebGLStrategyUniform.setupMaterial(material, args);
       }

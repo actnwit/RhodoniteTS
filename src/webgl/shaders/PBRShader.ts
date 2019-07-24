@@ -23,11 +23,20 @@ export default class PBRShader extends GLSLShader implements ISingleShader {
   }
 
   get vertexShaderDefinitions() {
+    return `
+
+`;
+
+  };
+
+  getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `
+    return `${_version}
+precision highp float;
+
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -48,6 +57,17 @@ ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
 uniform vec3 u_viewPosition;
 uniform float u_materialSID;
+//uniform mat4 u_boneMatrices[100];
+uniform highp vec4 u_boneCompressedChank[90];
+uniform highp vec4 u_boneCompressedInfo;
+uniform int u_skinningMode;
+
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '' }
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
 ${this.toNormalMatrix}
 
@@ -58,12 +78,10 @@ ${this.processGeometryWithSkinningOptionally}
 ${this.pointSize}
 
 ${this.pointDistanceAttenuation}
-`;
 
-  };
 
-  vertexShaderBody: string = `
-
+void main()
+{
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(a_instanceID);
   mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
@@ -99,7 +117,14 @@ ${this.pointDistanceAttenuation}
   float maxPointSize = getPointSize(a_instanceID);
   gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
 
-//  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
+  //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
+
+}
+`
+  }
+
+  vertexShaderBody: string = `
+
 
   `;
 
@@ -123,6 +148,8 @@ ${this.pointDistanceAttenuation}
 ${this.glsl1ShaderTextureLodExt}
 ${this.glsl1ShaderDerivativeExt}
 precision highp float;
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
 
 uniform sampler2D u_dataTexture;
 uniform float u_materialSID;

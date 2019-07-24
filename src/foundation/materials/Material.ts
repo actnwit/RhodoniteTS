@@ -71,6 +71,10 @@ export default class Material extends RnObject {
     this.initialize();
   }
 
+  get materialTypeName() {
+    return this.__materialTypeName;
+  }
+
   /**
    * Gets materialTID.
    */
@@ -129,17 +133,8 @@ export default class Material extends RnObject {
         const properties = this.__accessors.get(materialTypeName)!;
         const bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
         let alignedBytes = 0;
-        if (bytes <= 16) {
-          alignedBytes = 16;
-        } else if (16 < bytes && bytes <= 32) {
-          alignedBytes = 32;
-        } else if (32 < bytes && bytes <= 48) {
-          alignedBytes = 48;
-        } else if (48 < bytes && bytes <= 64) {
-          alignedBytes = 64;
-        } else {
-          alignedBytes = 64;
-          console.warn('Unsupported size');
+        if (bytes % 16 !== 0) {
+          alignedBytes = bytes + 16 - bytes % 16;
         }
 
         const accessor = bufferView.takeFlexibleAccessor({
@@ -164,7 +159,8 @@ export default class Material extends RnObject {
             MathClassUtil.initWithFloat32Array(
               semanticInfo.initialValue,
               semanticInfo.initialValue,
-              typedArray
+              typedArray,
+              semanticInfo.compositionType
             ));
         } else {
           properties.set(propertyName, accessor);
@@ -240,7 +236,8 @@ export default class Material extends RnObject {
             MathClassUtil.initWithFloat32Array(
               semanticsInfo.initialValue,
               semanticsInfo.initialValue,
-              typedArray
+              typedArray,
+              semanticsInfo.compositionType
             ));
         }
       });
@@ -370,8 +367,10 @@ export default class Material extends RnObject {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((value, key) => {
       const info = this.__fieldsInfo.get(key)!;
-      if (!info.isSystem) {
-        webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+      if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        if (!info.isSystem) {
+          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+        }
       }
     });
   }
@@ -397,7 +396,12 @@ export default class Material extends RnObject {
 
 
     // Shader Construction
-    let vertexShader = glslShader.glslBegin +
+    let vertexShader;
+    if ((glslShader as any as ISingleShader).getVertexShaderBody) {
+     vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+    } else {
+      vertexShader = glslShader.glslBegin +
+      materialNode.definitions +
       `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 ` +
@@ -407,7 +411,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       glslShader.glslMainBegin +
       glslShader.vertexShaderBody +
       glslShader.glslMainEnd;
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr });
+    }
+
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
     const shaderCharCount = (vertexShader + fragmentShader).length;
 
@@ -780,6 +786,18 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const properties = this.__accessors.get(materialTypeName);
       const accessor = properties!.get(memberName);
       return accessor!.byteOffsetInBuffer / 4 / 4;
+    }
+  }
+
+  static getAccessorOfMemberOfMaterial(materialTypeName: string, memberName: string) {
+    const material = Material.__instancesByTypes.get(materialTypeName)!;
+    const info = material.__fieldsInfo.get(memberName)!;
+    if (info.soloDatum) {
+      return void 0;
+    } else {
+      const properties = this.__accessors.get(materialTypeName);
+      const accessor = properties!.get(memberName);
+      return accessor;
     }
   }
 }

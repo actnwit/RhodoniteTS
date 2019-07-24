@@ -3,6 +3,8 @@ import WebGLResourceRepository from "../WebGLResourceRepository";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
 import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../../foundation/definitions/ShaderSemantics";
 import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
+import Component from "../../foundation/core/Component";
+import MemoryManager from "../../foundation/core/MemoryManager";
 
 export type AttributeNames = Array<string>;
 
@@ -167,33 +169,30 @@ export default abstract class GLSLShader {
 
   get getSkinMatrix() {
     return `
-    //uniform mat4 u_boneMatrices[100];
-    uniform vec4 u_boneCompressedChanks[90];
-    uniform vec4 u_boneCompressedInfo;
 
-    mat4 createMatrixFromQuaternionTransformUniformScale( vec4 quaternion, vec4 translationScale ) {
-      vec4 q = quaternion;
-      vec3 t = translationScale.xyz;
-      float scale = translationScale.w;
+    highp mat4 createMatrixFromQuaternionTransformUniformScale( highp vec4 quaternion, highp vec4 translationScale ) {
+      highp vec4 q = quaternion;
+      highp vec3 t = translationScale.xyz;
+      highp float scale = translationScale.w;
 
-      float sx = q.x * q.x;
-      float sy = q.y * q.y;
-      float sz = q.z * q.z;
-      float cx = q.y * q.z;
-      float cy = q.x * q.z;
-      float cz = q.x * q.y;
-      float wx = q.w * q.x;
-      float wy = q.w * q.y;
-      float wz = q.w * q.z;
+      highp float sx = q.x * q.x;
+      highp float sy = q.y * q.y;
+      highp float sz = q.z * q.z;
+      highp float cx = q.y * q.z;
+      highp float cy = q.x * q.z;
+      highp float cz = q.x * q.y;
+      highp float wx = q.w * q.x;
+      highp float wy = q.w * q.y;
+      highp float wz = q.w * q.z;
 
-      mat4 mat = mat4(
+      highp mat4 mat = mat4(
         1.0 - 2.0 * (sy + sz), 2.0 * (cz + wz), 2.0 * (cy - wy), 0.0,
         2.0 * (cz - wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx + wx), 0.0,
         2.0 * (cy + wy), 2.0 * (cx - wx), 1.0 - 2.0 * (sx + sy), 0.0,
         t.x, t.y, t.z, 1.0
       );
 
-      mat4 uniformScaleMat = mat4(
+      highp mat4 uniformScaleMat = mat4(
         scale, 0.0, 0.0, 0.0,
         0.0, scale, 0.0, 0.0,
         0.0, 0.0, scale, 0.0,
@@ -203,23 +202,23 @@ export default abstract class GLSLShader {
       return mat*uniformScaleMat;
     }
 
-    vec4 unpackedVec2ToNormalizedVec4(vec2 vec_xy, float criteria){
+    highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria){
 
-      float r;
-      float g;
-      float b;
-      float a;
+      highp float r;
+      highp float g;
+      highp float b;
+      highp float a;
 
-      float ix = floor(vec_xy.x * criteria);
-      float v1x = ix / criteria;
-      float v1y = ix - floor(v1x) * criteria;
+      highp float ix = floor(vec_xy.x * criteria);
+      highp float v1x = ix / criteria;
+      highp float v1y = ix - floor(v1x) * criteria;
 
       r = ( v1x + 1.0 ) / (criteria-1.0);
       g = ( v1y + 1.0 ) / (criteria-1.0);
 
-      float iy = floor( vec_xy.y * criteria);
-      float v2x = iy / criteria;
-      float v2y = iy - floor(v2x) * criteria;
+      highp float iy = floor( vec_xy.y * criteria);
+      highp float v2x = iy / criteria;
+      highp float v2y = iy - floor(v2x) * criteria;
 
       b = ( v2x + 1.0 ) / (criteria-1.0);
       a = ( v2y + 1.0 ) / (criteria-1.0);
@@ -237,22 +236,52 @@ export default abstract class GLSLShader {
       return vec4(r, g, b, a);
     }
 
+    // mat4 getSkinMatrix() {
+
+    //   vec2 criteria = vec2(4096.0, 4096.0);
+    //   mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].xy, criteria.x),
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].zw, criteria.y)*u_boneCompressedInfo);
+    //   skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].xy, criteria.x),
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].zw, criteria.y)*u_boneCompressedInfo);
+    //   skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].xy, criteria.x),
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].zw, criteria.y)*u_boneCompressedInfo);
+    //   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].xy, criteria.x),
+    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].zw, criteria.y)*u_boneCompressedInfo);
+
+    //   // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
+    //   // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
+    //   // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
+    //   // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
+
+    //   return skinMat;
+    // }
+
 
     mat4 getSkinMatrix() {
 
-      vec2 criteria = vec2(4096.0, 4096.0);
-      mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].zw, criteria.y)*u_boneCompressedInfo);
+      highp vec4 boneCompressedChanksX = get_boneCompressedChank(u_materialSID, int(a_joint.x));
+      highp vec4 boneCompressedChanksY = get_boneCompressedChank(u_materialSID, int(a_joint.y));
+      highp vec4 boneCompressedChanksZ = get_boneCompressedChank(u_materialSID, int(a_joint.z));
+      highp vec4 boneCompressedChanksW = get_boneCompressedChank(u_materialSID, int(a_joint.w));
+      highp vec4 boneCompressedInfo = get_boneCompressedInfo(u_materialSID, 0);
+
+      highp vec2 criteria = vec2(4096.0, 4096.0);
+      highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksX.xy, criteria.x),
+          unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*boneCompressedInfo);
       skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].zw, criteria.y)*u_boneCompressedInfo);
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.xy, criteria.x),
+        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*boneCompressedInfo);
 
       // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
       // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
@@ -261,13 +290,13 @@ export default abstract class GLSLShader {
 
       return skinMat;
     }
+
     `;
   }
 
   get processGeometryWithSkinningOptionally() {
 
     return `
-    uniform int u_skinningMode;
 
     bool skinning(
       out bool isSkinning,
@@ -280,8 +309,10 @@ export default abstract class GLSLShader {
       mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
 
       // Skeletal
+#ifdef RN_IS_SKINNING
       isSkinning = false;
-      if (u_skinningMode == 1) {
+      int skinningMode = get_skinningMode(u_materialSID, 0);
+      if (skinningMode == 1) {
         mat4 skinMat = getSkinMatrix();
         v_position_inWorld = skinMat * vec4(a_position, 1.0);
         outNormalMatrix = toNormalMatrix(skinMat);
@@ -294,7 +325,12 @@ export default abstract class GLSLShader {
         outNormalMatrix = inNormalMatrix;
         v_normal_inWorld = normalize(inNormalMatrix * a_normal);
       }
-
+#else
+      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+      outNormalMatrix = inNormalMatrix;
+      v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+#endif
       return isSkinning;
     }
 `;
@@ -302,11 +338,11 @@ export default abstract class GLSLShader {
 
   get fetchElement() {
     return `
-    vec4 fetchElement(sampler2D tex, float index, vec2 invSize)
+    highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
     {
-      float t = (index + 0.5) * invSize.x;
-      float x = fract(t);
-      float y = (floor(t) + 0.5) * invSize.y;
+      highp float t = (index + 0.5) * invSize.x;
+      highp float x = fract(t);
+      highp float y = (floor(t) + 0.5) * invSize.y;
       return ${this.glsl_texture}( tex, vec2(x, y) );
     }
     `;

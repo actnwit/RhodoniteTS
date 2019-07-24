@@ -22,17 +22,28 @@ function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMate
 }
 
 function createPbrUberMaterial(maxInstancesNumber?: number) {
-  const materialNode = new PbrShadingMaterialNode();
+  const enables = {isSkinning: true, isLighting: true};
+  const materialName = 'PbrUber'
+    + (enables.isSkinning ? '+skinning' : '')
+    + (enables.isLighting ? '' : '-lighting');
+
+  const materialNode = new PbrShadingMaterialNode({isSkinning: enables.isSkinning, isLighting: enables.isLighting});
+
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('PbrUber', [materialNode], maxInstancesNumber);
+  const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 
   return material;
 }
 
 function createClassicUberMaterial(maxInstancesNumber?: number) {
-  const materialNode = new ClassicShadingSingleMaterialNode();
+  const enables = {isSkinning: true, isLighting: true};
+  const materialName = 'ClassicUber'
+    + (enables.isSkinning ? '+skinning' : '')
+    + (enables.isLighting ? '' : '-lighting');
+
+  const materialNode = new ClassicShadingSingleMaterialNode({isSkinning: enables.isSkinning, isLighting: enables.isLighting});
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('ClassicUber', [materialNode], maxInstancesNumber);
+  const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 
   return material;
 }

@@ -50,6 +50,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   public readonly shader: GLSLShader;
   public readonly shaderFunctionName: string;
   public isSingleOperation = false;
+  protected __definitions = '';
 
   protected static __webglResourceRepository?: WebGLResourceRepository;
   private static __transposedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -71,6 +72,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   }
 
+  get definitions() {
+    return this.__definitions;
+  }
+
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {
     return AbstractMaterialNode.materialNodes[materialNodeUid];
   }
@@ -84,7 +89,21 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
-    this.__semantics = shaderSemanticsInfoArray;
+    const infoArray: ShaderSemanticsInfo[] = [];
+    for (let info of shaderSemanticsInfoArray) {
+      if (info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array ||  info.compositionType == CompositionType.Vec2Array) {
+        for (let i = 0; i<info.maxIndex!; i++) {
+          const anotherInfo = Object.assign({}, info);
+          anotherInfo.index = i;
+          anotherInfo.maxIndex = info.maxIndex;
+          infoArray.push(anotherInfo);
+        }
+      } else {
+        infoArray.push(info);
+      }
+      infoArray.push()
+    }
+    this.__semantics = infoArray;
   }
 
   addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
@@ -179,18 +198,30 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  static setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent) {
+  static setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
     if (skeletalComponent) {
-      const jointMatrices = skeletalComponent.jointMatrices;
-      const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-      if (jointMatrices != null) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, true, jointMatrices );
+      if (setUniform) {
+        const jointMatrices = skeletalComponent.jointMatrices;
+        const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
+        if (jointMatrices != null) {
+          this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, true, jointMatrices );
+        }
+        if (jointCompressedChanks != null) {
+          const chanks = jointCompressedChanks;
+          const length = chanks!.length / 4;
+            for (let i=0; i<length; i++) {
+              AbstractMaterialNode.__tmp_vector4.x = chanks[i*4+0];
+              AbstractMaterialNode.__tmp_vector4.y = chanks[i*4+1];
+              AbstractMaterialNode.__tmp_vector4.z = chanks[i*4+2];
+              AbstractMaterialNode.__tmp_vector4.w = chanks[i*4+3];
+              this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, AbstractMaterialNode.__tmp_vector4, i);
+            }
+
+          // this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
+          this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, true, skeletalComponent.jointCompressedInfo);
+        }
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
       }
-      if (jointCompressedChanks != null) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, true, skeletalComponent.jointCompressedInfo);
-      }
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
     } else {
       this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, false);
     }

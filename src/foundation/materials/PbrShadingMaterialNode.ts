@@ -22,13 +22,17 @@ import { HdriFormat } from "../definitions/HdriFormat";
 import Scalar from "../math/Scalar";
 import Config from "../core/Config";
 import SkeletalComponent from "../components/SkeletalComponent";
+import MutableVector4 from "../math/MutableVector4";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-  constructor() {
-    super(PBRShader.getInstance(), 'pbrShading');
+  constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
+    super(PBRShader.getInstance(), 'pbrShading'
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting')
+    );
     PbrShadingMaterialNode.initDefaultTextures();
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -128,64 +132,80 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         },
       ];
 
-    const lights: ShaderSemanticsInfo[] = [];
-    for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-      (function(idx){
-      lights.push(
-        {
-          semantic: ShaderSemantics.LightPosition,
+    if (isLighting) {
+      this.__definitions += '#define RN_IS_LIGHTING\n';
+      const lights: ShaderSemanticsInfo[] = [];
+      for (let i = 0; i < Config.maxLightNumberInShader; i++) {
+        (function(idx){
+        lights.push(
+          {
+            semantic: ShaderSemantics.LightPosition,
+            compositionType: CompositionType.Vec4,
+            componentType: ComponentType.Float,
+            stage: ShaderType.PixelShader,
+            min: -Number.MAX_VALUE,
+            max: Number.MAX_VALUE,
+            isPlural: false,
+            prefix: `lights[${idx}].`,
+            index: idx,
+            maxIndex: 4,
+            isSystem: true,
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            initialValue: new Vector4(0, 0, 0, 1),
+            soloDatum: true
+          });
+        lights.push(
+          {
+          semantic: ShaderSemantics.LightDirection,
           compositionType: CompositionType.Vec4,
           componentType: ComponentType.Float,
           stage: ShaderType.PixelShader,
-          min: -Number.MAX_VALUE,
-          max: Number.MAX_VALUE,
+          min: -1,
+          max: 1,
           isPlural: false,
           prefix: `lights[${idx}].`,
           index: idx,
           maxIndex: 4,
           isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: new Vector4(0, 0, 0, 1),
-          soloDatum: true
-        });
-      lights.push(
-        {
-        semantic: ShaderSemantics.LightDirection,
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: -1,
-        max: 1,
-        isPlural: false,
-        prefix: `lights[${idx}].`,
-        index: idx,
-        maxIndex: 4,
-        isSystem: true,
-        initialValue: new Vector4(0, 1, 0, 1),
-        updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        soloDatum: true
-      });
-      lights.push(
-        {
-          semantic: ShaderSemantics.LightIntensity,
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          min: 0,
-          max: 10,
-          isPlural: false,
-          prefix: `lights[${idx}].`,
-          index: idx,
-          maxIndex: 4,
-          isSystem: true,
-          initialValue: new Vector4(1, 1, 1, 1),
+          initialValue: new Vector4(0, 1, 0, 1),
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: true
         });
-      })(i);
+        lights.push(
+          {
+            semantic: ShaderSemantics.LightIntensity,
+            compositionType: CompositionType.Vec4,
+            componentType: ComponentType.Float,
+            stage: ShaderType.PixelShader,
+            min: 0,
+            max: 10,
+            isPlural: false,
+            prefix: `lights[${idx}].`,
+            index: idx,
+            maxIndex: 4,
+            isSystem: true,
+            initialValue: new Vector4(1, 1, 1, 1),
+            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            soloDatum: true
+          });
+        })(i);
+      }
+      shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
     }
 
-    shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
+    if (isSkinning) {
+      this.__definitions += '#define RN_IS_SKINNING\n';
+
+      // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        // stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
+    }
+
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
@@ -222,7 +242,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent);
+    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
 
     let updated: boolean;
