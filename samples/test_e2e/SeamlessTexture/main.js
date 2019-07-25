@@ -13,16 +13,18 @@
     return entity;
   }
 
-  const promise = Rn.ModuleManager.getInstance().loadModule('webgl');
-  promise.then(function(){
+  const promises = [];
+  let promise = Rn.ModuleManager.getInstance().loadModule('webgl');
+  promises.push(promise);
+  promise = Rn.ModuleManager.getInstance().loadModule('pbr');
+  promises.push(promise);
+  Promise.all(promises).then(function(){
     const system = Rn.System.getInstance();
-    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.DataTextureWebGL1, document.getElementById('world'));
-
+    const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
-
-    Rn.MeshRendererComponent.manualTransparentSids = [];
+    primitive.material = Rn.MaterialHelper.createClassicUberMaterial();
 
     const entities = [];
     const entity = generateEntity();
@@ -53,7 +55,7 @@
 
       gl.enable(gl.DEPTH_TEST);
       gl.viewport(0, 0, 600, 600);
-      gl.clearColor(1, 1, 1, 1.0);
+      gl.clearColor(0.5, 0.5, 0.5, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       const date = new Date();

@@ -269,7 +269,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return this.__instance;
   }
 
-  common_$render(primitive: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
+  common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     return false;
   }
 
