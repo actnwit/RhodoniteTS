@@ -334,7 +334,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticPluralStr(data));
       } else {
         let shaderVarName = ShaderSemantics.fullSemanticStr(data);
-        if (data.index != null && data.soloDatum == null) {
+        if (data.index != null) {
           if (shaderVarName.match(/\[.+?\]/)) {
             shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${data.index}]`);
           } else {
