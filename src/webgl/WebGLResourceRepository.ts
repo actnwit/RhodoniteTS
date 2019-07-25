@@ -230,8 +230,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return { vaoHandle: -1, iboHandle: iboHandle, vboHandles: vboHandles, attributesFlags: attributesFlags, setComplete: false };
   }
 
-  createShaderProgram({ vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }:
-    { vertexShaderStr: string, fragmentShaderStr: string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum> }) {
+  createShaderProgram({ materialTypeName, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }:
+    { materialTypeName: string, vertexShaderStr: string, fragmentShaderStr: string, attributeNames: AttributeNames, attributeSemantics: Array<VertexAttributeEnum> }) {
 
     const gl = this.__glw!.getRawContext();
 
@@ -242,12 +242,12 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
-    this.__checkShaderCompileStatus(vertexShader, vertexShaderStr);
+    this.__checkShaderCompileStatus(materialTypeName, vertexShader, vertexShaderStr);
 
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
     gl.shaderSource(fragmentShader, fragmentShaderStr);
     gl.compileShader(fragmentShader);
-    this.__checkShaderCompileStatus(fragmentShader, fragmentShaderStr);
+    this.__checkShaderCompileStatus(materialTypeName, fragmentShader, fragmentShaderStr);
 
     const shaderProgram = gl.createProgram()!;
     gl.attachShader(shaderProgram, vertexShader);
@@ -258,7 +258,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
-    this.__checkShaderProgramLinkStatus(shaderProgram, vertexShaderStr, fragmentShaderStr);
+    this.__checkShaderProgramLinkStatus(materialTypeName, shaderProgram, vertexShaderStr, fragmentShaderStr);
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, shaderProgram);
@@ -286,20 +286,22 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return shaderTextWithLineNumber;
   }
 
-  private __checkShaderCompileStatus(shader: WebGLShader, shaderText: string) {
+  private __checkShaderCompileStatus(materialTypeName: string, shader: WebGLShader, shaderText: string) {
     const gl = this.__glw!.getRawContext();
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber(shaderText));
       throw new Error('An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader));
     }
   }
 
-  private __checkShaderProgramLinkStatus(shaderProgram: WebGLProgram, vertexShaderText: string, fragmentShaderText: string) {
+  private __checkShaderProgramLinkStatus(materialTypeName: string, shaderProgram: WebGLProgram, vertexShaderText: string, fragmentShaderText: string) {
     const gl = this.__glw!.getRawContext();
 
     // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      console.log('MaterialTypeName: ' + materialTypeName);
       console.log(this.__addLineNumber('Vertex Shader:'));
       console.log(this.__addLineNumber(vertexShaderText));
       console.log(this.__addLineNumber('Fragment Shader:'));
