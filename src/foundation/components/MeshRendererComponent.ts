@@ -3,7 +3,7 @@ import Component from '../core/Component';
 import MeshComponent from './MeshComponent';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
-import { ProcessStage } from '../definitions/ProcessStage';
+import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import SceneGraphComponent from './SceneGraphComponent';
 import WebGLResourceRepository, { VertexHandles } from '../../webgl/WebGLResourceRepository';
@@ -194,7 +194,7 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
   }
 
-  static common_$render({renderPass}: {renderPass: RenderPass}){
+  static common_$render({renderPass, processStage}: {renderPass: RenderPass, processStage: ProcessStageEnum}){
 
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
@@ -207,32 +207,10 @@ export default class MeshRendererComponent extends Component {
       projectionMatrix = MeshRendererComponent.__cameraComponent.projectionMatrix;
     }
 
-    const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
-    const meshComponent = meshComponents[0] as MeshComponent;
-    if (meshComponent.mesh!.getPrimitiveNumber() === 0) {
-      MeshRendererComponent.__webGLStrategy!.common_$render(new Primitive(), viewMatrix, projectionMatrix, renderPass);
-    } else {
-      if (meshComponent.mesh) {
-        const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-        const glw = MeshRendererComponent.__webglResourceRepository!.currentWebGLContextWrapper!;
-        for(let i=0; i<primitiveNum; i++) {
-          const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-          if (!MeshRendererComponent.__webGLStrategy!.common_$render(primitive, viewMatrix, projectionMatrix, renderPass)) {
-            break;
-          }
+    const meshComponentSids = Component.__componentsOfProcessStages.get(processStage)!;
+    const meshComponents = MeshRendererComponent.__componentRepository._getComponents(MeshComponent) as MeshComponent[];
+    MeshRendererComponent.__webGLStrategy!.common_$render(meshComponentSids, meshComponents, viewMatrix, projectionMatrix, renderPass);
 
-          MeshRendererComponent.__webGLStrategy!.attachVertexData(i, primitive, glw, MeshRendererComponent.__instanceIDBufferUid);
-          MeshRendererComponent.__webGLStrategy!.attatchShaderProgram(primitive.material!);
-          MeshRendererComponent.__webGLStrategy!.attachGPUData(primitive);
-
-          const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent)!;
-    //      glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, primitive.indicesAccessor!.byteOffsetInBuffer, meshComponents.length);
-          glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor!.elementCount, primitive.indicesAccessor!.componentType.index, 0, meshComponents.length);
-        }
-      } else {
-        MeshComponent.alertNoMeshSet(meshComponent);
-      }
-    }
   }
 
   static sort_$render(renderPass: RenderPass): ComponentSID[] {

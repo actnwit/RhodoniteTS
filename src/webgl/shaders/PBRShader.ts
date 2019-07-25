@@ -37,6 +37,8 @@ export default class PBRShader extends GLSLShader implements ISingleShader {
     return `${_version}
 precision highp float;
 
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -55,15 +57,15 @@ ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
-uniform vec3 u_viewPosition;
+
 uniform float u_materialSID;
+uniform vec3 u_viewPosition;
 //uniform mat4 u_boneMatrices[100];
 uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '' }
 

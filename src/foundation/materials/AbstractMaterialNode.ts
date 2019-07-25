@@ -20,6 +20,8 @@ import SkeletalComponent from "../components/SkeletalComponent";
 import Material from "./Material";
 import MutableVector2 from "../math/MutableVector2";
 import MutableVector4 from "../math/MutableVector4";
+import Vector3 from "../math/Vector3";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -180,21 +182,37 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    const cameraPosition = cameraComponent.worldPosition;
-    if (setUniform) {
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+    if (cameraComponent) {
+      const cameraPosition = cameraComponent.worldPosition;
+      if (setUniform) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+      } else {
+        material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
+        material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+      }
     } else {
-      material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
-      material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+      const mat = MutableMatrix44.identity();
+      const pos = new Vector3(0,0,10);
+      if (setUniform) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, mat);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, pos);
+      } else {
+        material.setParameter(ShaderSemantics.ViewMatrix, mat);
+        material.setParameter(ShaderSemantics.ViewPosition, pos);
+      }
     }
   }
 
   static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    if (setUniform) {
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+    if (cameraComponent) {
+      if (setUniform) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+      } else {
+        material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
+      }
     } else {
-      material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
+      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
     }
   }
 

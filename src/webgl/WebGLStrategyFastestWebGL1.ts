@@ -534,13 +534,18 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
+  common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
     // const meshes: Mesh[] = Mesh.originalMeshes;
 
-    for (let meshComponent of renderPass.meshComponents!) {
+    for (let idx=0; idx<meshComponentSids.length; idx++) {
+      const sid = meshComponentSids[idx];
+      const meshComponent = meshComponents[sid];
+      if (meshComponent == null) {
+        break;
+      }
       const mesh = meshComponent.mesh!;
       if (!(mesh && mesh.isOriginalMesh())) {
         continue;

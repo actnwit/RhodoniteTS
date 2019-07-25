@@ -75,12 +75,13 @@ export default class System {
           }
 
           const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
+
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
-            componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass});
+            componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass, processStage: stage});
           }
 
-          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
           componentClass.process({
             componentType: componentClass,
             processStage:stage,

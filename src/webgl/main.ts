@@ -3,9 +3,6 @@ import GLSLShader, {AttributeNames} from "./shaders/GLSLShader";
 import WebGLContextWrapper from './WebGLContextWrapper';
 import WebGLResourceRepository, {VertexHandles} from './WebGLResourceRepository';
 import WebGLStrategy from './WebGLStrategy';
-import WebGLStrategyDataTexture from './WebGLStrategyDataTexture';
-import WebGLStrategyTransformFeedback from './WebGLStrategyTransformFeedback';
-import WebGLStrategyUBO from './WebGLStrategyUBO';
 import WebGLStrategyUniform from './WebGLStrategyUniform';
 
 const WebGL = Object.freeze({
@@ -13,9 +10,6 @@ const WebGL = Object.freeze({
   GLSLShader,
   WebGLContextWrapper,
   WebGLResourceRepository,
-  WebGLStrategyDataTexture,
-  WebGLStrategyTransformFeedback,
-  WebGLStrategyUBO,
   WebGLStrategyUniform
 });
 export default WebGL;
