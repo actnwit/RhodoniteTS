@@ -424,6 +424,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     } else {
       this._shaderProgramUid = webglResourceRepository.createShaderProgram(
         {
+          materialTypeName: this.__materialTypeName,
           vertexShaderStr: vertexShader,
           fragmentShaderStr: fragmentShader,
           attributeNames: glslShader.attributeNames,
@@ -756,6 +757,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       } else {
         this._shaderProgramUid = webglResourceRepository.createShaderProgram(
           {
+            materialTypeName: this.__materialTypeName,
             vertexShaderStr: returnValue.vertexShader,
             fragmentShaderStr: returnValue.pixelShader,
             attributeNames: returnValue.attributeNames,

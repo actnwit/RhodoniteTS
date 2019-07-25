@@ -235,10 +235,8 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    if (cameraComponent) {
-      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
-    }
+    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
