@@ -129,11 +129,11 @@ export default class BufferView extends RnObject {
       }
     } else {
       byteOffset = this.__takenByteIndex;
-      if (byteStride === 0) {
+      // if (byteStride === 0) {
         this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
-      } else {
-        this.__takenByteIndex += byteStride;
-      }
+      // } else {
+      //   this.__takenByteIndex += byteStride;
+      // }
     }
 
     if (byteOffset % byteAlign !== 0) {

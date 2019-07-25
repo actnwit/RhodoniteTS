@@ -297,7 +297,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
-      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector2);
+      material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
     }
 
     // BRDF LUT

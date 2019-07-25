@@ -152,6 +152,25 @@ export default class AnimationComponent extends Component {
     return false;
   }
 
+  static binarySearch(inputArray: number[], input: number) {
+    let low = 0;
+    let high = inputArray.length - 1;
+    let mid = 0;
+    while (low <= high) {
+      mid = Math.floor((low + high) / 2);
+      const value = inputArray[mid];
+      if (value === input) {
+        return mid;
+      } else if (value > input) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+
+    return mid;
+  }
+
   static interpolate(line: AnimationLine, input: number) {
 
     const inputArray = line.input;
@@ -195,15 +214,13 @@ export default class AnimationComponent extends Component {
       }
 
       if (method === Animation.Linear) {
-        for (let i = 0; i<inputArray.length; i++) {
-          if (typeof inputArray[i+1] === "undefined") {
-            break;
-          }
-          if (inputArray[i] <= input && input < inputArray[i+1]) {
-            let ratio = (input - inputArray[i]) / (inputArray[i+1] - inputArray[i]);
-            let resultValue = this.lerp(outputArray[i], outputArray[i+1], ratio, compositionType);
-            return resultValue;
-          }
+        const j = this.binarySearch(inputArray, input);
+        if (inputArray[j+1] != null) {
+          let ratio = (input - inputArray[j]) / (inputArray[j+1] - inputArray[j]);
+          let resultValue = this.lerp(outputArray[j], outputArray[j+1], ratio, compositionType);
+          return resultValue;
+        } else {
+          return outputArray[outputArray.length-1]; // out of range!
         }
       } else if (method === Animation.Step) {
         for (let i = 0; i<inputArray.length; i++) {
