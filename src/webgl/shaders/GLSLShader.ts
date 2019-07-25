@@ -263,11 +263,11 @@ export default abstract class GLSLShader {
 
     mat4 getSkinMatrix() {
 
-      highp vec4 boneCompressedChanksX = get_boneCompressedChank(u_materialSID, int(a_joint.x));
-      highp vec4 boneCompressedChanksY = get_boneCompressedChank(u_materialSID, int(a_joint.y));
-      highp vec4 boneCompressedChanksZ = get_boneCompressedChank(u_materialSID, int(a_joint.z));
-      highp vec4 boneCompressedChanksW = get_boneCompressedChank(u_materialSID, int(a_joint.w));
-      highp vec4 boneCompressedInfo = get_boneCompressedInfo(u_materialSID, 0);
+      highp vec4 boneCompressedChanksX = get_boneCompressedChank(0.0, int(a_joint.x));
+      highp vec4 boneCompressedChanksY = get_boneCompressedChank(0.0, int(a_joint.y));
+      highp vec4 boneCompressedChanksZ = get_boneCompressedChank(0.0, int(a_joint.z));
+      highp vec4 boneCompressedChanksW = get_boneCompressedChank(0.0, int(a_joint.w));
+      highp vec4 boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
 
       highp vec2 criteria = vec2(4096.0, 4096.0);
       highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
