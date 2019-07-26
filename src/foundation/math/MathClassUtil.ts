@@ -393,7 +393,7 @@ export default class MathClassUtil {
     return obj;
   }
 
-  static _setForce(objForDetectType: any, val: any) {
+  static _setForce(objForDetectType: any, val: any): void {
     let obj = objForDetectType as any;
 
     if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
@@ -401,81 +401,110 @@ export default class MathClassUtil {
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
-      return objForDetectType;
     } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
-      return objForDetectType;
     } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
-      return objForDetectType;
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       if (typeof val.v === 'undefined') {
         objForDetectType.v[0] = val;
       } else {
         objForDetectType.v[0] = val.v[0];
       }
-      return objForDetectType;
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
-      if (objForDetectType instanceof Matrix33) {
-        obj = new MutableMatrix33((objForDetectType as any).v);
+      objForDetectType.v[0] = val.v[0];
+      objForDetectType.v[1] = val.v[1];
+      objForDetectType.v[2] = val.v[2];
+      objForDetectType.v[3] = val.v[3];
+      objForDetectType.v[4] = val.v[4];
+      objForDetectType.v[5] = val.v[5];
+      objForDetectType.v[6] = val.v[6];
+      objForDetectType.v[7] = val.v[7];
+      objForDetectType.v[8] = val.v[8];
+    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44) {
+      if (val instanceof RowMajarMatrix44 || val instanceof MutableRowMajarMatrix44) {
+        objForDetectType.v[0] = val.v[0];
+        objForDetectType.v[1] = val.v[4];
+        objForDetectType.v[2] = val.v[8];
+        objForDetectType.v[3] = val.v[12];
+        objForDetectType.v[4] = val.v[1];
+        objForDetectType.v[5] = val.v[5];
+        objForDetectType.v[6] = val.v[9];
+        objForDetectType.v[7] = val.v[13];
+        objForDetectType.v[8] = val.v[2];
+        objForDetectType.v[9] = val.v[6];
+        objForDetectType.v[10] = val.v[10];
+        objForDetectType.v[11] = val.v[14];
+        objForDetectType.v[12] = val.v[3];
+        objForDetectType.v[13] = val.v[7];
+        objForDetectType.v[14] = val.v[11];
+        objForDetectType.v[15] = val.v[15];
+      } else {
+        objForDetectType.v[0] = val.v[0];
+        objForDetectType.v[1] = val.v[1];
+        objForDetectType.v[2] = val.v[2];
+        objForDetectType.v[3] = val.v[3];
+        objForDetectType.v[4] = val.v[4];
+        objForDetectType.v[5] = val.v[5];
+        objForDetectType.v[6] = val.v[6];
+        objForDetectType.v[7] = val.v[7];
+        objForDetectType.v[8] = val.v[8];
+        objForDetectType.v[9] = val.v[9];
+        objForDetectType.v[10] = val.v[10];
+        objForDetectType.v[11] = val.v[11];
+        objForDetectType.v[12] = val.v[12];
+        objForDetectType.v[13] = val.v[13];
+        objForDetectType.v[14] = val.v[14];
+        objForDetectType.v[15] = val.v[15];
       }
-      obj.m00 = val.m00;
-      obj.m01 = val.m01;
-      obj.m02 = val.m02;
-      obj.m10 = val.m10;
-      obj.m11 = val.m11;
-      obj.m12 = val.m12;
-      obj.m20 = val.m20;
-      obj.m21 = val.m21;
-      obj.m22 = val.m22;
-      return obj;
-    } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44 ||
-      objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
-      if (objForDetectType instanceof Matrix44 || objForDetectType instanceof RowMajarMatrix44) {
-        obj = new MutableMatrix44((objForDetectType as any).v);
+    } else if (objForDetectType instanceof RowMajarMatrix44 || objForDetectType instanceof MutableRowMajarMatrix44) {
+      if (val instanceof Matrix44 || val instanceof MutableMatrix44) {
+        objForDetectType.v[0] = val.v[0];
+        objForDetectType.v[1] = val.v[4];
+        objForDetectType.v[2] = val.v[8];
+        objForDetectType.v[3] = val.v[12];
+        objForDetectType.v[4] = val.v[1];
+        objForDetectType.v[5] = val.v[5];
+        objForDetectType.v[6] = val.v[9];
+        objForDetectType.v[7] = val.v[13];
+        objForDetectType.v[8] = val.v[2];
+        objForDetectType.v[9] = val.v[6];
+        objForDetectType.v[10] = val.v[10];
+        objForDetectType.v[11] = val.v[14];
+        objForDetectType.v[12] = val.v[3];
+        objForDetectType.v[13] = val.v[7];
+        objForDetectType.v[14] = val.v[11];
+        objForDetectType.v[15] = val.v[15];
+      } else {
+        objForDetectType.v[0] = val.v[0];
+        objForDetectType.v[1] = val.v[1];
+        objForDetectType.v[2] = val.v[2];
+        objForDetectType.v[3] = val.v[3];
+        objForDetectType.v[4] = val.v[4];
+        objForDetectType.v[5] = val.v[5];
+        objForDetectType.v[6] = val.v[6];
+        objForDetectType.v[7] = val.v[7];
+        objForDetectType.v[8] = val.v[8];
+        objForDetectType.v[9] = val.v[9];
+        objForDetectType.v[10] = val.v[10];
+        objForDetectType.v[11] = val.v[11];
+        objForDetectType.v[12] = val.v[12];
+        objForDetectType.v[13] = val.v[13];
+        objForDetectType.v[14] = val.v[14];
+        objForDetectType.v[15] = val.v[15];
       }
-      obj.m00 = val.m00;
-      obj.m01 = val.m01;
-      obj.m02 = val.m02;
-      obj.m03 = val.m03;
-      obj.m10 = val.m10;
-      obj.m11 = val.m11;
-      obj.m12 = val.m12;
-      obj.m13 = val.m13;
-      obj.m20 = val.m20;
-      obj.m21 = val.m21;
-      obj.m22 = val.m22;
-      obj.m23 = val.m23;
-      obj.m30 = val.m30;
-      obj.m31 = val.m31;
-      obj.m32 = val.m32;
-      obj.m33 = val.m33;
-      return obj;
     } else if (objForDetectType instanceof Quaternion || objForDetectType instanceof MutableQuaternion) {
       objForDetectType.v[0] = val.v[0];
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
-      return objForDetectType;
     } else if (Array.isArray(objForDetectType)) {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val.v[i];
       }
-      return objForDetectType;
-
-    } else if (!isNaN(objForDetectType.length)) {
-      obj = { v: new Float32Array(objForDetectType.length) };
-      for (let i = 0; i < objForDetectType.length; i++) {
-        if (Array.isArray(val)) {
-          obj.v[i] = val[i];
-        } else {
-          obj.v[i] = val.v[i];
-        }
-      }
-      return obj;
     } else if (!isNaN(objForDetectType.v.length)) {
       for (let i = 0; i < objForDetectType.v.length; i++) {
         if (Array.isArray(val)) {
@@ -484,11 +513,11 @@ export default class MathClassUtil {
           objForDetectType.v[i] = val.v[i];
         }
       }
-      return objForDetectType;
+    } else {
+      console.warn('Unknown type _setForce');
     }
 
     // maybe objForDetectType is number
-    return val;
   }
 }
 
