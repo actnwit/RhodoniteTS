@@ -169,6 +169,7 @@ export default abstract class GLSLShader {
 
   get getSkinMatrix() {
     return `
+#ifdef RN_IS_SKINNING
 
     highp mat4 createMatrixFromQuaternionTransformUniformScale( highp vec4 quaternion, highp vec4 translationScale ) {
       highp vec4 q = quaternion;
@@ -290,6 +291,7 @@ export default abstract class GLSLShader {
 
       return skinMat;
     }
+#endif
 
     `;
   }
