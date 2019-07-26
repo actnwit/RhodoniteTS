@@ -111,6 +111,7 @@ export default class SkeletalComponent extends Component {
     const matrices: MutableMatrix44[] = [];
     if (this.isSkinning) {
 
+
       this.__qtArray = new Float32Array(this.__joints.length * 4);
       const scales = [];
       let tXArray = [];
@@ -161,19 +162,25 @@ export default class SkeletalComponent extends Component {
         this.__boneCompressedInfo.w = maxScale;
 
       }
+      const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+      const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
+
+      if (processApproach === ProcessApproach.FastestWebGL1) {
+        for (let j=0; j<maxPrimitive; j++) {
+          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+          primitive.material!.setParameter(ShaderSemantics.SkinningMode, 1);
+        }
+      }
+
       for (let i=0; i<this.__joints.length; i++) {
         const joint = this.__joints[i];
         let globalJointTransform = null;
         let inverseBindMatrix = joint._inverseBindMatrix!;
         globalJointTransform = joint.worldMatrixInner;
 
-        const m =SkeletalComponent.__tmp_matrices[i];
+        const m = SkeletalComponent.__tmp_matrices[i];
 
         if (this.isOptimizingMode) {
-          const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
-          const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
-
-
           // console.log('getScale are ...');
           if (processApproach === ProcessApproach.FastestWebGL1) {
             for (let j=0; j<maxPrimitive; j++) {
@@ -199,7 +206,6 @@ export default class SkeletalComponent extends Component {
   
               primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, SkeletalComponent.__tmp_vector4, i);
               primitive.material!.setParameter(ShaderSemantics.BoneCompressedInfo, this.__boneCompressedInfo);
-              primitive.material!.setParameter(ShaderSemantics.SkinningMode, new Scalar(1));
             }
           } else {
             // for (let i=0; i<matrices.length; i++) {
