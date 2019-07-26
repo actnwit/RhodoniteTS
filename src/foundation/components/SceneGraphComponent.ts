@@ -26,6 +26,7 @@ export default class SceneGraphComponent extends Component {
   private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
+  private __isNormalMatrixUpToDate: boolean = false;
   private __tmpMatrix = MutableMatrix44.identity();
   private static _isAllUpdate = false;
   private __worldAABB = new AABB();
@@ -86,6 +87,7 @@ export default class SceneGraphComponent extends Component {
 
   setWorldMatrixDirty() {
     this.__isWorldMatrixUpToDate = false;
+    this.__isNormalMatrixUpToDate = false;
     SceneGraphComponent._isAllUpdate = false;
     this.__isWorldAABBDirty = true;
   }
@@ -119,11 +121,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldMatrixInner() {
-//    if (!this.__isWorldMatrixUpToDate) {
+   if (!this.__isWorldMatrixUpToDate) {
       //this._worldMatrix.identity();
       this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
       this.__isWorldMatrixUpToDate = true;
-  //  }
+   }
 
     return this._worldMatrix;
   }
@@ -133,9 +135,13 @@ export default class SceneGraphComponent extends Component {
   }
 
   get normalMatrixInner() {
-    RowMajarMatrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
-    this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
+    if (!this.__isNormalMatrixUpToDate) {
+      RowMajarMatrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
+      this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
+      this.__isNormalMatrixUpToDate = true;
+    }
     return this._normalMatrix;
+
   }
 
   get normalMatrix() {
@@ -153,9 +159,10 @@ export default class SceneGraphComponent extends Component {
 
   $logic() {
 
-    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    this.__isWorldMatrixUpToDate = true;
+//    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+    const world = this.worldMatrixInner;
     const normal = this.normalMatrixInner;
+//    const normal = this.normalMatrixInner;
     // console.log(normal.toString());
   }
 
