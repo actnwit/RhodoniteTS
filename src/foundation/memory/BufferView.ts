@@ -175,7 +175,7 @@ export default class BufferView extends RnObject {
     // }
 
     const accessor = new accessorClass({
-      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw, max: max, min: min
+      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw, max: max, min: min, arrayLength: 1
     });
 
     this.__accessors.push(accessor);
