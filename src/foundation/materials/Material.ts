@@ -112,7 +112,19 @@ export default class Material extends RnObject {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
         const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
-        sumSizeInByte += compsitionNumber * componentSizeInByte;
+        let count: number;
+        if (semanticInfo.soloDatum) {
+          count = 1;
+        } else {
+          count = Material.__maxInstances.get(materialTypeName)!;
+        }
+        let maxIndex;
+        if (CompositionType.isArray(semanticInfo.compositionType) && !semanticInfo.setEach) {
+          maxIndex = semanticInfo.maxIndex!;
+        } else {
+          maxIndex = 1;
+        }
+        sumSizeInByte += compsitionNumber * componentSizeInByte * maxIndex * count;
         if (!this.__accessors.has(materialTypeName)) {
           this.__accessors.set(materialTypeName, new Map());
         }
@@ -121,7 +133,7 @@ export default class Material extends RnObject {
 
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
     const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: sumSizeInByte * Material.__maxInstances.get(materialTypeName)!,
+      byteLengthToNeed: sumSizeInByte,
       byteStride: 0,
       byteAlign: 16,
       isAoS: false
