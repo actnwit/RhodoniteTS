@@ -13,8 +13,9 @@ export interface ShaderSemanticsEnum extends EnumIO {
 
 export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
   public readonly pluralStr: string;
-  constructor({ index, singularStr, pluralStr }: { index: number, singularStr: string, pluralStr: string }) {
-    super({ index: index, str: singularStr });
+  private static __indexCount: -1;
+  constructor({ singularStr, pluralStr }: { index?: number, singularStr: string, pluralStr: string }) {
+    super({ index: ++ShaderSemanticsClass.__indexCount, str: singularStr });
     this.pluralStr = pluralStr;
   }
 
@@ -94,7 +95,7 @@ type UpdateFunc = (
   => void;
 
 export type ShaderSemanticsInfo = {
-  semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count,
+  semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean
@@ -136,8 +137,8 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
   methodName = methodName.replace('.', '_');
   let str = '';
   let variableName = ShaderSemantics.fullSemanticStr(info);
-  if (memberName.indexOf('___') !== -1) {
-    if (memberName.indexOf('___0') === -1) {
+  if (memberName.indexOf('___') !== -1 || CompositionType.isArray(info.compositionType)) {
+    if (memberName.indexOf('___0') === -1 && !CompositionType.isArray(info.compositionType)) {
       return '';
     }
     if (variableName.match(/\[.+?\]/)) {
