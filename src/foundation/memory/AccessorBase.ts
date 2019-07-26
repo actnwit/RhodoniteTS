@@ -9,7 +9,7 @@ import Matrix44 from "../math/Matrix44";
 import Matrix33 from "../math/Matrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import Accessor from "./Accessor";
-import { Byte, Index, Count, TypedArrayConstructor, TypedArray } from "../../types/CommonTypes";
+import { Byte, Index, Count, TypedArrayConstructor, TypedArray, Size } from "../../types/CommonTypes";
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;
@@ -27,9 +27,10 @@ export default class AccessorBase extends RnObject {
   protected __dataViewSetter: any;
   protected __max?: any;
   protected __min?: any;
+  protected __arrayLength = 1;
 
-  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number}) {
+  constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength} :
+    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number, arrayLength: Size}) {
     super();
 
     this.__bufferView = bufferView;
@@ -37,6 +38,7 @@ export default class AccessorBase extends RnObject {
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
+    this.__arrayLength = arrayLength;
     this.__raw = raw.buffer;
 
     if (max != null) {
@@ -49,7 +51,7 @@ export default class AccessorBase extends RnObject {
     this.__byteStride = byteStride;
 
     if (this.__byteStride === 0) {
-      this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+      this.__byteStride = this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__arrayLength;
     }
 
     this.prepare();
@@ -136,7 +138,7 @@ export default class AccessorBase extends RnObject {
     // if (this.__bufferView.isAoS) {
     //   stride = this.__bufferView.byteStride;
     // }
-    const subTypedArray = new this.__typedArrayClass!(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents());
+    const subTypedArray = new this.__typedArrayClass!(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents() * this.__arrayLength);
     this.__takenCount += 1;
 
     return subTypedArray;

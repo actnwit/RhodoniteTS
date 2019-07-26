@@ -6,7 +6,7 @@ import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 import { access } from "fs-extra";
 import AccessorBase from "./AccessorBase";
 import FlexibleAccessor from "./FlexibleAccessor";
-import { Byte, Count, Index } from "../../types/CommonTypes";
+import { Byte, Count, Index, Size } from "../../types/CommonTypes";
 
 
 export default class BufferView extends RnObject {
@@ -82,19 +82,21 @@ export default class BufferView extends RnObject {
     return this.__raw;
   }
 
-  takeAccessor({compositionType, componentType, count, max, min, byteAlign = 4}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number, byteAlign?: Byte}): Accessor {
+  takeAccessor({compositionType, componentType, count, max, min, byteAlign = 4, arrayLength}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size}): Accessor {
     const byteStride = this.byteStride;
+    const _arrayLength = (arrayLength != null) ? arrayLength : 1;
 
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min, byteAlign});
+    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min, byteAlign, arrayLength: _arrayLength});
 
     return accessor;
   }
 
-  takeFlexibleAccessor({compositionType, componentType, count, byteStride, max, min, byteAlign = 4}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number, byteAlign?: Byte}): FlexibleAccessor {
+  takeFlexibleAccessor({compositionType, componentType, count, byteStride, max, min, byteAlign = 4, arrayLength}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size}): FlexibleAccessor {
+    const _arrayLength = (arrayLength != null) ? arrayLength : 1;
 
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min, byteAlign});
+    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min, byteAlign, arrayLength: _arrayLength});
 
     return accessor;
 
@@ -117,20 +119,20 @@ export default class BufferView extends RnObject {
 
   }
 
-  private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any, max?: number, min?: number, byteAlign: Byte}): AccessorBase {
+  private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign, arrayLength}:
+    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any, max?: number, min?: number, byteAlign: Byte, arrayLength: Size}): AccessorBase {
     let byteOffset = 0;
     if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
       if (byteStride === 0) {
-        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * count;
+        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength * count;
       } else {
         this.__takenByteIndex += byteStride * count;
       }
     } else {
       byteOffset = this.__takenByteIndex;
       // if (byteStride === 0) {
-        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
       // } else {
       //   this.__takenByteIndex += byteStride;
       // }
@@ -149,7 +151,7 @@ export default class BufferView extends RnObject {
 
 
     const accessor = new accessorClass({
-      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw, max: max, min: min
+      bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw, max: max, min: min, arrayLength
     });
 
     this.__accessors.push(accessor);

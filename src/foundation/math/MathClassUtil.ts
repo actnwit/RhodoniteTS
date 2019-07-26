@@ -16,6 +16,7 @@ import MutableQuaternion from './MutableQuaterion';
 import RowMajarMatrix44 from './RowMajarMatrix44';
 import MutableRowMajarMatrix44 from './MutableRowMajarMatrix44';
 import MutableScalar from './MutableScalar';
+import VectorN from './VectorN';
 
 export default class MathClassUtil {
   constructor() {
@@ -374,6 +375,8 @@ export default class MathClassUtil {
       obj.m31 = val.m31;
       obj.m32 = val.m32;
       obj.m33 = val.m33;
+    } else if (objForDetectType instanceof VectorN) {
+      obj = new VectorN(floatArray);
     } else if (objForDetectType == null) {
       let vec;
       switch (floatArray.length) {
@@ -501,6 +504,16 @@ export default class MathClassUtil {
       objForDetectType.v[1] = val.v[1];
       objForDetectType.v[2] = val.v[2];
       objForDetectType.v[3] = val.v[3];
+    } else if (objForDetectType instanceof VectorN) {
+      let valArray: Float32Array;
+      if (val instanceof VectorN) {
+        valArray = val.v;
+      } else {
+        valArray = val;
+      }
+      for (let i=0; i<valArray.length; i++) {
+        objForDetectType.v[i] = valArray[i];
+      }
     } else if (Array.isArray(objForDetectType)) {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val.v[i];
