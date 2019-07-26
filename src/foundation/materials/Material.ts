@@ -26,7 +26,7 @@ import Accessor from "../memory/Accessor";
 import ISingleShader from "../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
-import { Index, CGAPIResourceHandle, Count } from "../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, Byte } from "../../types/CommonTypes";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -131,17 +131,29 @@ export default class Material extends RnObject {
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const properties = this.__accessors.get(materialTypeName)!;
-        const bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
-        let alignedBytes = 0;
+        let bytes: Byte = 0;
+        if (CompositionType.isArray(semanticInfo.compositionType)) {
+          bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes() * semanticInfo.maxIndex!;
+        } else {
+          bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
+        }
+        let alignedBytes = bytes;
         if (bytes % 16 !== 0) {
           alignedBytes = bytes + 16 - bytes % 16;
         }
 
+        let count: number;
+        if (semanticInfo.soloDatum) {
+          count = 1;
+        } else {
+          count = Material.__maxInstances.get(materialTypeName)!;
+        }
         const accessor = bufferView.takeFlexibleAccessor({
           compositionType: semanticInfo.compositionType,
           componentType: ComponentType.Float,
-          count: Material.__maxInstances.get(materialTypeName)!,
+          count: count,
           byteStride: alignedBytes,
+          arrayLength: semanticInfo.maxIndex,
           byteAlign: 16
         });
 
@@ -177,13 +189,13 @@ export default class Material extends RnObject {
    * @param materialNodes The material nodes to register.
    * @param maxInstancesNumber The maximum number to create the material instances.
    */
-  static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber: number = Config.maxMaterialInstanceForEachType) {
+  static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber: number = Config.maxMaterialInstanceForEachType) {
     if (!Material.__materialTypes.has(materialTypeName)) {
       Material.__materialTypes.set(materialTypeName, materialNodes);
 
       const materialTid = ++Material.__materialTidCount;
       Material.__materialTids.set(materialTypeName, materialTid);
-      Material.__maxInstances.set(materialTypeName, maxInstancesNumber);
+      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
 
       Material.__allocateBufferView(materialTypeName, materialNodes);
       Material.__materialInstanceCountOfType.set(materialTypeName, 0);
@@ -265,12 +277,7 @@ export default class Material extends RnObject {
       } else {
         valueObj = this.__fields.get(shaderSemanticStr);
       }
-      if (isNaN(valueObj)) { // if not number
-        valueObj = MathClassUtil._setForce(valueObj, value);
-        this.__fields.set(shaderSemanticStr, valueObj);
-      } else {
-        this.__fields.set(shaderSemanticStr, value);
-      }
+      MathClassUtil._setForce(valueObj, value);
     }
   }
 

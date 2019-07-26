@@ -64,4 +64,12 @@ function fromString( str: string ): CompositionTypeEnum {
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, from, fromString });
+function isArray(compositionType: CompositionTypeEnum) {
+  if (compositionType === ScalarArray || compositionType === Vec2Array || compositionType === Vec3Array || compositionType === Vec4Array) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, from, fromString, isArray });

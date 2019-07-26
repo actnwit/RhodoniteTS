@@ -30,7 +30,7 @@ export default class SkeletalComponent extends Component {
   private __jointMatrices?: number[];
   public jointsHierarchy?: SceneGraphComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
-  private __qtArray?: Float32Array;
+  private __qtArray: Float32Array = new Float32Array(0);
   public isSkinning = true;
   public isOptimizingMode = true;
   private __boneCompressedInfo = MutableVector4.zero();
@@ -56,6 +56,7 @@ export default class SkeletalComponent extends Component {
 
   set joints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+    this.__qtArray = new Float32Array(this.__joints.length * 4);
   }
 
   $create() {
@@ -111,7 +112,6 @@ export default class SkeletalComponent extends Component {
     const matrices: MutableMatrix44[] = [];
     if (this.isSkinning) {
 
-      this.__qtArray = new Float32Array(this.__joints.length * 4);
       const scales = [];
       let tXArray = [];
       let tYArray = [];
@@ -161,63 +161,24 @@ export default class SkeletalComponent extends Component {
         this.__boneCompressedInfo.w = maxScale;
 
       }
-      for (let i=0; i<this.__joints.length; i++) {
-        const joint = this.__joints[i];
-        let globalJointTransform = null;
-        let inverseBindMatrix = joint._inverseBindMatrix!;
-        globalJointTransform = joint.worldMatrixInner;
+      const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+      const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
 
-        const m =SkeletalComponent.__tmp_matrices[i];
+      for (let i=0; i<this.__joints.length; i++) {
+        const m = SkeletalComponent.__tmp_matrices[i];
 
         if (this.isOptimizingMode) {
-          const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
-          const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
-
-
-          // console.log('getScale are ...');
-          if (processApproach === ProcessApproach.FastestWebGL1) {
-            for (let j=0; j<maxPrimitive; j++) {
-              const primitive = meshComponent.mesh!.getPrimitiveAt(j);
-              // let s = m.getScale();
-              // console.log(s.toString());
-              let q = (MutableQuaternion.fromMatrix(m));
-              q.normalize();
-              let vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
-              SkeletalComponent.__tmp_vector4.x = vec2QPacked[0];
-              SkeletalComponent.__tmp_vector4.y = vec2QPacked[1];
-  
-              let t = m.getTranslate();
-              // this.__qtArray[i*4+0] = vec2QPacsked[0];
-              // this.__qtArray[i*4+1] = vec2QPacked[1];
-              let vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-                t.x/this.__boneCompressedInfo.x, t.y/this.__boneCompressedInfo.y,
-                t.z/this.__boneCompressedInfo.z, scales[i]/this.__boneCompressedInfo.w, 4096);
-              // this.__qtArray[i*4+2] = vec2TPacked[0];
-              // this.__qtArray[i*4+3] = vec2TPacked[1];
-              SkeletalComponent.__tmp_vector4.z = vec2TPacked[0];
-              SkeletalComponent.__tmp_vector4.w = vec2TPacked[1];
-  
-              primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, SkeletalComponent.__tmp_vector4, i);
-              primitive.material!.setParameter(ShaderSemantics.BoneCompressedInfo, this.__boneCompressedInfo);
-              primitive.material!.setParameter(ShaderSemantics.SkinningMode, new Scalar(1));
-            }
-          } else {
-            // for (let i=0; i<matrices.length; i++) {
-              let s = m.getScale();
-              // console.log(s.toString());
-              let q = (MutableQuaternion.fromMatrix(m));
-              q.normalize();
-              let vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
-              let t = m.getTranslate();
-              this.__qtArray[i*4+0] = vec2QPacked[0];
-              this.__qtArray[i*4+1] = vec2QPacked[1];
-              let vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-                t.x/this.__boneCompressedInfo.x, t.y/this.__boneCompressedInfo.y,
-                t.z/this.__boneCompressedInfo.z, scales[i]/this.__boneCompressedInfo.w, 4096);
-              this.__qtArray[i*4+2] = vec2TPacked[0];
-              this.__qtArray[i*4+3] = vec2TPacked[1];
-            // }
-          }
+          let q = (MutableQuaternion.fromMatrix(m));
+          q.normalize();
+          let vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 4096);
+          let t = m.getTranslate();
+          this.__qtArray[i*4+0] = vec2QPacked[0];
+          this.__qtArray[i*4+1] = vec2QPacked[1];
+          let vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
+            t.x/this.__boneCompressedInfo.x, t.y/this.__boneCompressedInfo.y,
+            t.z/this.__boneCompressedInfo.z, scales[i]/this.__boneCompressedInfo.w, 4096);
+          this.__qtArray[i*4+2] = vec2TPacked[0];
+          this.__qtArray[i*4+3] = vec2TPacked[1];
         } else {
           flatMatrices = [];
           for (let i=0; i<matrices.length; i++) {
@@ -237,7 +198,15 @@ export default class SkeletalComponent extends Component {
           }
           this.__jointMatrices = flatMatrices;
         }
-    
+
+      }
+      if (processApproach === ProcessApproach.FastestWebGL1) {
+        for (let j=0; j<maxPrimitive; j++) {
+          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+          primitive.material!.setParameter(ShaderSemantics.SkinningMode, 1);
+          primitive.material!.setParameter(ShaderSemantics.BoneCompressedChank, this.__qtArray);
+          primitive.material!.setParameter(ShaderSemantics.BoneCompressedInfo, this.__boneCompressedInfo);
+        }
       }
     }
 
