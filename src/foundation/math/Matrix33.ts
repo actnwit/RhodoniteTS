@@ -79,7 +79,7 @@ export default class Matrix33 implements IMatrix33 {
           this.v[2] = m[6]; this.v[5] = m[7]; this.v[8] = m[8];
         }
       }
-    } else if (!!m && typeof m.m22 !== 'undefined') {
+    } else if (!!m && typeof m.v[8] !== 'undefined') {
       if (_notCopyFloatArray) {
         this.v = m.v;
       } else {
@@ -251,17 +251,17 @@ export default class Matrix33 implements IMatrix33 {
    * multiply matrixs (static version)
    */
   static multiply(l_m:Matrix33, r_m:Matrix33) {
-    var m00 = l_m.m00*r_m.m00 + l_m.m01*r_m.m10 + l_m.m02*r_m.m20;
-    var m10 = l_m.m10*r_m.m00 + l_m.m11*r_m.m10 + l_m.m12*r_m.m20;
-    var m20 = l_m.m20*r_m.m00 + l_m.m21*r_m.m10 + l_m.m22*r_m.m20;
+    var m00 = l_m.v[0]*r_m.v[0] + l_m.v[3]*r_m.v[1] + l_m.v[6]*r_m.v[2];
+    var m10 = l_m.v[1]*r_m.v[0] + l_m.v[4]*r_m.v[1] + l_m.v[7]*r_m.v[2];
+    var m20 = l_m.v[2]*r_m.v[0] + l_m.v[5]*r_m.v[1] + l_m.v[8]*r_m.v[2];
 
-    var m01 = l_m.m00*r_m.m01 + l_m.m01*r_m.m11 + l_m.m02*r_m.m21;
-    var m11 = l_m.m10*r_m.m01 + l_m.m11*r_m.m11 + l_m.m12*r_m.m21;
-    var m21 = l_m.m20*r_m.m01 + l_m.m21*r_m.m11 + l_m.m22*r_m.m21;
+    var m01 = l_m.v[0]*r_m.v[3] + l_m.v[3]*r_m.v[4] + l_m.v[6]*r_m.v[5];
+    var m11 = l_m.v[1]*r_m.v[3] + l_m.v[4]*r_m.v[4] + l_m.v[7]*r_m.v[5];
+    var m21 = l_m.v[2]*r_m.v[3] + l_m.v[5]*r_m.v[4] + l_m.v[8]*r_m.v[5];
 
-    var m02 = l_m.m00*r_m.m02 + l_m.m01*r_m.m12 + l_m.m02*r_m.m22;
-    var m12 = l_m.m10*r_m.m02 + l_m.m11*r_m.m12 + l_m.m12*r_m.m22;
-    var m22 = l_m.m20*r_m.m02 + l_m.m21*r_m.m12 + l_m.m22*r_m.m22;
+    var m02 = l_m.v[0]*r_m.v[6] + l_m.v[3]*r_m.v[7] + l_m.v[6]*r_m.v[8];
+    var m12 = l_m.v[1]*r_m.v[6] + l_m.v[4]*r_m.v[7] + l_m.v[7]*r_m.v[8];
+    var m22 = l_m.v[2]*r_m.v[6] + l_m.v[5]*r_m.v[7] + l_m.v[8]*r_m.v[8];
 
     return new Matrix33(
       m00, m01, m02,
