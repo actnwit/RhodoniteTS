@@ -318,7 +318,9 @@ export default class MathClassUtil {
   static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum) {
     let obj;
     if (isFinite(objForDetectType)) { // number?
-      return val;
+      const array = new Float32Array(floatArray);
+      array[0] = val;
+      return new Scalar(array);
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       floatArray[0] = val.x;
       obj = new MutableScalar(floatArray);
