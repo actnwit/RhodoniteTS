@@ -1,14 +1,14 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-import {IVector4, IVector3} from './IVector';
+import {IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 
-export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
+export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y:number, z:number, w:number, {type}: {type: T}) {
+  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y:number, z:number, w:number, {type}: {type: T}) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -25,18 +25,18 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
       this.v[2] = x[2];
       this.v[3] = x[3];
     } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
-      this.v[3] = (x as any).w;
+      this.v[0] = (x as any).v[0];
+      this.v[1] = (x as any).v[1];
+      this.v[2] = (x as any).v[2];
+      this.v[3] = (x as any).v[3];
     } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
-      this.v[2] = (x as any).z;
+      this.v[0] = (x as any).v[0];
+      this.v[1] = (x as any).v[1];
+      this.v[2] = (x as any).v[2];
       this.v[3] = 1;
     } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).x;
-      this.v[1] = (x as any).y;
+      this.v[0] = (x as any).v[0];
+      this.v[1] = (x as any).v[1];
       this.v[2] = 0;
       this.v[3] = 1;
     } else {
@@ -83,7 +83,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   }
 
   clone() {
-    return new (this.constructor as any)(this.x, this.y, this.z, this.w);
+    return new (this.constructor as any)(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 
   /**
@@ -94,7 +94,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   }
 
   length() {
-    return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z + this.w*this.w);
+    return Math.sqrt(this.v[0]*this.v[0] + this.v[1]*this.v[1] + this.v[2]*this.v[2] + this.v[3]*this.v[3]);
   }
 
 
@@ -108,46 +108,46 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
   /**
    * add value（static version）
    */
-  static add(lv:IVector4, rv:IVector4) {
-    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z + rv.z);
+  static add(lv:Vector4, rv:Vector4) {
+    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
   }
 
 
-  static subtract(lv:IVector4, rv:IVector4) {
-    return new (lv.constructor as any)(lv.x - rv.x, lv.y - rv.y, lv.z - rv.z, lv.w  - rv.w);
+  static subtract(lv:Vector4, rv:Vector4) {
+    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3]  - rv.v[3]);
   }
   /**
    * add value except w component（static version）
    */
-  static addWithOutW(lv:IVector4, rv:IVector4) {
-    return new (lv.constructor as any)(lv.x + rv.x, lv.y + rv.y, lv.z + rv.z, lv.z);
+  static addWithOutW(lv:Vector4, rv:Vector4) {
+    return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2]);
   }
 
-  static multiply(vec4:IVector4, val:number) {
-    return new (vec4.constructor as any)(vec4.x * val, vec4.y * val, vec4.z * val, vec4.w * val);
+  static multiply(vec4:Vector4, val:number) {
+    return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
   }
 
-  static multiplyVector(vec4:IVector4, vec:IVector4) {
-    return new (vec4.constructor as any)(vec4.x * vec.x, vec4.y * vec.y, vec4.z * vec.z, vec4.w * vec.w);
+  static multiplyVector(vec4:Vector4, vec:Vector4) {
+    return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
   }
 
 
-  static divide(vec4:IVector4, val:number) {
+  static divide(vec4:Vector4, val:number) {
     if (val !== 0) {
-      return new (vec4.constructor as any)(vec4.x / val, vec4.y / val, vec4.z / val, vec4.w / val);
+      return new (vec4.constructor as any)(vec4.v[0] / val, vec4.v[1] / val, vec4.v[2] / val, vec4.v[3] / val);
     } else {
       console.warn("0 division occured!");
       return new (vec4.constructor as any)(Infinity, Infinity, Infinity, Infinity);
     }
   }
 
-  static divideVector(lvec4:IVector4, rvec4:IVector4) {
-    return new (lvec4.constructor as any)(lvec4.x / rvec4.x, lvec4.y / rvec4.y, lvec4.z / rvec4.z, lvec4.w / rvec4.w);
+  static divideVector(lvec4:Vector4, rvec4:Vector4) {
+    return new (lvec4.constructor as any)(lvec4.v[0] / rvec4.v[0], lvec4.v[1] / rvec4.v[1], lvec4.v[2] / rvec4.v[2], lvec4.v[3] / rvec4.v[3]);
   }
 
-  static normalize(vec4:IVector4) {
+  static normalize(vec4:Vector4) {
     const length = vec4.length();
-    let newVec = new (vec4.constructor as any)(vec4.x, vec4.y, vec4.z, vec4.w);
+    let newVec = new (vec4.constructor as any)(vec4.v[0], vec4.v[1], vec4.v[2], vec4.v[3]);
     newVec = Vector4_.divide(newVec, length);
 
     return newVec;
@@ -155,7 +155,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
 
 
   toString() {
-    return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+    return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
   }
 
   get x():number {
@@ -198,7 +198,7 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
   }
 
   clone() {
-    return new Vector4(this.x, this.y, this.z, this.w);
+    return new Vector4(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 }
 
@@ -224,7 +224,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   }
 
   clone() {
-    return new Vector4d(this.x, this.y, this.z, this.w);
+    return new Vector4d(this.v[0], this.v[1], this.v[2], this.v[3]);
   }
 }
 
