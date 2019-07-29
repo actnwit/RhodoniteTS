@@ -9,8 +9,6 @@ import { CameraTypeEnum, CameraType } from '../definitions/CameraType';
 import Matrix44 from '../math/Matrix44';
 import { WebGLStrategy } from '../../webgl/main';
 import SceneGraphComponent from './SceneGraphComponent';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
-import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import MutableMatrix44 from '../math/MutableMatrix44';

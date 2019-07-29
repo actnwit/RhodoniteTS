@@ -5,8 +5,6 @@ import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import GLSLShader from "../../webgl/shaders/GLSLShader";
-import MutableRowMajarMatrix44 from "../math/MutableRowMajarMatrix44";
-import RowMajarMatrix44 from "../math/RowMajarMatrix44";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Matrix44 from "../math/Matrix44";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
@@ -55,7 +53,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __definitions = '';
 
   protected static __webglResourceRepository?: WebGLResourceRepository;
-  private static __transposedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  private static __transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   protected static __dummyWhiteTexture = new Texture();
   protected static __dummyBlueTexture = new Texture();
   protected static __dummyBlackTexture = new Texture();
@@ -175,9 +173,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__dummyBlackCubeTexture.load1x1Texture("rgba(0, 0, 0, 1)");
   }
 
-  static setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: RowMajarMatrix44) {
-    RowMajarMatrix44.transposeTo(worldMatrix, this.__transposedMatrix44);
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, true, this.__transposedMatrix44);
+  static setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
+    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, true, worldMatrix);
   }
 
   static setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {

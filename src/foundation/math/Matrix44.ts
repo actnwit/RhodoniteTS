@@ -3,7 +3,6 @@ import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
-import RowMajarMatrix44 from './RowMajarMatrix44';
 import {IMatrix44} from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
@@ -22,7 +21,6 @@ export default class Matrix44 implements IMatrix44 {
   constructor(m: Matrix33, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Matrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: Quaternion, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
-  constructor(m: RowMajarMatrix44, isColumnMajor?:boolean, notCopyFloatArray?:boolean);
   constructor(m: null);
   constructor(
     m0: number, m1: number, m2: number, m3: number,
@@ -500,7 +498,7 @@ export default class Matrix44 implements IMatrix44 {
   }
 
 
-  static invert(m:Matrix44 | RowMajarMatrix44) {
+  static invert(m:Matrix44) {
 
     let n00 = m.m00 * m.m11 - m.m01 * m.m10;
     let n01 = m.m00 * m.m12 - m.m02 * m.m10;
