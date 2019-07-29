@@ -132,9 +132,9 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   multiplyVector(vec:Vector3) {
-    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z;
-    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z;
-    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z;
+    var x = this.v[0]*vec.x + this.v[3]*vec.y + this.v[6]*vec.z;
+    var y = this.v[1]*vec.x + this.v[4]*vec.y + this.v[7]*vec.z;
+    var z = this.v[2]*vec.x + this.v[5]*vec.y + this.v[8]*vec.z;
 
     return new (vec.constructor as any)(x, y, z);
   }
@@ -271,8 +271,8 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   determinant() {
-    return this.m00*this.m11*this.m22 + this.m10*this.m21*this.m02 + this.m20*this.m01*this.m12
-      - this.m00*this.m21*this.m12 - this.m20*this.m11*this.m02 - this.m10*this.m01*this.m22;
+    return this.v[0]*this.v[4]*this.v[8] + this.v[1]*this.v[5]*this.v[6] + this.v[2]*this.v[3]*this.v[7]
+      - this.v[0]*this.v[5]*this.v[7] - this.v[2]*this.v[4]*this.v[6] - this.v[1]*this.v[3]*this.v[8];
   }
 
   static determinant(mat:Matrix33) {
@@ -337,9 +337,9 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   toString() {
-    return this.m00 + ' ' + this.m01 + ' ' + this.m02 + '\n' +
-      this.m10 + ' ' + this.m11 + ' ' + this.m12 + '\n' +
-      this.m20 + ' ' + this.m21 + ' ' + this.m22 + '\n';
+    return this.v[0] + ' ' + this.v[3] + ' ' + this.v[6] + '\n' +
+      this.v[1] + ' ' + this.v[4] + ' ' + this.v[7] + '\n' +
+      this.v[2] + ' ' + this.v[5] + ' ' + this.v[8] + '\n';
   }
 
   nearZeroToZero(value:number) {
@@ -354,16 +354,16 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   toStringApproximately() {
-    return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + '\n' +
-      this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' \n' +
-      this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + '\n';
+    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[6]) + '\n' +
+      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[7]) + ' \n' +
+      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[8]) + '\n';
   }
 
   getScale() {
     return new Vector3(
-      Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02),
-      Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12),
-      Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22)
+      Math.sqrt(this.v[0] * this.v[0] + this.v[3] * this.v[3] + this.v[6] * this.v[6]),
+      Math.sqrt(this.v[1] * this.v[1] + this.v[4] * this.v[4] + this.v[7] * this.v[7]),
+      Math.sqrt(this.v[2] * this.v[2] + this.v[5] * this.v[5] + this.v[8] * this.v[8])
     );
   }
 
