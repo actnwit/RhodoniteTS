@@ -387,6 +387,20 @@ export default class Material extends RnObject {
         }
       }
     });
+
+    if (firstTime === false) return;
+
+    const materialTypeName = this.__materialTypeName;
+    const map = Material.__soloDatumFields.get(materialTypeName);
+    if (map == null) return;
+    map.forEach((value, key) => {
+      const info = this.__fieldsInfo.get(key)!;
+      if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        if (!info.isSystem) {
+          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+        }
+      }
+    });
   }
 
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
