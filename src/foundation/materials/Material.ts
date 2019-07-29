@@ -107,24 +107,30 @@ export default class Material extends RnObject {
   }
 
   private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
-    let sumSizeInByte = 0;
+    let totalByteLength = 0;
+    const alignedByteLengthAndsemanticInfoArray = [];
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
         const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
-        let count: number;
-        if (semanticInfo.soloDatum) {
-          count = 1;
-        } else {
-          count = Material.__maxInstances.get(materialTypeName)!;
+        const semanticInfoByte = compsitionNumber * componentSizeInByte;
+        let alignedByteLength = semanticInfoByte;
+        if (alignedByteLength % 16 !== 0) {
+          alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
         }
-        let maxIndex;
-        if (CompositionType.isArray(semanticInfo.compositionType) && !semanticInfo.setEach) {
-          maxIndex = semanticInfo.maxIndex!;
-        } else {
-          maxIndex = 1;
+        if (CompositionType.isArray(semanticInfo.compositionType)) {
+          const maxArrayLength = semanticInfo.maxIndex!;
+          alignedByteLength *= maxArrayLength;
         }
-        sumSizeInByte += compsitionNumber * componentSizeInByte * maxIndex * count;
+
+        let dataCount = 1;
+        if (!semanticInfo.soloDatum) {
+          dataCount = Material.__maxInstances.get(materialTypeName)!;
+        }
+
+        totalByteLength += alignedByteLength * dataCount;
+        alignedByteLengthAndsemanticInfoArray.push({ alignedByte: alignedByteLength, semanticInfo: semanticInfo });
+
         if (!this.__accessors.has(materialTypeName)) {
           this.__accessors.set(materialTypeName, new Map());
         }
@@ -133,62 +139,51 @@ export default class Material extends RnObject {
 
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
     const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: sumSizeInByte,
+      byteLengthToNeed: totalByteLength,
       byteStride: 0,
       byteAlign: 16,
       isAoS: false
     });
     this.__bufferViews.set(materialTypeName, bufferView);
 
-    for (let materialNode of materialNodes) {
-      for (let semanticInfo of materialNode._semanticsInfoArray) {
+    for (let i = 0; i < alignedByteLengthAndsemanticInfoArray.length; i++) {
+      const alignedByte = alignedByteLengthAndsemanticInfoArray[i].alignedByte;
+      const semanticInfo = alignedByteLengthAndsemanticInfoArray[i].semanticInfo;
+
+      let count = 1;
+      if (!semanticInfo.soloDatum) {
+        count = Material.__maxInstances.get(materialTypeName)!;
+      }
+
+      const accessor = bufferView.takeFlexibleAccessor({
+        compositionType: semanticInfo.compositionType,
+        componentType: ComponentType.Float,
+        count: count,
+        byteStride: alignedByte,
+        arrayLength: semanticInfo.maxIndex,
+        byteAlign: 16
+      });
+
+      const propertyName = this.__getPropertyName(semanticInfo);
+      if (semanticInfo.soloDatum) {
+        const typedArray = accessor.takeOne() as Float32Array;
+        let map = this.__soloDatumFields.get(materialTypeName);
+        if (map == null) {
+          map = new Map();
+          this.__soloDatumFields.set(materialTypeName, map);
+        }
+
+        map.set(
+          propertyName,
+          MathClassUtil.initWithFloat32Array(
+            semanticInfo.initialValue,
+            semanticInfo.initialValue,
+            typedArray,
+            semanticInfo.compositionType
+          ));
+      } else {
         const properties = this.__accessors.get(materialTypeName)!;
-        let bytes: Byte = 0;
-        if (CompositionType.isArray(semanticInfo.compositionType)) {
-          bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes() * semanticInfo.maxIndex!;
-        } else {
-          bytes = semanticInfo.compositionType.getNumberOfComponents() * semanticInfo.componentType.getSizeInBytes();
-        }
-        let alignedBytes = bytes;
-        if (bytes % 16 !== 0) {
-          alignedBytes = bytes + 16 - bytes % 16;
-        }
-
-        let count: number;
-        if (semanticInfo.soloDatum) {
-          count = 1;
-        } else {
-          count = Material.__maxInstances.get(materialTypeName)!;
-        }
-        const accessor = bufferView.takeFlexibleAccessor({
-          compositionType: semanticInfo.compositionType,
-          componentType: ComponentType.Float,
-          count: count,
-          byteStride: alignedBytes,
-          arrayLength: semanticInfo.maxIndex,
-          byteAlign: 16
-        });
-
-        const propertyName = this.__getPropertyName(semanticInfo);
-        if (semanticInfo.soloDatum) {
-          const typedArray = accessor.takeOne() as Float32Array;
-          let map = this.__soloDatumFields.get(materialTypeName);
-          if (map == null) {
-            map = new Map();
-            this.__soloDatumFields.set(materialTypeName, map);
-          }
-
-          map.set(
-            propertyName,
-            MathClassUtil.initWithFloat32Array(
-              semanticInfo.initialValue,
-              semanticInfo.initialValue,
-              typedArray,
-              semanticInfo.compositionType
-            ));
-        } else {
-          properties.set(propertyName, accessor);
-        }
+        properties.set(propertyName, accessor);
       }
     }
 
@@ -376,10 +371,10 @@ export default class Material extends RnObject {
     });
   }
 
-  setParemetersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
-    this.__materialNodes.forEach((materialNode)=>{
+  setParemetersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+    this.__materialNodes.forEach((materialNode) => {
       if (materialNode.setParametersForGPU) {
-        materialNode.setParametersForGPU({material, shaderProgram, firstTime, args});
+        materialNode.setParametersForGPU({ material, shaderProgram, firstTime, args });
       }
     });
 
@@ -417,19 +412,19 @@ export default class Material extends RnObject {
     // Shader Construction
     let vertexShader;
     if ((glslShader as any as ISingleShader).getVertexShaderBody) {
-     vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+      vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
     } else {
       vertexShader = glslShader.glslBegin +
-      materialNode.definitions +
-      `
+        materialNode.definitions +
+        `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 ` +
-      vertexShaderMethodDefinitions_uniform +
-      glslShader.vertexShaderDefinitions +
-      glslShader.getGlslVertexShaderProperies(vertexPropertiesStr) +
-      glslShader.glslMainBegin +
-      glslShader.vertexShaderBody +
-      glslShader.glslMainEnd;
+        vertexShaderMethodDefinitions_uniform +
+        glslShader.vertexShaderDefinitions +
+        glslShader.getGlslVertexShaderProperies(vertexPropertiesStr) +
+        glslShader.glslMainBegin +
+        glslShader.vertexShaderBody +
+        glslShader.glslMainEnd;
     }
 
     let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
