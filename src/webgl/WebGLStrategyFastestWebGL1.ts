@@ -57,7 +57,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
    * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
    * arg = vec2(1. / size.x, 1. / size.x / size.y);
    */
-  // vec4 fetchElement(sampler2D tex, float index, vec2 arg)
+  // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
   // {
   //   return ${_texture}( tex, arg * (index + 0.5) );
   // }
@@ -72,21 +72,22 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   mat4 get_worldMatrix(float instanceId)
   {
-    float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')}.0 + 4.0 * instanceId;
-    float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-    float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+    highp float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'worldMatrix')}.0 + 4.0 * instanceId;
+    highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+    highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
     vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-  //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+    // highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
 
     vec4 col0 = fetchElement(u_dataTexture, index + 0.0, arg);
     vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
     vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+    vec4 col3 = fetchElement(u_dataTexture, index + 3.0, arg);
 
     mat4 matrix = mat4(
-      col0.x, col1.x, col2.x, 0.0,
-      col0.y, col1.y, col2.y, 0.0,
-      col0.z, col1.z, col2.z, 0.0,
-      col0.w, col1.w, col2.w, 1.0
+      col0.x, col0.y, col0.z, 0.0,
+      col1.x, col1.y, col1.z, 0.0,
+      col2.x, col2.y, col2.z, 0.0,
+      col3.x, col3.y, col3.z, 1.0
       );
 
     return matrix;

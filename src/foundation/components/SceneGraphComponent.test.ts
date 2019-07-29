@@ -45,7 +45,7 @@ test('create Parents and children.', () => {
   console.log(childEntity.getSceneGraph().worldMatrix);
 
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
-    new RowMajarMatrix44(
+    new Matrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,
       0, 0, 1, 0,

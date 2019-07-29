@@ -49,7 +49,7 @@ export default class CameraComponent extends Component {
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
   public static main: ComponentSID = -1;
-  private static invertedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
 
   private __frustum = new Frustum();
@@ -378,7 +378,7 @@ export default class CameraComponent extends Component {
       0,
       1);
 
-    RowMajarMatrix44.invertTo(this.__sceneGraphComponent!.worldMatrixInner, CameraComponent.invertedMatrix44);
+    Matrix44.invertTo(this.__sceneGraphComponent!.worldMatrixInner, CameraComponent.invertedMatrix44);
     const invertWorldMatrix = CameraComponent.invertedMatrix44;
     this._viewMatrix.multiply(invertWorldMatrix);
 
