@@ -310,34 +310,34 @@ export default class Matrix44 implements IMatrix44 {
    */
   toEulerAngles() {
     let rotate = null;
-    if (Math.abs(this.m20) != 1.0) {
-      let y   = -Math.asin(this.m20);
-      let x  = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
-      let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+    if (Math.abs(this.v[2]) != 1.0) {
+      let y   = -Math.asin(this.v[2]);
+      let x  = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
+      let z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
       rotate = new Vector3(x, y, z);
-    } else if (this.m20 === -1.0) {
-      rotate = new Vector3(Math.atan2(this.m01, this.m02), Math.PI/2.0, 0.0);
+    } else if (this.v[2] === -1.0) {
+      rotate = new Vector3(Math.atan2(this.v[4], this.v[8]), Math.PI/2.0, 0.0);
     } else {
-      rotate = new Vector3(Math.atan2(-this.m01, -this.m02), -Math.PI/2.0, 0.0);
+      rotate = new Vector3(Math.atan2(-this.v[4], -this.v[8]), -Math.PI/2.0, 0.0);
     }
 
     return rotate;
   }
 
   toEulerAnglesTo(outVec3: MutableVector3) {
-    if (Math.abs(this.m20) != 1.0) {
-      let y = -Math.asin(this.m20);
-      let x = Math.atan2(this.m21 / Math.cos(y), this.m22 / Math.cos(y));
-      let z = Math.atan2(this.m10 / Math.cos(y), this.m00 / Math.cos(y));
+    if (Math.abs(this.v[2]) != 1.0) {
+      let y = -Math.asin(this.v[2]);
+      let x = Math.atan2(this.v[6] / Math.cos(y), this.v[10] / Math.cos(y));
+      let z = Math.atan2(this.v[1] / Math.cos(y), this.v[0] / Math.cos(y));
       outVec3.x = x;
       outVec3.y = y;
       outVec3.z = z;
-    } else if (this.m20 === -1.0) {
-      outVec3.x = Math.atan2(this.m01, this.m02)
+    } else if (this.v[2] === -1.0) {
+      outVec3.x = Math.atan2(this.v[4], this.v[8])
       outVec3.y = Math.PI/2.0;
       outVec3.z = 0.0;
     } else {
-      outVec3.x = Math.atan2(-this.m01, -this.m02)
+      outVec3.x = Math.atan2(-this.v[4], -this.v[8])
       outVec3.y = -Math.PI/2.0;
       outVec3.z = 0.0;
     }
@@ -370,19 +370,19 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   multiplyVector(vec: Vector4) {
-    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
-    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
-    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
-    var w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
+    var x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
+    var y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
+    var z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
+    var w = this.v[3]*vec.x + this.v[7]*vec.y + this.v[11]*vec.z + this.m33*vec.w;
 
     return new Vector4(x, y, z, w);
   }
 
   multiplyVectorTo(vec: Vector4, outVec: MutableVector4) {
-    const x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
-    const y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
-    const z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
-    const w = this.m30*vec.x + this.m31*vec.y + this.m32*vec.z + this.m33*vec.w;
+    const x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
+    const y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
+    const z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
+    const w = this.v[3]*vec.x + this.v[7]*vec.y + this.v[11]*vec.z + this.m33*vec.w;
     outVec.x = x;
     outVec.y = y;
     outVec.z = z;
@@ -390,26 +390,26 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3) {
-    const x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
-    const y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
-    const z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+    const x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
+    const y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
+    const z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
     outVec.x = x;
     outVec.y = y;
     outVec.z = z;
   }
 
   multiplyVector3(vec: Vector3) {
-    var x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
-    var y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
-    var z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+    var x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
+    var y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
+    var z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
 
     return new Vector3(x, y, z);
   }
 
   multiplyVector3To(vec: Vector3, outVec: MutableVector3) {
-    outVec.x = this.m00*vec.x + this.m01*vec.y + this.m02*vec.z + this.m03*vec.w;
-    outVec.y = this.m10*vec.x + this.m11*vec.y + this.m12*vec.z + this.m13*vec.w;
-    outVec.z = this.m20*vec.x + this.m21*vec.y + this.m22*vec.z + this.m23*vec.w;
+    outVec.x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
+    outVec.y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
+    outVec.z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
   }
 
   /**
@@ -467,15 +467,15 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   determinant() {
-    return this.m00*this.m11*this.m22*this.m33 + this.m00*this.m12*this.m23*this.m31 + this.m00*this.m13*this.m21*this.m32 +
-      this.m01*this.m10*this.m23*this.m32 + this.m01*this.m12*this.m20*this.m33 + this.m01*this.m13*this.m22*this.m30 +
-      this.m02*this.m10*this.m21*this.m33 + this.m02*this.m11*this.m23*this.m30 + this.m02*this.m13*this.m20*this.m31 +
-      this.m03*this.m10*this.m22*this.m31 + this.m03*this.m11*this.m20*this.m32 + this.m03*this.m12*this.m21*this.m30 -
+    return this.v[0]*this.v[5]*this.v[10]*this.m33 + this.v[0]*this.v[9]*this.m23*this.v[7] + this.v[0]*this.m13*this.v[6]*this.v[11] +
+      this.v[4]*this.v[1]*this.m23*this.v[11] + this.v[4]*this.v[9]*this.v[2]*this.m33 + this.v[4]*this.m13*this.v[10]*this.v[3] +
+      this.v[8]*this.v[1]*this.v[6]*this.m33 + this.v[8]*this.v[5]*this.m23*this.v[3] + this.v[8]*this.m13*this.v[2]*this.v[7] +
+      this.m03*this.v[1]*this.v[10]*this.v[7] + this.m03*this.v[5]*this.v[2]*this.v[11] + this.m03*this.v[9]*this.v[6]*this.v[3] -
 
-      this.m00*this.m11*this.m23*this.m32 - this.m00*this.m12*this.m21*this.m33 - this.m00*this.m13*this.m22*this.m31 -
-      this.m01*this.m10*this.m22*this.m33 - this.m01*this.m12*this.m23*this.m30 - this.m01*this.m13*this.m20*this.m32 -
-      this.m02*this.m10*this.m23*this.m31 - this.m02*this.m11*this.m20*this.m33 - this.m02*this.m13*this.m21*this.m30 -
-      this.m03*this.m10*this.m21*this.m32 - this.m03*this.m11*this.m22*this.m30 - this.m03*this.m12*this.m20*this.m31;
+      this.v[0]*this.v[5]*this.m23*this.v[11] - this.v[0]*this.v[9]*this.v[6]*this.m33 - this.v[0]*this.m13*this.v[10]*this.v[7] -
+      this.v[4]*this.v[1]*this.v[10]*this.m33 - this.v[4]*this.v[9]*this.m23*this.v[3] - this.v[4]*this.m13*this.v[2]*this.v[11] -
+      this.v[8]*this.v[1]*this.m23*this.v[7] - this.v[8]*this.v[5]*this.v[2]*this.m33 - this.v[8]*this.m13*this.v[6]*this.v[3] -
+      this.m03*this.v[1]*this.v[6]*this.v[11] - this.m03*this.v[5]*this.v[10]*this.v[3] - this.m03*this.v[9]*this.v[2]*this.v[7];
   }
 
   static determinant(m:Matrix44) {
@@ -642,10 +642,10 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   toString() {
-    return this.m00 + ' ' + this.m01 + ' ' + this.m02 + ' ' + this.m03 + ' \n' +
-      this.m10 + ' ' + this.m11 + ' ' + this.m12 + ' ' + this.m13 + ' \n' +
-      this.m20 + ' ' + this.m21 + ' ' + this.m22 + ' ' + this.m23 + ' \n' +
-      this.m30 + ' ' + this.m31 + ' ' + this.m32 + ' ' + this.m33 + ' \n';
+    return this.v[0] + ' ' + this.v[4] + ' ' + this.v[8] + ' ' + this.m03 + ' \n' +
+      this.v[1] + ' ' + this.v[5] + ' ' + this.v[9] + ' ' + this.m13 + ' \n' +
+      this.v[2] + ' ' + this.v[6] + ' ' + this.v[10] + ' ' + this.m23 + ' \n' +
+      this.v[3] + ' ' + this.v[7] + ' ' + this.v[11] + ' ' + this.m33 + ' \n';
   }
 
   nearZeroToZero(value:number) {
@@ -660,17 +660,17 @@ export default class Matrix44 implements IMatrix44 {
   }
 
   toStringApproximately() {
-    return this.nearZeroToZero(this.m00) + ' ' + this.nearZeroToZero(this.m01) + ' ' + this.nearZeroToZero(this.m02) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
-      this.nearZeroToZero(this.m10) + ' ' + this.nearZeroToZero(this.m11) + ' ' + this.nearZeroToZero(this.m12) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
-      this.nearZeroToZero(this.m20) + ' ' + this.nearZeroToZero(this.m21) + ' ' + this.nearZeroToZero(this.m22) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
-      this.nearZeroToZero(this.m30) + ' ' + this.nearZeroToZero(this.m31) + ' ' + this.nearZeroToZero(this.m32) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
+    return this.nearZeroToZero(this.v[0]) + ' ' + this.nearZeroToZero(this.v[4]) + ' ' + this.nearZeroToZero(this.v[8]) + ' ' + this.nearZeroToZero(this.m03) + ' \n' +
+      this.nearZeroToZero(this.v[1]) + ' ' + this.nearZeroToZero(this.v[5]) + ' ' + this.nearZeroToZero(this.v[9]) + ' ' + this.nearZeroToZero(this.m13) + ' \n' +
+      this.nearZeroToZero(this.v[2]) + ' ' + this.nearZeroToZero(this.v[6]) + ' ' + this.nearZeroToZero(this.v[10]) + ' ' + this.nearZeroToZero(this.m23) + ' \n' +
+      this.nearZeroToZero(this.v[3]) + ' ' + this.nearZeroToZero(this.v[7]) + ' ' + this.nearZeroToZero(this.v[11]) + ' ' + this.nearZeroToZero(this.m33) + ' \n';
   }
 
   getScale() {
     return new Vector3(
-      Math.sqrt(this.m00 * this.m00 + this.m01 * this.m01 + this.m02 * this.m02),
-      Math.sqrt(this.m10 * this.m10 + this.m11 * this.m11 + this.m12 * this.m12),
-      Math.sqrt(this.m20 * this.m20 + this.m21 * this.m21 + this.m22 * this.m22)
+      Math.sqrt(this.v[0] * this.v[0] + this.v[4] * this.v[4] + this.v[8] * this.v[8]),
+      Math.sqrt(this.v[1] * this.v[1] + this.v[5] * this.v[5] + this.v[9] * this.v[9]),
+      Math.sqrt(this.v[2] * this.v[2] + this.v[6] * this.v[6] + this.v[10] * this.v[10])
     );
   }
 
