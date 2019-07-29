@@ -5,12 +5,10 @@ import EntityRepository from '../core/EntityRepository';
 import BufferView from '../memory/BufferView';
 import { ComponentType } from '../definitions/ComponentType';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
-import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import { BufferUse } from '../definitions/BufferUse';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
@@ -23,7 +21,7 @@ export default class SceneGraphComponent extends Component {
   private static __sceneGraphs: SceneGraphComponent[] = [];
   public isAbleToBeParent: boolean;
   private __children: Array<SceneGraphComponent> = [];
-  private _worldMatrix: MutableRowMajarMatrix44 = MutableRowMajarMatrix44.dummy();
+  private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate: boolean = false;
   private __isNormalMatrixUpToDate: boolean = false;
@@ -44,7 +42,7 @@ export default class SceneGraphComponent extends Component {
   public _jointsOfHierarchies: SceneGraphComponent[] = [];
 
   private static __bufferView: BufferView;
-  private static invertedMatrix44 = new MutableRowMajarMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -56,7 +54,7 @@ export default class SceneGraphComponent extends Component {
 
     this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
-    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableRowMajarMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.registerMember(BufferUse.GPUInstanceData, 'worldMatrix', MutableMatrix44, ComponentType.Float, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.registerMember(BufferUse.GPUInstanceData, 'normalMatrix', MutableMatrix33, ComponentType.Float, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
     this.submitToAllocation(this.maxNumberOfComponent);
@@ -88,7 +86,7 @@ export default class SceneGraphComponent extends Component {
   setWorldMatrixDirty() {
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
-    SceneGraphComponent._isAllUpdate = false;
+    // SceneGraphComponent._isAllUpdate = false;
     this.__isWorldAABBDirty = true;
   }
 
@@ -122,9 +120,9 @@ export default class SceneGraphComponent extends Component {
 
   get worldMatrixInner() {
    if (!this.__isWorldMatrixUpToDate) {
-      //this._worldMatrix.identity();
-      this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-      this.__isWorldMatrixUpToDate = true;
+      // this._worldMatrix.identity();
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+    this.__isWorldMatrixUpToDate = true;
    }
 
     return this._worldMatrix;
@@ -136,7 +134,7 @@ export default class SceneGraphComponent extends Component {
 
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
-      RowMajarMatrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
+      Matrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
       this._normalMatrix.copyComponents((SceneGraphComponent.invertedMatrix44.transpose() as any ) as Matrix44);
       this.__isNormalMatrixUpToDate = true;
     }
@@ -160,14 +158,16 @@ export default class SceneGraphComponent extends Component {
   $logic() {
 
 //    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-    const world = this.worldMatrixInner;
+//    const world = this.worldMatrixInner;
+this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+
     const normal = this.normalMatrixInner;
 //    const normal = this.normalMatrixInner;
     // console.log(normal.toString());
   }
 
   static common_$prerender() {
-    SceneGraphComponent._isAllUpdate = true;
+    // SceneGraphComponent._isAllUpdate = true;
   }
 
   isWorldMatrixUpToDateRecursively() : boolean {
@@ -182,11 +182,11 @@ export default class SceneGraphComponent extends Component {
     return false;
   }
 
-  calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableRowMajarMatrix44 {
+  calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableMatrix44 {
     const entity = this.__entityRepository.getEntity(this.__entityUid);
     const transform = entity.getTransform();
 
-    if (SceneGraphComponent._isAllUpdate) {
+    if (this.__isWorldMatrixUpToDate) {
       return this._worldMatrix;
     } else {
       const matrix = transform.matrixInner;

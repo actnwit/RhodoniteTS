@@ -4,7 +4,6 @@ import TransformComponent from './TransformComponent';
 import Vector3 from '../math/Vector3';
 import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import MemoryManager from '../core/MemoryManager';
 
 function generateEntity() {
@@ -45,7 +44,7 @@ test('create Parents and children.', () => {
   console.log(childEntity.getSceneGraph().worldMatrix);
 
   expect(childEntity.getSceneGraph().worldMatrix.isEqual(
-    new RowMajarMatrix44(
+    new Matrix44(
       1, 0, 0, 3,
       0, 1, 0, 0,
       0, 0, 1, 0,

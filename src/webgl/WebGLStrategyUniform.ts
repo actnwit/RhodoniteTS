@@ -5,7 +5,6 @@ import MeshComponent from "../foundation/components/MeshComponent";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import Primitive from "../foundation/geometry/Primitive";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import RowMajarMatrix44 from "../foundation/math/RowMajarMatrix44";
 import Matrix44 from "../foundation/math/Matrix44";
 import Matrix33 from "../foundation/math/Matrix33";
 import SkeletalComponent from "../foundation/components/SkeletalComponent";
@@ -27,7 +26,6 @@ import MaterialHelper from "../foundation/helpers/MaterialHelper";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Material from "../foundation/materials/Material";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
-import MutableRowMajarMatrix44 from "../foundation/math/MutableRowMajarMatrix44";
 import Vector3 from "../foundation/math/Vector3";
 import { HdriFormat } from "../foundation/definitions/HdriFormat";
 import RenderPass from "../foundation/renderer/RenderPass";
@@ -38,7 +36,7 @@ import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
-  entity: Entity, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, renderPass: RenderPass,
+  entity: Entity, worldMatrix: Matrix44, normalMatrix: Matrix33, renderPass: RenderPass,
   diffuseCube?: CubeTexture, specularCube?: CubeTexture, firstTime:boolean, updateInterval?: ShaderVariableUpdateIntervalEnum};
 
 export default class WebGLStrategyUniform implements WebGLStrategy {
@@ -81,7 +79,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   `;
 
   private __lastShader: CGAPIResourceHandle = -1;
-  private static transposedMatrix44 = new MutableRowMajarMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  private static transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   private constructor() { }
 
@@ -289,8 +287,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.VertexAttributesExistenceArray.str, firstTime, primitive.vertexHandles!.attributesFlags);
 
     /// Matrices
-    RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, firstTime, WebGLStrategyUniform.transposedMatrix44);
+    // RowMajarMatrix44.transposeTo(worldMatrix, WebGLStrategyUniform.transposedMatrix44);
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, firstTime, worldMatrix);
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, firstTime, normalMatrix);
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
@@ -398,7 +396,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
   }
 
-  $render(idx:Index, meshComponent: MeshComponent, worldMatrix: RowMajarMatrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
+  $render(idx:Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 

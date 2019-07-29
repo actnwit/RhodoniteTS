@@ -25,14 +25,14 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
 
 }
 
-const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 0, singularStr: 'worldMatrix', pluralStr: 'worldMatrices' });
-const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 1, singularStr: 'viewMatrix', pluralStr: 'viewMatrices' });
-const ProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 2, singularStr: 'projectionMatrix', pluralStr: 'projectionMatrices' });
-const NormalMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 3, singularStr: 'normalMatrix', pluralStr: 'normalMatrices' });
-const BoneMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 4, singularStr: 'boneMatrix', pluralStr: 'boneMatrices' });
-const BaseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 5, singularStr: 'baseColorFactor', pluralStr: 'baseColorFactors' });
-const BaseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 6, singularStr: 'baseColorTexture', pluralStr: 'baseColorTextures' });
-const NormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 7, singularStr: 'normalTexture', pluralStr: 'normalTextures' });
+const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'worldMatrix', pluralStr: 'worldMatrices' });
+const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'viewMatrix', pluralStr: 'viewMatrices' });
+const ProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'projectionMatrix', pluralStr: 'projectionMatrices' });
+const NormalMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'normalMatrix', pluralStr: 'normalMatrices' });
+const BoneMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'boneMatrix', pluralStr: 'boneMatrices' });
+const BaseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'baseColorFactor', pluralStr: 'baseColorFactors' });
+const BaseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'baseColorTexture', pluralStr: 'baseColorTextures' });
+const NormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'normalTexture', pluralStr: 'normalTextures' });
 const MetallicRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 8, singularStr: 'metallicRoughnessTexture', pluralStr: 'metallicRoughnessTextures' });
 const OcclusionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 9, singularStr: 'occlusionTexture', pluralStr: 'occlusionTextures' });
 const EmissiveTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 10, singularStr: 'emissiveTexture', pluralStr: 'emissiveTextures' });

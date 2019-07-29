@@ -5,13 +5,11 @@ import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
 import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
 import Matrix44 from '../math/Matrix44';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';
 import ComponentRepository from './ComponentRepository';
 import Config from './Config';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
@@ -276,8 +274,6 @@ export default class Component extends RnObject {
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
     if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
-    } else if (dataClassType === RowMajarMatrix44 || dataClassType === MutableRowMajarMatrix44) {
-      (this as any)['_'+memberName] = new dataClassType(taken, true);
     } else {
       (this as any)['_'+memberName] = new dataClassType(taken, false, true);
     }
