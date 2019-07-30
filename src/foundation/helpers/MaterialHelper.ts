@@ -11,14 +11,8 @@ import AbstractMaterialNode from "../materials/AbstractMaterialNode";
 import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterial";
 
 function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
-  const material = Material.createMaterial(materialName, materialNodes);
-  if (material) {
-    return material;
-  }
-
-  Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);
-
-  return Material.createMaterial(materialName, materialNodes)!;
+  const material = Material.createMaterial(materialName, materialNodes, maxInstancesNumber);
+  return material;
 }
 
 function createPbrUberMaterial(maxInstancesNumber?: number) {

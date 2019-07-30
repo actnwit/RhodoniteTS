@@ -92,18 +92,17 @@ export default class Material extends RnObject {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created materlal.
    */
-  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
-    if (Material.__materialTypes.has(materialTypeName)) {
-      let materialNodes;
-      if (materialNodes_) {
-        materialNodes = materialNodes_;
-      } else {
-        materialNodes = Material.__materialTypes.get(materialTypeName)!;
-      }
-      return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);
+  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[], maxInstancesNumber?: number) {
+    let materialNodes = materialNodes_;
+    if (!materialNodes) {
+      materialNodes = Material.__materialTypes.get(materialTypeName)!;
     }
 
-    return void 0;
+    if (!Material.__materialTypes.has(materialTypeName)) {
+      Material.registerMaterial(materialTypeName, materialNodes_!, maxInstancesNumber!);
+    }
+
+    return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);;
   }
 
   private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
