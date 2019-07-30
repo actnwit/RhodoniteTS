@@ -44,22 +44,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var setupRenderPassEntityUidOutput = function (rootGroup) {
+    var setupRenderPassEntityUidOutput = function (rootGroup, cameraComponent) {
         var renderPass = new Rn.RenderPass();
         var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
+        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
         renderPass.material = entityUidOutputMaterial;
+        renderPass.cameraComponent = cameraComponent;
+        rootGroup.getTransform().scale = new Rn.Vector3(10, 10, 10);
         renderPass.addEntities([rootGroup]);
         return renderPass;
     };
-    var setupRenderPassRendering = function (rootGroup) {
+    var setupRenderPassRendering = function (rootGroup, cameraComponent) {
         var renderPass = new Rn.RenderPass();
+        renderPass.cameraComponent = cameraComponent;
         renderPass.addEntities([rootGroup]);
         return renderPass;
     };
     var load = function (time) {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, renderPassRendering, cameraControllerComponent, p, startTime, rotationVec3, count, draw;
+            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, p, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -73,21 +76,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
                         entityRepository = Rn.EntityRepository.getInstance();
                         expression = new Rn.Expression();
-                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
                         cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
-                        //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-                        cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
-                        cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+                        cameraComponent.type = Rn.CameraType.Orthographic;
+                        cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 1, 1);
+                        cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 10);
                         return [4 /*yield*/, importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf')];
                     case 3:
                         response = _a.sent();
                         modelConverter = Rn.ModelConverter.getInstance();
                         rootGroup = modelConverter.convertToRhodoniteObject(response);
-                        renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
-                        renderPassRendering = setupRenderPassRendering(rootGroup);
-                        expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
-                        cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-                        cameraControllerComponent.setTarget(rootGroup);
+                        renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent);
+                        // const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+                        expression.addRenderPasses([renderPassEntityUidOutput]);
                         p = null;
                         Rn.CameraComponent.main = 0;
                         startTime = Date.now();

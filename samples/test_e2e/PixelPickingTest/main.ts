@@ -6,20 +6,23 @@ import Entity from '../../../dist/types/foundation/core/Entity';
 declare const Rn: RnType;
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function(rootGroup: Entity) {
+const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraComponent: CameraComponent) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
+  Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
   renderPass.material = entityUidOutputMaterial;
+  renderPass.cameraComponent = cameraComponent;
+  rootGroup.getTransform().scale = new Rn.Vector3(10, 10, 10);
 
   renderPass.addEntities([rootGroup]);
 
   return renderPass;
 }
 
-const setupRenderPassRendering = function(rootGroup: Entity) {
+const setupRenderPassRendering = function(rootGroup: Entity, cameraComponent: CameraComponent) {
   const renderPass = new Rn.RenderPass();
+  renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
 
   return renderPass;
@@ -38,11 +41,11 @@ const load = async function(time){
 
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);//, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
-  //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+  cameraComponent.type = Rn.CameraType.Orthographic;
+  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 1, 1);
+ cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 10);
 
 
 
@@ -68,13 +71,14 @@ const load = async function(time){
 //  rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
-  const renderPassRendering = setupRenderPassRendering(rootGroup);
-  expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent);
+  // const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+  expression.addRenderPasses([renderPassEntityUidOutput]);
+  // expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
 
   // CameraComponent
-  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
-  cameraControllerComponent.setTarget(rootGroup);
+  // const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
+  // cameraControllerComponent.setTarget(rootGroup);
 
   let p: HTMLParagraphElement = null;
 

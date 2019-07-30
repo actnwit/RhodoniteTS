@@ -29,26 +29,52 @@ export default class EntityUIDOutputShader extends GLSLShader implements ISingle
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `
-${_in} vec3 a_position;
-${_in} vec3 a_color;
-${_in} vec3 a_normal;
-${_in} float a_instanceID;
-${_in} vec2 a_texcoord;
-${_in} vec4 a_joint;
-${_in} vec4 a_weight;
-${_out} vec3 v_color;
-${_out} vec3 v_normal_inWorld;
-${_out} vec3 v_position_inWorld;
-${_out} vec2 v_texcoord;
-
-${this.toNormalMatrix}
-
-`;
+    return ``;
 
   };
 
   vertexShaderBody: string = `
+  `;
+
+  getVertexShaderBody(args: any) {
+    const _version = this.glsl_versionText;
+    const _in = this.glsl_fragment_in;
+    const _out = this.glsl_vertex_out;
+    const _def_rt0 = this.glsl_rt0;
+    const _def_fragColor = this.glsl_fragColor;
+    const _texture = this.glsl_texture;
+    const _textureCube = this.glsl_textureCube;
+
+return `${_version}
+precision highp float;
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+
+uniform float u_materialSID;
+${_in} vec3 a_position;
+${_in} float a_instanceID;
+${_in} vec4 a_joint;
+${_in} vec4 a_weight;
+${_in} vec3 a_normal;
+${_out} vec4 v_position_inWorld;
+${_out} vec3 v_normal_inWorld;
+//uniform mat4 u_boneMatrices[100];
+uniform highp vec4 u_boneCompressedChank[90];
+uniform highp vec4 u_boneCompressedInfo;
+uniform int u_skinningMode;
+
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '' }
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
+
+${this.toNormalMatrix}
+
+${this.getSkinMatrix}
+
+${this.processGeometryWithSkinningOptionally}
+
+void main()
+{
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(a_instanceID);
   mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
@@ -56,16 +82,15 @@ ${this.toNormalMatrix}
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
 
-  bool isSkinning;
-  skinning(isSkinning, normalMatrix, normalMatrix);
+  // bool isSkinning;
+  // skinning(isSkinning, normalMatrix, normalMatrix);
+}
 
-  v_color = a_color;
-  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
-  v_texcoord = a_texcoord;
+`;
+  }
 
-  `;
 
-  getFragmentShader() {
+  getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -76,29 +101,38 @@ ${this.toNormalMatrix}
     return `${_version}
 precision highp float;
 
-uniform float u_entityUID;
+${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
 
-${_in} vec3 v_color;
+uniform highp sampler2D u_dataTexture;
+
+${this.fetchElement}
+
+
+uniform float u_entityUID;
+${_in} vec4 v_position_inWorld;
 ${_in} vec3 v_normal_inWorld;
-${_in} vec3 v_position_inWorld;
-${_in} vec2 v_texcoord;
+
+${(typeof args.getters !== 'undefined') ? args.getters : '' }
+
 ${_def_rt0}
 void main ()
 {
 
-  rt0 = vec4(u_entityUID, 1.0);
+  // rt0 = vec4(u_entityUID/255.0, 0.0, 0.0, 1.0);
+  rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 
   ${_def_fragColor}
 }
 `;
   }
 
+
   get pixelShaderDefinitions() {
     return '';
   }
 
-  getPixelShaderBody() {
-    return this.getFragmentShader();
+  getPixelShaderBody(args: any) {
+    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
