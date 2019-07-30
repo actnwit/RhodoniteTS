@@ -119,8 +119,13 @@ export default class Material extends RnObject {
           alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
         }
         if (CompositionType.isArray(semanticInfo.compositionType)) {
-          const maxArrayLength = semanticInfo.maxIndex!;
-          alignedByteLength *= maxArrayLength;
+          const maxArrayLength = semanticInfo.maxIndex;
+          if (maxArrayLength != null) {
+            alignedByteLength *= maxArrayLength;
+          } else {
+            console.error('semanticInfo has invalid maxIndex!');
+            alignedByteLength *= 100;
+          }
         }
 
         let dataCount = 1;
