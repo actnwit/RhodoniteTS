@@ -46,11 +46,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     Object.defineProperty(exports, "__esModule", { value: true });
     var setupRenderPassEntityUidOutput = function (rootGroup, cameraComponent) {
         var renderPass = new Rn.RenderPass();
-        var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
-        renderPass.material = entityUidOutputMaterial;
+        // const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+        // Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
+        // renderPass.material = entityUidOutputMaterial;
         renderPass.cameraComponent = cameraComponent;
-        rootGroup.getTransform().scale = new Rn.Vector3(10, 10, 10);
+        // renderPass.toClearColorBuffer = true;
+        // renderPass.toClearDepthBuffer = true;
+        // rootGroup.getTransform().scale = new Rn.Vector3(100, 100, 100);
         renderPass.addEntities([rootGroup]);
         return renderPass;
     };

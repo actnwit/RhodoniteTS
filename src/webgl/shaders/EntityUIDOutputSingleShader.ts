@@ -56,8 +56,8 @@ ${_in} float a_instanceID;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 ${_in} vec3 a_normal;
-${_out} vec4 v_position_inWorld;
-${_out} vec3 v_normal_inWorld;
+// ${_out} vec4 v_position_inWorld;
+// ${_out} vec3 v_normal_inWorld;
 //uniform mat4 u_boneMatrices[100];
 uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
@@ -69,9 +69,6 @@ ${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
 ${this.toNormalMatrix}
 
-${this.getSkinMatrix}
-
-${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
@@ -109,8 +106,8 @@ ${this.fetchElement}
 
 
 uniform float u_entityUID;
-${_in} vec4 v_position_inWorld;
-${_in} vec3 v_normal_inWorld;
+// ${_in} vec4 v_position_inWorld;
+// ${_in} vec3 v_normal_inWorld;
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
@@ -135,11 +132,10 @@ void main ()
     return this.getFragmentShader(args);
   }
 
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Instance];
+  attributeNames: AttributeNames = ['a_position', 'a_normal', 'a_instanceID', 'a_joint', 'a_weight'];
+  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Instance, VertexAttribute.Joints0, VertexAttribute.Weights0];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Scalar, CompositionType.Vec4, CompositionType.Vec4];
   }
 }
