@@ -165,7 +165,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {
-    let infoArray;
+    let infoArray: ShaderSemanticsInfo[];
     if (args != null) {
       infoArray = args;
     } else {

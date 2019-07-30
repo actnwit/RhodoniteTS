@@ -8,10 +8,10 @@ declare const window: any;
 
 const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraComponent: CameraComponent) {
   const renderPass = new Rn.RenderPass();
-  // const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  // Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
-  // renderPass.material = entityUidOutputMaterial;
+  renderPass.material = entityUidOutputMaterial;
   renderPass.cameraComponent = cameraComponent;
   // renderPass.toClearColorBuffer = true;
   // renderPass.toClearDepthBuffer = true;
@@ -75,8 +75,9 @@ const load = async function(time){
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
   const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent);
-  // const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
-  expression.addRenderPasses([renderPassEntityUidOutput]);
+  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+  // expression.addRenderPasses([renderPassEntityUidOutput]);
+  expression.addRenderPasses([renderPassRendering]);
   // expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
   // expression.addRenderPasses([renderPassRendering]);
 

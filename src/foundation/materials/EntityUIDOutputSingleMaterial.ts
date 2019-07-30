@@ -34,6 +34,8 @@ import MeshRendererComponent from "../components/MeshRendererComponent";
 import { HdriFormat } from "../definitions/HdriFormat";
 import VectorN from "../math/VectorN";
 import EntityUIDOutputShader from "../../webgl/shaders/EntityUIDOutputSingleShader";
+import MutableMatrix44 from "../math/MutableMatrix44";
+import MutableMatrix33 from "../math/MutableMatrix33";
 
 export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
   private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -47,6 +49,14 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
+      {semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero() },
+      {semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix33.zero() },
+      {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       {
         semantic: ShaderSemantics.DiffuseColorFactor,
         compositionType: CompositionType.Vec4,
