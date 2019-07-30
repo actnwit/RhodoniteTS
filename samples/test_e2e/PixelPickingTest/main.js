@@ -64,7 +64,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     };
     var load = function (time) {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, p, startTime, rotationVec3, count, draw;
+            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, cameraControllerComponent, p, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -78,11 +78,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
                         entityRepository = Rn.EntityRepository.getInstance();
                         expression = new Rn.Expression();
-                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
+                        cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
                         cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
                         cameraComponent.type = Rn.CameraType.Orthographic;
                         cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 1, 1);
-                        cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 10);
                         return [4 /*yield*/, importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf')];
                     case 3:
                         response = _a.sent();
@@ -91,6 +90,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent);
                         // const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
                         expression.addRenderPasses([renderPassEntityUidOutput]);
+                        cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
+                        cameraControllerComponent.setTarget(rootGroup);
                         p = null;
                         Rn.CameraComponent.main = 0;
                         startTime = Date.now();

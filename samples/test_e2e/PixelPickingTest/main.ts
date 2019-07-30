@@ -44,11 +44,11 @@ const load = async function(time){
 
 
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);//, Rn.CameraControllerComponent])
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as CameraComponent;
   cameraComponent.type = Rn.CameraType.Orthographic;
   cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 1, 1);
-  cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 10);
+  // cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 10);
 
 
 
@@ -81,8 +81,8 @@ const load = async function(time){
   // expression.addRenderPasses([renderPassRendering]);
 
   // CameraComponent
-  // const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
-  // cameraControllerComponent.setTarget(rootGroup);
+  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
+  cameraControllerComponent.setTarget(rootGroup);
 
   let p: HTMLParagraphElement = null;
 
