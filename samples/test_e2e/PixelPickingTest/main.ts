@@ -18,6 +18,13 @@ const setupRenderPassEntityUidOutput = function(rootGroup: Entity) {
   return renderPass;
 }
 
+const setupRenderPassRendering = function(rootGroup: Entity) {
+  const renderPass = new Rn.RenderPass();
+  renderPass.addEntities([rootGroup]);
+
+  return renderPass;
+}
+
 const load = async function(time){
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
@@ -62,7 +69,8 @@ const load = async function(time){
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
   const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
-  expression.addRenderPasses([renderPassEntityUidOutput]);
+  const renderPassRendering = setupRenderPassRendering(rootGroup);
+  expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;

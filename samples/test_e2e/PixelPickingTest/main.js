@@ -52,9 +52,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         renderPass.addEntities([rootGroup]);
         return renderPass;
     };
+    var setupRenderPassRendering = function (rootGroup) {
+        var renderPass = new Rn.RenderPass();
+        renderPass.addEntities([rootGroup]);
+        return renderPass;
+    };
     var load = function (time) {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, cameraControllerComponent, p, startTime, rotationVec3, count, draw;
+            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, renderPassRendering, cameraControllerComponent, p, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -79,7 +84,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         modelConverter = Rn.ModelConverter.getInstance();
                         rootGroup = modelConverter.convertToRhodoniteObject(response);
                         renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
-                        expression.addRenderPasses([renderPassEntityUidOutput]);
+                        renderPassRendering = setupRenderPassRendering(rootGroup);
+                        expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
                         cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
                         cameraControllerComponent.setTarget(rootGroup);
                         p = null;
