@@ -10,6 +10,7 @@ import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttrib
 import { CompositionType, CompositionTypeEnum } from './definitions/CompositionType';
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
 import System from './system/System';
+import Scalar from './math/Scalar';
 import Vector2 from './math/Vector2';
 import Vector3 from './math/Vector3';
 import Vector4 from './math/Vector4';
@@ -40,14 +41,14 @@ import Plane from './geometry/Plane';
 import Sphere from './geometry/Sphere';
 import Material from './materials/Material';
 import MaterialHelper from './helpers/MaterialHelper';
-import {ShaderSemantics} from './definitions/ShaderSemantics';
+import { ShaderSemantics } from './definitions/ShaderSemantics';
 import RenderPass from './renderer/RenderPass';
 import FrameBuffer from './renderer/FrameBuffer';
 import Expression from './renderer/Expression';
-import {HdriFormat} from './definitions/HdriFormat';
+import { HdriFormat } from './definitions/HdriFormat';
 import RenderTargetTexture from './textures/RenderTargetTexture';
 import RenderBuffer from './textures/RenderBuffer';
-import {TextureParameter} from './definitions/TextureParameter';
+import { TextureParameter } from './definitions/TextureParameter';
 import RenderableHelper from './helpers/RenderableHelper';
 import Texture from './textures/Texture';
 import EntityHelper from './helpers/EntityHelper';
@@ -71,6 +72,7 @@ const Rn = {
   VertexAttribute,
   PrimitiveMode,
   System,
+  Scalar,
   Vector2,
   Vector3,
   Vector4,

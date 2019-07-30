@@ -92,18 +92,17 @@ export default class Material extends RnObject {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created materlal.
    */
-  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
-    if (Material.__materialTypes.has(materialTypeName)) {
-      let materialNodes;
-      if (materialNodes_) {
-        materialNodes = materialNodes_;
-      } else {
-        materialNodes = Material.__materialTypes.get(materialTypeName)!;
-      }
-      return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);
+  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[], maxInstancesNumber?: number) {
+    let materialNodes = materialNodes_;
+    if (!materialNodes) {
+      materialNodes = Material.__materialTypes.get(materialTypeName)!;
     }
 
-    return void 0;
+    if (!Material.__materialTypes.has(materialTypeName)) {
+      Material.registerMaterial(materialTypeName, materialNodes_!, maxInstancesNumber!);
+    }
+
+    return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);;
   }
 
   private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
@@ -119,8 +118,13 @@ export default class Material extends RnObject {
           alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
         }
         if (CompositionType.isArray(semanticInfo.compositionType)) {
-          const maxArrayLength = semanticInfo.maxIndex!;
-          alignedByteLength *= maxArrayLength;
+          const maxArrayLength = semanticInfo.maxIndex;
+          if (maxArrayLength != null) {
+            alignedByteLength *= maxArrayLength;
+          } else {
+            console.error('semanticInfo has invalid maxIndex!');
+            alignedByteLength *= 100;
+          }
         }
 
         let dataCount = 1;
@@ -380,6 +384,20 @@ export default class Material extends RnObject {
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((value, key) => {
+      const info = this.__fieldsInfo.get(key)!;
+      if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+        if (!info.isSystem) {
+          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+        }
+      }
+    });
+
+    if (firstTime === false) return;
+
+    const materialTypeName = this.__materialTypeName;
+    const map = Material.__soloDatumFields.get(materialTypeName);
+    if (map == null) return;
+    map.forEach((value, key) => {
       const info = this.__fieldsInfo.get(key)!;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
