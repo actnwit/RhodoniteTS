@@ -1,11 +1,14 @@
 
-const setupRenderPassEntityUidOutput = function(rootGroup, cameraComponent) {
+const setupRenderPassEntityUidOutput = function(rootGroup, cameraComponent, canvas) {
     const renderPass = new Rn.RenderPass();
     const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
     Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
     renderPass.material = entityUidOutputMaterial;
     renderPass.cameraComponent = cameraComponent;
+
+    const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
+    renderPass.setFramebuffer(framebuffer);
     // renderPass.toClearColorBuffer = true;
     // renderPass.toClearDepthBuffer = true;
 
@@ -24,6 +27,15 @@ const setupRenderPassRendering = function(rootGroup, cameraComponent) {
     return renderPass;
 }
 
+const pick = function(e) {
+  const x = e.offsetX;
+  const y = window.canvas.clientHeight - e.offsetY;
+  const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
+  const renderTargetTexture = framebuffer.colorAttachments[0];
+  const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
+  console.log(pickedPixel.toString());
+}
+
 let p = null;
 
 const load = async function(time){
@@ -31,7 +43,9 @@ const load = async function(time){
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+  const canvas = document.getElementById('world');
+  window.canvas = canvas;
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, canvas);
   const expression = new Rn.Expression();
 
   const entityRepository = Rn.EntityRepository.getInstance();
@@ -77,7 +91,8 @@ const load = async function(time){
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
 
-    const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent);
+    const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+    window.renderPassEntityUidOutput = renderPassEntityUidOutput;
     const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
     // expression.addRenderPasses([renderPassEntityUidOutput]);
     // expression.addRenderPasses([renderPassRendering]);
@@ -134,8 +149,11 @@ const load = async function(time){
     requestAnimationFrame(draw);
   }
 
+  document.addEventListener('mousedown', pick);
+
   draw();
 }
+
 
 document.body.onload = load;
 

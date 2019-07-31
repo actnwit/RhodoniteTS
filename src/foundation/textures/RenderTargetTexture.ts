@@ -7,11 +7,13 @@ import { ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 import { ComponentTypeEnum } from "../main";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size } from "../../types/CommonTypes";
+import { Size, CGAPIResourceHandle, Index } from "../../types/CommonTypes";
+import FrameBuffer from "../renderer/FrameBuffer";
+import Vector4 from "../math/Vector4";
 
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {
 
-  private __fbo = -1;
+  private __fbo?: FrameBuffer;
 
   constructor() {
     super();
@@ -50,7 +52,7 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  set fbo(fbo) {
+  set _fbo(fbo: FrameBuffer) {
     this.__fbo = fbo;
   }
 
@@ -63,5 +65,51 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
 
     return true;
+  }
+
+  getTexturePixelData() {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const gl = glw!.getRawContext() as WebGLRenderingContext;
+
+    // Create a framebuffer backed by the texture
+    const fbo = webGLResourceRepository.getWebGLResource(this.__fbo!.framebufferUID) as WebGLFramebuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    // const texture = webGLResourceRepository.getWebGLResource(this.cgApiResourceUid!) as WebGLTexture;
+    // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+    // Read the contents of the framebuffer (data stores the pixel data)
+    let data = new Uint8Array(this.width * this.height * 4);
+    if ((gl as WebGL2RenderingContext).readBuffer != null) {
+      (gl as WebGL2RenderingContext).readBuffer(this.__fbo!.whichColorAttachment(this));
+    }
+    gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return data;
+  }
+
+  /**
+   * Origin is left bottom
+   *
+   * @param x horizontal pixel position (0 is left)
+   * @param y virtical pixel position (0 is bottom)
+   * @param argByteArray Pixel Data as Uint8Array
+   * @returns Pixel Value in Vector4
+   */
+  getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array):Vector4 {
+    let byteArray = argByteArray;
+    if (!byteArray) {
+      byteArray = this.getTexturePixelData();
+    }
+
+    let color = new Vector4(
+      byteArray[(y*this.width + x) * 4+0],
+      byteArray[(y*this.width + x) * 4+1],
+      byteArray[(y*this.width + x) * 4+2],
+      byteArray[(y*this.width + x) * 4+3]
+      );
+    return color;
   }
 }

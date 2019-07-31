@@ -256,7 +256,7 @@ void main ()
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
-  rt0 = vec4(u_entityUID/10.0, 0.0, 0.0, 1.0);
+  rt0 = vec4(u_entityUID/255.0, 0.0, 0.0, 1.0);
 
   ${_def_fragColor}
 }
