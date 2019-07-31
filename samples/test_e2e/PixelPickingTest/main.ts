@@ -36,7 +36,7 @@ const setupRenderPassRendering = function(rootGroup, cameraComponent) {
   return renderPass;
 }
 
-const pick = function(e) {
+const pick = function(e: MouseEvent) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
@@ -45,7 +45,10 @@ const pick = function(e) {
   console.log(pickedPixel.toString());
 
   const bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
-  console.log(bitDec.dotProduct(pickedPixel));
+  const pickedEntityUID = bitDec.dotProduct(pickedPixel);
+  console.log(pickedEntityUID);
+
+  return pickedEntityUID;
 }
 
 let p = null;
@@ -131,6 +134,8 @@ const load = async function(){
         gl.clearColor(0.8, 0.8, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       }
+
+      window._pickedEntityUID = pick({offsetX: 300, offsetY:300});
 
       p = document.createElement('p');
       p.setAttribute("id", "rendered");
