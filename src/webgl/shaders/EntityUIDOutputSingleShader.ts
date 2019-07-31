@@ -152,6 +152,8 @@ ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
+${this.packing}
+
 void main ()
 {
 
@@ -256,7 +258,9 @@ void main ()
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
-  rt0 = vec4(u_entityUID/255.0, 0.0, 0.0, 1.0);
+  // rt0 = vec4(u_entityUID/255.0, 0.0, 0.0, 1.0);
+
+  rt0 = encodeFloatRGBA(u_entityUID);
 
   ${_def_fragColor}
 }

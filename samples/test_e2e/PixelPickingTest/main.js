@@ -71,6 +71,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var renderTargetTexture = framebuffer.colorAttachments[0];
         var pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
         console.log(pickedPixel.toString());
+        var bitDec = new Rn.Vector4(1, 1 / 255, 1 / 65025, 1 / 16581375);
+        console.log(bitDec.dotProduct(pickedPixel));
     };
     var p = null;
     var load = function (time) {

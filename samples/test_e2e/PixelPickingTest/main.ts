@@ -43,6 +43,9 @@ const pick = function(e) {
   const renderTargetTexture = framebuffer.colorAttachments[0];
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
+
+  const bitDec = new Rn.Vector4(1, 1/255, 1/65025, 1/16581375);
+  console.log(bitDec.dotProduct(pickedPixel));
 }
 
 let p = null;
