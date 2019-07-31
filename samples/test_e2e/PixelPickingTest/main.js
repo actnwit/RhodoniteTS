@@ -72,7 +72,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
         console.log(pickedPixel.toString());
         var bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
-        console.log(bitDec.dotProduct(pickedPixel));
+        var pickedEntityUID = bitDec.dotProduct(pickedPixel);
+        console.log(pickedEntityUID);
+        return pickedEntityUID;
     };
     var p = null;
     var load = function () {
@@ -126,6 +128,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                                     gl.clearColor(0.8, 0.8, 0.8, 1.0);
                                     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                                 }
+                                window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
                                 p = document.createElement('p');
                                 p.setAttribute("id", "rendered");
                                 p.innerText = 'Rendered.';
