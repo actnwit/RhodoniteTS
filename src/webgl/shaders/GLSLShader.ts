@@ -303,17 +303,15 @@ const vec4 bitEnc = vec4(1.,255.,65025.,16581375.);
 const vec4 bitDec = 1./bitEnc;
 
 vec4 encodeFloatRGBA(float v) {
-    v = floor(v * 255.0 + 0.5) / 255.0;
-    vec4 enc = bitEnc * v;
-    enc = fract(enc);
-    enc -= enc.yzww * vec2(1./255., 0.).xxxy;
-    return enc;
+  float val = v;
+  float r = mod(val, 255.0);
+  val -= r;
+  float g = mod(val, 65025.0);
+  val -= g;
+  float b = mod(val, 16581375.0);
+  return vec4(r/255.0, g/65025.0, b/16581375.0, 0.0);
 }
-
-float decodeFloatRGBA(vec4 v) {
-    return dot(v, bitDec);
-}
-    `
+`
   }
 
   get processGeometryWithSkinningOptionally() {

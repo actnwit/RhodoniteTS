@@ -44,13 +44,13 @@ const pick = function(e) {
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
-  const bitDec = new Rn.Vector4(1, 1/255, 1/65025, 1/16581375);
+  const bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
   console.log(bitDec.dotProduct(pickedPixel));
 }
 
 let p = null;
 
-const load = async function(time){
+const load = async function(){
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
@@ -161,10 +161,9 @@ const load = async function(time){
     requestAnimationFrame(draw);
   }
 
-  document.addEventListener('mousedown', pick);
+  canvas.addEventListener('mousedown', pick);
 
   draw(0);
 }
 
-
-document.body.onload = load;
+load();
