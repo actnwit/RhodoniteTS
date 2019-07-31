@@ -24,6 +24,7 @@ import { MiscUtil } from "../foundation/misc/MiscUtil";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
+import RenderBuffer from "../foundation/textures/RenderBuffer";
 
 
 declare var HDRImage: any;
@@ -728,9 +729,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
     const attachimentId = this.__glw!.colorAttachiment(index);
     if (renderable instanceof RenderTargetTexture) {
+      (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(gl.FRAMEBUFFER, attachimentId, gl.TEXTURE_2D, renderableWebGLResource, 0);
     } else {
       // It's must be RenderBuffer
+      (renderable as RenderBuffer)._fbo = framebuffer;
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachimentId, gl.RENDERBUFFER, renderableWebGLResource);
     }
 
@@ -757,9 +760,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const renderableWebGLResource = this.getWebGLResource(renderable.cgApiResourceUid)!;
     if (renderable instanceof RenderTargetTexture) {
+      (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, renderableWebGLResource, 0);
     } else {
       // It's must be RenderBuffer
+      (renderable as RenderBuffer)._fbo = framebuffer;
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachmentType, gl.RENDERBUFFER, renderableWebGLResource);
     }
 

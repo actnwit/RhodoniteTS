@@ -50,6 +50,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lastRenderPassCullFace = false;
   private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
   private __lastRenderPassTickCount = -1;
+  private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
 
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
@@ -156,16 +157,24 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         // }
 
         // args = args.concat(lights);
+        WebGLStrategyUniform.__shaderSemanticInfoArray = WebGLStrategyUniform.__shaderSemanticInfoArray.concat(args);
 
-        WebGLStrategyUniform.setupMaterial(material, args);
+        WebGLStrategyUniform.setupMaterial(material, WebGLStrategyUniform.__shaderSemanticInfoArray);
       }
     }
   }
 
-  static setupMaterial(material: Material, args: ShaderSemanticsInfo[]) {
+  static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {
+    let infoArray: ShaderSemanticsInfo[];
+    if (args != null) {
+      infoArray = args;
+    } else {
+      infoArray = material.fieldsInfoArray;
+    }
+
     material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    webglResourceRepository.setupUniformLocations(material._shaderProgramUid, args);
+    webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
     material.setUniformLocations(material._shaderProgramUid);
   }
 

@@ -44,17 +44,38 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var setupRenderPassEntityUidOutput = function (rootGroup) {
+    var setupRenderPassEntityUidOutput = function (rootGroup, cameraComponent, canvas) {
         var renderPass = new Rn.RenderPass();
         var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial, []);
+        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
         renderPass.material = entityUidOutputMaterial;
+        renderPass.cameraComponent = cameraComponent;
+        var framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
+        renderPass.setFramebuffer(framebuffer);
+        // renderPass.toClearColorBuffer = true;
+        // renderPass.toClearDepthBuffer = true;
+        // rootGroup.getTransform().scale = new Rn.Vector3(100, 100, 100);
         renderPass.addEntities([rootGroup]);
         return renderPass;
     };
+    var setupRenderPassRendering = function (rootGroup, cameraComponent) {
+        var renderPass = new Rn.RenderPass();
+        renderPass.cameraComponent = cameraComponent;
+        renderPass.addEntities([rootGroup]);
+        return renderPass;
+    };
+    var pick = function (e) {
+        var x = e.offsetX;
+        var y = window.canvas.clientHeight - e.offsetY;
+        var framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
+        var renderTargetTexture = framebuffer.colorAttachments[0];
+        var pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
+        console.log(pickedPixel.toString());
+    };
+    var p = null;
     var load = function (time) {
         return __awaiter(this, void 0, void 0, function () {
-            var importer, system, gl, entityRepository, expression, cameraEntity, cameraComponent, response, modelConverter, rootGroup, renderPassEntityUidOutput, cameraControllerComponent, p, startTime, rotationVec3, count, draw;
+            var importer, system, canvas, gl, expression, entityRepository, cameraEntity, cameraComponent, lightEntity2, response, modelConverter, rootGroup, renderPassEntityUidOutput, renderPassRendering, cameraControllerComponent, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Rn.ModuleManager.getInstance().loadModule('webgl')];
@@ -65,24 +86,32 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _a.sent();
                         importer = Rn.Gltf1Importer.getInstance();
                         system = Rn.System.getInstance();
-                        gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
-                        entityRepository = Rn.EntityRepository.getInstance();
+                        canvas = document.getElementById('world');
+                        window.canvas = canvas;
+                        gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, canvas);
                         expression = new Rn.Expression();
+                        entityRepository = Rn.EntityRepository.getInstance();
                         cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
                         cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
                         //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
                         cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
                         cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
+                        lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent]);
+                        lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
+                        lightEntity2.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
                         return [4 /*yield*/, importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf')];
                     case 3:
                         response = _a.sent();
                         modelConverter = Rn.ModelConverter.getInstance();
                         rootGroup = modelConverter.convertToRhodoniteObject(response);
-                        renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup);
-                        expression.addRenderPasses([renderPassEntityUidOutput]);
+                        renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+                        window.renderPassEntityUidOutput = renderPassEntityUidOutput;
+                        renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+                        // expression.addRenderPasses([renderPassEntityUidOutput]);
+                        // expression.addRenderPasses([renderPassRendering]);
+                        expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
                         cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
                         cameraControllerComponent.setTarget(rootGroup);
-                        p = null;
                         Rn.CameraComponent.main = 0;
                         startTime = Date.now();
                         rotationVec3 = Rn.MutableVector3.one();
@@ -119,6 +148,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             count++;
                             requestAnimationFrame(draw);
                         };
+                        document.addEventListener('mousedown', pick);
                         draw(0);
                         return [2 /*return*/];
                 }

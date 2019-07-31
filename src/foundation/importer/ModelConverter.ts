@@ -488,6 +488,9 @@ export default class ModelConverter {
   }
 
   private __generateAppropreateMaterial(gltfModel: glTF2, materialJson: any) {
+    // const entityUidOutputMaterial = MaterialHelper.createEntityUIDOutputMaterial();
+    // return entityUidOutputMaterial;
+
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {

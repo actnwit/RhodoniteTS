@@ -4,6 +4,7 @@ import CGAPIResourceRepository from "./CGAPIResourceRepository";
 import IRenderable from "../textures/IRenderable";
 import { RenderBufferTargetEnum, RenderBufferTarget } from "../definitions/RenderBufferTarget";
 import { Index, Size, CGAPIResourceHandle } from "../../types/CommonTypes";
+import RenderTargetTexture from "../textures/RenderTargetTexture";
 
 export default class FrameBuffer extends RnObject {
   private __entities?: Entity[];
@@ -122,6 +123,10 @@ export default class FrameBuffer extends RnObject {
     for (let colorAttachment of this.colorAttachments) {
       colorAttachment.destroy3DAPIResources();
     }
+  }
+
+  whichColorAttachment(renderable: IRenderable) {
+    return this.__colorAttachments.indexOf(renderable)
   }
 
 }
