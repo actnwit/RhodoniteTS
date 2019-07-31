@@ -15,7 +15,7 @@ import { ProcessStage } from "../definitions/ProcessStage";
 import Entity from "../core/Entity";
 import Vector4 from "../math/Vector4";
 import Matrix44 from "../math/Matrix44";
-import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
+import { ComponentTID, ComponentSID, EntityUID, Count } from "../../types/CommonTypes";
 
 declare var window: any;
 
@@ -45,21 +45,22 @@ export default class CameraControllerComponent extends Component {
   private __rot_bgn_y = 0;
   private __rot_x = 0;
   private __rot_y = 0;
-  private __wheel_y = 1;
+  private __dolly = 1;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
   private __shiftCameraTo = MutableVector3.zero();
   private __lengthCenterToCorner = 0.5;
   private __cameraComponent?: CameraComponent;
-  private __targetEntity?:Entity;
+  private __targetEntity?: Entity;
   private __lengthCameraToObject = 1;
   private __scaleOfLengthCameraToCenter = 1;
   private __zFarAdjustingFactorBasedOnAABB = 2.0;
   private __scaleOfZNearAndZFar = 5000;
-  private __doPreventDefault = false;
+  private __doPreventDefault = true;
+  public moveSpeed = 1;
 
-  private __pinchInOutInitDistance? : number | null = null;
+  private __pinchInOutInitDistance?: number | null = null;
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -68,14 +69,32 @@ export default class CameraControllerComponent extends Component {
   private __maximum_y?: number;
   private __minimum_y?: number;
 
+  private __initX: number | null = null;
+  private __initY: number | null = null;
+  private __originalTranslate: Vector3 = MutableVector3.zero();
+  private __totalTranslate: MutableVector3 = MutableVector3.zero();
+
+  private __resetDollyTouchTime: Count = 0;
+
+  private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
   private __mouseUpFunc = this.__mouseUp.bind(this);
   private __mouseMoveFunc = this.__mouseMove.bind(this);
-  private __pinchInOutStartFunc = this.__pinchInOutStart.bind(this);
   private __pinchInOutFunc = this.__pinchInOut.bind(this);
+  private __pinchInOutEndFunc = this.__pinchInOutEnd.bind(this);
   private __mouseWheelFunc = this.__mouseWheel.bind(this);
   private __mouseDblClickFunc = this.__mouseDblClick.bind(this);
   private __contextMenuFunc = this.__contextMenu.bind(this);
+
+  private __touchParalleltranslationStartFunc = this.__touchParalleltranslationStart.bind(this);
+  private __touchParalleltranslationFunc = this.__touchParalleltranslation.bind(this);
+  private __touchParalleltranslationEndFunc = this.__touchParalleltranslationEnd.bind(this);
+
+  private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
+
+  private __mouseParalleltranslationStartFunc = this.__mouseParalleltranslationStart.bind(this);
+  private __mouseParalleltranslationFunc = this.__mouseParalleltranslation.bind(this);
+  private __mouseParalleltranslationEndFunc = this.__mouseParalleltranslationEnd.bind(this);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -95,7 +114,7 @@ export default class CameraControllerComponent extends Component {
     this.__targetEntity = targetEntity;
   }
 
-  getTarget(): Entity|undefined {
+  getTarget(): Entity | undefined {
     return this.__targetEntity;
   }
 
@@ -120,8 +139,7 @@ export default class CameraControllerComponent extends Component {
   }
 
   __mouseDown(evt: any) {
-    //this.__tryToPreventDefault(evt);
-//    evt.stopPropagation();
+    this.__tryToPreventDefault(evt);
 
     let rect = evt.target!.getBoundingClientRect();
     let clientX = null;
@@ -143,14 +161,16 @@ export default class CameraControllerComponent extends Component {
     this.__isKeyUp = false;
 
     if (typeof evt.buttons !== "undefined") {
-//      this.updateCamera();
+      //      this.updateCamera();
     }
     return false;
   }
 
   __mouseMove(evt: any) {
-    //this.__tryToPreventDefault(evt);
-    //evt.stopPropagation();
+    if (evt.touches && evt.touches.length > 1) {
+      return;
+    }
+    this.__tryToPreventDefault(evt);
 
     if (this.__isKeyUp) {
       return;
@@ -211,7 +231,7 @@ export default class CameraControllerComponent extends Component {
         this.__clickedMouseXOnCanvas = this.__movedMouseXOnCanvas;
       }
 
-//      this.updateCamera();
+      //      this.updateCamera();
 
       if (!button_l) {
         return;
@@ -242,13 +262,13 @@ export default class CameraControllerComponent extends Component {
     ) {
       //       this._rot_y += this._rot_y - (this._verticalAngleThrethold - this._verticalAngleOfVectors);
     }
-    if(this.__maximum_y != null && this.__rot_y > this.__maximum_y){
+    if (this.__maximum_y != null && this.__rot_y > this.__maximum_y) {
       this.__rot_y = this.__maximum_y
     }
-    if(this.__minimum_y != null && this.__rot_y < this.__minimum_y){
+    if (this.__minimum_y != null && this.__rot_y < this.__minimum_y) {
       this.__rot_y = this.__minimum_y
     }
-//    this.updateCamera();
+    //    this.updateCamera();
   };
 
   set maximumY(maximum_y: number) {
@@ -258,7 +278,7 @@ export default class CameraControllerComponent extends Component {
     this.__minimum_y = minimum_y;
   }
 
-  private __tryToPreventDefault(evt:Event) {
+  private __tryToPreventDefault(evt: Event) {
     if (this.__doPreventDefault) {
       evt.preventDefault();
     }
@@ -294,78 +314,207 @@ export default class CameraControllerComponent extends Component {
   }
 
   set dolly(value) {
-    this.__wheel_y = value;
-    this.__wheel_y = Math.min(this.__wheel_y, 3);
-    this.__wheel_y = Math.max(this.__wheel_y, 0.01);
+    this.__dolly = value;
+    this.__dolly = Math.min(this.__dolly, 3);
+    this.__dolly = Math.max(this.__dolly, 0.01);
 
   }
 
   get dolly() {
-    return this.__wheel_y;
+    return this.__dolly;
   }
 
-  __getTouchesDistance (event : TouchEvent){
-    const touches = event.changedTouches ;
+  __getTouchesDistance(event: TouchEvent) {
+    const touches = event.changedTouches;
 
-    const x1 = touches[0].pageX
-    const y1 = touches[0].pageY
-    const x2 = touches[1].pageX
-    const y2 = touches[1].pageY
+    const x1 = touches[0].pageX;
+    const y1 = touches[0].pageY;
+    const x2 = touches[1].pageX;
+    const y2 = touches[1].pageY;
 
-    return Math.sqrt(Math.pow(x2 - x1 , 2) + Math.pow(y2 - y1 , 2))
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   }
 
-  __pinchInOutStart(event : TouchEvent){
-    this.__pinchInOutInitDistance = null
+  __pinchInOutEnd(event: TouchEvent) {
+    this.__pinchInOutInitDistance = null;
   }
-  __pinchInOut(event : TouchEvent){
+
+  __pinchInOut(event: TouchEvent) {
     const touches = event.changedTouches
-    if(touches.length < 2){
+    if (touches.length < 2) {
       return
     }
-    if(!this.__pinchInOutInitDistance){
-      this.__pinchInOutInitDistance = this.__getTouchesDistance(event)
+    if (!this.__pinchInOutInitDistance) {
+      this.__pinchInOutInitDistance = this.__getTouchesDistance(event);
       return
     }
 
-    const pinchInOutInitDistance  = this.__pinchInOutInitDistance
+    const pinchInOutInitDistance = this.__pinchInOutInitDistance
     const pinchInOutFinalDistance = this.__getTouchesDistance(event)
     this.__pinchInOutInitDistance = pinchInOutFinalDistance
 
-    const ratio = pinchInOutInitDistance / pinchInOutFinalDistance
+    const ratio = pinchInOutInitDistance / pinchInOutFinalDistance;
 
-    this.dolly /= 1 / ratio
-    if(this.dolly > 3 ){
-      this.dolly = 3
+    let dDistance = Math.abs(pinchInOutInitDistance - pinchInOutFinalDistance);
+
+    this.dolly /= 1 / ratio;
+    if (this.dolly > 3) {
+      this.dolly = 3;
     }
-    if(this.dolly < 0.01 ){
-      this.dolly = 0.01
+    if (this.dolly < 0.01) {
+      this.dolly = 0.01;
     }
   }
+
+  __touchParalleltranslationStart(e: TouchEvent) {
+    if (e.touches.length != 2) return;
+
+    const currentTranslate = this.__entityRepository.getEntity(this.__entityUid).getTransform().translate;
+    this.__originalTranslate = new Vector3(
+      currentTranslate.x - this.__controllerTranslate.x,
+      currentTranslate.y - this.__controllerTranslate.y,
+      currentTranslate.z - this.__controllerTranslate.z
+    );
+  }
+
+  __touchParalleltranslation(e: TouchEvent) {
+    this.__tryToPreventDefault(e);
+    if (e.touches.length < 2) return;
+
+    if (this.__initX) {
+      let clientX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
+      this.__controllerTranslate.x -= this.dolly * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200 * -1;
+      this.__controllerTranslate.z -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200;
+      this.__initX = clientX;
+    } else {
+      this.__initX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
+    }
+    if (this.__initY) {
+      let clientY = e.touches[0].pageY;
+      this.__controllerTranslate.x -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.y -= this.dolly * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_y / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.z -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__initY = clientY;
+    } else {
+      this.__initY = e.touches[0].pageY;
+    }
+
+    this.__totalTranslate.x = this.__originalTranslate.x + this.__controllerTranslate.x;
+    this.__totalTranslate.y = this.__originalTranslate.y + this.__controllerTranslate.y;
+    this.__totalTranslate.z = this.__originalTranslate.z + this.__controllerTranslate.z;
+
+    this.__entityRepository.getEntity(this.__entityUid).getTransform().translate = this.__totalTranslate;
+  }
+
+  __touchParalleltranslationEnd(e: TouchEvent) {
+    this.__initX = null;
+    this.__initY = null;
+  }
+
+  __mouseParalleltranslationStart(e: MouseEvent) {
+    if (e.button == 2) {
+      this.__initX = e.clientX;
+      this.__initY = e.clientY;
+
+      const currentTranslate = this.__entityRepository.getEntity(this.__entityUid).getTransform().translate;
+      this.__originalTranslate = new Vector3(
+        currentTranslate.x - this.__controllerTranslate.x,
+        currentTranslate.y - this.__controllerTranslate.y,
+        currentTranslate.z - this.__controllerTranslate.z
+      );
+    }
+  }
+
+  __mouseParalleltranslation(e: MouseEvent) {
+    if (this.__initX === null) return;
+
+    if (this.__initX) {
+      let clientX = e.clientX;
+      this.__controllerTranslate.x -= this.dolly * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200 * -1;
+      this.__controllerTranslate.z -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200;
+      this.__initX = clientX;
+    }
+    if (this.__initY) {
+      let clientY = e.clientY;
+      this.__controllerTranslate.x -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.y -= this.dolly * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_y / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.z -= this.dolly * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__initY = clientY;
+    }
+
+    this.__totalTranslate.x = this.__originalTranslate.x + this.__controllerTranslate.x;
+    this.__totalTranslate.y = this.__originalTranslate.y + this.__controllerTranslate.y;
+    this.__totalTranslate.z = this.__originalTranslate.z + this.__controllerTranslate.z;
+
+    this.__entityRepository.getEntity(this.__entityUid).getTransform().translate = this.__totalTranslate;
+  }
+
+  __mouseParalleltranslationEnd(e: MouseEvent) {
+    this.__initX = null;
+    this.__initY = null;
+  }
+
+  __resetDollyAndPosition(e: TouchEvent) {
+    if (e.touches.length > 1) {
+      return;
+    }
+
+    const currentTime = new Date().getTime();
+    if (currentTime - this.__resetDollyTouchTime < 300) {
+      this.dolly = 1.00;
+      this.__controllerTranslate.zero();
+      this.__rot_x = 0;
+      this.__rot_y = 0;
+
+      this.__totalTranslate.x = 0;
+      this.__totalTranslate.y = 0;
+      this.__totalTranslate.z = 0;
+      this.__entityRepository.getEntity(this.__entityUid).getTransform().translate = this.__totalTranslate;
+    } else {
+      this.__resetDollyTouchTime = currentTime;
+    }
+  }
+
 
   registerEventListeners(eventTargetDom = document) {
     if (eventTargetDom) {
       if ("ontouchend" in document) {
-        eventTargetDom.addEventListener("touchstart", this.__mouseDownFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchend", this.__mouseUpFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchmove", this.__mouseMoveFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("touchstart", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("touchend", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("touchmove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
 
-        eventTargetDom.addEventListener("touchstart"  , this.__pinchInOutStartFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchmove"  , this.__pinchInOutFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("touchend"  , this.__pinchInOutStartFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+
+        eventTargetDom.addEventListener("touchstart", this.__touchParalleltranslationStartFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("touchmove", this.__touchParalleltranslationFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("touchend", this.__touchParalleltranslationEndFunc, { passive: !this.__doPreventDefault });
+
+        eventTargetDom.addEventListener("touchmove", this.__pinchInOutFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("touchend", this.__pinchInOutEndFunc, { passive: !this.__doPreventDefault });
+
+        eventTargetDom.addEventListener("touchstart", this.__resetDollyAndPositionFunc, { passive: !this.__doPreventDefault });
+
       }
-      if ("onmouseup" in document) {
-        eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, {passive: !this.__doPreventDefault});
-        eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, {passive: !this.__doPreventDefault});
+      else {
+        eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+
+        eventTargetDom.addEventListener("contextmenu", (e) => { e.preventDefault() });
+
+        eventTargetDom.addEventListener("mousedown", this.__mouseParalleltranslationStartFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mousemove", this.__mouseParalleltranslationFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mouseup", this.__mouseParalleltranslationEndFunc, { passive: !this.__doPreventDefault });
       }
 
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this.__mouseWheelFunc, {passive: !this.__doPreventDefault});
+        eventTargetDom.addEventListener("wheel", this.__mouseWheelFunc, { passive: !this.__doPreventDefault });
       }
 
-      eventTargetDom.addEventListener("contextmenu", this.__contextMenuFunc, {passive: !this.__doPreventDefault});
-      eventTargetDom.addEventListener("dblclick", this.__mouseDblClickFunc, {passive: !this.__doPreventDefault});
+      eventTargetDom.addEventListener("contextmenu", this.__contextMenuFunc, { passive: !this.__doPreventDefault });
+      eventTargetDom.addEventListener("dblclick", this.__mouseDblClickFunc, { passive: !this.__doPreventDefault });
     }
   }
 
@@ -374,12 +523,31 @@ export default class CameraControllerComponent extends Component {
       if ("ontouchend" in document) {
         eventTargetDom.removeEventListener("touchstart", this.__mouseDownFunc);
         eventTargetDom.removeEventListener("touchend", this.__mouseUpFunc);
-        (eventTargetDom as any).removeEventListener("touchmove", this.__mouseMoveFunc);
-      }
-      if ("onmouseup" in document) {
+        eventTargetDom.removeEventListener("touchmove", this.__mouseMoveFunc);
+
         eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
         eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
-        (eventTargetDom as any).removeEventListener("mousemove", this.__mouseMoveFunc);
+        eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
+
+        eventTargetDom.removeEventListener("touchstart", this.__touchParalleltranslationStartFunc);
+        eventTargetDom.removeEventListener("touchmove", this.__touchParalleltranslationFunc);
+        eventTargetDom.removeEventListener("touchend", this.__touchParalleltranslationEndFunc);
+
+        eventTargetDom.removeEventListener("touchmove", this.__pinchInOutFunc);
+        eventTargetDom.removeEventListener("touchend", this.__pinchInOutEndFunc);
+
+        eventTargetDom.removeEventListener("touchstart", this.__resetDollyAndPositionFunc);
+      }
+      else {
+        eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
+        eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
+        eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
+
+        eventTargetDom.removeEventListener("contextmenu", (e) => { e.preventDefault() });
+
+        eventTargetDom.removeEventListener("mousedown", this.__mouseParalleltranslationStartFunc);
+        eventTargetDom.removeEventListener("mousemove", this.__mouseParalleltranslationFunc);
+        eventTargetDom.removeEventListener("mouseup", this.__mouseParalleltranslationEndFunc);
       }
       if (window.WheelEvent) {
         eventTargetDom.removeEventListener("wheel", this.__mouseWheelFunc);
@@ -439,7 +607,7 @@ export default class CameraControllerComponent extends Component {
       this.__centerVec
     );
     centerToEyeVec = Vector3.multiply(centerToEyeVec,
-      (this.__wheel_y * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
+      (this.__dolly * 1.0) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
     );
     this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
@@ -543,13 +711,12 @@ export default class CameraControllerComponent extends Component {
         newRight *= scale;
         newTop *= scale;
         newBottom *= scale;
-//        newZFar *= scale;
+        //        newZFar *= scale;
         newZNear *= scale;
       }
     }
 
     this.__foyvBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
-
     return {
       newEyeVec,
       newCenterVec,
@@ -576,7 +743,7 @@ export default class CameraControllerComponent extends Component {
     const fovy = camera.fovy;
 
     if (this.__targetEntity == null) {
-      return {newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec};
+      return { newEyeVec: eyeVec, newCenterVec: centerVec, newUpVec: upVec };
     }
 
     let targetAABB = this.__getTargetAABB()
@@ -621,7 +788,7 @@ export default class CameraControllerComponent extends Component {
       newUpVec = upVec;
     }
 
-    return {newEyeVec, newCenterVec, newUpVec};
+    return { newEyeVec, newCenterVec, newUpVec };
   }
 
   set scaleOfZNearAndZFar(value: number) {
