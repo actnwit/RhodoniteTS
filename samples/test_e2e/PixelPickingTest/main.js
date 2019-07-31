@@ -71,9 +71,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var renderTargetTexture = framebuffer.colorAttachments[0];
         var pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
         console.log(pickedPixel.toString());
+        var bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
+        console.log(bitDec.dotProduct(pickedPixel));
     };
     var p = null;
-    var load = function (time) {
+    var load = function () {
         return __awaiter(this, void 0, void 0, function () {
             var importer, system, canvas, gl, expression, entityRepository, cameraEntity, cameraComponent, lightEntity2, response, modelConverter, rootGroup, renderPassEntityUidOutput, renderPassRendering, cameraControllerComponent, startTime, rotationVec3, count, draw;
             return __generator(this, function (_a) {
@@ -148,12 +150,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             count++;
                             requestAnimationFrame(draw);
                         };
-                        document.addEventListener('mousedown', pick);
+                        canvas.addEventListener('mousedown', pick);
                         draw(0);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    document.body.onload = load;
+    load();
 });
