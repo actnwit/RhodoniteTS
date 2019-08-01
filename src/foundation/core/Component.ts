@@ -26,7 +26,7 @@ export default class Component extends RnObject {
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
   protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array> = new Map();
   protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number> = new Map();
-  protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
+  // protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
   private static __bufferViews:Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();
@@ -71,7 +71,7 @@ export default class Component extends RnObject {
       if (this.isExistProcessStageMethod(stage)) {
         if (Component.__componentsOfProcessStages.get(stage) == null) {
           Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
-          Component.__dirtyOfArrayOfProcessStages.set(stage, false);
+          // Component.__dirtyOfArrayOfProcessStages.set(stage, false);
           Component.__lengthOfArrayOfProcessStages.set(stage, 0);
         }
       }
@@ -93,8 +93,8 @@ export default class Component extends RnObject {
    * @param processStage stage of component's process
    */
   moveStageTo(processStage: ProcessStageEnum) {
-    Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, true);
-    Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
+    // Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, false);
+    // Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
     this.__currentProcessStage = processStage;
   }
 
@@ -218,7 +218,7 @@ export default class Component extends RnObject {
         for (let i=0; i<components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {
-            array[count++] = component.componentSID;
+            array[count++] = i;
           }
         }
         array[count] = Component.invalidComponentSID;
