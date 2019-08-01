@@ -15,13 +15,12 @@ function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMate
   return material;
 }
 
-function createPbrUberMaterial(maxInstancesNumber?: number) {
-  const enables = {isSkinning: true, isLighting: true};
-  const materialName = 'PbrUber'
-    + (enables.isSkinning ? '+skinning' : '')
-    + (enables.isLighting ? '' : '-lighting');
+function createPbrUberMaterial({isSkinning, isLighting, additionalName, maxInstancesNumber} : {isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number}) {
+  const materialName = 'PbrUber' + `_${additionalName}_`
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
 
-  const materialNode = new PbrShadingMaterialNode({isSkinning: enables.isSkinning, isLighting: enables.isLighting});
+  const materialNode = new PbrShadingMaterialNode({isSkinning: isSkinning, isLighting: isLighting});
 
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -29,13 +28,12 @@ function createPbrUberMaterial(maxInstancesNumber?: number) {
   return material;
 }
 
-function createClassicUberMaterial(maxInstancesNumber?: number) {
-  const enables = {isSkinning: true, isLighting: true};
-  const materialName = 'ClassicUber'
-    + (enables.isSkinning ? '+skinning' : '')
-    + (enables.isLighting ? '' : '-lighting');
+function createClassicUberMaterial({isSkinning, isLighting, additionalName, maxInstancesNumber} : {isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number}) {
+  const materialName = 'ClassicUber' + `_${additionalName}_`
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
 
-  const materialNode = new ClassicShadingSingleMaterialNode({isSkinning: enables.isSkinning, isLighting: enables.isLighting});
+  const materialNode = new ClassicShadingSingleMaterialNode({isSkinning: isSkinning, isLighting: isLighting});
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 

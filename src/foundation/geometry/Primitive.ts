@@ -47,7 +47,7 @@ export default class Primitive extends RnObject {
     if (material != null) {
       this.material = material;
     } else {
-      this.material = MaterialHelper.createClassicUberMaterial();
+      this.material = MaterialHelper.createClassicUberMaterial({isSkinning: true, isLighting: true});
     }
     this.__mode = mode;
 

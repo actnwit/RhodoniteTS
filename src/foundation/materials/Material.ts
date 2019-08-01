@@ -27,6 +27,7 @@ import ISingleShader from "../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
 import { Index, CGAPIResourceHandle, Count, Byte } from "../../types/CommonTypes";
+import DataUtil from "../misc/DataUtil";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -447,11 +448,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
-    const shaderCharCount = (vertexShader + fragmentShader).length;
+    const hash = DataUtil.toCRC32(vertexShader + fragmentShader);
 
     // Cache
-    if (Material.__shaderMap.has(shaderCharCount)) {
-      this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+    if (Material.__shaderMap.has(hash)) {
+      this._shaderProgramUid = Material.__shaderMap.get(hash)!;
       return this._shaderProgramUid;
     } else {
       this._shaderProgramUid = webglResourceRepository.createShaderProgram(
@@ -463,7 +464,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           attributeSemantics: glslShader.attributeSemantics
         }
       );
-      Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+      Material.__shaderMap.set(hash, this._shaderProgramUid);
       return this._shaderProgramUid;
     }
   }
@@ -780,11 +781,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
 
-      const shaderCharCount = (returnValue.vertexShader + returnValue.pixelShader).length;
+      const hash = DataUtil.toCRC32(returnValue.vertexShader + returnValue.pixelShader);
 
       // Cache
-      if (Material.__shaderMap.has(shaderCharCount)) {
-        this._shaderProgramUid = Material.__shaderMap.get(shaderCharCount)!;
+      if (Material.__shaderMap.has(hash)) {
+        this._shaderProgramUid = Material.__shaderMap.get(hash)!;
         return this._shaderProgramUid;
       } else {
         this._shaderProgramUid = webglResourceRepository.createShaderProgram(
@@ -796,7 +797,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
             attributeSemantics: returnValue.attributeSemantics
           }
         );
-        Material.__shaderMap.set(shaderCharCount, this._shaderProgramUid);
+        Material.__shaderMap.set(hash, this._shaderProgramUid);
         return this._shaderProgramUid;
       }
     }

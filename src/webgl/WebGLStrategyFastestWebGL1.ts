@@ -199,12 +199,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         const offset = getOffset(info);
         index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
         let idx;
+        let secondOffset = 0;
         if (CompositionType.isArray(info.compositionType)) {
           idx = 'float(index)';
+          if (info.maxIndex != null) {
+            secondOffset = offset * info.maxIndex;
+          }
         } else {
           idx = 'instanceId';
         }
-        indexStr = `highp float idx = ${index}.0 + ${offset}.0 * ${idx};`;
+        indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
       }
 
       methodName = methodName.replace('.', '_');

@@ -237,31 +237,6 @@ export default abstract class GLSLShader {
       return vec4(r, g, b, a);
     }
 
-    // mat4 getSkinMatrix() {
-
-    //   vec2 criteria = vec2(4096.0, 4096.0);
-    //   mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].xy, criteria.x),
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.x)].zw, criteria.y)*u_boneCompressedInfo);
-    //   skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].xy, criteria.x),
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.y)].zw, criteria.y)*u_boneCompressedInfo);
-    //   skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].xy, criteria.x),
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.z)].zw, criteria.y)*u_boneCompressedInfo);
-    //   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].xy, criteria.x),
-    //     unpackedVec2ToNormalizedVec4(u_boneCompressedChanks[int(a_joint.w)].zw, criteria.y)*u_boneCompressedInfo);
-
-    //   // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
-    //   // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
-    //   // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
-    //   // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
-
-    //   return skinMat;
-    // }
-
-
     mat4 getSkinMatrix() {
 
       highp vec4 boneCompressedChanksX = get_boneCompressedChank(0.0, int(a_joint.x));
