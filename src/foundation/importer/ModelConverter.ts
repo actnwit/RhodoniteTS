@@ -337,7 +337,7 @@ export default class ModelConverter {
         if (meshIdxOrName == null) {
           meshIdxOrName = node.meshNames[0];
         }
-        const meshEntity = this.__setupMesh(node.mesh, meshIdxOrName, rnBuffer, gltfModel);
+        const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffer, gltfModel);
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -414,7 +414,7 @@ export default class ModelConverter {
     return cameraEntity;
   }
 
-  private __setupMesh(mesh: any, meshIndex: Index, rnBuffer: Buffer, gltfModel: glTF2) {
+  private __setupMesh(node: any, mesh: any, meshIndex: Index, rnBuffer: Buffer, gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
@@ -452,7 +452,7 @@ export default class ModelConverter {
             map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
           }
         }
-        const material = this.__setupMaterial(gltfModel, primitive.material);
+        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive.material);
         const rnPrimitive = new Primitive();
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
@@ -487,7 +487,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __generateAppropreateMaterial(gltfModel: glTF2, materialJson: any) {
+  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, materialJson: any) {
     // const entityUidOutputMaterial = MaterialHelper.createEntityUIDOutputMaterial();
     // return entityUidOutputMaterial;
 
@@ -498,17 +498,19 @@ export default class ModelConverter {
       return loaderExtension.generateMaterial();
     }
 
+    const isSkinning = (node.skin != null) ? true : false;
+    const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
-      return MaterialHelper.createPbrUberMaterial();
+      return MaterialHelper.createPbrUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName});
     } else {
-      return MaterialHelper.createClassicUberMaterial();
+      return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName});
     }
   }
 
-  private __setupMaterial(gltfModel: any, materialJson: any): Material | undefined {
+  private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
-    let material: Material = this.__generateAppropreateMaterial(gltfModel, materialJson);
+    let material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, materialJson);
 
     if (materialJson == null) {
       return material;
