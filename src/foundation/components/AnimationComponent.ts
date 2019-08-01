@@ -157,7 +157,8 @@ export default class AnimationComponent extends Component {
     let high = inputArray.length - 1;
     let mid = 0;
     while (low <= high) {
-      mid = Math.floor((low + high) / 2);
+      mid = low + Math.floor((high - low) / 2);
+
       const value = inputArray[mid];
       if (value === input) {
         return mid;
@@ -165,6 +166,30 @@ export default class AnimationComponent extends Component {
         high = mid - 1;
       } else {
         low = mid + 1;
+      }
+    }
+
+    return mid;
+  }
+
+
+  static interpolationSearch(inputArray: number[], value: number) {
+
+    let mid = 0;
+    let lower = 0;
+    let upper = inputArray.length - 1;
+
+    while( lower <= upper ) {
+      mid = Math.floor(lower + ((value - inputArray[lower]) * (upper - lower)) / (inputArray[upper] - inputArray[lower]));
+      if( mid < lower || upper < mid ){
+        break;
+      }
+      if ( inputArray[mid] === value ) {
+        return mid;
+      } else if ( inputArray[mid] < value ) {
+        lower = mid + 1;
+      } else {
+        upper = mid - 1;
       }
     }
 
@@ -214,7 +239,7 @@ export default class AnimationComponent extends Component {
       }
 
       if (method === Animation.Linear) {
-        const j = this.binarySearch(inputArray, input);
+        const j = this.interpolationSearch(inputArray, input);
         if (inputArray[j+1] != null) {
           let ratio = (input - inputArray[j]) / (inputArray[j+1] - inputArray[j]);
           let resultValue = this.lerp(outputArray[j], outputArray[j+1], ratio, compositionType);
