@@ -39,6 +39,7 @@ import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
+import Config from "../core/Config";
 
 declare var DracoDecoderModule: any;
 
@@ -488,8 +489,6 @@ export default class ModelConverter {
   }
 
   private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, materialJson: any) {
-    // const entityUidOutputMaterial = MaterialHelper.createEntityUIDOutputMaterial();
-    // return entityUidOutputMaterial;
 
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) &&
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension &&
@@ -498,12 +497,16 @@ export default class ModelConverter {
       return loaderExtension.generateMaterial();
     }
 
+    let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType
+    if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
+      maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType/2;
+    }
     const isSkinning = (node.skin != null) ? true : false;
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
-      return MaterialHelper.createPbrUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName});
+      return MaterialHelper.createPbrUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
     } else {
-      return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName});
+      return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
     }
   }
 
