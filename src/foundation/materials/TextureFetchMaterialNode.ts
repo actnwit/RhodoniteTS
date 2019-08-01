@@ -1,4 +1,4 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from "../definitions/ShaderSemantics";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
@@ -9,21 +9,23 @@ import { ShaderType } from "../definitions/ShaderType";
 
 export default class TextureFetchMaterialNode extends AbstractMaterialNode {
 
+  generalTextureMaterialNodeUID?: ShaderSemanticsClass;
+
   constructor() {
     super(new TextureFetchShader(), 'textureFetch');
     (this.shader as TextureFetchShader).materialNodeUid = this.materialNodeUid;
 
+    this.generalTextureMaterialNodeUID = new ShaderSemanticsClass({str: `generalTexture_${this.materialNodeUid}`});
+
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.GeneralTexture,
+        semantic: this.generalTextureMaterialNodeUID,
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-       
         isSystem: false,
-        semanticStr: `generalTexture_${this.materialNodeUid}`
       },
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

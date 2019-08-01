@@ -26,7 +26,7 @@ import { MathUtil } from "../math/MathUtil";
 import SkeletalComponent from "../components/SkeletalComponent";
 import { AlphaMode } from "../definitions/AlphaMode";
 import MaterialHelper from "../helpers/MaterialHelper";
-import { ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import Vector2 from "../math/Vector2";
 import Material from "../materials/Material";
 import { ShadingModel } from "../definitions/ShadingModel";
@@ -623,7 +623,7 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
     }
 
-    ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
+    // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
 
     // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
@@ -1147,7 +1147,7 @@ export default class ModelConverter {
     return indicesDracoAccessor;
   }
 
-  static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformName: string, textureRotationName: string) {
+  static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum) {
     if (textureJson && textureJson.extensions && textureJson.extensions.KHR_texture_transform) {
       let transform = MutableVector4.zero();
       let rotation = 0;
@@ -1165,8 +1165,8 @@ export default class ModelConverter {
         rotation = transformJson.rotation;
       }
 
-      rnMaterial.setParameter(textureTransformName, transform);
-      rnMaterial.setParameter(textureRotationName, rotation);
+      rnMaterial.setParameter(textureTransformShaderSemantic, transform);
+      rnMaterial.setParameter(textureRotationShaderSemantic, rotation);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from "../definitions/ShaderSemantics";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import Vector2 from "../math/Vector2";
@@ -28,6 +28,7 @@ import VectorN from "../math/VectorN";
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  static readonly isOutputHDR = new ShaderSemanticsClass({str: 'isOutputHDR'});
 
   constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
     super(PBRShader.getInstance(), 'pbrShading'
@@ -56,7 +57,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, initialValue: [4, AbstractMaterialNode.__dummyBlackTexture]},
         {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 10, isSystem: false, initialValue: new Vector3(0, 0, 1)},
-        { semanticStr: 'isOutputHDR', compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
+        { semantic: PbrShadingMaterialNode.isOutputHDR, compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
           stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, initialValue: new Scalar(0) },
         {
           semantic: ShaderSemantics.ViewPosition,

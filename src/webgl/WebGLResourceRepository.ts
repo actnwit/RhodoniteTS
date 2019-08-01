@@ -317,16 +317,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     for (let arg of dataArray) {
-      shaderSemanticsInfoMap.set((arg.semantic != null) ? arg.semantic!.str : arg.semanticStr!, arg);
+      shaderSemanticsInfoMap.set(arg.semantic.str, arg);
     }
 
     for (let data of dataArray) {
-      let semanticSingular: string;
-      if (data.semantic) {
-        semanticSingular = data.semantic.str;
-      } else {
-        semanticSingular = data.semanticStr!;
-      }
+      let semanticSingular = data.semantic.str;
 
       let identifier = semanticSingular;
 

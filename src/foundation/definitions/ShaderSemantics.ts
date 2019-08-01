@@ -4,18 +4,26 @@ import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
 import Material from "../materials/Material";
-import { Count } from "../../types/CommonTypes";
+import { Count, Index } from "../../types/CommonTypes";
+
+export type ShaderSemanticsIndex = number;
 
 export interface ShaderSemanticsEnum extends EnumIO {
   str: string;
 }
 
 export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
-  private static __indexCount: -1;
+  private static __indexCount = -1;
+  static readonly _scale = 10000;
+  private static __classes: ShaderSemanticsClass[] = [];
   constructor({ str }: { index?: number, str: string }) {
-    super({ index: ++ShaderSemanticsClass.__indexCount, str });
+    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str });
+    ShaderSemanticsClass.__classes[this.index] = this;
   }
 
+  static getShaderSemanticByIndex(index: Index) {
+    return this.__classes[Math.abs(index) - Math.abs(index) % this._scale];
+  }
 }
 
 const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'worldMatrix' });
@@ -88,37 +96,31 @@ type UpdateFunc = (
   => void;
 
 export type ShaderSemanticsInfo = {
-  semantic?: ShaderSemanticsEnum, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count, setEach?: boolean
+  semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean
 };
 
 
-function infoToString(semanticInfo: ShaderSemanticsInfo): string|undefined {
-  return (semanticInfo.semantic != null) ? semanticInfo.semantic.str : semanticInfo.semanticStr;
-}
-
 function fullSemanticStr(info: ShaderSemanticsInfo) {
   let prefix = '';
   if (info.prefix != null) {
     prefix = info.prefix;
   }
-  return prefix+infoToString(info);
+  return prefix+info.semantic.str;
 }
 
-const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
   if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
     return '';
   }
 
-  let methodName = memberName.split('___')[0];
-  methodName = methodName.replace('.', '_');
   let str = '';
   let variableName = ShaderSemantics.fullSemanticStr(info);
-  if (memberName.indexOf('___') !== -1 || CompositionType.isArray(info.compositionType)) {
-    if (memberName.indexOf('___0') === -1 && !CompositionType.isArray(info.compositionType)) {
+  if (propertyIndex < 0 || CompositionType.isArray(info.compositionType)) {
+    if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0 && !CompositionType.isArray(info.compositionType)) {
       return '';
     }
     if (variableName.match(/\[.+?\]/)) {
@@ -141,7 +143,7 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
   }
 
   return `
-  ${returnType} get_${methodName}(float instanceId, int index) {
+  ${returnType} get_${info.semantic.str}(float instanceId, int index) {
     ${str}
   }
   `;
@@ -155,5 +157,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, infoToString, fullSemanticStr, getShaderProperty, EntityUID
+  from, fromString, fullSemanticStr, getShaderProperty, EntityUID
 });

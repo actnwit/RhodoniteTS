@@ -14,7 +14,7 @@ import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
-import { ShaderSemantics, ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsInfo, ShaderSemanticsClass } from "../foundation/definitions/ShaderSemantics";
 import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
@@ -158,28 +158,25 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return offset;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
       const returnType = info.compositionType.getGlslStr(info.componentType);
 
       const indexArray = [];
       let maxIndex = 1;
-      let methodName = memberName;
       let index = -1;
       let indexStr;
 
-      if (memberName.indexOf('___') !== -1) {
-        if (memberName.indexOf('___0') === -1) {
+      if (propertyIndex < 0) {
+        if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
           return '';
         }
         const offset = getOffset(info);
 
         for (let i=0; i<info.maxIndex!; i++) {
-          const newMemberName = memberName.replace('___0', `___${i}`)
-          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, newMemberName)!;
+          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
           indexArray.push(index)
         }
         maxIndex = info.maxIndex!;
-        methodName = memberName.split('___')[0];
 
         let arrayStr = `highp float indices[${maxIndex}];`
         indexArray.forEach((idx, i)=> {
@@ -197,7 +194,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           }`;
       } else {
         const offset = getOffset(info);
-        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, memberName)!;
+        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
         let idx;
         let secondOffset = 0;
         if (CompositionType.isArray(info.compositionType)) {
@@ -211,7 +208,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
       }
 
-      methodName = methodName.replace('.', '_');
+      const methodName = info.semantic.str.replace('.', '_');
 
       let intStr = '';
       if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
