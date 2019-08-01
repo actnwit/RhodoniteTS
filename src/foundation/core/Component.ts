@@ -134,7 +134,7 @@ export default class Component extends RnObject {
     if (component == null) {
       return false;
     }
-    if ((component as any)[processStage.getMethodName()] == null) {
+    if ((component as any)[processStage.methodName] == null) {
       return false;
     }
 
@@ -145,7 +145,7 @@ export default class Component extends RnObject {
    * Get true or false whether the specified ProcessStage exists in Component.
    */
   isExistProcessStageMethod(processStage: ProcessStageEnum) {
-    if ((this as any)[processStage.getMethodName()] == null) {
+    if ((this as any)[processStage.methodName] == null) {
       return false;
     }
 
@@ -170,7 +170,7 @@ export default class Component extends RnObject {
       return;
     }
 
-    const methodName = processStage.getMethodName();
+    const methodName = processStage.methodName;
     const array = this.__componentsOfProcessStages.get(processStage)!;
     const components: Component[]|undefined = componentRepository._getComponents(componentType);
     for (let i=0; i<array.length; ++i) {
@@ -201,7 +201,7 @@ export default class Component extends RnObject {
 
     const dirty = Component.__componentsOfProcessStages.get(processStage)!
     if (dirty) {
-      const method = (componentClass as any)['sort_'+processStage.getMethodName()];
+      const method = (componentClass as any)['sort_'+processStage.methodName];
       const components = componentRepository.getComponentsWithType(componentClass)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
 

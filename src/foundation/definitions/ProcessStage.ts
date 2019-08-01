@@ -1,20 +1,16 @@
 import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
 
 export interface ProcessStageEnum extends EnumIO {
-  getMethodName(): string;
+  methodName: string;
 }
 
 class ProcessStageClass extends EnumClass implements ProcessStageEnum {
-  private __methodName: string;
+  readonly methodName: string;
 
   constructor({index, str, methodName} : {index: number, str: string, methodName: string}) {
     super({index, str});
 
-    this.__methodName = methodName;
-  }
-
-  getMethodName() {
-    return this.__methodName;
+    this.methodName = methodName;
   }
 }
 

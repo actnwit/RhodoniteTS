@@ -54,7 +54,7 @@ export default class System {
 
 
     for (let stage of this.__processStages) {
-      const methodName = stage.getMethodName();
+      const methodName = stage.methodName;
       const commonMethodName = 'common_'+methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
       for (let componentTid of componentTids) {
