@@ -18,12 +18,12 @@ export default class System {
   private __processStages: Array<ProcessStageEnum> = [
     ProcessStage.Create,
     ProcessStage.Load,
-    ProcessStage.Mount,
+    // ProcessStage.Mount,
     ProcessStage.Logic,
     ProcessStage.PreRender,
     ProcessStage.Render,
-    ProcessStage.Unmount,
-    ProcessStage.Discard
+    // ProcessStage.Unmount,
+    // ProcessStage.Discard
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
