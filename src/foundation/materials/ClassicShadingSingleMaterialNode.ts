@@ -53,7 +53,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isPlural: false,
+       
         prefix: "material.",
         isSystem: false,
         initialValue: new Vector4(1, 1, 1, 1)
@@ -65,7 +65,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           0,
@@ -79,7 +79,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           2,
@@ -93,7 +93,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Scalar(5)
       },
@@ -104,7 +104,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Scalar(ShadingModel.Constant.index)
       },
@@ -115,7 +115,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(0),
@@ -128,7 +128,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.VertexAndPixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-        isPlural: false,
+       
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Vector3(0,0.0),
@@ -150,7 +150,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             stage: ShaderType.PixelShader,
             min: -Number.MAX_VALUE,
             max: Number.MAX_VALUE,
-            isPlural: false,
+           
             prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
@@ -167,7 +167,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           stage: ShaderType.PixelShader,
           min: -1,
           max: 1,
-          isPlural: false,
+         
           prefix: `lights[${idx}].`,
           index: idx,
           maxIndex: 4,
@@ -184,7 +184,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             stage: ShaderType.PixelShader,
             min: 0,
             max: 10,
-            isPlural: false,
+           
             prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
@@ -202,11 +202,11 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       this.__definitions += '#define RN_IS_SKINNING\n';
 
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: 1, isPlural: false, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
+        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

@@ -555,7 +555,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       for (let j = 0; j < semanticsInfoArray.length; j++) {
         const semanticInfo = semanticsInfoArray[j];
         const attributeComposition = semanticInfo.compositionType!;
-        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
       }
     }
     vertexShader += '\n';
@@ -565,7 +565,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       for (let j = 0; j < semanticsInfoArray.length; j++) {
         const semanticInfo = semanticsInfoArray[j];
         const attributeComposition = semanticInfo.compositionType!;
-        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
       }
     }
     pixelShader += '\n';

@@ -21,7 +21,7 @@ export default class TextureFetchMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         semanticStr: `generalTexture_${this.materialNodeUid}`
       },

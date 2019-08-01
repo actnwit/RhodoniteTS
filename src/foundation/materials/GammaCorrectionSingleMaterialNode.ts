@@ -42,7 +42,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           0,

@@ -30,7 +30,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isPlural: false,
+       
         prefix: "material.",
         isSystem: false,
         initialValue: new Vector4(1, 1, 1, 1)
@@ -42,7 +42,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           0,
@@ -56,7 +56,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isPlural: false,
+       
         prefix: "material.",
         isSystem: false,
         initialValue: new Vector2(1, 1)
@@ -68,7 +68,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           1,
@@ -82,7 +82,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           2,
@@ -96,7 +96,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           3,
@@ -110,7 +110,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           4,
@@ -124,7 +124,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: 5
       },
@@ -135,7 +135,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 10,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Vector3(0, 0, 1)
       },
@@ -146,7 +146,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: ShadingModel.Constant.index
       },
@@ -157,7 +157,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 100,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: 30.0
       },
@@ -168,7 +168,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Vector3(0.0, 0.1, 0.01)
       }];
@@ -183,7 +183,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
           stage: ShaderType.PixelShader,
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-          isPlural: false,
+         
           isSystem: true,
           initialValue: new Matrix44(null)
         }
@@ -201,7 +201,7 @@ export default class ShadowMapUsingEncodedDepthSingleMaterialNode extends Abstra
           stage: ShaderType.PixelShader,
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
-          isPlural: false,
+         
           isSystem: true,
           initialValue: [
             5,
