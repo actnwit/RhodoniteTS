@@ -557,7 +557,7 @@ vec4 encodeFloatRGBA(float v) {
 
   static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {
     if (data instanceof ShaderSemanticsClass) {
-      return 'u_' + data.singularStr;
+      return 'u_' + data.str;
     } else if (data instanceof VertexAttributeClass) {
       return data.shaderStr;
     } else {

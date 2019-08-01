@@ -251,6 +251,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__checkShaderCompileStatus(materialTypeName, fragmentShader, fragmentShaderStr);
 
     const shaderProgram = gl.createProgram()!;
+    shaderProgram._gl = gl;
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
 
@@ -317,34 +318,24 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const shaderSemanticsInfoMap: Map<string, ShaderSemanticsInfo> = new Map();
     for (let arg of dataArray) {
-      shaderSemanticsInfoMap.set((arg.semantic != null) ? arg.semantic!.str : arg.semanticStr!, arg);
+      shaderSemanticsInfoMap.set(arg.semantic.str, arg);
     }
 
     for (let data of dataArray) {
-      let semanticSingular: string;
-      if (data.semantic) {
-        semanticSingular = data.semantic.singularStr;
-      } else {
-        semanticSingular = data.semanticStr!;
-      }
+      let semanticSingular = data.semantic.str;
 
       let identifier = semanticSingular;
 
-      let location;
-      if (data.isPlural) {
-        location = gl.getUniformLocation(shaderProgram, 'u_' + ShaderSemantics.fullSemanticPluralStr(data));
-      } else {
-        let shaderVarName = ShaderSemantics.fullSemanticStr(data);
-        if (data.index != null) {
-          if (shaderVarName.match(/\[.+?\]/)) {
-            shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${data.index}]`);
-          } else {
-            shaderVarName += `[${data.index}]`;
-          }
+      let shaderVarName = ShaderSemantics.fullSemanticStr(data);
+      if (data.index != null) {
+        if (shaderVarName.match(/\[.+?\]/)) {
+          shaderVarName = shaderVarName.replace(/\[.+?\]/g, `[${data.index}]`);
+        } else {
+          shaderVarName += `[${data.index}]`;
         }
-        location = gl.getUniformLocation(shaderProgram, 'u_' + shaderVarName);
-
       }
+      const location = gl.getUniformLocation(shaderProgram, 'u_' + shaderVarName);
+
 
       if (data.index != null) {
         if (shaderProgram[identifier] == null) {

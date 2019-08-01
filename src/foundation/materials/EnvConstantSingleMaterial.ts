@@ -2,7 +2,8 @@ import RnObject from "../core/RnObject";
 import {
   ShaderSemanticsInfo,
   ShaderSemantics,
-  ShaderSemanticsEnum
+  ShaderSemanticsEnum,
+  ShaderSemanticsClass
 } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
@@ -29,6 +30,7 @@ import CameraComponent from "../components/CameraComponent";
 import Material from "./Material";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
+  static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
 
   constructor() {
     super(EnvConstantShader.getInstance(), "envConstantShading");
@@ -42,7 +44,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-        isPlural: false,
+       
         prefix: "material.",
         isSystem: false,
         initialValue: new Vector4(1, 1, 1, 1)
@@ -54,7 +56,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           0,
@@ -62,13 +64,13 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
         ]
       },
       {
-        semanticStr: 'envRotation',
+        semantic: EnvConstantSingleMaterialNode.envRotation,
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         min: -Math.PI,
         max: Math.PI,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Scalar(0)
       },

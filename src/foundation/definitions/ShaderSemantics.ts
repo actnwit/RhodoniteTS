@@ -4,73 +4,74 @@ import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
 import Material from "../materials/Material";
-import { Count } from "../../types/CommonTypes";
+import { Count, Index } from "../../types/CommonTypes";
+
+export type ShaderSemanticsIndex = number;
 
 export interface ShaderSemanticsEnum extends EnumIO {
-  singularStr: string;
-  pluralStr: string;
+  str: string;
 }
 
 export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
-  public readonly pluralStr: string;
-  private static __indexCount: -1;
-  constructor({ singularStr, pluralStr }: { index?: number, singularStr: string, pluralStr: string }) {
-    super({ index: ++ShaderSemanticsClass.__indexCount, str: singularStr });
-    this.pluralStr = pluralStr;
+  private static __indexCount = -1;
+  static readonly _scale = 10000;
+  private static __classes: ShaderSemanticsClass[] = [];
+  constructor({ str }: { index?: number, str: string }) {
+    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str });
+    ShaderSemanticsClass.__classes[this.index] = this;
   }
 
-  get singularStr() {
-    return this.str;
+  static getShaderSemanticByIndex(index: Index) {
+    return this.__classes[Math.abs(index) - Math.abs(index) % this._scale];
   }
-
 }
 
-const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'worldMatrix', pluralStr: 'worldMatrices' });
-const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'viewMatrix', pluralStr: 'viewMatrices' });
-const ProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'projectionMatrix', pluralStr: 'projectionMatrices' });
-const NormalMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'normalMatrix', pluralStr: 'normalMatrices' });
-const BoneMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'boneMatrix', pluralStr: 'boneMatrices' });
-const BaseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'baseColorFactor', pluralStr: 'baseColorFactors' });
-const BaseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'baseColorTexture', pluralStr: 'baseColorTextures' });
-const NormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ singularStr: 'normalTexture', pluralStr: 'normalTextures' });
-const MetallicRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 8, singularStr: 'metallicRoughnessTexture', pluralStr: 'metallicRoughnessTextures' });
-const OcclusionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 9, singularStr: 'occlusionTexture', pluralStr: 'occlusionTextures' });
-const EmissiveTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 10, singularStr: 'emissiveTexture', pluralStr: 'emissiveTextures' });
-const LightNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 11, singularStr: 'lightNumber', pluralStr: 'lightNumbers' });
-const LightPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 12, singularStr: 'lightPosition', pluralStr: 'lightPositions' });
-const LightDirection: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 13, singularStr: 'lightDirection', pluralStr: 'lightDirections' });
-const LightIntensity: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 14, singularStr: 'lightIntensity', pluralStr: 'intensityOfLights' });
-const MetallicRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 15, singularStr: 'metallicRoughnessFactor', pluralStr: 'metallicRoughnessFactors' });
-const BrdfLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 16, singularStr: 'brdfLutTexture', pluralStr: 'brdfLutTexture' });
-const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 17, singularStr: 'diffuseEnvTexture', pluralStr: 'diffuseEnvTextures' });
-const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 18, singularStr: 'specularEnvTexture', pluralStr: 'specularEnvTextures' });
-const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 19, singularStr: 'iblParameter', pluralStr: 'iblParameter' });
-const ViewPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 20, singularStr: 'viewPosition', pluralStr: 'viewPositions' });
-const Wireframe: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 21, singularStr: 'wireframe', pluralStr: 'wireframes' });
-const DiffuseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 22, singularStr: 'diffuseColorFactor', pluralStr: 'diffuseColorFactors' });
-const DiffuseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 23, singularStr: 'diffuseColorTexture', pluralStr: 'diffuseColorTextures' });
-const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 24, singularStr: 'specularColorFactor', pluralStr: 'specularColorFactors' });
-const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 25, singularStr: 'specularColorTexture', pluralStr: 'specularColorTextures' });
-const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 26, singularStr: 'shininess', pluralStr: 'shininesses' });
-const ShadingModel: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 27, singularStr: 'shadingModel', pluralStr: 'shadingModels' });
-const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 28, singularStr: 'skinningMode', pluralStr: 'skinningModes' });
-const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 29, singularStr: 'generalTexture', pluralStr: 'generalTextures' });
-const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 30, singularStr: 'vertexAttributesExistenceArray', pluralStr: 'vertexAttributesExistenceArrays' });
-const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 31, singularStr: 'boneCompressedChank', pluralStr: 'boneCompressedChanks' });
-const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 32, singularStr: 'boneCompressedInfo', pluralStr: 'boneCompressedInfos' });
-const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 33, singularStr: 'pointSize', pluralStr: 'pointSize' });
-const ColorEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 34, singularStr: 'colorEnvTexture', pluralStr: 'colorEnvTextures' });
-const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 35, singularStr: 'pointDistanceAttenuation', pluralStr: 'pointDistanceAttenuation' });
-const HDRIFormat: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 36, singularStr: 'hdriFormat', pluralStr: 'hdriFormats' });
-const ScreenInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 37, singularStr: 'screenInfo', pluralStr: 'screenInfos' });
-const DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 38, singularStr: 'depthTexture', pluralStr: 'depthTexture' });
-const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 39, singularStr: 'lightViewProjectionMatrix', pluralStr: 'lightViewProjectionMatrix' });
-const Anisotropy: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 40, singularStr: 'anisotropy', pluralStr: 'anisotropy' });
-const ClearCoatParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 41, singularStr: 'clearcoatParameter', pluralStr: 'clearcoatParameters' });
-const SheenParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 42, singularStr: 'sheenParameter', pluralStr: 'sheenParameters' });
-const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 43, singularStr: 'specularGlossinessFactor', pluralStr: 'specularGlossinessFactors' });
-const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 44, singularStr: 'specularGlossinessTexture', pluralStr: 'specularGlossinessTextures' });
-const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({ index: 45, singularStr: 'entityUID', pluralStr: 'entityUIDs' });
+const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'worldMatrix' });
+const ViewMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'viewMatrix' });
+const ProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'projectionMatrix' });
+const NormalMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'normalMatrix' });
+const BoneMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneMatrix' });
+const BaseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'baseColorFactor' });
+const BaseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'baseColorTexture' });
+const NormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'normalTexture' });
+const MetallicRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'metallicRoughnessTexture' });
+const OcclusionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'occlusionTexture' });
+const EmissiveTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'emissiveTexture' });
+const LightNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'lightNumber' });
+const LightPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'lightPosition' });
+const LightDirection: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'lightDirection' });
+const LightIntensity: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'lightIntensity' });
+const MetallicRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'metallicRoughnessFactor' });
+const BrdfLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'brdfLutTexture' });
+const DiffuseEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'diffuseEnvTexture' });
+const SpecularEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularEnvTexture' });
+const IBLParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'iblParameter' });
+const ViewPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'viewPosition' });
+const Wireframe: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'wireframe' });
+const DiffuseColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'diffuseColorFactor' });
+const DiffuseColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'diffuseColorTexture' });
+const SpecularColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularColorFactor' });
+const SpecularColorTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularColorTexture' });
+const Shininess: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shininess' });
+const ShadingModel: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'shadingModel' });
+const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'skinningMode' });
+const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'generalTexture' });
+const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'vertexAttributesExistenceArray' });
+const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedChank' });
+const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedInfo' });
+const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointSizee' });
+const ColorEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'colorEnvTexture' });
+const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointDistanceAttenuation' });
+const HDRIFormat: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'hdriFormat' });
+const ScreenInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'screenInfo' });
+const DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'depthTexture' });
+const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'lightViewProjectionMatrix' });
+const Anisotropy: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'anisotropy' });
+const ClearCoatParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'clearcoatParameter' });
+const SheenParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'sheenParameter' });
+const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularGlossinessFactor' });
+const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularGlossinessTexture' });
+const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'entityUID' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
@@ -95,20 +96,11 @@ type UpdateFunc = (
   => void;
 
 export type ShaderSemanticsInfo = {
-  semantic?: ShaderSemanticsEnum, isPlural?: boolean, prefix?: string, semanticStr?: string, index?: Count, maxIndex?: Count, setEach?: boolean
+  semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean
 };
-
-
-function infoToString(semanticInfo: ShaderSemanticsInfo): string|undefined {
-  return (semanticInfo.semantic != null) ? semanticInfo.semantic.str : semanticInfo.semanticStr;
-}
-
-function infoToPluralString(semanticInfo: ShaderSemanticsInfo): string|undefined {
-  return (semanticInfo.semantic != null) ? semanticInfo.semantic.pluralStr : semanticInfo.semanticStr;
-}
 
 
 function fullSemanticStr(info: ShaderSemanticsInfo) {
@@ -116,29 +108,19 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
   if (info.prefix != null) {
     prefix = info.prefix;
   }
-  return prefix+infoToString(info);
+  return prefix+info.semantic.str;
 }
 
-function fullSemanticPluralStr(info: ShaderSemanticsInfo) {
-  let prefix = '';
-  if (info.prefix != null) {
-    prefix = info.prefix;
-  }
-  return prefix+infoToPluralString(info);
-}
-
-const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => {
+const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
   if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
     return '';
   }
 
-  let methodName = memberName.split('___')[0];
-  methodName = methodName.replace('.', '_');
   let str = '';
   let variableName = ShaderSemantics.fullSemanticStr(info);
-  if (memberName.indexOf('___') !== -1 || CompositionType.isArray(info.compositionType)) {
-    if (memberName.indexOf('___0') === -1 && !CompositionType.isArray(info.compositionType)) {
+  if (propertyIndex < 0 || CompositionType.isArray(info.compositionType)) {
+    if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0 && !CompositionType.isArray(info.compositionType)) {
       return '';
     }
     if (variableName.match(/\[.+?\]/)) {
@@ -161,7 +143,7 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
   }
 
   return `
-  ${returnType} get_${methodName}(float instanceId, int index) {
+  ${returnType} get_${info.semantic.str}(float instanceId, int index) {
     ${str}
   }
   `;
@@ -175,5 +157,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, infoToString, fullSemanticStr, fullSemanticPluralStr, getShaderProperty, EntityUID
+  from, fromString, fullSemanticStr, getShaderProperty, EntityUID
 });

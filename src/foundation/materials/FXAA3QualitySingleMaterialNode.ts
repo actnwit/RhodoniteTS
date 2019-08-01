@@ -41,7 +41,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: [
           0,
@@ -55,7 +55,7 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-        isPlural: false,
+       
         isSystem: false,
         initialValue: new Vector2(0, 0)
       },

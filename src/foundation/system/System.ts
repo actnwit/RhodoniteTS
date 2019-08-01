@@ -18,12 +18,12 @@ export default class System {
   private __processStages: Array<ProcessStageEnum> = [
     ProcessStage.Create,
     ProcessStage.Load,
-    ProcessStage.Mount,
+    // ProcessStage.Mount,
     ProcessStage.Logic,
     ProcessStage.PreRender,
     ProcessStage.Render,
-    ProcessStage.Unmount,
-    ProcessStage.Discard
+    // ProcessStage.Unmount,
+    // ProcessStage.Discard
   ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
@@ -54,7 +54,7 @@ export default class System {
 
 
     for (let stage of this.__processStages) {
-      const methodName = stage.getMethodName();
+      const methodName = stage.methodName;
       const commonMethodName = 'common_'+methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
       for (let componentTid of componentTids) {

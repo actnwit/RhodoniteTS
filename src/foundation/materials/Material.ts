@@ -5,7 +5,7 @@ import Vector3 from "../math/Vector3";
 import { AlphaMode } from "../definitions/AlphaMode";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
 import { CompositionType } from "../definitions/CompositionType";
 import MathClassUtil from "../math/MathClassUtil";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
@@ -32,7 +32,7 @@ import DataUtil from "../misc/DataUtil";
 type MaterialTypeName = string;
 type PropertyName = string;
 
-type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => string;
+type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => string;
 
 
 /**
@@ -41,9 +41,9 @@ type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInf
  */
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
-  private __fields: Map<PropertyName, any> = new Map();
-  private static __soloDatumFields: Map<MaterialTypeName, Map<PropertyName, any>> = new Map();
-  private __fieldsInfo: Map<PropertyName, ShaderSemanticsInfo> = new Map();
+  private __fields: Map<ShaderSemanticsIndex, any> = new Map();
+  private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, any>> = new Map();
+  private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   public alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -59,7 +59,7 @@ export default class Material extends RnObject {
   private static __maxInstances: Map<MaterialTypeName, number> = new Map();
   private __materialTypeName: MaterialTypeName;
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
-  private static __accessors: Map<MaterialTypeName, Map<PropertyName, Accessor>> = new Map();
+  private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> = new Map();
 
   private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
@@ -169,7 +169,7 @@ export default class Material extends RnObject {
         byteAlign: 16
       });
 
-      const propertyName = this.__getPropertyName(semanticInfo);
+      const propertyName = this.__getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
         let map = this.__soloDatumFields.get(materialTypeName);
@@ -179,7 +179,7 @@ export default class Material extends RnObject {
         }
 
         map.set(
-          propertyName,
+          this.__getPropertyIndex(semanticInfo),
           MathClassUtil.initWithFloat32Array(
             semanticInfo.initialValue,
             semanticInfo.initialValue,
@@ -231,13 +231,13 @@ export default class Material extends RnObject {
     return this.__materialSid;
   }
 
-  private static __getPropertyName(semanticInfo: ShaderSemanticsInfo) {
-    const propertyName = ShaderSemantics.infoToString(semanticInfo)!;
-    let indexStr = ''
+  private static __getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
+    let propertyIndex = semanticInfo.semantic.index;
     if (semanticInfo.index != null) {
-      indexStr = '___' + semanticInfo.index;
+      propertyIndex += semanticInfo.index;
+      propertyIndex *= -1;
     }
-    return propertyName + indexStr;
+    return propertyIndex;
   }
 
   initialize() {
@@ -248,15 +248,15 @@ export default class Material extends RnObject {
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       semanticsInfoArray.forEach((semanticsInfo) => {
-        const propertyName = Material.__getPropertyName(semanticsInfo);
-        this.__fieldsInfo.set(propertyName, semanticsInfo);
+        const propertyIndex = Material.__getPropertyIndex(semanticsInfo);
+        this.__fieldsInfo.set(propertyIndex, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
           const accessorMap = Material.__accessors.get(this.__materialTypeName);
-          const accessor = accessorMap!.get(propertyName) as Accessor;
+          const accessor = accessorMap!.get(propertyIndex) as Accessor;
 
           const typedArray = accessor.takeOne() as Float32Array;
           this.__fields.set(
-            propertyName,
+            propertyIndex,
             MathClassUtil.initWithFloat32Array(
               semanticsInfo.initialValue,
               semanticsInfo.initialValue,
@@ -268,63 +268,33 @@ export default class Material extends RnObject {
     });
   }
 
-  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index): void;
-  setParameter(shaderSemantic: string, value: any, index?: Index): void;
-  setParameter(shaderSemantic: any, value: any, index?: Index): void {
-    let shaderSemanticStr: string;
-    if (typeof shaderSemantic === 'string') {
-      shaderSemanticStr = shaderSemantic;
-    } else {
-      shaderSemanticStr = shaderSemantic.str;
-    }
-    if (index != null) {
-      shaderSemanticStr += `___${index}`;
-    }
-
-    const info = this.__fieldsInfo.get(shaderSemanticStr);
+  setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
+    const info = this.__fieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       let valueObj;
       if (info.soloDatum) {
-        valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticStr);
+        valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index);
       } else {
-        valueObj = this.__fields.get(shaderSemanticStr);
+        valueObj = this.__fields.get(shaderSemantic.index);
       }
       MathClassUtil._setForce(valueObj, value);
     }
   }
 
-  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
-  setTextureParameter(shaderSemantic: string, value: AbstractTexture): void;
-  setTextureParameter(shaderSemantic: any, value: AbstractTexture): void {
-    let shaderSemanticStr: string;
-    if (typeof shaderSemantic === 'string') {
-      shaderSemanticStr = shaderSemantic;
-    } else {
-      shaderSemanticStr = shaderSemantic.str;
-    }
-
-    if (this.__fieldsInfo.has(shaderSemanticStr)) {
-      const array = this.__fields.get(shaderSemanticStr)!;
-      this.__fields.set(shaderSemanticStr, [array[0], value]);
+  setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void {
+    if (this.__fieldsInfo.has(shaderSemantic.index)) {
+      const array = this.__fields.get(shaderSemantic.index)!;
+      this.__fields.set(shaderSemantic.index, [array[0], value]);
     }
   }
 
-  getParameter(shaderSemantic: ShaderSemanticsEnum): any;
-  getParameter(shaderSemantic: string): any;
-  getParameter(shaderSemantic: any): any {
-    let shaderSemanticStr: string;
-    if (typeof shaderSemantic === 'string') {
-      shaderSemanticStr = shaderSemantic;
-    } else {
-      shaderSemanticStr = shaderSemantic.str;
-    }
-
-    const info = this.__fieldsInfo.get(shaderSemanticStr);
+  getParameter(shaderSemantic: ShaderSemanticsEnum): any {
+    const info = this.__fieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       if (info.soloDatum) {
-        return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticStr);
+        return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index);
       } else {
-        return this.__fields.get(shaderSemanticStr);
+        return this.__fields.get(shaderSemantic.index);
       }
     }
 
@@ -349,12 +319,8 @@ export default class Material extends RnObject {
     const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
 
     this.__fields.forEach((value, key) => {
-      const updateFunc = this.__fieldsInfo.get(key)!.updateFunc;
-      if (updateFunc) {
-        updateFunc({ material: this, shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
-      } else {
-        webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
-      }
+      const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
+      webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
     });
   }
 
@@ -367,11 +333,10 @@ export default class Material extends RnObject {
       const info = this.__fieldsInfo.get(key)!;
       const updateFunc = info.updateFunc;
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube || updateFunc) {
-        if (updateFunc) {
-          updateFunc({ material: this, shaderProgram: shaderProgram, firstTime: firstTime, propertyName: key, value: value, args: args })
-        } else {
-          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
-        }
+        this.__fields.forEach((value, key) => {
+          const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
+          webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
+        });
       }
     });
   }
@@ -388,7 +353,7 @@ export default class Material extends RnObject {
       const info = this.__fieldsInfo.get(key)!;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value);
         }
       }
     });
@@ -402,7 +367,7 @@ export default class Material extends RnObject {
       const info = this.__fieldsInfo.get(key)!;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, key, firstTime, value);
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value);
         }
       }
     });
@@ -555,7 +520,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       for (let j = 0; j < semanticsInfoArray.length; j++) {
         const semanticInfo = semanticsInfoArray[j];
         const attributeComposition = semanticInfo.compositionType!;
-        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
       }
     }
     vertexShader += '\n';
@@ -565,7 +530,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       for (let j = 0; j < semanticsInfoArray.length; j++) {
         const semanticInfo = semanticsInfoArray[j];
         const attributeComposition = semanticInfo.compositionType!;
-        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.singularStr};\n`;
+        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
       }
     }
     pixelShader += '\n';
@@ -811,27 +776,27 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     }
   }
 
-  static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, memberName: string) {
+  static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index) {
     const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(memberName)!;
+    const info = material.__fieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
-      const value = Material.__soloDatumFields.get(material.__materialTypeName)!.get(memberName);
+      const value = Material.__soloDatumFields.get(material.__materialTypeName)!.get(propertyIndex);
       return (value.v as Float32Array).byteOffset / 4 / 4;
     } else {
       const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(memberName);
+      const accessor = properties!.get(propertyIndex);
       return accessor!.byteOffsetInBuffer / 4 / 4;
     }
   }
 
-  static getAccessorOfMemberOfMaterial(materialTypeName: string, memberName: string) {
+  static getAccessorOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index) {
     const material = Material.__instancesByTypes.get(materialTypeName)!;
-    const info = material.__fieldsInfo.get(memberName)!;
+    const info = material.__fieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
       return void 0;
     } else {
       const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(memberName);
+      const accessor = properties!.get(propertyIndex);
       return accessor;
     }
   }

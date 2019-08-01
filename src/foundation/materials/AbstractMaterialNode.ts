@@ -53,6 +53,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __definitions = '';
 
   protected static __webglResourceRepository?: WebGLResourceRepository;
+  protected static __gl?: WebGLRenderingContext;
   private static __transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   protected static __dummyWhiteTexture = new Texture();
   protected static __dummyBlueTexture = new Texture();
@@ -174,19 +175,19 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   static setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.WorldMatrix.str, true, worldMatrix);
+    (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).worldMatrix, false, worldMatrix.v);
   }
 
   static setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.NormalMatrix.str, true, normalMatrix);
+    (shaderProgram as any)._gl.uniformMatrix3fv((shaderProgram as any).normalMatrix, false, normalMatrix.v);
   }
 
   static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
     if (cameraComponent) {
       const cameraPosition = cameraComponent.worldPosition;
       if (setUniform) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, cameraComponent.viewMatrix);
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, cameraPosition);
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
+        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
       } else {
         material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
         material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
@@ -195,8 +196,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const mat = MutableMatrix44.identity();
       const pos = new Vector3(0,0,10);
       if (setUniform) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewMatrix.str, true, mat);
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ViewPosition.str, true, pos);
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
+        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
       } else {
         material.setParameter(ShaderSemantics.ViewMatrix, mat);
         material.setParameter(ShaderSemantics.ViewPosition, pos);
@@ -207,7 +208,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
     if (cameraComponent) {
       if (setUniform) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, cameraComponent.projectionMatrix);
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
       } else {
         material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
       }
@@ -222,16 +223,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
         const jointMatrices = skeletalComponent.jointMatrices;
         const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
         if (jointMatrices != null) {
-          this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneMatrix.str, true, jointMatrices );
+          (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).boneMatrix, false, jointMatrices);
         }
         if (jointCompressedChanks != null) {
-          this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedChank.str, true, jointCompressedChanks);
-          this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.BoneCompressedInfo.str, true, skeletalComponent.jointCompressedInfo);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChank, jointCompressedChanks);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, skeletalComponent.jointCompressedInfo.v);
         }
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
       }
     } else {
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, false);
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
     }
   }
 
@@ -248,9 +249,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const worldLightIntensity = lightComponent.intensity;
 
       if (setUniform) {
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightPosition.str, true, { x: worldLightPosition.x, y: worldLightPosition.y, z: worldLightPosition.z, w: lightComponent.type.index }, i);
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightDirection.str, true, { x: worldLightDirection.x, y: worldLightDirection.y, z: worldLightDirection.z, w: 0 }, i);
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightIntensity.str, true, { x: worldLightIntensity.x, y: worldLightIntensity.y, z: worldLightIntensity.z, w: 0 }, i);
+        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightPosition[i], worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index);
+        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightDirection[i], worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0);
+        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightIntensity[i], worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0);
       } else {
         const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
         __tmp_vector4.x = worldLightPosition.x;
