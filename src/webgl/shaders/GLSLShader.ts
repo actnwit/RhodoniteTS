@@ -298,7 +298,6 @@ export default abstract class GLSLShader {
   }
   get packing() {
     return `
-// This is from https://stackoverflow.com/questions/18453302/how-do-you-pack-one-32bit-int-into-4-8bit-ints-in-glsl-webgl
 const vec4 bitEnc = vec4(1.,255.,65025.,16581375.);
 const vec4 bitDec = 1./bitEnc;
 
