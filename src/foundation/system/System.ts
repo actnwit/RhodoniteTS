@@ -55,18 +55,17 @@ export default class System {
 
     for (let stage of this.__processStages) {
       const methodName = stage.methodName;
-      const commonMethodName = 'common_'+methodName;
+      const commonMethodName = 'common_' + methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
       for (let componentTid of componentTids) {
 
         let loopN = 1;
-        let renderPass;
         if (componentTid === MeshRendererComponent.componentTID) {
           loopN = exp!.renderPasses.length;
         }
 
-        for (let i=0; i<loopN; i++) {
-          renderPass = exp!.renderPasses[i];
+        for (let i = 0; i < loopN; i++) {
+          const renderPass = exp!.renderPasses[i];
           if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
             this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
             this.__webglResourceRepository.setViewport(renderPass.getViewport());
@@ -79,13 +78,13 @@ export default class System {
 
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
-            componentClass_commonMethod({processApproach: this.__processApproach, renderPass: renderPass, processStage: stage});
+            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage });
           }
 
           componentClass.process({
             componentType: componentClass,
-            processStage:stage,
-            processApproach:this.__processApproach,
+            processStage: stage,
+            processApproach: this.__processApproach,
             componentRepository: this.__componentRepository,
             strategy: this.__webglStrategy!,
             renderPass: renderPass,
@@ -107,10 +106,10 @@ export default class System {
 
     let gl;
     if (approach === ProcessApproach.DataTextureWebGL2 ||
-       approach === ProcessApproach.UBOWebGL2 ||
-       approach === ProcessApproach.TransformFeedbackWebGL2 ||
-       approach === ProcessApproach.UniformWebGL2
-       ) {
+      approach === ProcessApproach.UBOWebGL2 ||
+      approach === ProcessApproach.TransformFeedbackWebGL2 ||
+      approach === ProcessApproach.UniformWebGL2
+    ) {
       gl = canvas.getContext('webgl2');
     } else {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -130,7 +129,7 @@ export default class System {
 
   static getInstance() {
     if (!this.__instance) {
-     this.__instance = new System();
+      this.__instance = new System();
     }
 
     return this.__instance;
