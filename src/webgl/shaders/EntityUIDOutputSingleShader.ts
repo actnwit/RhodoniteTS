@@ -32,7 +32,7 @@ export default class EntityUIDOutputShader extends GLSLShader implements ISingle
     return `${_version}
 precision highp float;
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
@@ -53,20 +53,18 @@ uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
+uniform float u_pointSize;
+uniform vec3 u_pointDistanceAttenuation;
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '' }
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
 ${this.processGeometryWithSkinningOptionally}
-
-${this.pointSize}
-
-${this.pointDistanceAttenuation}
 
 void main()
 {
@@ -78,8 +76,8 @@ void main()
   // Skeletal
   bool isSkinning;
   skinning(isSkinning, normalMatrix, normalMatrix);
-}
-    `;
+  ${this.pointSprite}
+}`;
   }
 
   get vertexShaderDefinitions() {
@@ -102,7 +100,7 @@ void main()
     return `${_version}
 precision highp float;
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 uniform highp sampler2D u_dataTexture;
 
@@ -114,7 +112,7 @@ ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_def_rt0}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${this.packing}
 

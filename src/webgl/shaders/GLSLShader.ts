@@ -138,139 +138,135 @@ export default abstract class GLSLShader {
 
   get toNormalMatrix() {
     return `
-    mat3 toNormalMatrix(mat4 m) {
-      float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
-      a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
-      a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
-      a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
+  mat3 toNormalMatrix(mat4 m) {
+    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
+    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
+    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
+    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
 
-      float b00 = a00 * a11 - a01 * a10,
-      b01 = a00 * a12 - a02 * a10,
-      b02 = a00 * a13 - a03 * a10,
-      b03 = a01 * a12 - a02 * a11,
-      b04 = a01 * a13 - a03 * a11,
-      b05 = a02 * a13 - a03 * a12,
-      b06 = a20 * a31 - a21 * a30,
-      b07 = a20 * a32 - a22 * a30,
-      b08 = a20 * a33 - a23 * a30,
-      b09 = a21 * a32 - a22 * a31,
-      b10 = a21 * a33 - a23 * a31,
-      b11 = a22 * a33 - a23 * a32;
+    float b00 = a00 * a11 - a01 * a10,
+    b01 = a00 * a12 - a02 * a10,
+    b02 = a00 * a13 - a03 * a10,
+    b03 = a01 * a12 - a02 * a11,
+    b04 = a01 * a13 - a03 * a11,
+    b05 = a02 * a13 - a03 * a12,
+    b06 = a20 * a31 - a21 * a30,
+    b07 = a20 * a32 - a22 * a30,
+    b08 = a20 * a33 - a23 * a30,
+    b09 = a21 * a32 - a22 * a31,
+    b10 = a21 * a33 - a23 * a31,
+    b11 = a22 * a33 - a23 * a32;
 
-      float determinantVal = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    float determinantVal = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-      return mat3(
-        a11 * b11 - a12 * b10 + a13 * b09, a12 * b08 - a10 * b11 - a13 * b07, a10 * b10 - a11 * b08 + a13 * b06,
-        a02 * b10 - a01 * b11 - a03 * b09, a00 * b11 - a02 * b08 + a03 * b07, a01 * b08 - a00 * b10 - a03 * b06,
-        a31 * b05 - a32 * b04 + a33 * b03, a32 * b02 - a30 * b05 - a33 * b01, a30 * b04 - a31 * b02 + a33 * b00) / determinantVal;
-    }
-    `;
+    return mat3(
+      a11 * b11 - a12 * b10 + a13 * b09, a12 * b08 - a10 * b11 - a13 * b07, a10 * b10 - a11 * b08 + a13 * b06,
+      a02 * b10 - a01 * b11 - a03 * b09, a00 * b11 - a02 * b08 + a03 * b07, a01 * b08 - a00 * b10 - a03 * b06,
+      a31 * b05 - a32 * b04 + a33 * b03, a32 * b02 - a30 * b05 - a33 * b01, a30 * b04 - a31 * b02 + a33 * b00) / determinantVal;
+  }`;
   }
 
   get getSkinMatrix() {
     return `
 #ifdef RN_IS_SKINNING
 
-    highp mat4 createMatrixFromQuaternionTransformUniformScale( highp vec4 quaternion, highp vec4 translationScale ) {
-      highp vec4 q = quaternion;
-      highp vec3 t = translationScale.xyz;
-      highp float scale = translationScale.w;
+highp mat4 createMatrixFromQuaternionTransformUniformScale( highp vec4 quaternion, highp vec4 translationScale ) {
+  highp vec4 q = quaternion;
+  highp vec3 t = translationScale.xyz;
+  highp float scale = translationScale.w;
 
-      highp float sx = q.x * q.x;
-      highp float sy = q.y * q.y;
-      highp float sz = q.z * q.z;
-      highp float cx = q.y * q.z;
-      highp float cy = q.x * q.z;
-      highp float cz = q.x * q.y;
-      highp float wx = q.w * q.x;
-      highp float wy = q.w * q.y;
-      highp float wz = q.w * q.z;
+  highp float sx = q.x * q.x;
+  highp float sy = q.y * q.y;
+  highp float sz = q.z * q.z;
+  highp float cx = q.y * q.z;
+  highp float cy = q.x * q.z;
+  highp float cz = q.x * q.y;
+  highp float wx = q.w * q.x;
+  highp float wy = q.w * q.y;
+  highp float wz = q.w * q.z;
 
-      highp mat4 mat = mat4(
-        1.0 - 2.0 * (sy + sz), 2.0 * (cz + wz), 2.0 * (cy - wy), 0.0,
-        2.0 * (cz - wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx + wx), 0.0,
-        2.0 * (cy + wy), 2.0 * (cx - wx), 1.0 - 2.0 * (sx + sy), 0.0,
-        t.x, t.y, t.z, 1.0
-      );
+  highp mat4 mat = mat4(
+    1.0 - 2.0 * (sy + sz), 2.0 * (cz + wz), 2.0 * (cy - wy), 0.0,
+    2.0 * (cz - wz), 1.0 - 2.0 * (sx + sz), 2.0 * (cx + wx), 0.0,
+    2.0 * (cy + wy), 2.0 * (cx - wx), 1.0 - 2.0 * (sx + sy), 0.0,
+    t.x, t.y, t.z, 1.0
+  );
 
-      highp mat4 uniformScaleMat = mat4(
-        scale, 0.0, 0.0, 0.0,
-        0.0, scale, 0.0, 0.0,
-        0.0, 0.0, scale, 0.0,
-        0.0, 0.0, 0.0, 1.0
-      );
+  highp mat4 uniformScaleMat = mat4(
+    scale, 0.0, 0.0, 0.0,
+    0.0, scale, 0.0, 0.0,
+    0.0, 0.0, scale, 0.0,
+    0.0, 0.0, 0.0, 1.0
+  );
 
-      return mat*uniformScaleMat;
-    }
+  return mat*uniformScaleMat;
+}
 
-    highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria){
+highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria){
 
-      highp float r;
-      highp float g;
-      highp float b;
-      highp float a;
+  highp float r;
+  highp float g;
+  highp float b;
+  highp float a;
 
-      highp float ix = floor(vec_xy.x * criteria);
-      highp float v1x = ix / criteria;
-      highp float v1y = ix - floor(v1x) * criteria;
+  highp float ix = floor(vec_xy.x * criteria);
+  highp float v1x = ix / criteria;
+  highp float v1y = ix - floor(v1x) * criteria;
 
-      r = ( v1x + 1.0 ) / (criteria-1.0);
-      g = ( v1y + 1.0 ) / (criteria-1.0);
+  r = ( v1x + 1.0 ) / (criteria-1.0);
+  g = ( v1y + 1.0 ) / (criteria-1.0);
 
-      highp float iy = floor( vec_xy.y * criteria);
-      highp float v2x = iy / criteria;
-      highp float v2y = iy - floor(v2x) * criteria;
+  highp float iy = floor( vec_xy.y * criteria);
+  highp float v2x = iy / criteria;
+  highp float v2y = iy - floor(v2x) * criteria;
 
-      b = ( v2x + 1.0 ) / (criteria-1.0);
-      a = ( v2y + 1.0 ) / (criteria-1.0);
+  b = ( v2x + 1.0 ) / (criteria-1.0);
+  a = ( v2y + 1.0 ) / (criteria-1.0);
 
-      r -= 1.0/criteria;
-      g -= 1.0/criteria;
-      b -= 1.0/criteria;
-      a -= 1.0/criteria;
+  r -= 1.0/criteria;
+  g -= 1.0/criteria;
+  b -= 1.0/criteria;
+  a -= 1.0/criteria;
 
-      r = r*2.0-1.0;
-      g = g*2.0-1.0;
-      b = b*2.0-1.0;
-      a = a*2.0-1.0;
+  r = r*2.0-1.0;
+  g = g*2.0-1.0;
+  b = b*2.0-1.0;
+  a = a*2.0-1.0;
 
-      return vec4(r, g, b, a);
-    }
+  return vec4(r, g, b, a);
+}
 
-    mat4 getSkinMatrix() {
+mat4 getSkinMatrix() {
+  highp vec4 boneCompressedChanksX = get_boneCompressedChank(0.0, int(a_joint.x));
+  highp vec4 boneCompressedChanksY = get_boneCompressedChank(0.0, int(a_joint.y));
+  highp vec4 boneCompressedChanksZ = get_boneCompressedChank(0.0, int(a_joint.z));
+  highp vec4 boneCompressedChanksW = get_boneCompressedChank(0.0, int(a_joint.w));
+  highp vec4 boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
 
-      highp vec4 boneCompressedChanksX = get_boneCompressedChank(0.0, int(a_joint.x));
-      highp vec4 boneCompressedChanksY = get_boneCompressedChank(0.0, int(a_joint.y));
-      highp vec4 boneCompressedChanksZ = get_boneCompressedChank(0.0, int(a_joint.z));
-      highp vec4 boneCompressedChanksW = get_boneCompressedChank(0.0, int(a_joint.w));
-      highp vec4 boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
+  highp vec2 criteria = vec2(4096.0, 4096.0);
+  highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksX.xy, criteria.x),
+      unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksY.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksW.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*boneCompressedInfo);
 
-      highp vec2 criteria = vec2(4096.0, 4096.0);
-      highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksX.xy, criteria.x),
-          unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*boneCompressedInfo);
-      skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*boneCompressedInfo);
-      skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*boneCompressedInfo);
-      skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.xy, criteria.x),
-        unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*boneCompressedInfo);
+  // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
+  // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
+  // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
+  // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
 
-      // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
-      // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
-      // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
-      // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
-
-      return skinMat;
-    }
-#endif
-
-    `;
-
+  return skinMat;
+}
+#endif`;
   }
+
   get packing() {
     return `
 const vec4 bitEnc = vec4(1.,255.,65025.,16581375.);
@@ -284,82 +280,66 @@ vec4 encodeFloatRGBA(float v) {
   val -= g;
   float b = mod(val, 16581375.0);
   return vec4(r/255.0, g/65025.0, b/16581375.0, 0.0);
-}
-`
-  }
+}`}
 
   get processGeometryWithSkinningOptionally() {
-
     return `
+bool skinning(
+  out bool isSkinning,
+  in mat3 inNormalMatrix,
+  out mat3 outNormalMatrix
+  )
+{
+  mat4 worldMatrix = get_worldMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(a_instanceID);
+  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
 
-    bool skinning(
-      out bool isSkinning,
-      in mat3 inNormalMatrix,
-      out mat3 outNormalMatrix
-      )
-    {
-      mat4 worldMatrix = get_worldMatrix(a_instanceID);
-      mat4 viewMatrix = get_viewMatrix(a_instanceID);
-      mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
-
-      // Skeletal
+  // Skeletal
 #ifdef RN_IS_SKINNING
-      isSkinning = false;
-      int skinningMode = get_skinningMode(u_materialSID, 0);
-      if (skinningMode == 1) {
-        mat4 skinMat = getSkinMatrix();
-        v_position_inWorld = skinMat * vec4(a_position, 1.0);
-        outNormalMatrix = toNormalMatrix(skinMat);
-        v_normal_inWorld = normalize(outNormalMatrix * a_normal);
-        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-        isSkinning = true;
-      } else {
-        v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-        gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-        outNormalMatrix = inNormalMatrix;
-        v_normal_inWorld = normalize(inNormalMatrix * a_normal);
-      }
+  isSkinning = false;
+  int skinningMode = get_skinningMode(u_materialSID, 0);
+  if (skinningMode == 1) {
+    mat4 skinMat = getSkinMatrix();
+    v_position_inWorld = skinMat * vec4(a_position, 1.0);
+    outNormalMatrix = toNormalMatrix(skinMat);
+    v_normal_inWorld = normalize(outNormalMatrix * a_normal);
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+    isSkinning = true;
+  } else {
+    v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+    outNormalMatrix = inNormalMatrix;
+    v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+  }
 #else
-      v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-      gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-      outNormalMatrix = inNormalMatrix;
-      v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+  v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
+  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+  outNormalMatrix = inNormalMatrix;
+  v_normal_inWorld = normalize(inNormalMatrix * a_normal);
 #endif
-      return isSkinning;
-    }
-`;
+  return isSkinning;
+}`;
   }
 
   get fetchElement() {
     return `
-    highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
-    {
-      highp float t = (index + 0.5) * invSize.x;
-      highp float x = fract(t);
-      highp float y = (floor(t) + 0.5) * invSize.y;
-      return ${this.glsl_texture}( tex, vec2(x, y) );
-    }
-    `;
+  highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
+  {
+    highp float t = (index + 0.5) * invSize.x;
+    highp float x = fract(t);
+    highp float y = (floor(t) + 0.5) * invSize.y;
+    return ${this.glsl_texture}( tex, vec2(x, y) );
+  }`;
   }
 
-  get pointSize() {
-    return `
-    uniform float u_pointSize;
-
-    float getPointSize(float instanceId) {
-      return u_pointSize;
-    }
-    `
-  }
-
-  get pointDistanceAttenuation() {
-    return `
-    uniform vec3 u_pointDistanceAttenuation;
-
-    vec3 getPointDistanceAttenuation(float instanceId) {
-      return u_pointDistanceAttenuation;
-    }
-    `
+  get pointSprite() {
+    return `vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
+  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
+  vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(u_materialSID, 0);
+  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
+  float maxPointSize = get_pointSize(u_materialSID, 0);
+  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);`;
   }
 
   get pbrUniformDefinition() {
@@ -553,6 +533,15 @@ vec4 encodeFloatRGBA(float v) {
     }
 
     `;
+  }
+
+  get simpleMVPPosition() {
+    return `
+    mat4 worldMatrix = get_worldMatrix(a_instanceID);
+    mat4 viewMatrix = get_viewMatrix(a_instanceID);
+    mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+    gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+    `
   }
 
   static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {

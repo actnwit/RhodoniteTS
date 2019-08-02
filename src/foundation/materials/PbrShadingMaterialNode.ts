@@ -69,7 +69,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
          
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Vector3(0,0.0),
+          initialValue: new Vector3(0, 0, 0),
           soloDatum: true
         },
         {

@@ -25,36 +25,32 @@ export default class GammaCorrectionShader extends GLSLShader implements ISingle
 
 
   get vertexShaderDefinitions() {
+    return ``;
+  };
+
+  vertexShaderBody: string = ``;
+
+  getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `
+    return `${_version}
+precision highp float;
+
 ${_in} vec3 a_position;
-${_in} vec3 a_color;
-${_in} vec3 a_normal;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
-${_out} vec3 v_color;
 ${_out} vec2 v_texcoord;
 
-${this.toNormalMatrix}
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
-`;
-
-  };
-
-  vertexShaderBody: string = `
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
-
-  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
-
+void main(){
   v_texcoord = a_texcoord;
-
-  `;
+  ${this.simpleMVPPosition}
+}
+`;
+  }
 
   getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
@@ -62,16 +58,13 @@ ${this.toNormalMatrix}
     const _def_rt0 = this.glsl_rt0;
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
-    const _textureCube = this.glsl_textureCube;
 
     return `${_version}
 precision highp float;
 
 uniform sampler2D u_baseColorTexture;
 
-${this.fetchElement}
-
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -105,11 +98,10 @@ void main ()
     return this.getFragmentShader(args);
   }
 
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Instance];
+  attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];
+  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Texcoord0, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec2, CompositionType.Scalar];
   }
 }
