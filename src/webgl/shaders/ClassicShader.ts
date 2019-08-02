@@ -53,6 +53,8 @@ uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
+uniform float u_pointSize;
+uniform vec3 u_pointDistanceAttenuation;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
