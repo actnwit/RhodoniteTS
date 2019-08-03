@@ -242,6 +242,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
       if (i >= Config.maxLightNumberInShader) {
         break;
       }
+      if ((shaderProgram as any).lightPosition == null) {
+        break;
+      }
       const lightComponent = lightComponents![i];
       const sceneGraphComponent = lightComponent.entity.getSceneGraph();
       const worldLightPosition = sceneGraphComponent.worldPosition;
