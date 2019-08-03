@@ -10,63 +10,99 @@ import ISingleShader from "./ISingleShader";
 
 export type AttributeNames = Array<string>;
 
-export default class DepthEncodingShader extends GLSLShader implements ISingleShader {
-  static __instance: DepthEncodingShader;
+export default class DepthEncodeShader extends GLSLShader implements ISingleShader {
+  static __instance: DepthEncodeShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
 
   private constructor() {
     super();
   }
 
-  static getInstance(): DepthEncodingShader {
+  static getInstance(): DepthEncodeShader {
     if (!this.__instance) {
-      this.__instance = new DepthEncodingShader();
+      this.__instance = new DepthEncodeShader();
     }
     return this.__instance;
   }
 
 
   get vertexShaderDefinitions() {
+    return ``;
+  };
+
+
+  getVertexShaderBody(args: any) {
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `
+    return `${this.glsl_versionText}
+precision highp float;
 ${_in} vec3 a_position;
+${_in} vec3 a_normal;
+${_in} float a_instanceID;
+${_in} vec4 a_joint;
+${_in} vec4 a_weight;
+${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inLocal;
+${_out} vec4 v_position_inWorld;
 
-uniform vec3 u_pointDistanceAttenuation;
+uniform float u_materialSID;
 uniform vec3 u_viewPosition;
+
 uniform float u_pointSize;
-`;
-  };
+uniform vec3 u_pointDistanceAttenuation;
 
-  vertexShaderBody: string = `
-  // point sprite
-  vec4 position_inWorld = u_worldMatrix * vec4(a_position, 1.0);
-  float distanceFromCamera = length(position_inWorld.xyz - u_viewPosition);
-  vec3 pointDistanceAttenuation = u_pointDistanceAttenuation;
-  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
-  float maxPointSize = u_pointSize;
-  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
+uniform int u_skinningMode;
+uniform highp vec4 u_boneCompressedChank[90];
+uniform highp vec4 u_boneCompressedInfo;
 
-  v_position_inLocal = u_projectionMatrix * u_viewMatrix * position_inWorld;
-  gl_Position = v_position_inLocal;
-  `;
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
+
+${this.toNormalMatrix}
+
+${this.getSkinMatrix}
+
+${this.processGeometryWithSkinningOptionally}
+
+  void main(){
+    mat4 worldMatrix = get_worldMatrix(a_instanceID);
+    mat4 viewMatrix = get_viewMatrix(a_instanceID);
+    mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+    mat3 normalMatrix = get_normalMatrix(a_instanceID);
+
+    // Skeletal
+    bool isSkinning;
+    skinning(isSkinning, normalMatrix, normalMatrix);
+
+    ${this.pointSprite}
+
+    v_position_inLocal = gl_Position;
+  }
+    `;
+
+  }
+
+
+  vertexShaderBody: string = ``;
 
   getFragmentShader() {
     const _in = this.glsl_fragment_in;
 
     const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
 
-    let zNear: number | string = mainCameraComponent.zNearInner;
-    let zFar: number | string = mainCameraComponent.zFarInner;
+    const zNear: number | string = mainCameraComponent.zNearInner;
+    const zFar: number | string = mainCameraComponent.zFarInner;
     let ZNearToFar: number | string = zFar - zNear;
 
     if (Number.isInteger(ZNearToFar)) {
       ZNearToFar = ZNearToFar + '.0';
     }
 
-    return `
+    return `${this.glsl_versionText}
 precision highp float;
 ${_in} vec4 v_position_inLocal;
 
@@ -82,13 +118,16 @@ vec4 encodeDepthToRGBA(float depth){
   return vec4(r, g, b, a);
 }
 
+${this.glsl_rt0}
 void main ()
 {
   float normalizationCoefficient = 1.0 / ${ZNearToFar};
   float linerDepth = normalizationCoefficient * length(v_position_inLocal);
   vec4 encodedLinearDepth = encodeDepthToRGBA(linerDepth);
 
-  gl_FragColor = encodedLinearDepth;
+  rt0 = encodedLinearDepth;
+
+  ${this.glsl_fragColor}
 }
 `;
   }
@@ -101,10 +140,10 @@ void main ()
     return this.getFragmentShader();
   }
 
-  attributeNames: AttributeNames = ['a_position'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position];
+  attributeNames: AttributeNames = ['a_position', 'a_normal', 'a_joint', 'a_weight', 'a_instanceID'];
+  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
   }
 }

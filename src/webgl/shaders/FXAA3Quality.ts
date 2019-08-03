@@ -20,7 +20,7 @@ export default class FXAA3QualityShader extends GLSLShader implements ISingleSha
     super();
   }
 
-static getInstance(): FXAA3QualityShader {
+  static getInstance(): FXAA3QualityShader {
     if (!this.instance) {
       this.instance = new FXAA3QualityShader();
     }
@@ -43,13 +43,9 @@ ${_out} vec2 v_texcoord;
   };
 
   vertexShaderBody: string = `
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  ${this.simpleMVPPosition}
 
   v_texcoord = a_texcoord;
-  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  gl_Position = projectionMatrix * viewMatrix * position_inWorld;
   `;
 
   getFragmentShader(args: any) {
@@ -59,42 +55,42 @@ ${_out} vec2 v_texcoord;
     const _def_fragColor = this.glsl_fragColor;
     const _texture = this.glsl_texture;
 
-//----------------------------------------------------------------------------------
-// File:        es3-kepler\FXAA/FXAA3_11.h
-// SDK Version: v3.00
-// Email:       gameworks@nvidia.com
-// Site:        http://developer.nvidia.com/
-//
-// Copyright (c) 2014-2015, NVIDIA CORPORATION. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//----------------------------------------------------------------------------------
-/*============================================================================
-                    NVIDIA FXAA 3.11 by TIMOTHY LOTTES
-============================================================================*/
+    //----------------------------------------------------------------------------------
+    // File:        es3-kepler\FXAA/FXAA3_11.h
+    // SDK Version: v3.00
+    // Email:       gameworks@nvidia.com
+    // Site:        http://developer.nvidia.com/
+    //
+    // Copyright (c) 2014-2015, NVIDIA CORPORATION. All rights reserved.
+    //
+    // Redistribution and use in source and binary forms, with or without
+    // modification, are permitted provided that the following conditions
+    // are met:
+    //  * Redistributions of source code must retain the above copyright
+    //    notice, this list of conditions and the following disclaimer.
+    //  * Redistributions in binary form must reproduce the above copyright
+    //    notice, this list of conditions and the following disclaimer in the
+    //    documentation and/or other materials provided with the distribution.
+    //  * Neither the name of NVIDIA CORPORATION nor the names of its
+    //    contributors may be used to endorse or promote products derived
+    //    from this software without specific prior written permission.
+    //
+    // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
+    // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    // PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    // CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    // EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    // PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    // PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    // OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    //
+    //----------------------------------------------------------------------------------
+    /*============================================================================
+                        NVIDIA FXAA 3.11 by TIMOTHY LOTTES
+    ============================================================================*/
 
 
 
@@ -106,7 +102,7 @@ uniform float u_materialSID;
 
 ${this.fetchElement}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 #define FXAA_PC 1
 #define FXAA_QUALITY_PRESET 12

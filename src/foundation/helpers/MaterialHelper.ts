@@ -1,26 +1,29 @@
+import AbstractTexture from "../textures/AbstractTexture";
+import { Count } from "../../types/CommonTypes";
+import FrameBuffer from "../renderer/FrameBuffer";
 import Material from "../materials/Material";
+import RenderPass from "../renderer/RenderPass";
+import AbstractMaterialNode from "../materials/AbstractMaterialNode";
 import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
 import ClassicShadingSingleMaterialNode from "../materials/ClassicShadingSingleMaterialNode";
-import EnvConstantSingleMaterialNode from "../materials/EnvConstantSingleMaterial";
+import EnvConstantSingleMaterialNode from "../materials/EnvConstantSingleMaterialNode";
 import FXAA3QualitySingleMaterialNode from "../materials/FXAA3QualitySingleMaterialNode";
-import DepthEncodingSingleMaterialNode from "../materials/DepthEncodingSingleMaterial";
-import ShadowMapping32bitSingleMaterial from "../materials/ShadowMapping32bitSingleMaterial";
-import RenderPass from "../renderer/RenderPass";
+import DepthEncodeSingleMaterialNode from "../materials/DepthEncodeSingleMaterialNode";
+import ShadowMapDecodeClassicSingleMaterialNode from "../materials/ShadowMapDecodeClassicSingleMaterialNode";
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
-import AbstractMaterialNode from "../materials/AbstractMaterialNode";
-import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterial";
+import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterialNode";
 
 function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const material = Material.createMaterial(materialName, materialNodes, maxInstancesNumber);
   return material;
 }
 
-function createPbrUberMaterial({isSkinning, isLighting, additionalName, maxInstancesNumber} : {isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number}) {
+function createPbrUberMaterial({ isSkinning, isLighting, additionalName, maxInstancesNumber }: { isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number }) {
   const materialName = 'PbrUber' + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new PbrShadingMaterialNode({isSkinning: isSkinning, isLighting: isLighting});
+  const materialNode = new PbrShadingMaterialNode({ isSkinning: isSkinning, isLighting: isLighting });
 
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -28,12 +31,12 @@ function createPbrUberMaterial({isSkinning, isLighting, additionalName, maxInsta
   return material;
 }
 
-function createClassicUberMaterial({isSkinning, isLighting, additionalName, maxInstancesNumber} : {isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number}) {
+function createClassicUberMaterial({ isSkinning, isLighting, additionalName, maxInstancesNumber }: { isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number }) {
   const materialName = 'ClassicUber' + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new ClassicShadingSingleMaterialNode({isSkinning: isSkinning, isLighting: isLighting});
+  const materialNode = new ClassicShadingSingleMaterialNode({ isSkinning: isSkinning, isLighting: isLighting });
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 
@@ -56,18 +59,26 @@ function createFXAA3QualityMaterial(maxInstancesNumber?: number) {
   return material;
 }
 
-function createDepthEncodingMaterial(maxInstancesNumber?: number) {
-  const materialNode = new DepthEncodingSingleMaterialNode();
+function createDepthEncodeMaterial({ isSkinning = true } = {}, maxInstancesNumber?: number) {
+  const materialName = 'DepthEncode'
+    + (isSkinning ? '+skinning' : '');
+
+  const materialNode = new DepthEncodeSingleMaterialNode({ isSkinning: isSkinning });
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('DepthEncodeing', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
+  const material = findOrCreateMaterial(materialName, [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
 
   return material;
 }
 
-function createShadowMapping32bitMaterial(renderPass: RenderPass, maxInstancesNumber?: number) {
-  const materialNode = new ShadowMapping32bitSingleMaterial(renderPass);
+function createShadowMapDecodeClassicSingleMaterial(depthEncodeRenderPass: RenderPass, { isSkinning = true, isLighting = true, colorAttachmentsNumber = 0 } = {}, maxInstancesNumber?: number) {
+  const materialName = 'ShadowMapDecodeClassic'
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
+
+  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode(depthEncodeRenderPass, { isSkinning: isSkinning, isLighting: isLighting, colorAttachmentsNumber: colorAttachmentsNumber });
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial('ShadowMapping32bit', [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
+  const material = findOrCreateMaterial(materialName, [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
+
   return material;
 }
 
@@ -87,8 +98,8 @@ function createEntityUIDOutputMaterial(maxInstancesNumber?: number) {
   return material;
 }
 
+
 export default Object.freeze({
-  createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial,
-  createFXAA3QualityMaterial, createDepthEncodingMaterial, createShadowMapping32bitMaterial,
-  createGammaCorrectionMaterial, createEntityUIDOutputMaterial
+  createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial,
 });

@@ -59,7 +59,7 @@ const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'gen
 const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'vertexAttributesExistenceArray' });
 const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedChank' });
 const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedInfo' });
-const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointSizee' });
+const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointSize' });
 const ColorEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'colorEnvTexture' });
 const PointDistanceAttenuation: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointDistanceAttenuation' });
 const HDRIFormat: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'hdriFormat' });
@@ -108,7 +108,7 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
   if (info.prefix != null) {
     prefix = info.prefix;
   }
-  return prefix+info.semantic.str;
+  return prefix + info.semantic.str;
 }
 
 const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {

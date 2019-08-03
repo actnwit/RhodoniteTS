@@ -1,6 +1,6 @@
 import RnObject from "../core/RnObject";
 import Buffer from "../memory/Buffer";
-import Accessor from "./AccessorBase";
+import Accessor from "./Accessor";
 import { CompositionTypeEnum } from "../definitions/CompositionType";
 import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 import { access } from "fs-extra";
@@ -132,7 +132,7 @@ export default class BufferView extends RnObject {
     } else {
       byteOffset = this.__takenByteIndex;
       // if (byteStride === 0) {
-        this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
+      this.__takenByteIndex += compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
       // } else {
       //   this.__takenByteIndex += byteStride;
       // }

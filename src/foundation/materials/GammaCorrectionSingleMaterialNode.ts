@@ -1,32 +1,13 @@
-import RnObject from "../core/RnObject";
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-  ShaderSemanticsEnum
-} from "../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../definitions/ShaderNode";
+import { ShaderSemanticsInfo, ShaderSemantics } from "../definitions/ShaderSemantics";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
-import MutableColorRgb from "../math/MutableColorRgb";
-import Vector2 from "../math/Vector2";
 import { ComponentType } from "../definitions/ComponentType";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import ModuleManager from "../system/ModuleManager";
-import { PixelFormat } from "../definitions/PixelFormat";
-import { TextureParameter } from "../definitions/TextureParameter";
-import Vector4 from "../math/Vector4";
-import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/shaders/ClassicShader";
-import { ShadingModel } from "../definitions/ShadingModel";
-import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
-import AbstractTexture from "../textures/AbstractTexture";
 import GammaCorrectionShader from "../../webgl/shaders/GammaCorrectionShader";
 import { ShaderType } from "../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../types/CommonTypes";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
 import Material from "./Material";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
 
@@ -36,18 +17,9 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.BaseColorTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 10,
-       
-        isSystem: false,
-        initialValue: [
-          0,
-          AbstractMaterialNode.__dummyWhiteTexture
-        ]
+        semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: 10,
       }
     ];
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
@@ -56,11 +28,10 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
   static async initDefaultTextures() {
   }
 
-  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {
       AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices

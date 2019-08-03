@@ -410,14 +410,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return false;
     }
 
-    let updateInterval: ShaderVariableUpdateIntervalEnum;
-    if (info) {
-      updateInterval = info.updateInteval!;
-    } else {
-      return false;
-    }
-
     if (!firstTime) {
+      const updateInterval = info.updateInteval!;
       if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
         return false;
       }
@@ -426,7 +420,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       // }
     }
 
-    const key = semanticStr;
     let setAsMatrix = false;
     let componentNumber = info.compositionType!.getNumberOfComponents();
     if (info.compositionType === CompositionType.Mat3) {
@@ -437,9 +430,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       componentNumber = 4;
     }
 
+    const key = semanticStr;
     let updated = false;
     if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
       if (value[0] != null && value[1] != null) {
+        if (info.compositionType === CompositionType.Texture2D) {
+          this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+        } else if (info.compositionType === CompositionType.TextureCube) {
+          this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+        }
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
     } else if (index == null && (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array)) {
@@ -460,14 +459,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value }, { firstTime: firstTime }, index);
       } else {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value.v }, { firstTime: firstTime }, index);
-      }
-    }
-
-    if (updated && value[0] != null && value[1] != null) {
-      if (info.compositionType === CompositionType.Texture2D) {
-        this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-      } else if (info.compositionType === CompositionType.TextureCube) {
-        this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
       }
     }
 

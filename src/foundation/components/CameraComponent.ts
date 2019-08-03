@@ -131,7 +131,21 @@ export default class CameraComponent extends Component {
   }
 
   set direction(vec: Vector3) {
-    this._direction.copyComponents(vec);
+    const oldDirection = this._direction;
+    const newDirection = vec;
+    const oldUp = this._up;
+
+    let newUpNonNomalize;
+    if (Vector3.cross(newDirection, oldUp).isEqual(Vector3.zero())) {
+      const relativeXaxis = Vector3.cross(oldDirection, oldUp);
+      newUpNonNomalize = Vector3.cross(relativeXaxis, newDirection);
+    } else {
+      const newDirectionComponentInOldUp = Vector3.multiply(newDirection, newDirection.dotProduct(oldUp));
+      newUpNonNomalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
+    }
+
+    this._up = Vector3.normalize(newUpNonNomalize);
+    this._direction.copyComponents(newDirection);
   }
 
   set directionInner(vec: Vector3) {

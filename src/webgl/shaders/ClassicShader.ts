@@ -32,7 +32,7 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
     return `${_version}
 precision highp float;
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${_in} vec3 a_position;
 ${_in} vec3 a_color;
@@ -53,20 +53,18 @@ uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
+uniform float u_pointSize;
+uniform vec3 u_pointDistanceAttenuation;
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '' }
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${this.toNormalMatrix}
 
 ${this.getSkinMatrix}
 
 ${this.processGeometryWithSkinningOptionally}
-
-${this.pointSize}
-
-${this.pointDistanceAttenuation}
 
 void main()
 {
@@ -83,13 +81,7 @@ void main()
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
 
-  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  vec3 viewPosition = get_viewPosition(0.0, 0);
-  float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
-  vec3 pointDistanceAttenuation = getPointDistanceAttenuation(a_instanceID);
-  float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
-  float maxPointSize = getPointSize(a_instanceID);
-  gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);
+  ${this.pointSprite}
 
 //  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
 
@@ -117,7 +109,7 @@ void main()
     return `${_version}
 precision highp float;
 
-${(typeof args.definitions !== 'undefined') ? args.definitions : '' }
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 uniform highp sampler2D u_dataTexture;
 
@@ -149,7 +141,7 @@ ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main ()
 {

@@ -69,7 +69,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
          
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Vector3(0,0.0),
+          initialValue: new Vector3(0, 0, 0),
           soloDatum: true
         },
         {
@@ -133,6 +133,19 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
         },
       ];
+
+      shaderSemanticsInfoArray.push(
+        {
+          semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+          initialValue: 100.0, min: 0, max: 100
+        },
+        {
+          semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+          stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+          initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1
+        }
+      );
 
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
