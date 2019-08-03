@@ -17,7 +17,7 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   static readonly _scale = 10000;
   private static __classes: ShaderSemanticsClass[] = [];
   constructor({ str }: { index?: number, str: string }) {
-    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str });
+    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str, noCheckStrUnique: true});
     ShaderSemanticsClass.__classes[this.index] = this;
   }
 
