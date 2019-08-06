@@ -497,19 +497,9 @@ export default class Mesh {
         const elementCount = morphAccessor.elementCount;
         for (let j = 0; j < elementCount; j++) {
           morphAccessor.setElementFromSameCompositionAccessor(j, primitive.getAttribute(semantic)!)
+          morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[i]);
         }
       });
-
-      for (let k = 0; k < primitive.targets.length; k++) {
-        const target = primitive.targets[k];
-        target.forEach((accessor, semantic) => {
-          const morphAccessor = morphPrimitive.getAttribute(semantic)!;
-          const elementCount = morphAccessor.elementCount;
-          for (let j = 0; j < elementCount; j++) {
-            morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
-          }
-        });
-      }
     }
   }
 
