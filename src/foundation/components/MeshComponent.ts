@@ -58,10 +58,26 @@ export default class MeshComponent extends Component {
       return;
     }
     //    this.__mesh!.makeVerticesSepareted();
-    this.__mesh!.__calcTangents();
+    this.__mesh.__calcTangents();
+    this.__mesh.__initMorphPrimitives();
     //this.__mesh!.__calcFaceNormals();
     //  this.__mesh!.__calcBaryCentricCoord();
-    this.moveStageTo(ProcessStage.Mount);
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $logic() {
+    if (this.__mesh == null) {
+      return;
+    }
+    this.__mesh.__calcMorphPrimitives();
+  }
+
+  set weights(value: number[]) {
+    if (this.__mesh == null) {
+      return;
+    }
+    //    this.__mesh!.makeVerticesSepareted();
+    this.__mesh.weights = value;
   }
 
 

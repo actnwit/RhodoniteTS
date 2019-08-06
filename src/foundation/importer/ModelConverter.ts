@@ -477,7 +477,7 @@ export default class ModelConverter {
       }
 
       if (mesh.weights) {
-        meshComponent.mesh!.weights = mesh.weights;
+        rnMesh.weights = mesh.weights;
       }
     }
 

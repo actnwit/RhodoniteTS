@@ -28,7 +28,7 @@ export default class Mesh {
   private __opaquePrimitives: Array<Primitive> = [];
   private __transparentPrimitives: Array<Primitive> = [];
   private __instanceOf?: Mesh;
-  public weights = [];
+  public weights: number[] = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
@@ -487,8 +487,6 @@ export default class Mesh {
     if (this.weights.length === 0) {
       return;
     }
-
-    this.__initMorphPrimitives();
 
     for (let i = 0; i < this.__primitives.length; i++) {
       const morphPrimitive = this.__morphPrimitives[i];
