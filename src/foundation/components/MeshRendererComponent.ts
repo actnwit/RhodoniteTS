@@ -50,6 +50,7 @@ export default class MeshRendererComponent extends Component {
   private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
   private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
+  private static __lastTransparentIndex = -1;
   private static __manualTransparentSids?: ComponentSID[];
   public _readyForRendering = false;
 
@@ -71,6 +72,10 @@ export default class MeshRendererComponent extends Component {
 
   static get firstTranparentIndex() {
     return MeshRendererComponent.__firstTransparentIndex;
+  }
+
+  static get lastTransparentIndex() {
+    return MeshRendererComponent.__lastTransparentIndex;
   }
 
   $create({processApproach}: {
@@ -327,6 +332,8 @@ export default class MeshRendererComponent extends Component {
 
     // Concat opaque and transparent meshes
     const sortedMeshComponentSids = opaqueAndTransparentPartiallyMeshComponentSids.concat(transparentMeshComponentSids);
+
+    MeshRendererComponent.__lastTransparentIndex = sortedMeshComponentSids.length - 1;
 
     // Add terminator
     sortedMeshComponentSids.push(Component.invalidComponentSID);

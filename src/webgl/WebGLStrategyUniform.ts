@@ -409,7 +409,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    this.setWebGLStates(idx, gl, renderPass);
+    this.setWebGLStatesBegin(idx, gl, renderPass);
 
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
@@ -480,19 +480,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       this.dettachVertexData(glw);
 
     }
-    //    gl.useProgram(null);
-    // this.__lastShader = -1;
+
+    this.setWebGLStatesEnd(idx, gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
 
 
-  private setWebGLStates(idx: number, gl: any, renderPass: RenderPass) {
-    if (idx === 0) {
-      gl.disable(gl.BLEND);
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthMask(true);
-      WebGLStrategyUniform.__isOpaqueMode = true;
-    }
+  private setWebGLStatesBegin(idx: number, gl: any, renderPass: RenderPass) {
     if (idx === MeshRendererComponent.firstTranparentIndex) {
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
@@ -507,6 +501,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         gl.disable(gl.CULL_FACE);
       }
       this.__lastRenderPassCullFace = renderPass.cullface;
+    }
+  }
+
+  private setWebGLStatesEnd(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
+    if (idx === MeshRendererComponent.lastTransparentIndex) {
+      gl.disable(gl.BLEND);
+      gl.depthMask(true);
+      WebGLStrategyUniform.__isOpaqueMode = true;
     }
   }
 }
