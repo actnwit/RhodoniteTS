@@ -61,7 +61,9 @@ export default class MeshComponent extends Component {
     this.__mesh.__calcTangents();
     this.__mesh.__initMorphPrimitives();
     //this.__mesh!.__calcFaceNormals();
-    //  this.__mesh!.__calcBaryCentricCoord();
+    if (this.__mesh.weights.length > 0) {
+      this.__mesh!.__calcBaryCentricCoord();
+    }
     this.moveStageTo(ProcessStage.Logic);
   }
 

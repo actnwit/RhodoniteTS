@@ -34,6 +34,7 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import ClassicShader from "./shaders/ClassicShader";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: Matrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -55,12 +56,34 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
-  private static __vertexShaderMethodDefinitions_uniform: string =
+  private static __vertexShaderMethodDefinitions_uniform: string;
+
+  private __lastShader: CGAPIResourceHandle = -1;
+  private static transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  private constructor() { }
+
+  setupShaderProgram(meshComponent: MeshComponent): void {
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+  const _texture = ClassicShader.getInstance().glsl_texture;
+  WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
     `
   uniform mat4 u_worldMatrix;
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
+
+  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
+  {
+    float t = (index + 0.5) * invSize.x;
+    float x = fract(t);
+    float y = (floor(t) + 0.5) * invSize.y;
+    return ${_texture}( tex, vec2(x, y) );
+  }
 
   mat4 get_worldMatrix(float instanceId) {
     return u_worldMatrix;
@@ -77,18 +100,26 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   mat3 get_normalMatrix(float instanceId) {
     return u_normalMatrix;
   }
-  `;
 
-  private __lastShader: CGAPIResourceHandle = -1;
-  private static transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
-  private constructor() { }
-
-  setupShaderProgram(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
+  vec3 get_position(float vertexId, vec3 basePosition) {
+    vec3 position = basePosition;
+    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+      float index = u_dataTexture_offset_position[i] + 1.0 * vertexId;
+      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
+      position += addPos;
+      if (i == u_morph_target_number-1) {
+        break;
+      }
     }
+
+    return position;
+  }
+
+  `;
 
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {

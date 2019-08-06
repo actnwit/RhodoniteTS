@@ -437,7 +437,7 @@ export default class Mesh {
       const indicesAccessor = primitive.indicesAccessor;
       const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
       const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
+      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
 
       const vertexNum = positionAccessor.elementCount;
       let num = vertexNum;
@@ -449,10 +449,11 @@ export default class Mesh {
         if (indicesAccessor) {
           idx = indicesAccessor!.getScalar(ver_i, {});
         }
-        baryCentricCoordAccessor.setVec3(idx,
+        baryCentricCoordAccessor.setVec4(idx,
           idx % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
           idx % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
-          idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
+          idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
+          idx,
           {});
       }
       primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);

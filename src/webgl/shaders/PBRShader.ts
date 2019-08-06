@@ -48,7 +48,7 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
-${_in} vec3 a_baryCentricCoord;
+${_in} vec4 a_baryCentricCoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_faceNormal_inWorld;
@@ -67,7 +67,9 @@ uniform highp vec4 u_boneCompressedChank[90];
 uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
-
+uniform sampler2D u_dataTexture;
+uniform int u_morph_target_number;
+uniform float u_dataTexture_offset_position[${Config.maxVertexMorphNumberInShader}];
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -106,7 +108,7 @@ void main()
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
   }
-  v_baryCentricCoord = a_baryCentricCoord;
+  v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   ${this.pointSprite}
 
@@ -436,6 +438,6 @@ void main ()
   VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec3, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
   }
 }
