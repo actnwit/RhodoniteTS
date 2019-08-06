@@ -40,6 +40,8 @@ import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
 import Config from "../core/Config";
+import { BufferUse } from "../definitions/BufferUse";
+import MemoryManager from "../core/MemoryManager";
 
 declare var DracoDecoderModule: any;
 
@@ -465,7 +467,8 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
+              const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
+              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
             }
             targets.push(targetMap);
           }
@@ -937,6 +940,44 @@ export default class ModelConverter {
     }
 
     return rnAccessor;
+  }
+
+  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
+    const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
+    const srcRnBufferView = srcRnAccessor.bufferView;
+    const dstRnBufferView = dstRnBuffer.takeBufferViewWithByteOffset({
+      byteLengthToNeed: srcRnBufferView.byteLength,
+      byteStride: (srcRnBufferView.byteStride != null) ? srcRnBufferView.byteStride : 0,
+      byteOffset: (srcRnBufferView.byteOffset != null) ? srcRnBufferView.byteOffset : 0,
+      isAoS: false
+    });
+
+    let dstRnAccessor;
+    if (srcRnAccessor.byteStride != null) {
+      dstRnAccessor = dstRnBufferView.takeFlexibleAccessorWithByteOffset({
+        compositionType: srcRnAccessor.compositionType,
+        componentType: srcRnAccessor.componentType,
+        count: srcRnAccessor.elementCount,
+        byteStride: srcRnAccessor.byteStride,
+        byteOffset: (srcRnAccessor.byteOffsetInBufferView != null) ? srcRnAccessor.byteOffsetInBufferView : 0,
+        max: srcRnAccessor.max,
+        min: srcRnAccessor.min
+      });
+    } else {
+      dstRnAccessor = srcRnBufferView.takeAccessorWithByteOffset({
+        compositionType: srcRnAccessor.compositionType,
+        componentType: srcRnAccessor.componentType,
+        count: srcRnAccessor.elementCount,
+        byteOffset: (srcRnAccessor.byteOffsetInBufferView != null) ? srcRnAccessor.byteOffsetInBufferView : 0,
+        max: srcRnAccessor.max,
+        min: srcRnAccessor.min
+      });
+    }
+    for (let i=0; i<srcRnAccessor.elementCount; i++) {
+      dstRnAccessor.setElementFromSameCompositionAccessor(i, srcRnAccessor);
+    }
+
+    return dstRnAccessor;
   }
 
   private __createRnAccessor(accessor: any, numOfAttributes: Count, compositionNum: Count, rnBuffer: Buffer) {
