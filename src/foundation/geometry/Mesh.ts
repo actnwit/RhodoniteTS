@@ -348,7 +348,6 @@ export default class Mesh {
       return this.__instanceOf!.getPrimitiveAt(i);
     } else {
       if (this.weights.length > 0) {
-        this.__calcMorphPrimitives();
         return this.__morphPrimitives[i];
       } else {
         return this.__primitives[i];
