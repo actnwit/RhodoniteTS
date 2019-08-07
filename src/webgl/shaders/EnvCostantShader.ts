@@ -45,9 +45,9 @@ precision highp float;
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${_in} vec3 a_position;
-uniform float u_dataTexture_offset_position[${Config.maxVertexMorphNumberInShader}];
+uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
 uniform sampler2D u_dataTexture;
-uniform int u_morph_target_number;
+uniform int u_morphTargetNumber;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 

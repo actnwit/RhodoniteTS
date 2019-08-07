@@ -24,6 +24,7 @@ import Config from "../core/Config";
 import SkeletalComponent from "../components/SkeletalComponent";
 import MutableVector4 from "../math/MutableVector4";
 import VectorN from "../math/VectorN";
+import MeshComponent from "../components/MeshComponent";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -219,6 +220,13 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
+    if (true){
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphTargetNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader, min: 0, max: Config.maxVertexMorphNumberInShader, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new Scalar(0)});
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.DataTextureMorphOffsetPosition, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue:  new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)) });
+    }
+
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
@@ -326,5 +334,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     // Lights
     AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
+    // Morph
+    AbstractMaterialNode.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.primitive);
   }
 }

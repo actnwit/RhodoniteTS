@@ -59,7 +59,7 @@ export default class MeshComponent extends Component {
     }
     //    this.__mesh!.makeVerticesSepareted();
     this.__mesh.__calcTangents();
-    this.__mesh.__initMorphPrimitives();
+    // this.__mesh.__initMorphPrimitives();
     //this.__mesh!.__calcFaceNormals();
     if (this.__mesh.weights.length > 0) {
       this.__mesh!.__calcBaryCentricCoord();
@@ -71,7 +71,7 @@ export default class MeshComponent extends Component {
     if (this.__mesh == null) {
       return;
     }
-    this.__mesh.__calcMorphPrimitives();
+    // this.__mesh.__calcMorphPrimitives();
   }
 
   set weights(value: number[]) {

@@ -104,14 +104,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      float index = u_dataTexture_offset_position[i] + 1.0 * vertexId;
+      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
       float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
       float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
       vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
     //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
       vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
       position += addPos;
-      if (i == u_morph_target_number-1) {
+      if (i == u_morphTargetNumber-1) {
         break;
       }
     }
@@ -494,6 +494,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           setUniform: true,
           glw: glw,
           entity: entity,
+          primitive: primitive,
           worldMatrix: worldMatrix,
           normalMatrix: normalMatrix,
           lightComponents: this.__lightComponents,

@@ -347,11 +347,11 @@ export default class Mesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getPrimitiveAt(i);
     } else {
-      if (this.weights.length > 0) {
-        return this.__morphPrimitives[i];
-      } else {
+      // if (this.weights.length > 0) {
+        // return this.__morphPrimitives[i];
+      // } else {
         return this.__primitives[i];
-      }
+      // }
     }
   }
 
