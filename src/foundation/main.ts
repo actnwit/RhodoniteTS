@@ -14,10 +14,14 @@ import Scalar from './math/Scalar';
 import Vector2 from './math/Vector2';
 import Vector3 from './math/Vector3';
 import Vector4 from './math/Vector4';
+import MutableVector2 from './math/MutableVector2';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
+import Matrix22 from './math/Matrix22';
 import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
+import MutableMatrix22 from './math/MutableMatrix22';
+import MutableMatrix33 from './math/MutableMatrix33';
 import MutableMatrix44 from './math/MutableMatrix44';
 import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
@@ -76,10 +80,14 @@ const Rn = {
   Vector2,
   Vector3,
   Vector4,
+  MutableVector2,
   MutableVector3,
   MutableVector4,
+  Matrix22,
   Matrix33,
   Matrix44,
+  MutableMatrix22,
+  MutableMatrix33,
   MutableMatrix44,
   ProcessApproach,
   Gltf1Importer,
