@@ -70,6 +70,7 @@ uniform int u_skinningMode;
 uniform sampler2D u_dataTexture;
 uniform int u_morphTargetNumber;
 uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
+uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 

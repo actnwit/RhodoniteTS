@@ -60,7 +60,7 @@ export default class MeshComponent extends Component {
     //    this.__mesh!.makeVerticesSepareted();
     this.__mesh.__calcTangents();
     // this.__mesh.__initMorphPrimitives();
-    //this.__mesh!.__calcFaceNormals();
+    // this.__mesh!.__calcFaceNormals();
     if (this.__mesh.weights.length > 0) {
       this.__mesh!.__calcBaryCentricCoord();
     }
@@ -81,7 +81,6 @@ export default class MeshComponent extends Component {
     //    this.__mesh!.makeVerticesSepareted();
     this.__mesh.weights = value;
   }
-
 
   calcViewDepth(cameraComponent: CameraComponent) {
     const viewMatrix = cameraComponent.viewMatrix;

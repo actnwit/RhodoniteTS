@@ -74,6 +74,7 @@ const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass(
 const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'entityUID' });
 const MorphTargetNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'morphTargetNumber' });
 const DataTextureMorphOffsetPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'dataTextureMorphOffsetPosition' });
+const MorphWeights: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'morphWeights' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
@@ -81,7 +82,7 @@ const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneM
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
   ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition];
+  EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -159,5 +160,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition
+  from, fromString, fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights
 });

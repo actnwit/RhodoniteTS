@@ -225,6 +225,8 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.VertexShader, min: 0, max: Config.maxVertexMorphNumberInShader, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new Scalar(0)});
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.DataTextureMorphOffsetPosition, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue:  new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)) });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphWeights, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue:  new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

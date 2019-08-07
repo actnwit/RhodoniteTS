@@ -944,37 +944,21 @@ export default class ModelConverter {
 
   private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
     const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
-    const srcRnBufferView = srcRnAccessor.bufferView;
-    const dstRnBufferView = dstRnBuffer.takeBufferViewWithByteOffset({
-      byteLengthToNeed: srcRnBufferView.byteLength,
-      byteStride: (srcRnBufferView.byteStride != null) ? srcRnBufferView.byteStride : 0,
-      byteOffset: (srcRnBufferView.byteOffset != null) ? srcRnBufferView.byteOffset : 0,
+    const dstRnBufferView = dstRnBuffer.takeBufferView({
+      byteLengthToNeed: srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */,
+      byteStride: 4 /* vec4 */ * 4 /* bytes */,
       isAoS: false
     });
 
-    let dstRnAccessor;
-    if (srcRnAccessor.byteStride != null) {
-      dstRnAccessor = dstRnBufferView.takeFlexibleAccessorWithByteOffset({
-        compositionType: srcRnAccessor.compositionType,
-        componentType: srcRnAccessor.componentType,
+    const dstRnAccessor = dstRnBufferView.takeAccessor({
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
         count: srcRnAccessor.elementCount,
-        byteStride: srcRnAccessor.byteStride,
-        byteOffset: (srcRnAccessor.byteOffsetInBufferView != null) ? srcRnAccessor.byteOffsetInBufferView : 0,
         max: srcRnAccessor.max,
         min: srcRnAccessor.min
       });
-    } else {
-      dstRnAccessor = srcRnBufferView.takeAccessorWithByteOffset({
-        compositionType: srcRnAccessor.compositionType,
-        componentType: srcRnAccessor.componentType,
-        count: srcRnAccessor.elementCount,
-        byteOffset: (srcRnAccessor.byteOffsetInBufferView != null) ? srcRnAccessor.byteOffsetInBufferView : 0,
-        max: srcRnAccessor.max,
-        min: srcRnAccessor.min
-      });
-    }
     for (let i=0; i<srcRnAccessor.elementCount; i++) {
-      dstRnAccessor.setElementFromSameCompositionAccessor(i, srcRnAccessor);
+      dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
     }
 
     return dstRnAccessor;
