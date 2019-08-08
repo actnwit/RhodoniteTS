@@ -138,10 +138,21 @@ export default class AccessorBase extends RnObject {
     // if (this.__bufferView.isAoS) {
     //   stride = this.__bufferView.byteStride;
     // }
+
+    if (this.__takenCount >= this.__count) {
+      console.error('You are trying to allocate more than you have secured.');
+    }
     const subTypedArray = new this.__typedArrayClass!(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents() * this.__arrayLength);
     this.__takenCount += 1;
 
+    (subTypedArray as any)._accessor = this;
+    (subTypedArray as any)._idx_of_accessor = this.__takenCount;
+
     return subTypedArray;
+  }
+
+  get takenCount(): Count {
+    return this.takenCount;
   }
 
   get numberOfComponents() {

@@ -136,20 +136,27 @@ export default class Material extends RnObject {
         totalByteLength += alignedByteLength * dataCount;
         alignedByteLengthAndsemanticInfoArray.push({ alignedByte: alignedByteLength, semanticInfo: semanticInfo });
 
-        if (!this.__accessors.has(materialTypeName)) {
-          this.__accessors.set(materialTypeName, new Map());
-        }
       }
     }
 
+    if (!this.__accessors.has(materialTypeName)) {
+      this.__accessors.set(materialTypeName, new Map());
+    }
+
+
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
-    const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: totalByteLength,
-      byteStride: 0,
-      byteAlign: 16,
-      isAoS: false
-    });
-    this.__bufferViews.set(materialTypeName, bufferView);
+    let bufferView;
+    if (this.__bufferViews.has(materialTypeName)) {
+      bufferView = this.__bufferViews.get(materialTypeName);
+    } else {
+      bufferView = buffer.takeBufferView({
+        byteLengthToNeed: totalByteLength,
+        byteStride: 0,
+        byteAlign: 16,
+        isAoS: false
+      });
+      this.__bufferViews.set(materialTypeName, bufferView);
+    }
 
     for (let i = 0; i < alignedByteLengthAndsemanticInfoArray.length; i++) {
       const alignedByte = alignedByteLengthAndsemanticInfoArray[i].alignedByte;
@@ -159,13 +166,16 @@ export default class Material extends RnObject {
       if (!semanticInfo.soloDatum) {
         count = Material.__maxInstances.get(materialTypeName)!;
       }
-
-      const accessor = bufferView.takeFlexibleAccessor({
+      let maxArrayLength = semanticInfo.maxIndex;
+      if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
+        maxArrayLength = 100;
+      }
+      const accessor = bufferView!.takeFlexibleAccessor({
         compositionType: semanticInfo.compositionType,
         componentType: ComponentType.Float,
         count: count,
         byteStride: alignedByte,
-        arrayLength: semanticInfo.maxIndex,
+        arrayLength: maxArrayLength,
         byteAlign: 16
       });
 
@@ -247,13 +257,12 @@ export default class Material extends RnObject {
 
     this.__materialNodes.forEach((materialNode) => {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
+      const accessorMap = Material.__accessors.get(this.__materialTypeName);
       semanticsInfoArray.forEach((semanticsInfo) => {
         const propertyIndex = Material.__getPropertyIndex(semanticsInfo);
         this.__fieldsInfo.set(propertyIndex, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
-          const accessorMap = Material.__accessors.get(this.__materialTypeName);
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
-
           const typedArray = accessor.takeOne() as Float32Array;
           this.__fields.set(
             propertyIndex,

@@ -57,6 +57,8 @@ import Mesh from './geometry/Mesh';
 import { MathUtil } from './math/MathUtil';
 import Component from './core/Component';
 import WebGLStrategyUniform from '../webgl/WebGLStrategyUniform';
+import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSingleMaterialNode';
+import RnObject from '../foundation/core/RnObject';
 
 
 const Rn = {
@@ -118,7 +120,9 @@ const Rn = {
   Mesh,
   MathUtil,
   Component,
-  WebGLStrategyUniform
+  WebGLStrategyUniform,
+  EnvConstantSingleMaterialNode,
+  RnObject,
 };
 export default Rn;
 export type RnType = typeof Rn;
