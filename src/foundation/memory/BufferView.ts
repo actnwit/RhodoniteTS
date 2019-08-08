@@ -140,15 +140,18 @@ export default class BufferView extends RnObject {
 
     if (byteOffset % byteAlign !== 0) {
       console.info(`Padding bytes added because byteOffset is not ${byteAlign}byte aligned.`);
-      byteOffset += byteAlign - byteOffset % byteAlign;
+      const paddingBytes = byteAlign - byteOffset % byteAlign;
+      byteOffset += paddingBytes;
+      this.__takenByteIndex += paddingBytes;
     }
 
-    if (this.__byteOffset % byteAlign !== 0) {
-      console.info(`Padding bytes added because byteOffsetFromBuffer is not ${byteAlign}byte aligned.`);
-      this.__byteOffset += byteAlign - this.__byteOffset % byteAlign;
-      this.buffer._addTakenByteIndex(byteAlign - this.__byteOffset % byteAlign);
-    }
-
+    // if (this.__byteOffset % byteAlign !== 0) {
+    //   console.info(`Padding bytes added because byteOffsetFromBuffer is not ${byteAlign}byte aligned.`);
+    //   const paddingBytes = byteAlign - this.__byteOffset % byteAlign;
+    //   // this.__byteOffset += paddingBytes;
+    //   this.__takenByteIndex += paddingBytes;
+    //   // this.buffer._addTakenByteIndex(paddingBytes);
+    // }
 
     const accessor = new accessorClass({
       bufferView: this, byteOffset: byteOffset, compositionType: compositionType, componentType: componentType, byteStride: byteStride, count: count, raw: this.__raw, max: max, min: min, arrayLength
