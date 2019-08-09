@@ -68,9 +68,12 @@ uniform highp vec4 u_boneCompressedInfo;
 uniform int u_skinningMode;
 
 uniform sampler2D u_dataTexture;
+
+#ifdef RN_IS_MORPHING
 uniform int u_morphTargetNumber;
 uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
 uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
+#endif
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -92,15 +95,19 @@ void main()
   v_color = a_color;
 
   bool isSkinning;
+
+#ifdef RN_IS_MORPHING
   if (u_morphTargetNumber == 0) {
+#endif
     // Skeletal
     skinning(isSkinning, normalMatrix, normalMatrix);
+#ifdef RN_IS_MORPHING
   } else {
     vec3 morphedPosition = get_position(a_baryCentricCoord.w, a_position);
     v_position_inWorld = worldMatrix * vec4(morphedPosition, 1.0);
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   }
-
+#endif
 
 
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;
