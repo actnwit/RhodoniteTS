@@ -1,5 +1,6 @@
 import DataUtil from "../misc/DataUtil";
 import { glTF1, GltfLoadOption } from "../../types/glTF";
+import { resolve } from "dns";
 
 declare var Rn: any;
 
@@ -107,21 +108,21 @@ export default class Gltf1Importer {
 
   async _loadAsBinaryJson(dataView: DataView, isLittleEndian: boolean, arrayBuffer: ArrayBuffer, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string) {
     let gltfVer = dataView.getUint32(4, isLittleEndian);
-    if (gltfVer !== 2) {
+    if (gltfVer !== 1) {
       throw new Error('invalid version field in this binary glTF file.');
     }
     let lengthOfThisFile = dataView.getUint32(8, isLittleEndian);
     let lengthOfJSonChunkData = dataView.getUint32(12, isLittleEndian);
     let chunkType = dataView.getUint32(16, isLittleEndian);
-    // 0x4E4F534A means JSON format (0x4E4F534A is 'JSON' in ASCII codes)
-    if (chunkType !== 0x4E4F534A) {
+    // 0 means JSON format
+    if (chunkType !== 0) {
       throw new Error('invalid chunkType of chunk0 in this binary glTF file.');
     }
     let arrayBufferJSonContent = arrayBuffer.slice(20, 20 + lengthOfJSonChunkData);
     let gotText = DataUtil.arrayBufferToString(arrayBufferJSonContent);
     let gltfJson = JSON.parse(gotText);
     options = this._getOptions(defaultOptions, gltfJson, options);
-    let arrayBufferBinary = arrayBuffer.slice(20 + lengthOfJSonChunkData + 8);
+    let arrayBufferBinary = arrayBuffer.slice(20 + lengthOfJSonChunkData);
 
     let basePath = null;
     if (uri) {
@@ -666,6 +667,14 @@ export default class Gltf1Importer {
             resolve(gltfJson);
           }
         ));
+      } else if (bufferInfo.uri === '' || bufferInfo.uri === 'data:,') {
+        promisesToLoadResources.push(
+          new Promise((resolve, rejected) => {
+            resources.buffers[i] = arrayBufferBinary;
+            bufferInfo.buffer = arrayBufferBinary;
+            resolve(gltfJson);
+          })
+        );
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
@@ -709,7 +718,9 @@ export default class Gltf1Importer {
 
       let imageUri: string;
 
-      if (typeof imageJson.uri === 'undefined') {
+      if (typeof imageJson.extensions !== 'undefined' && typeof imageJson.extensions.KHR_binary_glTF !== 'undefined') {
+        imageUri = this._accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary, imageJson.extensions.KHR_binary_glTF.mimeType);
+      } else if (typeof imageJson.uri === 'undefined') {
         imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
       } else {
         let imageFileStr = imageJson.uri;
