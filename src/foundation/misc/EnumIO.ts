@@ -48,7 +48,7 @@ export class EnumClass implements EnumIO {
 export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: number }): EnumIO {
   const match = typeList.find(type => type.index === index);
   if (!match) {
-    throw new Error(`Invalid PrimitiveMode index: [${index}]`);
+    throw new Error(`Invalid index: [${index}]`);
   }
 
   return match;
@@ -57,7 +57,7 @@ export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: num
 export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO {
   const match = typeList.find(type => type.str.toLowerCase() === str.toLowerCase());
   if (!match) {
-    throw new Error(`Invalid PrimitiveMode index: [${str}]`);
+    throw new Error(`Invalid str: [${str}]`);
   }
 
   return match;

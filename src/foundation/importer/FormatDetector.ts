@@ -11,6 +11,10 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
         return new Promise((resolve, reject)=>{
           checkArrayBufferOfGltf(files[fileName], resolve);
         });
+      } else if (fileExtension === 'drc') {
+        return new Promise((resolve, reject)=>{
+          resolve('Draco');
+        });
       }
     }
   }
@@ -22,6 +26,10 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
   if (fileExtension === 'efk') {
     return new Promise((resolve, reject)=>{
       resolve('Effekseer');
+    });
+  } else if (fileExtension === 'drc') {
+    return new Promise((resolve, reject)=>{
+      resolve('Draco');
     });
   }
 

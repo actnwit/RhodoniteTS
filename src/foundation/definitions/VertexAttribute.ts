@@ -45,7 +45,17 @@ function from( index : number ): VertexAttributeEnum {
 }
 
 function fromString( str: string ): VertexAttributeEnum {
-  return _fromString({typeList, str}) as VertexAttributeEnum;
+  let newStr = str;
+  if (str === 'COLOR') {
+    newStr = 'COLOR_0';
+  } else if (str === 'TEXCOORD') {
+    newStr = 'TEXCOORD_0';
+  } else if (str ==='JOINTS') {
+    newStr = 'JOINTS_0';
+  } else if (str ==='WEIGHTS') {
+    newStr = 'WEIGHTS_0';
+  }
+  return _fromString({typeList, str:newStr}) as VertexAttributeEnum;
 }
 
 export const VertexAttribute = Object.freeze({

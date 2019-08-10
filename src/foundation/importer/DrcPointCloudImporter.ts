@@ -50,7 +50,7 @@ export default class DrcPointCloudImporter {
         const splitted = fileName.split('.');
         const fileExtension = splitted[splitted.length - 1];
 
-        if (fileExtension === 'gltf' || fileExtension === 'glb') {
+        if (fileExtension === 'drc') {
           return await this.__decodeDraco((options.files as any)[fileName], options, defaultOptions, void 0, textureUri).catch((err) => {
             console.log('this.__decodeDraco error', err);
           });
