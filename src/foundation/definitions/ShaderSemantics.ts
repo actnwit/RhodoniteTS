@@ -24,6 +24,30 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   static getShaderSemanticByIndex(index: Index) {
     return this.__classes[Math.abs(index) - Math.abs(index) % this._scale];
   }
+
+  static isNonArrayShaderSemanticIndex(index: Index) {
+    if (index >= this._scale) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static isArrayAndZeroIndexShaderSemanticIndex(index: Index) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0 ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static isArrayAndNonZeroIndexShaderSemanticIndex(index: Index) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0 ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'worldMatrix' });
@@ -144,6 +168,8 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
   } else {
     str += `return u_${variableName};`;
   }
+
+
 
   return `
   ${returnType} get_${info.semantic.str}(float instanceId, int index) {
