@@ -64,10 +64,31 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-       
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: new Scalar(0)
+      },
+      {
+        semantic: ShaderSemantics.ViewPosition,
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isSystem: true,
+        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        initialValue: new Vector3(0, 0, 0),
+        soloDatum: true
+      },
+      {
+        semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Scalar(30.0), min: 0, max: 100,
+      },
+      {
+        semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     ];
 
