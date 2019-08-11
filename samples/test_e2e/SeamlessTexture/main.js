@@ -24,7 +24,7 @@
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
-    primitive.material = Rn.MaterialHelper.createClassicUberMaterial();
+    primitive.material = Rn.MaterialHelper.createClassicUberMaterial({});
 
     const entities = [];
     const entity = generateEntity();
