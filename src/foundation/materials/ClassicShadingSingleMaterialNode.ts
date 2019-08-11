@@ -134,6 +134,17 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         initialValue: new Vector3(0, 0, 0),
         soloDatum: true
       },
+      {
+        semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Scalar(30.0), min: 0, max: 100,
+      },
+      {
+        semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
+      },
+
     ];
 
     if (isLighting) {
