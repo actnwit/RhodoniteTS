@@ -209,6 +209,8 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     }
 
     if (true){
+      this.__definitions += '#define RN_IS_MORPHING\n';
+
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphTargetNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
         stage: ShaderType.VertexShader, min: 0, max: Config.maxVertexMorphNumberInShader, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new Scalar(0)});
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.DataTextureMorphOffsetPosition, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,

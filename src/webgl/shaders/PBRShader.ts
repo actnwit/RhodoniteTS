@@ -60,9 +60,9 @@ ${_out} vec3 v_baryCentricCoord;
 uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
-
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
+
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
 ${this.toNormalMatrix}
 
