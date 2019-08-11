@@ -63,8 +63,6 @@ void main(){
     return `${_version}
 precision highp float;
 
-uniform sampler2D u_baseColorTexture;
-
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 vec3 linearToSrgb(vec3 linearColor) {

@@ -43,11 +43,11 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
         {semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader, min: 0, max: 2, prefix: 'material.', isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
+          stage: ShaderType.PixelShader, min: 0, max: 2, isSystem: false, initialValue: new Vector4(1, 1, 1, 1)},
         {semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
           stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture]},
         {semantic: ShaderSemantics.MetallicRoughnessFactor, compositionType: CompositionType.Vec2, componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader, min: 0, max: 2, prefix: 'material.', isSystem: false, initialValue: new Vector2(1, 1)},
+          stage: ShaderType.PixelShader, min: 0, max: 2, isSystem: false, initialValue: new Vector2(1, 1)},
         {semantic: ShaderSemantics.MetallicRoughnessTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
           stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture]},
         {semantic: ShaderSemantics.NormalTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
@@ -67,7 +67,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.VertexAndPixelShader,
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-         
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: new Vector3(0, 0, 0),
@@ -80,7 +79,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
-         
           isSystem: true,
           initialValue: new Vector4(1, 1, 1, 1),
           updateInteval: ShaderVariableUpdateInterval.EveryTime
@@ -92,7 +90,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: 0,
           max: 5,
-         
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: new Vector2(0, 0)
@@ -104,7 +101,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
-         
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
           initialValue: new Scalar(0),
@@ -116,7 +112,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           componentType: ComponentType.Int,
           stage: ShaderType.PixelShader, min: 0,
           max: Number.MAX_SAFE_INTEGER,
-         
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture]
@@ -128,7 +123,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
-         
           isSystem: true,
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
@@ -161,8 +155,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
             stage: ShaderType.PixelShader,
             min: -Number.MAX_VALUE,
             max: Number.MAX_VALUE,
-           
-            prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
             isSystem: true,
@@ -178,8 +170,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader,
           min: -1,
           max: 1,
-         
-          prefix: `lights[${idx}].`,
           index: idx,
           maxIndex: 4,
           isSystem: true,
@@ -195,8 +185,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
             stage: ShaderType.PixelShader,
             min: 0,
             max: 10,
-           
-            prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
             isSystem: true,

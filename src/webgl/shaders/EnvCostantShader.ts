@@ -92,15 +92,6 @@ void main() {
     return `${_version}
 precision highp float;
 
-struct Material {
-  vec4 diffuseColorFactor;
-};
-uniform samplerCube u_colorEnvTexture;
-uniform Material u_material;
-
-uniform int u_shadingModel;
-
-uniform float u_envRotation;
 uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
 
