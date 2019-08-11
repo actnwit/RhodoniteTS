@@ -52,7 +52,7 @@
 
     const primitive = new Rn.Plane();
     primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
-    primitive.material = Rn.MaterialHelper.createClassicUberMaterial();
+    primitive.material = Rn.MaterialHelper.createClassicUberMaterial({});
     // const texture = new Rn.Texture();
     //texture.generateTextureFromUri('../../../assets/textures/specular_back_1.jpg');
     //primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
@@ -81,7 +81,7 @@
 
     const primitive2 = new Rn.Plane();
     primitive2.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
-    primitive2.material = Rn.MaterialHelper.createClassicUberMaterial();
+    primitive2.material = Rn.MaterialHelper.createClassicUberMaterial({});
     primitive2.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, framebuffer.colorAttachments[0]);
 
     const mesh2 = new Rn.Mesh();
