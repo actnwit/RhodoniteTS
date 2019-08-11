@@ -12,6 +12,7 @@ import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
 import { Index, CGAPIResourceHandle, MeshUID } from "../../types/CommonTypes";
+import { thisExpression } from "@babel/types";
 
 /**
  * The Mesh class.
@@ -28,7 +29,7 @@ export default class Mesh {
   private __opaquePrimitives: Array<Primitive> = [];
   private __transparentPrimitives: Array<Primitive> = [];
   private __instanceOf?: Mesh;
-  public weights = [];
+  public weights: number[] = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
@@ -347,12 +348,11 @@ export default class Mesh {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getPrimitiveAt(i);
     } else {
-      if (this.weights.length > 0) {
-        this.__calcMorphPrimitives();
-        return this.__morphPrimitives[i];
-      } else {
+      // if (this.weights.length > 0) {
+        // return this.__morphPrimitives[i];
+      // } else {
         return this.__primitives[i];
-      }
+      // }
     }
   }
 
@@ -431,29 +431,35 @@ export default class Mesh {
   }
 
   __calcBaryCentricCoord() {
-    for (let primitive of this.__primitives) {
+    for (let primitive_i in this.__primitives) {
+      let primitive = this.__primitives[primitive_i];
+      // if (primitive.targets.length > 0) {
+      //   primitive = this.__morphPrimitives[primitive_i];
+      // }
       const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
-      const baryCentricCoordAttributeByteSize = positionAccessor.byteLength;
-      const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });
-      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
-
       const vertexNum = positionAccessor.elementCount;
       let num = vertexNum;
       if (indicesAccessor) {
         num = indicesAccessor.elementCount;
       }
+
+      const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4 /* bytes */;
+      const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });
+      const baryCentricCoordAccessor = baryCentricCoordBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: num });
+
       for (let ver_i = 0; ver_i < num; ver_i++) {
         let idx = ver_i;
-        if (indicesAccessor) {
-          idx = indicesAccessor!.getScalar(ver_i, {});
-        }
-        baryCentricCoordAccessor.setVec3(idx,
-          idx % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
-          idx % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
-          idx % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1
+        // if (indicesAccessor) {
+        //   idx = indicesAccessor!.getScalar(ver_i, {});
+        // }
+        baryCentricCoordAccessor.setVec4(ver_i,
+          ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+          ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+          ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
+          ver_i,
           {});
       }
       primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord);
@@ -478,6 +484,7 @@ export default class Mesh {
         });
         const morphPrimitive = new Primitive();
         morphPrimitive.setData(map, primitive.primitiveMode, primitive.material, primitive.indicesAccessor);
+        morphPrimitive.setTargets(primitive.targets);
         this.__morphPrimitives[i] = morphPrimitive;
       }
     }
@@ -488,13 +495,11 @@ export default class Mesh {
       return;
     }
 
-    this.__initMorphPrimitives();
-
     for (let i = 0; i < this.__primitives.length; i++) {
       const morphPrimitive = this.__morphPrimitives[i];
       const primitive = this.__primitives[i];
-      const target = primitive.targets[0];
-      target.forEach((accessor, semantic) => {
+      const target0Attributes = primitive.targets[0];
+      target0Attributes.forEach((accessor, semantic) => {
         const morphAccessor = morphPrimitive.getAttribute(semantic)!;
         const elementCount = morphAccessor.elementCount;
         for (let j = 0; j < elementCount; j++) {
@@ -502,16 +507,15 @@ export default class Mesh {
         }
       });
 
-      for (let k = 0; k < primitive.targets.length; k++) {
-        const target = primitive.targets[k];
-        target.forEach((accessor, semantic) => {
-          const morphAccessor = morphPrimitive.getAttribute(semantic)!;
-          const elementCount = morphAccessor.elementCount;
-          for (let j = 0; j < elementCount; j++) {
-            morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
-          }
-        });
-      }
+      // primitive.targets.forEach((targetAttributes, k)=>{
+      //   targetAttributes.forEach((accessor, semantic) => {
+      //     const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+      //     const elementCount = morphAccessor.elementCount;
+      //     for (let j = 0; j < elementCount; j++) {
+      //       morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
+      //     }
+      //   });
+      // });
     }
   }
 

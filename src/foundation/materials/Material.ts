@@ -340,8 +340,7 @@ export default class Material extends RnObject {
 
     this.__fields.forEach((value, key) => {
       const info = this.__fieldsInfo.get(key)!;
-      const updateFunc = info.updateFunc;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube || updateFunc) {
+      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         this.__fields.forEach((value, key) => {
           const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
           webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);

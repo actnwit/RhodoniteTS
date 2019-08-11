@@ -437,6 +437,62 @@ export default class AccessorBase extends RnObject {
     }
   }
 
+  setElementFromAccessor(i:Index, accessor: Accessor, secondIdx?:Index) {
+    const j = (secondIdx != null) ? secondIdx : i
+    if (this.compositionType.getNumberOfComponents() === 1) {
+      if (accessor.compositionType.getNumberOfComponents() === 1) {
+        this.setScalar(i, accessor.getScalar(j, {}), {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 2) {
+        this.setScalar(i, accessor.getVec2(j, {}).x, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 3) {
+        this.setScalar(i, accessor.getVec3(j, {}).x, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 4) {
+        this.setScalar(i, accessor.getVec4(j, {}).x, {});
+      }
+    } else if (this.compositionType.getNumberOfComponents() === 2) {
+      if (accessor.compositionType.getNumberOfComponents() === 1) {
+        const scalar = accessor.getScalar(j, {});
+        this.setVec2(i, scalar, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 2) {
+        this.setVec2AsVector(i, accessor.getVec2(j, {}), {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 3) {
+        const vec = accessor.getVec3(j, {});
+        this.setVec2(i, vec.x, vec.y, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 4) {
+        const vec = accessor.getVec4(j, {});
+        this.setVec2(i, vec.x, vec.y, {});
+      }
+    } else if (this.compositionType.getNumberOfComponents() === 3) {
+      if (accessor.compositionType.getNumberOfComponents() === 1) {
+        const scalar = accessor.getScalar(j, {});
+        this.setVec3(i, scalar, 0, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 2) {
+        const vec = accessor.getVec2(j, {});
+        this.setVec3(i, vec.x, vec.y, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 3) {
+        const vec = accessor.getVec3(j, {});
+        this.setVec3AsVector(i, vec, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 4) {
+        const vec = accessor.getVec4(j, {});
+        this.setVec3(i, vec.x, vec.y, vec.z, {});
+      }
+    } else if (this.compositionType.getNumberOfComponents() === 4) {
+      if (accessor.compositionType.getNumberOfComponents() === 1) {
+        const scalar = accessor.getScalar(j, {});
+        this.setVec4(i, scalar, 0, 0, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 2) {
+        const vec = accessor.getVec2(j, {});
+        this.setVec4(i, vec.x, vec.y, 0, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 3) {
+        const vec = accessor.getVec3(j, {});
+        this.setVec4(i, vec.x, vec.y, vec.z, 0, {});
+      } else if (accessor.compositionType.getNumberOfComponents() === 4) {
+        const vec = accessor.getVec4(j, {});
+        this.setVec4AsVector(i, vec, {});
+      }
+    }
+  }
+
   addElementFromSameCompositionAccessor(i:Index, accessor: Accessor, coeff: number, secondIdx?:Index) {
     const j = (secondIdx != null) ? secondIdx : i;
     if (this.compositionType.getNumberOfComponents() === 1) {

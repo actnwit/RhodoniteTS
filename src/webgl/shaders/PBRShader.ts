@@ -48,7 +48,7 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
-${_in} vec3 a_baryCentricCoord;
+${_in} vec4 a_baryCentricCoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_faceNormal_inWorld;
@@ -57,21 +57,12 @@ ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
-uniform vec3 u_viewPosition;
-uniform float u_pointSize;
-uniform vec3 u_pointDistanceAttenuation;
 uniform float u_materialSID;
-
-//uniform mat4 u_boneMatrices[100];
-uniform highp vec4 u_boneCompressedChank[90];
-uniform highp vec4 u_boneCompressedInfo;
-uniform int u_skinningMode;
-
-
-
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+uniform sampler2D u_dataTexture;
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
+
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
 ${this.toNormalMatrix}
 
@@ -88,9 +79,21 @@ void main()
 
   v_color = a_color;
 
-  // Skeletal
-  bool isSkinning;
-  skinning(isSkinning, normalMatrix, normalMatrix);
+  bool isSkinning = false;
+
+  isSkinning = processGeometryWithMorphingAndSkinning(
+    worldMatrix,
+    normalMatrix,
+    normalMatrix,
+    a_position,
+    v_position_inWorld,
+    a_normal,
+    v_normal_inWorld
+  );
+
+  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+
+
 
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;
   v_texcoord = a_texcoord;
@@ -106,7 +109,7 @@ void main()
     v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
   }
-  v_baryCentricCoord = a_baryCentricCoord;
+  v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   ${this.pointSprite}
 
@@ -147,37 +150,6 @@ ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 uniform sampler2D u_dataTexture;
 uniform float u_materialSID;
 
-struct Material {
-  vec4 baseColorFactor;
-  vec2 metallicRoughnessFactor;
-};
-
-
-uniform sampler2D u_baseColorTexture;
-uniform sampler2D u_normalTexture;
-uniform sampler2D u_occlusionTexture;
-uniform sampler2D u_emissiveTexture;
-uniform sampler2D u_metallicRoughnessTexture;
-
-uniform Material u_material;
-
-struct Light {
-  vec4 lightPosition;
-  vec4 lightDirection;
-  vec4 lightIntensity;
-};
-uniform Light u_lights[${Config.maxLightNumberInShader}];
-uniform int u_lightNumber;
-
-uniform vec3 u_viewPosition;
-
-uniform samplerCube u_diffuseEnvTexture;
-uniform samplerCube u_specularEnvTexture;
-uniform vec4 u_iblParameter;
-
-uniform vec3 u_wireframe;
-uniform bool u_isOutputHDR;
-
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec3 v_faceNormal_inWorld;
@@ -191,8 +163,6 @@ ${_def_rt0}
 ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
-
-uniform ivec2 u_hdriFormat;
 
 ${this.fetchElement}
 
@@ -436,6 +406,6 @@ void main ()
   VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec3, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
   }
 }

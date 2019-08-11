@@ -166,6 +166,21 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       let index = -1;
       let indexStr;
 
+      const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
+
+      const methodName = info.semantic.str.replace('.', '_');
+
+      // definition of uniform variable
+      let varDef = '';
+      if (isTexture) {
+        const varType = info.compositionType.getGlslStr(info.componentType);
+        let varIndexStr = '';
+        if (info.maxIndex) {
+          varIndexStr = `[${info.maxIndex}]`;
+        }
+        varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+      }
+      // inner contents of 'get_' shader function
       if (propertyIndex < 0) {
         if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
           return '';
@@ -208,21 +223,25 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
       }
 
-      const methodName = info.semantic.str.replace('.', '_');
 
       let intStr = '';
       if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
         intStr = 'i';
       }
 
-      let str = `
-      ${returnType} get_${methodName}(highp float instanceId, const int index) {
-        ${indexStr}
-        highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-        highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-        highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-        highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
-`;
+      let firstPartOfInnerFunc = '';
+      if (!isTexture) {
+        firstPartOfInnerFunc += `
+  ${returnType} get_${methodName}(highp float instanceId, const int index) {
+    ${indexStr}
+    highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+    highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+    highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+    highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
+`
+      }
+
+      let str = `${varDef}${firstPartOfInnerFunc}`;
 
       switch(info.compositionType) {
         case CompositionType.Vec4:
@@ -266,13 +285,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           `; break;
         default:
           // console.error('unknown composition type', info.compositionType.str, memberName);
-          return '';
+          str += '';
       }
 
-      str += `
-          return val;
-        }
-      `
+      if (!isTexture) {
+        str += `
+        return val;
+      }
+    `
+      }
+
       return str;
     };
 

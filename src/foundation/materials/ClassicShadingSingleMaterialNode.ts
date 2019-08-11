@@ -53,8 +53,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: 2,
-       
-        prefix: "material.",
         isSystem: false,
         initialValue: new Vector4(1, 1, 1, 1)
       },
@@ -65,7 +63,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-       
         isSystem: false,
         initialValue: [
           0,
@@ -79,7 +76,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-       
         isSystem: false,
         initialValue: [
           2,
@@ -93,7 +89,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
-       
         isSystem: false,
         initialValue: new Scalar(5)
       },
@@ -104,7 +99,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
-       
         isSystem: false,
         initialValue: new Scalar(ShadingModel.Constant.index)
       },
@@ -115,7 +109,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
-       
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Scalar(0),
@@ -128,7 +121,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         stage: ShaderType.VertexAndPixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-       
         isSystem: true,
         updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: new Vector3(0, 0, 0),
@@ -161,8 +153,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             stage: ShaderType.PixelShader,
             min: -Number.MAX_VALUE,
             max: Number.MAX_VALUE,
-           
-            prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
             isSystem: true,
@@ -178,8 +168,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
           stage: ShaderType.PixelShader,
           min: -1,
           max: 1,
-         
-          prefix: `lights[${idx}].`,
           index: idx,
           maxIndex: 4,
           isSystem: true,
@@ -195,8 +183,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
             stage: ShaderType.PixelShader,
             min: 0,
             max: 10,
-           
-            prefix: `lights[${idx}].`,
             index: idx,
             maxIndex: 4,
             isSystem: true,

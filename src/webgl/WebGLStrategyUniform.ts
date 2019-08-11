@@ -34,6 +34,10 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import ClassicShader from "./shaders/ClassicShader";
+import { BufferUse } from "../foundation/definitions/BufferUse";
+import Buffer from "../foundation/memory/Buffer";
+import { MathUtil } from "../foundation/math/MathUtil";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: Matrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -51,33 +55,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
   private __lastRenderPassTickCount = -1;
   private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
-
+  private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
 
-  private static __vertexShaderMethodDefinitions_uniform: string =
-    `
-  uniform mat4 u_worldMatrix;
-  uniform mat4 u_viewMatrix;
-  uniform mat4 u_projectionMatrix;
-  uniform mat3 u_normalMatrix;
-
-  mat4 get_worldMatrix(float instanceId) {
-    return u_worldMatrix;
-  }
-
-  mat4 get_viewMatrix(float instanceId) {
-    return u_viewMatrix;
-  }
-
-  mat4 get_projectionMatrix(float instanceId) {
-    return u_projectionMatrix;
-  }
-
-  mat3 get_normalMatrix(float instanceId) {
-    return u_normalMatrix;
-  }
-  `;
+  private static __vertexShaderMethodDefinitions_uniform: string;
 
   private __lastShader: CGAPIResourceHandle = -1;
   private static transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -89,6 +71,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
+
 
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
@@ -172,6 +155,61 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       infoArray = material.fieldsInfoArray;
     }
 
+    const _texture = ClassicShader.getInstance().glsl_texture;
+    WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
+    `
+  uniform mat4 u_worldMatrix;
+  uniform mat4 u_viewMatrix;
+  uniform mat4 u_projectionMatrix;
+  uniform mat3 u_normalMatrix;
+
+  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
+  {
+    float t = (index + 0.5) * invSize.x;
+    float x = fract(t);
+    float y = (floor(t) + 0.5) * invSize.y;
+    return ${_texture}( tex, vec2(x, y) );
+  }
+
+  mat4 get_worldMatrix(float instanceId) {
+    return u_worldMatrix;
+  }
+
+  mat4 get_viewMatrix(float instanceId) {
+    return u_viewMatrix;
+  }
+
+  mat4 get_projectionMatrix(float instanceId) {
+    return u_projectionMatrix;
+  }
+
+  mat3 get_normalMatrix(float instanceId) {
+    return u_normalMatrix;
+  }
+
+
+#ifdef RN_IS_MORPHING
+  vec3 get_position(float vertexId, vec3 basePosition) {
+    vec3 position = basePosition;
+    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
+      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
+      position += addPos * u_morphWeights[i];
+      if (i == u_morphTargetNumber-1) {
+        break;
+      }
+    }
+
+    return position;
+  }
+#endif
+
+  `;
+
     material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
@@ -230,8 +268,57 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   }
 
   common_$prerender(): void {
+
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+
+
+    // Setup Data Texture
+
+    let isHalfFloatMode = false;
+    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
+    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
+    //   isHalfFloatMode = true;
+    // }
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
+    let halfFloatDataTextureBuffer: Uint16Array;
+    if (isHalfFloatMode) {
+      halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
+      let convertLength = buffer.takenSizeInByte / 4; //components
+      for (let i=0; i<convertLength; i++) {
+        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
+      }
+    }
+
+    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+      //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+      //     level:0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+      //       format: PixelFormat.RGBA, type: ComponentType.Float
+      //     });
+      // } else {
+      //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+      //     level: 0, width: MemoryManager.bufferWidthLength, height:buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+      //       format: PixelFormat.RGBA, type: ComponentType.Float
+      //     });
+      // }
+    } else {
+      if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+          });
+      } else {
+        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+          });
+      }
+    }
   };
 
   attachGPUData(primitive: Primitive): void {
@@ -445,12 +532,17 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       }
       if (shaderProgramUid !== this.__lastShader) {
         gl.useProgram(shaderProgram);
+
+        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+        gl.uniform1i(uniform_dataTexture, 7);
+
         this.__lastShader = shaderProgramUid;
         firstTime = true;
       }
       if (firstTime) {
         //glw.unbindTextures();
       }
+      this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
       // this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
       //   entity, worldMatrix, normalMatrix, renderPass,
@@ -463,6 +555,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           setUniform: true,
           glw: glw,
           entity: entity,
+          primitive: primitive,
           worldMatrix: worldMatrix,
           normalMatrix: normalMatrix,
           lightComponents: this.__lightComponents,

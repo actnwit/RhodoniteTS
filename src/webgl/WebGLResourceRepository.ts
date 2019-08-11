@@ -252,6 +252,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const shaderProgram = gl.createProgram()!;
     shaderProgram._gl = gl;
+    shaderProgram._materialTypeName = materialTypeName;
+    shaderProgram._vertexShaderStr = vertexShaderStr;
+    shaderProgram._fragmentShaderStr = fragmentShaderStr;
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
 

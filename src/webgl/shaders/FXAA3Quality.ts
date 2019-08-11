@@ -96,8 +96,6 @@ ${_out} vec2 v_texcoord;
 
     return `${_version}precision highp float;
 
-uniform sampler2D u_baseColorTexture;
-uniform vec2 u_screenInfo;
 uniform float u_materialSID;
 
 ${this.fetchElement}

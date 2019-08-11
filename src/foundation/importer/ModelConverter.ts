@@ -40,6 +40,8 @@ import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
 import Config from "../core/Config";
+import { BufferUse } from "../definitions/BufferUse";
+import MemoryManager from "../core/MemoryManager";
 
 declare var DracoDecoderModule: any;
 
@@ -465,7 +467,8 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessor);
+              const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
+              targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
             }
             targets.push(targetMap);
           }
@@ -477,7 +480,7 @@ export default class ModelConverter {
       }
 
       if (mesh.weights) {
-        meshComponent.mesh!.weights = mesh.weights;
+        rnMesh.weights = mesh.weights;
       }
     }
 
@@ -937,6 +940,28 @@ export default class ModelConverter {
     }
 
     return rnAccessor;
+  }
+
+  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
+    const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
+    const dstRnBufferView = dstRnBuffer.takeBufferView({
+      byteLengthToNeed: srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */,
+      byteStride: 4 /* vec4 */ * 4 /* bytes */,
+      isAoS: false
+    });
+
+    const dstRnAccessor = dstRnBufferView.takeAccessor({
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        count: srcRnAccessor.elementCount,
+        max: srcRnAccessor.max,
+        min: srcRnAccessor.min
+      });
+    for (let i=0; i<srcRnAccessor.elementCount; i++) {
+      dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
+    }
+
+    return dstRnAccessor;
   }
 
   private __createRnAccessor(accessor: any, numOfAttributes: Count, compositionNum: Count, rnBuffer: Buffer) {

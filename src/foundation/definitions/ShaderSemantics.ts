@@ -24,6 +24,30 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   static getShaderSemanticByIndex(index: Index) {
     return this.__classes[Math.abs(index) - Math.abs(index) % this._scale];
   }
+
+  static isNonArrayShaderSemanticIndex(index: Index) {
+    if (index >= this._scale) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static isArrayAndZeroIndexShaderSemanticIndex(index: Index) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0 ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static isArrayAndNonZeroIndexShaderSemanticIndex(index: Index) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0 ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 const WorldMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'worldMatrix' });
@@ -72,6 +96,9 @@ const SheenParameter: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'she
 const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularGlossinessFactor' });
 const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'specularGlossinessTexture' });
 const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'entityUID' });
+const MorphTargetNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'morphTargetNumber' });
+const DataTextureMorphOffsetPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'dataTextureMorphOffsetPosition' });
+const MorphWeights: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'morphWeights' });
 
 const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
@@ -79,7 +106,7 @@ const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneM
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
   ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  EntityUID];
+  EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights];
 
 function from(index: number): ShaderSemanticsEnum {
   return _from({ typeList, index }) as ShaderSemanticsEnum;
@@ -98,8 +125,8 @@ type UpdateFunc = (
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
-  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean
+  isSystem: boolean, initialValue?: any, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
+  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean
 };
 
 
@@ -112,13 +139,24 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
 }
 
 const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
-  const returnType = info.compositionType.getGlslStr(info.componentType);
-  if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+  if (info.isComponentData) {
     return '';
   }
 
-  let str = '';
+  const returnType = info.compositionType.getGlslStr(info.componentType);
+
   let variableName = ShaderSemantics.fullSemanticStr(info);
+
+  // definition of uniform variable
+  const varType = info.compositionType.getGlslStr(info.componentType);
+  let varIndexStr = '';
+  if (info.maxIndex) {
+    varIndexStr = `[${info.maxIndex}]`;
+  }
+  let varDef = `  uniform ${varType} u_${variableName}${varIndexStr};\n`;
+
+  // inner contents of 'get_' shader function
+  let str = '';
   if (propertyIndex < 0 || CompositionType.isArray(info.compositionType)) {
     if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0 && !CompositionType.isArray(info.compositionType)) {
       return '';
@@ -142,11 +180,20 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
     str += `return u_${variableName};`;
   }
 
-  return `
+  let funcDef = '';
+
+  const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
+
+  if (!isTexture) {
+    funcDef = `
   ${returnType} get_${info.semantic.str}(float instanceId, int index) {
     ${str}
   }
-  `;
+`
+
+  }
+
+  return `${varDef}${funcDef}`;
 
 };
 
@@ -157,5 +204,5 @@ export const ShaderSemantics = Object.freeze({
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, fullSemanticStr, getShaderProperty, EntityUID
+  from, fromString, fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights
 });

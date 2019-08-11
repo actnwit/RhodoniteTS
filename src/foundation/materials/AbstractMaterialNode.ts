@@ -20,6 +20,10 @@ import MutableVector2 from "../math/MutableVector2";
 import MutableVector4 from "../math/MutableVector4";
 import Vector3 from "../math/Vector3";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import MeshComponent from "../components/MeshComponent";
+import Primitive, { Attributes } from "../geometry/Primitive";
+import Accessor from "../memory/Accessor";
+import { VertexAttribute } from "../definitions/VertexAttribute";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -278,6 +282,19 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
+  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive) {
+    if (primitive.targets.length === 0) {
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
+      return;
+    }
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, meshComponent.mesh!.weights.length);
+    const array: number[] = primitive.targets.map((target: Attributes)=>{
+      const accessor = target.get(VertexAttribute.Position) as Accessor;
+      return accessor.byteOffsetInBuffer / 4 / 4;
+    });
+    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).dataTextureMorphOffsetPosition, array);
+    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, meshComponent.mesh!.weights);
+  }
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
   }

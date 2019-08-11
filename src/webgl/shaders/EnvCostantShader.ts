@@ -25,12 +25,30 @@ export default class EnvConstantShader extends GLSLShader implements ISingleShad
 
 
   get vertexShaderDefinitions() {
-    const _version = this.glsl_versionText;
-    const _in = this.glsl_vertex_in;
-    const _out = this.glsl_vertex_out;
-
     return `
+`;
+
+  };
+
+  vertexShaderBody: string = `
+  `;
+
+
+  getVertexShaderBody(args: any) {
+const _version = this.glsl_versionText;
+const _in = this.glsl_vertex_in;
+const _out = this.glsl_vertex_out;
+
+    return `${_version}
+precision highp float;
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+
 ${_in} vec3 a_position;
+uniform sampler2D u_dataTexture;
+
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
 ${_in} float a_instanceID;
@@ -42,13 +60,12 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
+
+
 ${this.toNormalMatrix}
 
-`;
+void main() {
 
-  };
-
-  vertexShaderBody: string = `
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(a_instanceID);
   mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
@@ -60,8 +77,9 @@ ${this.toNormalMatrix}
   v_normal_inWorld = normalMatrix * a_normal;
   v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
   v_texcoord = a_texcoord;
-
-  `;
+}
+    `;
+  }
 
   getFragmentShader(args: any) {
     const _version = this.glsl_versionText;
@@ -74,15 +92,6 @@ ${this.toNormalMatrix}
     return `${_version}
 precision highp float;
 
-struct Material {
-  vec4 diffuseColorFactor;
-};
-uniform samplerCube u_colorEnvTexture;
-uniform Material u_material;
-
-uniform int u_shadingModel;
-
-uniform float u_envRotation;
 uniform float u_materialSID;
 uniform sampler2D u_dataTexture;
 
@@ -136,6 +145,7 @@ void main ()
 }
 `;
   }
+
 
   get pixelShaderDefinitions() {
     return '';
