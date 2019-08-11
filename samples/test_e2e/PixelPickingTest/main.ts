@@ -3,6 +3,7 @@ import CameraComponent from '../../../dist/types/foundation/components/CameraCom
 import CameraControllerComponent from '../../../dist/types/foundation/components/CameraControllerComponent';
 import Entity from '../../../dist/types/foundation/core/Entity';
 import LightComponent from '../../../dist/types/foundation/components/LightComponent';
+import Vector4 from '../../../dist/types/foundation/math/Vector4';
 
 declare const Rn: RnType;
 declare const window: any;
@@ -18,8 +19,9 @@ const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraCompone
 
   const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
   renderPass.setFramebuffer(framebuffer);
-  // renderPass.toClearColorBuffer = true;
-  // renderPass.toClearDepthBuffer = true;
+  renderPass.clearColor = new Rn.Vector4(0,0,0,1);
+  renderPass.toClearColorBuffer = true;
+  renderPass.toClearDepthBuffer = true;
 
   // rootGroup.getTransform().scale = new Rn.Vector3(100, 100, 100);
 
@@ -36,7 +38,7 @@ const setupRenderPassRendering = function(rootGroup, cameraComponent) {
   return renderPass;
 }
 
-const pick = function(e: MouseEvent) {
+const pick = function(e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
@@ -44,7 +46,7 @@ const pick = function(e: MouseEvent) {
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
-  const bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
+  const bitDec = new Rn.Vector4(1, 255, 65025, 0);
   const pickedEntityUID = bitDec.dotProduct(pickedPixel);
   console.log(pickedEntityUID);
 

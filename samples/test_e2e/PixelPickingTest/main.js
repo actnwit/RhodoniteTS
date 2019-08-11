@@ -52,8 +52,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         renderPass.cameraComponent = cameraComponent;
         var framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
         renderPass.setFramebuffer(framebuffer);
-        // renderPass.toClearColorBuffer = true;
-        // renderPass.toClearDepthBuffer = true;
+        renderPass.clearColor = new Rn.Vector4(0, 0, 0, 1);
+        renderPass.toClearColorBuffer = true;
+        renderPass.toClearDepthBuffer = true;
         // rootGroup.getTransform().scale = new Rn.Vector3(100, 100, 100);
         renderPass.addEntities([rootGroup]);
         return renderPass;
@@ -71,7 +72,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var renderTargetTexture = framebuffer.colorAttachments[0];
         var pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
         console.log(pickedPixel.toString());
-        var bitDec = new Rn.Vector4(1, 255, 65025, 16581375);
+        var bitDec = new Rn.Vector4(1, 255, 65025, 0);
         var pickedEntityUID = bitDec.dotProduct(pickedPixel);
         console.log(pickedEntityUID);
         return pickedEntityUID;

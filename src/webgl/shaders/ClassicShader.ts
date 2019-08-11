@@ -106,6 +106,7 @@ ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 ${this.fetchElement}
 
 uniform float u_materialSID;
+uniform sampler2D u_dataTexture;
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;

@@ -280,7 +280,7 @@ vec4 encodeFloatRGBA(float v) {
   float g = mod(val, 65025.0);
   val -= g;
   float b = mod(val, 16581375.0);
-  return vec4(r/255.0, g/65025.0, b/16581375.0, 0.0);
+  return vec4(r/255.0, g/65025.0, b/16581375.0, 1.0);
 }`}
 
   get processGeometryWithSkinningOptionally() {

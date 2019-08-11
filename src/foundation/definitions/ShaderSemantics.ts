@@ -125,8 +125,8 @@ type UpdateFunc = (
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateFunc?: UpdateFunc, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
-  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean
+  isSystem: boolean, initialValue?: any, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
+  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean
 };
 
 
@@ -139,6 +139,10 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
 }
 
 const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
+  if (info.isComponentData) {
+    return '';
+  }
+
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
   let variableName = ShaderSemantics.fullSemanticStr(info);
@@ -178,7 +182,9 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
 
   let funcDef = '';
 
-  if (!(info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube)) {
+  const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
+
+  if (!isTexture) {
     funcDef = `
   ${returnType} get_${info.semantic.str}(float instanceId, int index) {
     ${str}

@@ -72,64 +72,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       return;
     }
 
-  const _texture = ClassicShader.getInstance().glsl_texture;
-  WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
-    `
-  uniform mat4 u_worldMatrix;
-  uniform mat4 u_viewMatrix;
-  uniform mat4 u_projectionMatrix;
-  uniform mat3 u_normalMatrix;
-
-  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
-  {
-    float t = (index + 0.5) * invSize.x;
-    float x = fract(t);
-    float y = (floor(t) + 0.5) * invSize.y;
-    return ${_texture}( tex, vec2(x, y) );
-  }
-
-  mat4 get_worldMatrix(float instanceId) {
-    return u_worldMatrix;
-  }
-
-  mat4 get_viewMatrix(float instanceId) {
-    return u_viewMatrix;
-  }
-
-  mat4 get_projectionMatrix(float instanceId) {
-    return u_projectionMatrix;
-  }
-
-  mat3 get_normalMatrix(float instanceId) {
-    return u_normalMatrix;
-  }
-
-
-#ifdef RN_IS_MORPHING
-  uniform int u_morphTargetNumber;
-  uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
-  uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
-
-  vec3 get_position(float vertexId, vec3 basePosition) {
-    vec3 position = basePosition;
-    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
-      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
-      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
-      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
-        break;
-      }
-    }
-
-    return position;
-  }
-#endif
-
-  `;
 
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
@@ -212,6 +154,65 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     } else {
       infoArray = material.fieldsInfoArray;
     }
+
+    const _texture = ClassicShader.getInstance().glsl_texture;
+    WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
+    `
+  uniform mat4 u_worldMatrix;
+  uniform mat4 u_viewMatrix;
+  uniform mat4 u_projectionMatrix;
+  uniform mat3 u_normalMatrix;
+
+  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
+  {
+    float t = (index + 0.5) * invSize.x;
+    float x = fract(t);
+    float y = (floor(t) + 0.5) * invSize.y;
+    return ${_texture}( tex, vec2(x, y) );
+  }
+
+  mat4 get_worldMatrix(float instanceId) {
+    return u_worldMatrix;
+  }
+
+  mat4 get_viewMatrix(float instanceId) {
+    return u_viewMatrix;
+  }
+
+  mat4 get_projectionMatrix(float instanceId) {
+    return u_projectionMatrix;
+  }
+
+  mat3 get_normalMatrix(float instanceId) {
+    return u_normalMatrix;
+  }
+
+
+#ifdef RN_IS_MORPHING
+  uniform int u_morphTargetNumber;
+  uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
+  uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
+
+  vec3 get_position(float vertexId, vec3 basePosition) {
+    vec3 position = basePosition;
+    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
+      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
+      position += addPos * u_morphWeights[i];
+      if (i == u_morphTargetNumber-1) {
+        break;
+      }
+    }
+
+    return position;
+  }
+#endif
+
+  `;
 
     material.createProgram(WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform, ShaderSemantics.getShaderProperty);
     const webglResourceRepository = WebGLResourceRepository.getInstance();

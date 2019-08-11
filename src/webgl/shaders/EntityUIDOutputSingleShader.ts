@@ -47,14 +47,6 @@ ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
 uniform float u_materialSID;
-uniform vec3 u_viewPosition;
-//uniform mat4 u_boneMatrices[100];
-uniform highp vec4 u_boneCompressedChank[90];
-uniform highp vec4 u_boneCompressedInfo;
-uniform int u_skinningMode;
-
-uniform float u_pointSize;
-uniform vec3 u_pointDistanceAttenuation;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -105,8 +97,6 @@ ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 uniform highp sampler2D u_dataTexture;
 
 ${this.fetchElement}
-
-uniform float u_entityUID;
 
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
