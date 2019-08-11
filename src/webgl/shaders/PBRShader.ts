@@ -79,20 +79,33 @@ void main()
 
   v_color = a_color;
 
-  bool isSkinning;
+  bool isSkinning = false;
 
+  vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
   if (u_morphTargetNumber == 0) {
 #endif
-    // Skeletal
-    skinning(isSkinning, normalMatrix, normalMatrix);
+    position_inLocal = a_position;
 #ifdef RN_IS_MORPHING
   } else {
-    vec3 morphedPosition = get_position(a_baryCentricCoord.w, a_position);
-    v_position_inWorld = worldMatrix * vec4(morphedPosition, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+    position_inLocal = get_position(a_baryCentricCoord.w, a_position);
   }
 #endif
+
+
+#ifdef RN_IS_SKINNING
+    int skinningMode = get_skinningMode(u_materialSID, 0);
+    if (skinningMode == 1) {
+      isSkinning = skinning(normalMatrix, normalMatrix, position_inLocal, v_position_inWorld, a_normal, v_normal_inWorld);
+    } else {
+#endif
+      v_position_inWorld = worldMatrix * vec4(position_inLocal, 1.0);
+      v_normal_inWorld = normalize(normalMatrix * a_normal);
+#ifdef RN_IS_SKINNING
+    }
+#endif
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+
 
 
   v_faceNormal_inWorld = normalMatrix * a_faceNormal;

@@ -285,41 +285,30 @@ vec4 encodeFloatRGBA(float v) {
 
   get processGeometryWithSkinningOptionally() {
     return `
+#ifdef RN_IS_SKINNING
 bool skinning(
-  out bool isSkinning,
   in mat3 inNormalMatrix,
-  out mat3 outNormalMatrix
+  out mat3 outNormalMatrix,
+  in vec3 inPosition_inLocal,
+  out vec4 outPosition_inWorld,
+  in vec3 inNormal_inLocal,
+  out vec4 outNormal_inWorld
   )
 {
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(a_instanceID);
   mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
 
-  // Skeletal
-#ifdef RN_IS_SKINNING
-  isSkinning = false;
-  int skinningMode = get_skinningMode(u_materialSID, 0);
-  if (skinningMode == 1) {
-    mat4 skinMat = getSkinMatrix();
-    v_position_inWorld = skinMat * vec4(a_position, 1.0);
-    outNormalMatrix = toNormalMatrix(skinMat);
-    v_normal_inWorld = normalize(outNormalMatrix * a_normal);
-    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-    isSkinning = true;
-  } else {
-    v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-    outNormalMatrix = inNormalMatrix;
-    v_normal_inWorld = normalize(inNormalMatrix * a_normal);
-  }
-#else
-  v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-  outNormalMatrix = inNormalMatrix;
-  v_normal_inWorld = normalize(inNormalMatrix * a_normal);
+  mat4 skinMat = getSkinMatrix();
+  outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
+  outNormalMatrix = toNormalMatrix(skinMat);
+  skinedNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
+
+  return true;
+}
 #endif
-  return isSkinning;
-}`;
+
+`;
   }
 
   get fetchElement() {
