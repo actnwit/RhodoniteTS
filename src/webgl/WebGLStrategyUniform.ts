@@ -104,6 +104,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     return u_normalMatrix;
   }
 
+
+#ifdef RN_IS_MORPHING
+  uniform int u_morphTargetNumber;
+  uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
+  uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
+
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
@@ -121,6 +127,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     return position;
   }
+#endif
 
   `;
 

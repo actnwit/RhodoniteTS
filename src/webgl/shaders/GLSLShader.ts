@@ -264,7 +264,8 @@ mat4 getSkinMatrix() {
 
   return skinMat;
 }
-#endif`;
+#endif
+`;
   }
 
   get packing() {

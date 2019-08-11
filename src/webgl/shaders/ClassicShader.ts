@@ -47,14 +47,6 @@ ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
 uniform float u_materialSID;
-uniform vec3 u_viewPosition;
-//uniform mat4 u_boneMatrices[100];
-uniform highp vec4 u_boneCompressedChank[90];
-uniform highp vec4 u_boneCompressedInfo;
-uniform int u_skinningMode;
-
-uniform float u_pointSize;
-uniform vec3 u_pointDistanceAttenuation;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -111,27 +103,7 @@ precision highp float;
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-uniform highp sampler2D u_dataTexture;
-
 ${this.fetchElement}
-
-struct Material {
-  vec4 diffuseColorFactor;
-};
-uniform sampler2D u_diffuseColorTexture;
-uniform Material u_material;
-
-uniform int u_shadingModel;
-uniform float u_shininess;
-
-struct Light {
-  vec4 lightPosition;
-  vec4 lightDirection;
-  vec4 lightIntensity;
-};
-uniform Light u_lights[${Config.maxLightNumberInShader}];
-uniform int u_lightNumber;
-uniform vec3 u_viewPosition;
 
 uniform float u_materialSID;
 

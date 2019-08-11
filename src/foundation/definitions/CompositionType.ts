@@ -24,7 +24,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   }
 
   getGlslStr(componentType: ComponentTypeEnum) {
-    if (componentType === ComponentType.Float || componentType === ComponentType.Double) {
+    if (componentType === ComponentType.Float || componentType === ComponentType.Double || this === CompositionType.Texture2D || this === CompositionType.TextureCube) {
       return this.__glslStr;
     } else if (componentType === ComponentType.Byte || componentType === ComponentType.Short || componentType === ComponentType.Int) {
       if (this === CompositionType.Scalar) {

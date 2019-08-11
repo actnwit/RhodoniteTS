@@ -140,12 +140,19 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
 
 const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
-  if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-    return '';
-  }
 
-  let str = '';
   let variableName = ShaderSemantics.fullSemanticStr(info);
+
+  // definition of uniform variable
+  const varType = info.compositionType.getGlslStr(info.componentType);
+  let varIndexStr = '';
+  if (info.maxIndex) {
+    varIndexStr = `[${info.maxIndex}]`;
+  }
+  let varDef = `  uniform ${varType} u_${variableName}${varIndexStr};\n`;
+
+  // inner contents of 'get_' shader function
+  let str = '';
   if (propertyIndex < 0 || CompositionType.isArray(info.compositionType)) {
     if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0 && !CompositionType.isArray(info.compositionType)) {
       return '';
@@ -169,13 +176,18 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
     str += `return u_${variableName};`;
   }
 
+  let funcDef = '';
 
-
-  return `
+  if (!(info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube)) {
+    funcDef = `
   ${returnType} get_${info.semantic.str}(float instanceId, int index) {
     ${str}
   }
-  `;
+`
+
+  }
+
+  return `${varDef}${funcDef}`;
 
 };
 

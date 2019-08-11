@@ -44,10 +44,6 @@ ${_in} vec2 a_texcoord;
 ${_out} vec2 v_texcoord;
 uniform sampler2D u_dataTexture;
 
-uniform int u_morphTargetNumber;
-uniform float u_dataTextureMorphOffsetPosition[${Config.maxVertexMorphNumberInShader}];
-uniform float u_morphWeights[${Config.maxVertexMorphNumberInShader}];
-
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
 void main(){
