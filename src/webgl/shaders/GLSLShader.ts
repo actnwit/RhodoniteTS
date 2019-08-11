@@ -295,10 +295,6 @@ bool skinning(
   out vec4 outNormal_inWorld
   )
 {
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
-
   mat4 skinMat = getSkinMatrix();
   outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
   outNormalMatrix = toNormalMatrix(skinMat);
@@ -307,6 +303,45 @@ bool skinning(
   return true;
 }
 #endif
+
+bool processGeometryWithMorphingAndSkinning(
+  float vertexIdx,
+  in mat4 worldMatrix,
+  in mat3 inNormalMatrix,
+  out mat3 outNormalMatrix,
+  in vec3 inPosition_inLocal,
+  out vec4 outPosition_inWorld,
+  in vec3 inNormal_inLocal,
+  out vec3 outNormal_inWorld
+) {
+  bool isSkinning = false;
+
+  vec3 position_inLocal;
+#ifdef RN_IS_MORPHING
+  if (u_morphTargetNumber == 0) {
+#endif
+    position_inLocal = inPosition_inLocal;
+#ifdef RN_IS_MORPHING
+  } else {
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal);
+  }
+#endif
+
+
+#ifdef RN_IS_SKINNING
+  int skinningMode = get_skinningMode(u_materialSID, 0);
+  if (skinningMode == 1) {
+    isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
+  } else {
+#endif
+    outPosition_inWorld = worldMatrix * vec4(position_inLocal, 1.0);
+    outNormal_inWorld = normalize(inNormalMatrix * inNormal_inLocal);
+#ifdef RN_IS_SKINNING
+  }
+#endif
+
+  return isSkinning;
+}
 
 `;
   }
