@@ -82,7 +82,6 @@ void main()
   bool isSkinning = false;
 
   isSkinning = processGeometryWithMorphingAndSkinning(
-    a_baryCentricCoord.w,
     worldMatrix,
     normalMatrix,
     normalMatrix,

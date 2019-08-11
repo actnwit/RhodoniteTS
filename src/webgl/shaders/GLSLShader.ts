@@ -292,20 +292,19 @@ bool skinning(
   in vec3 inPosition_inLocal,
   out vec4 outPosition_inWorld,
   in vec3 inNormal_inLocal,
-  out vec4 outNormal_inWorld
+  out vec3 outNormal_inWorld
   )
 {
   mat4 skinMat = getSkinMatrix();
   outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
   outNormalMatrix = toNormalMatrix(skinMat);
-  skinedNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
+  outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
 
   return true;
 }
 #endif
 
 bool processGeometryWithMorphingAndSkinning(
-  float vertexIdx,
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
@@ -323,6 +322,7 @@ bool processGeometryWithMorphingAndSkinning(
     position_inLocal = inPosition_inLocal;
 #ifdef RN_IS_MORPHING
   } else {
+    float vertexIdx = a_baryCentricCoord.w;
     position_inLocal = get_position(vertexIdx, inPosition_inLocal);
   }
 #endif

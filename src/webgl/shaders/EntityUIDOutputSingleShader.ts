@@ -66,8 +66,17 @@ void main()
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   // Skeletal
-  bool isSkinning;
-  skinning(isSkinning, normalMatrix, normalMatrix);
+  processGeometryWithMorphingAndSkinning(
+    worldMatrix,
+    normalMatrix,
+    normalMatrix,
+    a_position,
+    v_position_inWorld,
+    a_normal,
+    v_normal_inWorld
+  );
+
+  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   ${this.pointSprite}
 }`;
   }
