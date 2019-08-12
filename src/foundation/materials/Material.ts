@@ -294,6 +294,12 @@ export default class Material extends RnObject {
     if (this.__fieldsInfo.has(shaderSemantic.index)) {
       const array = this.__fields.get(shaderSemantic.index)!;
       this.__fields.set(shaderSemantic.index, [array[0], value]);
+
+      if (shaderSemantic === ShaderSemantics.DiffuseColorTexture || shaderSemantic === ShaderSemantics.BaseColorTexture) {
+        if (value.isTransparent) {
+          this.alphaMode = AlphaMode.Blend;
+        }
+      }
     }
   }
 

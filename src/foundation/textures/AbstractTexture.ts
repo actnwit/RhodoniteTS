@@ -8,6 +8,7 @@ import { CGAPIResourceHandle, TextureUID, Size } from "../../types/CommonTypes";
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
+  protected __hasTransparentPixels = false;
 
   private static readonly InvalidTextureUid: TextureUID = -1;
   private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
@@ -80,4 +81,9 @@ export default abstract class AbstractTexture extends RnObject {
   get name(): string {
     return this.__name;
   }
+
+  get isTransparent() {
+    return this.__hasTransparentPixels;
+  }
+
 }
