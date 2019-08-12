@@ -7,6 +7,8 @@ import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 export default class Texture extends AbstractTexture {
+  private __imageData?: ImageData;
+
   constructor() {
     super();
   }
@@ -18,6 +20,19 @@ export default class Texture extends AbstractTexture {
 
     var ctx = canvas.getContext("2d")!;
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    this.__imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y<canvas.height; y++) {
+      for (let x = 0; x<canvas.width; x++) {
+        const alpha = this.__imageData.data[(x + y * canvas.width) * 4 + 3];
+        if (alpha < 1) {
+          this.__hasTransparentPixels = true;
+          return canvas;
+        }
+      }
+    }
+    this.__hasTransparentPixels = false;
 
     return canvas;
   }
@@ -99,4 +114,5 @@ export default class Texture extends AbstractTexture {
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
+
 }
