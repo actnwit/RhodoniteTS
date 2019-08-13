@@ -2,9 +2,10 @@ import { ComponentType } from "../../foundation/definitions/ComponentType";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import ModuleManager from "../system/ModuleManager";
 
-test('GetVersMaterialNode vertex shader works correctly', () => {
-
+test('GetVersMaterialNode vertex shader works correctly', async () => {
+  await ModuleManager.getInstance().loadModule('webgl');
   const getVarsMaterialNode = new GetVarsMaterialNode();
   getVarsMaterialNode.addVertexInputAndOutput(
     {

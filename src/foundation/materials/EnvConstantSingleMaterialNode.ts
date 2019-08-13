@@ -78,8 +78,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -88,8 +88,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
     if (cameraComponent) {
-      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
     }
 
   }

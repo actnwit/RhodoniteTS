@@ -505,10 +505,11 @@ export default class ModelConverter {
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
       maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType/2;
     }
+    const isMorphing = (node.mesh != null && node.mesh.weights != null) ? true : false;
     const isSkinning = (node.skin != null) ? true : false;
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
-      return MaterialHelper.createPbrUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
+      return MaterialHelper.createPbrUberMaterial({isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
     } else {
       return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
     }

@@ -31,7 +31,6 @@ import { HdriFormat } from "../definitions/HdriFormat";
 import VectorN from "../math/VectorN";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
-  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
     super(ClassicShader.getInstance(), "classicShading"
@@ -211,8 +210,8 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -220,15 +219,15 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
     // Lights
-    AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
   }
 }
