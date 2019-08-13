@@ -1,6 +1,5 @@
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";

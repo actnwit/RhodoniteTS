@@ -1,6 +1,5 @@
 import RnObject from "../core/RnObject";
 import AbstractTexture from "./AbstractTexture";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import { HdriFormat } from "../definitions/HdriFormat";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 

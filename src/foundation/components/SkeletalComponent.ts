@@ -20,7 +20,6 @@ import MeshComponent from './MeshComponent';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
-import WebGLResourceRepository from '../../webgl/WebGLResourceRepository';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
