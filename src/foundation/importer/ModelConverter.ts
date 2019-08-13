@@ -42,6 +42,7 @@ import { GltfLoadOption, glTF2 } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
+import ILoaderExtension from "./ILoaderExtension";
 
 declare var DracoDecoderModule: any;
 
@@ -610,6 +611,13 @@ export default class ModelConverter {
       rnTexture.generateTextureFromImage(image);
       rnTexture.name = image.name;
       material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
+
+      if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
+        const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension as ILoaderExtension;
+        if (loaderExtension.setUVTransformToTexture) {
+          loaderExtension.setUVTransformToTexture(material, texture.sampler);
+        }
+      }
     }
     const diffuseColorFactor = materialJson.diffuseColorFactor;
     if (diffuseColorFactor != null) {
