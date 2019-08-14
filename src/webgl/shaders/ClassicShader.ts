@@ -46,7 +46,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
-uniform float u_materialSID;
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
