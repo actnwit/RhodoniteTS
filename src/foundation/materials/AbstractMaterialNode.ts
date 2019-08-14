@@ -24,6 +24,7 @@ import MeshComponent from "../components/MeshComponent";
 import Primitive, { Attributes } from "../geometry/Primitive";
 import Accessor from "../memory/Accessor";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -295,10 +296,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  protected setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive) {
-    if (!this.__isMorphing) {
-      return;
-    }
+  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
     if (primitive.targets.length === 0) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
@@ -309,7 +307,17 @@ export default abstract class AbstractMaterialNode extends RnObject {
       return accessor.byteOffsetInBuffer / 4 / 4;
     });
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).dataTextureMorphOffsetPosition, array);
-    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, meshComponent.mesh!.weights);
+    let weights;
+    if (blendShapeComponent && blendShapeComponent.weights.length > 0) {
+      weights = blendShapeComponent.weights;
+    } else if (meshComponent.mesh!.weights.length > 0) {
+      weights = meshComponent.mesh!.weights;
+    } else {
+      weights = new Float32Array(primitive.targets.length);
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
+    }
+    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
+
   }
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 

@@ -25,6 +25,7 @@ import SkeletalComponent from "../components/SkeletalComponent";
 import MutableVector4 from "../math/MutableVector4";
 import VectorN from "../math/VectorN";
 import MeshComponent from "../components/MeshComponent";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -135,7 +136,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         {
           semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
           stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
-          initialValue: 100.0, min: 0, max: 100
+          initialValue: new Scalar(100.0), min: 0, max: 100
         },
         {
           semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
@@ -324,5 +325,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     // Morph
-    this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.primitive);  }
+    AbstractMaterialNode.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
+  }
 }

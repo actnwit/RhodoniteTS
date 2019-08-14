@@ -43,6 +43,7 @@ import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
 import ILoaderExtension from "./ILoaderExtension";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 
 declare var DracoDecoderModule: any;
 
@@ -336,6 +337,7 @@ export default class ModelConverter {
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
+      let entity;
       if (node.mesh != null) {
         let meshIdxOrName = node.meshIndex;
         if (meshIdxOrName == null) {
@@ -349,22 +351,31 @@ export default class ModelConverter {
           const meshComponent = meshEntity.getComponent(MeshComponent)!;
           meshComponent.tryToSetUniqueName(node.mesh.name, true);
         }
-        rnEntities.push(meshEntity);
+        entity = meshEntity;
       } else if (node.camera != null) {
         const cameraEntity = this.__setupCamera(node.camera, gltfModel);
         if (node.name) {
           cameraEntity.tryToSetUniqueName(node.name, true);
         }
-        rnEntities.push(cameraEntity);
+        entity = cameraEntity;
       } else if (node.extensions && node.extensions.KHR_lights_punctual) {
         const lightEntity = this.__setupLight(node.extensions.KHR_lights_punctual.light, gltfModel);
-        rnEntities.push(lightEntity);
+        entity = lightEntity;
       } else {
         const group = this.__generateGroupEntity(gltfModel);
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
-        rnEntities.push(group);
+        entity = group;
+      }
+
+      rnEntities.push(entity);
+
+      if (node.weights != null) {
+        const entityRepository = EntityRepository.getInstance();
+        entityRepository.addComponentsToEntity([BlendShapeComponent], entity.entityUID);
+        const blendShapeComponrnt = entity.getComponent(BlendShapeComponent) as BlendShapeComponent;
+        blendShapeComponrnt.weights = node.weights;
       }
     }
 
