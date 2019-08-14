@@ -163,14 +163,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
 
-  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
-  {
-    float t = (index + 0.5) * invSize.x;
-    float x = fract(t);
-    float y = (floor(t) + 0.5) * invSize.y;
-    return ${_texture}( tex, vec2(x, y) );
-  }
-
   mat4 get_worldMatrix(float instanceId) {
     return u_worldMatrix;
   }

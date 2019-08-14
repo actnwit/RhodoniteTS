@@ -103,9 +103,8 @@ precision highp float;
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-uniform highp sampler2D u_dataTexture;
 
-${this.fetchElement}
+${this.prerequisites}
 
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;

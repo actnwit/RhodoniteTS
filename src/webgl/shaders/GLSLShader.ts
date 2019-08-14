@@ -346,8 +346,20 @@ bool processGeometryWithMorphingAndSkinning(
 `;
   }
 
-  get fetchElement() {
+  get prerequisites() {
     return `
+    uniform float u_materialSID;
+    uniform sampler2D u_dataTexture;
+
+    /*
+    * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+    * arg = vec2(1. / size.x, 1. / size.x / size.y);
+    */
+   // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
+   // {
+   //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
+   // }
+
   highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
   {
     highp float t = (index + 0.5) * invSize.x;
