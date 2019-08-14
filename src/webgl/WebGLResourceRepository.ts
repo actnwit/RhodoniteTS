@@ -442,7 +442,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         } else if (info.compositionType === CompositionType.TextureCube) {
           this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
         }
-        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
+        if (firstTime) {
+          updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
+        }
       }
     } else if (index == null && (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array)) {
       if (value.v == null) {

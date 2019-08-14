@@ -258,27 +258,22 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
 
-    let updated: boolean;
     // Env map
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
-    if (updated) {
-      if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(args.diffuseCube.cgApiResourceUid!) as WebGLTexture;
-        args.glw.bindTextureCube(5, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
-        args.glw.bindTextureCube(5, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
+    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(args.diffuseCube.cgApiResourceUid!) as WebGLTexture;
+      args.glw.bindTextureCube(5, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+      args.glw.bindTextureCube(5, texture);
     }
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
-    if (updated) {
-      if (args.specularCube && args.specularCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(args.specularCube.cgApiResourceUid!) as WebGLTexture;
-        args.glw.bindTextureCube(6, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
-        args.glw.bindTextureCube(6, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
+    if (args.specularCube && args.specularCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(args.specularCube.cgApiResourceUid!) as WebGLTexture;
+      args.glw.bindTextureCube(6, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+      args.glw.bindTextureCube(6, texture);
     }
 
     let mipmapLevelNumber = 1;

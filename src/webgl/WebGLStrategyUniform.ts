@@ -408,27 +408,22 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, firstTime, false);
     }
 
-    let updated: boolean;
     // Env map
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
-    if (updated) {
-      if (diffuseCube && diffuseCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
-        glw.bindTextureCube(5, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        glw.bindTextureCube(5, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
+    if (diffuseCube && diffuseCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(diffuseCube.cgApiResourceUid!) as WebGLTexture;
+      glw.bindTextureCube(5, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
+      glw.bindTextureCube(5, texture);
     }
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
-    if (updated) {
-      if (specularCube && specularCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
-        glw.bindTextureCube(6, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
-        glw.bindTextureCube(6, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
+    if (specularCube && specularCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(specularCube.cgApiResourceUid!) as WebGLTexture;
+      glw.bindTextureCube(6, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyBlackCubeTextureUid!) as WebGLTexture;
+      glw.bindTextureCube(6, texture);
     }
 
     let mipmapLevelNumber = 1;
@@ -528,11 +523,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
         gl.uniform1i(uniform_dataTexture, 7);
 
+
+        // material.setUniformValuesForOnlyTextures(true);
+
         this.__lastShader = shaderProgramUid;
         firstTime = true;
-      }
-      if (firstTime) {
-        //glw.unbindTextures();
       }
       this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
