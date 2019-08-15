@@ -100,6 +100,9 @@ export default class SkeletalComponent extends Component {
   }
 
   $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
+    const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+    const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
+
     if (this.isSkinning) {
       for (let i=0; i<this.__joints.length; i++) {
         const joint = this.__joints[i];
@@ -143,19 +146,22 @@ export default class SkeletalComponent extends Component {
 
       }
 
-      const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
-      const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
-
       if (processApproach === ProcessApproach.FastestWebGL1) {
         for (let j=0; j<maxPrimitive; j++) {
           const primitive = meshComponent.mesh!.getPrimitiveAt(j);
           primitive.material!.setParameter(ShaderSemantics.SkinningMode, 1);
           primitive.material!.setParameter(ShaderSemantics.BoneQuaternion, this.__qArray);
           primitive.material!.setParameter(ShaderSemantics.BoneTranslateScale, this.__tArray);
-          primitive.material!.setParameter(ShaderSemantics.BoneCompressedInfo, this.__boneCompressedInfo);
         }
       }
 
+    } else {
+      if (processApproach === ProcessApproach.FastestWebGL1) {
+        for (let j=0; j<maxPrimitive; j++) {
+          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+          primitive.material!.setParameter(ShaderSemantics.SkinningMode, 0);
+        }
+      }
     }
 
   }

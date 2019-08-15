@@ -243,7 +243,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
       }
     } else {
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
+      if (setUniform) {
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
+      }
     }
   }
 
@@ -251,7 +253,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
     if (!this.__isLighing) {
       return;
     }
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, true, lightComponents!.length);
+    if (setUniform) {
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
+    } else {
+      material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
+    }
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
         break;
