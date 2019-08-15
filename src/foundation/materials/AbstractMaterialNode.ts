@@ -235,15 +235,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
     if (skeletalComponent) {
       if (setUniform) {
-        const jointMatrices = skeletalComponent.jointMatrices;
-        const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-        if (jointMatrices != null) {
-          (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).boneMatrix, false, jointMatrices);
-        }
-        if (jointCompressedChanks != null) {
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChank, jointCompressedChanks);
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, skeletalComponent.jointCompressedInfo.v);
-        }
+        const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
+        const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
       }
     } else {
