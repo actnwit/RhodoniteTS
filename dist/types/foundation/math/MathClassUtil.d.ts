@@ -7,8 +7,8 @@ import Matrix44 from './Matrix44';
 import { CompositionTypeEnum } from '../main';
 export default class MathClassUtil {
     constructor();
-    static arrayToVector(element: Array<number>): Vector2 | Vector4 | Vector3;
-    static arrayToVectorOrMatrix(element: Array<number>): Vector2 | Vector4 | Vector3 | Matrix33 | Matrix44;
+    static arrayToVector(element: Array<number>): Vector4 | Vector2 | Vector3;
+    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Vector2 | Vector3 | Matrix33 | Matrix44;
     static getImmutableValueClass(compositionType: CompositionTypeEnum): Function | undefined;
     static getMutableValueClass(compositionType: CompositionTypeEnum): Function | undefined;
     static cloneOfMathObjects(element: any): any;
@@ -28,7 +28,7 @@ export default class MathClassUtil {
     static subtract(lhs: any, rhs: any): any;
     static multiplyNumber(lhs: any, rhs: number): any;
     static divideNumber(lhs: any, rhs: number): any;
-    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector2 | Vector4 | Vector3 | Quaternion | undefined;
-    static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array): any;
-    static _setForce(objForDetectType: any, val: any): any;
+    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector4 | Vector2 | Vector3 | Quaternion | undefined;
+    static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum): any;
+    static _setForce(objForDetectType: any, val: any): void;
 }

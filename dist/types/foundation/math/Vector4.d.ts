@@ -1,9 +1,9 @@
 import Vector2 from './Vector2';
-import { IVector4, IVector3 } from './IVector';
+import { IVector3 } from './IVector';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
-export declare class Vector4_<T extends TypedArrayConstructor> implements IVector4 {
+export declare class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     v: TypedArray;
-    constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: {
+    constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, w: number, { type }: {
         type: T;
     });
     readonly className: string;
@@ -21,17 +21,25 @@ export declare class Vector4_<T extends TypedArrayConstructor> implements IVecto
     /**
      * add value（static version）
      */
-    static add(lv: IVector4, rv: IVector4): any;
-    static subtract(lv: IVector4, rv: IVector4): any;
+    static add(lv: Vector4, rv: Vector4): any;
+    static subtract(lv: Vector4, rv: Vector4): any;
     /**
      * add value except w component（static version）
      */
-    static addWithOutW(lv: IVector4, rv: IVector4): any;
-    static multiply(vec4: IVector4, val: number): any;
-    static multiplyVector(vec4: IVector4, vec: IVector4): any;
-    static divide(vec4: IVector4, val: number): any;
-    static divideVector(lvec4: IVector4, rvec4: IVector4): any;
-    static normalize(vec4: IVector4): any;
+    static addWithOutW(lv: Vector4, rv: Vector4): any;
+    static multiply(vec4: Vector4, val: number): any;
+    static multiplyVector(vec4: Vector4, vec: Vector4): any;
+    static divide(vec4: Vector4, val: number): any;
+    static divideVector(lvec4: Vector4, rvec4: Vector4): any;
+    static normalize(vec4: Vector4): any;
+    /**
+     * dot product
+     */
+    dotProduct(vec4: Vector4_<T>): number;
+    /**
+     * dot product(static version)
+     */
+    static dotProduct<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>): number;
     toString(): string;
     readonly x: number;
     readonly y: number;

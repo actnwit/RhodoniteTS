@@ -7,6 +7,7 @@ export interface CompositionTypeEnum extends EnumIO {
 }
 declare function from(index: number): CompositionTypeEnum;
 declare function fromString(str: string): CompositionTypeEnum;
+declare function isArray(compositionType: CompositionTypeEnum): boolean;
 export declare const CompositionType: Readonly<{
     Unknown: CompositionTypeEnum;
     Scalar: CompositionTypeEnum;
@@ -24,5 +25,6 @@ export declare const CompositionType: Readonly<{
     Vec4Array: CompositionTypeEnum;
     from: typeof from;
     fromString: typeof fromString;
+    isArray: typeof isArray;
 }>;
 export {};

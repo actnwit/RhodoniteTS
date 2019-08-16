@@ -1,9 +1,8 @@
 import Component from '../core/Component';
 import Matrix44 from '../math/Matrix44';
 import EntityRepository from '../core/EntityRepository';
-import MutableRowMajarMatrix44 from '../math/MutableRowMajarMatrix44';
+import MutableMatrix44 from '../math/MutableMatrix44';
 import MutableMatrix33 from '../math/MutableMatrix33';
-import RowMajarMatrix44 from '../math/RowMajarMatrix44';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
@@ -15,6 +14,7 @@ export default class SceneGraphComponent extends Component {
     private _worldMatrix;
     private _normalMatrix;
     private __isWorldMatrixUpToDate;
+    private __isNormalMatrixUpToDate;
     private __tmpMatrix;
     private static _isAllUpdate;
     private __worldAABB;
@@ -41,8 +41,8 @@ export default class SceneGraphComponent extends Component {
     readonly isTopLevel: boolean;
     readonly children: SceneGraphComponent[];
     readonly parent: SceneGraphComponent | undefined;
-    readonly worldMatrixInner: MutableRowMajarMatrix44;
-    readonly worldMatrix: RowMajarMatrix44;
+    readonly worldMatrixInner: MutableMatrix44;
+    readonly worldMatrix: Matrix44;
     readonly normalMatrixInner: MutableMatrix33;
     readonly normalMatrix: import("../math/Matrix33").default;
     $create(): void;
@@ -50,7 +50,7 @@ export default class SceneGraphComponent extends Component {
     $logic(): void;
     static common_$prerender(): void;
     isWorldMatrixUpToDateRecursively(): boolean;
-    calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableRowMajarMatrix44;
+    calcWorldMatrixRecursively(isJointMode: boolean): Matrix44 | MutableMatrix44;
     /**
      * Collects children and itself from specified sceneGraphComponent.
      * @param sceneGraphComponent collects children and itself from the sceneGraphComponent

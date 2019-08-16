@@ -10,13 +10,18 @@ import { VertexAttributeEnum } from './definitions/VertexAttribute';
 import { CompositionTypeEnum } from './definitions/CompositionType';
 import { ComponentTypeEnum } from './definitions/ComponentType';
 import System from './system/System';
+import Scalar from './math/Scalar';
 import Vector2 from './math/Vector2';
 import Vector3 from './math/Vector3';
 import Vector4 from './math/Vector4';
+import MutableVector2 from './math/MutableVector2';
 import MutableVector3 from './math/MutableVector3';
 import MutableVector4 from './math/MutableVector4';
+import Matrix22 from './math/Matrix22';
 import Matrix33 from './math/Matrix33';
 import Matrix44 from './math/Matrix44';
+import MutableMatrix22 from './math/MutableMatrix22';
+import MutableMatrix33 from './math/MutableMatrix33';
 import MutableMatrix44 from './math/MutableMatrix44';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
@@ -26,7 +31,6 @@ import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
 import MemoryManager from './core/MemoryManager';
 import CameraComponent from './components/CameraComponent';
-import RowMajarMatrix44 from './math/RowMajarMatrix44';
 import AnimationComponent from './components/AnimationComponent';
 import LightComponent from './components/LightComponent';
 import CubeTexture from './textures/CubeTexture';
@@ -44,6 +48,8 @@ import Texture from './textures/Texture';
 import MathClassUtil from './math/MathClassUtil';
 import Mesh from './geometry/Mesh';
 import Component from './core/Component';
+import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSingleMaterialNode';
+import RnObject from '../foundation/core/RnObject';
 declare const Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;
@@ -69,6 +75,7 @@ declare const Rn: {
         Vec4Array: CompositionTypeEnum;
         from: (index: number) => CompositionTypeEnum;
         fromString: (str: string) => CompositionTypeEnum;
+        isArray: (compositionType: CompositionTypeEnum) => boolean;
     }>;
     ComponentType: Readonly<{
         Unknown: ComponentTypeEnum;
@@ -80,6 +87,7 @@ declare const Rn: {
         UnsingedInt: ComponentTypeEnum;
         Float: ComponentTypeEnum;
         Double: ComponentTypeEnum;
+        Bool: ComponentTypeEnum;
         HalfFloat: ComponentTypeEnum;
         from: (index: number) => ComponentTypeEnum;
         fromTypedArray: (typedArray: import("../types/CommonTypes").TypedArray) => ComponentTypeEnum;
@@ -113,13 +121,18 @@ declare const Rn: {
         from: (index: number) => PrimitiveModeEnum;
     }>;
     System: typeof System;
+    Scalar: typeof Scalar;
     Vector2: typeof Vector2;
     Vector3: typeof Vector3;
     Vector4: typeof Vector4;
+    MutableVector2: typeof MutableVector2;
     MutableVector3: typeof MutableVector3;
     MutableVector4: typeof MutableVector4;
+    Matrix22: typeof Matrix22;
     Matrix33: typeof Matrix33;
     Matrix44: typeof Matrix44;
+    MutableMatrix22: typeof MutableMatrix22;
+    MutableMatrix33: typeof MutableMatrix33;
     MutableMatrix44: typeof MutableMatrix44;
     ProcessApproach: Readonly<{
         None: import("./definitions/ProcessApproach").ProcessApproachEnum;
@@ -145,7 +158,6 @@ declare const Rn: {
         from: (index: number) => import("./definitions/CameraType").CameraTypeEnum;
         fromString: (str: string) => import("./definitions/CameraType").CameraTypeEnum;
     }>;
-    RowMajarMatrix44: typeof RowMajarMatrix44;
     AnimationComponent: typeof AnimationComponent;
     LightComponent: typeof LightComponent;
     LightType: Readonly<{
@@ -170,19 +182,38 @@ declare const Rn: {
     Config: {
         maxEntityNumber: number;
         maxLightNumberInShader: number;
+        maxVertexMorphNumberInShader: number;
         maxMaterialInstanceForEachType: number;
     };
     Plane: typeof Plane;
     Sphere: typeof Sphere;
     Material: typeof Material;
     MaterialHelper: Readonly<{
-        createPbrUberMaterial: (maxInstancesNumber?: number | undefined) => Material;
-        createClassicUberMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createPbrUberMaterial: ({ isMorphing, isSkinning, isLighting, additionalName, maxInstancesNumber }: {
+            isMorphing: boolean;
+            isSkinning: boolean;
+            isLighting: boolean;
+            additionalName?: string | undefined;
+            maxInstancesNumber?: number | undefined;
+        }) => Material;
+        createClassicUberMaterial: ({ isSkinning, isLighting, additionalName, maxInstancesNumber }: {
+            isSkinning: boolean;
+            isLighting: boolean;
+            additionalName?: string | undefined;
+            maxInstancesNumber?: number | undefined;
+        }) => Material;
         createEnvConstantMaterial: (maxInstancesNumber?: number | undefined) => Material;
         createFXAA3QualityMaterial: (maxInstancesNumber?: number | undefined) => Material;
-        createDepthEncodingMaterial: (maxInstancesNumber?: number | undefined) => Material;
-        createShadowMapping32bitMaterial: (renderPass: RenderPass, maxInstancesNumber?: number | undefined) => Material;
+        createDepthEncodeMaterial: ({ isSkinning }?: {
+            isSkinning?: boolean | undefined;
+        }, maxInstancesNumber?: number | undefined) => Material;
+        createShadowMapDecodeClassicSingleMaterial: (depthEncodeRenderPass: RenderPass, { isSkinning, isLighting, colorAttachmentsNumber }?: {
+            isSkinning?: boolean | undefined;
+            isLighting?: boolean | undefined;
+            colorAttachmentsNumber?: number | undefined;
+        }, maxInstancesNumber?: number | undefined) => Material;
         createGammaCorrectionMaterial: (maxInstancesNumber?: number | undefined) => Material;
+        createEntityUIDOutputMaterial: (maxInstancesNumber?: number | undefined) => Material;
     }>;
     ShaderSemantics: Readonly<{
         WorldMatrix: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -216,6 +247,8 @@ declare const Rn: {
         SkinningMode: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         GeneralTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         VertexAttributesExistenceArray: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        BoneQuaternion: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        BoneTranslateScale: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         BoneCompressedChank: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         BoneCompressedInfo: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         PointSize: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -232,11 +265,12 @@ declare const Rn: {
         SpecularGlossinessTexture: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         from: (index: number) => import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
         fromString: (str: string) => import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
-        infoToString: (semanticInfo: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string | undefined;
         fullSemanticStr: (info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string;
-        fullSemanticPluralStr: (info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo) => string;
-        getShaderProperty: (materialTypeName: string, info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo, memberName: string) => string;
+        getShaderProperty: (materialTypeName: string, info: import("./definitions/ShaderSemantics").ShaderSemanticsInfo, propertyIndex: number) => string;
         EntityUID: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        MorphTargetNumber: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        DataTextureMorphOffsetPosition: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
+        MorphWeights: import("./definitions/ShaderSemantics").ShaderSemanticsEnum;
     }>;
     RenderPass: typeof RenderPass;
     FrameBuffer: typeof FrameBuffer;
@@ -309,6 +343,8 @@ declare const Rn: {
         packNormalizedVec4ToVec2: (x: number, y: number, z: number, w: number, criteria: number) => number[];
     }>;
     Component: typeof Component;
+    EnvConstantSingleMaterialNode: typeof EnvConstantSingleMaterialNode;
+    RnObject: typeof RnObject;
 };
 export default Rn;
 export declare type RnType = typeof Rn;

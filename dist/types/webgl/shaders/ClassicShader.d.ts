@@ -8,6 +8,7 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
     static readonly materialElement: import("../../foundation/definitions/ShaderNode").ShaderNodeEnum;
     private constructor();
     static getInstance(): ClassicShader;
+    getVertexShaderBody(args: any): string;
     readonly vertexShaderDefinitions: string;
     vertexShaderBody: string;
     getFragmentShader(args: any): string;

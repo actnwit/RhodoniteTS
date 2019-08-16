@@ -19,7 +19,7 @@ export default class Mesh {
     private __opaquePrimitives;
     private __transparentPrimitives;
     private __instanceOf?;
-    weights: never[];
+    weights: number[];
     private __morphPrimitives;
     private __localAABB;
     private __vaoUids;

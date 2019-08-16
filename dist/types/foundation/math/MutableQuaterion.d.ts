@@ -3,7 +3,6 @@ import Vector4 from "./Vector4";
 import Quaternion from "./Quaternion";
 import { IVector4 } from "./IVector";
 import Matrix44 from "./Matrix44";
-import RowMajarMatrix44 from "./RowMajarMatrix44";
 import { TypedArray } from "../../types/CommonTypes";
 export default class MutableQuaternion extends Quaternion implements IVector4 {
     constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number);
@@ -17,7 +16,7 @@ export default class MutableQuaternion extends Quaternion implements IVector4 {
     setAt(i: number, val: number): void;
     normalize(): this;
     identity(): void;
-    static fromMatrix(m: Matrix44 | RowMajarMatrix44): MutableQuaternion;
+    static fromMatrix(m: Matrix44): MutableQuaternion;
     x: number;
     y: number;
     z: number;

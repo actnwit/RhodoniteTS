@@ -3,17 +3,17 @@ import GLSLShader from "./GLSLShader";
 import { CompositionTypeEnum } from "../../foundation/main";
 import ISingleShader from "./ISingleShader";
 export declare type AttributeNames = Array<string>;
-export default class EnvConstantShader extends GLSLShader implements ISingleShader {
-    static __instance: EnvConstantShader;
+export default class DepthEncodeShader extends GLSLShader implements ISingleShader {
+    static __instance: DepthEncodeShader;
     static readonly materialElement: import("../../foundation/definitions/ShaderNode").ShaderNodeEnum;
     private constructor();
-    static getInstance(): EnvConstantShader;
+    static getInstance(): DepthEncodeShader;
     readonly vertexShaderDefinitions: string;
-    vertexShaderBody: string;
     getVertexShaderBody(args: any): string;
-    getFragmentShader(args: any): string;
+    vertexShaderBody: string;
+    getFragmentShader(): string;
     readonly pixelShaderDefinitions: string;
-    getPixelShaderBody(args: Object): string;
+    getPixelShaderBody(): string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
     readonly attributeCompositions: Array<CompositionTypeEnum>;

@@ -1,6 +1,8 @@
+import { ShaderSemanticsClass } from "../definitions/ShaderSemantics";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import Material from "./Material";
-export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
+export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
+    static envRotation: ShaderSemanticsClass;
     constructor();
     static initDefaultTextures(): Promise<void>;
     setParametersForGPU({ material, shaderProgram, firstTime, args }: {

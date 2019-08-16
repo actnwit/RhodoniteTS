@@ -12,6 +12,8 @@ export default class MeshComponent extends Component {
     unsetMesh(): boolean;
     readonly mesh: Mesh | undefined;
     $load(): void;
+    $logic(): void;
+    weights: number[];
     calcViewDepth(cameraComponent: CameraComponent): number;
     readonly viewDepth: number;
     static alertNoMeshSet(meshComponent: MeshComponent): void;

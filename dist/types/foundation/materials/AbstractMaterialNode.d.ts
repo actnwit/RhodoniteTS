@@ -2,6 +2,19 @@ import RnObject from "../core/RnObject";
 import { ShaderSemanticsInfo, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import GLSLShader from "../../webgl/shaders/GLSLShader";
+import Matrix44 from "../math/Matrix44";
+import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
+import Texture from "../textures/Texture";
+import CubeTexture from "../textures/CubeTexture";
+import LightComponent from "../components/LightComponent";
+import CameraComponent from "../components/CameraComponent";
+import SkeletalComponent from "../components/SkeletalComponent";
+import Material from "./Material";
+import MutableVector2 from "../math/MutableVector2";
+import MutableVector4 from "../math/MutableVector4";
+import MeshComponent from "../components/MeshComponent";
+import Primitive from "../geometry/Primitive";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 export declare type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 export declare type ShaderSocket = {
     compositionType: CompositionTypeEnum;
@@ -32,7 +45,25 @@ export default abstract class AbstractMaterialNode extends RnObject {
     readonly shader: GLSLShader;
     readonly shaderFunctionName: string;
     isSingleOperation: boolean;
-    constructor(shader: GLSLShader, shaderFunctionName: string);
+    protected __definitions: string;
+    protected __webglResourceRepository: WebGLResourceRepository;
+    protected static __gl?: WebGLRenderingContext;
+    private static __transposedMatrix44;
+    protected static __dummyWhiteTexture: Texture;
+    protected static __dummyBlueTexture: Texture;
+    protected static __dummyBlackTexture: Texture;
+    protected static __dummyBlackCubeTexture: CubeTexture;
+    protected static __tmp_vector4: MutableVector4;
+    protected static __tmp_vector2: MutableVector2;
+    private __isMorphing;
+    private __isSkinning;
+    private __isLighing;
+    constructor(shader: GLSLShader, shaderFunctionName: string, enables?: {
+        isMorphing: boolean;
+        isSkinning: boolean;
+        isLighting: boolean;
+    });
+    readonly definitions: string;
     static getMaterialNode(materialNodeUid: MaterialNodeUID): AbstractMaterialNode;
     readonly materialNodeUid: number;
     readonly _semanticsInfoArray: ShaderSemanticsInfo[];
@@ -45,5 +76,19 @@ export default abstract class AbstractMaterialNode extends RnObject {
     getVertexOutput(name: string): ShaderSocket | undefined;
     getPixelInput(name: string): ShaderSocket | undefined;
     getPixelOutput(name: string): ShaderSocket | undefined;
+    static initDefaultTextures(): void;
+    protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
+    protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44): void;
+    protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean): void;
+    protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean): void;
+    protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean): void;
+    protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean): void;
+    static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive): void;
+    setParametersForGPU({ material, shaderProgram, firstTime, args }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args?: any;
+    }): void;
 }
 export {};

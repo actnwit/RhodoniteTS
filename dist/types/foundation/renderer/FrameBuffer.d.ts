@@ -25,4 +25,5 @@ export default class FrameBuffer extends RnObject {
     setStencilAttachment(renderable: IRenderable): boolean;
     setDepthStencilAttachment(renderable: IRenderable): boolean;
     destroy3DAPIResources(): void;
+    whichColorAttachment(renderable: IRenderable): number;
 }

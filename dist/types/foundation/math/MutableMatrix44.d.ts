@@ -2,7 +2,6 @@ import Matrix44 from "./Matrix44";
 import { IMutableMatrix44 } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
-import RowMajarMatrix44 from "./RowMajarMatrix44";
 import Vector3 from "./Vector3";
 import { Index } from "../../types/CommonTypes";
 declare const FloatArray: Float32ArrayConstructor;
@@ -13,7 +12,6 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Matrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Quaternion, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-    constructor(m: RowMajarMatrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: null);
     constructor(m0: number, m1: number, m2: number, m3: number, m4: number, m5: number, m6: number, m7: number, m8: number, m9: number, m10: number, m11: number, m12: number, m13: number, m14: number, m15: number, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
@@ -53,8 +51,8 @@ export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix4
     /**
    * multiply zero matrix and zero matrix
    */
-    multiply(mat: Matrix44 | RowMajarMatrix44): this;
-    multiplyByLeft(mat: Matrix44 | RowMajarMatrix44): this;
+    multiply(mat: Matrix44): this;
+    multiplyByLeft(mat: Matrix44): this;
     invert(): this;
     /**
      * multiply zero matrix and zero matrix(static version)

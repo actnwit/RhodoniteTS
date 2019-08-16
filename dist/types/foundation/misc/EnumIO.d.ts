@@ -9,9 +9,10 @@ export declare class EnumClass implements EnumIO {
     readonly str: string;
     private static __indices;
     private static __strings;
-    constructor({ index, str }: {
+    constructor({ index, str, noCheckStrUnique }: {
         index: number;
         str: string;
+        noCheckStrUnique?: boolean;
     });
     toString(): string;
     toJSON(): number;

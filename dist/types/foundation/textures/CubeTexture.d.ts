@@ -7,4 +7,5 @@ export default class CubeTexture extends AbstractTexture {
     constructor();
     loadTextureImages(): Promise<void>;
     loadTextureImagesAsync(): void;
+    load1x1Texture(rgbaStr?: string): void;
 }

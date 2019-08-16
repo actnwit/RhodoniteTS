@@ -1,5 +1,7 @@
 import Entity from "../core/Entity";
 import Buffer from "../memory/Buffer";
+import Texture from "../textures/Texture";
+import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import Material from "../materials/Material";
 import { Byte, Size } from "../../types/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
@@ -32,6 +34,7 @@ export default class ModelConverter {
     private __setupCamera;
     private __setupMesh;
     private __generateAppropreateMaterial;
+    static _createTexture(textureType: any, gltfModel: glTF2): Texture;
     private __setupMaterial;
     private _checkRnGltfLoaderOptionsExist;
     _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size): any;
@@ -42,10 +45,11 @@ export default class ModelConverter {
     _accessBinaryWithAccessor(accessor: any): any;
     private __addOffsetToIndices;
     private __getRnAccessor;
+    private __copyRnAccessorAndBufferView;
     private __createRnAccessor;
     private __getRnBufferView;
     private __getGeometryFromDracoBuffer;
     __getIndicesFromDraco(draco: any, decoder: any, dracoGeometry: any, triangleStripDrawMode: boolean): Uint32Array | undefined;
     private __decodeDraco;
-    static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformName: string, textureRotationName: string): void;
+    static _setupTextureTransform(textureJson: any, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum): void;
 }

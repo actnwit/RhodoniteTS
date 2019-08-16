@@ -1,6 +1,6 @@
 import { EnumIO } from "../misc/EnumIO";
 export interface ProcessStageEnum extends EnumIO {
-    getMethodName(): string;
+    methodName: string;
 }
 declare function from(index: number): ProcessStageEnum;
 export declare const ProcessStage: Readonly<{

@@ -5,4 +5,5 @@ export default interface ILoaderExtension {
     isNeededToUseThisMaterial?(gltfJson: glTF2): boolean;
     setTextures?(gltfJson: glTF2, materialJson_: any): void;
     setupMaterial?(gltfJson: glTF2, materialJson: any, material: Material): void;
+    setUVTransformToTexture?(material: Material, samplerJson: any): void;
 }

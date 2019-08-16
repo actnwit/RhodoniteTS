@@ -20,7 +20,6 @@ export default class Component extends RnObject {
     protected __currentProcessStage: ProcessStageEnum;
     protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array>;
     protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number>;
-    protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean>;
     private static __bufferViews;
     private static __accessors;
     private static __byteLengthSumOfMembers;
@@ -112,7 +111,7 @@ export default class Component extends RnObject {
     /**
      * take one accessor for the member field.
      */
-    static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count): import("../memory/AccessorBase").default | undefined;
+    static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count): import("../memory/FlexibleAccessor").default | undefined;
     static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass: Function): Byte;
     static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass: Function): Byte;
     static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass: Function): Byte;

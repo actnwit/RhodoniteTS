@@ -8,7 +8,7 @@ import AABB from '../math/AABB';
 import Material from '../materials/Material';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { PrimitiveUID, TypedArray } from '../../types/CommonTypes';
-declare type Attributes = Map<VertexAttributeEnum, Accessor>;
+export declare type Attributes = Map<VertexAttributeEnum, Accessor>;
 export default class Primitive extends RnObject {
     private __mode;
     material?: Material;
@@ -58,4 +58,3 @@ export default class Primitive extends RnObject {
     delete3DAPIVertexData(): boolean;
     readonly vertexHandles: VertexHandles | undefined;
 }
-export {};
