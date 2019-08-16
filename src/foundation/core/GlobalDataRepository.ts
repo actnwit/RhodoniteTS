@@ -8,13 +8,14 @@ import Material from "../materials/Material";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";
+import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo,
   values: any[],
-  count: Count,
-  accsessor: Accessor
+  maxCount: Count,
+  accessor: Accessor
 };
 
 /**
@@ -34,7 +35,7 @@ export default class GlobalDataRepository {
     return this.__instance;
   }
 
-  registerProperty(semanticInfo: ShaderSemanticsInfo, count: Count) {
+  registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count) {
     const propertyIndex = Material._getPropertyIndex(semanticInfo);
 
     const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
@@ -42,7 +43,7 @@ export default class GlobalDataRepository {
     const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
 
     const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: alignedByteLength * count,
+      byteLengthToNeed: alignedByteLength * maxCount,
       byteStride: 0,
       byteAlign: 16,
       isAoS: false
@@ -56,26 +57,30 @@ export default class GlobalDataRepository {
     const accessor = bufferView.takeFlexibleAccessor({
       compositionType: semanticInfo.compositionType,
       componentType: ComponentType.Float,
-      count: count,
+      count: maxCount,
       byteStride: alignedByteLength,
       arrayLength: maxArrayLength,
       byteAlign: 16
     });
 
-    const values: any = [];
-    for (let i=0; i<count; i++) {
-      const value = accessor.takeOne();
-      values.push(value);
-    }
-
     const globalPropertyStruct: GlobalPropertyStruct = {
       shaderSemanticsInfo: semanticInfo,
-      values: values,
-      count: count,
-      accsessor: accessor
+      values: [],
+      maxCount: maxCount,
+      accessor: accessor
     }
 
     this.__fields.set(propertyIndex, globalPropertyStruct);
+  }
+
+  takeOne(shaderSemantic: ShaderSemanticsEnum, arrayIndex?: Index) {
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, arrayIndex);
+    const globalPropertyStruct = this.__fields.get(propertyIndex);
+    if (globalPropertyStruct) {
+      const valueObj = globalPropertyStruct.accessor.takeOne();
+      return valueObj;
+    }
+    return void 0;
   }
 
   setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any, arrayIndex?: Index) {
@@ -95,5 +100,16 @@ export default class GlobalDataRepository {
       return valueObj;
     }
     return void 0;
+  }
+
+  setUniformValues(shaderProgram: WebGLProgram) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+      const info = globalPropertyStruct.shaderSemanticsInfo;
+      const values  = globalPropertyStruct.values;
+      for (let i=0; i<values.length; i++) {
+        webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, true, values[i], info.index);
+      }
+    });
   }
 }
