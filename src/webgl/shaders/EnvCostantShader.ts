@@ -44,8 +44,9 @@ precision highp float;
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
+${this.prerequisites}
+
 ${_in} vec3 a_position;
-uniform sampler2D u_dataTexture;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -92,10 +93,7 @@ void main() {
     return `${_version}
 precision highp float;
 
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
-
-${this.fetchElement}
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
 

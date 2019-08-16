@@ -7,8 +7,10 @@ import { VertexAttribute } from "../definitions/VertexAttribute";
 import AddMaterialNode from "./AddMaterialNode";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import MemoryManager from "../core/MemoryManager";
+import ModuleManager from "../system/ModuleManager";
 
-test('Material works correctly', () => {
+test('Material works correctly', async () => {
+  await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
 
   Material.registerMaterial('MyMaterial', []);

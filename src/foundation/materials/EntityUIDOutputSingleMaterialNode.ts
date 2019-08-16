@@ -38,7 +38,6 @@ import MutableMatrix44 from "../math/MutableMatrix44";
 import MutableMatrix33 from "../math/MutableMatrix33";
 
 export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
-  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   constructor() {
     super(EntityUIDOutputShader.getInstance(), "entityUidOutputShading"
@@ -46,7 +45,6 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       + (true ? '' : '-lighting'));
     EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.WorldMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
@@ -113,8 +111,8 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -122,15 +120,15 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
     // Lights
-    AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.EntityUID.str, true, args.entity.entityUID);
   }

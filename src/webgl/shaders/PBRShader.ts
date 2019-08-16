@@ -57,8 +57,8 @@ ${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 ${_out} vec3 v_baryCentricCoord;
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
+
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
@@ -147,8 +147,7 @@ precision highp float;
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-uniform sampler2D u_dataTexture;
-uniform float u_materialSID;
+${this.prerequisites}
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -164,7 +163,6 @@ ${this.pbrUniformDefinition}
 
 ${this.pbrMethodDefinition}
 
-${this.fetchElement}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 

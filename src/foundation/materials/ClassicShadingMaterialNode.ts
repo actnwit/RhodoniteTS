@@ -2,8 +2,6 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../de
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import WireframeShader from "../../webgl/shaders/WireframeShader";
-import Vector3 from "../math/Vector3";
 import ClassicShadingShader from "../../webgl/shaders/ClassicShadingShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import { ShaderType } from "../definitions/ShaderType";

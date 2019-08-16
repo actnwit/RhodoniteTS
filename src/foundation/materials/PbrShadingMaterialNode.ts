@@ -25,20 +25,23 @@ import SkeletalComponent from "../components/SkeletalComponent";
 import MutableVector4 from "../math/MutableVector4";
 import VectorN from "../math/VectorN";
 import MeshComponent from "../components/MeshComponent";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-  static readonly isOutputHDR = new ShaderSemanticsClass({str: 'isOutputHDR'});
+  static readonly isOutputHDR = new ShaderSemanticsClass({str: 'isOutputHDR'})
 
-  constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
+  constructor({isMorphing, isSkinning, isLighting}: {isMorphing: boolean, isSkinning: boolean, isLighting: boolean}) {
     super(PBRShader.getInstance(), 'pbrShading'
-    + (isSkinning ? '+skinning' : '')
-    + (isLighting ? '' : '-lighting')
+      + (isMorphing ? '+morphing' : '')
+      + (isSkinning ? '+skinning' : '')
+      + (isLighting ? '' : '-lighting'),
+      {isMorphing, isSkinning, isLighting}
     );
+
+
     PbrShadingMaterialNode.initDefaultTextures();
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
@@ -133,7 +136,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         {
           semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
           stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
-          initialValue: 100.0, min: 0, max: 100
+          initialValue: new Scalar(100.0), min: 0, max: 100
         },
         {
           semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
@@ -200,15 +203,15 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
 
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
+      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
         stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
-    if (true){
+    if (isMorphing){
       this.__definitions += '#define RN_IS_MORPHING\n';
 
       shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphTargetNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
@@ -239,8 +242,8 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -248,35 +251,30 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
 
-    let updated: boolean;
     // Env map
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
-    if (updated) {
-      if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(args.diffuseCube.cgApiResourceUid!) as WebGLTexture;
-        args.glw.bindTextureCube(5, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
-        args.glw.bindTextureCube(5, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
+    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(args.diffuseCube.cgApiResourceUid!) as WebGLTexture;
+      args.glw.bindTextureCube(5, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+      args.glw.bindTextureCube(5, texture);
     }
-    updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
-    if (updated) {
-      if (args.specularCube && args.specularCube.isTextureReady) {
-        const texture = this.__webglResourceRepository.getWebGLResource(args.specularCube.cgApiResourceUid!) as WebGLTexture;
-        args.glw.bindTextureCube(6, texture);
-      } else {
-        const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
-        args.glw.bindTextureCube(6, texture);
-      }
+    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, -1]);
+    if (args.specularCube && args.specularCube.isTextureReady) {
+      const texture = this.__webglResourceRepository.getWebGLResource(args.specularCube.cgApiResourceUid!) as WebGLTexture;
+      args.glw.bindTextureCube(6, texture);
+    } else {
+      const texture = this.__webglResourceRepository.getWebGLResource(AbstractMaterialNode.__dummyBlackCubeTexture.cgApiResourceUid) as WebGLTexture;
+      args.glw.bindTextureCube(6, texture);
     }
 
     let mipmapLevelNumber = 1;
@@ -324,9 +322,9 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     // }
 
     // Lights
-    AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     // Morph
-    AbstractMaterialNode.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.primitive);
+    AbstractMaterialNode.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
   }
 }

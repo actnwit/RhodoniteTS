@@ -96,9 +96,7 @@ ${_out} vec2 v_texcoord;
 
     return `${_version}precision highp float;
 
-uniform float u_materialSID;
-
-${this.fetchElement}
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 

@@ -42,7 +42,8 @@ ${_in} vec3 a_position;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_out} vec2 v_texcoord;
-uniform sampler2D u_dataTexture;
+
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -62,6 +63,8 @@ void main(){
 
     return `${_version}
 precision highp float;
+
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 

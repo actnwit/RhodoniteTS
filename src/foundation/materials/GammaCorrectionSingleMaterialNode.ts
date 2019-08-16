@@ -31,7 +31,7 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
     }
 
     /// Matrices
@@ -40,8 +40,8 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
     if (cameraComponent) {
-      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
     }
 
   }

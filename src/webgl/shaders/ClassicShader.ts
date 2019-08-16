@@ -46,7 +46,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
-uniform float u_materialSID;
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -113,10 +113,7 @@ precision highp float;
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-${this.fetchElement}
-
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
+${this.prerequisites}
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;

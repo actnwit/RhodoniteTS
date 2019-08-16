@@ -70,8 +70,8 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -81,12 +81,12 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
     }
 
-    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
     material.setParameter(ShaderSemantics.ViewPosition, cameraComponent.entity.getTransform().translate);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
   }
 }

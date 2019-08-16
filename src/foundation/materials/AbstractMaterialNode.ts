@@ -24,6 +24,7 @@ import MeshComponent from "../components/MeshComponent";
 import Primitive, { Attributes } from "../geometry/Primitive";
 import Accessor from "../memory/Accessor";
 import { VertexAttribute } from "../definitions/VertexAttribute";
+import BlendShapeComponent from "../components/BlendShapeComponent";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -56,7 +57,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   public isSingleOperation = false;
   protected __definitions = '';
 
-  protected static __webglResourceRepository?: WebGLResourceRepository;
+  protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
   private static __transposedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   protected static __dummyWhiteTexture = new Texture();
@@ -66,15 +67,23 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
+  private __isMorphing: boolean;
+  private __isSkinning: boolean;
+  private __isLighing: boolean;
 
 
-  constructor(shader: GLSLShader, shaderFunctionName: string) {
+  constructor(shader: GLSLShader, shaderFunctionName: string, enables = {isMorphing: false, isSkinning: false, isLighting: false}) {
     super();
     this.shader = shader;
     this.shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
 
+    this.__isMorphing = enables.isMorphing;
+    this.__isSkinning = enables.isSkinning;
+    this.__isLighing = enables.isLighting;
+
+    this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   }
 
   get definitions() {
@@ -170,7 +179,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
     if (this.__dummyWhiteTexture.isTextureReady) {
       return;
     }
-    AbstractMaterialNode.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     this.__dummyWhiteTexture.generate1x1TextureFrom();
     this.__dummyBlueTexture.generate1x1TextureFrom("rgba(127.5, 127.5, 255, 1)");
@@ -178,15 +186,15 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__dummyBlackCubeTexture.load1x1Texture("rgba(0, 0, 0, 1)");
   }
 
-  static setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
+  protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).worldMatrix, false, worldMatrix.v);
   }
 
-  static setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {
+  protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: Matrix44) {
     (shaderProgram as any)._gl.uniformMatrix3fv((shaderProgram as any).normalMatrix, false, normalMatrix.v);
   }
 
-  static setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
+  protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
     if (cameraComponent) {
       const cameraPosition = cameraComponent.worldPosition;
       if (setUniform) {
@@ -209,7 +217,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  static setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
+  protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
     if (cameraComponent) {
       if (setUniform) {
         (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
@@ -221,27 +229,35 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  static setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
+  protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
+    if (!this.__isSkinning) {
+      return;
+    }
     if (skeletalComponent) {
       if (setUniform) {
-        const jointMatrices = skeletalComponent.jointMatrices;
-        const jointCompressedChanks = skeletalComponent.jointCompressedChanks;
-        if (jointMatrices != null) {
-          (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).boneMatrix, false, jointMatrices);
-        }
-        if (jointCompressedChanks != null) {
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChank, jointCompressedChanks);
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, skeletalComponent.jointCompressedInfo.v);
-        }
+        const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
+        const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+
         this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
       }
     } else {
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
+      if (setUniform) {
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
+      }
     }
   }
 
-  static setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
-    this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.LightNumber.str, true, lightComponents!.length);
+  protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
+    if (!this.__isLighing) {
+      return;
+    }
+    if (setUniform) {
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
+    } else {
+      material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
+    }
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
         break;
@@ -282,7 +298,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
-  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive) {
+  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
     if (primitive.targets.length === 0) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
@@ -293,7 +309,17 @@ export default abstract class AbstractMaterialNode extends RnObject {
       return accessor.byteOffsetInBuffer / 4 / 4;
     });
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).dataTextureMorphOffsetPosition, array);
-    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, meshComponent.mesh!.weights);
+    let weights;
+    if (blendShapeComponent && blendShapeComponent.weights.length > 0) {
+      weights = blendShapeComponent.weights;
+    } else if (meshComponent.mesh!.weights.length > 0) {
+      weights = meshComponent.mesh!.weights;
+    } else {
+      weights = new Float32Array(primitive.targets.length);
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
+    }
+    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
+
   }
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 

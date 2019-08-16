@@ -339,7 +339,7 @@ export default class Material extends RnObject {
     });
   }
 
-  setUniformValuesForOnlyTexturesAndWithUpdateFunc(firstTime: boolean, args?: Object) {
+  setUniformValuesForOnlyTextures(firstTime: boolean) {
     const shaderProgramUid = this._shaderProgramUid;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;

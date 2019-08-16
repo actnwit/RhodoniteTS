@@ -237,25 +237,19 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 }
 
 mat4 getSkinMatrix() {
-  highp vec4 boneCompressedChanksX = get_boneCompressedChank(0.0, int(a_joint.x));
-  highp vec4 boneCompressedChanksY = get_boneCompressedChank(0.0, int(a_joint.y));
-  highp vec4 boneCompressedChanksZ = get_boneCompressedChank(0.0, int(a_joint.z));
-  highp vec4 boneCompressedChanksW = get_boneCompressedChank(0.0, int(a_joint.w));
-  highp vec4 boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
-
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksX.xy, criteria.x),
-      unpackedVec2ToNormalizedVec4(boneCompressedChanksX.zw, criteria.y)*boneCompressedInfo);
+    get_boneQuaternion(0.0, int(a_joint.x)),
+    get_boneTranslateScale(0.0, int(a_joint.x)));
   skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksY.xy, criteria.x),
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksY.zw, criteria.y)*boneCompressedInfo);
+    get_boneQuaternion(0.0, int(a_joint.y)),
+    get_boneTranslateScale(0.0, int(a_joint.y)));
   skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.xy, criteria.x),
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksZ.zw, criteria.y)*boneCompressedInfo);
+    get_boneQuaternion(0.0, int(a_joint.z)),
+    get_boneTranslateScale(0.0, int(a_joint.z)));
   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksW.xy, criteria.x),
-    unpackedVec2ToNormalizedVec4(boneCompressedChanksW.zw, criteria.y)*boneCompressedInfo);
+    get_boneQuaternion(0.0, int(a_joint.w)),
+    get_boneTranslateScale(0.0, int(a_joint.w)));
 
   // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
   // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
@@ -346,8 +340,20 @@ bool processGeometryWithMorphingAndSkinning(
 `;
   }
 
-  get fetchElement() {
+  get prerequisites() {
     return `
+    uniform float u_materialSID;
+    uniform sampler2D u_dataTexture;
+
+    /*
+    * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+    * arg = vec2(1. / size.x, 1. / size.x / size.y);
+    */
+   // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
+   // {
+   //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
+   // }
+
   highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
   {
     highp float t = (index + 0.5) * invSize.x;

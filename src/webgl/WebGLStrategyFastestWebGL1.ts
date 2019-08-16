@@ -48,27 +48,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `
-  uniform highp sampler2D u_dataTexture;
   uniform mat4 u_viewMatrix;
   uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
 
-  /*
-   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
-   * arg = vec2(1. / size.x, 1. / size.x / size.y);
-   */
-  // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
-  // {
-  //   return ${_texture}( tex, arg * (index + 0.5) );
-  // }
-
-  vec4 fetchElement(highp sampler2D tex, float index, vec2 invSize)
-  {
-    float t = (index + 0.5) * invSize.x;
-    float x = fract(t);
-    float y = (floor(t) + 0.5) * invSize.y;
-    return ${_texture}( tex, vec2(x, y) );
-  }
 
   mat4 get_worldMatrix(float instanceId)
   {
@@ -133,6 +116,25 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return matrix;
   }
 
+#ifdef RN_IS_MORPHING
+  vec3 get_position(float vertexId, vec3 basePosition) {
+    vec3 position = basePosition;
+    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+      float index = u_dataTextureMorphOffsetPosition[i] + 1.0 * vertexId;
+      float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+      float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+      vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+    //  vec2 arg = vec2(1.0/powWidthVal, 1.0/powWidthVal/powHeightVal);
+      vec3 addPos = fetchElement(u_dataTexture, index + 0.0, arg).xyz;
+      position += addPos * u_morphWeights[i];
+      if (i == u_morphTargetNumber-1) {
+        break;
+      }
+    }
+
+    return position;
+  }
+#endif
   `;
     }
 
@@ -172,14 +174,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       // definition of uniform variable
       let varDef = '';
-      if (isTexture) {
+//      if (isTexture) {
         const varType = info.compositionType.getGlslStr(info.componentType);
         let varIndexStr = '';
         if (info.maxIndex) {
           varIndexStr = `[${info.maxIndex}]`;
         }
         varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
-      }
+  //    }
       // inner contents of 'get_' shader function
       if (propertyIndex < 0) {
         if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
@@ -254,6 +256,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         case CompositionType.Vec2Array:
           str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
         case CompositionType.Scalar:
+        case CompositionType.ScalarArray:
           if (info.componentType === ComponentType.Int) {
             str += `        int val = int(col0.x);`;
           } else if (info.componentType === ComponentType.Bool) {
@@ -623,6 +626,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             normalMatrix: entity.getSceneGraph().normalMatrixInner,
             lightComponents: this.__lightComponents,
             renderPass: renderPass,
+            primitive: primitive,
             diffuseCube: meshRendererComponent.diffuseCubeMap,
             specularCube: meshRendererComponent.specularCubeMap
         }});
