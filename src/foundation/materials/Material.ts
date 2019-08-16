@@ -387,7 +387,7 @@ export default class Material extends RnObject {
       const info = this.__fieldsInfo.get(key)!;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value);
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
         }
       }
     });
@@ -401,7 +401,7 @@ export default class Material extends RnObject {
       const info = this.__fieldsInfo.get(key)!;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value);
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
         }
       }
     });
