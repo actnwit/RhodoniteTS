@@ -254,6 +254,15 @@ export default class Material extends RnObject {
     return propertyIndex;
   }
 
+  private static __getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum, index?: Index) {
+    let propertyIndex = shaderSemantic.index;
+    if (index != null) {
+      propertyIndex += index;
+      propertyIndex *= -1;
+    }
+    return propertyIndex;
+  }
+
   initialize() {
     let countOfThisType = Material.__materialInstanceCountOfType.get(this.__materialTypeName) as number;
     this.__materialSid = countOfThisType++;
@@ -282,13 +291,14 @@ export default class Material extends RnObject {
   }
 
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
-    const info = this.__fieldsInfo.get(shaderSemantic.index);
+    const propertyIndex = Material.__getPropertyIndex2(shaderSemantic, index);
+    const info = this.__fieldsInfo.get(propertyIndex);
     if (info != null) {
       let valueObj;
       if (info.soloDatum) {
-        valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index);
+        valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(propertyIndex);
       } else {
-        valueObj = this.__fields.get(shaderSemantic.index);
+        valueObj = this.__fields.get(propertyIndex);
       }
       MathClassUtil._setForce(valueObj, value);
     }
