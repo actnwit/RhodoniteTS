@@ -7,6 +7,14 @@ export class MutableVector2_<T extends TypedArrayConstructor> extends Vector2_<T
     super(x as any, y, {type});
   }
 
+  get x() {
+    return this.v[0];
+  }
+
+  get y() {
+    return this.v[1];
+  }
+
   set x(x:number) {
     this.v[0] = x;
   }
