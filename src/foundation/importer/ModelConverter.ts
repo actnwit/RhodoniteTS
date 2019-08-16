@@ -526,6 +526,20 @@ export default class ModelConverter {
     }
   }
 
+  static _createTexture(textureType : any, gltfModel: glTF2) {
+    let options = gltfModel.asset.extras!.rnLoaderOptions;
+    const rnTexture = new Texture();
+    rnTexture.autoDetectTransparency = (options!.autoDetectTextureTransparency === true) ? true : false;
+    rnTexture.autoResize = (options!.autoResizeTexture === true) ? true : false;
+    const texture = textureType.texture;
+    if (texture.image.image) {
+      const image = texture.image.image;
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+    }
+    return rnTexture
+  }
+
   private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {
     let options = gltfModel.asset.extras.rnLoaderOptions;
 
@@ -545,23 +559,13 @@ export default class ModelConverter {
 
       const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
       if (baseColorTexture != null) {
-        const texture = baseColorTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.baseColorTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(baseColorTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
 
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
-        const texture = occlusionTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.occlusionTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(occlusionTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
       }
 
@@ -573,12 +577,7 @@ export default class ModelConverter {
 
       const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
       if (metallicRoughnessTexture != null) {
-        const texture = metallicRoughnessTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.metallicRoughnessTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
 
@@ -597,12 +596,7 @@ export default class ModelConverter {
 
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null) {
-      const texture = emissiveTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
-      // material.emissiveTexture = rnTexture;
+      const rnTexture = ModelConverter._createTexture(emissiveTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
@@ -617,17 +611,13 @@ export default class ModelConverter {
     // For glTF1.0
     const diffuseColorTexture = materialJson.diffuseColorTexture;
     if (diffuseColorTexture != null) {
-      const texture = diffuseColorTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
 
       if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
         const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension as ILoaderExtension;
         if (loaderExtension.setUVTransformToTexture) {
-          loaderExtension.setUVTransformToTexture(material, texture.sampler);
+          loaderExtension.setUVTransformToTexture(material, diffuseColorTexture.texture.sampler);
         }
       }
     }
@@ -638,11 +628,7 @@ export default class ModelConverter {
 
     const normalTexture = materialJson.normalTexture;
     if (normalTexture != null) {
-      const texture = normalTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
     }
 

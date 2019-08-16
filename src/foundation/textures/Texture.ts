@@ -5,9 +5,12 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import { thisExpression } from "@babel/types";
 
 export default class Texture extends AbstractTexture {
   private __imageData?: ImageData;
+  public autoResize = false;
+  public autoDetectTransparency = false;
 
   constructor() {
     super();
@@ -23,16 +26,18 @@ export default class Texture extends AbstractTexture {
 
     this.__imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    for (let y = 0; y<canvas.height; y++) {
-      for (let x = 0; x<canvas.width; x++) {
-        const alpha = this.__imageData.data[(x + y * canvas.width) * 4 + 3];
-        if (alpha < 1) {
-          this.__hasTransparentPixels = true;
-          return canvas;
+    if (this.autoDetectTransparency) {
+      for (let y = 0; y<canvas.height; y++) {
+        for (let x = 0; x<canvas.width; x++) {
+          const alpha = this.__imageData.data[(x + y * canvas.width) * 4 + 3];
+          if (alpha < 1) {
+            this.__hasTransparentPixels = true;
+            return canvas;
+          }
         }
       }
+      this.__hasTransparentPixels = false;
     }
-    this.__hasTransparentPixels = false;
 
     return canvas;
   }
@@ -40,15 +45,21 @@ export default class Texture extends AbstractTexture {
   generateTextureFromImage(image: HTMLImageElement) {
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
-    let imgCanvas = this.__getResizedCanvas(image);
-    this.__htmlCanvasElement = imgCanvas;
 
-    this.__width = imgCanvas.width;
-    this.__height = imgCanvas.height;
+    let img;
+    if (this.autoResize || this.autoDetectTransparency) {
+      img = this.__getResizedCanvas(image);
+      this.__htmlCanvasElement = img;
+    } else {
+      img = image;
+    }
+
+    this.__width = img.width;
+    this.__height = img.height;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let texture = webGLResourceRepository.createTexture(
-      imgCanvas, {
+      img, {
         level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
         border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.LinearMipmapLinear,
         wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
@@ -71,14 +82,21 @@ export default class Texture extends AbstractTexture {
       }
       this.__img.onload = () => {
         this.__htmlImageElement = this.__img;
-        let imgCanvas = this.__getResizedCanvas(this.__img!);
-        this.__htmlCanvasElement = imgCanvas;
-        this.__width = imgCanvas.width;
-        this.__height = imgCanvas.height;
+
+        let img;
+        if (this.autoResize || this.autoDetectTransparency) {
+          img = this.__getResizedCanvas(this.__img!);
+          this.__htmlCanvasElement = img;
+        } else {
+          img = this.__img!;
+        }
+
+        this.__width = img.width;
+        this.__height = img.height;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         let texture = webGLResourceRepository.createTexture(
-          imgCanvas, {
+          img, {
             level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
             border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
             wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
