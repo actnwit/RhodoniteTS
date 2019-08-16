@@ -183,7 +183,7 @@ export default class Material extends RnObject {
         byteAlign: 16
       });
 
-      const propertyName = this.__getPropertyIndex(semanticInfo);
+      const propertyName = this._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
         let map = this.__soloDatumFields.get(materialTypeName);
@@ -193,7 +193,7 @@ export default class Material extends RnObject {
         }
 
         map.set(
-          this.__getPropertyIndex(semanticInfo),
+          this._getPropertyIndex(semanticInfo),
           MathClassUtil.initWithFloat32Array(
             semanticInfo.initialValue,
             semanticInfo.initialValue,
@@ -245,7 +245,10 @@ export default class Material extends RnObject {
     return this.__materialSid;
   }
 
-  private static __getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
+  /**
+   * @private
+   */
+  static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
     let propertyIndex = semanticInfo.semantic.index;
     if (semanticInfo.index != null) {
       propertyIndex += semanticInfo.index;
@@ -254,7 +257,10 @@ export default class Material extends RnObject {
     return propertyIndex;
   }
 
-  private static __getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum, index?: Index) {
+  /**
+   * @private
+   */
+  static _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum, index?: Index) {
     let propertyIndex = shaderSemantic.index;
     if (index != null) {
       propertyIndex += index;
@@ -272,7 +278,7 @@ export default class Material extends RnObject {
       const semanticsInfoArray = materialNode._semanticsInfoArray;
       const accessorMap = Material.__accessors.get(this.__materialTypeName);
       semanticsInfoArray.forEach((semanticsInfo) => {
-        const propertyIndex = Material.__getPropertyIndex(semanticsInfo);
+        const propertyIndex = Material._getPropertyIndex(semanticsInfo);
         this.__fieldsInfo.set(propertyIndex, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
@@ -291,7 +297,7 @@ export default class Material extends RnObject {
   }
 
   setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index) {
-    const propertyIndex = Material.__getPropertyIndex2(shaderSemantic, index);
+    const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
     const info = this.__fieldsInfo.get(propertyIndex);
     if (info != null) {
       let valueObj;
