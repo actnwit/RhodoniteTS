@@ -30,3 +30,21 @@ test('addEntities and get entities', () => {
 
   expect(JSON.stringify(entitieUids) == JSON.stringify([0,2,3,1])).toBe(true);
 });
+
+
+test('clearEntities and get entities', () => {
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+
+  const entity1st = generateEntity(); // Uid is 0
+  const entity2nd = generateEntity(); // Uid is 1
+
+  const renderPass = new RenderPass();
+  renderPass.addEntities([entity1st, entity2nd]);
+
+  expect(renderPass.entities.length).toBe(2);
+
+  renderPass.clearEntities();
+
+  expect(renderPass.entities.length).toBe(0);
+
+});
