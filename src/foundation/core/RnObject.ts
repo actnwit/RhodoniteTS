@@ -4,18 +4,20 @@ import { RnTags, ObjectUID } from "../../types/CommonTypes";
  * The root class of the objects in Rhodonite
  */
 export default class RnObject {
-  private readonly __objectUid: ObjectUID = -1;
-  private static __objects: RnObject[] = [];
   static readonly InvalidObjectUID = -1;
-  static currentMaxObjectCount = RnObject.InvalidObjectUID;
-  private __uniqueName: string;
+
+  static currentMaxObjectCount = 0;
   private static __uniqueNames: string[] = [];
+  private static __objectsByNameMap: Map<string, RnObject> = new Map();
+  private static __objects: RnObject[] = [];
+
+  private readonly __objectUid: ObjectUID = RnObject.InvalidObjectUID;
+  private __uniqueName: string;
   private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
   private __conbinedTagString: string = ''; // Tag string allows alphabet, digit and underscore (_) only
-  private static __objectsByNameMap: Map<string, RnObject> = new Map();
 
   constructor() {
-    this.__objectUid = ++RnObject.currentMaxObjectCount;
+    this.__objectUid = RnObject.currentMaxObjectCount++;
     RnObject.__objects[this.__objectUid] = this;
 
     this.__uniqueName = 'entity_of_uid_' + this.__objectUid;
@@ -199,5 +201,15 @@ export default class RnObject {
    */
   get uniqueName() {
     return this.__uniqueName;
+  }
+
+  /**
+   * @private
+   */
+  static _reset() {
+    this.currentMaxObjectCount = 0;
+    this.__uniqueNames = [];
+    this.__objectsByNameMap = new Map();
+    this.__objects = [];
   }
 }
