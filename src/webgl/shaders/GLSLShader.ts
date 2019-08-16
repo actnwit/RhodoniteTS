@@ -328,6 +328,7 @@ bool processGeometryWithMorphingAndSkinning(
     isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
 #endif
+    outNormalMatrix = inNormalMatrix;
     outPosition_inWorld = worldMatrix * vec4(position_inLocal, 1.0);
     outNormal_inWorld = normalize(inNormalMatrix * inNormal_inLocal);
 #ifdef RN_IS_SKINNING
@@ -335,9 +336,7 @@ bool processGeometryWithMorphingAndSkinning(
 #endif
 
   return isSkinning;
-}
-
-`;
+}`;
   }
 
   get prerequisites() {
