@@ -106,28 +106,32 @@ export default class Material extends RnObject {
     return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);;
   }
 
+  static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
+    const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
+    const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
+    const semanticInfoByte = compsitionNumber * componentSizeInByte;
+    let alignedByteLength = semanticInfoByte;
+    if (alignedByteLength % 16 !== 0) {
+      alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
+    }
+    if (CompositionType.isArray(semanticInfo.compositionType)) {
+      const maxArrayLength = semanticInfo.maxIndex;
+      if (maxArrayLength != null) {
+        alignedByteLength *= maxArrayLength;
+      } else {
+        console.error('semanticInfo has invalid maxIndex!');
+        alignedByteLength *= 100;
+      }
+    }
+    return alignedByteLength;
+  }
+
   private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     let totalByteLength = 0;
     const alignedByteLengthAndsemanticInfoArray = [];
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
-        const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
-        const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
-        const semanticInfoByte = compsitionNumber * componentSizeInByte;
-        let alignedByteLength = semanticInfoByte;
-        if (alignedByteLength % 16 !== 0) {
-          alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
-        }
-        if (CompositionType.isArray(semanticInfo.compositionType)) {
-          const maxArrayLength = semanticInfo.maxIndex;
-          if (maxArrayLength != null) {
-            alignedByteLength *= maxArrayLength;
-          } else {
-            console.error('semanticInfo has invalid maxIndex!');
-            alignedByteLength *= 100;
-          }
-        }
-
+        const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
         let dataCount = 1;
         if (!semanticInfo.soloDatum) {
           dataCount = Material.__maxInstances.get(materialTypeName)!;
