@@ -12,6 +12,7 @@ import EntityRepository from "../core/EntityRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import CameraComponent from "../components/CameraComponent";
 import MemoryManager from "../core/MemoryManager";
+import GlobalDataRepository from "../core/GlobalDataRepository";
 
 export default class System {
   private static __instance: System;
@@ -118,6 +119,8 @@ export default class System {
     gl!.enable(gl!.DEPTH_TEST);
 
     MemoryManager.createInstanceIfNotCreated(1 * memoryUsageOrder, 1 * memoryUsageOrder, 0.1 * memoryUsageOrder, 0.5 * memoryUsageOrder);
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    globalDataRepository.initialize();
 
     repo.addWebGLContext(gl!, canvas, true);
     this.__processApproach = approach;

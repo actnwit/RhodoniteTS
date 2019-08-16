@@ -38,6 +38,8 @@ import ClassicShader from "./shaders/ClassicShader";
 import { BufferUse } from "../foundation/definitions/BufferUse";
 import Buffer from "../foundation/memory/Buffer";
 import { MathUtil } from "../foundation/math/MathUtil";
+import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
+import VectorN from "../foundation/math/VectorN";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: Matrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -112,6 +114,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         WebGLStrategyUniform.setupMaterial(material, WebGLStrategyUniform.__shaderSemanticInfoArray);
       }
     }
+
   }
 
   static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {

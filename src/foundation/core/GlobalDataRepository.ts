@@ -1,4 +1,4 @@
-import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
 import { Count, Index } from "../../types/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
@@ -9,6 +9,10 @@ import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
+import { ShaderType } from "../definitions/ShaderType";
+import VectorN from "../math/VectorN";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import Config from "./Config";
 
 
 type GlobalPropertyStruct = {
@@ -26,6 +30,16 @@ export default class GlobalDataRepository {
   private __fields: Map<ShaderSemanticsIndex, GlobalPropertyStruct> = new Map();
 
   private constructor() {
+
+  }
+
+  initialize() {
+    const boneQuaternionInfo = {semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))};
+    const boneTranslateScaleInfo = {semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))};
+    this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
+    this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
   }
 
   static getInstance() {
@@ -77,7 +91,16 @@ export default class GlobalDataRepository {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, arrayIndex);
     const globalPropertyStruct = this.__fields.get(propertyIndex);
     if (globalPropertyStruct) {
-      const valueObj = globalPropertyStruct.accessor.takeOne();
+      const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
+      const typedArray = globalPropertyStruct.accessor.takeOne() as Float32Array;
+      const countIndex = globalPropertyStruct.values.length;
+      const valueObj = MathClassUtil.initWithFloat32Array(
+        semanticInfo.initialValue,
+        semanticInfo.initialValue,
+        typedArray,
+        semanticInfo.compositionType
+      );
+      globalPropertyStruct.values[countIndex] = valueObj;
       return valueObj;
     }
     return void 0;

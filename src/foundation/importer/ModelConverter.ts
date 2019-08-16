@@ -44,6 +44,10 @@ import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
 import ILoaderExtension from "./ILoaderExtension";
 import BlendShapeComponent from "../components/BlendShapeComponent";
+import GlobalDataRepository from "../core/GlobalDataRepository";
+import { ShaderType } from "../definitions/ShaderType";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import VectorN from "../math/VectorN";
 
 declare var DracoDecoderModule: any;
 
@@ -271,8 +275,13 @@ export default class ModelConverter {
     if (gltfModel.skins == null) {
       return;
     }
+
+    const globalDataRepository = GlobalDataRepository.getInstance();
     const entityRepository = EntityRepository.getInstance();
     for (let skin of gltfModel.skins) {
+      globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+      globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+
       if (skin.inverseBindMatrices) {
         this._accessBinaryWithAccessor(skin.inverseBindMatrices);
       }
