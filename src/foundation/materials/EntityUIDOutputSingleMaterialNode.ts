@@ -42,7 +42,8 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
   constructor() {
     super(EntityUIDOutputShader.getInstance(), "entityUidOutputShading"
       + (true ? '+skinning' : '')
-      + (true ? '' : '-lighting'));
+      + (false ? '' : '-lighting'),
+      {isMorphing: false, isSkinning: true, isLighting: false});
     EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
 
