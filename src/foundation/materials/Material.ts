@@ -28,11 +28,12 @@ import { ShaderType } from "../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
 import { Index, CGAPIResourceHandle, Count, Byte } from "../../types/CommonTypes";
 import DataUtil from "../misc/DataUtil";
+import GlobalDataRepository from "../core/GlobalDataRepository";
 
 type MaterialTypeName = string;
 type PropertyName = string;
 
-type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => string;
+export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 
 
 /**
@@ -407,25 +408,25 @@ export default class Material extends RnObject {
     });
   }
 
-  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
+  createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
-    if (propertySetter) {
-      this.__fieldsInfo.forEach((value, key) => {
-        const info = this.__fieldsInfo.get(key);
-        if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-          vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
-        }
-        if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-          pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, key);
-        }
-      });
-    }
+    this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
+      const info = this.__fieldsInfo.get(propertyIndex);
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+    });
 
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    [vertexPropertiesStr, pixelPropertiesStr] =  globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     // Shader Construction
     let vertexShader;
@@ -772,7 +773,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     return { vertexShader, pixelShader, attributeNames, attributeSemantics };
   }
 
-  createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc) {
+  createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
 
     if (this.__materialNodes[0].isSingleOperation) {
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);

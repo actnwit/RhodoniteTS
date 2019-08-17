@@ -237,19 +237,20 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 }
 
 mat4 getSkinMatrix() {
+  float skeletalComponentSID = float(get_skinningMode(u_materialSID, 0));
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.x)),
-    get_boneTranslateScale(0.0, int(a_joint.x)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.x)));
   skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.y)),
-    get_boneTranslateScale(0.0, int(a_joint.y)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.y)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.y)));
   skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.z)),
-    get_boneTranslateScale(0.0, int(a_joint.z)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.z)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.z)));
   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.w)),
-    get_boneTranslateScale(0.0, int(a_joint.w)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.w)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.w)));
 
   // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
   // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
@@ -324,7 +325,7 @@ bool processGeometryWithMorphingAndSkinning(
 
 #ifdef RN_IS_SKINNING
   int skinningMode = get_skinningMode(u_materialSID, 0);
-  if (skinningMode == 1) {
+  if (skinningMode >= 0) {
     isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
 #endif

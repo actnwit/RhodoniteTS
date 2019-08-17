@@ -1,10 +1,10 @@
 import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
-import { Count, Index } from "../../types/CommonTypes";
+import { Count, Index, CGAPIResourceHandle } from "../../types/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import BufferView from "../memory/BufferView";
 import { CompositionType } from "../definitions/CompositionType";
-import Material from "../materials/Material";
+import Material, { getShaderPropertyFunc } from "../materials/Material";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";
@@ -125,6 +125,21 @@ export default class GlobalDataRepository {
     return void 0;
   }
 
+  getGlobalPropertyStruct(propertyIndex: Index) {
+    return this.__fields.get(propertyIndex);
+  }
+
+  setUniformLocations(shaderProgramUid: CGAPIResourceHandle) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const semanticsInfoArray: ShaderSemanticsInfo[] = [];
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+      const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
+      semanticsInfoArray.push(semanticInfo);
+    });
+
+    webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray);
+  }
+
   setUniformValues(shaderProgram: WebGLProgram) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
@@ -134,5 +149,45 @@ export default class GlobalDataRepository {
         webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, true, values[i], info.index);
       }
     });
+  }
+
+  // getLocationOffsetOfProperty(propertyIndex: Index, countIndex: Index) {
+  //   const globalPropertyStruct = this.__fields.get(propertyIndex);
+  //   if (globalPropertyStruct) {
+  //     const value = globalPropertyStruct.values[countIndex];
+  //     return (value.v as Float32Array).byteOffset / 4 / 4;
+  //   }
+  //   return void 0;
+  // }
+
+  getLocationOffsetOfProperty(propertyIndex: Index) {
+    const globalPropertyStruct = this.__fields.get(propertyIndex);
+    if (globalPropertyStruct) {
+      return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
+    }
+    return void 0;
+  }
+
+
+  getCurrentDataNumberOfTheProperty(propertyIndex: Index) {
+    const globalPropertyStruct = this.__fields.get(propertyIndex);
+    if (globalPropertyStruct) {
+      return globalPropertyStruct.values.length;
+    }
+    return 0;
+  }
+
+  addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc) {
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
+      const info = globalPropertyStruct.shaderSemanticsInfo;
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true);
+      }
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true);
+      }
+    });
+
+    return [vertexPropertiesStr, pixelPropertiesStr];
   }
 }

@@ -49,18 +49,13 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __lightComponents?: LightComponent[];
-  private __dummyWhiteTextureUid?: CGAPIResourceHandle;
-  private __dummyBlackTextureUid?: CGAPIResourceHandle;
-  private __dummyBlackCubeTextureUid?: CGAPIResourceHandle;
   private static __isOpaqueMode = true;
   private __lastRenderPassCullFace = false;
   private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
   private __lastRenderPassTickCount = -1;
   private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-
-  private __pbrCookTorranceBrdfLutDataUrlUid?: CGAPIResourceHandle;
-
+  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __vertexShaderMethodDefinitions_uniform: string;
 
   private __lastShader: CGAPIResourceHandle = -1;
@@ -176,6 +171,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
     material.setUniformLocations(material._shaderProgramUid);
+    WebGLStrategyUniform.__globalDataRepository.setUniformLocations(material._shaderProgramUid);
   }
 
   async $load(meshComponent: MeshComponent) {
@@ -193,17 +189,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     }
     meshComponent.mesh.updateVariationVBO();
 
-    this.__dummyWhiteTextureUid = this.__webglResourceRepository.createDummyTexture();
-    this.__dummyBlackTextureUid = this.__webglResourceRepository.createDummyTexture("rgba(0, 0, 0, 1)");
-    this.__dummyBlackCubeTextureUid = this.__webglResourceRepository.createDummyCubeTexture();
-    const pbrCookTorranceBrdfLutDataUrl = ModuleManager.getInstance().getModule('pbr').pbrCookTorranceBrdfLutDataUrl;
-    this.__pbrCookTorranceBrdfLutDataUrlUid = await this.__webglResourceRepository.createTextureFromDataUri(pbrCookTorranceBrdfLutDataUrl,
-      {
-        level: 0, internalFormat: PixelFormat.RGBA,
-        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
-        wrapS: TextureParameter.ClampToEdge, wrapT: TextureParameter.ClampToEdge, generateMipmap: false, anisotropy: false
-      }
-    );
   }
 
   $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {
@@ -381,8 +366,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
         gl.uniform1i(uniform_dataTexture, 7);
 
-
-        // material.setUniformValuesForOnlyTextures(true);
+        WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram);
 
         this.__lastShader = shaderProgramUid;
         firstTime = true;

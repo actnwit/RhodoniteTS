@@ -31,6 +31,7 @@ import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
 import { WebGLResourceHandle, Index, CGAPIResourceHandle } from "../types/CommonTypes";
 import CubeTexture from "../foundation/textures/CubeTexture";
+import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -153,6 +154,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         case CompositionType.Mat3:
           offset = 3;
           break;
+        case CompositionType.Mat2:
+          offset = 2;
+          break;
         default:
           // console.error('unknown composition type', info.compositionType.str, memberName);
           // return '';
@@ -160,7 +164,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return offset;
     }
 
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
+    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlogalData: boolean) => {
       const returnType = info.compositionType.getGlslStr(info.componentType);
 
       const indexArray = [];
@@ -188,7 +192,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           return '';
         }
         const offset = getOffset(info);
-
         for (let i=0; i<info.maxIndex!; i++) {
           const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
           indexArray.push(index)
@@ -211,7 +214,13 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           }`;
       } else {
         const offset = getOffset(info);
-        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+        if (isGlogalData) {
+          const globalDataRepository = GlobalDataRepository.getInstance();
+          index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
+          // secondOffset = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+        } else {
+          index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+        }
         let idx;
         let secondOffset = 0;
         if (CompositionType.isArray(info.compositionType)) {

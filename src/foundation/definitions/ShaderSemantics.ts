@@ -140,7 +140,7 @@ function fullSemanticStr(info: ShaderSemanticsInfo) {
   return prefix + info.semantic.str;
 }
 
-const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => {
+const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => {
   if (info.isComponentData) {
     return '';
   }
