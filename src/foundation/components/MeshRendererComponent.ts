@@ -199,7 +199,7 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
   }
 
-  static common_$render({renderPass, processStage}: {renderPass: RenderPass, processStage: ProcessStageEnum}){
+  static common_$render({renderPass, processStage, renderPassTickCount}: {renderPass: RenderPass, processStage: ProcessStageEnum, renderPassTickCount: Count}){
 
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
@@ -214,7 +214,7 @@ export default class MeshRendererComponent extends Component {
 
     const meshComponentSids = Component.__componentsOfProcessStages.get(processStage)!;
     const meshComponents = MeshRendererComponent.__componentRepository._getComponents(MeshComponent) as MeshComponent[];
-    MeshRendererComponent.__webGLStrategy!.common_$render(meshComponentSids, meshComponents, viewMatrix, projectionMatrix, renderPass);
+    MeshRendererComponent.__webGLStrategy!.common_$render(meshComponentSids, meshComponents, viewMatrix, projectionMatrix, renderPass, renderPassTickCount);
 
   }
 

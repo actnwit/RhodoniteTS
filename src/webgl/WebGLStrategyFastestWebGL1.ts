@@ -29,7 +29,7 @@ import Config from "../foundation/core/Config";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../types/CommonTypes";
 import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 
@@ -39,6 +39,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __shaderProgram: WebGLProgram;
+  private __lastRenderPassTickCount = -1;
   private __materialSIDLocation?: WebGLUniformLocation;
   private __lightComponents?: LightComponent[];
 
@@ -576,12 +577,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass) {
+  common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    // const meshes: Mesh[] = Mesh.originalMeshes;
-
+    let firstTime = false;
     for (let idx=0; idx<meshComponentSids.length; idx++) {
       const sid = meshComponentSids[idx];
       const meshComponent = meshComponents[sid];

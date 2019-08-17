@@ -79,7 +79,7 @@ export default class System {
 
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
-            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage });
+            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
           }
 
           componentClass.process({
