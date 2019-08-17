@@ -13,6 +13,8 @@ import { ShaderType } from "../definitions/ShaderType";
 import VectorN from "../math/VectorN";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 import Config from "./Config";
+import Scalar from "../math/Scalar";
+import Vector4 from "../math/Vector4";
 
 
 type GlobalPropertyStruct = {
@@ -34,12 +36,28 @@ export default class GlobalDataRepository {
   }
 
   initialize() {
+
+    // Skinning
     const boneQuaternionInfo = {semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))};
     const boneTranslateScaleInfo = {semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))};
     this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
     this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+
+    // Lighting
+    // const lightNumberInfo = { semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, stage: ShaderType.PixelShader,
+      // min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0), soloDatum: true };
+    const maxLightNumber = Config.maxLightNumberInShader;
+    const lightPositionInfo = { semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+      min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Vector4(0, 0, 0, 1), soloDatum: true};
+    const lightDirectionInfo = { semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+      min: -1, max: 1, isSystem: true, initialValue: new Vector4(0, 1, 0, 1), updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true };
+    const lightIntensity = { semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+      min: 0, max: 10, isSystem: true, initialValue: new Vector4(1, 1, 1, 1), updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true };
+    this.registerProperty(lightPositionInfo, maxLightNumber);
+    this.registerProperty(lightDirectionInfo, maxLightNumber);
+    this.registerProperty(lightIntensity, maxLightNumber);
   }
 
   static getInstance() {

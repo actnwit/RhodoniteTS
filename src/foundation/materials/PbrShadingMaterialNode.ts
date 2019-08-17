@@ -147,6 +147,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
 
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
+      /*
       const lights: ShaderSemanticsInfo[] = [];
       for (let i = 0; i < Config.maxLightNumberInShader; i++) {
         (function(idx){
@@ -198,6 +199,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         })(i);
       }
       shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
+      */
     }
 
     if (isSkinning) {
@@ -325,6 +327,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     // Morph
-    AbstractMaterialNode.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
+    this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
   }
 }

@@ -312,6 +312,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
+  // int morphTargetNumber = get_morphTargetNumber(u_materialSID, 0);
   if (u_morphTargetNumber == 0) {
 #endif
     position_inLocal = inPosition_inLocal;

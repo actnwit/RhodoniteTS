@@ -15,6 +15,7 @@ import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import GlobalDataRepository from '../core/GlobalDataRepository';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent

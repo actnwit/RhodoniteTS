@@ -258,6 +258,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     } else {
       material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
     }
+    /*
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
         break;
@@ -296,9 +297,13 @@ export default abstract class AbstractMaterialNode extends RnObject {
         material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
       }
     }
+    */
   }
 
-  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
+  setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
+    if (!this.__isMorphing) {
+      return;
+    }
     if (primitive.targets.length === 0) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
