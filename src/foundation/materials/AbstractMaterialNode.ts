@@ -195,58 +195,60 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    // if (cameraComponent) {
-    //   const cameraPosition = cameraComponent.worldPosition;
-    //   if (setUniform) {
-    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
-    //     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
-    //   } else {
-    //     // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
-    //     // material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
-    //   }
-    // } else {
-    //   const mat = MutableMatrix44.identity();
-    //   const pos = new Vector3(0,0,10);
-    //   if (setUniform) {
-    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
-    //     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
-    //   } else {
-    //     // material.setParameter(ShaderSemantics.ViewMatrix, mat);
-    //     // material.setParameter(ShaderSemantics.ViewPosition, pos);
-    //   }
-    // }
+    if (cameraComponent) {
+      const cameraPosition = cameraComponent.worldPosition;
+      if (setUniform) {
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
+        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
+      } else {
+        // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
+        // material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+      }
+    } else {
+      const mat = MutableMatrix44.identity();
+      const pos = new Vector3(0,0,10);
+      if (setUniform) {
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
+        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
+      } else {
+        // material.setParameter(ShaderSemantics.ViewMatrix, mat);
+        // material.setParameter(ShaderSemantics.ViewPosition, pos);
+      }
+    }
   }
 
   protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    // if (cameraComponent) {
-    //   if (setUniform) {
-    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
-    //   } else {
-    //     // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
-    //   }
-    // } else {
-    //   this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
-    // }
-  }
-
-  protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
-    if (!this.__isSkinning) {
-      return;
-    }
-    if (skeletalComponent) {
+    if (cameraComponent) {
       if (setUniform) {
-        const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
-        const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
-
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, skeletalComponent.componentSID);
+        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
+      } else {
+        // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
       }
     } else {
       if (setUniform) {
-        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
       }
     }
+  }
+
+  protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
+    // if (!this.__isSkinning) {
+    //   return;
+    // }
+    // if (skeletalComponent) {
+    //   if (setUniform) {
+    //     const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
+    //     const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
+    //     (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+    //     (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+
+    //     this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, skeletalComponent.componentSID);
+    //   }
+    // } else {
+    //   if (setUniform) {
+    //     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
+    //   }
+    // }
   }
 
   protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
