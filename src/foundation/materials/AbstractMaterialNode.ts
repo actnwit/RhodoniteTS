@@ -232,23 +232,23 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {
-    // if (!this.__isSkinning) {
-    //   return;
-    // }
-    // if (skeletalComponent) {
-    //   if (setUniform) {
-    //     const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
-    //     const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
-    //     (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
-    //     (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+    if (!this.__isSkinning) {
+      return;
+    }
+    if (skeletalComponent) {
+      if (setUniform) {
+        const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
+        const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
 
-    //     this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, skeletalComponent.componentSID);
-    //   }
-    // } else {
-    //   if (setUniform) {
-    //     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
-    //   }
-    // }
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, skeletalComponent.componentSID);
+      }
+    } else {
+      if (setUniform) {
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
+      }
+    }
   }
 
   protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
@@ -260,7 +260,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
     } else {
       material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
     }
-    /*
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {
         break;
@@ -268,38 +267,37 @@ export default abstract class AbstractMaterialNode extends RnObject {
       if ((shaderProgram as any).lightPosition == null) {
         break;
       }
-      const lightComponent = lightComponents![i];
-      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
-      const worldLightPosition = sceneGraphComponent.worldPosition;
-      const worldLightDirection = lightComponent.direction;
-      const worldLightIntensity = lightComponent.intensity;
 
       if (setUniform) {
+        const lightComponent = lightComponents![i];
+        const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+        const worldLightPosition = sceneGraphComponent.worldPosition;
+        const worldLightDirection = lightComponent.direction;
+        const worldLightIntensity = lightComponent.intensity;
         (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightPosition[i], worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index);
         (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightDirection[i], worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0);
         (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightIntensity[i], worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0);
       } else {
-        const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
-        __tmp_vector4.x = worldLightPosition.x;
-        __tmp_vector4.y = worldLightPosition.y;
-        __tmp_vector4.z = worldLightPosition.z;
-        __tmp_vector4.w = lightComponent.type.index;
-        material.setParameter(ShaderSemantics.LightPosition, __tmp_vector4, i);
+        // const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+        // __tmp_vector4.x = worldLightPosition.x;
+        // __tmp_vector4.y = worldLightPosition.y;
+        // __tmp_vector4.z = worldLightPosition.z;
+        // __tmp_vector4.w = lightComponent.type.index;
+        // material.setParameter(ShaderSemantics.LightPosition, __tmp_vector4, i);
 
-        __tmp_vector4.x = worldLightDirection.x;
-        __tmp_vector4.y = worldLightDirection.y;
-        __tmp_vector4.z = worldLightDirection.z;
-        __tmp_vector4.w = 0;
-        material.setParameter(ShaderSemantics.LightDirection, __tmp_vector4, i);
+        // __tmp_vector4.x = worldLightDirection.x;
+        // __tmp_vector4.y = worldLightDirection.y;
+        // __tmp_vector4.z = worldLightDirection.z;
+        // __tmp_vector4.w = 0;
+        // material.setParameter(ShaderSemantics.LightDirection, __tmp_vector4, i);
 
-        __tmp_vector4.x = worldLightIntensity.x;
-        __tmp_vector4.y = worldLightIntensity.y;
-        __tmp_vector4.z = worldLightIntensity.z;
-        __tmp_vector4.w = 0;
-        material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
+        // __tmp_vector4.x = worldLightIntensity.x;
+        // __tmp_vector4.y = worldLightIntensity.y;
+        // __tmp_vector4.z = worldLightIntensity.z;
+        // __tmp_vector4.w = 0;
+        // material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
       }
     }
-    */
   }
 
   setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {

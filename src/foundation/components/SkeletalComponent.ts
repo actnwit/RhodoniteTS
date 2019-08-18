@@ -154,11 +154,10 @@ export default class SkeletalComponent extends Component {
           primitive.material!.setParameter(ShaderSemantics.SkinningMode, this.componentSID);
           // primitive.material!.setParameter(ShaderSemantics.BoneQuaternion, this.__qArray);
           // primitive.material!.setParameter(ShaderSemantics.BoneTranslateScale, this.__tArray);
+          SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneQuaternion, this.componentSID, this.__qArray);
+          SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneTranslateScale, this.componentSID, this.__tArray);
         }
       }
-
-      SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneQuaternion, this.componentSID, this.__qArray);
-      SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneTranslateScale, this.componentSID, this.__tArray);
 
     } else {
       if (processApproach === ProcessApproach.FastestWebGL1) {

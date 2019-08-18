@@ -367,12 +367,23 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       //   diffuseCube, specularCube, firstTime});
       if (firstTime) {
         // this.setCamera(renderPass);
-        WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram);
+        // WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram, {
+        //   setUniform: true,
+        //   glw: glw,
+        //   entity: entity,
+        //   primitive: primitive,
+        //   worldMatrix: worldMatrix,
+        //   normalMatrix: normalMatrix,
+        //   lightComponents: this.__lightComponents,
+        //   renderPass: renderPass,
+        //   diffuseCube: diffuseCube,
+        //   specularCube: specularCube
+        // });
       }
       //from material
       if (material) {
         // material.setUniformValues(firstTime, {
-        material.setParemetersForGPU({material, shaderProgram, firstTime, args:{
+        material.setParemetersForGPU({material, shaderProgram, firstTime, args: {
           setUniform: true,
           glw: glw,
           entity: entity,
