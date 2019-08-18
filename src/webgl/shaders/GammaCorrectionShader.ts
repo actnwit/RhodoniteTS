@@ -46,6 +46,7 @@ ${_out} vec2 v_texcoord;
 ${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main(){
   v_texcoord = a_texcoord;

@@ -49,6 +49,7 @@ ${this.prerequisites}
 ${_in} vec3 a_position;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -68,8 +69,8 @@ ${this.toNormalMatrix}
 void main() {
 
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(0.0, 0);
+  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);

@@ -195,38 +195,38 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    if (cameraComponent) {
-      const cameraPosition = cameraComponent.worldPosition;
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
-        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
-      } else {
-        material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
-        material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
-      }
-    } else {
-      const mat = MutableMatrix44.identity();
-      const pos = new Vector3(0,0,10);
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
-        (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
-      } else {
-        material.setParameter(ShaderSemantics.ViewMatrix, mat);
-        material.setParameter(ShaderSemantics.ViewPosition, pos);
-      }
-    }
+    // if (cameraComponent) {
+    //   const cameraPosition = cameraComponent.worldPosition;
+    //   if (setUniform) {
+    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
+    //     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
+    //   } else {
+    //     // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
+    //     // material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+    //   }
+    // } else {
+    //   const mat = MutableMatrix44.identity();
+    //   const pos = new Vector3(0,0,10);
+    //   if (setUniform) {
+    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
+    //     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
+    //   } else {
+    //     // material.setParameter(ShaderSemantics.ViewMatrix, mat);
+    //     // material.setParameter(ShaderSemantics.ViewPosition, pos);
+    //   }
+    // }
   }
 
   protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, material: Material, setUniform: boolean) {
-    if (cameraComponent) {
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
-      } else {
-        material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
-      }
-    } else {
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
-    }
+    // if (cameraComponent) {
+    //   if (setUniform) {
+    //     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
+    //   } else {
+    //     // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
+    //   }
+    // } else {
+    //   this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
+    // }
   }
 
   protected setSkinning(shaderProgram: WebGLProgram, skeletalComponent: SkeletalComponent, setUniform: boolean) {

@@ -52,10 +52,10 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero() },
       {semantic: ShaderSemantics.NormalMatrix, isComponentData: true, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix33.zero() },
-      {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
-      {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       {
         semantic: ShaderSemantics.EntityUID,
         compositionType: CompositionType.Scalar,
@@ -67,18 +67,18 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: new Scalar(0)
       },
-      {
-        semantic: ShaderSemantics.ViewPosition,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector3(0, 0, 0),
-        soloDatum: true
-      },
+      // {
+      //   semantic: ShaderSemantics.ViewPosition,
+      //   compositionType: CompositionType.Vec3,
+      //   componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader,
+      //   min: -Number.MAX_VALUE,
+      //   max: Number.MAX_VALUE,
+      //   isSystem: true,
+      //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      //   initialValue: new Vector3(0, 0, 0),
+      //   soloDatum: true
+      // },
       {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,

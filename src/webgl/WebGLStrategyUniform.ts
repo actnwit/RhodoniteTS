@@ -89,10 +89,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
             stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
           {semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
             stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime },
-          {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
-          {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
+          // {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
+          // {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
         ];
 
         if (primitive.primitiveMode.index === gl.POINTS) {
@@ -124,20 +124,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
     `
   uniform mat4 u_worldMatrix;
-  uniform mat4 u_viewMatrix;
-  uniform mat4 u_projectionMatrix;
   uniform mat3 u_normalMatrix;
 
   mat4 get_worldMatrix(float instanceId) {
     return u_worldMatrix;
-  }
-
-  mat4 get_viewMatrix(float instanceId) {
-    return u_viewMatrix;
-  }
-
-  mat4 get_projectionMatrix(float instanceId) {
-    return u_projectionMatrix;
   }
 
   mat3 get_normalMatrix(float instanceId) {
@@ -366,7 +356,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
         gl.uniform1i(uniform_dataTexture, 7);
 
-        WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram);
 
         this.__lastShader = shaderProgramUid;
         firstTime = true;
@@ -376,7 +365,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       // this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
       //   entity, worldMatrix, normalMatrix, renderPass,
       //   diffuseCube, specularCube, firstTime});
-
+      if (firstTime) {
+        this.setCamera(renderPass);
+        WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram);
+      }
       //from material
       if (material) {
         // material.setUniformValues(firstTime, {
@@ -405,6 +397,16 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
 
     this.setWebGLStatesEnd(idx, gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
+  }
+
+  setCamera(renderPass: RenderPass) {
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
+    if (cameraComponent) {
+      cameraComponent.setValuesToGlobalDataRepository();
+    }
   }
 
 

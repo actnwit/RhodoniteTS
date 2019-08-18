@@ -48,10 +48,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `
-  uniform mat4 u_viewMatrix;
-  uniform mat4 u_projectionMatrix;
-  uniform mat3 u_normalMatrix;
-
 
   mat4 get_worldMatrix(float instanceId)
   {
@@ -76,13 +72,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return matrix;
   }
 
-  mat4 get_viewMatrix(float instanceId) {
-    return u_viewMatrix;
-  }
-
-  mat4 get_projectionMatrix(float instanceId) {
-    return u_projectionMatrix;
-  }
 
   mat3 get_normalMatrix(float instanceId) {
     float index = ${Component.getLocationOffsetOfMemberOfComponent(SceneGraphComponent, 'normalMatrix')}.0 + 3.0 * instanceId;
@@ -105,7 +94,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       //   col1.x, col1.y, col1.z,
       //   col2.x, col2.y, col2.z
       //   );
-  
+
       // mat3 matrix = mat3(
     //   col0.x, col0.w, col1.z,
     //   col0.y, col1.x, col1.w,
@@ -227,6 +216,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           if (info.maxIndex != null) {
             secondOffset = offset * info.maxIndex;
           }
+        } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
+          idx = 'float(index)';
         } else {
           idx = 'instanceId';
         }
@@ -275,23 +266,25 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           break;
         case CompositionType.Mat4:
           str += `
-          vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
-          vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+          vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
+          vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
+          vec4 col3 = fetchElement(u_dataTexture, idx + 3.0, arg);
+
           mat4 val = mat4(
-            col0.x, col1.x, col2.x, 0.0,
-            col0.y, col1.y, col2.y, 0.0,
-            col0.z, col1.z, col2.z, 0.0,
-            col0.w, col1.w, col2.w, 1.0
+            col0.x, col0.y, col0.z, 0.0,
+            col1.x, col1.y, col1.z, 0.0,
+            col2.x, col2.y, col2.z, 0.0,
+            col3.x, col3.y, col3.z, 1.0
             );
           `; break;
         case CompositionType.Mat3:
           str += `
-          vec4 col1 = fetchElement(u_dataTexture, index + 1.0, arg);
-          vec4 col2 = fetchElement(u_dataTexture, index + 2.0, arg);
+          vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
+          vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
           mat3 val = mat3(
-            col0.x, col0.w, col1.z,
-            col0.y, col1.x, col1.w,
-            col0.z, col1.y, col2.x,
+            col0.x, col0.y, col0.z,
+            col0.w, col1.x, col1.y,
+            col1.z, col1.w, col2.x
             );
           `; break;
         default:
@@ -569,14 +562,13 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  private __setupMaterialEveryFrame(material: Material, renderPass: RenderPass) {
+  private __setCamera(renderPass: RenderPass) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
     if (cameraComponent) {
-      const cameraPosition = cameraComponent.worldPosition;
-      material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+      cameraComponent.setValuesToGlobalDataRepository();
     }
   }
 
@@ -623,11 +615,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           firstTime = true;
         }
 
-
         if (firstTime) {
           gl.uniform1f((WebGLStrategyFastestWebGL1.__shaderProgram as any).materialSID, primitive.material!.materialSID);
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-          this.__setupMaterialEveryFrame(primitive.material!, renderPass);
+          this.__setCamera(renderPass);
         }
 
         // primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
@@ -659,7 +650,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     this.__lastRenderPassTickCount = renderPassTickCount;
-
     return false;
   }
 

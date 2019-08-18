@@ -15,6 +15,9 @@ import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdat
 import Config from "./Config";
 import Scalar from "../math/Scalar";
 import Vector4 from "../math/Vector4";
+import Vector3 from "../math/Vector3";
+import Matrix44 from "../math/Matrix44";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 
 type GlobalPropertyStruct = {
@@ -36,6 +39,22 @@ export default class GlobalDataRepository {
   }
 
   initialize() {
+
+    // Camera
+    const viewMatrixInfo = {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()};
+    const projectionMatrixInfo = {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()};
+    const viewPosition = {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true
+    };
+    this.registerProperty(viewMatrixInfo, 1);
+    this.registerProperty(projectionMatrixInfo, 1);
+    this.registerProperty(viewPosition, 1);
+    this.takeOne(ShaderSemantics.ViewMatrix);
+    this.takeOne(ShaderSemantics.ProjectionMatrix);
+    this.takeOne(ShaderSemantics.ViewPosition);
+
 
     // Skinning
     const boneQuaternionInfo = {semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,

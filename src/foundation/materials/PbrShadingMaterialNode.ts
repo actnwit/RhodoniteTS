@@ -63,18 +63,18 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader, min: 0, max: 10, isSystem: false, initialValue: new Vector3(0, 0, 1)},
         { semantic: PbrShadingMaterialNode.isOutputHDR, compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
           stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, initialValue: new Scalar(0) },
-        {
-          semantic: ShaderSemantics.ViewPosition,
-          compositionType: CompositionType.Vec3,
-          componentType: ComponentType.Float,
-          stage: ShaderType.VertexAndPixelShader,
-          min: -Number.MAX_VALUE,
-          max: Number.MAX_VALUE,
-          isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Vector3(0, 0, 0),
-          soloDatum: true
-        },
+        // {
+        //   semantic: ShaderSemantics.ViewPosition,
+        //   compositionType: CompositionType.Vec3,
+        //   componentType: ComponentType.Float,
+        //   stage: ShaderType.VertexAndPixelShader,
+        //   min: -Number.MAX_VALUE,
+        //   max: Number.MAX_VALUE,
+        //   isSystem: true,
+        //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        //   initialValue: new Vector3(0, 0, 0),
+        //   soloDatum: true
+        // },
         {
           semantic: ShaderSemantics.IBLParameter,
           compositionType: CompositionType.Vec4,

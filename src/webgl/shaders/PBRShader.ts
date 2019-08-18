@@ -73,8 +73,8 @@ ${this.processGeometryWithSkinningOptionally}
 void main()
 {
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(0.0, 0);
+  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   v_color = a_color;
@@ -278,7 +278,7 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  vec3 viewPosition = get_viewPosition(0.0, 0);
   vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
 
   // NV

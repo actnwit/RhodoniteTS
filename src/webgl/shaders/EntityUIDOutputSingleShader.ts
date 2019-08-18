@@ -61,8 +61,8 @@ ${this.processGeometryWithSkinningOptionally}
 void main()
 {
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(0.0, 0);
+  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   // Skeletal
