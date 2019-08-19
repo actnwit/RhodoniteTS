@@ -316,7 +316,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         material.setUniformLocations(material._shaderProgramUid);
 
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
-        (shaderProgram as any).materialSID = gl.getUniformLocation(shaderProgram, 'u_materialSID');
         (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
         (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
       }
@@ -568,7 +567,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass) {
+  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -578,6 +577,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     } else {
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
     }
+    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
 
@@ -628,10 +628,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         }
 
         if (firstTime) {
-          gl.uniform1f((WebGLStrategyFastestWebGL1.__shaderProgram as any).materialSID, primitive.material!.materialSID);
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
         }
-        this.__setCurrentComponentSIDs(gl, renderPass);
+        this.__setCurrentComponentSIDs(gl, renderPass, primitive.material!);
 
         primitive.material!.setParemetersForGPU({
           material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,

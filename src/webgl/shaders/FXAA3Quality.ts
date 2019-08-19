@@ -1190,7 +1190,7 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main() {
 
-    vec2 screenInfo = get_screenInfo(u_materialSID, 0);
+    vec2 screenInfo = get_screenInfo(materialSID, 0);
     rt0 = FxaaPixelShader(
             v_texcoord,
             vec4(0.0),

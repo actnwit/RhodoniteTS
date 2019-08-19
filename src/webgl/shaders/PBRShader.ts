@@ -73,6 +73,8 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
+  ${this.getMainPrerequisites()}
+
   float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
@@ -170,7 +172,7 @@ ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
-  vec4 iblParameter = get_iblParameter(u_materialSID, 0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
   float mipCount = iblParameter.x;
   float lod = (userRoughness * mipCount);
 
@@ -208,10 +210,11 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
+  ${this.getMainPrerequisites()}
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-  vec4 iblParameter = get_iblParameter(u_materialSID, 0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
@@ -237,7 +240,7 @@ void main ()
   // BaseColorFactor
   vec3 baseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  vec4 baseColorFactor = get_baseColorFactor(u_materialSID, 0);
+  vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
   if (v_color != baseColor && baseColorFactor.rgb != baseColor) {
     baseColor = v_color * baseColorFactor.rgb;
     alpha = baseColorFactor.a;
@@ -259,7 +262,7 @@ void main ()
   // }
 
   // Metallic & Roughness
-  vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(u_materialSID, 0);
+  vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
   float userRoughness = metallicRoughnessFactor.y;
   float metallic = metallicRoughnessFactor.x;
 
@@ -368,7 +371,7 @@ void main ()
 
   // Wireframe
   float threshold = 0.001;
-  vec3 wireframe = get_wireframe(u_materialSID, 0);
+  vec3 wireframe = get_wireframe(materialSID, 0);
   float wireframeWidthInner = wireframe.z;
   float wireframeWidthRelativeScale = 1.0;
   if (wireframe.x > 0.5 && wireframe.y < 0.5) {

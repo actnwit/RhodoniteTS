@@ -129,7 +129,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
 
 
   // diffuseColor
@@ -156,7 +156,7 @@ void main ()
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
 #ifdef RN_IS_LIGHTING
-  int shadingModel = get_shadingModel(u_materialSID, 0);
+  int shadingModel = get_shadingModel(materialSID, 0);
   if (shadingModel > 0) {
 
     int lightNumber = get_lightNumber(0.0, 0);
@@ -197,8 +197,8 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float shininess = get_shininess(u_materialSID, 0);
-      int shadingModel = get_shadingModel(u_materialSID, 0);
+      float shininess = get_shininess(materialSID, 0);
+      int shadingModel = get_shadingModel(materialSID, 0);
 
       vec3 viewPosition = get_viewPosition(0.0, 0);
 

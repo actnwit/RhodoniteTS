@@ -6,6 +6,9 @@ import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
 import Component from "../../foundation/core/Component";
 import MemoryManager from "../../foundation/core/MemoryManager";
 import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
+import { ProcessApproachEnum, ProcessApproach } from "../../foundation/definitions/ProcessApproach";
+import WebGLStrategyFastestWebGL1 from "../WebGLStrategyFastestWebGL1";
+import System from "../../foundation/system/System";
 
 export type AttributeNames = Array<string>;
 
@@ -238,7 +241,7 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 }
 
 mat4 getSkinMatrix() {
-  float skeletalComponentSID = float(get_skinningMode(u_materialSID, 0));
+  float skeletalComponentSID = float(get_skinningMode(materialSID, 0));
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
@@ -313,7 +316,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
-  // int morphTargetNumber = get_morphTargetNumber(u_materialSID, 0);
+  // int morphTargetNumber = get_morphTargetNumber(materialSID, 0);
   if (u_morphTargetNumber == 0) {
 #endif
     position_inLocal = inPosition_inLocal;
@@ -326,7 +329,7 @@ bool processGeometryWithMorphingAndSkinning(
 
 
 #ifdef RN_IS_SKINNING
-  int skinningMode = get_skinningMode(u_materialSID, 0);
+  int skinningMode = get_skinningMode(materialSID, 0);
   if (skinningMode >= 0) {
     isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
@@ -344,7 +347,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   get prerequisites() {
     return `
-    uniform float u_materialSID;
+    uniform float materialSID;
     uniform sampler2D u_dataTexture;
 
     /*
@@ -365,13 +368,26 @@ bool processGeometryWithMorphingAndSkinning(
   }`;
   }
 
+  getMainPrerequisites() {
+    const processApproach = System.getInstance().processApproach;
+    if (processApproach === ProcessApproach.FastestWebGL1) {
+      return `
+  float materialSID = u_currentComponentSIDs[0];
+`;
+    } else {
+      return `
+  float materialSID = u_materialSID;
+      `;
+    }
+  }
+
   get pointSprite() {
     return `vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  vec3 viewPosition = get_viewPosition(materialSID, 0);
   float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
-  vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(u_materialSID, 0);
+  vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(materialSID, 0);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
-  float maxPointSize = get_pointSize(u_materialSID, 0);
+  float maxPointSize = get_pointSize(materialSID, 0);
   gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);`;
   }
 

@@ -68,6 +68,7 @@ ${_out} vec2 v_texcoord;
 ${this.toNormalMatrix}
 
 void main() {
+  ${this.getMainPrerequisites()}
 
   float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
@@ -111,11 +112,12 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
+  ${this.getMainPrerequisites()}
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -131,7 +133,7 @@ void main ()
   // diffuseColorTexture
 
   // adapt OpenGL (RenderMan) Cubemap convension
-  float envRotation = get_envRotation(u_materialSID, 0);
+  float envRotation = get_envRotation(materialSID, 0);
   float rot = envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
