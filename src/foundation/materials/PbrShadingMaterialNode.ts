@@ -253,20 +253,22 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
+
+      /// Matrices
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+      }
+      this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+
+      /// Skinning
+      const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
+      this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+
+      // Lights
+      this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
     }
-
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    }
-    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
-
-    /// Skinning
-    const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
-
 
     // Env map
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, firstTime, [5, -1]);
@@ -330,8 +332,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     //   }
     // }
 
-    // Lights
-    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     // Morph
     this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
