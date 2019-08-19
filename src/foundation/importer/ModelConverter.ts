@@ -514,23 +514,23 @@ export default class ModelConverter {
 
     let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
-      maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType/2;
+      maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType / 2;
     }
     const isMorphing = (node.mesh != null && node.mesh.weights != null) ? true : false;
     const isSkinning = (node.skin != null) ? true : false;
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
-      return MaterialHelper.createPbrUberMaterial({isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
+      return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     } else {
-      return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
+      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     }
   }
 
-  static _createTexture(textureType : any, gltfModel: glTF2) {
-    let options = gltfModel.asset.extras!.rnLoaderOptions;
+  static _createTexture(textureType: any, gltfModel: glTF2) {
+    let options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
     const rnTexture = new Texture();
-    rnTexture.autoDetectTransparency = (options!.autoDetectTextureTransparency === true) ? true : false;
-    rnTexture.autoResize = (options!.autoResizeTexture === true) ? true : false;
+    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
+    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
     const texture = textureType.texture;
     if (texture.image.image) {
       const image = texture.image.image;
@@ -957,13 +957,13 @@ export default class ModelConverter {
     });
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        count: srcRnAccessor.elementCount,
-        max: srcRnAccessor.max,
-        min: srcRnAccessor.min
-      });
-    for (let i=0; i<srcRnAccessor.elementCount; i++) {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      count: srcRnAccessor.elementCount,
+      max: srcRnAccessor.max,
+      min: srcRnAccessor.min
+    });
+    for (let i = 0; i < srcRnAccessor.elementCount; i++) {
       dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
     }
 
