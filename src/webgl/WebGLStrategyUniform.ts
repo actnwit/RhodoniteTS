@@ -107,6 +107,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         WebGLStrategyUniform.__shaderSemanticInfoArray = WebGLStrategyUniform.__shaderSemanticInfoArray.concat(args);
 
         WebGLStrategyUniform.setupMaterial(material, WebGLStrategyUniform.__shaderSemanticInfoArray);
+
       }
     }
 
@@ -162,6 +163,11 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     webglResourceRepository.setupUniformLocations(material._shaderProgramUid, infoArray);
     material.setUniformLocations(material._shaderProgramUid);
     WebGLStrategyUniform.__globalDataRepository.setUniformLocations(material._shaderProgramUid);
+
+    const gl = webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    const shaderProgram = webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
+    (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
   }
 
   async $load(meshComponent: MeshComponent) {
@@ -353,8 +359,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       if (shaderProgramUid !== this.__lastShader) {
         gl.useProgram(shaderProgram);
 
-        var uniform_dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-        gl.uniform1i(uniform_dataTexture, 7);
+        gl.uniform1i((shaderProgram as any).dataTexture, 7);
 
 
         this.__lastShader = shaderProgramUid;

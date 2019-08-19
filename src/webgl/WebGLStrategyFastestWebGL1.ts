@@ -574,7 +574,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
     if (cameraComponent) {
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+    } else {
+      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
     }
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
@@ -610,6 +612,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           continue;
         }
 
+
         this.attachVertexDataInner(mesh, primitive, i, glw, mesh.variationVBOUid);
         if (shaderProgramUid !== this.__lastShader) {
           const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
@@ -619,9 +622,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
           this.__setupMaterial(primitive.material!, renderPass);
 
+
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
-          this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
-          this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
           firstTime = true;
         }
 
@@ -631,7 +633,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         }
         this.__setCurrentComponentSIDs(gl, renderPass);
 
-        // primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
         primitive.material!.setParemetersForGPU({
           material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
           args:{
@@ -655,9 +656,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         this.__lastShader = shaderProgramUid;
       }
     }
-    const shaderProgram = WebGLStrategyFastestWebGL1.__shaderProgram;
-    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ViewMatrix.str, true, viewMatrix);
-    this.__webglResourceRepository.setUniformValue(shaderProgram!, ShaderSemantics.ProjectionMatrix.str, true, projectionMatrix);
 
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
