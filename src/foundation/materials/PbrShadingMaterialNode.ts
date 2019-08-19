@@ -263,7 +263,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
       /// Skinning
-      const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
+      const skeletalComponent = args.entity.getSkeletal();
       this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
       // Lights

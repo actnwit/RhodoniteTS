@@ -51,7 +51,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __isOpaqueMode = true;
   private __lastRenderPassCullFace = false;
-  private __pointDistanceAttenuation = new Vector3(0.0, 0.1, 0.01);
   private __lastRenderPassTickCount = -1;
   private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
