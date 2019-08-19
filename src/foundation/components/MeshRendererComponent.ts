@@ -285,7 +285,7 @@ export default class MeshRendererComponent extends Component {
       if (!meshComponents[i].entity.getSceneGraph().isVisible) {
         continue;
       }
-      const meshRendererComponent = meshComponents[i].entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+      const meshRendererComponent = meshComponents[i].entity.getMeshRenderer();
       if (meshRendererComponent.currentProcessStage === ProcessStage.Render) {
         const meshComponent = meshComponents[i];
         if (meshComponent.mesh) {

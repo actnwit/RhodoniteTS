@@ -292,7 +292,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
     }
-    const meshRenderComponent = args.entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+    const meshRenderComponent = args.entity.getMeshRenderer();
     let diffuseHdriType = HdriFormat.LDR_SRGB.index;
     let specularHdriType = HdriFormat.LDR_SRGB.index;
     if (meshRenderComponent.diffuseCubeMap) {

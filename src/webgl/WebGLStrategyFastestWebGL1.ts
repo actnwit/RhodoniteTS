@@ -599,7 +599,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
 
       const entity = meshComponent.entity;
-      const meshRendererComponent = entity.getComponent(MeshRendererComponent) as MeshRendererComponent;
+      const meshRendererComponent = entity.getMeshRenderer();
 
       const primitiveNum = mesh.getPrimitiveNumber();
       let firstTime = false;
