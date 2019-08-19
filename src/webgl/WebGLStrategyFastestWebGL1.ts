@@ -63,10 +63,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     vec4 col3 = fetchElement(u_dataTexture, index + 3.0, arg);
 
     mat4 matrix = mat4(
-      col0.x, col0.y, col0.z, 0.0,
-      col1.x, col1.y, col1.z, 0.0,
-      col2.x, col2.y, col2.z, 0.0,
-      col3.x, col3.y, col3.z, 1.0
+      col0.x, col0.y, col0.z, col0.w,
+      col1.x, col1.y, col1.z, col1.w,
+      col2.x, col2.y, col2.z, col2.w,
+      col3.x, col3.y, col3.z, col3.w
       );
 
     return matrix;
@@ -89,18 +89,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       col0.w, col1.x, col1.y,
       col1.z, col1.w, col2.x
       );
-      // mat3 matrix = mat3(
-      //   col0.x, col0.y, col0.z,
-      //   col1.x, col1.y, col1.z,
-      //   col2.x, col2.y, col2.z
-      //   );
-
-      // mat3 matrix = mat3(
-    //   col0.x, col0.w, col1.z,
-    //   col0.y, col1.x, col1.w,
-    //   col0.z, col1.y, col2.x
-    //   );
-
 
     return matrix;
   }
@@ -271,10 +259,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           vec4 col3 = fetchElement(u_dataTexture, idx + 3.0, arg);
 
           mat4 val = mat4(
-            col0.x, col0.y, col0.z, 0.0,
-            col1.x, col1.y, col1.z, 0.0,
-            col2.x, col2.y, col2.z, 0.0,
-            col3.x, col3.y, col3.z, 1.0
+            col0.x, col0.y, col0.z, col0.w,
+            col1.x, col1.y, col1.z, col1.w,
+            col2.x, col2.y, col2.z, col2.w,
+            col3.x, col3.y, col3.z, col3.w
             );
           `; break;
         case CompositionType.Mat3:
