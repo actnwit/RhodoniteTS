@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -72,9 +73,10 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(0.0, 0);
-  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   v_color = a_color;
@@ -278,7 +280,8 @@ void main ()
   albedo.rgb *= (1.0 - metallic);
 
   // ViewDirection
-  vec3 viewPosition = get_viewPosition(0.0, 0);
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
 
   // NV

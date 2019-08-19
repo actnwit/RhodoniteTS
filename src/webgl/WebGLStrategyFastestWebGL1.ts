@@ -32,6 +32,8 @@ import CameraComponent from "../foundation/components/CameraComponent";
 import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../types/CommonTypes";
 import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
+import VectorN from "../foundation/math/VectorN";
+import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -41,7 +43,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
-
+  private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __currentComponentSIDs?: VectorN;
   private constructor(){}
 
   get vertexShaderMethodDefinitions_dataTexture() {
@@ -190,15 +193,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           }`;
       } else {
         const offset = getOffset(info);
+        let idx;
+        let secondOffset = 0;
         if (isGlogalData) {
           const globalDataRepository = GlobalDataRepository.getInstance();
           index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
-          // secondOffset = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+          let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+          secondOffset = offset;
         } else {
           index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
         }
-        let idx;
-        let secondOffset = 0;
         if (CompositionType.isArray(info.compositionType)) {
           idx = 'float(index)';
           if (info.maxIndex != null) {
@@ -314,6 +318,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
         (shaderProgram as any).materialSID = gl.getUniformLocation(shaderProgram, 'u_materialSID');
         (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+        (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
       }
     }
   }
@@ -350,6 +355,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     if (this.__isLoaded(meshComponent)) {
       return;
     }
+
+    WebGLStrategyFastestWebGL1.__currentComponentSIDs = WebGLStrategyFastestWebGL1.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
+
 
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
@@ -560,9 +568,22 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
+  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass) {
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
+    }
+    if (cameraComponent) {
+    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+    }
+    gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
+  }
+
   common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
+
+    this.__setCamera(renderPass);
 
     for (let idx=0; idx<meshComponentSids.length; idx++) {
       const sid = meshComponentSids[idx];
@@ -580,6 +601,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       const primitiveNum = mesh.getPrimitiveNumber();
       let firstTime = false;
+
       for(let i=0; i<primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
@@ -606,8 +628,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (firstTime) {
           gl.uniform1f((WebGLStrategyFastestWebGL1.__shaderProgram as any).materialSID, primitive.material!.materialSID);
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-          this.__setCamera(renderPass);
         }
+        this.__setCurrentComponentSIDs(gl, renderPass);
 
         // primitive.material!.setUniformValuesForOnlyTexturesAndWithUpdateFunc(true, {
         primitive.material!.setParemetersForGPU({

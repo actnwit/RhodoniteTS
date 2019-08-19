@@ -18,6 +18,7 @@ import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 
 
 type GlobalPropertyStruct = {
@@ -39,22 +40,23 @@ export default class GlobalDataRepository {
   }
 
   initialize() {
+    // CurrentComponentSIDs
+    const currentComponentSIDsInfo = {semantic: ShaderSemantics.CurrentComponentSIDs, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Float, maxIndex: WellKnownComponentTIDs.maxWellKnownTidNumber,
+      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber))};
+    this.registerProperty(currentComponentSIDsInfo, 1);
+    this.takeOne(ShaderSemantics.CurrentComponentSIDs);
 
     // Camera
     const viewMatrixInfo = {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()};
     const projectionMatrixInfo = {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()};
-    const viewPosition = {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true
+    const viewPositionInfo = {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1)
     };
-    this.registerProperty(viewMatrixInfo, 1);
-    this.registerProperty(projectionMatrixInfo, 1);
-    this.registerProperty(viewPosition, 1);
-    this.takeOne(ShaderSemantics.ViewMatrix);
-    this.takeOne(ShaderSemantics.ProjectionMatrix);
-    this.takeOne(ShaderSemantics.ViewPosition);
-
+    this.registerProperty(viewMatrixInfo, Config.maxCameraNumber);
+    this.registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
+    this.registerProperty(viewPositionInfo, Config.maxCameraNumber);
 
     // Skinning
     const boneQuaternionInfo = {semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,

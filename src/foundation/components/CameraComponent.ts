@@ -79,11 +79,17 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
 
-    this.submitToAllocation(20);
+    this.submitToAllocation(Config.maxCameraNumber);
 
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.PreRender);
+
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
+    globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
+    globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
+
 
     CameraComponent.main = componentSid;
   }
@@ -439,9 +445,9 @@ export default class CameraComponent extends Component {
   }
 
   setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, 0, this.viewMatrix);
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, 0, this.projectionMatrix);
-    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewPosition, 0, this.worldPosition);
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, this.componentSID, this.viewMatrix);
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, this.componentSID, this.projectionMatrix);
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewPosition, this.componentSID, this.worldPosition);
   }
 
   get worldPosition(): Vector3 {

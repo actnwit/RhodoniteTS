@@ -1,3 +1,4 @@
+// const MaterialSID = 0
 const AnimationComponentTID = 1;
 const TransformComponentTID = 2;
 const SceneGraphComponentTID = 3;

@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -68,9 +69,10 @@ ${this.toNormalMatrix}
 
 void main() {
 
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(0.0, 0);
-  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
