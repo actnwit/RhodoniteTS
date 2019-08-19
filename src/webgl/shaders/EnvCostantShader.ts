@@ -41,7 +41,7 @@ const _in = this.glsl_vertex_in;
 const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -95,7 +95,8 @@ void main() {
     const _textureCube = this.glsl_textureCube;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
+
 
 ${this.prerequisites}
 

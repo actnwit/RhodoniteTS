@@ -433,7 +433,7 @@ export default class Material extends RnObject {
     if ((glslShader as any as ISingleShader).getVertexShaderBody) {
       vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
     } else {
-      vertexShader = glslShader.glslBegin +
+      vertexShader = glslShader.glsl_versionText + glslShader.glslPrecision +
         materialNode.definitions +
         `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
@@ -531,8 +531,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     } while (materialNodesPixel.length !== 0);
 
     // Get GLSL Beginning code
-    let vertexShader = firstMaterialNodeVertex!.shader.glslBegin;
-    let pixelShader = firstMaterialNodeVertex!.shader.glslBegin;
+    let vertexShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
+    let pixelShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
 
     // attribute variables definitions in Vertex Shader
     for (let i = 0; i < sortedNodeArrayVertex.length; i++) {

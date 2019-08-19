@@ -79,6 +79,21 @@ export default class GlobalDataRepository {
     this.registerProperty(lightPositionInfo, maxLightNumber);
     this.registerProperty(lightDirectionInfo, maxLightNumber);
     this.registerProperty(lightIntensity, maxLightNumber);
+
+    const lightNumberInfo = {
+      semantic: ShaderSemantics.LightNumber,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Int,
+      stage: ShaderType.VertexAndPixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isSystem: true,
+      updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      initialValue: new Scalar(0),
+    };
+    this.registerProperty(lightNumberInfo, 1);
+
+
   }
 
   static getInstance() {

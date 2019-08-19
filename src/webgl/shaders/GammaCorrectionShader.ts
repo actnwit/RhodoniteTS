@@ -36,7 +36,7 @@ export default class GammaCorrectionShader extends GLSLShader implements ISingle
     const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${_in} vec3 a_position;
 ${_in} float a_instanceID;
@@ -65,7 +65,7 @@ void main(){
     const _texture = this.glsl_texture;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${this.prerequisites}
 

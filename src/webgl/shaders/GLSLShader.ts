@@ -9,6 +9,7 @@ import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownCom
 import { ProcessApproachEnum, ProcessApproach } from "../../foundation/definitions/ProcessApproach";
 import WebGLStrategyFastestWebGL1 from "../WebGLStrategyFastestWebGL1";
 import System from "../../foundation/system/System";
+import LightComponent from "../../foundation/components/LightComponent";
 
 export type AttributeNames = Array<string>;
 
@@ -107,10 +108,11 @@ export default abstract class GLSLShader {
     }
   }
 
-  get glslBegin() {
+  get glslPrecision() {
     const _version = this.glsl_versionText;
     return `${_version}
     precision highp float;
+    precision highp int;
     `
   }
 
@@ -373,10 +375,11 @@ bool processGeometryWithMorphingAndSkinning(
     if (processApproach === ProcessApproach.FastestWebGL1) {
       return `
   float materialSID = u_currentComponentSIDs[0];
+  int lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
 `;
     } else {
       return `
-  float materialSID = u_materialSID;
+  int lightNumber = u_lightNumber;
       `;
     }
   }

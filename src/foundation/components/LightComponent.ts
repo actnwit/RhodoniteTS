@@ -22,6 +22,7 @@ export default class LightComponent extends Component {
   public spotCutoff = 30; // in degree
   public range = -1;
   private __sceneGraphComponent?: SceneGraphComponent;
+  private static __componentRepository = ComponentRepository.getInstance();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
 
@@ -32,6 +33,7 @@ export default class LightComponent extends Component {
     LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightDirection);
     LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightIntensity);
     LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightPosition);
+
   }
 
   static get componentTID(): ComponentTID {
@@ -40,7 +42,15 @@ export default class LightComponent extends Component {
 
   $create() {
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
-    this.moveStageTo(ProcessStage.Logic);
+    this.moveStageTo(ProcessStage.Load);
+  }
+
+  $load() {
+    const lightComponents = LightComponent.__componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const currentComponentSIDs =  LightComponent.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
+    currentComponentSIDs!.v[WellKnownComponentTIDs.LightComponentTID] = lightComponents.length;
+
+    this.moveStageTo(ProcessStage.Logic)
   }
 
   $logic() {

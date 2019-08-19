@@ -36,7 +36,7 @@ export default class PBRShader extends GLSLShader implements ISingleShader {
     const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -147,7 +147,7 @@ void main()
     return `${_version}
 ${this.glsl1ShaderTextureLodExt}
 ${this.glsl1ShaderDerivativeExt}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -295,7 +295,6 @@ void main ()
   // Lighting
   if (length(normal_inWorld) > 0.02) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
-    int lightNumber = get_lightNumber(0.0, 0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
       if (i >= lightNumber) {
         break;

@@ -258,7 +258,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     if (setUniform) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
     } else {
-      material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
+      // material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
     }
     for (let i = 0; i < lightComponents!.length; i++) {
       if (i >= Config.maxLightNumberInShader) {

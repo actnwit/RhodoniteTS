@@ -104,18 +104,18 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: new Vector2(0, 0)
         },
-        {
-          semantic: ShaderSemantics.LightNumber,
-          compositionType: CompositionType.Scalar,
-          componentType: ComponentType.Int,
-          stage: ShaderType.PixelShader,
-          min: 0,
-          max: Number.MAX_SAFE_INTEGER,
-          isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-          initialValue: new Scalar(0),
-          soloDatum: true
-        },
+        // {
+        //   semantic: ShaderSemantics.LightNumber,
+        //   compositionType: CompositionType.Scalar,
+        //   componentType: ComponentType.Int,
+        //   stage: ShaderType.VertexAndPixelShader,
+        //   min: 0,
+        //   max: Number.MAX_SAFE_INTEGER,
+        //   isSystem: true,
+        //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        //   initialValue: new Scalar(0),
+        //   soloDatum: true
+        // },
         {
           semantic: ShaderSemantics.DiffuseEnvTexture,
           compositionType: CompositionType.TextureCube,
