@@ -50,8 +50,8 @@ export default class SkeletalComponent extends Component {
 
   set joints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
-    this.__qArray = new Float32Array(this.__joints.length * 4);
-    this.__tArray = new Float32Array(this.__joints.length * 4);
+    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, this.componentSID).v;
+    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, this.componentSID).v;
   }
 
   $create() {
@@ -152,10 +152,6 @@ export default class SkeletalComponent extends Component {
         for (let j=0; j<maxPrimitive; j++) {
           const primitive = meshComponent.mesh!.getPrimitiveAt(j);
           primitive.material!.setParameter(ShaderSemantics.SkinningMode, this.componentSID);
-          // primitive.material!.setParameter(ShaderSemantics.BoneQuaternion, this.__qArray);
-          // primitive.material!.setParameter(ShaderSemantics.BoneTranslateScale, this.__tArray);
-          SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneQuaternion, this.componentSID, this.__qArray);
-          SkeletalComponent.__globalDataRepository.setValue(ShaderSemantics.BoneTranslateScale, this.componentSID, this.__tArray);
         }
       }
 
