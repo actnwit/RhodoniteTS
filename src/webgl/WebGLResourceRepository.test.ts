@@ -71,7 +71,7 @@ test('Create WebGL resources.', async () => {
   const firstEntity = generateEntity();
 
   const primitive = readyBasicVerticesData();
-  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
+  const meshComponent = firstEntity.getMesh();
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
@@ -106,7 +106,7 @@ test('Create WebGL resources. 2', async () => {
   const firstEntity = generateEntity();
 
   const primitive = readyBasicVerticesData();
-  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
+  const meshComponent = firstEntity.getMesh();
   const mesh = new Mesh();
 
   mesh.addPrimitive(primitive);

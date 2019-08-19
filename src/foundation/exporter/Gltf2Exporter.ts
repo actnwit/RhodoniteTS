@@ -119,7 +119,7 @@ export default class Gltf2Exporter {
     json.meshes = [];
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+      const meshComponent = entity.getMesh();
       if (meshComponent) {
         (entity as any).gltfMeshIndex = count++;
       }
@@ -131,7 +131,7 @@ export default class Gltf2Exporter {
     json.meshes = [];
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+      const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
         json.meshes[count] = {};
         const mesh = json.meshes[count];
@@ -181,7 +181,7 @@ export default class Gltf2Exporter {
 
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+      const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
         const mesh = json.meshes[countMesh++];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
@@ -358,7 +358,7 @@ export default class Gltf2Exporter {
 
     for(let i=0; i<entities.length; i++) {
       const entity = entities[i];
-      const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+      const meshComponent = entity.getMesh();
       if (meshComponent && meshComponent.mesh) {
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for(let j=0; j<primitiveCount; j++) {

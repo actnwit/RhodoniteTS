@@ -102,7 +102,7 @@ export default class SkeletalComponent extends Component {
   }
 
   $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
-    const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+    const meshComponent = this.entity.getMesh();
     const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
 
     if (this.isSkinning) {

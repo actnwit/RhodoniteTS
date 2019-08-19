@@ -251,14 +251,14 @@ export default class MeshRendererComponent extends Component {
         if (result === Visibility.Visible) {
           const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
           for (let sg of sgs) {
-            const mesh = sg.entity.getComponent(MeshComponent) as MeshComponent;
+            const mesh = sg.entity.getMesh();
             if (mesh) {
               meshComponents!.push(mesh);
             }
           }
         } else if (result === Visibility.Neutral) {
           const children = sg.children;
-          const mesh = sg.entity.getComponent(MeshComponent) as MeshComponent;
+          const mesh = sg.entity.getMesh();
           if (mesh) {
             meshComponents!.push(mesh);
           }
@@ -350,7 +350,7 @@ export default class MeshRendererComponent extends Component {
     for (let name of names) {
       const entity = RnObject.getRnObjectByName(name) as Entity;
       if (entity) {
-        const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+        const meshComponent = entity.getMesh();
         if (meshComponent) {
           const mesh = meshComponent.mesh;
           if (mesh) {

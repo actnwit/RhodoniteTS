@@ -442,7 +442,7 @@ export default class ModelConverter {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-    const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
+    const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
     let originalRnMesh = rnMesh;

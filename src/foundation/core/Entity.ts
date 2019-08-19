@@ -6,6 +6,7 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import RnObject from './RnObject';
 import { ComponentTID, EntityUID } from '../../types/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
+import MeshComponent from '../components/MeshComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -22,6 +23,7 @@ export default class Entity extends RnObject {
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
   private __skeletalComponent?: SkeletalComponent;
+  private __meshComponent?: MeshComponent;
 
   /**
    * The constructor of the Entity class.
@@ -99,4 +101,10 @@ export default class Entity extends RnObject {
     return this.__skeletalComponent;
   }
 
+  getMesh(): MeshComponent {
+    if (this.__meshComponent == null) {
+      this.__meshComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
+    }
+    return this.__meshComponent;
+  }
 }

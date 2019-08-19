@@ -247,7 +247,7 @@ this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.
   calcWorldAABB() {
     const that = this;
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
-      const meshComponent = elem.entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
+      const meshComponent = elem.entity.getMesh();
 
       if (meshComponent != null && meshComponent.mesh != null) {
         AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
