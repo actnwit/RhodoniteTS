@@ -46,6 +46,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
+  private __lastRenderPassCullFace = false;
+  private static __isOpaqueMode = true;
+
   private constructor(){}
 
   get vertexShaderMethodDefinitions_dataTexture() {
@@ -568,7 +571,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
+  private __setCurrentComponentSIDsForEachRenderPass(renderPass: RenderPass) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -578,7 +581,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     } else {
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
     }
-    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
+  }
+
+  private __setCurrentComponentSIDsForEachEntity(gl: WebGLRenderingContext, renderPass: RenderPass, entity: Entity) {
 
     const skeletalComponent = entity.getSkeletal();
     if (skeletalComponent) {
@@ -586,7 +591,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     } else {
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
     }
+  }
 
+  private __setCurrentComponentSIDsForEachPrimitive(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
+    WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
 
@@ -595,9 +603,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     const gl = glw.getRawContext();
 
     this.__setCamera(renderPass);
+    this.__setCurrentComponentSIDsForEachRenderPass(renderPass);
 
     for (let idx=0; idx<meshComponentSids.length; idx++) {
       const sid = meshComponentSids[idx];
+      if (sid === Component.invalidComponentSID) {
+        break;
+      }
+
       const meshComponent = meshComponents[sid];
       if (meshComponent == null) {
         break;
@@ -607,7 +620,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         continue;
       }
 
+      this.setWebGLStatesBegin(sid, gl, renderPass);
+
       const entity = meshComponent.entity;
+      this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
+
       const meshRendererComponent = entity.getMeshRenderer();
 
       const primitiveNum = mesh.getPrimitiveNumber();
@@ -615,6 +632,13 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       for(let i=0; i<primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
+
+        // if (WebGLStrategyFastestWebGL1.isOpaqueMode() && primitive.isBlend()) {
+        //   continue;
+        // }
+        // if (WebGLStrategyFastestWebGL1.isTransparentMode() && primitive.isOpaque()) {
+        //   continue;
+        // }
 
         const shaderProgramUid = primitive.material!._shaderProgramUid;
         if (shaderProgramUid === -1) {
@@ -639,7 +663,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (firstTime) {
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
         }
-        this.__setCurrentComponentSIDs(gl, renderPass, primitive.material!, entity);
+        this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, primitive.material!, entity);
 
         primitive.material!.setParemetersForGPU({
           material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
@@ -665,8 +689,41 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
     }
 
+    this.setWebGLStatesEnd(gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
+  }
+
+  static isOpaqueMode() {
+    return WebGLStrategyFastestWebGL1.__isOpaqueMode;
+  }
+
+  static isTransparentMode() {
+    return !WebGLStrategyFastestWebGL1.__isOpaqueMode;
+  }
+
+  private setWebGLStatesBegin(idx: number, gl: any, renderPass: RenderPass) {
+    if (idx === MeshRendererComponent.firstTranparentIndex) {
+      gl.enable(gl.BLEND);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+      gl.depthMask(false);
+      WebGLStrategyFastestWebGL1.__isOpaqueMode = false;
+    }
+    if (renderPass.cullface !== this.__lastRenderPassCullFace) {
+      if (renderPass.cullface) {
+        gl.enable(gl.CULL_FACE);
+      }
+      else {
+        gl.disable(gl.CULL_FACE);
+      }
+      this.__lastRenderPassCullFace = renderPass.cullface;
+    }
+  }
+
+  private setWebGLStatesEnd(gl: WebGLRenderingContext, renderPass: RenderPass) {
+    gl.disable(gl.BLEND);
+    gl.depthMask(true);
+    WebGLStrategyFastestWebGL1.__isOpaqueMode = true;
   }
 
 }
