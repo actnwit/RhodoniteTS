@@ -242,8 +242,8 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
   return vec4(r, g, b, a);
 }
 
-mat4 getSkinMatrix() {
-  float skeletalComponentSID = float(get_skinningMode(materialSID, 0));
+mat4 getSkinMatrix(float skeletalComponentSID) {
+  // float skeletalComponentSID = float(get_skinningMode(materialSID, 0));
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
@@ -288,6 +288,7 @@ vec4 encodeFloatRGBA(float v) {
     return `
 #ifdef RN_IS_SKINNING
 bool skinning(
+  float skeletalComponentSID,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
   in vec3 inPosition_inLocal,
@@ -296,7 +297,7 @@ bool skinning(
   out vec3 outNormal_inWorld
   )
 {
-  mat4 skinMat = getSkinMatrix();
+  mat4 skinMat = getSkinMatrix(skeletalComponentSID);
   outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
   outNormalMatrix = toNormalMatrix(skinMat);
   outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
@@ -306,6 +307,7 @@ bool skinning(
 #endif
 
 bool processGeometryWithMorphingAndSkinning(
+  float skeletalComponentSID,
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
@@ -331,9 +333,9 @@ bool processGeometryWithMorphingAndSkinning(
 
 
 #ifdef RN_IS_SKINNING
-  int skinningMode = get_skinningMode(materialSID, 0);
-  if (skinningMode >= 0) {
-    isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
+//  int skinningMode = get_skinningMode(materialSID, 0);
+  if (skeletalComponentSID >= 0.0) {
+    isSkinning = skinning(skeletalComponentSID, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
 #endif
     outNormalMatrix = inNormalMatrix;
@@ -376,10 +378,12 @@ bool processGeometryWithMorphingAndSkinning(
       return `
   float materialSID = u_currentComponentSIDs[0];
   int lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
+  float skeletalComponentSID = u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
 `;
     } else {
       return `
   int lightNumber = u_lightNumber;
+  float skeletalComponentSID = float(u_skinningMode);
       `;
     }
   }

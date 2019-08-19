@@ -86,6 +86,7 @@ void main()
   bool isSkinning = false;
 
   isSkinning = processGeometryWithMorphingAndSkinning(
+    skeletalComponentSID,
     worldMatrix,
     normalMatrix,
     normalMatrix,

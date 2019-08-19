@@ -34,6 +34,7 @@ import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
+import Entity from "../foundation/core/Entity";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -567,7 +568,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
   }
 
-  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material) {
+  private __setCurrentComponentSIDs(gl: WebGLRenderingContext, renderPass: RenderPass, material: Material, entity: Entity) {
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -578,6 +579,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = -1;
     }
     WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[0] = material.materialSID;
+
+    const skeletalComponent = entity.getSkeletal();
+    if (skeletalComponent) {
+      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = skeletalComponent.componentSID;
+    } else {
+      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
+    }
+
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
 
@@ -630,7 +639,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (firstTime) {
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
         }
-        this.__setCurrentComponentSIDs(gl, renderPass, primitive.material!);
+        this.__setCurrentComponentSIDs(gl, renderPass, primitive.material!, entity);
 
         primitive.material!.setParemetersForGPU({
           material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,

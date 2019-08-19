@@ -148,20 +148,20 @@ export default class SkeletalComponent extends Component {
 
       }
 
-      if (processApproach === ProcessApproach.FastestWebGL1) {
-        for (let j=0; j<maxPrimitive; j++) {
-          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
-          primitive.material!.setParameter(ShaderSemantics.SkinningMode, this.componentSID);
-        }
-      }
+      // if (processApproach === ProcessApproach.FastestWebGL1) {
+      //   for (let j=0; j<maxPrimitive; j++) {
+      //     const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+      //     primitive.material!.setParameter(ShaderSemantics.SkinningMode, this.componentSID);
+      //   }
+      // }
 
     } else {
-      if (processApproach === ProcessApproach.FastestWebGL1) {
-        for (let j=0; j<maxPrimitive; j++) {
-          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
-          primitive.material!.setParameter(ShaderSemantics.SkinningMode, -1);
-        }
-      }
+      // if (processApproach === ProcessApproach.FastestWebGL1) {
+      //   for (let j=0; j<maxPrimitive; j++) {
+      //     const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+      //     primitive.material!.setParameter(ShaderSemantics.SkinningMode, -1);
+      //   }
+      // }
     }
 
   }

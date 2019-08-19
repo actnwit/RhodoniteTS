@@ -63,8 +63,11 @@ export default class GlobalDataRepository {
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))};
     const boneTranslateScaleInfo = {semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))};
+    const skeletalComponentSIDInfo = {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
+        stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1) };
     this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
     this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+    this.registerProperty(skeletalComponentSIDInfo, 1);
 
     // Lighting
     // const lightNumberInfo = { semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, stage: ShaderType.PixelShader,
