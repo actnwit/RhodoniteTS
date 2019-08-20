@@ -12,6 +12,7 @@ import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import MutableVector4 from '../math/MutableVector4';
+import VectorN from '../math/VectorN';
 
 export default class LightComponent extends Component {
   public type = LightType.Point;
@@ -25,15 +26,14 @@ export default class LightComponent extends Component {
   private static __componentRepository = ComponentRepository.getInstance();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
+  private static __lightPositioins = new VectorN(new Float32Array(0));
+  private static __lightDirections = new VectorN(new Float32Array(0));
+  private static __lightIntensities = new VectorN(new Float32Array(0));
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
     this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber/100));
-    LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightDirection);
-    LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightIntensity);
-    LightComponent.__globalDataRepository.takeOne(ShaderSemantics.LightPosition);
-
   }
 
   static get componentTID(): ComponentTID {
@@ -50,22 +50,29 @@ export default class LightComponent extends Component {
     const currentComponentSIDs =  LightComponent.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
     currentComponentSIDs!.v[WellKnownComponentTIDs.LightComponentTID] = lightComponents.length;
 
+    LightComponent.__lightPositioins = LightComponent.__globalDataRepository.getValue(ShaderSemantics.LightPosition, 0);
+    LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue(ShaderSemantics.LightDirection, 0);
+    LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue(ShaderSemantics.LightIntensity, 0);
+
     this.moveStageTo(ProcessStage.Logic)
   }
 
   $logic() {
-    this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(this.__initialdirection);
-    LightComponent.__tmp_vec4.x = this.__direction.x;
-    LightComponent.__tmp_vec4.y = this.__direction.y;
-    LightComponent.__tmp_vec4.z = this.__direction.z;
-    LightComponent.__tmp_vec4.w = 0;
-    LightComponent.__globalDataRepository.setValue(ShaderSemantics.LightDirection, this.componentSID, LightComponent.__tmp_vec4);
+    LightComponent.__lightDirections.v[4*this.componentSID+0] = this.__direction.x;
+    LightComponent.__lightDirections.v[4*this.componentSID+1] = this.__direction.y;
+    LightComponent.__lightDirections.v[4*this.componentSID+2] = this.__direction.z;
+    LightComponent.__lightDirections.v[4*this.componentSID+3] = 0;
+
     const lightPosition = this.__sceneGraphComponent!.worldPosition;
-    LightComponent.__tmp_vec4.x = lightPosition.x;
-    LightComponent.__tmp_vec4.y = lightPosition.y;
-    LightComponent.__tmp_vec4.z = lightPosition.z;
-    LightComponent.__tmp_vec4.w = this.type.index;
-    LightComponent.__globalDataRepository.setValue(ShaderSemantics.LightPosition, this.componentSID, LightComponent.__tmp_vec4);
+    LightComponent.__lightPositioins.v[4*this.componentSID+0] = lightPosition.x;
+    LightComponent.__lightPositioins.v[4*this.componentSID+1] = lightPosition.y;
+    LightComponent.__lightPositioins.v[4*this.componentSID+2] = lightPosition.z;
+    LightComponent.__lightPositioins.v[4*this.componentSID+3] = this.type.index;
+
+    LightComponent.__lightIntensities.v[4*this.componentSID+0] = this.__intensity.x;
+    LightComponent.__lightIntensities.v[4*this.componentSID+1] = this.__intensity.y;
+    LightComponent.__lightIntensities.v[4*this.componentSID+2] = this.__intensity.z;
+    LightComponent.__lightIntensities.v[4*this.componentSID+3] = 0;
   }
 
   get direction() {
@@ -74,11 +81,6 @@ export default class LightComponent extends Component {
 
   set intensity(value: Vector3) {
     this.__intensity = value;
-    LightComponent.__tmp_vec4.x = value.x;
-    LightComponent.__tmp_vec4.y = value.y;
-    LightComponent.__tmp_vec4.z = value.z;
-    LightComponent.__tmp_vec4.w = 0;
-    LightComponent.__globalDataRepository.setValue(ShaderSemantics.LightIntensity, this.componentSID, LightComponent.__tmp_vec4);
   }
 
   get intensity(): Vector3 {

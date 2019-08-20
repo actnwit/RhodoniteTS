@@ -70,6 +70,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private __isMorphing: boolean;
   private __isSkinning: boolean;
   private __isLighing: boolean;
+  private static __lightPositioins = new Float32Array(0);
+  private static __lightDirections = new Float32Array(0);
+  private static __lightIntensities = new Float32Array(0);
 
 
   constructor(shader: GLSLShader, shaderFunctionName: string, enables = {isMorphing: false, isSkinning: false, isLighting: false}) {
@@ -258,9 +261,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
     if (setUniform) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
 
-      const positions = new Float32Array(4*Config.maxLightNumberInShader);
-      const directions = new Float32Array(4*Config.maxLightNumberInShader);
-      const intensities = new Float32Array(4*Config.maxLightNumberInShader);
+      const length = Math.min(lightComponents!.length, Config.maxLightNumberInShader);
+      if (AbstractMaterialNode.__lightPositioins.length !== 4*length) {
+        AbstractMaterialNode.__lightPositioins = new Float32Array(4*length);
+        AbstractMaterialNode.__lightDirections = new Float32Array(4*length);
+        AbstractMaterialNode.__lightIntensities = new Float32Array(4*length);
+      }
       for (let i = 0; i < lightComponents!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
           break;
@@ -275,25 +281,27 @@ export default abstract class AbstractMaterialNode extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        positions[i*4+0] = worldLightPosition.x;
-        positions[i*4+1] = worldLightPosition.y;
-        positions[i*4+2] = worldLightPosition.z;
-        positions[i*4+3] = lightComponent.type.index;
+        AbstractMaterialNode.__lightPositioins[i*4+0] = worldLightPosition.x;
+        AbstractMaterialNode.__lightPositioins[i*4+1] = worldLightPosition.y;
+        AbstractMaterialNode.__lightPositioins[i*4+2] = worldLightPosition.z;
+        AbstractMaterialNode.__lightPositioins[i*4+3] = lightComponent.type.index;
 
-        directions[i*4+0] = worldLightDirection.x;
-        directions[i*4+1] = worldLightDirection.y;
-        directions[i*4+2] = worldLightDirection.z;
-        directions[i*4+3] = 0;
+        AbstractMaterialNode.__lightDirections[i*4+0] = worldLightDirection.x;
+        AbstractMaterialNode.__lightDirections[i*4+1] = worldLightDirection.y;
+        AbstractMaterialNode.__lightDirections[i*4+2] = worldLightDirection.z;
+        AbstractMaterialNode.__lightDirections[i*4+3] = 0;
 
-        intensities[i*4+0] = worldLightIntensity.x;
-        intensities[i*4+1] = worldLightIntensity.y;
-        intensities[i*4+2] = worldLightIntensity.z;
-        intensities[i*4+3] = 0;
+        AbstractMaterialNode.__lightIntensities[i*4+0] = worldLightIntensity.x;
+        AbstractMaterialNode.__lightIntensities[i*4+1] = worldLightIntensity.y;
+        AbstractMaterialNode.__lightIntensities[i*4+2] = worldLightIntensity.z;
+        AbstractMaterialNode.__lightIntensities[i*4+3] = 0;
 
       }
-      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, positions);
-      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightDirection, directions);
-      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightIntensity, intensities);
+      if (length > 0) {
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, AbstractMaterialNode.__lightPositioins);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightDirection, AbstractMaterialNode.__lightDirections);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightIntensity, AbstractMaterialNode.__lightIntensities);
+      }
     }
   }
 
