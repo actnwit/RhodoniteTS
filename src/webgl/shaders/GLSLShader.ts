@@ -109,9 +109,7 @@ export default abstract class GLSLShader {
   }
 
   get glslPrecision() {
-    const _version = this.glsl_versionText;
-    return `${_version}
-    precision highp float;
+    return `precision highp float;
     precision highp int;
     `
   }
