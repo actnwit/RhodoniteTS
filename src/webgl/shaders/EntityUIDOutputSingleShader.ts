@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -30,7 +31,7 @@ export default class EntityUIDOutputShader extends GLSLShader implements ISingle
 
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -60,13 +61,17 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
+  ${this.mainPrerequisites}
+
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(0.0, 0);
-  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   // Skeletal
   processGeometryWithMorphingAndSkinning(
+    skeletalComponentSID,
     worldMatrix,
     normalMatrix,
     normalMatrix,
@@ -99,7 +104,7 @@ void main()
     const _texture = this.glsl_texture;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -116,6 +121,7 @@ ${this.packing}
 
 void main ()
 {
+  ${this.mainPrerequisites}
   rt0 = encodeFloatRGBA(u_entityUID);
 
   ${_def_fragColor}

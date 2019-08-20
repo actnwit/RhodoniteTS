@@ -302,9 +302,9 @@ void main ()
       }
 
       // Light
-      vec4 gotLightDirection = get_lightDirection(float(i), 0);
-      vec4 gotLightPosition = get_lightPosition(float(i), 0);
-      vec4 gotLightIntensity = get_lightIntensity(float(i), 0);
+      vec4 gotLightDirection = get_lightDirection(0.0, i);
+      vec4 gotLightPosition = get_lightPosition(0.0, i);
+      vec4 gotLightIntensity = get_lightIntensity(0.0, i);
       vec3 lightDirection = gotLightDirection.xyz;
       vec3 lightIntensity = gotLightIntensity.xyz;
       vec3 lightPosition = gotLightPosition.xyz;
