@@ -20,6 +20,7 @@ import MeshComponent from './MeshComponent';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import GlobalDataRepository from '../core/GlobalDataRepository';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -36,6 +37,7 @@ export default class SkeletalComponent extends Component {
   private static __tmp2_mat4 = MutableMatrix44.identity();
   private __qArray = new Float32Array(0);
   private __tArray = new Float32Array(0);
+  private static __globalDataRepository = GlobalDataRepository.getInstance();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -48,8 +50,8 @@ export default class SkeletalComponent extends Component {
 
   set joints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
-    this.__qArray = new Float32Array(this.__joints.length * 4);
-    this.__tArray = new Float32Array(this.__joints.length * 4);
+    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, this.componentSID).v;
+    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, this.componentSID).v;
   }
 
   $create() {
@@ -100,7 +102,7 @@ export default class SkeletalComponent extends Component {
   }
 
   $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
-    const meshComponent = this.entity.getComponent(MeshComponent) as MeshComponent;
+    const meshComponent = this.entity.getMesh();
     const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
 
     if (this.isSkinning) {
@@ -146,22 +148,20 @@ export default class SkeletalComponent extends Component {
 
       }
 
-      if (processApproach === ProcessApproach.FastestWebGL1) {
-        for (let j=0; j<maxPrimitive; j++) {
-          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
-          primitive.material!.setParameter(ShaderSemantics.SkinningMode, 1);
-          primitive.material!.setParameter(ShaderSemantics.BoneQuaternion, this.__qArray);
-          primitive.material!.setParameter(ShaderSemantics.BoneTranslateScale, this.__tArray);
-        }
-      }
+      // if (processApproach === ProcessApproach.FastestWebGL1) {
+      //   for (let j=0; j<maxPrimitive; j++) {
+      //     const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+      //     primitive.material!.setParameter(ShaderSemantics.SkinningMode, this.componentSID);
+      //   }
+      // }
 
     } else {
-      if (processApproach === ProcessApproach.FastestWebGL1) {
-        for (let j=0; j<maxPrimitive; j++) {
-          const primitive = meshComponent.mesh!.getPrimitiveAt(j);
-          primitive.material!.setParameter(ShaderSemantics.SkinningMode, 0);
-        }
-      }
+      // if (processApproach === ProcessApproach.FastestWebGL1) {
+      //   for (let j=0; j<maxPrimitive; j++) {
+      //     const primitive = meshComponent.mesh!.getPrimitiveAt(j);
+      //     primitive.material!.setParameter(ShaderSemantics.SkinningMode, -1);
+      //   }
+      // }
     }
 
   }

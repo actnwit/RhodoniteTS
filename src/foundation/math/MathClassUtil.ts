@@ -319,6 +319,7 @@ export default class MathClassUtil {
     let obj;
     if (isFinite(objForDetectType)) { // number?
       const array = new Float32Array(floatArray);
+      (floatArray as any).v = void 0;
       array[0] = val;
       return new Scalar(array);
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
@@ -346,7 +347,7 @@ export default class MathClassUtil {
       floatArray[3] = val.w;
       obj = new MutableQuaternion(floatArray);
     } else if (objForDetectType instanceof Matrix33 || objForDetectType instanceof MutableMatrix33) {
-      obj = (obj == null) ? new MutableMatrix33(floatArray) : obj;
+      obj = (obj == null) ? new MutableMatrix33(floatArray, false, true) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -357,7 +358,7 @@ export default class MathClassUtil {
       obj.m21 = val.m21;
       obj.m22 = val.m22;
     } else if (objForDetectType instanceof Matrix44 || objForDetectType instanceof MutableMatrix44) {
-      obj = new MutableMatrix44(floatArray);
+      obj = new MutableMatrix44(floatArray, false, true);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
       obj.m02 = val.m02;
@@ -384,6 +385,7 @@ export default class MathClassUtil {
         case 2: vec = new Vector2(floatArray); break;
         case 1: vec = new Scalar(floatArray); break;
       }
+      (floatArray as any).v = void 0;
       return vec;
     } else if (Array.isArray(objForDetectType) || ArrayBuffer.isView(objForDetectType) || ArrayBuffer.isView(objForDetectType.v)) {
       return objForDetectType;
@@ -391,6 +393,7 @@ export default class MathClassUtil {
       console.error('Non supported type!');
       return void 0;
     }
+    (floatArray as any).v = void 0;
 
     return obj;
   }

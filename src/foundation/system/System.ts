@@ -12,6 +12,12 @@ import EntityRepository from "../core/EntityRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import CameraComponent from "../components/CameraComponent";
 import MemoryManager from "../core/MemoryManager";
+import GlobalDataRepository from "../core/GlobalDataRepository";
+import TransformComponent from "../components/TransformComponent";
+import SceneGraphComponent from "../components/SceneGraphComponent";
+import Vector3 from "../math/Vector3";
+import { CameraType } from "../definitions/CameraType";
+import Vector4 from "../math/Vector4";
 
 export default class System {
   private static __instance: System;
@@ -52,6 +58,13 @@ export default class System {
       this.__lastEntitiesNumber = this.__entityRepository.getEntitiesNumber();
     }
 
+    if (CameraComponent.main === Component.InvalidObjectUID) {
+      const cameraEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
+      cameraEntity.getTransform().translate = new Vector3(0, 0, 1);
+      cameraEntity.getCamera().type = CameraType.Orthographic;
+      cameraEntity.getCamera().parameters = new Vector4(0.1, 10000, 1, 1);
+    }
+
 
     for (let stage of this.__processStages) {
       const methodName = stage.methodName;
@@ -78,7 +91,7 @@ export default class System {
 
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
-            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage });
+            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
           }
 
           componentClass.process({
@@ -118,6 +131,8 @@ export default class System {
     gl!.enable(gl!.DEPTH_TEST);
 
     MemoryManager.createInstanceIfNotCreated(1 * memoryUsageOrder, 1 * memoryUsageOrder, 0.1 * memoryUsageOrder, 0.5 * memoryUsageOrder);
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    globalDataRepository.initialize();
 
     repo.addWebGLContext(gl!, canvas, true);
     this.__processApproach = approach;

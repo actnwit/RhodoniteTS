@@ -46,7 +46,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inLocal;
 ${_out} vec4 v_position_inWorld;
 
-uniform float u_materialSID;
+uniform float materialSID;
 uniform vec3 u_viewPosition;
 
 uniform float u_pointSize;

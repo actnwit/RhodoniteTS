@@ -98,30 +98,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
         initialValue: new Scalar(ShadingModel.Constant.index)
       },
       {
-        semantic: ShaderSemantics.LightNumber,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Scalar(0),
-        soloDatum: true
-      },
-      {
-        semantic: ShaderSemantics.ViewPosition,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexAndPixelShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector3(0, 0, 0),
-        soloDatum: true
-      },
-      {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Scalar(30.0), min: 0, max: 100,
@@ -137,69 +113,61 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
 
-      const lights: ShaderSemanticsInfo[] = [];
-      for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-        (function(idx){
-        lights.push(
-          {
-            semantic: ShaderSemantics.LightPosition,
-            compositionType: CompositionType.Vec4,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            min: -Number.MAX_VALUE,
-            max: Number.MAX_VALUE,
-            index: idx,
-            maxIndex: 4,
-            isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            initialValue: new Vector4(0, 0, 0, 1),
-            soloDatum: true
-          });
-        lights.push(
-          {
-          semantic: ShaderSemantics.LightDirection,
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          stage: ShaderType.PixelShader,
-          min: -1,
-          max: 1,
-          index: idx,
-          maxIndex: 4,
-          isSystem: true,
-          initialValue: new Vector4(0, 1, 0, 1),
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          soloDatum: true
-        });
-        lights.push(
-          {
-            semantic: ShaderSemantics.LightIntensity,
-            compositionType: CompositionType.Vec4,
-            componentType: ComponentType.Float,
-            stage: ShaderType.PixelShader,
-            min: 0,
-            max: 10,
-            index: idx,
-            maxIndex: 4,
-            isSystem: true,
-            initialValue: new Vector4(1, 1, 1, 1),
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
-            soloDatum: true
-          });
-        })(i);
-      }
-      shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
+      // const lights: ShaderSemanticsInfo[] = [];
+      // for (let i = 0; i < Config.maxLightNumberInShader; i++) {
+      //   (function(idx){
+      //   lights.push(
+      //     {
+      //       semantic: ShaderSemantics.LightPosition,
+      //       compositionType: CompositionType.Vec4,
+      //       componentType: ComponentType.Float,
+      //       stage: ShaderType.PixelShader,
+      //       min: -Number.MAX_VALUE,
+      //       max: Number.MAX_VALUE,
+      //       index: idx,
+      //       maxIndex: 4,
+      //       isSystem: true,
+      //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
+      //       initialValue: new Vector4(0, 0, 0, 1),
+      //       soloDatum: true
+      //     });
+      //   lights.push(
+      //     {
+      //     semantic: ShaderSemantics.LightDirection,
+      //     compositionType: CompositionType.Vec4,
+      //     componentType: ComponentType.Float,
+      //     stage: ShaderType.PixelShader,
+      //     min: -1,
+      //     max: 1,
+      //     index: idx,
+      //     maxIndex: 4,
+      //     isSystem: true,
+      //     initialValue: new Vector4(0, 1, 0, 1),
+      //     updateInteval: ShaderVariableUpdateInterval.EveryTime,
+      //     soloDatum: true
+      //   });
+      //   lights.push(
+      //     {
+      //       semantic: ShaderSemantics.LightIntensity,
+      //       compositionType: CompositionType.Vec4,
+      //       componentType: ComponentType.Float,
+      //       stage: ShaderType.PixelShader,
+      //       min: 0,
+      //       max: 10,
+      //       index: idx,
+      //       maxIndex: 4,
+      //       isSystem: true,
+      //       initialValue: new Vector4(1, 1, 1, 1),
+      //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
+      //       soloDatum: true
+      //     });
+      //   })(i);
+      // }
+      // shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
     }
 
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
-
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
-
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

@@ -19,6 +19,8 @@ import MutableVector3 from '../math/MutableVector3';
 import Frustum from '../geometry/Frustum';
 import Config from '../core/Config';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import GlobalDataRepository from '../core/GlobalDataRepository';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();
@@ -41,14 +43,17 @@ export default class CameraComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private __isProjectionMatrixUpToDate = false;
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private __isViewMatrixUpToDate = false;
 
   private _tmp_f: Vector3 = Vector3.dummy();
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
-  public static main: ComponentSID = -1;
+  private static __main: ComponentSID = -1;
   private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
+  private static __globalDataRepository = GlobalDataRepository.getInstance();
 
   private __frustum = new Frustum();
 
@@ -74,13 +79,28 @@ export default class CameraComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'tmp_s', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'tmp_u', Vector3, ComponentType.Float, [0, 0, 0]);
 
-    this.submitToAllocation(20);
+    this.submitToAllocation(Config.maxCameraNumber);
 
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.PreRender);
 
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
+    globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
+    globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
+
+
     CameraComponent.main = componentSid;
+  }
+
+
+  static set main(componentSID: ComponentSID) {
+    this.__main = componentSID;
+  }
+
+  static get main() {
+    return this.__main;
   }
 
   set type(type: CameraTypeEnum) {
@@ -422,6 +442,12 @@ export default class CameraComponent extends Component {
     this.calcViewMatrix();
 
     this.moveStageTo(ProcessStage.Logic);
+  }
+
+  setValuesToGlobalDataRepository() {
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewMatrix, this.componentSID, this.viewMatrix);
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ProjectionMatrix, this.componentSID, this.projectionMatrix);
+    CameraComponent.__globalDataRepository.setValue(ShaderSemantics.ViewPosition, this.componentSID, this.worldPosition);
   }
 
   get worldPosition(): Vector3 {

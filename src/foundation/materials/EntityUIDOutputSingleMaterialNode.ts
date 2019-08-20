@@ -42,7 +42,8 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
   constructor() {
     super(EntityUIDOutputShader.getInstance(), "entityUidOutputShading"
       + (true ? '+skinning' : '')
-      + (true ? '' : '-lighting'));
+      + (false ? '' : '-lighting'),
+      {isMorphing: false, isSkinning: true, isLighting: false});
     EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
 
@@ -51,10 +52,10 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero() },
       {semantic: ShaderSemantics.NormalMatrix, isComponentData: true, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix33.zero() },
-      {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
-      {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       {
         semantic: ShaderSemantics.EntityUID,
         compositionType: CompositionType.Scalar,
@@ -66,18 +67,18 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: new Scalar(0)
       },
-      {
-        semantic: ShaderSemantics.ViewPosition,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector3(0, 0, 0),
-        soloDatum: true
-      },
+      // {
+      //   semantic: ShaderSemantics.ViewPosition,
+      //   compositionType: CompositionType.Vec3,
+      //   componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader,
+      //   min: -Number.MAX_VALUE,
+      //   max: Number.MAX_VALUE,
+      //   isSystem: true,
+      //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      //   initialValue: new Vector3(0, 0, 0),
+      //   soloDatum: true
+      // },
       {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
@@ -93,13 +94,6 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
 
     if (true) {
       this.__definitions += '#define RN_IS_SKINNING\n';
-
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

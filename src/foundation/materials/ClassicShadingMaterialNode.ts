@@ -19,7 +19,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
-       
         isSystem: false,
         initialValue: 5
       },
@@ -30,7 +29,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
-       
         isSystem: false,
         initialValue: ShadingModel.Constant.index
       }

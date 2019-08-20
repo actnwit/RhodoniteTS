@@ -70,6 +70,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private __isMorphing: boolean;
   private __isSkinning: boolean;
   private __isLighing: boolean;
+  private static __lightPositioins = new Float32Array(0);
+  private static __lightDirections = new Float32Array(0);
+  private static __lightIntensities = new Float32Array(0);
 
 
   constructor(shader: GLSLShader, shaderFunctionName: string, enables = {isMorphing: false, isSkinning: false, isLighting: false}) {
@@ -201,8 +204,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, cameraComponent.viewMatrix.v);
         (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition.v);
       } else {
-        material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
-        material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
+        // material.setParameter(ShaderSemantics.ViewMatrix, cameraComponent.viewMatrix);
+        // material.setParameter(ShaderSemantics.ViewPosition, cameraPosition);
       }
     } else {
       const mat = MutableMatrix44.identity();
@@ -211,8 +214,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
         (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
       } else {
-        material.setParameter(ShaderSemantics.ViewMatrix, mat);
-        material.setParameter(ShaderSemantics.ViewPosition, pos);
+        // material.setParameter(ShaderSemantics.ViewMatrix, mat);
+        // material.setParameter(ShaderSemantics.ViewPosition, pos);
       }
     }
   }
@@ -222,10 +225,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
       if (setUniform) {
         (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, cameraComponent.projectionMatrix.v);
       } else {
-        material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
+        // material.setParameter(ShaderSemantics.ProjectionMatrix, cameraComponent.projectionMatrix);
       }
     } else {
-      this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
+      if (setUniform) {
+        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.ProjectionMatrix.str, true, MutableMatrix44.identity());
+      }
     }
   }
 
@@ -240,11 +245,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
 
-        this.__webglResourceRepository!.setUniformValue(shaderProgram, ShaderSemantics.SkinningMode.str, true, true);
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, skeletalComponent.componentSID);
       }
     } else {
       if (setUniform) {
-        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, false);
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
       }
     }
   }
@@ -255,50 +260,55 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
     if (setUniform) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
-    } else {
-      material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
-    }
-    for (let i = 0; i < lightComponents!.length; i++) {
-      if (i >= Config.maxLightNumberInShader) {
-        break;
+
+      const length = Math.min(lightComponents!.length, Config.maxLightNumberInShader);
+      if (AbstractMaterialNode.__lightPositioins.length !== 4*length) {
+        AbstractMaterialNode.__lightPositioins = new Float32Array(4*length);
+        AbstractMaterialNode.__lightDirections = new Float32Array(4*length);
+        AbstractMaterialNode.__lightIntensities = new Float32Array(4*length);
       }
-      if ((shaderProgram as any).lightPosition == null) {
-        break;
+      for (let i = 0; i < lightComponents!.length; i++) {
+        if (i >= Config.maxLightNumberInShader) {
+          break;
+        }
+        if ((shaderProgram as any).lightPosition == null) {
+          break;
+        }
+
+        const lightComponent = lightComponents![i];
+        const sceneGraphComponent = lightComponent.entity.getSceneGraph();
+        const worldLightPosition = sceneGraphComponent.worldPosition;
+        const worldLightDirection = lightComponent.direction;
+        const worldLightIntensity = lightComponent.intensity;
+
+        AbstractMaterialNode.__lightPositioins[i*4+0] = worldLightPosition.x;
+        AbstractMaterialNode.__lightPositioins[i*4+1] = worldLightPosition.y;
+        AbstractMaterialNode.__lightPositioins[i*4+2] = worldLightPosition.z;
+        AbstractMaterialNode.__lightPositioins[i*4+3] = lightComponent.type.index;
+
+        AbstractMaterialNode.__lightDirections[i*4+0] = worldLightDirection.x;
+        AbstractMaterialNode.__lightDirections[i*4+1] = worldLightDirection.y;
+        AbstractMaterialNode.__lightDirections[i*4+2] = worldLightDirection.z;
+        AbstractMaterialNode.__lightDirections[i*4+3] = 0;
+
+        AbstractMaterialNode.__lightIntensities[i*4+0] = worldLightIntensity.x;
+        AbstractMaterialNode.__lightIntensities[i*4+1] = worldLightIntensity.y;
+        AbstractMaterialNode.__lightIntensities[i*4+2] = worldLightIntensity.z;
+        AbstractMaterialNode.__lightIntensities[i*4+3] = 0;
+
       }
-      const lightComponent = lightComponents![i];
-      const sceneGraphComponent = lightComponent.entity.getSceneGraph();
-      const worldLightPosition = sceneGraphComponent.worldPosition;
-      const worldLightDirection = lightComponent.direction;
-      const worldLightIntensity = lightComponent.intensity;
-
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightPosition[i], worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index);
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightDirection[i], worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0);
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightIntensity[i], worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0);
-      } else {
-        const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
-        __tmp_vector4.x = worldLightPosition.x;
-        __tmp_vector4.y = worldLightPosition.y;
-        __tmp_vector4.z = worldLightPosition.z;
-        __tmp_vector4.w = lightComponent.type.index;
-        material.setParameter(ShaderSemantics.LightPosition, __tmp_vector4, i);
-
-        __tmp_vector4.x = worldLightDirection.x;
-        __tmp_vector4.y = worldLightDirection.y;
-        __tmp_vector4.z = worldLightDirection.z;
-        __tmp_vector4.w = 0;
-        material.setParameter(ShaderSemantics.LightDirection, __tmp_vector4, i);
-
-        __tmp_vector4.x = worldLightIntensity.x;
-        __tmp_vector4.y = worldLightIntensity.y;
-        __tmp_vector4.z = worldLightIntensity.z;
-        __tmp_vector4.w = 0;
-        material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
+      if (length > 0) {
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, AbstractMaterialNode.__lightPositioins);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightDirection, AbstractMaterialNode.__lightDirections);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightIntensity, AbstractMaterialNode.__lightIntensities);
       }
     }
   }
 
-  static setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
+  setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, blendShapeComponent: BlendShapeComponent, primitive: Primitive) {
+    if (!this.__isMorphing) {
+      return;
+    }
     if (primitive.targets.length === 0) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;

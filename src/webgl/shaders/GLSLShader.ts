@@ -5,6 +5,11 @@ import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../.
 import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
 import Component from "../../foundation/core/Component";
 import MemoryManager from "../../foundation/core/MemoryManager";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
+import { ProcessApproachEnum, ProcessApproach } from "../../foundation/definitions/ProcessApproach";
+import WebGLStrategyFastestWebGL1 from "../WebGLStrategyFastestWebGL1";
+import System from "../../foundation/system/System";
+import LightComponent from "../../foundation/components/LightComponent";
 
 export type AttributeNames = Array<string>;
 
@@ -103,10 +108,9 @@ export default abstract class GLSLShader {
     }
   }
 
-  get glslBegin() {
-    const _version = this.glsl_versionText;
-    return `${_version}
-    precision highp float;
+  get glslPrecision() {
+    return `precision highp float;
+    precision highp int;
     `
   }
 
@@ -236,20 +240,21 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
   return vec4(r, g, b, a);
 }
 
-mat4 getSkinMatrix() {
+mat4 getSkinMatrix(float skeletalComponentSID) {
+  // float skeletalComponentSID = float(get_skinningMode(materialSID, 0));
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.x)),
-    get_boneTranslateScale(0.0, int(a_joint.x)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.x)));
   skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.y)),
-    get_boneTranslateScale(0.0, int(a_joint.y)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.y)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.y)));
   skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.z)),
-    get_boneTranslateScale(0.0, int(a_joint.z)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.z)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.z)));
   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
-    get_boneQuaternion(0.0, int(a_joint.w)),
-    get_boneTranslateScale(0.0, int(a_joint.w)));
+    get_boneQuaternion(skeletalComponentSID, int(a_joint.w)),
+    get_boneTranslateScale(skeletalComponentSID, int(a_joint.w)));
 
   // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
   // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
@@ -281,6 +286,7 @@ vec4 encodeFloatRGBA(float v) {
     return `
 #ifdef RN_IS_SKINNING
 bool skinning(
+  float skeletalComponentSID,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
   in vec3 inPosition_inLocal,
@@ -289,7 +295,7 @@ bool skinning(
   out vec3 outNormal_inWorld
   )
 {
-  mat4 skinMat = getSkinMatrix();
+  mat4 skinMat = getSkinMatrix(skeletalComponentSID);
   outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
   outNormalMatrix = toNormalMatrix(skinMat);
   outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
@@ -299,6 +305,7 @@ bool skinning(
 #endif
 
 bool processGeometryWithMorphingAndSkinning(
+  float skeletalComponentSID,
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
@@ -311,6 +318,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
+  // int morphTargetNumber = get_morphTargetNumber(materialSID, 0);
   if (u_morphTargetNumber == 0) {
 #endif
     position_inLocal = inPosition_inLocal;
@@ -323,9 +331,9 @@ bool processGeometryWithMorphingAndSkinning(
 
 
 #ifdef RN_IS_SKINNING
-  int skinningMode = get_skinningMode(u_materialSID, 0);
-  if (skinningMode == 1) {
-    isSkinning = skinning(inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
+//  int skinningMode = get_skinningMode(materialSID, 0);
+  if (skeletalComponentSID >= 0.0) {
+    isSkinning = skinning(skeletalComponentSID, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
 #endif
     outNormalMatrix = inNormalMatrix;
@@ -341,7 +349,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   get prerequisites() {
     return `
-    uniform float u_materialSID;
+    uniform float materialSID;
     uniform sampler2D u_dataTexture;
 
     /*
@@ -362,13 +370,29 @@ bool processGeometryWithMorphingAndSkinning(
   }`;
   }
 
+  get mainPrerequisites() {
+    const processApproach = System.getInstance().processApproach;
+    if (processApproach === ProcessApproach.FastestWebGL1) {
+      return `
+  float materialSID = u_currentComponentSIDs[0];
+  int lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
+  float skeletalComponentSID = u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
+`;
+    } else {
+      return `
+  int lightNumber = u_lightNumber;
+  float skeletalComponentSID = float(u_skinningMode);
+      `;
+    }
+  }
+
   get pointSprite() {
     return `vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  vec3 viewPosition = get_viewPosition(u_materialSID, 0);
+  vec3 viewPosition = get_viewPosition(materialSID, 0);
   float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
-  vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(u_materialSID, 0);
+  vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(materialSID, 0);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
-  float maxPointSize = get_pointSize(u_materialSID, 0);
+  float maxPointSize = get_pointSize(materialSID, 0);
   gl_PointSize = clamp(distanceAttenuationFactor * maxPointSize, 0.0, maxPointSize);`;
   }
 
@@ -567,9 +591,10 @@ bool processGeometryWithMorphingAndSkinning(
 
   get simpleMVPPosition() {
     return `
+    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
     mat4 worldMatrix = get_worldMatrix(a_instanceID);
-    mat4 viewMatrix = get_viewMatrix(a_instanceID);
-    mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+    mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+    mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
     gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
     `
   }

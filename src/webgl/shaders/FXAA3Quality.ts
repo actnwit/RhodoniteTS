@@ -94,7 +94,8 @@ ${_out} vec2 v_texcoord;
 
 
 
-    return `${_version}precision highp float;
+    return `${_version}
+${this.glslPrecision}
 
 ${this.prerequisites}
 
@@ -1189,8 +1190,9 @@ FxaaFloat4 FxaaPixelShader(
 ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main() {
+    ${this.mainPrerequisites}
 
-    vec2 screenInfo = get_screenInfo(u_materialSID, 0);
+    vec2 screenInfo = get_screenInfo(materialSID, 0);
     rt0 = FxaaPixelShader(
             v_texcoord,
             vec4(0.0),
