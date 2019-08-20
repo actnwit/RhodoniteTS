@@ -73,15 +73,18 @@ export default class GlobalDataRepository {
     // const lightNumberInfo = { semantic: ShaderSemantics.LightNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int, stage: ShaderType.PixelShader,
       // min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Scalar(0), soloDatum: true };
     const maxLightNumber = Config.maxLightNumberInShader;
-    const lightPositionInfo = { semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+    const lightPositionInfo = { semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
       min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Vector4(0, 0, 0, 1), soloDatum: true};
-    const lightDirectionInfo = { semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+    const lightDirectionInfo = { semantic: ShaderSemantics.LightDirection, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
       min: -1, max: 1, isSystem: true, initialValue: new Vector4(0, 1, 0, 1), updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true };
-    const lightIntensity = { semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, stage: ShaderType.PixelShader,
+    const lightIntensity = { semantic: ShaderSemantics.LightIntensity, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
       min: 0, max: 10, isSystem: true, initialValue: new Vector4(1, 1, 1, 1), updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true };
-    this.registerProperty(lightPositionInfo, maxLightNumber);
-    this.registerProperty(lightDirectionInfo, maxLightNumber);
-    this.registerProperty(lightIntensity, maxLightNumber);
+    // this.registerProperty(lightPositionInfo, maxLightNumber);
+    // this.registerProperty(lightDirectionInfo, maxLightNumber);
+    // this.registerProperty(lightIntensity, maxLightNumber);
+    this.registerProperty(lightPositionInfo, 1);
+    this.registerProperty(lightDirectionInfo, 1);
+    this.registerProperty(lightIntensity, 1);
 
     const lightNumberInfo = {
       semantic: ShaderSemantics.LightNumber,

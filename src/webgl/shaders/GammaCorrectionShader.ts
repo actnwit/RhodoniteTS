@@ -49,7 +49,7 @@ ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main(){
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   v_texcoord = a_texcoord;
   ${this.simpleMVPPosition}
@@ -83,7 +83,7 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   vec4 baseColor = ${_texture}(u_baseColorTexture, v_texcoord);
 

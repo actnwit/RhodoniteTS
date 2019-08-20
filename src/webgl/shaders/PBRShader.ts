@@ -73,7 +73,7 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
@@ -211,7 +211,7 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);

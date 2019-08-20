@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -30,7 +31,7 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
 
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -60,13 +61,17 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
+
+  ${this.mainPrerequisites}
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(0.0, 0);
-  mat4 projectionMatrix = get_projectionMatrix(0.0, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   // Skeletal
   processGeometryWithMorphingAndSkinning(
+    skeletalComponentSID,
     worldMatrix,
     normalMatrix,
     normalMatrix,
@@ -109,7 +114,7 @@ void main()
     const _texture = this.glsl_texture;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -125,6 +130,7 @@ ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main ()
 {
+  ${this.mainPrerequisites}
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -158,8 +164,6 @@ void main ()
 #ifdef RN_IS_LIGHTING
   int shadingModel = get_shadingModel(materialSID, 0);
   if (shadingModel > 0) {
-
-    int lightNumber = get_lightNumber(0.0, 0);
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);

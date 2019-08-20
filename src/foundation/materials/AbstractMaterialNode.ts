@@ -257,46 +257,43 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
     if (setUniform) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
-    } else {
-      // material.setParameter(ShaderSemantics.LightNumber, lightComponents!.length);
-    }
-    for (let i = 0; i < lightComponents!.length; i++) {
-      if (i >= Config.maxLightNumberInShader) {
-        break;
-      }
-      if ((shaderProgram as any).lightPosition == null) {
-        break;
-      }
 
-      if (setUniform) {
+      const positions = new Float32Array(4*Config.maxLightNumberInShader);
+      const directions = new Float32Array(4*Config.maxLightNumberInShader);
+      const intensities = new Float32Array(4*Config.maxLightNumberInShader);
+      for (let i = 0; i < lightComponents!.length; i++) {
+        if (i >= Config.maxLightNumberInShader) {
+          break;
+        }
+        if ((shaderProgram as any).lightPosition == null) {
+          break;
+        }
+
         const lightComponent = lightComponents![i];
         const sceneGraphComponent = lightComponent.entity.getSceneGraph();
         const worldLightPosition = sceneGraphComponent.worldPosition;
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightPosition[i], worldLightPosition.x, worldLightPosition.y, worldLightPosition.z, lightComponent.type.index);
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightDirection[i], worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0);
-        (shaderProgram as any)._gl.uniform4f((shaderProgram as any).lightIntensity[i], worldLightIntensity.x, worldLightIntensity.y, worldLightIntensity.z, 0);
-      } else {
-        // const __tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
-        // __tmp_vector4.x = worldLightPosition.x;
-        // __tmp_vector4.y = worldLightPosition.y;
-        // __tmp_vector4.z = worldLightPosition.z;
-        // __tmp_vector4.w = lightComponent.type.index;
-        // material.setParameter(ShaderSemantics.LightPosition, __tmp_vector4, i);
 
-        // __tmp_vector4.x = worldLightDirection.x;
-        // __tmp_vector4.y = worldLightDirection.y;
-        // __tmp_vector4.z = worldLightDirection.z;
-        // __tmp_vector4.w = 0;
-        // material.setParameter(ShaderSemantics.LightDirection, __tmp_vector4, i);
+        positions[i*4+0] = worldLightPosition.x;
+        positions[i*4+1] = worldLightPosition.y;
+        positions[i*4+2] = worldLightPosition.z;
+        positions[i*4+3] = lightComponent.type.index;
 
-        // __tmp_vector4.x = worldLightIntensity.x;
-        // __tmp_vector4.y = worldLightIntensity.y;
-        // __tmp_vector4.z = worldLightIntensity.z;
-        // __tmp_vector4.w = 0;
-        // material.setParameter(ShaderSemantics.LightIntensity, __tmp_vector4, i);
+        directions[i*4+0] = worldLightDirection.x;
+        directions[i*4+1] = worldLightDirection.y;
+        directions[i*4+2] = worldLightDirection.z;
+        directions[i*4+3] = 0;
+
+        intensities[i*4+0] = worldLightIntensity.x;
+        intensities[i*4+1] = worldLightIntensity.y;
+        intensities[i*4+2] = worldLightIntensity.z;
+        intensities[i*4+3] = 0;
+
       }
+      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, positions);
+      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightDirection, directions);
+      (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightIntensity, intensities);
     }
   }
 

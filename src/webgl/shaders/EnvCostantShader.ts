@@ -68,7 +68,7 @@ ${_out} vec2 v_texcoord;
 ${this.toNormalMatrix}
 
 void main() {
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
@@ -113,7 +113,7 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
-  ${this.getMainPrerequisites()}
+  ${this.mainPrerequisites}
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);

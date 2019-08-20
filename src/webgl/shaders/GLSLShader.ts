@@ -372,7 +372,7 @@ bool processGeometryWithMorphingAndSkinning(
   }`;
   }
 
-  getMainPrerequisites() {
+  get mainPrerequisites() {
     const processApproach = System.getInstance().processApproach;
     if (processApproach === ProcessApproach.FastestWebGL1) {
       return `
