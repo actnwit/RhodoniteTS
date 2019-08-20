@@ -13,6 +13,11 @@ import { ComponentType } from "../definitions/ComponentType";
 import CameraComponent from "../components/CameraComponent";
 import MemoryManager from "../core/MemoryManager";
 import GlobalDataRepository from "../core/GlobalDataRepository";
+import TransformComponent from "../components/TransformComponent";
+import SceneGraphComponent from "../components/SceneGraphComponent";
+import Vector3 from "../math/Vector3";
+import { CameraType } from "../definitions/CameraType";
+import Vector4 from "../math/Vector4";
 
 export default class System {
   private static __instance: System;
@@ -51,6 +56,13 @@ export default class System {
       this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
 
       this.__lastEntitiesNumber = this.__entityRepository.getEntitiesNumber();
+    }
+
+    if (CameraComponent.main === Component.InvalidObjectUID) {
+      const cameraEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
+      cameraEntity.getTransform().translate = new Vector3(0, 0, 1);
+      cameraEntity.getCamera().type = CameraType.Orthographic;
+      cameraEntity.getCamera().parameters = new Vector4(0.1, 10000, 1, 1);
     }
 
 
