@@ -58,6 +58,8 @@ export default class LightComponent extends Component {
   }
 
   $logic() {
+    this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(this.__initialdirection);
+
     LightComponent.__lightDirections.v[4*this.componentSID+0] = this.__direction.x;
     LightComponent.__lightDirections.v[4*this.componentSID+1] = this.__direction.y;
     LightComponent.__lightDirections.v[4*this.componentSID+2] = this.__direction.z;
