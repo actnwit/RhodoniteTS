@@ -406,7 +406,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       } else {
         gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
       }
-      this.dettachVertexData(glw);
+      // this.dettachVertexData(glw);
 
     }
 
