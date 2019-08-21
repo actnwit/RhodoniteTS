@@ -2,9 +2,9 @@ import AccessorBase from "./AccessorBase";
 import BufferView from "./BufferView";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import { CompositionTypeEnum } from "../definitions/CompositionType";
-import { Count, Byte } from "../../types/CommonTypes";
+import { Count, Byte, Size } from "../../types/CommonTypes";
 export default class FlexibleAccessor extends AccessorBase {
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw }: {
+    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, arrayLength }: {
         bufferView: BufferView;
         byteOffset: Byte;
         byteOffsetFromBuffer: Byte;
@@ -13,5 +13,6 @@ export default class FlexibleAccessor extends AccessorBase {
         byteStride: Byte;
         count: Count;
         raw: Uint8Array;
+        arrayLength: Size;
     });
 }

@@ -5,6 +5,10 @@ import Component from './Component';
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import RnObject from './RnObject';
 import { ComponentTID, EntityUID } from '../../types/CommonTypes';
+import SkeletalComponent from '../components/SkeletalComponent';
+import MeshComponent from '../components/MeshComponent';
+import MeshRendererComponent from '../components/MeshRendererComponent';
+import CameraComponent from '../components/CameraComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -20,6 +24,10 @@ export default class Entity extends RnObject {
 
   private __transformComponent?: TransformComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
+  private __skeletalComponent?: SkeletalComponent;
+  private __meshComponent?: MeshComponent;
+  private __meshRendererComponent?: MeshRendererComponent;
+  private __cameraComponent?: CameraComponent;
 
   /**
    * The constructor of the Entity class.
@@ -90,4 +98,31 @@ export default class Entity extends RnObject {
     return this.__sceneGraphComponent;
   }
 
+  getSkeletal(): SkeletalComponent {
+    if (this.__skeletalComponent == null) {
+      this.__skeletalComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as SkeletalComponent;
+    }
+    return this.__skeletalComponent;
+  }
+
+  getMesh(): MeshComponent {
+    if (this.__meshComponent == null) {
+      this.__meshComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
+    }
+    return this.__meshComponent;
+  }
+
+  getMeshRenderer(): MeshRendererComponent {
+    if (this.__meshRendererComponent == null) {
+      this.__meshRendererComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.MeshRendererComponentTID) as MeshRendererComponent;
+    }
+    return this.__meshRendererComponent;
+  }
+
+  getCamera(): CameraComponent {
+    if (this.__cameraComponent == null) {
+      this.__cameraComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent;
+    }
+    return this.__cameraComponent;
+  }
 }

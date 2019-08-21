@@ -14,6 +14,10 @@ const WebGL = Object.freeze({
 });
 export default WebGL;
 
+declare var window: any;
+export type RnWebGL = typeof WebGL;
+window.RnWebGL = WebGL;
+
 export type AttributeNames = AttributeNames;
 export type VertexHandles = VertexHandles;
 export type WebGLStrategy = WebGLStrategy;

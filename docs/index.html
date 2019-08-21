@@ -78,12 +78,98 @@
 					<li>yarn package manager</li>
 				</ul>
 				<h3 id="setup-project">Setup Project</h3>
-				<pre><code><span class="hljs-variable">$ </span>yarn install
-<span class="hljs-variable">$ </span>yarn setup</code></pre><h3 id="build-command">Build command</h3>
-				<pre><code><span class="hljs-variable">$ </span>yarn build</code></pre><h2 id="building-api-documents">Building API Documents</h2>
-				<pre><code><span class="hljs-variable">$ </span>yarn doc</code></pre><h2 id="testing-rhodonite">Testing Rhodonite</h2>
-				<pre><code><span class="hljs-meta">$</span><span class="bash"> yarn <span class="hljs-built_in">test</span></span></code></pre><h2 id="watching-test-samples">Watching Test Samples</h2>
-				<pre><code><span class="hljs-variable">$ </span>yarn serv</code></pre><p>Then, access <a href="http://localhost:8082/">http://localhost:8082/</a> with your web browser.</p>
+				<pre><code class="language-bash">$ yarn install
+$ yarn setup</code></pre>
+				<h3 id="library-build-command">Library build command</h3>
+				<pre><code class="language-bash">$ yarn build</code></pre>
+				<h2 id="how-to-write-the-code-with-rhodonite">How to write the code with Rhodonite</h2>
+				<h3 id="in-javascipt">In Javascipt</h3>
+				<h4 id="for-modern-browsers-excludes-ie11-">For modern browsers (excludes IE11)</h4>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"world"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../../../dist/rhodonite.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">load</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// All Rhodonite classes you need are in window.Rn object.</span>
+    <span class="hljs-keyword">await</span> Rn.ModuleManager.getInstance().loadModule(<span class="hljs-string">'webgl'</span>);
+    <span class="hljs-keyword">await</span> Rn.ModuleManager.getInstance().loadModule(<span class="hljs-string">'pbr'</span>);
+    <span class="hljs-keyword">const</span> system = Rn.System.getInstance();
+    <span class="hljs-keyword">const</span> gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'world'</span>));
+    <span class="hljs-keyword">const</span> entityRepository = Rn.EntityRepository.getInstance();
+    ...
+    (After that, please refer to the sample codes.)
+    ...
+  }
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span></code></pre>
+				<h4 id="for-all-browsers-which-support-webgl-include-ie11-">For All browsers which support WebGL (include IE11)</h4>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"world"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span> <span class="hljs-comment">&lt;!-- only for IE11 support -- &gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.3.1/es6-promise.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.4/fetch.min.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
+  &lt;script src="../../../dist/rhodonite.min.ie11.js"&gt;&lt;/script&gt; &lt;!-- only for IE11 support -- &gt;
+  &lt;script&gt;
+    // All Rhodonite classes you need are window.Rn object.
+    const promises = [];
+    const promise1 = Rn.ModuleManager.getInstance().loadModule('webgl');
+    const promise2 = Rn.ModuleManager.getInstance().loadModule('pbr');
+    promises.push(promise1);
+    promises.push(promise2);
+    promises.all(promises).then(function(){
+      const system = Rn.System.getInstance();
+      const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
+      const entityRepository = Rn.EntityRepository.getInstance();
+      ...
+      (After that, please refer to the sample codes.)
+      ...
+    });
+  &lt;/script&gt;
+&lt;/body&gt;</span></code></pre>
+				<h3 id="in-typescript">In TypeScript</h3>
+				<h4 id="html">HTML</h4>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"world"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../../../dist/rhodonite.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+  <span class="hljs-comment">&lt;!-- Use require.js when you write your application code in typescript --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../../../node_modules/requirejs/require.js"</span> <span class="hljs-attr">data-main</span>=<span class="hljs-string">"./main.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span></code></pre>
+				<h4 id="main-ts-will-be-compiled-to-main-js-">main.ts (will be compiled to main.js)</h4>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { RnType } <span class="hljs-keyword">from</span> <span class="hljs-string">'../../../dist/types/foundation/main'</span>
+<span class="hljs-keyword">import</span> CameraComponent <span class="hljs-keyword">from</span> <span class="hljs-string">'../../../dist/types/foundation/components/CameraComponent'</span>;
+<span class="hljs-comment">// import CameraComponent from '../../../src/types/foundation/components/CameraComponent'; // Don't refer from 'src' directory</span>
+<span class="hljs-keyword">import</span> RenderPass <span class="hljs-keyword">from</span> <span class="hljs-string">'../../../dist/types/foundation/renderer/RenderPass'</span>;
+
+<span class="hljs-keyword">declare</span> <span class="hljs-keyword">const</span> Rn: RnType;
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">load</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// All Rhodonite classes you need are in window.Rn object.</span>
+  <span class="hljs-keyword">await</span> Rn.ModuleManager.getInstance().loadModule(<span class="hljs-string">'webgl'</span>);
+  <span class="hljs-keyword">await</span> Rn.ModuleManager.getInstance().loadModule(<span class="hljs-string">'pbr'</span>);
+  <span class="hljs-keyword">const</span> importer = Rn.Gltf1Importer.getInstance();
+  <span class="hljs-keyword">const</span> system = Rn.System.getInstance();
+  <span class="hljs-keyword">const</span> gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'world'</span>) <span class="hljs-keyword">as</span> HTMLCanvasElement);
+
+  <span class="hljs-keyword">const</span> entityRepository = Rn.EntityRepository.getInstance();
+
+  <span class="hljs-comment">// Camera</span>
+  <span class="hljs-keyword">const</span> cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
+  <span class="hljs-keyword">const</span> cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) <span class="hljs-keyword">as</span> CameraComponent; <span class="hljs-comment">// You don't need "Rn." for type annotation</span>
+
+  ...
+  (After that, please refer to the sample codes.)
+  ...
+}</code></pre>
+				<p>For build main.ts, Use the following command.</p>
+				<pre><code>$ npx tsc ./main.ts --<span class="hljs-class"><span class="hljs-keyword">lib</span> <span class="hljs-title">es2015</span>,<span class="hljs-title">dom</span> --<span class="hljs-title">target</span> <span class="hljs-title">es5</span> --<span class="hljs-title">module</span> <span class="hljs-title">umd</span> --<span class="hljs-title">moduleResolution</span> <span class="hljs-title">node</span></span></code></pre><h2 id="building-api-documents">Building API Documents</h2>
+				<pre><code class="language-bash">$ yarn doc</code></pre>
+				<h2 id="testing-rhodonite">Testing Rhodonite</h2>
+				<pre><code class="language-bash">$ yarn <span class="hljs-built_in">test</span></code></pre>
+				<h2 id="watching-test-samples">Watching Test Samples</h2>
+				<pre><code class="language-bash">$ yarn serv</code></pre>
+				<p>Then, access <a href="http://localhost:8082/">http://localhost:8082/</a> with your web browser.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -100,6 +186,9 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_components_animationcomponent_.html">"foundation/components/<wbr>Animation<wbr>Component"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_components_blendshapecomponent_.html">"foundation/components/<wbr>Blend<wbr>Shape<wbr>Component"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_components_cameracomponent_.html">"foundation/components/<wbr>Camera<wbr>Component"</a>
@@ -279,16 +368,16 @@
 						<a href="modules/_foundation_materials_classicshadingsinglematerialnode_.html">"foundation/materials/<wbr>Classic<wbr>Shading<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_depthencodingsinglematerial_.html">"foundation/materials/<wbr>Depth<wbr>Encoding<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_depthencodesinglematerialnode_.html">"foundation/materials/<wbr>Depth<wbr>Encode<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_materials_endmaterialnode_.html">"foundation/materials/<wbr>End<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_entityuidoutputsinglematerial_.html">"foundation/materials/<wbr>EntityUIDOutput<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_entityuidoutputsinglematerialnode_.html">"foundation/materials/<wbr>EntityUIDOutput<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_envconstantsinglematerial_.html">"foundation/materials/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_envconstantsinglematerialnode_.html">"foundation/materials/<wbr>Env<wbr>Constant<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_materials_fxaa3qualitysinglematerialnode_.html">"foundation/materials/FXAA3<wbr>Quality<wbr>Single<wbr>Material<wbr>Node"</a>
@@ -306,7 +395,7 @@
 						<a href="modules/_foundation_materials_pbrshadingmaterialnode_.html">"foundation/materials/<wbr>Pbr<wbr>Shading<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_materials_shadowmapping32bitsinglematerial_.html">"foundation/materials/<wbr>Shadow<wbr>Mapping32bit<wbr>Single<wbr>Material"</a>
+						<a href="modules/_foundation_materials_shadowmapdecodeclassicsinglematerialnode_.html">"foundation/materials/<wbr>Shadow<wbr>Map<wbr>Decode<wbr>Classic<wbr>Single<wbr>Material<wbr>Node"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_materials_skeletalmaterialnode_.html">"foundation/materials/<wbr>Skeletal<wbr>Material<wbr>Node"</a>
@@ -342,6 +431,9 @@
 						<a href="modules/_foundation_math_mathutil_.html">"foundation/math/<wbr>Math<wbr>Util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_math_matrix22_.html">"foundation/math/<wbr>Matrix22"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_matrix33_.html">"foundation/math/<wbr>Matrix33"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -351,6 +443,9 @@
 						<a href="modules/_foundation_math_mutablecolorrgb_.html">"foundation/math/<wbr>Mutable<wbr>Color<wbr>Rgb"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_math_mutablematrix22_.html">"foundation/math/<wbr>Mutable<wbr>Matrix22"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_mutablematrix33_.html">"foundation/math/<wbr>Mutable<wbr>Matrix33"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -358,9 +453,6 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_mutablequaterion_.html">"foundation/math/<wbr>Mutable<wbr>Quaterion"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_math_mutablerowmajarmatrix44_.html">"foundation/math/<wbr>Mutable<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_mutablescalar_.html">"foundation/math/<wbr>Mutable<wbr>Scalar"</a>
@@ -378,9 +470,6 @@
 						<a href="modules/_foundation_math_quaternion_.html">"foundation/math/<wbr>Quaternion"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_foundation_math_rowmajarmatrix44_.html">"foundation/math/<wbr>Row<wbr>Majar<wbr>Matrix44"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_scalar_.html">"foundation/math/<wbr>Scalar"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -391,6 +480,9 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_math_vector4_.html">"foundation/math/<wbr>Vector4"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_foundation_math_vectorn_.html">"foundation/math/<wbr>Vector<wbr>N"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_foundation_memory_accessor_.html">"foundation/memory/<wbr>Accessor"</a>
@@ -483,16 +575,7 @@
 						<a href="modules/_webgl_webglstrategy_.html">"webgl/<wbr>WebGLStrategy"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_webglstrategydatatexture_.html">"webgl/<wbr>WebGLStrategy<wbr>Data<wbr>Texture"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_webglstrategyfastestwebgl1_.html">"webgl/<wbr>WebGLStrategy<wbr>Fastest<wbr>WebGL1"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_webglstrategytransformfeedback_.html">"webgl/<wbr>WebGLStrategy<wbr>Transform<wbr>Feedback"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_webglstrategyubo_.html">"webgl/<wbr>WebGLStrategyUBO"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_webglstrategyuniform_.html">"webgl/<wbr>WebGLStrategy<wbr>Uniform"</a>
@@ -513,7 +596,7 @@
 						<a href="modules/_webgl_shaders_classicshadingshader_.html">"webgl/shaders/<wbr>Classic<wbr>Shading<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_depthencodingshader_.html">"webgl/shaders/<wbr>Depth<wbr>Encoding<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_depthencodeshader_.html">"webgl/shaders/<wbr>Depth<wbr>Encode<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_endshader_.html">"webgl/shaders/<wbr>End<wbr>Shader"</a>
@@ -543,7 +626,7 @@
 						<a href="modules/_webgl_shaders_pbrshader_.html">"webgl/shaders/PBRShader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_webgl_shaders_shadowmapping32bitclassicshader_.html">"webgl/shaders/<wbr>Shadow<wbr>Mapping32bit<wbr>Classic<wbr>Shader"</a>
+						<a href="modules/_webgl_shaders_shadowmapdecodeclassicshader_.html">"webgl/shaders/<wbr>Shadow<wbr>Map<wbr>Decode<wbr>Classic<wbr>Shader"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_webgl_shaders_skeletalshader_.html">"webgl/shaders/<wbr>Skeletal<wbr>Shader"</a>

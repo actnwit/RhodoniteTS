@@ -95,6 +95,7 @@
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__arraylength" class="tsd-kind-icon">__array<wbr>Length</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__bufferview" class="tsd-kind-icon">__buffer<wbr>View</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__byteoffsetinbuffer" class="tsd-kind-icon">__byte<wbr>Offset<wbr>InBuffer</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__bytestride" class="tsd-kind-icon">__byte<wbr>Stride</a></li>
@@ -135,6 +136,7 @@
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#min" class="tsd-kind-icon">min</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#numberofcomponents" class="tsd-kind-icon">number<wbr>OfComponents</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#objectuid" class="tsd-kind-icon">objectUID</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#takencount" class="tsd-kind-icon">taken<wbr>Count</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a></li>
 							</ul>
 						</section>
@@ -168,6 +170,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#matchtagsasfreestrings" class="tsd-kind-icon">match<wbr>Tags<wbr>AsFree<wbr>Strings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#prepare" class="tsd-kind-icon">prepare</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setelementfromaccessor" class="tsd-kind-icon">set<wbr>Element<wbr>From<wbr>Accessor</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setelementfromsamecompositionaccessor" class="tsd-kind-icon">set<wbr>Element<wbr>From<wbr>Same<wbr>Composition<wbr>Accessor</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setscalar" class="tsd-kind-icon">set<wbr>Scalar</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setscalarat" class="tsd-kind-icon">set<wbr>Scalar<wbr>At</a></li>
@@ -201,7 +204,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/FlexibleAccessor.ts#L8">foundation/memory/FlexibleAccessor.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/FlexibleAccessor.ts#L8">foundation/memory/FlexibleAccessor.ts:8</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -209,6 +212,9 @@
 								<li>
 									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
 									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>array<wbr>Length<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
 										<li class="tsd-parameter">
 											<h5>buffer<wbr>View<span class="tsd-signature-symbol">: </span><a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></h5>
 										</li>
@@ -241,13 +247,24 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="__arraylength" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> __array<wbr>Length</h3>
+					<div class="tsd-signature tsd-kind-icon">__array<wbr>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__arraylength">__arrayLength</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L30">foundation/memory/AccessorBase.ts:30</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="__bufferview" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> __buffer<wbr>View</h3>
 					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>View<span class="tsd-signature-symbol">:</span> <a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__bufferview">__bufferView</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L15">foundation/memory/AccessorBase.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L15">foundation/memory/AccessorBase.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -258,7 +275,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__byteoffsetinbuffer">__byteOffsetInBuffer</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L16">foundation/memory/AccessorBase.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L16">foundation/memory/AccessorBase.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -269,7 +286,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__bytestride">__byteStride</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L24">foundation/memory/AccessorBase.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L24">foundation/memory/AccessorBase.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -280,7 +297,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__componenttype">__componentType</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L18">foundation/memory/AccessorBase.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L18">foundation/memory/AccessorBase.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -291,7 +308,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__compositiontype">__compositionType</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L17">foundation/memory/AccessorBase.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L17">foundation/memory/AccessorBase.ts:17</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -302,7 +319,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__count">__count</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L19">foundation/memory/AccessorBase.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L19">foundation/memory/AccessorBase.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -313,7 +330,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__dataview">__dataView</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L21">foundation/memory/AccessorBase.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L21">foundation/memory/AccessorBase.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -324,7 +341,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__dataviewgetter">__dataViewGetter</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L26">foundation/memory/AccessorBase.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L26">foundation/memory/AccessorBase.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -335,7 +352,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__dataviewsetter">__dataViewSetter</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L27">foundation/memory/AccessorBase.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L27">foundation/memory/AccessorBase.ts:27</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -346,7 +363,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__max">__max</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L28">foundation/memory/AccessorBase.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L28">foundation/memory/AccessorBase.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -357,7 +374,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__min">__min</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L29">foundation/memory/AccessorBase.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L29">foundation/memory/AccessorBase.ts:29</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -368,7 +385,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__raw">__raw</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L20">foundation/memory/AccessorBase.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L20">foundation/memory/AccessorBase.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -379,7 +396,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__takencount">__takenCount</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L23">foundation/memory/AccessorBase.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L23">foundation/memory/AccessorBase.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -390,7 +407,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__typedarray">__typedArray</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L22">foundation/memory/AccessorBase.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L22">foundation/memory/AccessorBase.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -401,7 +418,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#__typedarrayclass">__typedArrayClass</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L25">foundation/memory/AccessorBase.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L25">foundation/memory/AccessorBase.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -412,7 +429,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#invalidobjectuid">InvalidObjectUID</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L9">foundation/core/RnObject.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L9">foundation/core/RnObject.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -423,7 +440,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#currentmaxobjectcount">currentMaxObjectCount</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L10">foundation/core/RnObject.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L10">foundation/core/RnObject.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -441,7 +458,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#arraybufferofbufferview">arrayBufferOfBufferView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L440">foundation/memory/AccessorBase.ts:440</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L509">foundation/memory/AccessorBase.ts:509</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ArrayBuffer</span></h4>
@@ -459,7 +476,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#bufferview">bufferView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L456">foundation/memory/AccessorBase.ts:456</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L525">foundation/memory/AccessorBase.ts:525</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></h4>
@@ -477,7 +494,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#bytelength">byteLength</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L161">foundation/memory/AccessorBase.ts:161</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L174">foundation/memory/AccessorBase.ts:174</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#byte" class="tsd-signature-type">Byte</a></h4>
@@ -495,7 +512,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#byteoffsetinbuffer">byteOffsetInBuffer</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L452">foundation/memory/AccessorBase.ts:452</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L521">foundation/memory/AccessorBase.ts:521</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#byte" class="tsd-signature-type">Byte</a></h4>
@@ -513,7 +530,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#byteoffsetinbufferview">byteOffsetInBufferView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L448">foundation/memory/AccessorBase.ts:448</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L517">foundation/memory/AccessorBase.ts:517</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#byte" class="tsd-signature-type">Byte</a></h4>
@@ -531,7 +548,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#bytestride">byteStride</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L188">foundation/memory/AccessorBase.ts:188</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L201">foundation/memory/AccessorBase.ts:201</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -549,7 +566,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#componentsizeinbytes">componentSizeInBytes</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L149">foundation/memory/AccessorBase.ts:149</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L162">foundation/memory/AccessorBase.ts:162</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -567,7 +584,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#componenttype">componentType</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L165">foundation/memory/AccessorBase.ts:165</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L178">foundation/memory/AccessorBase.ts:178</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_componenttype_.componenttypeenum.html" class="tsd-signature-type">ComponentTypeEnum</a></h4>
@@ -585,7 +602,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#compositiontype">compositionType</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L169">foundation/memory/AccessorBase.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L182">foundation/memory/AccessorBase.ts:182</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_foundation_definitions_compositiontype_.compositiontypeenum.html" class="tsd-signature-type">CompositionTypeEnum</a></h4>
@@ -603,7 +620,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#dataviewofbufferview">dataViewOfBufferView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L444">foundation/memory/AccessorBase.ts:444</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L513">foundation/memory/AccessorBase.ts:513</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DataView</span></h4>
@@ -621,7 +638,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#elementcount">elementCount</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L157">foundation/memory/AccessorBase.ts:157</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L170">foundation/memory/AccessorBase.ts:170</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#count" class="tsd-signature-type">Count</a></h4>
@@ -639,7 +656,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#elementsizeinbytes">elementSizeInBytes</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L153">foundation/memory/AccessorBase.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L166">foundation/memory/AccessorBase.ts:166</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -657,7 +674,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#isaos">isAoS</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L180">foundation/memory/AccessorBase.ts:180</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L193">foundation/memory/AccessorBase.ts:193</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -675,7 +692,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#issoa">isSoA</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L184">foundation/memory/AccessorBase.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L197">foundation/memory/AccessorBase.ts:197</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -693,7 +710,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#max">max</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L464">foundation/memory/AccessorBase.ts:464</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L533">foundation/memory/AccessorBase.ts:533</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -711,7 +728,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#min">min</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L460">foundation/memory/AccessorBase.ts:460</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L529">foundation/memory/AccessorBase.ts:529</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -729,7 +746,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#numberofcomponents">numberOfComponents</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L145">foundation/memory/AccessorBase.ts:145</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L158">foundation/memory/AccessorBase.ts:158</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -747,7 +764,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#objectuid">objectUID</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L30">foundation/core/RnObject.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L30">foundation/core/RnObject.ts:30</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -756,6 +773,24 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#objectuid" class="tsd-signature-type">ObjectUID</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+					<a name="takencount" class="tsd-anchor"></a>
+					<h3>taken<wbr>Count</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> takenCount<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#count" class="tsd-signature-type">Count</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#takencount">takenCount</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L154">foundation/memory/AccessorBase.ts:154</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#count" class="tsd-signature-type">Count</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -770,7 +805,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#uniquename">uniqueName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L200">foundation/core/RnObject.ts:200</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L200">foundation/core/RnObject.ts:200</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -796,7 +831,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#addelementfromsamecompositionaccessor">addElementFromSameCompositionAccessor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L427">foundation/memory/AccessorBase.ts:427</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L496">foundation/memory/AccessorBase.ts:496</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -829,7 +864,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#calcminmax">calcMinMax</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L468">foundation/memory/AccessorBase.ts:468</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L537">foundation/memory/AccessorBase.ts:537</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -847,7 +882,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#copyfromtypedarray">copyFromTypedArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L390">foundation/memory/AccessorBase.ts:390</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L403">foundation/memory/AccessorBase.ts:403</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -871,7 +906,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getdataviewgetter">getDataViewGetter</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L102">foundation/memory/AccessorBase.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L104">foundation/memory/AccessorBase.ts:104</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -898,7 +933,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getdataviewsetter">getDataViewSetter</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L117">foundation/memory/AccessorBase.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L119">foundation/memory/AccessorBase.ts:119</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -925,7 +960,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getmat3">getMat3</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L289">foundation/memory/AccessorBase.ts:289</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L302">foundation/memory/AccessorBase.ts:302</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -960,7 +995,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getmat3asarray">getMat3AsArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L235">foundation/memory/AccessorBase.ts:235</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L248">foundation/memory/AccessorBase.ts:248</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -995,7 +1030,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getmat4">getMat4</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L302">foundation/memory/AccessorBase.ts:302</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L315">foundation/memory/AccessorBase.ts:315</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1030,7 +1065,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getmat4asarray">getMat4AsArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L248">foundation/memory/AccessorBase.ts:248</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L261">foundation/memory/AccessorBase.ts:261</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1065,7 +1100,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getscalar">getScalar</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L192">foundation/memory/AccessorBase.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L205">foundation/memory/AccessorBase.ts:205</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1100,7 +1135,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getscalarat">getScalarAt</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L200">foundation/memory/AccessorBase.ts:200</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L213">foundation/memory/AccessorBase.ts:213</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1138,7 +1173,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettag">getTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L120">foundation/core/RnObject.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L120">foundation/core/RnObject.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1170,7 +1205,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettagvalue">getTagValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L112">foundation/core/RnObject.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L112">foundation/core/RnObject.ts:112</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1202,7 +1237,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#gettypedarray">getTypedArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L173">foundation/memory/AccessorBase.ts:173</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L186">foundation/memory/AccessorBase.ts:186</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></h4>
@@ -1220,7 +1255,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#gettypedarrayclass">getTypedArrayClass</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L87">foundation/memory/AccessorBase.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L89">foundation/memory/AccessorBase.ts:89</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1247,7 +1282,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec2">getVec2</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L262">foundation/memory/AccessorBase.ts:262</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L275">foundation/memory/AccessorBase.ts:275</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1282,7 +1317,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec2asarray">getVec2AsArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L208">foundation/memory/AccessorBase.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L221">foundation/memory/AccessorBase.ts:221</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1317,7 +1352,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec3">getVec3</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L271">foundation/memory/AccessorBase.ts:271</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L284">foundation/memory/AccessorBase.ts:284</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1352,7 +1387,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec3asarray">getVec3AsArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L217">foundation/memory/AccessorBase.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L230">foundation/memory/AccessorBase.ts:230</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1387,7 +1422,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec4">getVec4</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L280">foundation/memory/AccessorBase.ts:280</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L293">foundation/memory/AccessorBase.ts:293</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1422,7 +1457,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#getvec4asarray">getVec4AsArray</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L226">foundation/memory/AccessorBase.ts:226</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L239">foundation/memory/AccessorBase.ts:239</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1457,7 +1492,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#hastag">hasTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L130">foundation/core/RnObject.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L130">foundation/core/RnObject.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1489,7 +1524,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtag">matchTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L153">foundation/core/RnObject.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L153">foundation/core/RnObject.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1527,7 +1562,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtags">matchTags</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L183">foundation/core/RnObject.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L183">foundation/core/RnObject.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1559,7 +1594,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtagsasfreestrings">matchTagsAsFreeStrings</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L165">foundation/core/RnObject.ts:165</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L165">foundation/core/RnObject.ts:165</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1591,7 +1626,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#prepare">prepare</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L58">foundation/memory/AccessorBase.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L60">foundation/memory/AccessorBase.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1609,7 +1644,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#removetag">removeTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L142">foundation/core/RnObject.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L142">foundation/core/RnObject.ts:142</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1631,6 +1666,36 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="setelementfromaccessor" class="tsd-anchor"></a>
+					<h3>set<wbr>Element<wbr>From<wbr>Accessor</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Element<wbr>From<wbr>Accessor<span class="tsd-signature-symbol">(</span>i<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a>, accessor<span class="tsd-signature-symbol">: </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a>, secondIdx<span class="tsd-signature-symbol">?: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setelementfromaccessor">setElementFromAccessor</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L440">foundation/memory/AccessorBase.ts:440</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>i: <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+								<li>
+									<h5>accessor: <a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> secondIdx: <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="setelementfromsamecompositionaccessor" class="tsd-anchor"></a>
 					<h3>set<wbr>Element<wbr>From<wbr>Same<wbr>Composition<wbr>Accessor</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -1641,7 +1706,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setelementfromsamecompositionaccessor">setElementFromSameCompositionAccessor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L414">foundation/memory/AccessorBase.ts:414</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L427">foundation/memory/AccessorBase.ts:427</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1671,7 +1736,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setscalar">setScalar</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L316">foundation/memory/AccessorBase.ts:316</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L329">foundation/memory/AccessorBase.ts:329</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1709,7 +1774,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setscalarat">setScalarAt</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L406">foundation/memory/AccessorBase.ts:406</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L419">foundation/memory/AccessorBase.ts:419</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1750,7 +1815,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec2">setVec2</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L324">foundation/memory/AccessorBase.ts:324</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L337">foundation/memory/AccessorBase.ts:337</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1791,7 +1856,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec2asvector">setVec2AsVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L357">foundation/memory/AccessorBase.ts:357</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L370">foundation/memory/AccessorBase.ts:370</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1829,7 +1894,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec3">setVec3</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L334">foundation/memory/AccessorBase.ts:334</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L347">foundation/memory/AccessorBase.ts:347</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1873,7 +1938,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec3asvector">setVec3AsVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L367">foundation/memory/AccessorBase.ts:367</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L380">foundation/memory/AccessorBase.ts:380</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1911,7 +1976,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec4">setVec4</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L345">foundation/memory/AccessorBase.ts:345</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L358">foundation/memory/AccessorBase.ts:358</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1958,7 +2023,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#setvec4asvector">setVec4AsVector</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L378">foundation/memory/AccessorBase.ts:378</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L391">foundation/memory/AccessorBase.ts:391</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1996,7 +2061,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_memory_accessorbase_.accessorbase.html">AccessorBase</a>.<a href="_foundation_memory_accessorbase_.accessorbase.html#takeone">takeOne</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/memory/AccessorBase.ts#L133">foundation/memory/AccessorBase.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/memory/AccessorBase.ts#L135">foundation/memory/AccessorBase.ts:135</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/_types_commontypes_.html#typedarray" class="tsd-signature-type">TypedArray</a></h4>
@@ -2014,7 +2079,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosettag">tryToSetTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L93">foundation/core/RnObject.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L93">foundation/core/RnObject.ts:93</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2052,7 +2117,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosetuniquename">tryToSetUniqueName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L55">foundation/core/RnObject.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L55">foundation/core/RnObject.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2087,7 +2152,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#validatetagstring">validateTagString</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L80">foundation/core/RnObject.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L80">foundation/core/RnObject.ts:80</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2119,7 +2184,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobject">getRnObject</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L38">foundation/core/RnObject.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L38">foundation/core/RnObject.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2151,7 +2216,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobjectbyname">getRnObjectByName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2197,6 +2262,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__arraylength" class="tsd-kind-icon">__array<wbr>Length</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#__bufferview" class="tsd-kind-icon">__buffer<wbr>View</a>
@@ -2304,6 +2372,9 @@
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#objectuid" class="tsd-kind-icon">objectUID</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#takencount" class="tsd-kind-icon">taken<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -2386,6 +2457,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setelementfromaccessor" class="tsd-kind-icon">set<wbr>Element<wbr>From<wbr>Accessor</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_memory_flexibleaccessor_.flexibleaccessor.html#setelementfromsamecompositionaccessor" class="tsd-kind-icon">set<wbr>Element<wbr>From<wbr>Same<wbr>Composition<wbr>Accessor</a>

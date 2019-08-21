@@ -25,12 +25,14 @@ export default abstract class GLSLShader {
     readonly glsl1ShaderDerivativeExt: "" | "#extension GL_OES_standard_derivatives : require";
     readonly toNormalMatrix: string;
     readonly getSkinMatrix: string;
+    readonly packing: string;
     readonly processGeometryWithSkinningOptionally: string;
-    readonly pointSize: string;
-    readonly pointDistanceAttenuation: string;
+    readonly prerequisites: string;
+    readonly pointSprite: string;
     readonly pbrUniformDefinition: string;
     readonly mipmapLevel: string;
     readonly pbrMethodDefinition: string;
+    readonly simpleMVPPosition: string;
     static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string;
     abstract readonly vertexShaderDefinitions: string;
     abstract readonly pixelShaderDefinitions: string;

@@ -1,9 +1,12 @@
 import AbstractMaterialNode from "./AbstractMaterialNode";
+import Material from "./Material";
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
-    private static __dummyWhiteTextureUid;
-    private static __dummyBlackTextureUid;
-    private static __dummyBlackCubeTextureUid;
-    private static __pbrCookTorranceBrdfLutDataUrlUid;
     constructor();
     static initDefaultTextures(): Promise<void>;
+    setParametersForGPU({ material, shaderProgram, firstTime, args }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args?: any;
+    }): void;
 }

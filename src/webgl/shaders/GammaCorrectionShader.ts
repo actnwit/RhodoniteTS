@@ -36,17 +36,21 @@ export default class GammaCorrectionShader extends GLSLShader implements ISingle
     const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${_in} vec3 a_position;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_out} vec2 v_texcoord;
-uniform sampler2D u_dataTexture;
+
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main(){
+  ${this.mainPrerequisites}
+
   v_texcoord = a_texcoord;
   ${this.simpleMVPPosition}
 }
@@ -61,7 +65,9 @@ void main(){
     const _texture = this.glsl_texture;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
+
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
@@ -77,6 +83,7 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
+  ${this.mainPrerequisites}
 
   vec4 baseColor = ${_texture}(u_baseColorTexture, v_texcoord);
 

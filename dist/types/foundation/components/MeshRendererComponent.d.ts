@@ -1,5 +1,6 @@
 import Component from '../core/Component';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
+import { ProcessStageEnum } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import CubeTexture from '../textures/CubeTexture';
 import RenderPass from '../renderer/RenderPass';
@@ -24,11 +25,13 @@ export default class MeshRendererComponent extends Component {
     private static __tmp_indentityMatrix;
     private static __cameraComponent?;
     private static __firstTransparentIndex;
+    private static __lastTransparentIndex;
     private static __manualTransparentSids?;
     _readyForRendering: boolean;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static readonly componentTID: ComponentTID;
     static readonly firstTranparentIndex: number;
+    static readonly lastTransparentIndex: number;
     $create({ processApproach }: {
         processApproach: ProcessApproachEnum;
     }): void;
@@ -45,8 +48,9 @@ export default class MeshRendererComponent extends Component {
     static common_$prerender(): CGAPIResourceHandle;
     private static __isReady;
     private static __setupInstanceIDBuffer;
-    static common_$render({ renderPass }: {
+    static common_$render({ renderPass, processStage }: {
         renderPass: RenderPass;
+        processStage: ProcessStageEnum;
     }): void;
     static sort_$render(renderPass: RenderPass): ComponentSID[];
     private static sort_$render_inner;

@@ -738,9 +738,6 @@ export default class Gltf1Importer {
         }
       }
 
-      // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
-      //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
-      // }
 
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();

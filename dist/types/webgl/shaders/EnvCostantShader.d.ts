@@ -10,9 +10,10 @@ export default class EnvConstantShader extends GLSLShader implements ISingleShad
     static getInstance(): EnvConstantShader;
     readonly vertexShaderDefinitions: string;
     vertexShaderBody: string;
-    getFragmentShader(): string;
+    getVertexShaderBody(args: any): string;
+    getFragmentShader(args: any): string;
     readonly pixelShaderDefinitions: string;
-    getPixelShaderBody(): string;
+    getPixelShaderBody(args: Object): string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
     readonly attributeCompositions: Array<CompositionTypeEnum>;

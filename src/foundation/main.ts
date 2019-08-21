@@ -60,7 +60,6 @@ import MathClassUtil from './math/MathClassUtil';
 import Mesh from './geometry/Mesh';
 import { MathUtil } from './math/MathUtil';
 import Component from './core/Component';
-import WebGLStrategyUniform from '../webgl/WebGLStrategyUniform';
 import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSingleMaterialNode';
 import RnObject from '../foundation/core/RnObject';
 
@@ -128,7 +127,6 @@ const Rn = {
   Mesh,
   MathUtil,
   Component,
-  WebGLStrategyUniform,
   EnvConstantSingleMaterialNode,
   RnObject,
 };
@@ -136,7 +134,7 @@ export default Rn;
 export type RnType = typeof Rn;
 
 declare var window: any;
-window['Rn'] = Rn;
+window.Rn = Rn;
 
 export type CompositionTypeEnum = CompositionTypeEnum;
 export type ComponentTypeEnum = ComponentTypeEnum;

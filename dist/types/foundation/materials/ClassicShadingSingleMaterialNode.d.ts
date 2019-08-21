@@ -1,9 +1,15 @@
 import AbstractMaterialNode from "./AbstractMaterialNode";
+import Material from "./Material";
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
-    private static __dummyWhiteTextureUid;
-    private static __dummyBlueTextureUid;
-    private static __dummyBlackTextureUid;
-    private static __dummyBlackCubeTextureUid;
-    constructor();
+    constructor({ isSkinning, isLighting }: {
+        isSkinning: boolean;
+        isLighting: boolean;
+    });
     static initDefaultTextures(): Promise<void>;
+    setParametersForGPU({ material, shaderProgram, firstTime, args }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args?: any;
+    }): void;
 }

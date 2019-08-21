@@ -61,7 +61,7 @@ ${_out} vec2 v_texcoord_0;
 ${_out} vec4 v_texcoord_1;
 ${_out} vec4 v_projPosition_from_light;
 
-uniform float u_materialSID;
+uniform float materialSID;
 uniform vec3 u_viewPosition;
 uniform mat4 u_lightViewProjectionMatrix;
 
@@ -99,7 +99,7 @@ void main(){
   ${this.pointSprite}
 
   // Shadow mapping
-  mat4 lightViewProjectionMatrix = get_lightViewProjectionMatrix(u_materialSID, 0);
+  mat4 lightViewProjectionMatrix = get_lightViewProjectionMatrix(materialSID, 0);
   v_projPosition_from_light = lightViewProjectionMatrix * v_position_inWorld;
 
   // Following tMatrix is based on https://wgld.org/d/webgl/w051.html
@@ -153,7 +153,7 @@ struct Material {
   vec4 diffuseColorFactor;
 };
 
-uniform float u_materialSID;
+uniform float materialSID;
 
 uniform int u_shadingModel;
 uniform int u_lightNumber;
@@ -188,7 +188,7 @@ void main (){
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -209,17 +209,17 @@ void main (){
   }
 
   // shadow mapping
-  float nonShadowAlpha = get_nonShadowAlpha(u_materialSID, 0);
+  float nonShadowAlpha = get_nonShadowAlpha(materialSID, 0);
   if(v_projPosition_from_light.w > 0.0){
     float normalizationCoefficient = 1.0 / ${ZNearToFar};
     float measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
     float textureDepth = decodeRGBAToDepth(${_textureProj}(u_depthTexture, v_texcoord_1));
-    float allowableDepthError = get_allowableDepthError(u_materialSID, 0);
+    float allowableDepthError = get_allowableDepthError(materialSID, 0);
     if(measureDepth > textureDepth + allowableDepthError){
-      vec3 shadowColor = get_shadowColor(u_materialSID, 0);
+      vec3 shadowColor = get_shadowColor(materialSID, 0);
       diffuseColor *= shadowColor;
 
-      float shadowAlpha = get_shadowAlpha(u_materialSID, 0);
+      float shadowAlpha = get_shadowAlpha(materialSID, 0);
       alpha *= shadowAlpha;
     }else{
       alpha *= nonShadowAlpha;
@@ -230,12 +230,12 @@ void main (){
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
-  int shadingModel = get_shadingModel(u_materialSID, 0);
+  int shadingModel = get_shadingModel(materialSID, 0);
   if (shadingModel > 0) {
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    int lightNumber = get_lightNumber(u_materialSID, 0);
+    int lightNumber = get_lightNumber(materialSID, 0);
     for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
       if (i >= lightNumber) {
         break;
@@ -270,8 +270,8 @@ void main (){
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      vec3 viewPosition = get_viewPosition(u_materialSID, 0);
-      float shininess = get_shininess(u_materialSID, 0);
+      vec3 viewPosition = get_viewPosition(materialSID, 0);
+      float shininess = get_shininess(materialSID, 0);
       if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);

@@ -7,6 +7,10 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
     super(x as any, {type});
   }
 
+  get x() {
+    return this.v[0];
+  }
+
   set x(x:number) {
     this.v[0] = x;
   }

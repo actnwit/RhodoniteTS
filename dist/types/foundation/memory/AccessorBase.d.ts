@@ -8,7 +8,7 @@ import Vector4 from "../math/Vector4";
 import Matrix33 from "../math/Matrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import Accessor from "./Accessor";
-import { Byte, Index, Count, TypedArrayConstructor, TypedArray } from "../../types/CommonTypes";
+import { Byte, Index, Count, TypedArrayConstructor, TypedArray, Size } from "../../types/CommonTypes";
 export default class AccessorBase extends RnObject {
     protected __bufferView: BufferView;
     protected __byteOffsetInBuffer: number;
@@ -25,7 +25,8 @@ export default class AccessorBase extends RnObject {
     protected __dataViewSetter: any;
     protected __max?: any;
     protected __min?: any;
-    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min }: {
+    protected __arrayLength: number;
+    constructor({ bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength }: {
         bufferView: BufferView;
         byteOffset: Byte;
         compositionType: CompositionTypeEnum;
@@ -35,12 +36,14 @@ export default class AccessorBase extends RnObject {
         raw: Uint8Array;
         max?: number;
         min?: number;
+        arrayLength: Size;
     });
     prepare(): void;
     getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined;
     getDataViewGetter(componentType: ComponentTypeEnum): string | undefined;
     getDataViewSetter(componentType: ComponentTypeEnum): string | undefined;
     takeOne(): TypedArray;
+    readonly takenCount: Count;
     readonly numberOfComponents: number;
     readonly componentSizeInBytes: number;
     readonly elementSizeInBytes: number;
@@ -134,6 +137,7 @@ export default class AccessorBase extends RnObject {
         endian?: boolean;
     }): void;
     setElementFromSameCompositionAccessor(i: Index, accessor: Accessor, secondIdx?: Index): void;
+    setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index): void;
     addElementFromSameCompositionAccessor(i: Index, accessor: Accessor, coeff: number, secondIdx?: Index): void;
     readonly arrayBufferOfBufferView: ArrayBuffer;
     readonly dataViewOfBufferView: DataView;

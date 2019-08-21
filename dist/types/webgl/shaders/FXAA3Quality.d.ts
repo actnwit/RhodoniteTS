@@ -16,9 +16,9 @@ export default class FXAA3QualityShader extends GLSLShader implements ISingleSha
     static getInstance(): FXAA3QualityShader;
     readonly vertexShaderDefinitions: string;
     vertexShaderBody: string;
-    getFragmentShader(): string;
+    getFragmentShader(args: any): string;
     readonly pixelShaderDefinitions: string;
-    getPixelShaderBody(): string;
+    getPixelShaderBody(args: Object): string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
     readonly attributeCompositions: Array<CompositionTypeEnum>;

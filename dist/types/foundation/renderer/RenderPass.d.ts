@@ -5,6 +5,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import CameraComponent from "../components/CameraComponent";
+import Material from "../materials/Material";
 export default class RenderPass extends RnObject {
     private __entities;
     private __sceneGraphDirectlyAdded;
@@ -20,6 +21,7 @@ export default class RenderPass extends RnObject {
     clearStencil: number;
     cameraComponent?: CameraComponent;
     cullface: boolean;
+    material?: Material;
     constructor();
     addEntities(entities: Entity[]): void;
     readonly entities: Entity[];

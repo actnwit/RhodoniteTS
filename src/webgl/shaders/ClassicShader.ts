@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -30,7 +31,7 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
 
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -46,7 +47,7 @@ ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
 
-uniform float u_materialSID;
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -60,13 +61,17 @@ ${this.processGeometryWithSkinningOptionally}
 
 void main()
 {
+
+  ${this.mainPrerequisites}
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   // Skeletal
   processGeometryWithMorphingAndSkinning(
+    skeletalComponentSID,
     worldMatrix,
     normalMatrix,
     normalMatrix,
@@ -109,14 +114,11 @@ void main()
     const _texture = this.glsl_texture;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-${this.fetchElement}
-
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
+${this.prerequisites}
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -128,11 +130,12 @@ ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 void main ()
 {
+  ${this.mainPrerequisites}
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
 
 
   // diffuseColor
@@ -159,10 +162,8 @@ void main ()
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
 #ifdef RN_IS_LIGHTING
-  int shadingModel = get_shadingModel(u_materialSID, 0);
+  int shadingModel = get_shadingModel(materialSID, 0);
   if (shadingModel > 0) {
-
-    int lightNumber = get_lightNumber(0.0, 0);
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
@@ -200,8 +201,8 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      float shininess = get_shininess(u_materialSID, 0);
-      int shadingModel = get_shadingModel(u_materialSID, 0);
+      float shininess = get_shininess(materialSID, 0);
+      int shadingModel = get_shadingModel(materialSID, 0);
 
       vec3 viewPosition = get_viewPosition(0.0, 0);
 

@@ -3,6 +3,7 @@ import { CGAPIResourceHandle, Size } from "../../types/CommonTypes";
 export default abstract class AbstractTexture extends RnObject {
     protected __width: Size;
     protected __height: Size;
+    protected __hasTransparentPixels: boolean;
     private static readonly InvalidTextureUid;
     private static __textureUidCount;
     private __textureUid;
@@ -33,4 +34,5 @@ export default abstract class AbstractTexture extends RnObject {
     readonly uri: string | undefined;
     static getRhodoniteTexture(textureUid: CGAPIResourceHandle): AbstractTexture | undefined;
     name: string;
+    readonly isTransparent: boolean;
 }

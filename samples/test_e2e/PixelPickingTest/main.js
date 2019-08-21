@@ -47,7 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var setupRenderPassEntityUidOutput = function (rootGroup, cameraComponent, canvas) {
         var renderPass = new Rn.RenderPass();
         var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-        Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
+        RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
         renderPass.material = entityUidOutputMaterial;
         renderPass.cameraComponent = cameraComponent;
         var framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});

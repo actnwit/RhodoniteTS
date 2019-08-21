@@ -2,7 +2,6 @@ import Vector3 from './Vector3';
 import Matrix33 from './Matrix33';
 import Quaternion from './Quaternion';
 import Vector4 from './Vector4';
-import RowMajarMatrix44 from './RowMajarMatrix44';
 import { IMatrix44 } from './IMatrix';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
@@ -17,7 +16,6 @@ export default class Matrix44 implements IMatrix44 {
     constructor(m: Matrix33, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Matrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: Quaternion, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
-    constructor(m: RowMajarMatrix44, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     constructor(m: null);
     constructor(m0: number, m1: number, m2: number, m3: number, m4: number, m5: number, m6: number, m7: number, m8: number, m9: number, m10: number, m11: number, m12: number, m13: number, m14: number, m15: number, isColumnMajor?: boolean, notCopyFloatArray?: boolean);
     static dummy(): Matrix44;
@@ -69,7 +67,7 @@ export default class Matrix44 implements IMatrix44 {
     static multiplyTo(l_m: Matrix44, r_m: Matrix44, out: MutableMatrix44): void;
     determinant(): number;
     static determinant(m: Matrix44): number;
-    static invert(m: Matrix44 | RowMajarMatrix44): Matrix44;
+    static invert(m: Matrix44): Matrix44;
     static invertTo(m: Matrix44, outM: MutableMatrix44): void;
     readonly m00: number;
     readonly m10: number;

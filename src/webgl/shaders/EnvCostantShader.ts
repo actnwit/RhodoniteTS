@@ -5,6 +5,7 @@ import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -40,14 +41,16 @@ const _in = this.glsl_vertex_in;
 const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
+${this.prerequisites}
+
 ${_in} vec3 a_position;
-uniform sampler2D u_dataTexture;
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
@@ -65,10 +68,12 @@ ${_out} vec2 v_texcoord;
 ${this.toNormalMatrix}
 
 void main() {
+  ${this.mainPrerequisites}
 
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
@@ -90,12 +95,10 @@ void main() {
     const _textureCube = this.glsl_textureCube;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
 
-${this.fetchElement}
+${this.prerequisites}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : '' }
 
@@ -110,11 +113,12 @@ ${_in} vec2 v_texcoord;
 ${_def_rt0}
 void main ()
 {
+  ${this.mainPrerequisites}
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  vec4 diffuseColorFactor = get_diffuseColorFactor(u_materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -130,7 +134,7 @@ void main ()
   // diffuseColorTexture
 
   // adapt OpenGL (RenderMan) Cubemap convension
-  float envRotation = get_envRotation(u_materialSID, 0);
+  float envRotation = get_envRotation(materialSID, 0);
   float rot = envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);

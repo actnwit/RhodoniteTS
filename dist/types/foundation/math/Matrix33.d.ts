@@ -65,5 +65,5 @@ export default class Matrix33 implements IMatrix33 {
     nearZeroToZero(value: number): number;
     toStringApproximately(): string;
     getScale(): Vector3;
-    isEqual(mat: Matrix44, delta?: number): boolean;
+    isEqual(mat: Matrix33, delta?: number): boolean;
 }

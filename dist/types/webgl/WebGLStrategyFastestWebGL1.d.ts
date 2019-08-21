@@ -31,5 +31,5 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     static getInstance(): WebGLStrategyFastestWebGL1;
     private __setupMaterial;
     private __setupMaterialEveryFrame;
-    common_$render(primitive_: Primitive, viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
+    common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass): boolean;
 }

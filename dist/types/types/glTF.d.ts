@@ -97,5 +97,7 @@ export declare type GltfLoadOption = {
     }];
     alphaMode?: string;
     ignoreLists?: [];
+    autoDetectTextureTransparency?: boolean;
+    autoResizeTexture?: boolean;
     extendedJson?: string | Object | ArrayBuffer;
 };

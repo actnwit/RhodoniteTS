@@ -1,10 +1,10 @@
 import RnObject from "../core/RnObject";
 import Buffer from "../memory/Buffer";
-import Accessor from "./AccessorBase";
+import Accessor from "./Accessor";
 import { CompositionTypeEnum } from "../definitions/CompositionType";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import FlexibleAccessor from "./FlexibleAccessor";
-import { Byte, Count } from "../../types/CommonTypes";
+import { Byte, Count, Size } from "../../types/CommonTypes";
 export default class BufferView extends RnObject {
     private __buffer;
     private __byteOffset;
@@ -31,15 +31,16 @@ export default class BufferView extends RnObject {
     recheckIsSoA(): boolean;
     readonly isAoS: boolean;
     getUint8Array(): Uint8Array;
-    takeAccessor({ compositionType, componentType, count, max, min, byteAlign }: {
+    takeAccessor({ compositionType, componentType, count, max, min, byteAlign, arrayLength }: {
         compositionType: CompositionTypeEnum;
         componentType: ComponentTypeEnum;
         count: Count;
         max?: number;
         min?: number;
         byteAlign?: Byte;
+        arrayLength?: Size;
     }): Accessor;
-    takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign }: {
+    takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign, arrayLength }: {
         compositionType: CompositionTypeEnum;
         componentType: ComponentTypeEnum;
         count: Count;
@@ -47,6 +48,7 @@ export default class BufferView extends RnObject {
         max?: number;
         min?: number;
         byteAlign?: Byte;
+        arrayLength?: Size;
     }): FlexibleAccessor;
     takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffset, max, min }: {
         compositionType: CompositionTypeEnum;

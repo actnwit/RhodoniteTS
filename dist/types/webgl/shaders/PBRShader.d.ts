@@ -9,10 +9,11 @@ export default class PBRShader extends GLSLShader implements ISingleShader {
     private constructor();
     static getInstance(): PBRShader;
     readonly vertexShaderDefinitions: string;
+    getVertexShaderBody(args: any): string;
     vertexShaderBody: string;
-    getFragmentShader(): string;
+    getFragmentShader(args: any): string;
     readonly pixelShaderDefinitions: string;
-    getPixelShaderBody(): string;
+    getPixelShaderBody(args: Object): string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
     readonly attributeCompositions: Array<CompositionTypeEnum>;

@@ -2,8 +2,9 @@ import RnObject from "../core/RnObject";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
 import AbstractTexture from "../textures/AbstractTexture";
+import Accessor from "../memory/Accessor";
 import { Index, CGAPIResourceHandle } from "../../types/CommonTypes";
-declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => string;
+declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index) => string;
 /**
  * The material class.
  * This class has one or more material nodes.
@@ -29,6 +30,7 @@ export default class Material extends RnObject {
     private static __bufferViews;
     private static __accessors;
     private constructor();
+    readonly materialTypeName: string;
     /**
      * Gets materialTID.
      */
@@ -39,7 +41,7 @@ export default class Material extends RnObject {
      * @param materialTypeName The material type to create.
      * @param materialNodes_ The material nodes to add to the created materlal.
      */
-    static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]): Material | undefined;
+    static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[], maxInstancesNumber?: number): Material;
     private static __allocateBufferView;
     /**
      * Registers the material type.
@@ -47,21 +49,24 @@ export default class Material extends RnObject {
      * @param materialNodes The material nodes to register.
      * @param maxInstancesNumber The maximum number to create the material instances.
      */
-    static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstancesNumber?: number): boolean;
+    static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber?: number): boolean;
     static getAllMaterials(): Material[];
     setMaterialNodes(materialNodes: AbstractMaterialNode[]): void;
     readonly materialSID: number;
-    private static __getPropertyName;
+    private static __getPropertyIndex;
     initialize(): void;
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any, index?: Index): void;
-    setParameter(shaderSemantic: string, value: any, index?: Index): void;
     setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
-    setTextureParameter(shaderSemantic: string, value: AbstractTexture): void;
     getParameter(shaderSemantic: ShaderSemanticsEnum): any;
-    getParameter(shaderSemantic: string): any;
     setUniformLocations(shaderProgramUid: CGAPIResourceHandle): void;
     setUniformValues(firstTime: boolean, args?: Object): void;
-    setUniformValuesForOnlyTextures(firstTime: boolean, args?: Object): void;
+    setUniformValuesForOnlyTextures(firstTime: boolean): void;
+    setParemetersForGPU({ material, shaderProgram, firstTime, args }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args?: any;
+    }): void;
     createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc): number;
     createProgramString(vertexShaderMethodDefinitions_uniform?: string): {
         vertexShader: string;
@@ -71,6 +76,7 @@ export default class Material extends RnObject {
     };
     createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter?: getShaderPropertyFunc): number;
     isBlend(): boolean;
-    static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, memberName: string): number;
+    static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): number;
+    static getAccessorOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): Accessor | undefined;
 }
 export {};

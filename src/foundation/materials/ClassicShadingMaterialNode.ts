@@ -2,8 +2,6 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../de
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import WireframeShader from "../../webgl/shaders/WireframeShader";
-import Vector3 from "../math/Vector3";
 import ClassicShadingShader from "../../webgl/shaders/ClassicShadingShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import { ShaderType } from "../definitions/ShaderType";
@@ -21,7 +19,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: Number.MAX_VALUE,
-       
         isSystem: false,
         initialValue: 5
       },
@@ -32,7 +29,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 3,
-       
         isSystem: false,
         initialValue: ShadingModel.Constant.index
       }

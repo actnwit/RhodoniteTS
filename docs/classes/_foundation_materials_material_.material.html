@@ -132,6 +132,7 @@
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#fieldsinfoarray" class="tsd-kind-icon">fields<wbr>Info<wbr>Array</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#materialsid" class="tsd-kind-icon">materialSID</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#materialtid" class="tsd-kind-icon">materialTID</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#materialtypename" class="tsd-kind-icon">material<wbr>Type<wbr>Name</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_materials_material_.material.html#objectuid" class="tsd-kind-icon">objectUID</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_materials_material_.material.html#uniquename" class="tsd-kind-icon">unique<wbr>Name</a></li>
 							</ul>
@@ -154,6 +155,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_materials_material_.material.html#removetag" class="tsd-kind-icon">remove<wbr>Tag</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#setmaterialnodes" class="tsd-kind-icon">set<wbr>Material<wbr>Nodes</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#setparameter" class="tsd-kind-icon">set<wbr>Parameter</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#setparemetersforgpu" class="tsd-kind-icon">set<wbr>Paremeters<wbr>ForGPU</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#settextureparameter" class="tsd-kind-icon">set<wbr>Texture<wbr>Parameter</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#setuniformlocations" class="tsd-kind-icon">set<wbr>Uniform<wbr>Locations</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_foundation_materials_material_.material.html#setuniformvalues" class="tsd-kind-icon">set<wbr>Uniform<wbr>Values</a></li>
@@ -162,8 +164,9 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_materials_material_.material.html#trytosetuniquename" class="tsd-kind-icon">try<wbr>ToSet<wbr>Unique<wbr>Name</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_foundation_materials_material_.material.html#validatetagstring" class="tsd-kind-icon">validate<wbr>Tag<wbr>String</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_foundation_materials_material_.material.html#__allocatebufferview" class="tsd-kind-icon">__allocate<wbr>Buffer<wbr>View</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_foundation_materials_material_.material.html#__getpropertyname" class="tsd-kind-icon">__get<wbr>Property<wbr>Name</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="_foundation_materials_material_.material.html#__getpropertyindex" class="tsd-kind-icon">__get<wbr>Property<wbr>Index</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_materials_material_.material.html#creatematerial" class="tsd-kind-icon">create<wbr>Material</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_materials_material_.material.html#getaccessorofmemberofmaterial" class="tsd-kind-icon">get<wbr>Accessor<wbr>OfMember<wbr>OfMaterial</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_materials_material_.material.html#getallmaterials" class="tsd-kind-icon">get<wbr>All<wbr>Materials</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_materials_material_.material.html#getlocationoffsetofmemberofmaterial" class="tsd-kind-icon">get<wbr>Location<wbr>Offset<wbr>OfMember<wbr>OfMaterial</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_foundation_materials_material_.material.html#getrnobject" class="tsd-kind-icon">get<wbr>RnObject</a></li>
@@ -187,7 +190,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L61">foundation/materials/Material.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L62">foundation/materials/Material.ts:62</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -212,20 +215,20 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__fields" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __fields</h3>
-					<div class="tsd-signature tsd-kind-icon">__fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#propertyname" class="tsd-signature-type">PropertyName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">__fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsindex" class="tsd-signature-type">ShaderSemanticsIndex</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L43">foundation/materials/Material.ts:43</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L44">foundation/materials/Material.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="__fieldsinfo" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> __fields<wbr>Info</h3>
-					<div class="tsd-signature tsd-kind-icon">__fields<wbr>Info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#propertyname" class="tsd-signature-type">PropertyName</a><span class="tsd-signature-symbol">, </span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsinfo" class="tsd-signature-type">ShaderSemanticsInfo</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">__fields<wbr>Info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsindex" class="tsd-signature-type">ShaderSemanticsIndex</a><span class="tsd-signature-symbol">, </span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsinfo" class="tsd-signature-type">ShaderSemanticsInfo</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L45">foundation/materials/Material.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L46">foundation/materials/Material.ts:46</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -235,7 +238,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Nodes<span class="tsd-signature-symbol">:</span> <a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L42">foundation/materials/Material.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L43">foundation/materials/Material.ts:43</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -245,7 +248,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Sid<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L56">foundation/materials/Material.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L57">foundation/materials/Material.ts:57</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -255,7 +258,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Tid<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L51">foundation/materials/Material.ts:51</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L52">foundation/materials/Material.ts:52</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -265,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Type<wbr>Name<span class="tsd-signature-symbol">:</span> <a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L59">foundation/materials/Material.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L60">foundation/materials/Material.ts:60</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -275,7 +278,7 @@
 					<div class="tsd-signature tsd-kind-icon">_shader<wbr>Program<wbr>Uid<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_commontypes_.html#cgapiresourcehandle" class="tsd-signature-type">CGAPIResourceHandle</a><span class="tsd-signature-symbol"> =&nbsp;CGAPIResourceRepository.InvalidCGAPIResourceUid</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L46">foundation/materials/Material.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L47">foundation/materials/Material.ts:47</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -285,7 +288,7 @@
 					<div class="tsd-signature tsd-kind-icon">alpha<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_foundation_definitions_alphamode_.alphamodeenum.html" class="tsd-signature-type">AlphaModeEnum</a><span class="tsd-signature-symbol"> =&nbsp;AlphaMode.Opaque</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L47">foundation/materials/Material.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L48">foundation/materials/Material.ts:48</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -296,17 +299,17 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#invalidobjectuid">InvalidObjectUID</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L9">foundation/core/RnObject.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L9">foundation/core/RnObject.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
 					<a name="__accessors" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __accessors</h3>
-					<div class="tsd-signature tsd-kind-icon">__accessors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#propertyname" class="tsd-signature-type">PropertyName</a><span class="tsd-signature-symbol">, </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">__accessors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsindex" class="tsd-signature-type">ShaderSemanticsIndex</a><span class="tsd-signature-symbol">, </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L61">foundation/materials/Material.ts:61</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L62">foundation/materials/Material.ts:62</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -316,7 +319,7 @@
 					<div class="tsd-signature tsd-kind-icon">__buffer<wbr>Views<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L60">foundation/materials/Material.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L61">foundation/materials/Material.ts:61</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -326,7 +329,7 @@
 					<div class="tsd-signature tsd-kind-icon">__instances<wbr>ByTypes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L50">foundation/materials/Material.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L51">foundation/materials/Material.ts:51</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -336,7 +339,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Instance<wbr>Count<wbr>OfType<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><a href="../modules/_types_commontypes_.html#count" class="tsd-signature-type">Count</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L55">foundation/materials/Material.ts:55</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L56">foundation/materials/Material.ts:56</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -346,7 +349,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Tid<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;-1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L52">foundation/materials/Material.ts:52</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L53">foundation/materials/Material.ts:53</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -356,7 +359,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Tids<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L54">foundation/materials/Material.ts:54</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L55">foundation/materials/Material.ts:55</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -366,7 +369,7 @@
 					<div class="tsd-signature tsd-kind-icon">__material<wbr>Types<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L57">foundation/materials/Material.ts:57</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L58">foundation/materials/Material.ts:58</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -376,7 +379,7 @@
 					<div class="tsd-signature tsd-kind-icon">__materials<span class="tsd-signature-symbol">:</span> <a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L49">foundation/materials/Material.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L50">foundation/materials/Material.ts:50</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -386,7 +389,7 @@
 					<div class="tsd-signature tsd-kind-icon">__max<wbr>Instances<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L58">foundation/materials/Material.ts:58</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L59">foundation/materials/Material.ts:59</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -396,17 +399,17 @@
 					<div class="tsd-signature tsd-kind-icon">__shader<wbr>Map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><a href="../modules/_types_commontypes_.html#cgapiresourcehandle" class="tsd-signature-type">CGAPIResourceHandle</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L48">foundation/materials/Material.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L49">foundation/materials/Material.ts:49</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-static">
 					<a name="__solodatumfields" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __solo<wbr>Datum<wbr>Fields</h3>
-					<div class="tsd-signature tsd-kind-icon">__solo<wbr>Datum<wbr>Fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#propertyname" class="tsd-signature-type">PropertyName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
+					<div class="tsd-signature tsd-kind-icon">__solo<wbr>Datum<wbr>Fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_materials_material_.html#materialtypename" class="tsd-signature-type">MaterialTypeName</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsindex" class="tsd-signature-type">ShaderSemanticsIndex</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L44">foundation/materials/Material.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L45">foundation/materials/Material.ts:45</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -417,7 +420,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#currentmaxobjectcount">currentMaxObjectCount</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L10">foundation/core/RnObject.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L10">foundation/core/RnObject.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -434,7 +437,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L81">foundation/materials/Material.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L86">foundation/materials/Material.ts:86</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -451,7 +454,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L194">foundation/materials/Material.ts:194</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L240">foundation/materials/Material.ts:240</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -468,7 +471,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L77">foundation/materials/Material.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L82">foundation/materials/Material.ts:82</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -477,6 +480,23 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="materialtypename" class="tsd-anchor"></a>
+					<h3>material<wbr>Type<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> materialTypeName<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L75">foundation/materials/Material.ts:75</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -491,7 +511,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#objectuid">objectUID</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L30">foundation/core/RnObject.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L30">foundation/core/RnObject.ts:30</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -514,7 +534,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#uniquename">uniqueName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L200">foundation/core/RnObject.ts:200</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L200">foundation/core/RnObject.ts:200</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -539,7 +559,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L703">foundation/materials/Material.ts:703</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L755">foundation/materials/Material.ts:755</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -565,7 +585,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L346">foundation/materials/Material.ts:346</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L390">foundation/materials/Material.ts:390</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -591,7 +611,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L399">foundation/materials/Material.ts:399</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L451">foundation/materials/Material.ts:451</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -623,33 +643,18 @@
 					<h3>get<wbr>Parameter</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L279">foundation/materials/Material.ts:279</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L306">foundation/materials/Material.ts:306</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>shaderSemantic: <a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L280">foundation/materials/Material.ts:280</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>shaderSemantic: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -667,7 +672,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettag">getTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L120">foundation/core/RnObject.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L120">foundation/core/RnObject.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -699,7 +704,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#gettagvalue">getTagValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L112">foundation/core/RnObject.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L112">foundation/core/RnObject.ts:112</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -731,7 +736,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#hastag">hasTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L130">foundation/core/RnObject.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L130">foundation/core/RnObject.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -762,7 +767,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L207">foundation/materials/Material.ts:207</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L253">foundation/materials/Material.ts:253</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -779,7 +784,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L732">foundation/materials/Material.ts:732</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L785">foundation/materials/Material.ts:785</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -797,7 +802,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtag">matchTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L153">foundation/core/RnObject.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L153">foundation/core/RnObject.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -835,7 +840,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtags">matchTags</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L183">foundation/core/RnObject.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L183">foundation/core/RnObject.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -867,7 +872,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#matchtagsasfreestrings">matchTagsAsFreeStrings</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L165">foundation/core/RnObject.ts:165</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L165">foundation/core/RnObject.ts:165</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -899,7 +904,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#removetag">removeTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L142">foundation/core/RnObject.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L142">foundation/core/RnObject.ts:142</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -930,7 +935,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L190">foundation/materials/Material.ts:190</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L236">foundation/materials/Material.ts:236</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -948,39 +953,18 @@
 					<h3>set<wbr>Parameter</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">set<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, index<span class="tsd-signature-symbol">?: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, index<span class="tsd-signature-symbol">?: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L234">foundation/materials/Material.ts:234</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L280">foundation/materials/Material.ts:280</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>shaderSemantic: <a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a></h5>
-								</li>
-								<li>
-									<h5>value: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> index: <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L235">foundation/materials/Material.ts:235</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>shaderSemantic: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
 									<h5>value: <span class="tsd-signature-type">any</span></h5>
@@ -994,40 +978,59 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="settextureparameter" class="tsd-anchor"></a>
-					<h3>set<wbr>Texture<wbr>Parameter</h3>
+					<a name="setparemetersforgpu" class="tsd-anchor"></a>
+					<h3>set<wbr>Paremeters<wbr>ForGPU</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Texture<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a>, value<span class="tsd-signature-symbol">: </span><a href="_foundation_textures_abstracttexture_.abstracttexture.html" class="tsd-signature-type">AbstractTexture</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Texture<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><a href="_foundation_textures_abstracttexture_.abstracttexture.html" class="tsd-signature-type">AbstractTexture</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Paremeters<wbr>ForGPU<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L263">foundation/materials/Material.ts:263</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L358">foundation/materials/Material.ts:358</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>first<wbr>Time<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>material<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>shader<wbr>Program<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WebGLProgram</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="settextureparameter" class="tsd-anchor"></a>
+					<h3>set<wbr>Texture<wbr>Parameter</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Texture<wbr>Parameter<span class="tsd-signature-symbol">(</span>shaderSemantic<span class="tsd-signature-symbol">: </span><a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a>, value<span class="tsd-signature-symbol">: </span><a href="_foundation_textures_abstracttexture_.abstracttexture.html" class="tsd-signature-type">AbstractTexture</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L293">foundation/materials/Material.ts:293</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>shaderSemantic: <a href="../interfaces/_foundation_definitions_shadersemantics_.shadersemanticsenum.html" class="tsd-signature-type">ShaderSemanticsEnum</a></h5>
-								</li>
-								<li>
-									<h5>value: <a href="_foundation_textures_abstracttexture_.abstracttexture.html" class="tsd-signature-type">AbstractTexture</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L264">foundation/materials/Material.ts:264</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>shaderSemantic: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
 									<h5>value: <a href="_foundation_textures_abstracttexture_.abstracttexture.html" class="tsd-signature-type">AbstractTexture</a></h5>
@@ -1047,7 +1050,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L301">foundation/materials/Material.ts:301</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L319">foundation/materials/Material.ts:319</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1070,7 +1073,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L313">foundation/materials/Material.ts:313</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L331">foundation/materials/Material.ts:331</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1090,22 +1093,19 @@
 					<a name="setuniformvaluesforonlytextures" class="tsd-anchor"></a>
 					<h3>set<wbr>Uniform<wbr>Values<wbr>For<wbr>Only<wbr>Textures</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Uniform<wbr>Values<wbr>For<wbr>Only<wbr>Textures<span class="tsd-signature-symbol">(</span>firstTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Uniform<wbr>Values<wbr>For<wbr>Only<wbr>Textures<span class="tsd-signature-symbol">(</span>firstTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L328">foundation/materials/Material.ts:328</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L342">foundation/materials/Material.ts:342</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>firstTime: <span class="tsd-signature-type">boolean</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> args: <span class="tsd-signature-type">Object</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1123,7 +1123,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosettag">tryToSetTag</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L93">foundation/core/RnObject.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L93">foundation/core/RnObject.ts:93</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1161,7 +1161,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#trytosetuniquename">tryToSetUniqueName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L55">foundation/core/RnObject.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L55">foundation/core/RnObject.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1196,7 +1196,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#validatetagstring">validateTagString</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L80">foundation/core/RnObject.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L80">foundation/core/RnObject.ts:80</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1221,13 +1221,13 @@
 					<a name="__allocatebufferview" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __allocate<wbr>Buffer<wbr>View</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">__allocate<wbr>Buffer<wbr>View<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></li>
+						<li class="tsd-signature tsd-kind-icon">__allocate<wbr>Buffer<wbr>View<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L105">foundation/materials/Material.ts:105</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L109">foundation/materials/Material.ts:109</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1239,21 +1239,24 @@
 									<h5>materialNodes: <a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<a href="_foundation_memory_bufferview_.bufferview.html" class="tsd-signature-type">BufferView</a>
+							</h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-					<a name="__getpropertyname" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __get<wbr>Property<wbr>Name</h3>
+					<a name="__getpropertyindex" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> __get<wbr>Property<wbr>Index</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">__get<wbr>Property<wbr>Name<span class="tsd-signature-symbol">(</span>semanticInfo<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsinfo" class="tsd-signature-type">ShaderSemanticsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">__get<wbr>Property<wbr>Index<span class="tsd-signature-symbol">(</span>semanticInfo<span class="tsd-signature-symbol">: </span><a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsinfo" class="tsd-signature-type">ShaderSemanticsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L198">foundation/materials/Material.ts:198</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L244">foundation/materials/Material.ts:244</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1262,7 +1265,7 @@
 									<h5>semanticInfo: <a href="../modules/_foundation_definitions_shadersemantics_.html#shadersemanticsinfo" class="tsd-signature-type">ShaderSemanticsInfo</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1270,13 +1273,13 @@
 					<a name="creatematerial" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> create<wbr>Material</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Material<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes_<span class="tsd-signature-symbol">?: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Material<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes_<span class="tsd-signature-symbol">?: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span>, maxInstancesNumber<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L91">foundation/materials/Material.ts:91</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L96">foundation/materials/Material.ts:96</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1298,10 +1301,39 @@
 										<p>The material nodes to add to the created materlal.</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> maxInstancesNumber: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="getaccessorofmemberofmaterial" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Accessor<wbr>OfMember<wbr>OfMaterial</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Accessor<wbr>OfMember<wbr>OfMaterial<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, propertyIndex<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L806">foundation/materials/Material.ts:806</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>materialTypeName: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>propertyIndex: <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
 								<span class="tsd-signature-symbol"> | </span>
-								<a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a>
+								<a href="_foundation_memory_accessor_.accessor.html" class="tsd-signature-type">Accessor</a>
 							</h4>
 						</li>
 					</ul>
@@ -1316,7 +1348,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L186">foundation/materials/Material.ts:186</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L232">foundation/materials/Material.ts:232</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_foundation_materials_material_.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">[]</span></h4>
@@ -1327,13 +1359,13 @@
 					<a name="getlocationoffsetofmemberofmaterial" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Location<wbr>Offset<wbr>OfMember<wbr>OfMaterial</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Location<wbr>Offset<wbr>OfMember<wbr>OfMaterial<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, memberName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Location<wbr>Offset<wbr>OfMember<wbr>OfMaterial<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, propertyIndex<span class="tsd-signature-symbol">: </span><a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L740">foundation/materials/Material.ts:740</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L793">foundation/materials/Material.ts:793</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1342,7 +1374,7 @@
 									<h5>materialTypeName: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>memberName: <span class="tsd-signature-type">string</span></h5>
+									<h5>propertyIndex: <a href="../modules/_types_commontypes_.html#index" class="tsd-signature-type">Index</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1360,7 +1392,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobject">getRnObject</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L38">foundation/core/RnObject.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L38">foundation/core/RnObject.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1392,7 +1424,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_foundation_core_rnobject_.rnobject.html">RnObject</a>.<a href="_foundation_core_rnobject_.rnobject.html#getrnobjectbyname">getRnObjectByName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/core/RnObject.ts#L46">foundation/core/RnObject.ts:46</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1420,13 +1452,13 @@
 					<a name="registermaterial" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> register<wbr>Material</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">register<wbr>Material<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span>, maxInstancesNumber<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">register<wbr>Material<span class="tsd-signature-symbol">(</span>materialTypeName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, materialNodes<span class="tsd-signature-symbol">: </span><a href="_foundation_materials_abstractmaterialnode_.abstractmaterialnode.html" class="tsd-signature-type">AbstractMaterialNode</a><span class="tsd-signature-symbol">[]</span>, maxInstanceNumber<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/materials/Material.ts#L168">foundation/materials/Material.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/materials/Material.ts#L214">foundation/materials/Material.ts:214</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1449,10 +1481,7 @@
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> maxInstancesNumber: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Config.maxMaterialInstanceForEachType</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The maximum number to create the material instances.</p>
-									</div>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> maxInstanceNumber: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Config.maxMaterialInstanceForEachType</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1554,6 +1583,9 @@
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_foundation_materials_material_.material.html#materialtid" class="tsd-kind-icon">materialTID</a>
 							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_foundation_materials_material_.material.html#materialtypename" class="tsd-kind-icon">material<wbr>Type<wbr>Name</a>
+							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="_foundation_materials_material_.material.html#objectuid" class="tsd-kind-icon">objectUID</a>
 							</li>
@@ -1606,6 +1638,9 @@
 								<a href="_foundation_materials_material_.material.html#setparameter" class="tsd-kind-icon">set<wbr>Parameter</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_foundation_materials_material_.material.html#setparemetersforgpu" class="tsd-kind-icon">set<wbr>Paremeters<wbr>ForGPU</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_foundation_materials_material_.material.html#settextureparameter" class="tsd-kind-icon">set<wbr>Texture<wbr>Parameter</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -1630,10 +1665,13 @@
 								<a href="_foundation_materials_material_.material.html#__allocatebufferview" class="tsd-kind-icon">__allocate<wbr>Buffer<wbr>View</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
-								<a href="_foundation_materials_material_.material.html#__getpropertyname" class="tsd-kind-icon">__get<wbr>Property<wbr>Name</a>
+								<a href="_foundation_materials_material_.material.html#__getpropertyindex" class="tsd-kind-icon">__get<wbr>Property<wbr>Index</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_materials_material_.material.html#creatematerial" class="tsd-kind-icon">create<wbr>Material</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_materials_material_.material.html#getaccessorofmemberofmaterial" class="tsd-kind-icon">get<wbr>Accessor<wbr>OfMember<wbr>OfMaterial</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_materials_material_.material.html#getallmaterials" class="tsd-kind-icon">get<wbr>All<wbr>Materials</a>

@@ -3,4 +3,5 @@ export declare const MiscUtil: Readonly<{
     preventDefaultForDesktopOnly: (e: Event) => void;
     isObject: (o: any) => boolean;
     fillTemplate: (templateString: string, templateVars: string) => any;
+    isNode: () => boolean;
 }>;

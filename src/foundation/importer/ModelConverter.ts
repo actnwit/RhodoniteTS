@@ -42,6 +42,12 @@ import { GltfLoadOption, glTF2 } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
+import ILoaderExtension from "./ILoaderExtension";
+import BlendShapeComponent from "../components/BlendShapeComponent";
+import GlobalDataRepository from "../core/GlobalDataRepository";
+import { ShaderType } from "../definitions/ShaderType";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import VectorN from "../math/VectorN";
 
 declare var DracoDecoderModule: any;
 
@@ -269,8 +275,13 @@ export default class ModelConverter {
     if (gltfModel.skins == null) {
       return;
     }
+
+    const globalDataRepository = GlobalDataRepository.getInstance();
     const entityRepository = EntityRepository.getInstance();
     for (let skin of gltfModel.skins) {
+      globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+      globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+
       if (skin.inverseBindMatrices) {
         this._accessBinaryWithAccessor(skin.inverseBindMatrices);
       }
@@ -335,6 +346,7 @@ export default class ModelConverter {
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
+      let entity;
       if (node.mesh != null) {
         let meshIdxOrName = node.meshIndex;
         if (meshIdxOrName == null) {
@@ -348,22 +360,31 @@ export default class ModelConverter {
           const meshComponent = meshEntity.getComponent(MeshComponent)!;
           meshComponent.tryToSetUniqueName(node.mesh.name, true);
         }
-        rnEntities.push(meshEntity);
+        entity = meshEntity;
       } else if (node.camera != null) {
         const cameraEntity = this.__setupCamera(node.camera, gltfModel);
         if (node.name) {
           cameraEntity.tryToSetUniqueName(node.name, true);
         }
-        rnEntities.push(cameraEntity);
+        entity = cameraEntity;
       } else if (node.extensions && node.extensions.KHR_lights_punctual) {
         const lightEntity = this.__setupLight(node.extensions.KHR_lights_punctual.light, gltfModel);
-        rnEntities.push(lightEntity);
+        entity = lightEntity;
       } else {
         const group = this.__generateGroupEntity(gltfModel);
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
-        rnEntities.push(group);
+        entity = group;
+      }
+
+      rnEntities.push(entity);
+
+      if (node.weights != null) {
+        const entityRepository = EntityRepository.getInstance();
+        entityRepository.addComponentsToEntity([BlendShapeComponent], entity.entityUID);
+        const blendShapeComponrnt = entity.getComponent(BlendShapeComponent) as BlendShapeComponent;
+        blendShapeComponrnt.weights = node.weights;
       }
     }
 
@@ -421,7 +442,7 @@ export default class ModelConverter {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
-    const meshComponent = meshEntity.getComponent(MeshComponent)! as MeshComponent;
+    const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
     let originalRnMesh = rnMesh;
@@ -502,15 +523,30 @@ export default class ModelConverter {
 
     let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
-      maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType/2;
+      maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType / 2;
     }
+    const isMorphing = (node.mesh != null && node.mesh.weights != null) ? true : false;
     const isSkinning = (node.skin != null) ? true : false;
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
-      return MaterialHelper.createPbrUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
+      return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     } else {
-      return MaterialHelper.createClassicUberMaterial({isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber});
+      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     }
+  }
+
+  static _createTexture(textureType: any, gltfModel: glTF2) {
+    let options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
+    const rnTexture = new Texture();
+    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
+    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
+    const texture = textureType.texture;
+    if (texture.image.image) {
+      const image = texture.image.image;
+      rnTexture.generateTextureFromImage(image);
+      rnTexture.name = image.name;
+    }
+    return rnTexture
   }
 
   private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {
@@ -532,23 +568,13 @@ export default class ModelConverter {
 
       const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
       if (baseColorTexture != null) {
-        const texture = baseColorTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.baseColorTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(baseColorTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
 
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
-        const texture = occlusionTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.occlusionTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(occlusionTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
       }
 
@@ -560,12 +586,7 @@ export default class ModelConverter {
 
       const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
       if (metallicRoughnessTexture != null) {
-        const texture = metallicRoughnessTexture.texture;
-        const image = texture.image.image;
-        const rnTexture = new Texture();
-        rnTexture.generateTextureFromImage(image);
-        rnTexture.name = image.name;
-        // material.metallicRoughnessTexture = rnTexture;
+        const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
 
@@ -584,12 +605,7 @@ export default class ModelConverter {
 
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null) {
-      const texture = emissiveTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
-      // material.emissiveTexture = rnTexture;
+      const rnTexture = ModelConverter._createTexture(emissiveTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
@@ -604,12 +620,15 @@ export default class ModelConverter {
     // For glTF1.0
     const diffuseColorTexture = materialJson.diffuseColorTexture;
     if (diffuseColorTexture != null) {
-      const texture = diffuseColorTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
+
+      if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
+        const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension as ILoaderExtension;
+        if (loaderExtension.setUVTransformToTexture) {
+          loaderExtension.setUVTransformToTexture(material, diffuseColorTexture.texture.sampler);
+        }
+      }
     }
     const diffuseColorFactor = materialJson.diffuseColorFactor;
     if (diffuseColorFactor != null) {
@@ -618,11 +637,7 @@ export default class ModelConverter {
 
     const normalTexture = materialJson.normalTexture;
     if (normalTexture != null) {
-      const texture = normalTexture.texture;
-      const image = texture.image.image;
-      const rnTexture = new Texture();
-      rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
     }
 
@@ -951,13 +966,13 @@ export default class ModelConverter {
     });
 
     const dstRnAccessor = dstRnBufferView.takeAccessor({
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        count: srcRnAccessor.elementCount,
-        max: srcRnAccessor.max,
-        min: srcRnAccessor.min
-      });
-    for (let i=0; i<srcRnAccessor.elementCount; i++) {
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      count: srcRnAccessor.elementCount,
+      max: srcRnAccessor.max,
+      min: srcRnAccessor.min
+    });
+    for (let i = 0; i < srcRnAccessor.elementCount; i++) {
       dstRnAccessor.setElementFromAccessor(i, srcRnAccessor);
     }
 

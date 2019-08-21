@@ -4,15 +4,17 @@ import CameraControllerComponent from '../../../dist/types/foundation/components
 import Entity from '../../../dist/types/foundation/core/Entity';
 import LightComponent from '../../../dist/types/foundation/components/LightComponent';
 import Vector4 from '../../../dist/types/foundation/math/Vector4';
+import { RnWebGL } from '../../../dist/types/webgl/main';
 
-declare const Rn: RnType;
 declare const window: any;
+declare const Rn: RnType;
+declare const RnWebGL: RnWebGL
 
 
 const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraComponent: CameraComponent, canvas: HTMLCanvasElement) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
-  Rn.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
+  RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
   renderPass.material = entityUidOutputMaterial;
   renderPass.cameraComponent = cameraComponent;

@@ -18,12 +18,13 @@ function findOrCreateMaterial(materialName: string, materialNodes?: AbstractMate
   return material;
 }
 
-function createPbrUberMaterial({ isSkinning, isLighting, additionalName, maxInstancesNumber }: { isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number }) {
+function createPbrUberMaterial({ isMorphing, isSkinning, isLighting, additionalName, maxInstancesNumber }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, additionalName?: string, maxInstancesNumber?: number }) {
   const materialName = 'PbrUber' + `_${additionalName}_`
+    + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new PbrShadingMaterialNode({ isSkinning: isSkinning, isLighting: isLighting });
+  const materialNode = new PbrShadingMaterialNode({ isMorphing, isSkinning, isLighting });
 
   materialNode.isSingleOperation = true;
   const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);

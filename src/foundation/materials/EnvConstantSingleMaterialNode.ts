@@ -11,14 +11,12 @@ import { CompositionType } from "../definitions/CompositionType";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Vector2 from "../math/Vector2";
 import { ComponentType } from "../definitions/ComponentType";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import ModuleManager from "../system/ModuleManager";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
 import AbstractTexture from "../textures/AbstractTexture";
@@ -80,8 +78,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -90,8 +88,8 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
     if (cameraComponent) {
-      AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-      AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+      this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
     }
 
   }

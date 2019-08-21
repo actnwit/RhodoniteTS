@@ -2,8 +2,6 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemant
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import WireframeShader from "../../webgl/shaders/WireframeShader";
-import Vector3 from "../math/Vector3";
 import TextureFetchShader from "../../webgl/shaders/TextureFetchShader";
 import { ShaderType } from "../definitions/ShaderType";
 

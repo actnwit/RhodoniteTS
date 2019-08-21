@@ -38,25 +38,24 @@ import MutableMatrix44 from "../math/MutableMatrix44";
 import MutableMatrix33 from "../math/MutableMatrix33";
 
 export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
-  private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   constructor() {
     super(EntityUIDOutputShader.getInstance(), "entityUidOutputShading"
       + (true ? '+skinning' : '')
-      + (true ? '' : '-lighting'));
+      + (false ? '' : '-lighting'),
+      {isMorphing: false, isSkinning: true, isLighting: false});
     EntityUIDOutputSingleMaterialNode.initDefaultTextures();
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {semantic: ShaderSemantics.WorldMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix44.zero() },
       {semantic: ShaderSemantics.NormalMatrix, isComponentData: true, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableMatrix33.zero() },
-      {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
-      {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       {
         semantic: ShaderSemantics.EntityUID,
         compositionType: CompositionType.Scalar,
@@ -68,18 +67,18 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
         updateInteval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: new Scalar(0)
       },
-      {
-        semantic: ShaderSemantics.ViewPosition,
-        compositionType: CompositionType.Vec3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: new Vector3(0, 0, 0),
-        soloDatum: true
-      },
+      // {
+      //   semantic: ShaderSemantics.ViewPosition,
+      //   compositionType: CompositionType.Vec3,
+      //   componentType: ComponentType.Float,
+      //   stage: ShaderType.VertexShader,
+      //   min: -Number.MAX_VALUE,
+      //   max: Number.MAX_VALUE,
+      //   isSystem: true,
+      //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      //   initialValue: new Vector3(0, 0, 0),
+      //   soloDatum: true
+      // },
       {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
         stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
@@ -95,13 +94,6 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
 
     if (true) {
       this.__definitions += '#define RN_IS_SKINNING\n';
-
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: MutableVector4.zero() });
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(0) });
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
@@ -113,8 +105,8 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
   setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
 
     if (args.setUniform) {
-      AbstractMaterialNode.setWorldMatrix(shaderProgram, args.worldMatrix);
-      AbstractMaterialNode.setNormalMatrix(shaderProgram, args.normalMatrix);
+      this.setWorldMatrix(shaderProgram, args.worldMatrix);
+      this.setNormalMatrix(shaderProgram, args.normalMatrix);
     }
 
     /// Matrices
@@ -122,15 +114,15 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     if (cameraComponent == null) {
       cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    AbstractMaterialNode.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
-    AbstractMaterialNode.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setViewInfo(shaderProgram, cameraComponent, material, args.setUniform);
+    this.setProjection(shaderProgram, cameraComponent, material, args.setUniform);
 
     /// Skinning
     const skeletalComponent = args.entity.getComponent(SkeletalComponent) as SkeletalComponent;
-    AbstractMaterialNode.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
+    this.setSkinning(shaderProgram, skeletalComponent, args.setUniform);
 
     // Lights
-    AbstractMaterialNode.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
     this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.EntityUID.str, true, args.entity.entityUID);
   }

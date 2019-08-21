@@ -16,6 +16,7 @@ export declare const ComponentType: Readonly<{
     UnsingedInt: ComponentTypeEnum;
     Float: ComponentTypeEnum;
     Double: ComponentTypeEnum;
+    Bool: ComponentTypeEnum;
     HalfFloat: ComponentTypeEnum;
     from: typeof from;
     fromTypedArray: typeof fromTypedArray;

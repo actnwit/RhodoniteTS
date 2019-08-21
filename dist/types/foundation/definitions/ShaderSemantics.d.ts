@@ -2,36 +2,32 @@ import { EnumClass, EnumIO } from "../misc/EnumIO";
 import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
-import { Count } from "../../types/CommonTypes";
+import { Count, Index } from "../../types/CommonTypes";
+export declare type ShaderSemanticsIndex = number;
 export interface ShaderSemanticsEnum extends EnumIO {
-    singularStr: string;
-    pluralStr: string;
+    str: string;
 }
 export declare class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
-    readonly pluralStr: string;
-    constructor({ index, singularStr, pluralStr }: {
-        index: number;
-        singularStr: string;
-        pluralStr: string;
+    private static __indexCount;
+    static readonly _scale = 10000;
+    private static __classes;
+    constructor({ str }: {
+        index?: number;
+        str: string;
     });
-    readonly singularStr: string;
+    static getShaderSemanticByIndex(index: Index): ShaderSemanticsClass;
+    static isNonArrayShaderSemanticIndex(index: Index): boolean;
+    static isArrayAndZeroIndexShaderSemanticIndex(index: Index): boolean;
+    static isArrayAndNonZeroIndexShaderSemanticIndex(index: Index): boolean;
 }
 declare function from(index: number): ShaderSemanticsEnum;
 declare function fromString(str: string): ShaderSemanticsEnum;
-declare type UpdateFunc = ({ shaderProgram, firstTime, propertyName, value, args }: {
-    shaderProgram: WebGLProgram;
-    firstTime: boolean;
-    propertyName: string;
-    value: any;
-    args?: Object;
-}) => void;
 export declare type ShaderSemanticsInfo = {
-    semantic?: ShaderSemanticsEnum;
-    isPlural?: boolean;
+    semantic: ShaderSemanticsEnum;
     prefix?: string;
-    semanticStr?: string;
     index?: Count;
     maxIndex?: Count;
+    setEach?: boolean;
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     min: number;
@@ -39,7 +35,6 @@ export declare type ShaderSemanticsInfo = {
     valueStep?: number;
     isSystem: boolean;
     initialValue?: any;
-    updateFunc?: UpdateFunc;
     updateInteval?: ShaderVariableUpdateIntervalEnum;
     stage: ShaderTypeEnum;
     xName?: string;
@@ -47,10 +42,10 @@ export declare type ShaderSemanticsInfo = {
     zName?: string;
     wName?: string;
     soloDatum?: boolean;
+    isComponentData?: boolean;
+    noControlUi?: boolean;
 };
-declare function infoToString(semanticInfo: ShaderSemanticsInfo): string | undefined;
 declare function fullSemanticStr(info: ShaderSemanticsInfo): string;
-declare function fullSemanticPluralStr(info: ShaderSemanticsInfo): string;
 export declare const ShaderSemantics: Readonly<{
     WorldMatrix: ShaderSemanticsEnum;
     ViewMatrix: ShaderSemanticsEnum;
@@ -83,6 +78,8 @@ export declare const ShaderSemantics: Readonly<{
     SkinningMode: ShaderSemanticsEnum;
     GeneralTexture: ShaderSemanticsEnum;
     VertexAttributesExistenceArray: ShaderSemanticsEnum;
+    BoneQuaternion: ShaderSemanticsEnum;
+    BoneTranslateScale: ShaderSemanticsEnum;
     BoneCompressedChank: ShaderSemanticsEnum;
     BoneCompressedInfo: ShaderSemanticsEnum;
     PointSize: ShaderSemanticsEnum;
@@ -99,10 +96,11 @@ export declare const ShaderSemantics: Readonly<{
     SpecularGlossinessTexture: ShaderSemanticsEnum;
     from: typeof from;
     fromString: typeof fromString;
-    infoToString: typeof infoToString;
     fullSemanticStr: typeof fullSemanticStr;
-    fullSemanticPluralStr: typeof fullSemanticPluralStr;
-    getShaderProperty: (materialTypeName: string, info: ShaderSemanticsInfo, memberName: string) => string;
+    getShaderProperty: (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: number) => string;
     EntityUID: ShaderSemanticsEnum;
+    MorphTargetNumber: ShaderSemanticsEnum;
+    DataTextureMorphOffsetPosition: ShaderSemanticsEnum;
+    MorphWeights: ShaderSemanticsEnum;
 }>;
 export {};

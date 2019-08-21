@@ -8,11 +8,12 @@ export default class EntityUIDOutputShader extends GLSLShader implements ISingle
     static readonly materialElement: import("../../foundation/definitions/ShaderNode").ShaderNodeEnum;
     private constructor();
     static getInstance(): EntityUIDOutputShader;
+    getVertexShaderBody(args: any): string;
     readonly vertexShaderDefinitions: string;
     vertexShaderBody: string;
-    getFragmentShader(): string;
+    getFragmentShader(args: any): string;
     readonly pixelShaderDefinitions: string;
-    getPixelShaderBody(): string;
+    getPixelShaderBody(args: Object): string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
     readonly attributeCompositions: Array<CompositionTypeEnum>;

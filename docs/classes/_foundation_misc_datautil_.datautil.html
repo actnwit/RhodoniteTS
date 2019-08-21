@@ -89,9 +89,11 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#atob" class="tsd-kind-icon">atob</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#base64toarraybuffer" class="tsd-kind-icon">base64<wbr>ToArray<wbr>Buffer</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#btoa" class="tsd-kind-icon">btoa</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#datauritoarraybuffer" class="tsd-kind-icon">data<wbr>Uri<wbr>ToArray<wbr>Buffer</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#isnode" class="tsd-kind-icon">is<wbr>Node</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#loadresourceasync" class="tsd-kind-icon">load<wbr>Resource<wbr>Async</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#stringtobase64" class="tsd-kind-icon">string<wbr>ToBase64</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_foundation_misc_datautil_.datautil.html#tocrc32" class="tsd-kind-icon">toCRC32</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,7 +111,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L68">foundation/misc/DataUtil.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L78">foundation/misc/DataUtil.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -138,7 +140,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L47">foundation/misc/DataUtil.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L47">foundation/misc/DataUtil.ts:47</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -161,7 +163,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L25">foundation/misc/DataUtil.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L25">foundation/misc/DataUtil.ts:25</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -178,22 +180,25 @@
 					<a name="base64toarraybuffer" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> base64<wbr>ToArray<wbr>Buffer</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">base64<wbr>ToArray<wbr>Buffer<span class="tsd-signature-symbol">(</span>dataUri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span></li>
+						<li class="tsd-signature tsd-kind-icon">base64<wbr>ToArray<wbr>Buffer<span class="tsd-signature-symbol">(</span>base64<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">SharedArrayBuffer</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L34">foundation/misc/DataUtil.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L68">foundation/misc/DataUtil.ts:68</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dataUri: <span class="tsd-signature-type">string</span></h5>
+									<h5>base64: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ArrayBuffer</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ArrayBuffer</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">SharedArrayBuffer</span>
+							</h4>
 						</li>
 					</ul>
 				</section>
@@ -207,7 +212,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L9">foundation/misc/DataUtil.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L9">foundation/misc/DataUtil.ts:9</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -221,6 +226,29 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="datauritoarraybuffer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> data<wbr>Uri<wbr>ToArray<wbr>Buffer</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">data<wbr>Uri<wbr>ToArray<wbr>Buffer<span class="tsd-signature-symbol">(</span>dataUri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L34">foundation/misc/DataUtil.ts:34</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dataUri: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ArrayBuffer</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="isnode" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> is<wbr>Node</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
@@ -230,7 +258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L4">foundation/misc/DataUtil.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L4">foundation/misc/DataUtil.ts:4</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -247,7 +275,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L87">foundation/misc/DataUtil.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L97">foundation/misc/DataUtil.ts:97</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -279,7 +307,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/ffd59f33/src/foundation/misc/DataUtil.ts#L62">foundation/misc/DataUtil.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L62">foundation/misc/DataUtil.ts:62</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -289,6 +317,29 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="tocrc32" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> toCRC32</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">toCRC32<span class="tsd-signature-symbol">(</span>str<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/emadurandal/RhodoniteTS/blob/5b3ecccc/src/foundation/misc/DataUtil.ts#L164">foundation/misc/DataUtil.ts:164</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>str: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -328,6 +379,9 @@
 								<a href="_foundation_misc_datautil_.datautil.html#btoa" class="tsd-kind-icon">btoa</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_misc_datautil_.datautil.html#datauritoarraybuffer" class="tsd-kind-icon">data<wbr>Uri<wbr>ToArray<wbr>Buffer</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_misc_datautil_.datautil.html#isnode" class="tsd-kind-icon">is<wbr>Node</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
@@ -335,6 +389,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_foundation_misc_datautil_.datautil.html#stringtobase64" class="tsd-kind-icon">string<wbr>ToBase64</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_foundation_misc_datautil_.datautil.html#tocrc32" class="tsd-kind-icon">toCRC32</a>
 							</li>
 						</ul>
 					</li>

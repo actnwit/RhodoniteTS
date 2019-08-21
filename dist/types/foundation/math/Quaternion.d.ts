@@ -2,7 +2,6 @@ import Vector3 from './Vector3';
 import { IVector4 } from './IVector';
 import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
-import RowMajarMatrix44 from './RowMajarMatrix44';
 import MutableQuaternion from './MutableQuaterion';
 import { TypedArray } from '../../types/CommonTypes';
 export default class Quaternion implements IVector4 {
@@ -21,7 +20,7 @@ export default class Quaternion implements IVector4 {
     static axisAngle(axisVec3: Vector3, radian: number): Quaternion;
     static multiply(q1: Quaternion, q2: Quaternion): Quaternion;
     static multiplyNumber(q1: Quaternion, val: number): Quaternion;
-    static fromMatrix(m: Matrix44 | RowMajarMatrix44): Quaternion;
+    static fromMatrix(m: Matrix44): Quaternion;
     static fromPosition(vec3: Vector3): Quaternion;
     length(): number;
     at(i: number): number | undefined;

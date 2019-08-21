@@ -8,6 +8,7 @@ export declare const WellKnownComponentTIDs: Readonly<{
     CameraComponentTID: number;
     LightComponentTID: number;
     SkeletalComponentTID: number;
+    BlendShapeComponentTID: number;
     SparkGearComponentTID: number;
     EffekseerComponentTID: number;
     maxWellKnownTidNumber: number;

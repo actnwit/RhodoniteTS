@@ -43,7 +43,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle): void;
     createVertexDataResources(primitive: Primitive): VertexHandles;
     createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles;
-    createShaderProgram({ vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }: {
+    createShaderProgram({ materialTypeName, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics }: {
+        materialTypeName: string;
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;
@@ -136,6 +137,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
      * @returns the WebGLResourceHandle for the generated Cube Texture
      */
     createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<number>;
+    createDummyBlackCubeTexture(): number;
     createDummyCubeTexture(rgbaStr?: string): number;
     createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
         level: Index;
@@ -161,6 +163,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     deleteRenderBuffer(renderBufferUid: WebGLResourceHandle): void;
     deleteTexture(textureHandle: WebGLResourceHandle): void;
     createDummyTexture(rgbaStr?: string): number;
+    createDummyBlackTexture(): number;
+    createDummyWhiteTexture(): number;
+    createDummyNormalTexture(): number;
+    __createDummyTextureInner(base64: string): number;
     createUniformBuffer(bufferView: TypedArray | DataView): number;
     updateUniformBuffer(uboUid: WebGLResourceHandle, bufferView: TypedArray | DataView): void;
     bindUniformBlock(shaderProgramUid: WebGLResourceHandle, blockName: string, blockIndex: Index): void;

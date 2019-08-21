@@ -30,9 +30,11 @@ export default class AnimationComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static readonly componentTID: ComponentTID;
     setAnimation(animationAttributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum): void;
-    static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum): number | number[] | MutableVector3 | Quaternion;
+    static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum): number | number[] | Quaternion | MutableVector3;
     static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, deltaInput: number, compositionType: CompositionTypeEnum): number | number[] | MutableVector3 | MutableQuaternion;
     private static __isClamped;
+    static binarySearch(inputArray: number[], input: number): number;
+    static interpolationSearch(inputArray: number[], value: number): number;
     static interpolate(line: AnimationLine, input: number): any;
     getStartInputValueOfAnimation(): number;
     getEndInputValueOfAnimation(): number;

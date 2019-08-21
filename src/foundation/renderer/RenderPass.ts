@@ -83,7 +83,7 @@ export default class RenderPass extends RnObject {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
       this.__entities.filter((entity)=>{
-        const meshComponent = entity.getComponent(MeshComponent) as MeshComponent;
+        const meshComponent = entity.getMesh();
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
         }
