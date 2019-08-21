@@ -171,7 +171,7 @@ ${this.pbrMethodDefinition}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
-vec3 IBLContribution(vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
+vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 albedo, vec3 F0, float userRoughness, vec3 F)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float mipCount = iblParameter.x;
@@ -353,7 +353,7 @@ void main ()
     vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 
     vec3 F = fresnel(F0, NV);
-    vec3 ibl = IBLContribution(normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
+    vec3 ibl = IBLContribution(materialSID, normal_forEnv, NV, reflection, albedo, F0, userRoughness, F);
     float occlusion = ${_texture}(u_occlusionTexture, v_texcoord).r;
 
     // Occlution to Indirect Lights

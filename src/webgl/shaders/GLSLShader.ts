@@ -241,7 +241,6 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 }
 
 mat4 getSkinMatrix(float skeletalComponentSID) {
-  // float skeletalComponentSID = float(get_skinningMode(materialSID, 0));
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
@@ -318,7 +317,6 @@ bool processGeometryWithMorphingAndSkinning(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
-  // int morphTargetNumber = get_morphTargetNumber(materialSID, 0);
   if (u_morphTargetNumber == 0) {
 #endif
     position_inLocal = inPosition_inLocal;
@@ -331,7 +329,6 @@ bool processGeometryWithMorphingAndSkinning(
 
 
 #ifdef RN_IS_SKINNING
-//  int skinningMode = get_skinningMode(materialSID, 0);
   if (skeletalComponentSID >= 0.0) {
     isSkinning = skinning(skeletalComponentSID, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
@@ -349,7 +346,7 @@ bool processGeometryWithMorphingAndSkinning(
 
   get prerequisites() {
     return `
-    uniform float materialSID;
+    uniform float u_materialSID;
     uniform sampler2D u_dataTexture;
 
     /*
@@ -380,6 +377,7 @@ bool processGeometryWithMorphingAndSkinning(
 `;
     } else {
       return `
+  float materialSID = u_materialSID;
   int lightNumber = u_lightNumber;
   float skeletalComponentSID = float(u_skinningMode);
       `;
