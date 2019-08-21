@@ -15,12 +15,14 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import MeshComponent from './MeshComponent';
 
 // import AnimationComponent from './AnimationComponent';
 
 export default class BlendShapeComponent extends Component {
   private __weights: number[] = []
   private _dummy: Vector3 = Vector3.dummy();
+  private __meshComponent?: MeshComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -37,11 +39,20 @@ export default class BlendShapeComponent extends Component {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
   }
 
+  $create() {
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
   $logic() {
+
   }
 
   set weights(weights: number[]) {
     this.__weights = weights;
+    if (this.__meshComponent) {
+      this.__meshComponent.weights = weights;
+    }
   }
 
   get weights() {

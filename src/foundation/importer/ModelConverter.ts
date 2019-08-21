@@ -380,11 +380,19 @@ export default class ModelConverter {
 
       rnEntities.push(entity);
 
-      if (node.weights != null) {
+      if (node.mesh && node.mesh.primitives[0].targets) {
+        let weights: number[];
+        if (node.weights) {
+          weights = node.weights;
+        } else if (node.mesh.weights) {
+          weights = node.mesh.weights;
+        } else {
+          weights = new Array(node.mesh.primitives[0].targets.length);
+        }
         const entityRepository = EntityRepository.getInstance();
         entityRepository.addComponentsToEntity([BlendShapeComponent], entity.entityUID);
-        const blendShapeComponrnt = entity.getComponent(BlendShapeComponent) as BlendShapeComponent;
-        blendShapeComponrnt.weights = node.weights;
+        const blendShapeComponent = entity.getComponent(BlendShapeComponent) as BlendShapeComponent;
+        blendShapeComponent.weights = weights;
       }
     }
 
