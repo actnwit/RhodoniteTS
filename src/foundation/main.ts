@@ -62,6 +62,7 @@ import { MathUtil } from './math/MathUtil';
 import Component from './core/Component';
 import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSingleMaterialNode';
 import RnObject from '../foundation/core/RnObject';
+import VRMImporter from '../foundation/importer/VRMImporter';
 
 
 const Rn = {
@@ -129,6 +130,7 @@ const Rn = {
   Component,
   EnvConstantSingleMaterialNode,
   RnObject,
+  VRMImporter
 };
 export default Rn;
 export type RnType = typeof Rn;

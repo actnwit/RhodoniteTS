@@ -4,7 +4,8 @@
     "Gltf2Importer",
     "MultiPass",
     "PixelPickingTest",
-    "SeamlessTexture"
+    "SeamlessTexture",
+    "VRMImporter"
   ],
   "simple": [
     "Effekseer",
