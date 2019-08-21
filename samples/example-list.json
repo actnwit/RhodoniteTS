@@ -1,10 +1,15 @@
 {
   "test_e2e": [
+    "FastestInstancedDrawingWebGL1",
     "Gltf2Importer",
-    "FastestInstancedDrawingWebGL1"
+    "MultiPass",
+    "PixelPickingTest",
+    "SeamlessTexture"
   ],
   "simple": [
     "Effekseer",
+    "Gltf1Importer",
+    "Gltf2Importer",
     "SparkGear"
   ]
 }
