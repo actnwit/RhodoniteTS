@@ -19,15 +19,17 @@ import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
 import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
+import BlendShapeComponent from './BlendShapeComponent';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;
+  private __blendShapeComponent?: BlendShapeComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
-    this.moveStageTo(ProcessStage.Load);
+    this.moveStageTo(ProcessStage.Create);
   }
 
   static get componentTID(): ComponentTID {
@@ -53,6 +55,12 @@ export default class MeshComponent extends Component {
     return this.__mesh;
   }
 
+  $create() {
+    this.__blendShapeComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, BlendShapeComponent) as BlendShapeComponent;
+
+    this.moveStageTo(ProcessStage.Load);
+  }
+
   $load() {
     if (this.__mesh == null) {
       return;
@@ -61,7 +69,7 @@ export default class MeshComponent extends Component {
     this.__mesh.__calcTangents();
     // this.__mesh.__initMorphPrimitives();
     // this.__mesh!.__calcFaceNormals();
-    if (this.__mesh.weights.length > 0) {
+    if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
       this.__mesh!.__calcBaryCentricCoord();
     }
     this.moveStageTo(ProcessStage.Logic);

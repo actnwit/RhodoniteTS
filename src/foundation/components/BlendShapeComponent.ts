@@ -30,7 +30,7 @@ export default class BlendShapeComponent extends Component {
     this.registerMember(BufferUse.CPUGeneric, 'dummy', Vector3, ComponentType.Float, [0, 0, 0]);
     this.submitToAllocation(this.maxNumberOfComponent);
 
-    this.moveStageTo(ProcessStage.Logic);
+    this.moveStageTo(ProcessStage.Create);
 
   }
 
