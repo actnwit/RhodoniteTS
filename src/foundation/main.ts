@@ -63,6 +63,7 @@ import Component from './core/Component';
 import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSingleMaterialNode';
 import RnObject from '../foundation/core/RnObject';
 import VRMImporter from '../foundation/importer/VRMImporter';
+import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
 
 
 const Rn = {
@@ -130,7 +131,8 @@ const Rn = {
   Component,
   EnvConstantSingleMaterialNode,
   RnObject,
-  VRMImporter
+  VRMImporter,
+  BlendShapeComponent
 };
 export default Rn;
 export type RnType = typeof Rn;

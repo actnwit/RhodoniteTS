@@ -380,7 +380,7 @@ export default class ModelConverter {
 
       rnEntities.push(entity);
 
-      if (node.mesh && node.mesh.primitives[0].targets) {
+      if (this.__hasBlendShhapes(node)) {
         let weights: number[];
         if (node.weights) {
           weights = node.weights;
@@ -388,6 +388,9 @@ export default class ModelConverter {
           weights = node.mesh.weights;
         } else {
           weights = new Array(node.mesh.primitives[0].targets.length);
+          for (let i=0; i<weights.length; i++) {
+            weights[i] = 0;
+          }
         }
         const entityRepository = EntityRepository.getInstance();
         entityRepository.addComponentsToEntity([BlendShapeComponent], entity.entityUID);
@@ -397,6 +400,10 @@ export default class ModelConverter {
     }
 
     return rnEntities;
+  }
+
+  private __hasBlendShhapes(node: any) {
+    return node.mesh != null && node.mesh.primitives[0].targets != null;
   }
 
   private __setupLight(light: any, gltfModel: glTF2) {
@@ -533,7 +540,7 @@ export default class ModelConverter {
     if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
       maxMaterialInstanceNumber = gltfModel.meshes.length + Config.maxMaterialInstanceForEachType / 2;
     }
-    const isMorphing = (node.mesh != null && node.mesh.weights != null) ? true : false;
+    const isMorphing = this.__hasBlendShhapes(node);
     const isSkinning = (node.skin != null) ? true : false;
     const additionalName = (node.skin != null) ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : void 0;
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
