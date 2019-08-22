@@ -322,9 +322,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
     let weights;
     if (meshComponent.mesh!.weights.length > 0) {
       weights = meshComponent.mesh!.weights;
+    } else if (blendShapeComponent.weights.length > 0) {
+      weights = blendShapeComponent.weights;
     } else {
       weights = new Float32Array(primitive.targets.length);
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
     }
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
 
