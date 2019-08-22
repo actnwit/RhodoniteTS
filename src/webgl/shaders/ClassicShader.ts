@@ -42,10 +42,12 @@ ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
+${_in} vec4 a_baryCentricCoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
+${_out} vec3 v_baryCentricCoord;
 
 ${this.prerequisites}
 
@@ -87,6 +89,7 @@ void main()
   v_color = a_color;
   v_normal_inWorld = normalMatrix * a_normal;
   v_texcoord = a_texcoord;
+  v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   ${this.pointSprite}
 
@@ -124,6 +127,7 @@ ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
 ${_in} vec2 v_texcoord;
+${_in} vec3 v_baryCentricCoord;
 ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
@@ -246,11 +250,11 @@ void main ()
     return this.getFragmentShader(args);
   }
 
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
+  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
   }
 }

@@ -433,18 +433,13 @@ export default class Mesh {
   __calcBaryCentricCoord() {
     for (let primitive_i in this.__primitives) {
       let primitive = this.__primitives[primitive_i];
-      // if (primitive.targets.length > 0) {
-      //   primitive = this.__morphPrimitives[primitive_i];
-      // }
+
       const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
       const vertexNum = positionAccessor.elementCount;
       let num = vertexNum;
-      if (indicesAccessor) {
-        num = indicesAccessor.elementCount;
-      }
 
       const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4 /* bytes */;
       const baryCentricCoordBufferView = buffer.takeBufferView({ byteLengthToNeed: baryCentricCoordAttributeByteSize, byteStride: 0, isAoS: false });

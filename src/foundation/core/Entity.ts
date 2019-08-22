@@ -9,6 +9,7 @@ import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/CameraComponent';
+import BlendShapeComponent from '../components/BlendShapeComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -28,6 +29,7 @@ export default class Entity extends RnObject {
   private __meshComponent?: MeshComponent;
   private __meshRendererComponent?: MeshRendererComponent;
   private __cameraComponent?: CameraComponent;
+  private __blendShapeComponent?: BlendShapeComponent;
 
   /**
    * The constructor of the Entity class.
@@ -125,4 +127,12 @@ export default class Entity extends RnObject {
     }
     return this.__cameraComponent;
   }
+
+  getBlendShape(): BlendShapeComponent {
+    if (this.__blendShapeComponent == null) {
+      this.__blendShapeComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.BlendShapeComponentTID) as BlendShapeComponent;
+    }
+    return this.__blendShapeComponent;
+  }
+
 }
