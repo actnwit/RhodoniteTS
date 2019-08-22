@@ -20,9 +20,10 @@ import MeshComponent from './MeshComponent';
 // import AnimationComponent from './AnimationComponent';
 
 export default class BlendShapeComponent extends Component {
-  private __weights: number[] = []
+  private __weights: number[] = [];
   private _dummy: Vector3 = Vector3.dummy();
   private __meshComponent?: MeshComponent;
+  private __targetNames: string[] = [];
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -57,6 +58,14 @@ export default class BlendShapeComponent extends Component {
 
   get weights() {
     return this.__weights;
+  }
+
+  set targetNames(names: string[]) {
+    this.__targetNames = names;
+  }
+
+  get targetNames() {
+    return this.__targetNames;
   }
 }
 

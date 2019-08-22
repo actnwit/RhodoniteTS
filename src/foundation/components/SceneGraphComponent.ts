@@ -89,6 +89,10 @@ export default class SceneGraphComponent extends Component {
     this.__isNormalMatrixUpToDate = false;
     // SceneGraphComponent._isAllUpdate = false;
     this.__isWorldAABBDirty = true;
+
+    this.children.forEach((child)=> {
+      child.setWorldMatrixDirty();
+    });
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -160,7 +164,7 @@ export default class SceneGraphComponent extends Component {
 
 //    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
 //    const world = this.worldMatrixInner;
-this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
+    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
 
     const normal = this.normalMatrixInner;
 //    const normal = this.normalMatrixInner;
@@ -195,25 +199,11 @@ this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.
         return matrix;
       }
       this.__tmpMatrix.copyComponents(matrix);
-      let matrixFromAncestorToParent;
-      if (this.isWorldMatrixUpToDateRecursively()) {
-        matrixFromAncestorToParent = this.__parent._worldMatrix;
-      } else {
-        matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(isJointMode);
-      }
+      const matrixFromAncestorToParent = this.__parent.calcWorldMatrixRecursively(isJointMode);
       this.__tmpMatrix.multiplyByLeft(matrixFromAncestorToParent);
     }
 
     return this.__tmpMatrix;
-
-    // let matrix;
-    // let currentMatrix = transform.matrixInner;
-    // if (this.__parent == null) {
-    //   return currentMatrix;
-    // }
-    // matrix = Matrix44.multiply(this.__parent!.calcWorldMatrixRecursively(), currentMatrix);
-
-    // return matrix;
   }
 
   /**
