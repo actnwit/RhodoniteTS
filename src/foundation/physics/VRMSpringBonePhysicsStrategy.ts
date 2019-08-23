@@ -4,6 +4,8 @@ import MutableVector3 from "../math/MutableVector3";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import Quaternion from "../math/Quaternion";
 import { thisExpression } from "@babel/types";
+import SphereCollider from "./SphereCollider";
+import Matrix44 from "../math/Matrix44";
 
 export default class VRMSpringBonePhysicsStrategy {
   private static __stiffnessForce = 1.0;
@@ -41,6 +43,32 @@ export default class VRMSpringBonePhysicsStrategy {
     this.__parent.worldMatrixInner.multiplyVector3To(VRMSpringBonePhysicsStrategy.__tmp_vec3, VRMSpringBonePhysicsStrategy.__tmp_vec3_2);
 
     return VRMSpringBonePhysicsStrategy.__tmp_vec3_2;
+  }
+
+  get parentRotation() {
+    return (this.__parent.parent != null) ? Quaternion.fromMatrix(this.__parent.parent.worldMatrix) : new Quaternion(0, 0, 0, 1);
+  }
+
+  update(stiffnessForce: number, dragForce: number, external: Vector3, colliders: SphereCollider[], center?: SceneGraphComponent) {
+    const currentTail = (center != null) ? center.getWorldPositionOf(this.__currentTail) : this.__currentTail;
+    const prevTail = (center != null) ? center.getWorldPositionOf(this.__prevTail) : this.__prevTail;
+
+    const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
+    const dist = (new Matrix44(Quaternion.multiply(this.parentRotation, this.__localRotation))).multiplyVector(Vector3.multiply(this.__boneAxis, stiffnessForce));
+    let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
+
+    nextTail = Vector3.add(this.__parent.worldPosition, Vector3.multiply(Vector3.subtract(nextTail, this.__parent.worldPosition).normalize(), this.__length));
+
+    this.__prevTail = (center != null) ? center.getLocalPositionOf(currentTail) : currentTail;
+    this.__currentTail = (center != null) ? center.getLocalPositionOf(nextTail) : nextTail;
+
+    //this.head.entity.get
+  }
+
+  applyRotation() {
+    var rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
+    // return Quaternion.FromToRotation(rotation * m_boneAxis, 
+    //     nextTail - m_transform.position) * rotation;
   }
 
 }
