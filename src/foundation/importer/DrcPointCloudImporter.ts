@@ -25,7 +25,8 @@ export default class DrcPointCloudImporter {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultMaterial: null,
+      defaultMaterialHelperName: null,
+      defaultMaterialHelperArgumentArray: [],
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
@@ -323,7 +324,8 @@ export default class DrcPointCloudImporter {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultMaterial: null,
+      defaultMaterialHelperName: null,
+      defaultMaterialHelperArgumentArray: [],
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
@@ -400,7 +402,7 @@ export default class DrcPointCloudImporter {
       attributeCompositionTypes: attributeCompositionTypes,
       attributeSemantics: attributeSemantics,
       attributes: attributes,
-      material: MaterialHelper.createClassicUberMaterial({isSkinning: false, isLighting: true}),
+      material: MaterialHelper.createClassicUberMaterial({ isSkinning: false, isLighting: true }),
       primitiveMode: PrimitiveMode.Points
     });
 

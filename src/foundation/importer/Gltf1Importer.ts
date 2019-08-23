@@ -24,13 +24,14 @@ export default class Gltf1Importer {
         //        "boo.png": content of file as ArrayBuffer
       },
       loaderExtension: null,
-      defaultMaterial: null,
+      defaultMaterialHelperName: null,
+      defaultMaterialHelperArgumentArray: [],
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
           states: {
             enable: [
-                // 3042,  // BLEND
+              // 3042,  // BLEND
             ],
             functions: {
               //"blendFuncSeparate": [1, 0, 1, 0],
@@ -136,13 +137,13 @@ export default class Gltf1Importer {
     }
 
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {fileType: "glTF", version: "1"};
+      gltfJson.asset.extras = { fileType: "glTF", version: "1" };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
-    const result  = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
+    const result = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
 
     return (result[0] as any)[0];
   }
@@ -158,7 +159,7 @@ export default class Gltf1Importer {
     }
 
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {fileType: "glTF", version: "1"};
+      gltfJson.asset.extras = { fileType: "glTF", version: "1" };
     }
 
     options = this._getOptions(defaultOptions, gltfJson, options);
@@ -320,14 +321,14 @@ export default class Gltf1Importer {
         }
         node.mesh = node.meshes[1];
 
-       if (node.meshes == null || node.meshes.length === 0) {
+        if (node.meshes == null || node.meshes.length === 0) {
           node.mesh = node.meshes[0];
         } else {
           const mergedMesh = {
             name: '',
             primitives: []
           };
-          for (let i=0; i<node.meshes.length; i++) {
+          for (let i = 0; i < node.meshes.length; i++) {
             mergedMesh.name += '_' + node.meshes[i].name;
             Array.prototype.push.apply(mergedMesh.primitives, node.meshes[i].primitives);
           }
@@ -421,7 +422,7 @@ export default class Gltf1Importer {
           material = material.extensions.KHR_materials_common;
         }
 
-        const setParameters = (values: any[], isParameter: boolean)=> {
+        const setParameters = (values: any[], isParameter: boolean) => {
           for (let valueName in values) {
             let value = null;
             if (isParameter) {
@@ -666,7 +667,7 @@ export default class Gltf1Importer {
             bufferInfo.buffer = arrayBufferBinary;
             resolve(gltfJson);
           }
-        ));
+          ));
       } else if (bufferInfo.uri === '' || bufferInfo.uri === 'data:,') {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
@@ -692,16 +693,16 @@ export default class Gltf1Importer {
             bufferInfo.buffer = arrayBuffer;
             resolve(gltfJson);
           }
-        ));
+          ));
       } else {
         promisesToLoadResources.push(
           DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
-            (resolve:Function, response: any)=>{
+            (resolve: Function, response: any) => {
               resources.buffers[i] = response;
               bufferInfo.buffer = response;
               resolve(gltfJson);
             },
-            (reject: Function, error: any)=>{
+            (reject: Function, error: any) => {
 
             }
           )
@@ -756,21 +757,21 @@ export default class Gltf1Importer {
               binaryData += String.fromCharCode(bytes[i]);
             }
             const split = imageUri.split('.');
-            let ext = split[split.length-1];
+            let ext = split[split.length - 1];
             img.src = this._getImageType(ext) + window.btoa(binaryData);
-            img.onload = ()=>{
+            img.onload = () => {
               resolve(gltfJson);
             }
           }
 
-          const loadBinaryImage = ()=> {
+          const loadBinaryImage = () => {
             var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = (function(_img) {
-              return function(){
+            xhr.onreadystatechange = (function (_img) {
+              return function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                load(_img, xhr.response);
+                  load(_img, xhr.response);
                 }
-            }
+              }
             })(img);
             xhr.open('GET', imageUri);
             xhr.responseType = 'arraybuffer';
