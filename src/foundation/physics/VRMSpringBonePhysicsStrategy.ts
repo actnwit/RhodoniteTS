@@ -23,6 +23,7 @@ export default class VRMSpringBonePhysicsStrategy {
   private __prevTail = Vector3.zero();
   private __localDir = Vector3.zero();
   private __localRotation = new Quaternion(0, 0, 0, 1);
+  private __radius = 0;
 
   constructor(parent: SceneGraphComponent, localChildPosition: Vector3, center?: SceneGraphComponent) {
     this.__parent = parent;
@@ -59,6 +60,8 @@ export default class VRMSpringBonePhysicsStrategy {
 
     nextTail = Vector3.add(this.__parent.worldPosition, Vector3.multiply(Vector3.subtract(nextTail, this.__parent.worldPosition).normalize(), this.__length));
 
+    nextTail = this.collision(colliders, nextTail);
+
     this.__prevTail = (center != null) ? center.getLocalPositionOf(currentTail) : currentTail;
     this.__currentTail = (center != null) ? center.getLocalPositionOf(nextTail) : nextTail;
 
@@ -68,6 +71,19 @@ export default class VRMSpringBonePhysicsStrategy {
   applyRotation(nextTail: Vector3) {
     var rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
     return Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__parent.worldPosition)), rotation);
+  }
+
+  collision(colliders: SphereCollider[], nextTail: Vector3) {
+    for (let collider of colliders) {
+      const r = this.__radius + collider.radius;
+      if (Vector3.lengthSquared(Vector3.subtract(nextTail, collider.position)) <= (r * r)) {
+        var normal = Vector3.subtract(nextTail, collider.position).normalize();
+        var posFromCollider = Vector3.multiply(Vector3.add(collider.position, normal), this.__radius + collider.radius);
+        nextTail = Vector3.add(this.__parent.worldPosition, Vector3.multiply(Vector3.subtract(posFromCollider, this.__parent.worldPosition).normalize(), this.__length));
+      }
+    }
+
+    return nextTail;
   }
 
 }
