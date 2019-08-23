@@ -276,7 +276,16 @@ export default class Quaternion implements IVector4 {
     return new Quaternion(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z, lhs.w-rhs.w)
   }
 
-  lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
+  static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
+    return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
+  }
+
+  static lookForward(forward: Vector3) {
+    const up = new Vector3(0, 1, 0);
+		return this.lookForwardAccordingToThisUp(forward, up);
+  }
+
+  static lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
     forward = Vector3.normalize(forward);
     const right = Vector3.normalize(Vector3.cross(up, forward));
     up = Vector3.cross(forward, right);
