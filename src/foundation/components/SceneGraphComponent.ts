@@ -234,6 +234,14 @@ export default class SceneGraphComponent extends Component {
     return SceneGraphComponent.returnVector3 as Vector3;
   }
 
+  getWorldPositionOf(localPosition: Vector3) {
+    return this.worldMatrixInner.multiplyVector3(localPosition);
+  }
+
+  getLocalPositionOf(worldPosition: Vector3) {
+    return this.worldMatrixInner.invert().multiplyVector3(worldPosition);
+  }
+
   calcWorldAABB() {
     const that = this;
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
