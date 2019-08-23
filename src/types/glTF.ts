@@ -32,7 +32,7 @@ export type glTF2 = {
 export type glTF1 = {
   asset: {
     extras?: {
-      rnLoaderOptions?:{[s:string]: any},
+      rnLoaderOptions?: { [s: string]: any },
       basePath?: string,
       version?: string,
       fileType?: string,
@@ -72,7 +72,7 @@ export type glTF1 = {
   }>,
 
   animationDic: {
-    [s:string]: {
+    [s: string]: {
       channels: any[],
       samplers: any[]
     }
@@ -95,19 +95,21 @@ export type glTF1 = {
 };
 
 export type GltfLoadOption = {
-  files: {[s:string]: ArrayBuffer
+  files: {
+    [s: string]: ArrayBuffer
     //        "foo.gltf": content of file as ArrayBuffer,
     //        "foo.bin": content of file as ArrayBuffer,
     //        "boo.png": content of file as ArrayBuffer
   },
   loaderExtension: any,
-  defaultMaterial: any,
+  defaultMaterialHelperName: string | null,
+  defaultMaterialHelperArgumentArray: any[],
   statesOfElements: [
     {
       targets: any[], //["name_foo", "name_boo"],
       states: {
         enable: any[
-            // 3042,  // BLEND
+        // 3042,  // BLEND
         ],
         functions: Object //"blendFuncSeparate": [1, 0, 1, 0],
       },
@@ -120,5 +122,5 @@ export type GltfLoadOption = {
   ignoreLists?: [],
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
-  extendedJson?: string|Object|ArrayBuffer //   URI string / JSON Object / ArrayBuffer
+  extendedJson?: string | Object | ArrayBuffer //   URI string / JSON Object / ArrayBuffer
 }

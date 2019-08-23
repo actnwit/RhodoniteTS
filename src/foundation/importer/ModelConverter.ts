@@ -388,7 +388,7 @@ export default class ModelConverter {
           weights = node.mesh.weights;
         } else {
           weights = new Array(node.mesh.primitives[0].targets.length);
-          for (let i=0; i<weights.length; i++) {
+          for (let i = 0; i < weights.length; i++) {
             weights[i] = 0;
           }
         }
@@ -538,6 +538,14 @@ export default class ModelConverter {
       gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
       const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
       return loaderExtension.generateMaterial();
+    }
+
+    if (gltfModel.asset.extras != null &&
+      gltfModel.asset.extras.rnLoaderOptions != null &&
+      gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperName != null) {
+      const helperName = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperName;
+      const argumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+      return (MaterialHelper as any)[helperName].apply(this, argumentArray);
     }
 
     let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType
