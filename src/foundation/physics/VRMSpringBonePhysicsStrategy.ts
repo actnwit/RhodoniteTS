@@ -2,6 +2,8 @@ import Vector3 from "../math/Vector3";
 import TransformComponent from "../components/TransformComponent";
 import MutableVector3 from "../math/MutableVector3";
 import SceneGraphComponent from "../components/SceneGraphComponent";
+import Quaternion from "../math/Quaternion";
+import { thisExpression } from "@babel/types";
 
 export default class VRMSpringBonePhysicsStrategy {
   private static __stiffnessForce = 1.0;
@@ -16,11 +18,18 @@ export default class VRMSpringBonePhysicsStrategy {
   private __boneAxis = Vector3.zero();
   private __length = 0;
   private __currentTail = Vector3.zero();
+  private __prevTail = Vector3.zero();
+  private __localDir = Vector3.zero();
+  private __localRotation = new Quaternion(0, 0, 0, 1);
 
-  constructor(center: SceneGraphComponent, parent: SceneGraphComponent, localChildPosition: Vector3) {
+  constructor(parent: SceneGraphComponent, localChildPosition: Vector3, center?: SceneGraphComponent) {
     this.__parent = parent;
     const worldChildPosition = parent.getWorldPositionOf(localChildPosition);
-
+    this.__currentTail = (center != null) ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
+    this.__prevTail = this.__currentTail;
+    this.__localRotation = parent.entity.getTransform().quaternion;
+    this.__boneAxis = Vector3.normalize(localChildPosition);
+    this.__length = localChildPosition.length();
   }
 
   get head(): SceneGraphComponent {
