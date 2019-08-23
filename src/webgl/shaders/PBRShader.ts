@@ -257,10 +257,12 @@ void main ()
 
   // BaseColor (take account for BaseColorTexture)
   vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
-  // if (length(textureColor) > 0.01) {
-    baseColor *= srgbToLinear(textureColor.rgb);
-    alpha *= textureColor.a;
-  // }
+  baseColor *= srgbToLinear(textureColor.rgb);
+  alpha *= textureColor.a;
+
+  if (alpha < 0.01) {
+    discard;
+  }
 
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
