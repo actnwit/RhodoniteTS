@@ -62,13 +62,12 @@ export default class VRMSpringBonePhysicsStrategy {
     this.__prevTail = (center != null) ? center.getLocalPositionOf(currentTail) : currentTail;
     this.__currentTail = (center != null) ? center.getLocalPositionOf(nextTail) : nextTail;
 
-    //this.head.entity.get
+    this.head.entity.getTransform().quaternion = this.applyRotation(nextTail);
   }
 
-  applyRotation() {
+  applyRotation(nextTail: Vector3) {
     var rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
-    // return Quaternion.FromToRotation(rotation * m_boneAxis, 
-    //     nextTail - m_transform.position) * rotation;
+    return Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__parent.worldPosition)), rotation);
   }
 
 }
