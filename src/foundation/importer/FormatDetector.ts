@@ -15,6 +15,10 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
         return new Promise((resolve, reject)=>{
           resolve('Draco');
         });
+      } else if (fileExtension === 'vrm') {
+        return new Promise((resolve, reject)=>{
+          resolve('VRM');
+        });
       }
     }
   }
@@ -22,7 +26,6 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
   const splitted = uri.split('.');
   const fileExtension = splitted[splitted.length - 1];
 
-  // Effekseer
   if (fileExtension === 'efk') {
     return new Promise((resolve, reject)=>{
       resolve('Effekseer');
@@ -30,6 +33,10 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
   } else if (fileExtension === 'drc') {
     return new Promise((resolve, reject)=>{
       resolve('Draco');
+    });
+  } else if (fileExtension === 'vrm') {
+    return new Promise((resolve, reject)=>{
+      resolve('VRM');
     });
   }
 

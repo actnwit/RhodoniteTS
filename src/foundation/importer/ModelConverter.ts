@@ -123,6 +123,7 @@ export default class ModelConverter {
 
     // Mesh, Camera, Group, ...
     const rnEntities = this.__setupObjects(gltfModel, rnBuffer);
+    gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
     this._setupTransform(gltfModel, rnEntities);

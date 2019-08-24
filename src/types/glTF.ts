@@ -1,7 +1,10 @@
+import Entity from "../foundation/core/Entity";
+
 export type glTF2 = {
   asset: {
     extras?: {
       rnLoaderOptions?: GltfLoadOption,
+      rnEntities?: Entity[]
       basePath?: string,
       version?: string,
       fileType?: string,

@@ -2,6 +2,8 @@ import Gltf2Importer from "./Gltf2Importer";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
 import ModelConverter from "./ModelConverter";
 import Entity from "../core/Entity";
+import Rn from "../main";
+import RnObject from "../core/RnObject";
 
 type HumanBone = {
   bone: string,
@@ -117,6 +119,7 @@ export type VRM = {
   asset: {
     extras?: {
       rnLoaderOptions?: GltfLoadOption,
+      rnEntities?: Entity[],
       basePath?: string,
       version?: string,
       fileType?: string,
@@ -159,40 +162,40 @@ export type VRM = {
 				licenseName: string,
 				otherLicenseUrl: string
       }
-    },
-    humanoid: {
-      humanBones: HumanBone[],
-      armStretch: number,
-      legStretch: number,
-      upperArmTwist: number,
-      lowerArmTwist: number,
-      upperLegTwist: number,
-      lowerLegTwist: number,
-      feetSpacing: number,
-      hasTranslationDoF: false
-    },
-    firstPerson: {
-      firstPersonBone: number,
-      firstPersonBoneOffset: {
-        x: number,
-        y: number,
-        z: number
+      humanoid: {
+        humanBones: HumanBone[],
+        armStretch: number,
+        legStretch: number,
+        upperArmTwist: number,
+        lowerArmTwist: number,
+        upperLegTwist: number,
+        lowerLegTwist: number,
+        feetSpacing: number,
+        hasTranslationDoF: false
       },
-      meshAnnotations: [],
-      lookAtTypeName: string,
-      lookAtHorizontalInner: LookAt,
-      lookAtHorizontalOuter: LookAt,
-      lookAtVerticalDown: LookAt,
-      lookAtVerticalUP: LookAt,
-    },
-    blendShapeMaster: {
-      blendShapeGroups: BlendShapeGroup[]
-    },
-    secondaryAnimation: {
-      boneGroups: BoneGroup[],
-      colliderGroups: ColliderGroup[]
-    },
-    materialProperties: MaterialProperty[]
+      firstPerson: {
+        firstPersonBone: number,
+        firstPersonBoneOffset: {
+          x: number,
+          y: number,
+          z: number
+        },
+        meshAnnotations: [],
+        lookAtTypeName: string,
+        lookAtHorizontalInner: LookAt,
+        lookAtHorizontalOuter: LookAt,
+        lookAtVerticalDown: LookAt,
+        lookAtVerticalUP: LookAt,
+      },
+      blendShapeMaster: {
+        blendShapeGroups: BlendShapeGroup[]
+      },
+      secondaryAnimation: {
+        boneGroups: BoneGroup[],
+        colliderGroups: ColliderGroup[]
+      },
+      materialProperties: MaterialProperty[]
+    }
   }
 };
 export default class VRMImporter {
@@ -206,15 +209,32 @@ export default class VRMImporter {
    */
   async import(uri: string, options?: GltfLoadOption) {
     const gltf2Importer = Gltf2Importer.getInstance();
+
+    if (options) {
+      for (let file in options.files) {
+        const fileName = file.split('.vrm')[0];
+        if (fileName) {
+          const arraybuffer = options.files[file];
+          options.files[fileName+'.glb'] = arraybuffer;
+          delete options.files[file];
+        }
+      }
+    }
+
     const gltfModel = await gltf2Importer.import(uri, options);
     const modelConverter = ModelConverter.getInstance();
     const rootEntity = modelConverter.convertToRhodoniteObject(gltfModel);
+    this.readSpringBone(rootEntity, gltfModel);
 
     return rootEntity;
   }
 
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
-    gltfModel.extensions
+    for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
+      for (let boneNodeIndex of boneGroup.bones) {
+        const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+      }
+    }
   }
 
   static getInstance() {
