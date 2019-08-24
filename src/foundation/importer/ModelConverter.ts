@@ -89,8 +89,8 @@ export default class ModelConverter {
 
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity(components);
-    entity.tryToSetTag('SourceType', gltfModel.asset.extras!.fileType!);
-    entity.tryToSetTag('SourceTypeVersion', gltfModel.asset.extras!.version!);
+    entity.tryToSetTag({ tag: 'SourceType', value: gltfModel.asset.extras!.fileType!});
+    entity.tryToSetTag({ tag: 'SourceTypeVersion', value: gltfModel.asset.extras!.version!});
 
     return entity;
   }
@@ -119,16 +119,11 @@ export default class ModelConverter {
 
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
-    // load binary data
-    // for (let accessor of gltfModel.accessors) {
-    //   this._accessBinaryWithAccessor(accessor);
-    // }
-
     const rnBuffer = this.createRnBuffer(gltfModel);
-
 
     // Mesh, Camera, Group, ...
     const rnEntities = this.__setupObjects(gltfModel, rnBuffer);
+    gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
     this._setupTransform(gltfModel, rnEntities);
@@ -148,31 +143,12 @@ export default class ModelConverter {
     // Root Group
     const rootGroup = this.__generateGroupEntity(gltfModel);
     rootGroup.tryToSetUniqueName('FileRoot', true);
-    rootGroup.tryToSetTag('ObjectType', 'top');
+    rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
     if (gltfModel.scenes[0].nodesIndices) {
       for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
         rootGroup.getSceneGraph().addChild(rnEntities[nodesIndex].getSceneGraph());
       }
     }
-
-    // Post Skeletal Proccess
-    // for (let glboostMesh of glboostMeshes) {
-    //   if (glboostMesh instanceof M_SkeletalMesh) {
-    //     if (!glboostMesh.jointsHierarchy) {
-    //       glboostMesh.jointsHierarchy = rootGroup;
-    //     }
-    //   }
-    // }
-
-    // let options = gltfModel.asset.extras.glboostOptions;
-    // if (options.loaderExtension && options.loaderExtension.setAssetPropertiesToRootGroup) {
-    //   options.loaderExtension.setAssetPropertiesToRootGroup(rootGroup, gltfModel.asset);
-    // }
-    // if (options && options.loaderExtension && options.loaderExtension.loadExtensionInfoAndSetToRootGroup) {
-    //   options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel, glBoostContext);
-    // }
-
-    // rootGroup.allMeshes = rootGroup.searchElementsByType(M_Mesh);
 
     return rootGroup;
   }
@@ -377,6 +353,8 @@ export default class ModelConverter {
         }
         entity = group;
       }
+
+      entity.tryToSetTag({tag: 'gltf_node_index', value: ''+ node_i});
 
       rnEntities.push(entity);
 

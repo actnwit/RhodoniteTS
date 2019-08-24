@@ -1,5 +1,11 @@
 import { RnTags, ObjectUID } from "../../types/CommonTypes";
 
+
+export type Tag = {
+  tag: string,
+  value: string
+};
+
 /**
  * The root class of the objects in Rhodonite
  */
@@ -25,6 +31,14 @@ export default class RnObject {
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
+  searchByTag(tag: string, value: string) {
+    for (let obj of RnObject.__objects) {
+      if (obj.getTagValue(tag) === value) {
+        return obj;
+      }
+    }
+    return void 0;
+  }
 
   /**
    * Gets the objectUID of the object.
@@ -92,15 +106,15 @@ export default class RnObject {
    * @param tagName The tag name.
    * @param tagValue Tha value of the tag.
    */
-  tryToSetTag(tagName: string, tagValue: string) {
-    if (this.validateTagString(tagName)) {
-      if (this.validateTagString(tagValue)) {
-        if (this.hasTag(tagName)) {
-          this.removeTag(tagName);
+  tryToSetTag(tag: Tag) {
+    if (this.validateTagString(tag.tag)) {
+      if (this.validateTagString(tag.value)) {
+        if (this.hasTag(tag.tag)) {
+          this.removeTag(tag.tag);
         }
 
-        this.__tags[tagName] = tagValue;
-        this.__conbinedTagString += `${tagName}:${tagValue}` + ' ';
+        this.__tags[tag.tag] = tag.value;
+        this.__conbinedTagString += `${tag.tag}:${tag.value}` + ' ';
         return true;
       }
     }
@@ -120,8 +134,10 @@ export default class RnObject {
    * @param tagName The tag name.
    */
   getTag(tagName: string) {
-    const tag :any = {};
-    tag[tagName] = this.__tags[tagName];
+    const tag: Tag = {
+      tag: tagName,
+      value: this.__tags[tagName]
+    }
     return tag;
   }
 

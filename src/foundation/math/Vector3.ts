@@ -5,6 +5,7 @@ import is from '../misc/IsUtil';
 import {IVector3} from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import { MutableVector3_ } from './MutableVector3';
 
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
@@ -184,6 +185,15 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
    */
   static multiply<T extends TypedArrayConstructor>(vec3:Vector3_<T>, val:number) {
     return new (vec3.constructor as any)(vec3.v[0] * val, vec3.v[1] * val, vec3.v[2] * val);
+  }
+
+  /**
+   * multiplyTo(static version)
+   */
+  static multiplyTo<T extends TypedArrayConstructor>(vec3:Vector3_<T>, val:number, out3:MutableVector3_<T>) {
+    out3.x = vec3.v[0] * val;
+    out3.y = vec3.v[1] * val;
+    out3.z = vec3.v[2] * val;
   }
 
   /**

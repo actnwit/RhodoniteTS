@@ -1,5 +1,3 @@
-//import GLBoost from '../../globals';
-
 import Vector3 from './Vector3';
 import { IVector4 } from './IVector';
 import Matrix44 from './Matrix44';
@@ -107,9 +105,9 @@ export default class Quaternion implements IVector4 {
 
   static qlerp(lhq: Quaternion, rhq: Quaternion, ratio:number) {
 
-    var q = new Quaternion(0, 0, 0, 1);
-    var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-    var ss = 1.0 - qr * qr;
+    let q = new Quaternion(0, 0, 0, 1);
+    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+    let ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
       q.v[3] = lhq.w;
@@ -155,9 +153,9 @@ export default class Quaternion implements IVector4 {
 
   static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
 
-//    var q = new Quaternion(0, 0, 0, 1);
-    var qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
-    var ss = 1.0 - qr * qr;
+//    let q = new Quaternion(0, 0, 0, 1);
+    let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
+    let ss = 1.0 - qr * qr;
 
     if (ss === 0.0) {
       outQ.v[3] = lhq.w;
@@ -193,10 +191,10 @@ export default class Quaternion implements IVector4 {
   }
 
   static axisAngle(axisVec3: Vector3, radian: number) {
-    var halfAngle = 0.5 * radian;
-    var sin = Math.sin(halfAngle);
+    let halfAngle = 0.5 * radian;
+    let sin = Math.sin(halfAngle);
 
-    var axis = Vector3.normalize(axisVec3);
+    let axis = Vector3.normalize(axisVec3);
     return new Quaternion(
       sin * axis.x,
       sin * axis.y,
@@ -277,6 +275,93 @@ export default class Quaternion implements IVector4 {
   static subtract(lhs: Quaternion, rhs: Quaternion) {
     return new Quaternion(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z, lhs.w-rhs.w)
   }
+
+  static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
+    return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
+  }
+
+  static lookForward(forward: Vector3) {
+    const up = new Vector3(0, 1, 0);
+		return this.lookForwardAccordingToThisUp(forward, up);
+  }
+
+  static lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
+    forward = Vector3.normalize(forward);
+    const right = Vector3.normalize(Vector3.cross(up, forward));
+    up = Vector3.cross(forward, right);
+
+    const m00 = right.x;
+    const m01 = right.y;
+    const m02 = right.z;
+    const m10 = up.x;
+    const m11 = up.y;
+    const m12 = up.z;
+    const m20 = forward.x;
+    const m21 = forward.y;
+    const m22 = forward.z;
+
+    const num8 = (m00 + m11) + m22;
+    const quaternion = new Quaternion(0, 0, 0, 1);
+    if (num8 > 0)
+		{
+			let num = Math.sqrt(num8 + 1);
+			(quaternion as any).w = num * 0.5;
+			num = 0.5 / num;
+			(quaternion as any).x = (m12 - m21) * num;
+			(quaternion as any).y = (m20 - m02) * num;
+			(quaternion as any).z = (m01 - m10) * num;
+			return quaternion;
+		}
+		if ((m00 >= m11) && (m00 >= m22))
+		{
+			let num7 = Math.sqrt(((1 + m00) - m11) - m22);
+			let num4 = 0.5 / num7;
+			(quaternion as any).x = 0.5 * num7;
+			(quaternion as any).y = (m01 + m10) * num4;
+			(quaternion as any).z = (m02 + m20) * num4;
+			(quaternion as any).w = (m12 - m21) * num4;
+			return quaternion;
+		}
+		if (m11 > m22)
+		{
+			let num6 = Math.sqrt(((1 + m11) - m00) - m22);
+			let num3 = 0.5 / num6;
+			(quaternion as any).x = (m10 + m01) * num3;
+			(quaternion as any).y = 0.5 * num6;
+			(quaternion as any).z = (m21 + m12) * num3;
+			(quaternion as any).w = (m20 - m02) * num3;
+			return quaternion;
+		}
+		let num5 = Math.sqrt(((1 + m22) - m00) - m11);
+		let num2 = 0.5 / num5;
+		(quaternion as any).x = (m20 + m02) * num2;
+		(quaternion as any).y = (m21 + m12) * num2;
+		(quaternion as any).z = 0.5 * num5;
+		(quaternion as any).w = (m01 - m10) * num2;
+		return quaternion;
+  }
+
+  multiplyVector3(point: Vector3)
+	{
+		const num = this.x * 2;
+		const num2 = this.y * 2;
+		const num3 = this.z * 2;
+		const num4 = this.x * num;
+		const num5 = this.y * num2;
+		const num6 = this.z * num3;
+		const num7 = this.x * num2;
+		const num8 = this.x * num3;
+		const num9 = this.y * num3;
+		const num10 = this.w * num;
+		const num11 = this.w * num2;
+		const num12 = this.w * num3;
+		const result = new Vector3(
+      (1 - (num5 + num6)) * point.x + (num7 - num12) * point.y + (num8 + num11) * point.z,
+		  (num7 + num12) * point.x + (1 - (num4 + num6)) * point.y + (num9 - num10) * point.z,
+      (num8 - num11) * point.x + (num9 + num10) * point.y + (1 - (num4 + num5)) * point.z);
+
+		return result;
+	}
 
   toString() {
     return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';

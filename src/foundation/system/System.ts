@@ -18,6 +18,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import Vector3 from "../math/Vector3";
 import { CameraType } from "../definitions/CameraType";
 import Vector4 from "../math/Vector4";
+import Time from "../misc/Time";
 
 export default class System {
   private static __instance: System;
@@ -49,6 +50,7 @@ export default class System {
     if (this.__processApproach === ProcessApproach.None) {
       throw new Error('Choose a process approach first.');
     }
+    Time._processBegin();
 
     let exp = (expression != null) ? expression : this.__localExpression;
     if (exp === this.__localExpression && this.__entityRepository.getEntitiesNumber() !== this.__lastEntitiesNumber) {
@@ -108,6 +110,8 @@ export default class System {
         }
       }
     }
+
+    Time._processEnd();
   }
 
   setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1) {
