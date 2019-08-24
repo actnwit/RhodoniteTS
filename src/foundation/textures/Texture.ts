@@ -40,9 +40,9 @@ export default class Texture extends AbstractTexture {
     ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
 
     if (this.autoDetectTransparency) {
+      this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
       for (let y = 0; y<dstHeight; y++) {
         for (let x = 0; x<dstWidth; x++) {
-          this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
           const alpha = this.__imageData.data[(x + y * dstWidth) * 4 + 3];
           if (alpha < 1) {
             this.__hasTransparentPixels = true;
