@@ -29,9 +29,7 @@ const load = async function(time){
   //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 
-  const response = await importer.import('../../../assets/vrm/test.vrm');
-  const modelConverter = Rn.ModelConverter.getInstance();
-  const rootGroup = modelConverter.convertToRhodoniteObject(response);
+  const rootGroup = await importer.import('../../../assets/vrm/test.vrm');
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
@@ -49,7 +47,7 @@ const load = async function(time){
   const draw = function(time) {
 
     if (p == null && count > 0) {
-      if (response != null) {
+      if (rootGroup != null) {
 
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0, 600, 600);
