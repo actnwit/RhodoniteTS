@@ -6,30 +6,44 @@ import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { thisExpression } from "@babel/types";
+import { Size } from "../../types/CommonTypes";
+import Config from "../core/Config";
 
 export default class Texture extends AbstractTexture {
   private __imageData?: ImageData;
-  public autoResize = false;
+  public autoResize = true;
   public autoDetectTransparency = false;
 
   constructor() {
     super();
   }
 
-  private __getResizedCanvas(image: HTMLImageElement) {
+  private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
     var canvas = document.createElement("canvas");
-    canvas.width = this.__getNearestPowerOfTwo(image.width);
-    canvas.height = this.__getNearestPowerOfTwo(image.height);
+    const potWidth = this.__getNearestPowerOfTwo(image.width);
+    const potHeight = this.__getNearestPowerOfTwo(image.height);
+
+    const aspect = potHeight / potWidth;
+    let dstWidth = 0;
+    let dstHeight = 0;
+    if (potWidth > potHeight) {
+      dstWidth = Math.min(potWidth, maxSize);
+      dstHeight = dstWidth * aspect;
+    } else {
+      dstHeight = Math.min(potHeight, maxSize);
+      dstWidth = dstHeight / aspect;
+    }
+    canvas.width = dstWidth;
+    canvas.height = dstHeight;
 
     var ctx = canvas.getContext("2d")!;
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    this.__imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
 
     if (this.autoDetectTransparency) {
-      for (let y = 0; y<canvas.height; y++) {
-        for (let x = 0; x<canvas.width; x++) {
-          const alpha = this.__imageData.data[(x + y * canvas.width) * 4 + 3];
+      for (let y = 0; y<dstHeight; y++) {
+        for (let x = 0; x<dstWidth; x++) {
+          this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
+          const alpha = this.__imageData.data[(x + y * dstWidth) * 4 + 3];
           if (alpha < 1) {
             this.__hasTransparentPixels = true;
             return canvas;
@@ -48,7 +62,7 @@ export default class Texture extends AbstractTexture {
 
     let img;
     if (this.autoResize || this.autoDetectTransparency) {
-      img = this.__getResizedCanvas(image);
+      img = this.__getResizedCanvas(image, Config.maxSizeLimitOfNonCompressedTexture);
       this.__htmlCanvasElement = img;
     } else {
       img = image;
@@ -85,7 +99,7 @@ export default class Texture extends AbstractTexture {
 
         let img;
         if (this.autoResize || this.autoDetectTransparency) {
-          img = this.__getResizedCanvas(this.__img!);
+          img = this.__getResizedCanvas(this.__img!, Config.maxSizeLimitOfNonCompressedTexture);
           this.__htmlCanvasElement = img;
         } else {
           img = this.__img!;
