@@ -236,14 +236,20 @@ export default class VRMImporter {
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
     const entityRepository = EntityRepository.getInstance();
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
-      for (let boneNodeIndex of boneGroup.bones) {
+      for (let idxOfArray in boneGroup.bones) {
+        if (idxOfArray === '0') {
+          const boneNodeIndex = boneGroup.bones[idxOfArray];
+          const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+          VRMSpringBonePhysicsStrategy.addRootBone(entity.getSceneGraph());
+        }
+        const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
         const physicsComponent = entity.getComponent(PhysicsComponent) as PhysicsComponent;
         const vrmSprintBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
         const sceneGraph = entity.getSceneGraph();
         const transform = entity.getTransform();
-        vrmSprintBone.initialize(sceneGraph.parent!,
+        vrmSprintBone.initialize(sceneGraph,
             new Vector3(
             transform.translate.x * transform.scale.x,
             transform.translate.y * transform.scale.y,

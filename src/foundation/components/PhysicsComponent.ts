@@ -43,7 +43,10 @@ export default class PhysicsComponent extends Component {
   }
 
   $logic() {
+  }
 
+  static common_$logic() {
+    VRMSpringBonePhysicsStrategy.update();
   }
 
   get strategy() {

@@ -7,6 +7,8 @@ import { thisExpression } from "@babel/types";
 import SphereCollider from "./SphereCollider";
 import Matrix44 from "../math/Matrix44";
 import PhysicsComponent from "../components/PhysicsComponent";
+import Time from "../misc/Time";
+import Entity from "../core/Entity";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __stiffnessForce = 1.0;
@@ -16,6 +18,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __hitRadius = 0.02;
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
+  private static __rootBones: SceneGraphComponent[] = [];
+  // private static __verlet: VRMSpringBonePhysicsStrategy[] = [];
 
   private __parent?: SceneGraphComponent;
   private __boneAxis = Vector3.zero();
@@ -54,20 +58,50 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return (this.__parent!.parent != null) ? Quaternion.fromMatrix(this.__parent!.parent.worldMatrix) : new Quaternion(0, 0, 0, 1);
   }
 
+  static initialize() {
+  }
+
+
+  static update() {
+    this.updateInner(this.__rootBones);
+  }
+
+  static updateInner(sceneGraphs: SceneGraphComponent[]) {
+    const dragForce = VRMSpringBonePhysicsStrategy.__dragForce;
+    const stiffnessForce = VRMSpringBonePhysicsStrategy.__stiffnessForce * Time.lastTickTimeInterval;
+    const external = Vector3.multiply(VRMSpringBonePhysicsStrategy.__gravityDir, VRMSpringBonePhysicsStrategy.__gravityPower * Time.lastTickTimeInterval);
+    const colliders: SphereCollider[] = [];
+    let center: SceneGraphComponent|undefined = void 0;
+
+    for (let rootBone of sceneGraphs) {
+      const physicsComponent = rootBone.entity.getPhysics();
+      if (physicsComponent) {
+        const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
+        strategy.update(stiffnessForce, dragForce, external, colliders, center);
+        const children = rootBone.children;
+        if (children) {
+          this.updateInner(children);
+        }
+      }
+    }
+  }
+
   update(stiffnessForce: number, dragForce: number, external: Vector3, colliders: SphereCollider[], center?: SceneGraphComponent) {
-    const currentTail = (center != null) ? center.getWorldPositionOf(this.__currentTail) : this.__currentTail;
-    const prevTail = (center != null) ? center.getWorldPositionOf(this.__prevTail) : this.__prevTail;
+
+    const currentTail = (center != null) ? center!.getWorldPositionOf(this.__currentTail) : this.__currentTail;
+    const prevTail = (center != null) ? center!.getWorldPositionOf(this.__prevTail) : this.__prevTail;
 
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
     const dist = (new Matrix44(Quaternion.multiply(this.parentRotation, this.__localRotation))).multiplyVector(Vector3.multiply(this.__boneAxis, stiffnessForce));
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
 
-    nextTail = Vector3.add(this.__parent!.worldPosition, Vector3.multiply(Vector3.subtract(nextTail, this.__parent!.worldPosition).normalize(), this.__length));
+    const tmp = Vector3.subtract(nextTail, this.__parent!.worldPosition);
+    nextTail = Vector3.add(this.__parent!.worldPosition, Vector3.multiply(Vector3.normalize(tmp), this.__length));
 
     nextTail = this.collision(colliders, nextTail);
 
-    this.__prevTail = (center != null) ? center.getLocalPositionOf(currentTail) : currentTail;
-    this.__currentTail = (center != null) ? center.getLocalPositionOf(nextTail) : nextTail;
+    this.__prevTail = (center != null) ? center!.getLocalPositionOf(currentTail) : currentTail;
+    this.__currentTail = (center != null) ? center!.getLocalPositionOf(nextTail) : nextTail;
 
     this.head.entity.getTransform().quaternion = this.applyRotation(nextTail);
   }
@@ -90,4 +124,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return nextTail;
   }
 
+  static addRootBone(sg: SceneGraphComponent) {
+    this.__rootBones.push(sg);
+  }
 }

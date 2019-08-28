@@ -217,7 +217,7 @@ export default class Quaternion implements IVector4 {
 
   static fromMatrix(m:Matrix44) {
 
-    let q = new Quaternion();
+    let q = new Quaternion(0, 0, 0, 1);
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
@@ -301,44 +301,40 @@ export default class Quaternion implements IVector4 {
     const m22 = forward.z;
 
     const num8 = (m00 + m11) + m22;
-    const quaternion = new Quaternion(0, 0, 0, 1);
     if (num8 > 0)
 		{
 			let num = Math.sqrt(num8 + 1);
-			(quaternion as any).w = num * 0.5;
-			num = 0.5 / num;
-			(quaternion as any).x = (m12 - m21) * num;
-			(quaternion as any).y = (m20 - m02) * num;
-			(quaternion as any).z = (m01 - m10) * num;
-			return quaternion;
-		}
-		if ((m00 >= m11) && (m00 >= m22))
-		{
+			let num2 = 0.5 / num;
+			return new Quaternion(
+        (m12 - m21) * num2,
+	      (m20 - m02) * num2,
+        (m01 - m10) * num2,
+        num * 0.5);
+		} else if ((m00 >= m11) && (m00 >= m22)) {
 			let num7 = Math.sqrt(((1 + m00) - m11) - m22);
 			let num4 = 0.5 / num7;
-			(quaternion as any).x = 0.5 * num7;
-			(quaternion as any).y = (m01 + m10) * num4;
-			(quaternion as any).z = (m02 + m20) * num4;
-			(quaternion as any).w = (m12 - m21) * num4;
-			return quaternion;
-		}
-		if (m11 > m22)
-		{
+			return new Quaternion(
+        0.5 * num7,
+        (m01 + m10) * num4,
+        (m02 + m20) * num4,
+        (m12 - m21) * num4);
+		} else if (m11 > m22) {
 			let num6 = Math.sqrt(((1 + m11) - m00) - m22);
 			let num3 = 0.5 / num6;
-			(quaternion as any).x = (m10 + m01) * num3;
-			(quaternion as any).y = 0.5 * num6;
-			(quaternion as any).z = (m21 + m12) * num3;
-			(quaternion as any).w = (m20 - m02) * num3;
-			return quaternion;
-		}
-		let num5 = Math.sqrt(((1 + m22) - m00) - m11);
-		let num2 = 0.5 / num5;
-		(quaternion as any).x = (m20 + m02) * num2;
-		(quaternion as any).y = (m21 + m12) * num2;
-		(quaternion as any).z = 0.5 * num5;
-		(quaternion as any).w = (m01 - m10) * num2;
-		return quaternion;
+			return new Quaternion(
+        (m10 + m01) * num3,
+        0.5 * num6,
+        (m21 + m12) * num3,
+        (m20 - m02) * num3);
+		} else {
+      let num5 = Math.sqrt(((1 + m22) - m00) - m11);
+      let num2 = 0.5 / num5;
+      return new Quaternion(
+        (m20 + m02) * num2,
+        (m21 + m12) * num2,
+        0.5 * num5,
+        (m01 - m10) * num2);
+    }
   }
 
   multiplyVector3(point: Vector3)
