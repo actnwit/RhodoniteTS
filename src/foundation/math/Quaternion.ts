@@ -307,7 +307,7 @@ export default class Quaternion implements IVector4 {
     const num8 = (m00 + m11) + m22;
     if (num8 > 0)
 		{
-			let num = Math.sqrt(num8 + 1);
+      let num = Math.sqrt(num8 + 1);
 			let num2 = 0.5 / num;
 			return new Quaternion(
         (m12 - m21) * num2,

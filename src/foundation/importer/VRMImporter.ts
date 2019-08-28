@@ -10,6 +10,7 @@ import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrateg
 import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
 import SceneGraphComponent from "../components/SceneGraphComponent";
+import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
 
 type HumanBone = {
   bone: string,
@@ -237,19 +238,28 @@ export default class VRMImporter {
 
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
     const entityRepository = EntityRepository.getInstance();
+    const boneGroups: VRMSpringBoneGroup[] = [];
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
-      const sgs: SceneGraphComponent[] = [];
+      const vrmSpringBoneGroup = new VRMSpringBoneGroup();
+      vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
+      vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
+      vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
+      vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
+      vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
       for (let idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-        sgs.push(entity.getSceneGraph());
+        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph());
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         // entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
-
       }
-      VRMSpringBonePhysicsStrategy.setRootBones(sgs);
-      for (let sg of sgs) {
+      boneGroups.push(vrmSpringBoneGroup);
+    }
+
+    VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups)
+    for (let boneGroup of boneGroups) {
+      for (let sg of boneGroup.rootBones) {
         this.addPhysicsComponentRecursively(entityRepository, sg);
       }
     }

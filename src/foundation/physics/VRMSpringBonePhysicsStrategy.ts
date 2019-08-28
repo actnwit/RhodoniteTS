@@ -9,18 +9,14 @@ import Matrix44 from "../math/Matrix44";
 import PhysicsComponent from "../components/PhysicsComponent";
 import Time from "../misc/Time";
 import Entity from "../core/Entity";
+import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
-  private static __stiffnessForce = 1.0;
-  private static __gravityPower = 0;
-  private static __gravityDir = new Vector3(0, -1.0, 0);
-  private static __dragForce = 0.4;
-  private static __hitRadius = 0.02;
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
-  private static __rootBones: SceneGraphComponent[] = [];
-  // private static __verlet: VRMSpringBonePhysicsStrategy[] = [];
+  private static __boneGroups: VRMSpringBoneGroup[] = [];
 
+  // for bone
   private __transform?: SceneGraphComponent;
   private __boneAxis = Vector3.zero();
   private __length = 0;
@@ -41,6 +37,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__prevTail = this.__currentTail;
     this.__localRotation = transform.entity.getTransform().quaternion;
     this.__boneAxis = Vector3.normalize(localChildPosition);
+    // this.__boneAxis = Vector3.normalize(Vector3.subtract(this.__currentTail, transform.worldPosition));
     this.__length = localChildPosition.length();
 
     this.__initalized = true;
@@ -64,32 +61,31 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   get parentRotation() {
-    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent.worldMatrix) : new Quaternion(0, 0, 0, 1);
+    return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
   }
 
 
   static update() {
-    this.updateInner(this.__rootBones);
+    for (let boneGroup of this.__boneGroups) {
+      this.updateInner(boneGroup.rootBones, boneGroup);
+    }
   }
 
-  static updateInner(sceneGraphs: SceneGraphComponent[]) {
-    const dragForce = VRMSpringBonePhysicsStrategy.__dragForce;
-    const stiffnessForce = VRMSpringBonePhysicsStrategy.__stiffnessForce * Time.lastTickTimeInterval;
-    const external = Vector3.multiply(VRMSpringBonePhysicsStrategy.__gravityDir, VRMSpringBonePhysicsStrategy.__gravityPower * Time.lastTickTimeInterval);
+  static updateInner(sceneGraphs: SceneGraphComponent[], boneGroup: VRMSpringBoneGroup) {
+    const dragForce = boneGroup.dragForce;
+    const stiffnessForce = boneGroup.stiffnessForce * Time.lastTickTimeInterval * 1;
+    const external = Vector3.multiply(boneGroup.gravityDir, boneGroup.gravityPower * Time.lastTickTimeInterval * 1);
     const colliders: SphereCollider[] = [];
     let center: SceneGraphComponent|undefined = void 0;
 
     for (let sg of sceneGraphs) {
       const physicsComponent = sg.entity.getPhysics();
       if (physicsComponent) {
-        // VRMSpringBonePhysicsStrategy.initialize(sg);
         const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-        if (strategy.isInitialized) {
-          strategy.update(stiffnessForce, dragForce, external, colliders, center);
-        }
+        strategy.update(stiffnessForce, dragForce, external, colliders, center);
         const children = sg.children;
         if (children) {
-          this.updateInner(children);
+          this.updateInner(children, boneGroup);
         }
       }
     }
@@ -99,9 +95,6 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const children = sceneGraph.children;
 
     const physicsComponent = sceneGraph.entity.getPhysics();
-    if (physicsComponent == null) {
-      return;
-    }
     const vrmSpringBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
@@ -111,12 +104,12 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         //   transform.translate.y * transform.scale.y,
         //   transform.translate.z * transform.scale.z
         // ),
-       children[0].worldPosition,
+        Matrix44.invert(children[0].worldMatrixInner).multiplyVector3(children[0].worldPosition),
         void 0);
     } else {
       const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-      let childPosition = new Vector3(0, -1, 0);
-      if (delta.length > 0) {
+      let childPosition = new Vector3(1, 1, 1);
+      if (delta.lengthSquared() > 0) {
         childPosition = Vector3.add(sceneGraph.worldPosition, Vector3.multiply(Vector3.normalize(delta), 0.07));
       }
       vrmSpringBone.initialize(sceneGraph,
@@ -125,32 +118,49 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     }
   }
 
+  calcParentDeltaRecursivle(sceneGraph: SceneGraphComponent) {
+    const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
+
+  }
+
   update(stiffnessForce: number, dragForce: number, external: Vector3, colliders: SphereCollider[], center?: SceneGraphComponent) {
 
     const currentTail = (center != null) ? center!.getWorldPositionOf(this.__currentTail) : this.__currentTail;
     const prevTail = (center != null) ? center!.getWorldPositionOf(this.__prevTail) : this.__prevTail;
 
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
-    const dist = (new Matrix44(Quaternion.multiply(this.parentRotation, this.__localRotation))).multiplyVector(Vector3.multiply(this.__boneAxis, stiffnessForce));
+    const dist = Vector3.multiply((Quaternion.multiply(this.parentRotation, this.__localRotation)).multiplyVector3(this.__boneAxis), stiffnessForce);
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
 
     const tmp = Vector3.subtract(nextTail, this.__transform!.worldPosition);
     nextTail = Vector3.add(this.__transform!.worldPosition, Vector3.multiply(Vector3.normalize(tmp), this.__length));
 
-    nextTail = this.collision(colliders, nextTail);
+    // nextTail = this.collision(colliders, nextTail);
 
     this.__prevTail = (center != null) ? center!.getLocalPositionOf(currentTail) : currentTail;
     this.__currentTail = (center != null) ? center!.getLocalPositionOf(nextTail) : nextTail;
 
     const resultRotation = this.applyRotation(nextTail);
     this.head.entity.getTransform().quaternion = resultRotation;
+    // if (this.head.children.length > 0) {
+      // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
+      // this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(currentTail);
+  //   // this.head.children[0].entity.getTransform().quaternion = resultRotation;
+    // }
 
     // VRMSpringBonePhysicsStrategy.initialize(this.__transform!);
   }
 
   applyRotation(nextTail: Vector3) {
-    const rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
-    const result = Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__transform!.worldPosition)), rotation);
+    // const rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
+    const rotation = this.__localRotation;
+    // const result = Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__transform!.worldPosition)), rotation);
+    // const result = Quaternion.lookFromTo(this.__boneAxis, Vector3.subtract(nextTail, this.__transform!.worldPosition));
+    const delta = Vector3.subtract(nextTail, this.__transform!.worldPosition);
+    const boneAxis = this.__boneAxis;
+    // const result = Quaternion.lookForward(Vector3.subtract(nextTail, this.__transform!.worldPosition));
+    const result = Quaternion.multiply(this.__localRotation, Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.normalize(delta)));
+    // const result = new Quaternion(0,0,0,1);
     return result;
   }
 
@@ -167,7 +177,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return nextTail;
   }
 
-  static setRootBones(sgs: SceneGraphComponent[]) {
-    this.__rootBones = sgs;
+  static setBoneGroups(sgs: VRMSpringBoneGroup[]) {
+    this.__boneGroups = sgs;
   }
 }
