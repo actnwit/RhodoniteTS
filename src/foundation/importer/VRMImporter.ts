@@ -4,6 +4,10 @@ import ModelConverter from "./ModelConverter";
 import Entity from "../core/Entity";
 import Rn from "../main";
 import RnObject from "../core/RnObject";
+import EntityRepository from "../core/EntityRepository";
+import PhysicsComponent from "../components/PhysicsComponent";
+import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
+import Vector3 from "../math/Vector3";
 
 type HumanBone = {
   bone: string,
@@ -230,9 +234,22 @@ export default class VRMImporter {
   }
 
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
+    const entityRepository = EntityRepository.getInstance();
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
       for (let boneNodeIndex of boneGroup.bones) {
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+        entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+        const physicsComponent = entity.getComponent(PhysicsComponent) as PhysicsComponent;
+        const vrmSprintBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
+        const sceneGraph = entity.getSceneGraph();
+        const transform = entity.getTransform();
+        vrmSprintBone.initialize(sceneGraph.parent!,
+            new Vector3(
+            transform.translate.x * transform.scale.x,
+            transform.translate.y * transform.scale.y,
+            transform.translate.z * transform.scale.z
+          ),
+          void 0);
       }
     }
   }

@@ -16,10 +16,12 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 import MeshComponent from './MeshComponent';
+import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
 
 export default class PhysicsComponent extends Component {
   private __weights: number[] = [];
   private _dummy: Vector3 = Vector3.dummy();
+  private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
@@ -42,6 +44,10 @@ export default class PhysicsComponent extends Component {
 
   $logic() {
 
+  }
+
+  get strategy() {
+    return this.__strategy;
   }
 
 }

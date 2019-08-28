@@ -6,8 +6,9 @@ import Quaternion from "../math/Quaternion";
 import { thisExpression } from "@babel/types";
 import SphereCollider from "./SphereCollider";
 import Matrix44 from "../math/Matrix44";
+import PhysicsComponent from "../components/PhysicsComponent";
 
-export default class VRMSpringBonePhysicsStrategy {
+export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __stiffnessForce = 1.0;
   private static __gravityPower = 0;
   private static __gravityDir = new Vector3(0, -1.0, 0);
@@ -16,7 +17,7 @@ export default class VRMSpringBonePhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
 
-  private __parent: SceneGraphComponent;
+  private __parent?: SceneGraphComponent;
   private __boneAxis = Vector3.zero();
   private __length = 0;
   private __currentTail = Vector3.zero();
@@ -25,7 +26,10 @@ export default class VRMSpringBonePhysicsStrategy {
   private __localRotation = new Quaternion(0, 0, 0, 1);
   private __radius = 0;
 
-  constructor(parent: SceneGraphComponent, localChildPosition: Vector3, center?: SceneGraphComponent) {
+  constructor() {
+  }
+
+  initialize(parent: SceneGraphComponent, localChildPosition: Vector3, center?: SceneGraphComponent) {
     this.__parent = parent;
     const worldChildPosition = parent.getWorldPositionOf(localChildPosition);
     this.__currentTail = (center != null) ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
@@ -36,18 +40,18 @@ export default class VRMSpringBonePhysicsStrategy {
   }
 
   get head(): SceneGraphComponent {
-    return this.__parent;
+    return this.__parent!;
   }
 
   get tail(): Vector3 {
     Vector3.multiplyTo(this.__boneAxis, this.__length, VRMSpringBonePhysicsStrategy.__tmp_vec3);
-    this.__parent.worldMatrixInner.multiplyVector3To(VRMSpringBonePhysicsStrategy.__tmp_vec3, VRMSpringBonePhysicsStrategy.__tmp_vec3_2);
+    this.__parent!.worldMatrixInner.multiplyVector3To(VRMSpringBonePhysicsStrategy.__tmp_vec3, VRMSpringBonePhysicsStrategy.__tmp_vec3_2);
 
     return VRMSpringBonePhysicsStrategy.__tmp_vec3_2;
   }
 
   get parentRotation() {
-    return (this.__parent.parent != null) ? Quaternion.fromMatrix(this.__parent.parent.worldMatrix) : new Quaternion(0, 0, 0, 1);
+    return (this.__parent!.parent != null) ? Quaternion.fromMatrix(this.__parent!.parent.worldMatrix) : new Quaternion(0, 0, 0, 1);
   }
 
   update(stiffnessForce: number, dragForce: number, external: Vector3, colliders: SphereCollider[], center?: SceneGraphComponent) {
@@ -58,7 +62,7 @@ export default class VRMSpringBonePhysicsStrategy {
     const dist = (new Matrix44(Quaternion.multiply(this.parentRotation, this.__localRotation))).multiplyVector(Vector3.multiply(this.__boneAxis, stiffnessForce));
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
 
-    nextTail = Vector3.add(this.__parent.worldPosition, Vector3.multiply(Vector3.subtract(nextTail, this.__parent.worldPosition).normalize(), this.__length));
+    nextTail = Vector3.add(this.__parent!.worldPosition, Vector3.multiply(Vector3.subtract(nextTail, this.__parent!.worldPosition).normalize(), this.__length));
 
     nextTail = this.collision(colliders, nextTail);
 
@@ -70,7 +74,7 @@ export default class VRMSpringBonePhysicsStrategy {
 
   applyRotation(nextTail: Vector3) {
     var rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
-    return Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__parent.worldPosition)), rotation);
+    return Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__parent!.worldPosition)), rotation);
   }
 
   collision(colliders: SphereCollider[], nextTail: Vector3) {
@@ -79,7 +83,7 @@ export default class VRMSpringBonePhysicsStrategy {
       if (Vector3.lengthSquared(Vector3.subtract(nextTail, collider.position)) <= (r * r)) {
         var normal = Vector3.subtract(nextTail, collider.position).normalize();
         var posFromCollider = Vector3.multiply(Vector3.add(collider.position, normal), this.__radius + collider.radius);
-        nextTail = Vector3.add(this.__parent.worldPosition, Vector3.multiply(Vector3.subtract(posFromCollider, this.__parent.worldPosition).normalize(), this.__length));
+        nextTail = Vector3.add(this.__parent!.worldPosition, Vector3.multiply(Vector3.subtract(posFromCollider, this.__parent!.worldPosition).normalize(), this.__length));
       }
     }
 
