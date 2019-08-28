@@ -9,6 +9,7 @@ import PhysicsComponent from "../components/PhysicsComponent";
 import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
 import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
+import SceneGraphComponent from "../components/SceneGraphComponent";
 
 type HumanBone = {
   bone: string,
@@ -237,17 +238,30 @@ export default class VRMImporter {
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
     const entityRepository = EntityRepository.getInstance();
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
+      const sgs: SceneGraphComponent[] = [];
       for (let idxOfArray in boneGroup.bones) {
-        if (idxOfArray === '0') {
-          const boneNodeIndex = boneGroup.bones[idxOfArray];
-          const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-          VRMSpringBonePhysicsStrategy.addRootBone(entity.getSceneGraph());
-        }
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-        entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+        sgs.push(entity.getSceneGraph());
+        // const boneNodeIndex = boneGroup.bones[idxOfArray];
+        // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+        // entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
 
-        VRMSpringBonePhysicsStrategy.initialize(entity.getSceneGraph());
+      }
+      VRMSpringBonePhysicsStrategy.setRootBones(sgs);
+      for (let sg of sgs) {
+        this.addPhysicsComponentRecursively(entityRepository, sg);
+      }
+    }
+  }
+
+  addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent) {
+    const entity = sg.entity;
+    entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+    VRMSpringBonePhysicsStrategy.initialize(sg);
+    if (sg.children.length > 0) {
+      for (let child of sg.children) {
+        this.addPhysicsComponentRecursively(entityRepository, child);
       }
     }
   }

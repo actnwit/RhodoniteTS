@@ -277,6 +277,10 @@ export default class Quaternion implements IVector4 {
   }
 
   static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
+
+    if (fromDirection.isEqual(toDirection)) {
+      return new Quaternion(0, 0, 0, 1);
+    }
     return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
   }
 

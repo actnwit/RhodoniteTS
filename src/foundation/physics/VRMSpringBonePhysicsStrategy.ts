@@ -12,7 +12,7 @@ import Entity from "../core/Entity";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __stiffnessForce = 1.0;
-  private static __gravityPower = 1;
+  private static __gravityPower = 0;
   private static __gravityDir = new Vector3(0, -1.0, 0);
   private static __dragForce = 0.4;
   private static __hitRadius = 0.02;
@@ -45,6 +45,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     this.__initalized = true;
   }
+
+
 
   get isInitialized() {
     return this.__initalized;
@@ -96,15 +98,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   static initialize(sceneGraph: SceneGraphComponent) {
     const children = sceneGraph.children;
 
-    // const transform = children[0].entity.getTransform();
-    // vrmSprintBone.initialize(sceneGraph,
-    //       new Vector3(
-    //       transform.translate.x * transform.scale.x,
-    //       transform.translate.y * transform.scale.y,
-    //       transform.translate.z * transform.scale.z
-    // ),
-    // void 0);
-    const physicsComponent = children[0].entity.getPhysics();
+    const physicsComponent = sceneGraph.entity.getPhysics();
     if (physicsComponent == null) {
       return;
     }
@@ -117,13 +111,16 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         //   transform.translate.y * transform.scale.y,
         //   transform.translate.z * transform.scale.z
         // ),
-        children[0].worldPosition,
+       children[0].worldPosition,
         void 0);
     } else {
       const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-      const childPositioin = Vector3.add(sceneGraph.worldPosition, Vector3.multiply(Vector3.normalize(delta), 0.07));
+      let childPosition = new Vector3(0, -1, 0);
+      if (delta.length > 0) {
+        childPosition = Vector3.add(sceneGraph.worldPosition, Vector3.multiply(Vector3.normalize(delta), 0.07));
+      }
       vrmSpringBone.initialize(sceneGraph,
-        Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(childPositioin),
+        Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(childPosition),
         void 0);
     }
   }
@@ -147,6 +144,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const resultRotation = this.applyRotation(nextTail);
     this.head.entity.getTransform().quaternion = resultRotation;
+
+    // VRMSpringBonePhysicsStrategy.initialize(this.__transform!);
   }
 
   applyRotation(nextTail: Vector3) {
@@ -168,7 +167,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return nextTail;
   }
 
-  static addRootBone(sg: SceneGraphComponent) {
-    this.__rootBones.push(sg);
+  static setRootBones(sgs: SceneGraphComponent[]) {
+    this.__rootBones = sgs;
   }
 }
