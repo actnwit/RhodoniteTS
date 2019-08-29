@@ -26,6 +26,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private __localRotation = new Quaternion(0, 0, 0, 1);
   private __radius = 0;
   private __initalized = false;
+  private __localChildPosition = Vector3.zero();
 
   constructor() {
   }
@@ -39,6 +40,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__boneAxis = Vector3.normalize(localChildPosition);
     // this.__boneAxis = Vector3.normalize(Vector3.subtract(this.__currentTail, transform.worldPosition));
     this.__length = localChildPosition.length();
+    this.__localChildPosition = localChildPosition;
 
     this.__initalized = true;
   }
@@ -61,7 +63,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   get parentRotation() {
-    return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
+    // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
+    return (this.__transform!.parent != null) ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner): new Quaternion(0, 0, 0, 1);
   }
 
 
@@ -104,7 +107,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         //   transform.translate.y * transform.scale.y,
         //   transform.translate.z * transform.scale.z
         // ),
-        Matrix44.invert(children[0].worldMatrixInner).multiplyVector3(children[0].worldPosition),
+        Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(children[0].worldPosition),
         void 0);
     } else {
       const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
@@ -130,6 +133,8 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
     const dist = Vector3.multiply((Quaternion.multiply(this.parentRotation, this.__localRotation)).multiplyVector3(this.__boneAxis), stiffnessForce);
+    // const dist = Vector3.multiply((this.__localRotation).multiplyVector3(this.__boneAxis), stiffnessForce);
+    // const dist = Vector3.zero();
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, delta), (dist as any as Vector3)), external);
 
     const tmp = Vector3.subtract(nextTail, this.__transform!.worldPosition);
@@ -140,26 +145,28 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__prevTail = (center != null) ? center!.getLocalPositionOf(currentTail) : currentTail;
     this.__currentTail = (center != null) ? center!.getLocalPositionOf(nextTail) : nextTail;
 
-    const resultRotation = this.applyRotation(nextTail);
-    this.head.entity.getTransform().quaternion = resultRotation;
-    // if (this.head.children.length > 0) {
+    // const resultRotation = this.applyRotation(nextTail);
+    // this.head.entity.getTransform().quaternion = resultRotation;
+    // this.head.entity.getTransform().matrix = Matrix44.identity();
+    // this.head.entity.getTransform().translate = this.__transform!.getLocalPositionOf(currentTail);
+    if (this.head.children.length > 0) {
       // this.head.children[0].entity.getTransform().matrix = Matrix44.identity();
-      // this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(currentTail);
+      this.head.children[0].entity.getTransform().translate = this.__transform!.getLocalPositionOf(nextTail);
   //   // this.head.children[0].entity.getTransform().quaternion = resultRotation;
-    // }
+    }
 
     // VRMSpringBonePhysicsStrategy.initialize(this.__transform!);
   }
 
   applyRotation(nextTail: Vector3) {
-    // const rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
-    const rotation = this.__localRotation;
-    // const result = Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__transform!.worldPosition)), rotation);
+    const rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
+    // const rotation = this.__localRotation;
+    const result = Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.subtract(nextTail, this.__transform!.worldPosition)), rotation);
     // const result = Quaternion.lookFromTo(this.__boneAxis, Vector3.subtract(nextTail, this.__transform!.worldPosition));
     const delta = Vector3.subtract(nextTail, this.__transform!.worldPosition);
     const boneAxis = this.__boneAxis;
     // const result = Quaternion.lookForward(Vector3.subtract(nextTail, this.__transform!.worldPosition));
-    const result = Quaternion.multiply(this.__localRotation, Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.normalize(delta)));
+    // const result = Quaternion.multiply(Quaternion.lookFromTo(rotation.multiplyVector3(this.__boneAxis), Vector3.normalize(delta)), this.__localRotation);
     // const result = new Quaternion(0,0,0,1);
     return result;
   }
