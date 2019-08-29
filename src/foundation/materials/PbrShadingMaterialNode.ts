@@ -223,12 +223,23 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     if (isMorphing){
       this.__definitions += '#define RN_IS_MORPHING\n';
 
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphTargetNumber, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.VertexShader, min: 0, max: Config.maxVertexMorphNumberInShader, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new Scalar(0)});
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.DataTextureMorphOffsetPosition, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue:  new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)) });
-      shaderSemanticsInfoArray.push({semantic: ShaderSemantics.MorphWeights, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader, componentType: ComponentType.Float, soloDatum: true,
-        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue:  new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)) });
+      shaderSemanticsInfoArray.push(
+        {
+          semantic: ShaderSemantics.MorphTargetNumber, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
+          stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
+          initialValue: new Scalar(0), min: 0, max: Config.maxVertexMorphNumberInShader, needUniformInFastest: true
+        },
+        {
+          semantic: ShaderSemantics.DataTextureMorphOffsetPosition, componentType: ComponentType.Float, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,
+          stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
+          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
+        },
+        {
+          semantic: ShaderSemantics.MorphWeights, componentType: ComponentType.Float, compositionType: CompositionType.ScalarArray, maxIndex: Config.maxVertexMorphNumberInShader,
+          stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
+          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE, needUniformInFastest: true
+        }
+      );
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

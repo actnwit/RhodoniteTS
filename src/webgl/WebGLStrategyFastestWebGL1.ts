@@ -167,7 +167,9 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (info.maxIndex) {
           varIndexStr = `[${info.maxIndex}]`;
         }
-        varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+        if (info.needUniformInFastest || isTexture) {
+          varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+        }
   //    }
       // inner contents of 'get_' shader function
       if (propertyIndex < 0) {

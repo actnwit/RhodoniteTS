@@ -129,7 +129,8 @@ export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
   isSystem: boolean, initialValue?: any, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
-  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean
+  xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean,
+  needUniformInFastest?: boolean
 };
 
 

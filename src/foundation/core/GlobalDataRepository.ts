@@ -42,7 +42,7 @@ export default class GlobalDataRepository {
   initialize() {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {semantic: ShaderSemantics.CurrentComponentSIDs, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Float, maxIndex: WellKnownComponentTIDs.maxWellKnownTidNumber,
-      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber))};
+      stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, needUniformInFastest: true , initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber))};
     this.registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne(ShaderSemantics.CurrentComponentSIDs);
 
