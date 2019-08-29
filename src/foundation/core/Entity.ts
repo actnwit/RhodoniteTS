@@ -10,6 +10,7 @@ import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';
 import CameraComponent from '../components/CameraComponent';
 import BlendShapeComponent from '../components/BlendShapeComponent';
+import PhysicsComponent from '../components/PhysicsComponent';
 
 /**
  * The Rhodonite Entity Class which are an entities that exists in space.
@@ -30,6 +31,7 @@ export default class Entity extends RnObject {
   private __meshRendererComponent?: MeshRendererComponent;
   private __cameraComponent?: CameraComponent;
   private __blendShapeComponent?: BlendShapeComponent;
+  private __physicsComponent?: PhysicsComponent;
 
   /**
    * The constructor of the Entity class.
@@ -135,4 +137,10 @@ export default class Entity extends RnObject {
     return this.__blendShapeComponent;
   }
 
+  getPhysics(): PhysicsComponent {
+    if (this.__physicsComponent == null) {
+      this.__physicsComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as PhysicsComponent;
+    }
+    return this.__physicsComponent;
+  }
 }

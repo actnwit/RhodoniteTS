@@ -30,7 +30,7 @@ export default class SceneGraphComponent extends Component {
   private static _isAllUpdate = false;
   private __worldAABB = new AABB();
   private __isWorldAABBDirty = true;
-  private static __originVector3 = Vector3.zero();
+  private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
@@ -239,7 +239,7 @@ export default class SceneGraphComponent extends Component {
   }
 
   getLocalPositionOf(worldPosition: Vector3) {
-    return this.worldMatrixInner.invert().multiplyVector3(worldPosition);
+    return Matrix44.invert(this.worldMatrixInner).multiplyVector3(worldPosition);
   }
 
   calcWorldAABB() {

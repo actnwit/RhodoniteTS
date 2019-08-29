@@ -4,6 +4,15 @@ import ModelConverter from "./ModelConverter";
 import Entity from "../core/Entity";
 import Rn from "../main";
 import RnObject from "../core/RnObject";
+import EntityRepository from "../core/EntityRepository";
+import PhysicsComponent from "../components/PhysicsComponent";
+import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
+import Vector3 from "../math/Vector3";
+import Matrix44 from "../math/Matrix44";
+import SceneGraphComponent from "../components/SceneGraphComponent";
+import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
+import VRMColliderGroup from "../physics/VRMColliderGroup";
+import SphereCollider from "../physics/SphereCollider";
 
 type HumanBone = {
   bone: string,
@@ -230,9 +239,62 @@ export default class VRMImporter {
   }
 
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
+    const entityRepository = EntityRepository.getInstance();
+    const boneGroups: VRMSpringBoneGroup[] = [];
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
-      for (let boneNodeIndex of boneGroup.bones) {
+      const vrmSpringBoneGroup = new VRMSpringBoneGroup();
+      vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
+      vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
+      vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
+      vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
+      vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
+      vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
+      vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
+      for (let idxOfArray in boneGroup.bones) {
+        const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph());
+        // const boneNodeIndex = boneGroup.bones[idxOfArray];
+        // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
+        // entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+      }
+      boneGroups.push(vrmSpringBoneGroup);
+    }
+
+    VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups)
+    for (let boneGroup of boneGroups) {
+      for (let sg of boneGroup.rootBones) {
+        this.addPhysicsComponentRecursively(entityRepository, sg);
+      }
+    }
+
+    const colliderGroups: VRMColliderGroup[] = [];
+    for (let colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
+      const colliderGroup = gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx]
+      const vrmColliderGroup = new VRMColliderGroup();
+      colliderGroups.push(vrmColliderGroup);
+      const colliders: SphereCollider[] = [];
+      for (let collider of colliderGroup.colliders) {
+        const sphereCollider = new SphereCollider();
+        sphereCollider.position = new Vector3(collider.offset.x, collider.offset.y, collider.offset.z);
+        sphereCollider.radius = collider.radius;
+        colliders.push(sphereCollider);
+      }
+      vrmColliderGroup.colliders = colliders;
+      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
+      vrmColliderGroup.baseSceneGraph = baseSg;
+      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
+    }
+
+  }
+
+  addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent) {
+    const entity = sg.entity;
+    entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
+    VRMSpringBonePhysicsStrategy.initialize(sg);
+    if (sg.children.length > 0) {
+      for (let child of sg.children) {
+        this.addPhysicsComponentRecursively(entityRepository, child);
       }
     }
   }
