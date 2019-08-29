@@ -1,6 +1,7 @@
 import Vector3 from "../math/Vector3";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import RnObject from "../core/RnObject";
+import { Index } from "../../types/CommonTypes";
 
 export default class VRMSpringBoneGroup extends RnObject {
   stiffnessForce = 0.5;
@@ -9,6 +10,7 @@ export default class VRMSpringBoneGroup extends RnObject {
   dragForce = 0.05;
   hitRadius = 0.02;
   rootBones: SceneGraphComponent[] = [];
+  colliderGroupIndices: Index[] = [];
 
   constructor() {
     super()

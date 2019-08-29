@@ -10,11 +10,14 @@ import PhysicsComponent from "../components/PhysicsComponent";
 import Time from "../misc/Time";
 import Entity from "../core/Entity";
 import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
+import VRMColliderGroup from "./VRMColliderGroup";
+import { Index } from "../../types/CommonTypes";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
   private static __boneGroups: VRMSpringBoneGroup[] = [];
+  private static __colliderGroups: Map<Index, VRMColliderGroup> = new Map();
 
   // for bone
   private __transform?: SceneGraphComponent;
@@ -78,14 +81,15 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const dragForce = boneGroup.dragForce;
     const stiffnessForce = boneGroup.stiffnessForce * Time.lastTickTimeInterval * 1;
     const external = Vector3.multiply(boneGroup.gravityDir, boneGroup.gravityPower * Time.lastTickTimeInterval * 1);
-    const colliders: SphereCollider[] = [];
     let center: SceneGraphComponent|undefined = void 0;
+
+    const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(boneGroup.colliderGroupIndices);
 
     for (let sg of sceneGraphs) {
       const physicsComponent = sg.entity.getPhysics();
       if (physicsComponent) {
         const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-        strategy.update(stiffnessForce, dragForce, external, colliders, center);
+        strategy.update(stiffnessForce, dragForce, external, collisionGroups, center);
         const children = sg.children;
         if (children) {
           this.updateInner(children, boneGroup);
@@ -126,7 +130,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   }
 
-  update(stiffnessForce: number, dragForce: number, external: Vector3, colliders: SphereCollider[], center?: SceneGraphComponent) {
+  update(stiffnessForce: number, dragForce: number, external: Vector3, collisionGroups: VRMColliderGroup[], center?: SceneGraphComponent) {
 
     const currentTail = (center != null) ? center!.getWorldPositionOf(this.__currentTail) : this.__currentTail;
     const prevTail = (center != null) ? center!.getWorldPositionOf(this.__prevTail) : this.__prevTail;
@@ -140,7 +144,7 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const tmp = Vector3.subtract(nextTail, this.__transform!.worldPosition);
     nextTail = Vector3.add(this.__transform!.worldPosition, Vector3.multiply(Vector3.normalize(tmp), this.__length));
 
-    // nextTail = this.collision(colliders, nextTail);
+    nextTail = this.collision(collisionGroups, nextTail);
 
     this.__prevTail = (center != null) ? center!.getLocalPositionOf(currentTail) : currentTail;
     this.__currentTail = (center != null) ? center!.getLocalPositionOf(nextTail) : nextTail;
@@ -171,20 +175,35 @@ export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return result;
   }
 
-  collision(colliders: SphereCollider[], nextTail: Vector3) {
-    for (let collider of colliders) {
-      const r = this.__radius + collider.radius;
-      if (Vector3.lengthSquared(Vector3.subtract(nextTail, collider.position)) <= (r * r)) {
-        var normal = Vector3.subtract(nextTail, collider.position).normalize();
-        var posFromCollider = Vector3.multiply(Vector3.add(collider.position, normal), this.__radius + collider.radius);
-        nextTail = Vector3.add(this.__transform!.worldPosition, Vector3.multiply(Vector3.subtract(posFromCollider, this.__transform!.worldPosition).normalize(), this.__length));
+  collision(collisionGroups: VRMColliderGroup[], nextTail: Vector3) {
+    for (let collisoinGroup of collisionGroups) {
+      for (let collider of collisoinGroup.colliders) {
+        const r = this.__radius + collider.radius;
+        if (Vector3.lengthSquared(Vector3.subtract(nextTail, collider.position)) <= (r * r)) {
+          var normal = Vector3.subtract(nextTail, collider.position).normalize();
+          var posFromCollider = Vector3.multiply(Vector3.add(collider.position, normal), this.__radius + collider.radius);
+          nextTail = Vector3.add(this.__transform!.worldPosition, Vector3.multiply(Vector3.subtract(posFromCollider, this.__transform!.worldPosition).normalize(), this.__length));
+        }
       }
     }
+
 
     return nextTail;
   }
 
   static setBoneGroups(sgs: VRMSpringBoneGroup[]) {
     this.__boneGroups = sgs;
+  }
+
+  static addColliderGroup(index: Index, group: VRMColliderGroup) {
+    this.__colliderGroups.set(index, group);
+  }
+
+  static getColliderGroups(indices: Index[]) {
+    const colliderGroups: VRMColliderGroup[] = [];
+    for (let index of indices) {
+      colliderGroups.push(this.__colliderGroups.get(index)!);
+    }
+    return colliderGroups;
   }
 }

@@ -11,6 +11,8 @@ import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
+import VRMColliderGroup from "../physics/VRMColliderGroup";
+import SphereCollider from "../physics/SphereCollider";
 
 type HumanBone = {
   bone: string,
@@ -246,6 +248,7 @@ export default class VRMImporter {
       vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
       vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
       vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
+      vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
       for (let idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
@@ -263,6 +266,23 @@ export default class VRMImporter {
         this.addPhysicsComponentRecursively(entityRepository, sg);
       }
     }
+
+    const colliderGroups: VRMColliderGroup[] = [];
+    for (let colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
+      const colliderGroup = gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx]
+      const vrmColliderGroup = new VRMColliderGroup();
+      colliderGroups.push(vrmColliderGroup);
+      const colliders: SphereCollider[] = [];
+      for (let collider of colliderGroup.colliders) {
+        const sphereCollider = new SphereCollider();
+        sphereCollider.position = new Vector3(collider.offset.x, collider.offset.y, collider.offset.z);
+        sphereCollider.radius = collider.radius;
+        colliders.push(sphereCollider);
+      }
+      vrmColliderGroup.colliders = colliders;
+      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
+    }
+
   }
 
   addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent) {
