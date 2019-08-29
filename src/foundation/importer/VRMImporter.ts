@@ -249,6 +249,7 @@ export default class VRMImporter {
       vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
       vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
+      vrmSpringBoneGroup.hitRadius = boneGroup.hitRadius;
       for (let idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
@@ -280,6 +281,8 @@ export default class VRMImporter {
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.colliders = colliders;
+      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
+      vrmColliderGroup.baseSceneGraph = baseSg;
       VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
     }
 
