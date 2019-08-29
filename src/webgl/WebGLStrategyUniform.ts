@@ -237,12 +237,12 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
       //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-      //     level:0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+      //     level:0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
       //       format: PixelFormat.RGBA, type: ComponentType.Float
       //     });
       // } else {
       //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-      //     level: 0, width: MemoryManager.bufferWidthLength, height:buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+      //     level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
       //       format: PixelFormat.RGBA, type: ComponentType.Float
       //     });
       // }

@@ -428,24 +428,24 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       if (isHalfFloatMode) {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
               format: PixelFormat.RGBA, type: ComponentType.HalfFloat
             });
         }
       } else {
         if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level:0, width: MemoryManager.bufferWidthLength, height: buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+            level:0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         } else {
           this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height:buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4,
+            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
               format: PixelFormat.RGBA, type: ComponentType.Float
             });
         }

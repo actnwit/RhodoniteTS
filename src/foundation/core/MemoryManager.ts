@@ -1,6 +1,7 @@
 import Buffer from '../memory/Buffer';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import { Size } from '../../types/CommonTypes';
+import Config from './Config';
 
 /**
  * Usage
@@ -14,8 +15,8 @@ export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
-  private static __bufferWidthLength: Size = Math.pow(2, 11);
-  private static __bufferHeightLength: Size = Math.pow(2, 11);
+  private static __bufferWidthLength: Size = Config.dataTextureWidth;
+  private static __bufferHeightLength: Size = Config.dataTextureHeight;
 
   private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
     // BufferForCPU
