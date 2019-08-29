@@ -12,6 +12,7 @@ import Entity from "../core/Entity";
 import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
 import VRMColliderGroup from "./VRMColliderGroup";
 import { Index } from "../../types/CommonTypes";
+import PhysicsStrategy from "./PhysicsStrategy";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();

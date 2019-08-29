@@ -17,6 +17,7 @@ import MutableVector3 from '../math/MutableVector3';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 import MeshComponent from './MeshComponent';
 import VRMSpringBonePhysicsStrategy from '../physics/VRMSpringBonePhysicsStrategy';
+import PhysicsStrategy from '../physics/PhysicsStrategy';
 
 export default class PhysicsComponent extends Component {
   private __weights: number[] = [];

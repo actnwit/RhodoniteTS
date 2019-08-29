@@ -1,2 +1,2 @@
-interface PhysicsStrategy {
+export default interface PhysicsStrategy {
 }
