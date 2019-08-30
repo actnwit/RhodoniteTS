@@ -549,9 +549,10 @@ export default class ModelConverter {
     if (texture.image.image) {
       const image = texture.image.image;
       rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const ext = texture.image.mimeType.split('/')[1];
+      rnTexture.name = texture.image.name + `.${ext}`;
     }
-    return rnTexture
+    return rnTexture;
   }
 
   private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {

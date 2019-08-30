@@ -232,17 +232,19 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   json.images[countImage++] = {
-                    uri: rnTexture.name
+                    uri: (rnTexture.name) ? rnTexture.name : rnTexture.uniqueName
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
                     const blob = htmlCanvasElement.toBlob((blob)=>{
-                      var a = document.createElement('a');
-                      const e = document.createEvent('MouseEvent');
-                      (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-                      a.href = URL.createObjectURL(blob);
-                      a.download = rnTexture.name;
-                      a.dispatchEvent(e);
+                      setTimeout(function(){
+                        var a = document.createElement('a');
+                        const e = document.createEvent('MouseEvent');
+                        (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        a.href = URL.createObjectURL(blob);
+                        a.download = rnTexture.name;
+                        a.dispatchEvent(e);
+                      }, Math.random() * 10000);
                     });
                   }
                 }
