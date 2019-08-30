@@ -247,6 +247,9 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       //     });
       // }
     } else {
+      if (buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4 > MemoryManager.bufferHeightLength) {
+        console.warn('The buffer size exceeds the size of the data texture.');
+      }
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
           level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
