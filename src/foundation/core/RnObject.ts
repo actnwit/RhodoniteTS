@@ -3,7 +3,7 @@ import { RnTags, ObjectUID } from "../../types/CommonTypes";
 
 export type Tag = {
   tag: string,
-  value: string
+  value: any,
 };
 
 /**
@@ -108,15 +108,13 @@ export default class RnObject {
    */
   tryToSetTag(tag: Tag) {
     if (this.validateTagString(tag.tag)) {
-      if (this.validateTagString(tag.value)) {
-        if (this.hasTag(tag.tag)) {
-          this.removeTag(tag.tag);
-        }
-
-        this.__tags[tag.tag] = tag.value;
-        this.__conbinedTagString += `${tag.tag}:${tag.value}` + ' ';
-        return true;
+      if (this.hasTag(tag.tag)) {
+        this.removeTag(tag.tag);
       }
+
+      this.__tags[tag.tag] = tag.value;
+      this.__conbinedTagString += `${tag.tag}:${tag.value}` + ' ';
+      return true;
     }
     return false;
   }
@@ -125,7 +123,7 @@ export default class RnObject {
    * Gets the value of the tag.
    * @param tagName The tag name.
    */
-  getTagValue(tagName: string) {
+  getTagValue(tagName: string): any {
     return this.__tags[tagName];
   }
 

@@ -5,7 +5,8 @@
     "MultiPass",
     "PixelPickingTest",
     "SeamlessTexture",
-    "VRMImporter"
+    "VRMImporter",
+    "VRMAnimation"
   ],
   "simple": [
     "Effekseer",
