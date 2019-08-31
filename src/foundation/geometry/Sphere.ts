@@ -80,10 +80,16 @@ export default class Sphere extends Primitive {
     const attributeCompositionTypes = [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2];
     const attributeSemantics = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Texcoord0];
     const primitiveMode = PrimitiveMode.Triangles;
+    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
+    let sumOfAttributesByteSize = 0;
+    attributes.forEach(attribute=>{
+      sumOfAttributesByteSize += attribute.byteLength;
+    });
+    const indexSizeInByte = indices.length * 2;
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this);
 
-    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.length * 2 /*byte*/, byteStride: 0, isAoS: false});
+    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false});
     const indicesAccessor = indicesBufferView.takeAccessor({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.UnsignedShort,
@@ -95,12 +101,6 @@ export default class Sphere extends Primitive {
 
 
 
-    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
-
-    let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute=>{
-      sumOfAttributesByteSize += attribute.byteLength;
-    });
     const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
 
     const attributeAccessors: Array<Accessor> = [];
