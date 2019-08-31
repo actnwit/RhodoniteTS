@@ -190,6 +190,11 @@ export default class Gltf2Exporter {
           const primitive = mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
 
+          const material: any = {
+            "pbrMetallicRoughness": {
+            }
+          };
+
           let colorParam;
           let metallic = 1.0;
           let roughness = 1.0;
@@ -201,18 +206,14 @@ export default class Gltf2Exporter {
               metallic = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x;
               roughness = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y;
             }
-          } else {
-            colorParam = new Vector4(1, 1, 1, 1);
           }
 
+          if (colorParam) {
+            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(colorParam.v);
+          }
+          material.pbrMetallicRoughness.metallicFactor = metallic;
+          material.pbrMetallicRoughness.roughnessFactor = roughness;
 
-          const material: any = {
-            "pbrMetallicRoughness": {
-              "baseColorFactor": Array.prototype.slice.call(colorParam.v),
-              "metallicFactor": metallic,
-              "roughnessFactor": roughness
-            }
-          };
 
           if (rnMaterial) {
 
