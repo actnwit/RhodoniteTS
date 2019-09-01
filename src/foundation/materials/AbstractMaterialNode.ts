@@ -249,7 +249,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
 
-        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, skeletalComponent.componentSID);
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, 0);
       }
     } else {
       if (setUniform) {

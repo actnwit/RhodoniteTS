@@ -566,7 +566,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const skeletalComponent = entity.getSkeletal();
     if (skeletalComponent) {
-      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = skeletalComponent.componentSID;
+      WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = 0;
     } else {
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.SkeletalComponentTID] = -1;
     }
