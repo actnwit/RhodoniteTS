@@ -29,8 +29,10 @@ const load = async function(time){
   //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
-  const animGltf2Model = await gltf2Importer.import('../../../assets/vrm/misaki_run.glb');
-  const rootGroup = await importer.import('../../../assets/vrm/mayuri.vrm');
+  const animGltf2Model = await gltf2Importer.import('../../../assets/vrm/test.glb');
+  const rootGroup = await importer.import('../../../assets/vrm/test.vrm', {
+    "autoResizeTexture": true
+  });
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
