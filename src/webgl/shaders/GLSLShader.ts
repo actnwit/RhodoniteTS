@@ -373,13 +373,13 @@ bool processGeometryWithMorphingAndSkinning(
       return `
   float materialSID = u_currentComponentSIDs[0];
   int lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
-  float skeletalComponentSID = u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
+  float skeletalComponentSID = 0.0; // u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
 `;
     } else {
       return `
   float materialSID = u_materialSID;
   int lightNumber = u_lightNumber;
-  float skeletalComponentSID = float(u_skinningMode);
+  float skeletalComponentSID = 0.0; // float(u_skinningMode);
       `;
     }
   }
