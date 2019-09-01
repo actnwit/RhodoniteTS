@@ -1,7 +1,8 @@
 import Buffer from '../memory/Buffer';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
-import { Size } from '../../types/CommonTypes';
+import { Size, Byte, ObjectUID } from '../../types/CommonTypes';
 import Config from './Config';
+import RnObject from './RnObject';
 
 /**
  * Usage
@@ -15,6 +16,7 @@ export default class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
+  private __buffersOnDemand: Map<ObjectUID, Buffer> = new Map();
   private static __bufferWidthLength: Size = Config.dataTextureWidth;
   private static __bufferHeightLength: Size = Config.dataTextureHeight;
 
@@ -44,29 +46,29 @@ export default class MemoryManager {
       this.__buffers[buffer.name] = buffer;
     }
 
-    // BufferForGPUVertexData
-    {
-      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
-      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
-        name: BufferUse.GPUVertexData.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
+    // // BufferForGPUVertexData
+    // {
+    //   let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
+    //   const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+    //   const buffer = new Buffer({
+    //     byteLength: arrayBuffer.byteLength,
+    //     arrayBuffer: arrayBuffer,
+    //     name: BufferUse.GPUVertexData.toString()
+    //   });
+    //   this.__buffers[buffer.name] = buffer;
+    // }
 
-    // BufferForUBO
-    {
-      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * UBOGeneric;
-      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
-        name: BufferUse.UBOGeneric.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
+    // // BufferForUBO
+    // {
+    //   let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * UBOGeneric;
+    //   const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+    //   const buffer = new Buffer({
+    //     byteLength: arrayBuffer.byteLength,
+    //     arrayBuffer: arrayBuffer,
+    //     name: BufferUse.UBOGeneric.toString()
+    //   });
+    //   this.__buffers[buffer.name] = buffer;
+    // }
 
   }
 
@@ -88,6 +90,21 @@ export default class MemoryManager {
 
   getBuffer(bufferUse: BufferUseEnum): Buffer {
     return this.__buffers[bufferUse.toString()];
+  }
+
+  createBufferOnDemand(size: Byte, object: RnObject) {
+    const arrayBuffer = new ArrayBuffer(size);
+    const buffer = new Buffer({
+      byteLength: arrayBuffer.byteLength,
+      arrayBuffer: arrayBuffer,
+      name: BufferUse.UBOGeneric.toString()
+    });
+    this.__buffersOnDemand.set(object.objectUID, buffer);
+    return buffer;
+  }
+
+  getBufferOnDemand(object: RnObject) {
+    return this.__buffersOnDemand.get(object.objectUID);
   }
 
   static get bufferWidthLength(): Size {

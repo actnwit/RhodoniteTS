@@ -10,6 +10,7 @@ import { ComponentTypeEnum, VertexAttributeEnum } from "../main";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/Material";
 import { Size } from "../../types/CommonTypes";
+import RnObject from "../core/RnObject";
 
 export default class Plane extends Primitive {
   constructor() {
@@ -68,13 +69,23 @@ export default class Plane extends Primitive {
       }
     }
 
+    // Check Size
     const attributeCompositionTypes = [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2];
     const attributeSemantics = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Texcoord0];
     const primitiveMode = PrimitiveMode.TriangleStrip;
+    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
+    let sumOfAttributesByteSize = 0;
+    attributes.forEach(attribute=>{
+      sumOfAttributesByteSize += attribute.byteLength;
+    });
+    const indexSizeInByte = indices.length * 2;
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+    // Create Buffer
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(indexSizeInByte + sumOfAttributesByteSize, this);
 
-    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.length * 2 /*byte*/, byteStride: 0, isAoS: false});
+
+    // Index Buffer
+    const indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indexSizeInByte /*byte*/, byteStride: 0, isAoS: false});
     const indicesAccessor = indicesBufferView.takeAccessor({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.UnsignedShort,
@@ -84,19 +95,11 @@ export default class Plane extends Primitive {
       indicesAccessor!.setScalar(i, indices![i], {});
     }
 
-
-
-    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
-
-    let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute=>{
-      sumOfAttributesByteSize += attribute.byteLength;
-    });
+    // VertexBuffer
     const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
-
 
     attributes.forEach((attribute, i)=>{
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);

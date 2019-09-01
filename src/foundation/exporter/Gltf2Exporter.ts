@@ -190,6 +190,11 @@ export default class Gltf2Exporter {
           const primitive = mesh.primitives[j];
           const rnMaterial = rnPrimitive.material!;
 
+          const material: any = {
+            "pbrMetallicRoughness": {
+            }
+          };
+
           let colorParam;
           let metallic = 1.0;
           let roughness = 1.0;
@@ -201,25 +206,21 @@ export default class Gltf2Exporter {
               metallic = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).x;
               roughness = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessFactor).y;
             }
-          } else {
-            colorParam = new Vector4(1, 1, 1, 1);
           }
 
+          if (colorParam) {
+            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(colorParam.v);
+          }
+          material.pbrMetallicRoughness.metallicFactor = metallic;
+          material.pbrMetallicRoughness.roughnessFactor = roughness;
 
-          const material: any = {
-            "pbrMetallicRoughness": {
-              "baseColorFactor": Array.prototype.slice.call(colorParam.v),
-              "metallicFactor": metallic,
-              "roughnessFactor": roughness
-            }
-          };
 
           if (rnMaterial) {
 
             material.alphaMode = rnMaterial.alphaMode.str;
 
             const processTexture = (rnTexture: AbstractTexture)=>{
-              if (rnTexture && rnTexture.width !== 1 && rnTexture.height !== 1) {
+              if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
 
                 let imageIndex = countImage;
                 let match = false;
@@ -232,17 +233,19 @@ export default class Gltf2Exporter {
                 }
                 if (!match) {
                   json.images[countImage++] = {
-                    uri: rnTexture.name
+                    uri: (rnTexture.name) ? rnTexture.name : rnTexture.uniqueName
                   }
                   const htmlCanvasElement = rnTexture.htmlCanvasElement;
                   if (htmlCanvasElement) {
                     const blob = htmlCanvasElement.toBlob((blob)=>{
-                      var a = document.createElement('a');
-                      const e = document.createEvent('MouseEvent');
-                      (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-                      a.href = URL.createObjectURL(blob);
-                      a.download = rnTexture.name;
-                      a.dispatchEvent(e);
+                      setTimeout(function(){
+                        var a = document.createElement('a');
+                        const e = document.createEvent('MouseEvent');
+                        (e as any).initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        a.href = URL.createObjectURL(blob);
+                        a.download = rnTexture.name;
+                        a.dispatchEvent(e);
+                      }, Math.random() * 10000);
                     });
                   }
                 }
@@ -254,14 +257,14 @@ export default class Gltf2Exporter {
 
                 return countTexture++
               }
-              return countTexture;
+              return void 0;
             }
 
             let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
             let rnTexture;
             let textureIndex;
             if (textureParam != null) {
-              rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+              rnTexture = (textureParam[1]);
               textureIndex = processTexture(rnTexture!);
               if (textureIndex != null) {
                 material.pbrMetallicRoughness.baseColorTexture = {index: textureIndex};
@@ -269,40 +272,48 @@ export default class Gltf2Exporter {
             } else {
               textureParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorTexture);
               if (textureParam != null) {
-                let rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
+                let rnTexture = (textureParam[1]);
                 let textureIndex = processTexture(rnTexture!);
                 if (textureIndex != null) {
-                  material.pbrMetallicRoughness.baseColorTexture = {index: textureIndex};
+                  material.pbrMetallicRoughness.diffuseColorTexture = {index: textureIndex};
                 }
               }
             }
 
             textureParam = rnMaterial.getParameter(ShaderSemantics.MetallicRoughnessTexture) as AbstractTexture;
-            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
-            textureIndex = processTexture(rnTexture!);
-            if (textureIndex != null) {
-              material.pbrMetallicRoughness.metallicRoughnessTexture = {index: textureIndex};
+            if (textureParam) {
+              rnTexture = (textureParam[1]);
+              textureIndex = processTexture(rnTexture!);
+              if (textureIndex != null) {
+                material.pbrMetallicRoughness.metallicRoughnessTexture = {index: textureIndex};
+              }
             }
 
             textureParam = rnMaterial.getParameter(ShaderSemantics.NormalTexture) as AbstractTexture;
-            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
-            textureIndex = processTexture(rnTexture!);
-            if (textureIndex != null) {
-              material.normalTexture = {index: textureIndex};
+            if (textureParam) {
+              rnTexture = (textureParam[1]);
+              textureIndex = processTexture(rnTexture!);
+              if (textureIndex != null) {
+                material.normalTexture = {index: textureIndex};
+              }
             }
 
             textureParam = rnMaterial.getParameter(ShaderSemantics.OcclusionTexture) as AbstractTexture;
-            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
-            textureIndex = processTexture(rnTexture!);
-            if (textureIndex != null) {
-              material.occlusionTexture = {index: textureIndex};
+            if (textureParam) {
+              rnTexture = (textureParam[1]);
+              textureIndex = processTexture(rnTexture!);
+              if (textureIndex != null) {
+                material.occlusionTexture = {index: textureIndex};
+              }
             }
 
             textureParam = rnMaterial.getParameter(ShaderSemantics.EmissiveTexture) as AbstractTexture;
-            rnTexture = AbstractTexture.getRhodoniteTexture(textureParam.y);
-            textureIndex = processTexture(rnTexture!);
-            if (textureIndex != null) {
-              material.emissiveTexture = {index: textureIndex};
+            if (textureParam) {
+              rnTexture = (textureParam[1]);
+              textureIndex = processTexture(rnTexture!);
+              if (textureIndex != null) {
+                material.emissiveTexture = {index: textureIndex};
+              }
             }
           }
 

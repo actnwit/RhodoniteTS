@@ -64,7 +64,7 @@ import EnvConstantSingleMaterialNode from '../foundation/materials/EnvConstantSi
 import RnObject from '../foundation/core/RnObject';
 import VRMImporter from '../foundation/importer/VRMImporter';
 import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
-
+import AnimationAssigner from '../foundation/importer/AnimationAssigner';
 
 const Rn = {
   EntityRepository,
@@ -132,7 +132,8 @@ const Rn = {
   EnvConstantSingleMaterialNode,
   RnObject,
   VRMImporter,
-  BlendShapeComponent
+  BlendShapeComponent,
+  AnimationAssigner
 };
 export default Rn;
 export type RnType = typeof Rn;

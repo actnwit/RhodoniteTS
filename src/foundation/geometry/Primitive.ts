@@ -110,7 +110,18 @@ export default class Primitive extends RnObject {
     })
   {
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+    let sumOfAttributesByteSize = 0;
+    attributes.forEach(attribute=>{
+      sumOfAttributesByteSize += attribute.byteLength;
+    });
+
+    let bufferSize = sumOfAttributesByteSize;
+    if (indices != null) {
+      bufferSize += indices.byteLength;
+    }
+
+    const primitive = new Primitive();
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, primitive);
 
     let indicesComponentType;
     let indicesBufferView;
@@ -129,12 +140,6 @@ export default class Primitive extends RnObject {
       }
     }
 
-
-
-    let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute=>{
-      sumOfAttributesByteSize += attribute.byteLength;
-    });
     const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
 
     const attributeAccessors: Array<Accessor> = [];
@@ -157,7 +162,6 @@ export default class Primitive extends RnObject {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
-    const primitive = new Primitive();
     primitive.setData(
       attributeMap,
       primitiveMode,

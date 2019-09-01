@@ -122,7 +122,7 @@ export default class ModelConverter {
     const rnBuffer = this.createRnBuffer(gltfModel);
 
     // Mesh, Camera, Group, ...
-    const rnEntities = this.__setupObjects(gltfModel, rnBuffer);
+    const {rnEntities, rnEntitiesByNames} = this.__setupObjects(gltfModel, rnBuffer);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
@@ -138,7 +138,7 @@ export default class ModelConverter {
     //this._setupCamera(gltfModel, groups);
 
     // Animation
-    this.__setupAnimation(gltfModel, rnEntities);
+    this._setupAnimation(gltfModel, rnEntities);
 
     // Root Group
     const rootGroup = this.__generateGroupEntity(gltfModel);
@@ -149,6 +149,10 @@ export default class ModelConverter {
         rootGroup.getSceneGraph().addChild(rnEntities[nodesIndex].getSceneGraph());
       }
     }
+
+    rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities})
+    rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames})
+    rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel})
 
     return rootGroup;
   }
@@ -204,7 +208,10 @@ export default class ModelConverter {
     }
   }
 
-  __setupAnimation(gltfModel: glTF2, rnEntities: Entity[]) {
+  /**
+   * @private
+   */
+  _setupAnimation(gltfModel: glTF2, rnEntities: Entity[]) {
     if (gltfModel.animations) {
 
       for (let animation of gltfModel.animations) {
@@ -317,8 +324,8 @@ export default class ModelConverter {
 
 
   __setupObjects(gltfModel: glTF2, rnBuffer: Buffer) {
-    //const meshEntities: Entity[] = [];
     const rnEntities: Entity[] = [];
+    const rnEntitiesByNames: Map<String, Entity> = new Map();
 
     for (let node_i in gltfModel.nodes) {
       let node = gltfModel.nodes[parseInt(node_i)];
@@ -357,6 +364,7 @@ export default class ModelConverter {
       entity.tryToSetTag({tag: 'gltf_node_index', value: ''+ node_i});
 
       rnEntities.push(entity);
+      rnEntitiesByNames.set(node.name, entity);
 
       if (this.__hasBlendShapes(node)) {
         let weights: number[];
@@ -381,7 +389,7 @@ export default class ModelConverter {
       }
     }
 
-    return rnEntities;
+    return {rnEntities, rnEntitiesByNames};
   }
 
   private __hasBlendShapes(node: any) {
@@ -549,9 +557,10 @@ export default class ModelConverter {
     if (texture.image.image) {
       const image = texture.image.image;
       rnTexture.generateTextureFromImage(image);
-      rnTexture.name = image.name;
+      const ext = texture.image.mimeType.split('/')[1];
+      rnTexture.name = texture.image.name + `.${ext}`;
     }
-    return rnTexture
+    return rnTexture;
   }
 
   private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {
