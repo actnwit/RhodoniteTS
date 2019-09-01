@@ -557,8 +557,12 @@ export default class ModelConverter {
     if (texture.image.image) {
       const image = texture.image.image;
       rnTexture.generateTextureFromImage(image);
-      const ext = texture.image.mimeType.split('/')[1];
-      rnTexture.name = texture.image.name + `.${ext}`;
+      if (texture.image.uri) {
+        rnTexture.name = texture.image.url;
+      } else {
+        const ext = texture.image.mimeType.split('/')[1];
+        rnTexture.name = texture.image.name + `.${ext}`;
+      }
     }
     return rnTexture;
   }
