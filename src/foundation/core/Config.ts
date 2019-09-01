@@ -1,9 +1,9 @@
-let maxEntityNumber = 300;
+let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;
 let maxVertexMorphNumberInShader = 41;
-let maxMaterialInstanceForEachType = 150;
+let maxMaterialInstanceForEachType = 500;
 let maxSkeletonNumber = 8;
-let maxCameraNumber = 5;
+let maxCameraNumber = 15;
 let maxSizeLimitOfNonCompressedTexture = 512;
 let maxSkeletalBoneNumber = 250;
 let dataTextureWidth = Math.pow(2, 11);
