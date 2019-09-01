@@ -65,6 +65,7 @@ import RnObject from '../foundation/core/RnObject';
 import VRMImporter from '../foundation/importer/VRMImporter';
 import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
 import AnimationAssigner from '../foundation/importer/AnimationAssigner';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
 
 const Rn = {
   EntityRepository,
@@ -133,7 +134,8 @@ const Rn = {
   RnObject,
   VRMImporter,
   BlendShapeComponent,
-  AnimationAssigner
+  AnimationAssigner,
+  MiscUtil,
 };
 export default Rn;
 export type RnType = typeof Rn;
