@@ -30,7 +30,9 @@ const load = async function(time){
 
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
   const animGltf2Model = await gltf2Importer.import('../../../assets/vrm/misaki_run.glb');
-  const rootGroup = await importer.import('../../../assets/vrm/mayuri.vrm');
+  const rootGroup = await importer.import('../../../assets/vrm/mayuri.vrm', {
+    "autoResizeTexture": true
+  });
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
 //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
