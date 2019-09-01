@@ -34,4 +34,18 @@ const isNode = function() {
   return (typeof process !== "undefined" && typeof require !== "undefined");
 }
 
-export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode });
+const concatArrayBuffers = function(segments: ArrayBuffer[]) {
+  var sumLength = 0;
+  for(var i = 0; i < segments.length; ++i){
+      sumLength += segments[i].byteLength;
+  }
+  var whole = new Uint8Array(sumLength);
+  var pos = 0;
+  for(var i = 0; i < segments.length; ++i){
+      whole.set(new Uint8Array(segments[i]),pos);
+      pos += segments[i].byteLength;
+  }
+  return whole.buffer;
+}
+
+export const MiscUtil = Object.freeze({ isMobile, preventDefaultForDesktopOnly, isObject, fillTemplate, isNode, concatArrayBuffers });

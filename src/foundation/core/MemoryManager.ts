@@ -46,17 +46,17 @@ export default class MemoryManager {
       this.__buffers[buffer.name] = buffer;
     }
 
-    // // BufferForGPUVertexData
-    // {
-    //   let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
-    //   const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-    //   const buffer = new Buffer({
-    //     byteLength: arrayBuffer.byteLength,
-    //     arrayBuffer: arrayBuffer,
-    //     name: BufferUse.GPUVertexData.toString()
-    //   });
-    //   this.__buffers[buffer.name] = buffer;
-    // }
+    // BufferForGPUVertexData
+    {
+      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
+      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+      const buffer = new Buffer({
+        byteLength: arrayBuffer.byteLength,
+        arrayBuffer: arrayBuffer,
+        name: BufferUse.GPUVertexData.toString()
+      });
+      this.__buffers[buffer.name] = buffer;
+    }
 
     // // BufferForUBO
     // {

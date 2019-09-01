@@ -40,6 +40,7 @@ import Buffer from "../foundation/memory/Buffer";
 import { MathUtil } from "../foundation/math/MathUtil";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
+import { MiscUtil } from "../foundation/misc/MiscUtil";
 
 type ShaderVariableArguments = {glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
   entity: Entity, worldMatrix: Matrix44, normalMatrix: Matrix33, renderPass: RenderPass,
@@ -214,42 +215,20 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
-
     // Setup Data Texture
-
-    let isHalfFloatMode = false;
-    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-    //   isHalfFloatMode = true;
-    // }
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-    let halfFloatDataTextureBuffer: Uint16Array;
-    if (isHalfFloatMode) {
-      halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-      let convertLength = buffer.takenSizeInByte / 4; //components
-      for (let i=0; i<convertLength; i++) {
-        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-      }
-    }
-
-    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-      //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-      //     level:0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-      //       format: PixelFormat.RGBA, type: ComponentType.Float
-      //     });
-      // } else {
-      //   this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-      //     level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-      //       format: PixelFormat.RGBA, type: ComponentType.Float
-      //     });
-      // }
-    } else {
+    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const memoryManager: MemoryManager = MemoryManager.getInstance();
+      const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
       if (buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
+      let paddingArrayBuffer = new ArrayBuffer(0);
+      if ((buffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
+        paddingArrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte);
+      }
+      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), paddingArrayBuffer]);
+      const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
+
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
           level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
@@ -264,10 +243,10 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
           });
       }
     }
-  };
+  }
 
   attachGPUData(primitive: Primitive): void {
-  };
+  }
 
   attatchShaderProgram(material: Material): void {
   }
