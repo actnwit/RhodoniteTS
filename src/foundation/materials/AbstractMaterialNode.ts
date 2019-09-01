@@ -25,6 +25,10 @@ import Primitive, { Attributes } from "../geometry/Primitive";
 import Accessor from "../memory/Accessor";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import BlendShapeComponent from "../components/BlendShapeComponent";
+import MemoryManager from "../core/MemoryManager";
+import { BufferUse } from "../definitions/BufferUse";
+import System from "../system/System";
+import { ProcessApproach } from "../definitions/ProcessApproach";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -313,10 +317,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
     }
+
+    const memoryManager = MemoryManager.getInstance();
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, meshComponent.mesh!.weights.length);
     const array: number[] = primitive.targets.map((target: Attributes)=>{
       const accessor = target.get(VertexAttribute.Position) as Accessor;
-      return accessor.byteOffsetInBuffer / 4 / 4;
+      let offset = 0;
+      if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+        offset = memoryManager.getBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
+      }
+      return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
     });
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).dataTextureMorphOffsetPosition, array);
     let weights;

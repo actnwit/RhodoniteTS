@@ -262,8 +262,8 @@ export default class ModelConverter {
     const globalDataRepository = GlobalDataRepository.getInstance();
     const entityRepository = EntityRepository.getInstance();
     for (let skin of gltfModel.skins) {
-      globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
-      globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+      // globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+      // globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
 
       if (skin.inverseBindMatrices) {
         this._accessBinaryWithAccessor(skin.inverseBindMatrices);
@@ -493,7 +493,7 @@ export default class ModelConverter {
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
-              const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
+              const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
               targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
             }
             targets.push(targetMap);
@@ -971,10 +971,11 @@ export default class ModelConverter {
     return rnAccessor;
   }
 
-  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
-    const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
+  private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor, primitive: Primitive) {
+    const byteSize = srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */;
+    const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
-      byteLengthToNeed: srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */,
+      byteLengthToNeed: byteSize,
       byteStride: 4 /* vec4 */ * 4 /* bytes */,
       isAoS: false
     });

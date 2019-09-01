@@ -1052,8 +1052,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
   }
 
-  updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, { level, width, height, format, type }:
-    { level: Index, width: Size, height: Size, format: PixelFormatEnum, type: ComponentTypeEnum }) {
+  updateTexture(textureUid: WebGLResourceHandle, typedArray: TypedArray, { level, xoffset, yoffset, width, height, format, type }:
+    { level: Index, xoffset: Size, yoffset: Size, width: Size, height: Size, format: PixelFormatEnum, type: ComponentTypeEnum }) {
     const gl = this.__glw!.getRawContext();;
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
 

@@ -67,6 +67,9 @@ export default class GlobalDataRepository {
         stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1) };
     this.registerProperty(boneQuaternionInfo, 1);
     this.registerProperty(boneTranslateScaleInfo, 1);
+    this.takeOne(ShaderSemantics.BoneQuaternion);
+    this.takeOne(ShaderSemantics.BoneTranslateScale);
+
     this.registerProperty(skeletalComponentSIDInfo, 1);
 
     // Lighting

@@ -29,12 +29,13 @@ import Config from "../foundation/core/Config";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../types/CommonTypes";
 import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import Entity from "../foundation/core/Entity";
+import { MiscUtil } from "../foundation/misc/MiscUtil";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -404,74 +405,42 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     meshRendererComponent._readyForRendering = true;
   }
 
-  common_$prerender(): void {
 
-    // Setup Data Texture
-    let isHalfFloatMode = false;
-    // if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 ||
-    //   this.__webglResourceRepository.currentWebGLContextWrapper!.isSupportWebGL1Extension(WebGLExtension.TextureHalfFloat)) {
-    //   isHalfFloatMode = true;
-    // }
+
+  private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-    const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer());
-    let halfFloatDataTextureBuffer: Uint16Array;
-    if (isHalfFloatMode) {
-      halfFloatDataTextureBuffer = new Uint16Array(floatDataTextureBuffer.length);
-      let convertLength = buffer.takenSizeInByte / 4; //components
-      for (let i=0; i<convertLength; i++) {
-        halfFloatDataTextureBuffer[i] = MathUtil.toHalfFloat(floatDataTextureBuffer[i]);
-      }
-    }
+
 
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      if (isHalfFloatMode) {
-        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        } else {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, halfFloatDataTextureBuffer!, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-              format: PixelFormat.RGBA, type: ComponentType.HalfFloat
-            });
-        }
-      } else {
-        if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level:0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        } else {
-          this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-            level: 0, width: MemoryManager.bufferWidthLength, height: Math.min(buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4, MemoryManager.bufferHeightLength),
-              format: PixelFormat.RGBA, type: ComponentType.Float
-            });
-        }
-      }
-      return;
-    }
-
-    if (isHalfFloatMode) {
-      if (buffer.takenSizeInByte/MemoryManager.bufferWidthLength/4 > MemoryManager.bufferHeightLength) {
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte));
+      const bufferSizeInByte = buffer.takenSizeInByte;
+      if (bufferSizeInByte/MemoryManager.bufferWidthLength/4/4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA16F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+          level:0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte/MemoryManager.bufferWidthLength/4/4, MemoryManager.bufferHeightLength),
+            format: PixelFormat.RGBA, type: ComponentType.Float
           });
       } else {
-        this.__dataTextureUid = this.__webglResourceRepository.createTexture(halfFloatDataTextureBuffer!, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.HalfFloat, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte/MemoryManager.bufferWidthLength/4/4, MemoryManager.bufferHeightLength),
+            format: PixelFormat.RGBA, type: ComponentType.Float
           });
       }
-
     } else {
+      const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+      let paddingArrayBuffer = new ArrayBuffer(0);
+      if ((buffer.takenSizeInByte + morphBuffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
+        paddingArrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte);
+      }
+      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), morphBuffer.getArrayBuffer().slice(0, morphBuffer.takenSizeInByte), paddingArrayBuffer]);
+      const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
+      if (concatArraybuffer.byteLength/MemoryManager.bufferWidthLength/4/4 > MemoryManager.bufferHeightLength) {
+        console.warn('The buffer size exceeds the size of the data texture.');
+      }
+
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
           level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
@@ -486,6 +455,12 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           });
       }
     }
+  }
+
+  common_$prerender(): void {
+
+    // Setup Data Texture
+    this.__createAndUpdateDataTexture();
 
     const componentRepository = ComponentRepository.getInstance();
     this.__lightComponents = componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
