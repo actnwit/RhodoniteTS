@@ -17,8 +17,6 @@ export default class MemoryManager {
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
   private __buffersOnDemand: Map<ObjectUID, Buffer> = new Map();
-  private static __bufferWidthLength: Size = Config.dataTextureWidth;
-  private static __bufferHeightLength: Size = Config.dataTextureHeight;
 
   private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
     // BufferForCPU
@@ -108,11 +106,11 @@ export default class MemoryManager {
   }
 
   static get bufferWidthLength(): Size {
-    return MemoryManager.__bufferWidthLength;
+    return Config.dataTextureWidth;
   }
 
   static get bufferHeightLength(): Size {
-    return MemoryManager.__bufferHeightLength;
+    return Config.dataTextureHeight;
   }
 
   printMemoryUsage() {
