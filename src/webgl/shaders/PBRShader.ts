@@ -221,19 +221,20 @@ void main ()
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
 
   if (abs(length(v_tangent_inWorld)) > 0.01) {
-    vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz*2.0 - 1.0;
-      vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-      vec3 binormal_inWorld = normalize(v_binormal_inWorld);
-      normal_inWorld = normalize(normal_inWorld);
+    vec2 normalTexUv = uvTransform(u_normalTextureTransform.xy, u_normalTextureTransform.zw, u_normalTextureRotation, v_texcoord);
+    vec3 normal = ${_texture}(u_normalTexture, normalTexUv).xyz*2.0 - 1.0;
+    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+    normal_inWorld = normalize(normal_inWorld);
 
-      mat3 tbnMat_tangent_to_world = mat3(
-        tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
-        binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
-        normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
-      );
+    mat3 tbnMat_tangent_to_world = mat3(
+      tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
+      binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
+      normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
+    );
 
-      normal = normalize(tbnMat_tangent_to_world * normal);
-      normal_inWorld = normal;
+    normal = normalize(tbnMat_tangent_to_world * normal);
+    normal_inWorld = normal;
   }
 
 
@@ -256,7 +257,8 @@ void main ()
 
 
   // BaseColor (take account for BaseColorTexture)
-  vec4 textureColor = ${_texture}(u_baseColorTexture, v_texcoord);
+  vec2 baseColorTexUv = uvTransform(u_baseColorTextureTransform.xy, u_baseColorTextureTransform.zw, u_baseColorTextureRotation, v_texcoord);
+  vec4 textureColor = ${_texture}(u_baseColorTexture, baseColorTexUv);
   baseColor *= srgbToLinear(textureColor.rgb);
   alpha *= textureColor.a;
 
@@ -269,7 +271,8 @@ void main ()
   float userRoughness = metallicRoughnessFactor.y;
   float metallic = metallicRoughnessFactor.x;
 
-  vec4 ormTexel = ${_texture}(u_metallicRoughnessTexture, v_texcoord);
+  vec2 metallicRoughnessTexUv = uvTransform(u_metallicRoughnessTextureTransform.xy, u_metallicRoughnessTextureTransform.zw, u_metallicRoughnessTextureRotation, v_texcoord);
+  vec4 ormTexel = ${_texture}(u_metallicRoughnessTexture, metallicRoughnessTexUv);
   userRoughness = ormTexel.g * userRoughness;
   metallic = ormTexel.b * metallic;
 

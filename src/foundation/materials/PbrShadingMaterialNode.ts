@@ -30,7 +30,13 @@ import MutableMatrix44 from "../math/MutableMatrix44";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  static readonly isOutputHDR = new ShaderSemanticsClass({str: 'isOutputHDR'})
+  private static readonly IsOutputHDR = new ShaderSemanticsClass({ str: 'isOutputHDR' })
+  static baseColorTextureTransform = new ShaderSemanticsClass({str: 'baseColorTextureTransform'});
+  static baseColorTextureRotation = new ShaderSemanticsClass({str: 'baseColorTextureRotation'});
+  static normalTextureTransform = new ShaderSemanticsClass({str: 'normalTextureTransform'});
+  static normalTextureRotation = new ShaderSemanticsClass({str: 'normalTextureRotation'});
+  static metallicRoughnessTextureTransform = new ShaderSemanticsClass({str: 'metallicRoughnessTextureTransform'});
+  static metallicRoughnessTextureRotation = new ShaderSemanticsClass({str: 'metallicRoughnessTextureRotation'});
 
   constructor({isMorphing, isSkinning, isLighting}: {isMorphing: boolean, isSkinning: boolean, isLighting: boolean}) {
     super(PBRShader.getInstance(), 'pbrShading'
@@ -42,7 +48,6 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
 
 
     PbrShadingMaterialNode.initDefaultTextures();
-
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] =
       [
@@ -68,7 +73,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader, min: 0, max: Number.MAX_SAFE_INTEGER, isSystem: false, initialValue: [4, AbstractMaterialNode.__dummyBlackTexture]},
         {semantic: ShaderSemantics.Wireframe, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 10, isSystem: false, initialValue: new Vector3(0, 0, 1)},
-        { semantic: PbrShadingMaterialNode.isOutputHDR, compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
+        { semantic: PbrShadingMaterialNode.IsOutputHDR, compositionType: CompositionType.Scalar, componentType: ComponentType.Bool,
           stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: false, initialValue: new Scalar(0) },
         // {
         //   semantic: ShaderSemantics.ViewPosition,
@@ -137,6 +142,31 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           updateInteval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
         },
+        {
+          semantic: PbrShadingMaterialNode.baseColorTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, initialValue: new Vector4(1, 1, 0, 0)
+        },
+        {
+          semantic: PbrShadingMaterialNode.baseColorTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingMaterialNode.normalTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, initialValue: new Vector4(1, 1, 0, 0)
+        },
+        {
+          semantic: PbrShadingMaterialNode.normalTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, initialValue: new Scalar(0)
+        },
+        {
+          semantic: PbrShadingMaterialNode.metallicRoughnessTextureTransform, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -10, max: 10, isSystem: false, initialValue: new Vector4(1, 1, 0, 0)
+        },
+        {
+          semantic: PbrShadingMaterialNode.metallicRoughnessTextureRotation, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: -Math.PI, max: Math.PI, isSystem: false, initialValue: new Scalar(0)
+        },
+
       ];
 
       shaderSemanticsInfoArray.push(
