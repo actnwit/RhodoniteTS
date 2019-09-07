@@ -61,8 +61,8 @@ export default class AnimationAssigner {
             animationAttributeName = channel.target.path;
           }
 
-          const node = gltfModel.nodes[channel.target.nodeIndex];
-          let rnEntity = rnEntities.get(node.name);
+          const node = gltfModel.nodes[channel.target.nodeIndex!];
+          let rnEntity = rnEntities.get(node.name!);
           if (rnEntity) {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
