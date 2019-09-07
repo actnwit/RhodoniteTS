@@ -21,6 +21,7 @@ import Config from '../core/Config';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { MathUtil } from '../math/MathUtil';
 
 export default class CameraComponent extends Component {
   private readonly _eye: Vector3 = Vector3.zero();
@@ -29,6 +30,9 @@ export default class CameraComponent extends Component {
   private _directionInner: Vector3 = Vector3.dummy();
   private _up: Vector3 = Vector3.dummy();
   private _upInner: Vector3 = Vector3.dummy();
+  private _filmWidth = 36; // mili meter
+  private _filmHeight = 24; // mili meter
+  private _focalLength = 20;
 
   // x: left, y:right, z:top, w: bottom
   private _corner: MutableVector4 = MutableVector4.dummy();
@@ -90,7 +94,7 @@ export default class CameraComponent extends Component {
     globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
     globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
 
-
+    this.setFovyAndChangeFocalLength(90);
     CameraComponent.main = componentSid;
   }
 
@@ -111,7 +115,7 @@ export default class CameraComponent extends Component {
       this._parametersInner.z = 1;
       this._parametersInner.w = 1;
     } else {
-      this._parameters.z = 90;
+      this.setFovyAndChangeFocalLength(90);
       this._parameters.w = 1;
       this._parametersInner.z = 90;
       this._parametersInner.w = 1;
@@ -244,9 +248,9 @@ export default class CameraComponent extends Component {
     return this._corner;
   }
 
-  set parameters(vec: Vector4) {
-    this._parameters.copyComponents(vec);
-  }
+  // set parameters(vec: Vector4) {
+  //   this._parameters.copyComponents(vec);
+  // }
 
   set parametersInner(vec: Vector4) {
     this._parametersInner.copyComponents(vec);
@@ -272,6 +276,14 @@ export default class CameraComponent extends Component {
     return this._parameters.x;
   }
 
+  set focalLength(val: number) {
+    this._focalLength = val;
+    this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight/(val * 2)));
+  }
+  get focalLength() {
+    return this._focalLength;
+  }
+
   set zFar(val: number) {
     this._parameters.y = val;
   }
@@ -288,8 +300,15 @@ export default class CameraComponent extends Component {
     return this._parameters.y;
   }
 
-  set fovy(val: number) {
-    this._parameters.z = val;
+  setFovyAndChangeFilmSize(degree: number) {
+    this._parameters.z = degree;
+    this._filmHeight = 2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this._filmWidth = this._filmHeight * this.aspect;
+  }
+
+  setFovyAndChangeFocalLength(degree: number) {
+    this._parameters.z = degree;
+    this._focalLength = this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
   }
 
   get fovy() {
@@ -302,25 +321,26 @@ export default class CameraComponent extends Component {
 
   set aspect(val: number) {
     this._parameters.w = val;
+    this._filmWidth = this._filmHeight * val;
   }
 
   get aspect() {
     return this._parameters.w;
   }
 
-  set xmag(val: number) {
+  set xMag(val: number) {
     this._parameters.z = val;
   }
 
-  get xmag() {
+  get xMag() {
     return this._parameters.z;
   }
 
-  set ymag(val: number) {
+  set yMag(val: number) {
     this._parameters.w = val;
   }
 
-  get ymag() {
+  get yMag() {
     return this._parameters.w;
   }
 
