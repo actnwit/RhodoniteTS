@@ -1,7 +1,7 @@
 import DataUtil from "../misc/DataUtil";
 import Accessor from "../memory/Accessor";
 import BufferView from "../memory/BufferView";
-import { glTF2, GltfLoadOption } from "../../types/glTF";
+import { glTF2, GltfLoadOption, Gltf2Image } from "../../types/glTF";
 
 declare var Rn: any;
 
@@ -241,9 +241,9 @@ export default class Gltf2Importer {
 
   _loadDependenciesOfScenes(gltfJson: glTF2) {
     for (let scene of gltfJson.scenes) {
-      scene.nodesIndices = scene.nodes.concat();
+      scene.nodesIndices = scene.nodes!.concat();
       for (let i in scene.nodesIndices) {
-        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
+        scene.nodes![i] = gltfJson.nodes[scene.nodes![i]];
       }
     }
   }
@@ -264,7 +264,7 @@ export default class Gltf2Importer {
       // Mesh
       if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
         node.meshIndex = node.mesh;
-        node.mesh = gltfJson.meshes[node.meshIndex];
+        node.mesh = gltfJson.meshes[node.meshIndex!];
       }
 
       // Skin
@@ -281,7 +281,7 @@ export default class Gltf2Importer {
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
         node.cameraIndex = node.camera;
-        node.camera = gltfJson.cameras[node.cameraIndex];
+        node.camera = gltfJson.cameras[node.cameraIndex!];
       }
 
       // Lights
@@ -299,26 +299,26 @@ export default class Gltf2Importer {
       for (let primitive of mesh.primitives) {
         if (primitive.material !== void 0) {
           primitive.materialIndex = primitive.material;
-          primitive.material = gltfJson.materials[primitive.materialIndex];
+          primitive.material = gltfJson.materials[primitive.materialIndex!];
         }
 
-        primitive.attributesindex = Object.assign({}, primitive.attributes);
-        for (let attributeName in primitive.attributesindex) {
-          if (primitive.attributesindex[attributeName] >= 0) {
-            let accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
+        primitive.attributesIndex = Object.assign({}, primitive.attributes);
+        for (let attributeName in primitive.attributesIndex) {
+          if (primitive.attributesIndex[attributeName] >= 0) {
+            let accessor = gltfJson.accessors[primitive.attributesIndex[attributeName]];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
             };
-            primitive.attributes[attributeName] = accessor;
+            (primitive.attributes as any)[attributeName] = accessor;
           } else {
-            primitive.attributes[attributeName] = void 0;
+            (primitive.attributes as any)[attributeName] = void 0;
           }
         }
 
         if (primitive.indices != null) {
           primitive.indicesIndex = primitive.indices;
-          primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+          primitive.indices = gltfJson.accessors[primitive.indicesIndex!];
         }
 
         if (primitive.targets != null) {
@@ -409,11 +409,11 @@ export default class Gltf2Importer {
       for (let texture of gltfJson.textures) {
         if (texture.sampler !== void 0) {
           texture.samplerIndex = texture.sampler;
-          texture.sampler = gltfJson.samplers[texture.samplerIndex];
+          texture.sampler = gltfJson.samplers[texture.samplerIndex!];
         }
         if (texture.source !== void 0) {
           texture.sourceIndex = texture.source;
-          texture.image = gltfJson.images[texture.sourceIndex];
+          texture.image = gltfJson.images[texture.sourceIndex!];
         }
       }
     }
@@ -423,14 +423,14 @@ export default class Gltf2Importer {
     if (gltfJson.skins) {
       for (let skin of gltfJson.skins) {
         skin.skeletonIndex = skin.skeleton;
-        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+        skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
 
         skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
+        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex!];
 
         if (skin.skeleton == null) {
           skin.skeletonIndex = skin.joints[0];
-          skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+          skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
         }
 
         skin.jointsIndices = skin.joints;
@@ -448,10 +448,10 @@ export default class Gltf2Importer {
       for (let animation of gltfJson.animations) {
         for (let channel of animation.channels) {
           channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex];
+          channel.sampler = animation.samplers[channel.samplerIndex!];
 
           channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
+          channel.target.node = gltfJson.nodes[channel.target.nodeIndex!];
         }
         for (let channel of animation.channels) {
           channel.sampler.inputIndex = channel.sampler.input;
@@ -480,7 +480,7 @@ export default class Gltf2Importer {
         accessor.bufferView = 0;
       }
       accessor.bufferViewIndex = accessor.bufferView;
-      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
     }
   }
 
@@ -489,7 +489,7 @@ export default class Gltf2Importer {
     for (let bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
         bufferView.bufferIndex = bufferView.buffer;
-        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
+        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
   }
@@ -574,7 +574,7 @@ export default class Gltf2Importer {
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
-      let splitted: string;
+      let splitted: string[];
       let filename: string;
       if (bufferInfo.uri) {
         splitted = bufferInfo.uri.split('/');
@@ -591,7 +591,7 @@ export default class Gltf2Importer {
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
+            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
             resources.buffers[i] = arrayBuffer;
             bufferInfo.buffer = arrayBuffer;
             resolve(gltfJson);
@@ -627,7 +627,7 @@ export default class Gltf2Importer {
     // Textures Async load
     for (let _i in gltfJson.images) {
       const i = _i as any as number;
-      let imageJson = gltfJson.images[i];
+      let imageJson = gltfJson.images[i] as Gltf2Image;
       //let imageJson = gltfJson.images[textureJson.source];
       //let samplerJson = gltfJson.samplers[textureJson.sampler];
 
@@ -636,10 +636,10 @@ export default class Gltf2Importer {
       if (typeof imageJson.uri === 'undefined') {
         let arrayBuffer = arrayBufferBinary;
         if (arrayBufferBinary == null) {
-          const bufferView = gltfJson.bufferViews[imageJson.bufferView];
+          const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
           arrayBuffer = bufferView.buffer.buffer;
         }
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBuffer, imageJson.mimeType);
+        imageUri = this._accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBuffer, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -679,7 +679,7 @@ export default class Gltf2Importer {
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
             img.src = this._getImageType(ext) + window.btoa(binaryData);
-            img.name = (imageJson.name) ? imageJson.name : imageJson.uri;
+            img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
             img.onload = () => {
               resolve(gltfJson);
             }
@@ -711,13 +711,13 @@ export default class Gltf2Importer {
     });
   }
 
-  _accessBinaryAsImage(bufferViewStr: string, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
+  _accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
+    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewIndex, arrayBuffer);
     return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
   }
 
-  _sliceBufferViewToArrayBuffer(json: any, bufferViewStr: string, arrayBuffer: ArrayBuffer) {
-    let bufferViewJson = json.bufferViews[bufferViewStr];
+  _sliceBufferViewToArrayBuffer(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer) {
+    let bufferViewJson = json.bufferViews[bufferViewIndex];
     let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
     let byteLength = bufferViewJson.byteLength;
     let arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);

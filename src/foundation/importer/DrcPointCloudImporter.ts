@@ -707,9 +707,9 @@ export default class DrcPointCloudImporter {
 
   _loadDependenciesOfScenes(gltfJson: glTF2) {
     for (let scene of gltfJson.scenes) {
-      scene.nodesIndices = scene.nodes.concat();
+      scene.nodesIndices = scene.nodes!.concat();
       for (let i in scene.nodesIndices) {
-        scene.nodes[i] = gltfJson.nodes[scene.nodes[i]];
+        scene.nodes![i] = gltfJson.nodes[scene.nodes![i]];
       }
     }
   }
@@ -730,7 +730,7 @@ export default class DrcPointCloudImporter {
       // Mesh
       if (node.mesh !== void 0 && gltfJson.meshes !== void 0) {
         node.meshIndex = node.mesh;
-        node.mesh = gltfJson.meshes[node.meshIndex];
+        node.mesh = gltfJson.meshes[node.meshIndex!];
       }
 
       // Skin
@@ -747,7 +747,7 @@ export default class DrcPointCloudImporter {
       // Camera
       if (node.camera !== void 0 && gltfJson.cameras !== void 0) {
         node.cameraIndex = node.camera;
-        node.camera = gltfJson.cameras[node.cameraIndex];
+        node.camera = gltfJson.cameras[node.cameraIndex!];
       }
 
     }
@@ -759,26 +759,26 @@ export default class DrcPointCloudImporter {
       for (let primitive of mesh.primitives) {
         if (primitive.material !== void 0) {
           primitive.materialIndex = primitive.material;
-          primitive.material = gltfJson.materials[primitive.materialIndex];
+          primitive.material = gltfJson.materials[primitive.materialIndex!];
         }
 
-        primitive.attributesindex = Object.assign({}, primitive.attributes);
-        for (let attributeName in primitive.attributesindex) {
-          if (primitive.attributesindex[attributeName] >= 0) {
-            let accessor = gltfJson.accessors[primitive.attributesindex[attributeName]];
+        primitive.attributesIndex = Object.assign({}, primitive.attributes);
+        for (let attributeName in primitive.attributesIndex) {
+          if (primitive.attributesIndex[attributeName] >= 0) {
+            let accessor = gltfJson.accessors[primitive.attributesIndex[attributeName]];
             accessor.extras = {
               toGetAsTypedArray: true,
               attributeName: attributeName
             };
-            primitive.attributes[attributeName] = accessor;
+            (primitive.attributes as any)[attributeName] = accessor;
           } else {
-            primitive.attributes[attributeName] = void 0;
+            (primitive.attributes as any)[attributeName] = void 0;
           }
         }
 
         if (primitive.indices != null) {
           primitive.indicesIndex = primitive.indices;
-          primitive.indices = gltfJson.accessors[primitive.indicesIndex];
+          primitive.indices = gltfJson.accessors[primitive.indicesIndex!];
         }
 
         if (primitive.targets != null) {
@@ -844,11 +844,11 @@ export default class DrcPointCloudImporter {
       for (let texture of gltfJson.textures) {
         if (texture.sampler !== void 0) {
           texture.samplerIndex = texture.sampler;
-          texture.sampler = gltfJson.samplers[texture.samplerIndex];
+          texture.sampler = gltfJson.samplers[texture.samplerIndex!];
         }
         if (texture.source !== void 0) {
           texture.sourceIndex = texture.source;
-          texture.image = gltfJson.images[texture.sourceIndex];
+          texture.image = gltfJson.images[texture.sourceIndex!];
         }
       }
     }
@@ -858,14 +858,14 @@ export default class DrcPointCloudImporter {
     if (gltfJson.skins) {
       for (let skin of gltfJson.skins) {
         skin.skeletonIndex = skin.skeleton;
-        skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+        skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
 
         skin.inverseBindMatricesIndex = skin.inverseBindMatrices;
-        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex];
+        skin.inverseBindMatrices = gltfJson.accessors[skin.inverseBindMatricesIndex!];
 
         if (skin.skeleton == null) {
           skin.skeletonIndex = skin.joints[0];
-          skin.skeleton = gltfJson.nodes[skin.skeletonIndex];
+          skin.skeleton = gltfJson.nodes[skin.skeletonIndex!];
         }
 
         skin.jointsIndices = skin.joints;
@@ -884,10 +884,10 @@ export default class DrcPointCloudImporter {
       for (let animation of gltfJson.animations) {
         for (let channel of animation.channels) {
           channel.samplerIndex = channel.sampler;
-          channel.sampler = animation.samplers[channel.samplerIndex];
+          channel.sampler = animation.samplers[channel.samplerIndex!];
 
           channel.target.nodeIndex = channel.target.node;
-          channel.target.node = gltfJson.nodes[channel.target.nodeIndex];
+          channel.target.node = gltfJson.nodes[channel.target.nodeIndex!];
         }
         for (let channel of animation.channels) {
           channel.sampler.inputIndex = channel.sampler.input;
@@ -916,7 +916,7 @@ export default class DrcPointCloudImporter {
         accessor.bufferView = 0;
       }
       accessor.bufferViewIndex = accessor.bufferView;
-      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex];
+      accessor.bufferView = gltfJson.bufferViews[accessor.bufferViewIndex!];
     }
   }
 
@@ -925,7 +925,7 @@ export default class DrcPointCloudImporter {
     for (let bufferView of gltfJson.bufferViews) {
       if (bufferView.buffer !== void 0) {
         bufferView.bufferIndex = bufferView.buffer;
-        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex];
+        bufferView.buffer = gltfJson.buffers[bufferView.bufferIndex!];
       }
     }
   }
@@ -1010,7 +1010,7 @@ export default class DrcPointCloudImporter {
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
-      let splitted: string;
+      let splitted: string[];
       let filename: string;
       if (bufferInfo.uri) {
         splitted = bufferInfo.uri.split('/');
@@ -1027,7 +1027,7 @@ export default class DrcPointCloudImporter {
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
-            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri);
+            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
             resources.buffers[i] = arrayBuffer;
             bufferInfo.buffer = arrayBuffer;
             resolve(gltfJson);
@@ -1068,7 +1068,7 @@ export default class DrcPointCloudImporter {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+        imageUri = this._accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBufferBinary, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -1108,7 +1108,7 @@ export default class DrcPointCloudImporter {
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
             img.src = this._getImageType(ext) + window.btoa(binaryData);
-            img.name = (imageJson.name) ? imageJson.name : imageJson.uri;
+            img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
             img.onload = () => {
               resolve(gltfJson);
             }
@@ -1140,13 +1140,13 @@ export default class DrcPointCloudImporter {
     });
   }
 
-  _accessBinaryAsImage(bufferViewStr: string, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
+  _accessBinaryAsImage(bufferView: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
+    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferView, arrayBuffer);
     return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
   }
 
-  _sliceBufferViewToArrayBuffer(json: any, bufferViewStr: string, arrayBuffer: ArrayBuffer) {
-    let bufferViewJson = json.bufferViews[bufferViewStr];
+  _sliceBufferViewToArrayBuffer(json: any, bufferView: number, arrayBuffer: ArrayBuffer) {
+    let bufferViewJson = json.bufferViews[bufferView];
     let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
     let byteLength = bufferViewJson.byteLength;
     let arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);

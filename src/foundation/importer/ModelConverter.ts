@@ -38,7 +38,7 @@ import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
-import { GltfLoadOption, glTF2 } from "../../types/glTF";
+import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
@@ -160,10 +160,10 @@ export default class ModelConverter {
   }
 
   private createRnBuffer(gltfModel: glTF2) {
-    const buffer = gltfModel.buffers[0];
+    const buffer = gltfModel.buffers[0] as Gltf2Buffer;
     const rnBuffer = new Buffer({
       byteLength: buffer.byteLength,
-      arrayBuffer: buffer.buffer,
+      arrayBuffer: buffer.buffer!,
       name: `gltf2Buffer_0_(${buffer.uri})`
     });
 
@@ -239,7 +239,7 @@ export default class ModelConverter {
             animationAttributeName = channel.target.path;
           }
 
-          let rnEntity = rnEntities[channel.target.nodeIndex];
+          let rnEntity = rnEntities[channel.target.nodeIndex!];
           if (rnEntity) {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
@@ -326,12 +326,12 @@ export default class ModelConverter {
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
     for (let node_i in gltfModel.nodes) {
-      let node = gltfModel.nodes[parseInt(node_i)];
+      let node = gltfModel.nodes[parseInt(node_i)] as Gltf2Node;
       let entity;
       if (node.mesh != null) {
-        let meshIdxOrName = node.meshIndex;
+        let meshIdxOrName: any = node.meshIndex;
         if (meshIdxOrName == null) {
-          meshIdxOrName = node.meshNames[0];
+          meshIdxOrName = node.meshNames![0];
         }
         const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffer, gltfModel);
         if (node.name) {
@@ -362,7 +362,7 @@ export default class ModelConverter {
       entity.tryToSetTag({tag: 'gltf_node_index', value: ''+ node_i});
 
       rnEntities.push(entity);
-      rnEntitiesByNames.set(node.name, entity);
+      rnEntitiesByNames.set(node.name!, entity);
 
       if (this.__hasBlendShapes(node)) {
         let weights: number[];
