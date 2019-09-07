@@ -23,8 +23,10 @@ const load = async function(time){
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
-  //cameraComponent.type = Rn.CameraType.Orthographic;
-  cameraComponent.parameters = new Rn.Vector4(0.1, 1000, 90, 1);
+  cameraComponent.zNear = 0.1;
+  cameraComponent.zFar = 1000;
+  cameraComponent.setFovyAndChangeFocalLength(90);
+  cameraComponent.aspect = 1;
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 7);
 
 

@@ -64,7 +64,11 @@ export default class System {
       const cameraEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
       cameraEntity.getTransform().translate = new Vector3(0, 0, 1);
       cameraEntity.getCamera().type = CameraType.Orthographic;
-      cameraEntity.getCamera().parameters = new Vector4(0.1, 10000, 1, 1);
+      cameraEntity.getCamera().zNear = 0.1;
+      cameraEntity.getCamera().zFar = 10000;
+      const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+      cameraEntity.getCamera().yMag = 1;
     }
 
 

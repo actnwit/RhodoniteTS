@@ -429,12 +429,12 @@ export default class ModelConverter {
     cameraComponent.type = CameraType.fromString(camera.type);
     if (cameraComponent.type === CameraType.Perspective) {
       cameraComponent.aspect = camera.perspective.aspectRatio ? camera.perspective.aspectRatio : 1;
-      cameraComponent.fovy = MathUtil.radianToDegree(camera.perspective.yfov);
+      cameraComponent.setFovyAndChangeFocalLength(MathUtil.radianToDegree(camera.perspective.yfov));
       cameraComponent.zNear = camera.perspective.znear;
       cameraComponent.zFar = camera.perspective.zfar ? camera.perspective.zfar : 100000;
     } else if (cameraComponent.type === CameraType.Orthographic) {
-      cameraComponent.xmag = camera.orthographic.zmag;
-      cameraComponent.ymag = camera.orthographic.ymag;
+      cameraComponent.xMag = camera.orthographic.zmag;
+      cameraComponent.yMag = camera.orthographic.ymag;
       cameraComponent.zNear = camera.orthographic.znear;
       cameraComponent.zFar = camera.orthographic.zfar;
     }

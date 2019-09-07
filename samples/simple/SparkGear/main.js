@@ -25,7 +25,11 @@ var Module = {
     const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
     const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
     //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
-    cameraComponent.parameters = new Rn.Vector4(1, 10000, 90, 1);
+    cameraComponent.zNear = 0.1;
+    cameraComponent.zFar = 10000;
+    cameraComponent.setFovyAndChangeFocalLength(90);
+    cameraComponent.aspect = 1;
+
     cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 3);
 
     const importer = Rn.Gltf2Importer.getInstance();
