@@ -46,8 +46,8 @@ export default class CameraControllerComponent extends Component {
   private __rot_bgn_y = 0;
   private __rot_x = 0;
   private __rot_y = 0;
-  private __dolly = 0.33;
-  private __dollyScale = 3.0;
+  private __dolly = 0.5;
+  private __dollyScale = 2.0;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
@@ -382,17 +382,17 @@ export default class CameraControllerComponent extends Component {
 
     if (this.__initX) {
       let clientX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
-      this.__controllerTranslate.x -= this.dolly * this.__dollyScale * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200 * -1;
-      this.__controllerTranslate.z -= this.dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200;
+      this.__controllerTranslate.x -= this.__dolly * this.__dollyScale * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200 * -1;
+      this.__controllerTranslate.z -= this.__dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initX - clientX) * this.moveSpeed / 200;
       this.__initX = clientX;
     } else {
       this.__initX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
     }
     if (this.__initY) {
       let clientY = e.touches[0].pageY;
-      this.__controllerTranslate.x -= this.dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
-      this.__controllerTranslate.y -= this.dolly * this.__dollyScale * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_y / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
-      this.__controllerTranslate.z -= this.dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.x -= this.__dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.sin(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.y -= this.__dolly * this.__dollyScale * this.__lengthCameraToObject * Math.cos(2 * Math.PI * this.__rot_y / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
+      this.__controllerTranslate.z -= this.__dolly * this.__dollyScale * this.__lengthCameraToObject * Math.sin(2 * Math.PI * this.__rot_y / 360) * Math.cos(2 * Math.PI * this.__rot_x / 360) * (this.__initY - clientY) * this.moveSpeed / 200;
       this.__initY = clientY;
     } else {
       this.__initY = e.touches[0].pageY;
@@ -606,7 +606,7 @@ export default class CameraControllerComponent extends Component {
       this.__centerVec
     );
     centerToEyeVec = Vector3.multiply(centerToEyeVec,
-      (this.dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
+      (this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
     );
     this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
