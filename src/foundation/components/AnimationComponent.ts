@@ -156,22 +156,24 @@ export default class AnimationComponent extends Component {
     let low = 0;
     let high = inputArray.length - 1;
     let mid = 0;
-    while (low <= high) {
-      mid = low + Math.floor((high - low) / 2);
+    let retVal = 0;
+    while (low < high) {
+      mid = low + ((high - low) >> 1);
 
       const value = inputArray[mid];
       if (value === input) {
         return mid;
       } else if (value > input) {
         high = mid - 1;
+        retVal = high;
       } else {
         low = mid + 1;
+        retVal = mid;
       }
     }
 
-    return mid;
+    return retVal;
   }
-
 
   static interpolationSearch(inputArray: number[], value: number) {
 
