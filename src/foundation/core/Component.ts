@@ -15,7 +15,7 @@ import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
 import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
 
-type MemberInfo = {memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[]};
+type MemberInfo = { memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[] };
 
 /**
  * Component is a functional unit that can be added to an Entity instance.
@@ -27,12 +27,12 @@ export default class Component extends RnObject {
   protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array> = new Map();
   protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number> = new Map();
   // protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
-  private static __bufferViews:Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
+  private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
-  private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte >> = new Map();
+  private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
-  private static __members:Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
+  private static __members: Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
   private __byteOffsetOfThisComponent: Byte = -1;
 
   private __isAlive: Boolean;
@@ -67,7 +67,7 @@ export default class Component extends RnObject {
       ProcessStage.Discard
     ];
 
-    stages.forEach(stage=>{
+    stages.forEach(stage => {
       if (this.isExistProcessStageMethod(stage)) {
         if (Component.__componentsOfProcessStages.get(stage) == null) {
           Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
@@ -156,7 +156,7 @@ export default class Component extends RnObject {
    * Process the components
    * @param param0 params
    */
-  static process({componentType, processStage, processApproach, componentRepository, strategy, renderPass, renderPassTickCount}: {
+  static process({ componentType, processStage, processApproach, componentRepository, strategy, renderPass, renderPassTickCount }: {
     componentType: typeof Component,
     processStage: ProcessStageEnum,
     processApproach: ProcessApproachEnum,
@@ -165,15 +165,15 @@ export default class Component extends RnObject {
     renderPass: RenderPass,
     renderPassTickCount: Count
   }
-    ) {
+  ) {
     if (!Component.isExistProcessStageMethod(componentType, processStage, componentRepository)) {
       return;
     }
 
     const methodName = processStage.methodName;
     const array = this.__componentsOfProcessStages.get(processStage)!;
-    const components: Component[]|undefined = componentRepository._getComponents(componentType);
-    for (let i=0; i<array.length; ++i) {
+    const components: Component[] | undefined = componentRepository._getComponents(componentType);
+    for (let i = 0; i < array.length; ++i) {
       const componentSid = array[i];
       if (componentSid === Component.invalidComponentSID) {
         return;
@@ -201,21 +201,21 @@ export default class Component extends RnObject {
 
     const dirty = Component.__componentsOfProcessStages.get(processStage)!
     if (dirty) {
-      const method = (componentClass as any)['sort_'+processStage.methodName];
+      const method = (componentClass as any)['sort_' + processStage.methodName];
       const components = componentRepository.getComponentsWithType(componentClass)!;
       const array = Component.__componentsOfProcessStages.get(processStage)!;
 
       let sids = [];
       if (method != null) {
         sids = method(renderPass);
-        for (let i=0; i<sids.length; i++) {
+        for (let i = 0; i < sids.length; i++) {
           array[i] = sids[i];
         }
       }
 
       if (sids.length === 0) {
         let count = 0;
-        for (let i=0; i<components.length; ++i) {
+        for (let i = 0; i < components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {
             array[count++] = i;
@@ -247,7 +247,7 @@ export default class Component extends RnObject {
   /**
    * take a buffer view from the buffer.
    */
-  static takeBufferView(bufferUse: BufferUseEnum, componentClass:Function, byteLengthSumOfMembers: Byte, count: Count) {
+  static takeBufferView(bufferUse: BufferUseEnum, componentClass: Function, byteLengthSumOfMembers: Byte, count: Count) {
     const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
 
     if (!this.__bufferViews.has(componentClass)) {
@@ -256,7 +256,7 @@ export default class Component extends RnObject {
 
     const bufferViews = this.__bufferViews.get(componentClass)!;
     if (!bufferViews.has(bufferUse)) {
-      const bufferView = buffer.takeBufferView({byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false, byteAlign: 16 });
+      const bufferView = buffer.takeBufferView({ byteLengthToNeed: byteLengthSumOfMembers * count, byteStride: 0, isAoS: false, byteAlign: 16 });
       bufferViews.set(bufferUse, bufferView);
       return bufferView;
     }
@@ -268,18 +268,18 @@ export default class Component extends RnObject {
    * take one memory area for the specified member for all same type of the component instances.
    */
   takeOne(memberName: string, dataClassType: any, initValues: number[]): any {
-    if (!(this as any)['_'+memberName].isDummy()) {
+    if (!(this as any)['_' + memberName].isDummy()) {
       return;
     }
     let taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
     if (dataClassType === Matrix44 || dataClassType === MutableMatrix44) {
-      (this as any)['_'+memberName] = new dataClassType(taken, false, true);
+      (this as any)['_' + memberName] = new dataClassType(taken, false, true);
     } else {
-      (this as any)['_'+memberName] = new dataClassType(taken, false, true);
+      (this as any)['_' + memberName] = new dataClassType(taken, false, true);
     }
 
-    for (let i=0; i<(this as any)['_'+memberName].v.length; ++i) {
-      (this as any)['_'+memberName].v[i] = initValues[i];
+    for (let i = 0; i < (this as any)['_' + memberName].v.length; ++i) {
+      (this as any)['_' + memberName].v[i] = initValues[i];
     }
 
     return null;
@@ -288,14 +288,14 @@ export default class Component extends RnObject {
   /**
    * get the taken accessor for the member field.
    */
-  static getAccessor(memberName: string, componentClass:Function): Accessor {
+  static getAccessor(memberName: string, componentClass: Function): Accessor {
     return this.__accessors.get(componentClass)!.get(memberName)!;
   }
 
   /**
    * take one accessor for the member field.
    */
-  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass:Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count) {
+  static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count) {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
     }
@@ -306,12 +306,12 @@ export default class Component extends RnObject {
       const bufferViews = this.__bufferViews.get(componentClass)!
 
       const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
-      let alignedBytes = 0;
+      let alignedBytes = bytes;
       if (bytes % 16 !== 0) {
-        alignedBytes + 16 - bytes % 16;
+        alignedBytes += 16 - bytes % 16;
       }
 
-      const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({compositionType: compositionType, componentType, count: count, byteStride: alignedBytes, byteAlign: 16 });
+      const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({ compositionType: compositionType, componentType, count: count, byteStride: alignedBytes, byteAlign: 16 });
       accessors.set(memberName, accessor);
       return accessor;
     } else {
@@ -319,21 +319,21 @@ export default class Component extends RnObject {
     }
   }
 
-  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass:Function): Byte {
+  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass: Function): Byte {
     return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffset;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass:Function): Byte {
+  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass: Function): Byte {
     return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBuffer;
   }
 
-  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass:Function): Byte {
+  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass: Function): Byte {
     return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBufferView;
   }
 
-  static getCompositionTypeOfMember(memberName: string, componentClass:Function): CompositionTypeEnum | null {
+  static getCompositionTypeOfMember(memberName: string, componentClass: Function): CompositionTypeEnum | null {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info=>{
+    const info = memberInfoArray.find(info => {
       return info.memberName === memberName;
     });
     if (info != null) {
@@ -343,9 +343,9 @@ export default class Component extends RnObject {
     }
   }
 
-  static getComponentTypeOfMember(memberName: string, componentClass:Function): ComponentTypeEnum | null {
+  static getComponentTypeOfMember(memberName: string, componentClass: Function): ComponentTypeEnum | null {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info=>{
+    const info = memberInfoArray.find(info => {
       return info.memberName === memberName;
     });
     if (info != null) {
@@ -363,14 +363,16 @@ export default class Component extends RnObject {
    * @param componentType a type of number
    * @param initValues a initial value
    */
-  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType:Function, componentType: ComponentTypeEnum, initValues: number[]) {
+  registerMember(bufferUse: BufferUseEnum, memberName: string, dataClassType: Function, componentType: ComponentTypeEnum, initValues: number[]) {
     if (!Component.__memberInfo.has(this.constructor)) {
       Component.__memberInfo.set(this.constructor, []);
     }
     const memberInfoArray = Component.__memberInfo.get(this.constructor);
 
-    memberInfoArray!.push({bufferUse:bufferUse, memberName:memberName, dataClassType:dataClassType,
-      compositionType:(dataClassType as any).compositionType, componentType:componentType, initValues:initValues});
+    memberInfoArray!.push({
+      bufferUse: bufferUse, memberName: memberName, dataClassType: dataClassType,
+      compositionType: (dataClassType as any).compositionType, componentType: componentType, initValues: initValues
+    });
   }
 
   /**
@@ -387,10 +389,10 @@ export default class Component extends RnObject {
         Component.__members.set(componentClass, new Map());
       }
       const member = Component.__members.get(componentClass)!;
-      memberInfoArray.forEach(info=>{
+      memberInfoArray.forEach(info => {
         member.set(info.bufferUse, []);
       });
-      memberInfoArray.forEach(info=>{
+      memberInfoArray.forEach(info => {
         member.get(info.bufferUse)!.push(info);
       });
 
@@ -404,7 +406,7 @@ export default class Component extends RnObject {
         if (!byteLengthSumOfMembers.has(bufferUse)) {
           byteLengthSumOfMembers.set(bufferUse, 0);
         }
-        infoArray.forEach(info=>{
+        infoArray.forEach(info => {
           byteLengthSumOfMembers.set(bufferUse,
             byteLengthSumOfMembers.get(bufferUse)! +
             info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
@@ -419,10 +421,10 @@ export default class Component extends RnObject {
       // take a Accessor for all entities for each member fields (same as BufferView)
       for (let bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
-        infoArray.forEach(info=>{
+        infoArray.forEach(info => {
           const accessor = Component.takeAccessor(info.bufferUse, info.memberName, componentClass, info.compositionType, info.componentType, count);
-          (this as any)['_byteOffsetOfAccessorInBuffer_'+info.memberName] = accessor!.byteOffsetInBuffer;
-          (this as any)['_byteOffsetOfAccessorInComponent_'+info.memberName] = accessor!.byteOffsetInBufferView;
+          (this as any)['_byteOffsetOfAccessorInBuffer_' + info.memberName] = accessor!.byteOffsetInBuffer;
+          (this as any)['_byteOffsetOfAccessorInComponent_' + info.memberName] = accessor!.byteOffsetInBufferView;
         });
       }
     }
@@ -432,7 +434,7 @@ export default class Component extends RnObject {
     // take a field value allocation for each entity for each member field
     for (let bufferUse of member.keys()) {
       const infoArray = member.get(bufferUse)!;
-      infoArray.forEach(info=>{
+      infoArray.forEach(info => {
         this.takeOne(info.memberName, info.dataClassType, info.initValues);
       });
     }
@@ -444,14 +446,14 @@ export default class Component extends RnObject {
   }
 
   static getDataByteInfoInner(component: Component, memberName: string) {
-    const data = (component as any)['_'+memberName];
+    const data = (component as any)['_' + memberName];
     const typedArray = data.v as TypedArray;
     const byteOffsetInBuffer = typedArray.byteOffset;
     const byteLength = typedArray.byteLength;
     const componentNumber = typedArray.length;
     const locationOffsetInBuffer = byteOffsetInBuffer / 4 / 4; // 4byte is the size of Float32Array, and texel fetch is 4 components unit.
-    const byteOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_'+memberName] + component.componentSID * componentNumber * 4;
-    const locationOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_'+memberName] + component.componentSID * componentNumber;
+    const byteOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_' + memberName] + component.componentSID * componentNumber * 4;
+    const locationOffsetInThisComponent = (this as any)['_byteOffsetOfAccessorInComponent_' + memberName] + component.componentSID * componentNumber;
     const thisComponentByteOffsetInBuffer = component.__byteOffsetOfThisComponent;
     const thisComponentLocationOffsetInBuffer = component.__byteOffsetOfThisComponent / 4 / 4;
 
@@ -491,7 +493,7 @@ export default class Component extends RnObject {
 
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
     const component = ComponentRepository.getInstance().getComponent(componentType, 0);
-    return (component as any)['_byteOffsetOfAccessorInBuffer_'+memberName] / 4 / 4;
+    return (component as any)['_byteOffsetOfAccessorInBuffer_' + memberName] / 4 / 4;
   }
 
   // $create() {
