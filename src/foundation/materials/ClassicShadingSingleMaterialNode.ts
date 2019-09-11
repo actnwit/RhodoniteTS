@@ -32,11 +32,10 @@ import VectorN from "../math/VectorN";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
 
-  constructor({isSkinning, isLighting}: {isSkinning: boolean, isLighting: boolean}) {
+  constructor({ isSkinning, isLighting }: { isSkinning: boolean, isLighting: boolean }) {
     super(ClassicShader.getInstance(), "classicShading"
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'), {isMorphing: false, isLighting, isSkinning});
-    ClassicShadingSingleMaterialNode.initDefaultTextures();
+      + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning });
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -176,7 +175,7 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
   static async initDefaultTextures() {
   }
 
-  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
