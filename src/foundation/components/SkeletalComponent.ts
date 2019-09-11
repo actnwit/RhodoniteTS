@@ -41,7 +41,8 @@ export default class SkeletalComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-
+    SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+    SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
   }
 
   static get componentTID(): ComponentTID {
