@@ -50,6 +50,8 @@ export default class SkeletalComponent extends Component {
 
   set joints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, this.componentSID).v;
+    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, this.componentSID).v;
   }
 
   $create() {
@@ -102,9 +104,6 @@ export default class SkeletalComponent extends Component {
   $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
     const meshComponent = this.entity.getMesh();
     const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
-
-    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, 0).v;
-    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, 0).v;
 
     if (this.isSkinning) {
       for (let i=0; i<this.__joints.length; i++) {

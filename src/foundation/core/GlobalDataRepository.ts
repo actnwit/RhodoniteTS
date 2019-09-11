@@ -65,11 +65,8 @@ export default class GlobalDataRepository {
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))};
     const skeletalComponentSIDInfo = {semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
         stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1) };
-    this.registerProperty(boneQuaternionInfo, 1);
-    this.registerProperty(boneTranslateScaleInfo, 1);
-    this.takeOne(ShaderSemantics.BoneQuaternion);
-    this.takeOne(ShaderSemantics.BoneTranslateScale);
-
+    this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
+    this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
     this.registerProperty(skeletalComponentSIDInfo, 1);
 
     // Lighting
