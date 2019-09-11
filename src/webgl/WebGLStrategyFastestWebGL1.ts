@@ -50,7 +50,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __lastRenderPassCullFace = false;
   private static __isOpaqueMode = true;
 
-  private constructor(){}
+  private constructor() { }
 
   get vertexShaderMethodDefinitions_dataTexture() {
     const _texture = ClassicShader.getInstance().glsl_texture;
@@ -121,7 +121,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   }
 #endif
   `;
-    }
+  }
 
   setupShaderProgram(meshComponent: MeshComponent): void {
     if (meshComponent.mesh == null) {
@@ -131,7 +131,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const getOffset = (info: ShaderSemanticsInfo) => {
       let offset = 1;
-      switch(info.compositionType) {
+      switch (info.compositionType) {
         case CompositionType.Mat4:
           offset = 4;
           break;
@@ -142,8 +142,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           offset = 2;
           break;
         default:
-          // console.error('unknown composition type', info.compositionType.str, memberName);
-          // return '';
+        // console.error('unknown composition type', info.compositionType.str, memberName);
+        // return '';
       }
       return offset;
     }
@@ -162,30 +162,30 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       // definition of uniform variable
       let varDef = '';
-//      if (isTexture) {
-        const varType = info.compositionType.getGlslStr(info.componentType);
-        let varIndexStr = '';
-        if (info.maxIndex) {
-          varIndexStr = `[${info.maxIndex}]`;
-        }
-        if (info.needUniformInFastest || isTexture) {
-          varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
-        }
-  //    }
+      //      if (isTexture) {
+      const varType = info.compositionType.getGlslStr(info.componentType);
+      let varIndexStr = '';
+      if (info.maxIndex) {
+        varIndexStr = `[${info.maxIndex}]`;
+      }
+      if (info.needUniformInFastest || isTexture) {
+        varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+      }
+      //    }
       // inner contents of 'get_' shader function
       if (propertyIndex < 0) {
         if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
           return '';
         }
         const offset = getOffset(info);
-        for (let i=0; i<info.maxIndex!; i++) {
+        for (let i = 0; i < info.maxIndex!; i++) {
           const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
           indexArray.push(index)
         }
         maxIndex = info.maxIndex!;
 
         let arrayStr = `highp float indices[${maxIndex}];`
-        indexArray.forEach((idx, i)=> {
+        indexArray.forEach((idx, i) => {
           arrayStr += `\nindices[${i}] = ${idx}.0;`
         });
 
@@ -243,7 +243,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       let str = `${varDef}${firstPartOfInnerFunc}`;
 
-      switch(info.compositionType) {
+      switch (info.compositionType) {
         case CompositionType.Vec4:
         case CompositionType.Vec4Array:
           str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
@@ -303,7 +303,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
     const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
-    for(let i=0; i<primitiveNum; i++) {
+    for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
       if (material) {
@@ -314,10 +314,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
         this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
           [
-            {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true},
-            {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true}
+            {
+              semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true
+            },
+            {
+              semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true
+            }
           ]);
 
         material.setUniformLocations(material._shaderProgramUid);
@@ -339,7 +343,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     if (meshComponent.mesh.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
       let count = 0;
-      for(let i=0; i<primitiveNum; i++) {
+      for (let i = 0; i < primitiveNum; i++) {
         const primitive = meshComponent.mesh.getPrimitiveAt(i);
         if (primitive.vertexHandles != null) {
           count++;
@@ -373,7 +377,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     this.setupShaderProgram(meshComponent);
 
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for(let i=0; i<primitiveNum; i++) {
+    for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       primitive.create3DAPIVertexData();
     }
@@ -396,10 +400,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     }
 
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for(let i=0; i<primitiveNum; i++) {
+    for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       this.__webglResourceRepository.setVertexDataToPipeline(
-        { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles},
+        { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles },
         primitive, meshComponent.mesh.variationVBOUid);
     }
     meshRendererComponent._readyForRendering = true;
@@ -415,19 +419,19 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte));
       const bufferSizeInByte = buffer.takenSizeInByte;
-      if (bufferSizeInByte/MemoryManager.bufferWidthLength/4/4 > MemoryManager.bufferHeightLength) {
+      if (bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-          level:0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte/MemoryManager.bufferWidthLength/4/4, MemoryManager.bufferHeightLength),
-            format: PixelFormat.RGBA, type: ComponentType.Float
-          });
+          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4, MemoryManager.bufferHeightLength),
+          format: PixelFormat.RGBA, type: ComponentType.Float
+        });
       } else {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte/MemoryManager.bufferWidthLength/4/4, MemoryManager.bufferHeightLength),
-            format: PixelFormat.RGBA, type: ComponentType.Float
-          });
+          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4, MemoryManager.bufferHeightLength),
+          format: PixelFormat.RGBA, type: ComponentType.Float
+        });
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
@@ -437,22 +441,22 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
       const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), morphBuffer.getArrayBuffer().slice(0, morphBuffer.takenSizeInByte), paddingArrayBuffer]);
       const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
-      if (concatArraybuffer.byteLength/MemoryManager.bufferWidthLength/4/4 > MemoryManager.bufferHeightLength) {
+      if (concatArraybuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
           level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
-          });
+          border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+        });
       } else {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
           level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
-          });
+          border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
+          wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
+        });
       }
     }
   }
@@ -516,7 +520,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
   static getInstance() {
     if (!this.__instance) {
-     this.__instance = new (WebGLStrategyFastestWebGL1)();
+      this.__instance = new (WebGLStrategyFastestWebGL1)();
     }
 
     return this.__instance;
@@ -584,7 +588,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     this.__setCamera(renderPass);
     this.__setCurrentComponentSIDsForEachRenderPass(renderPass);
 
-    for (let idx=0; idx<meshComponentSids.length; idx++) {
+    for (let idx = 0; idx < meshComponentSids.length; idx++) {
       const sid = meshComponentSids[idx];
       if (sid === Component.invalidComponentSID) {
         break;
@@ -599,7 +603,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         continue;
       }
 
-      this.setWebGLStatesBegin(sid, gl, renderPass);
+      this.setWebGLStatesBegin(idx, gl, renderPass);
 
       const entity = meshComponent.entity;
       this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
@@ -609,7 +613,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const primitiveNum = mesh.getPrimitiveNumber();
       let firstTime = false;
 
-      for(let i=0; i<primitiveNum; i++) {
+      for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
         // if (WebGLStrategyFastestWebGL1.isOpaqueMode() && primitive.isBlend()) {
@@ -646,7 +650,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         primitive.material!.setParemetersForGPU({
           material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
-          args:{
+          args: {
             glw: glw,
             entity: entity,
             worldMatrix: entity.getSceneGraph().worldMatrixInner,
@@ -656,7 +660,8 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
             primitive: primitive,
             diffuseCube: meshRendererComponent.diffuseCubeMap,
             specularCube: meshRendererComponent.specularCubeMap
-        }});
+          }
+        });
 
         if (primitive.indicesAccessor) {
           glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, mesh.instanceCountIncludeOriginal);
