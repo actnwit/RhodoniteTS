@@ -21,6 +21,7 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
 import GlobalDataRepository from '../core/GlobalDataRepository';
+import Config from '../core/Config';
 
 export default class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -38,11 +39,17 @@ export default class SkeletalComponent extends Component {
   private __qArray = new Float32Array(0);
   private __tArray = new Float32Array(0);
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __tookGlobalDataNum = 0;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
-    SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+    if (SkeletalComponent.__tookGlobalDataNum <= Config.maxSkeletonNumber) {
+      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
+      SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+      SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+      SkeletalComponent.__tookGlobalDataNum++;
+    }
+
   }
 
   static get componentTID(): ComponentTID {
@@ -51,8 +58,12 @@ export default class SkeletalComponent extends Component {
 
   set joints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
-    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, this.componentSID).v;
-    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, this.componentSID).v;
+    let index = 0;
+    if (this.componentSID < Config.maxSkeletonNumber) {
+      index = this.componentSID;
+    }
+    this.__qArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneQuaternion, index).v;
+    this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, index).v;
   }
 
   $create() {
