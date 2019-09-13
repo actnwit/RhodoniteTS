@@ -118,7 +118,7 @@ export default class System {
     Time._processEnd();
   }
 
-  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1) {
+  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1, webglOption: any = {}) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -131,9 +131,9 @@ export default class System {
       approach === ProcessApproach.TransformFeedbackWebGL2 ||
       approach === ProcessApproach.UniformWebGL2
     ) {
-      gl = canvas.getContext('webgl2');
+      gl = canvas.getContext('webgl2', webglOption);
     } else {
-      gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      gl = canvas.getContext('webgl', webglOption) || canvas.getContext('experimental-webgl', webglOption);
     }
 
     gl!.enable(gl!.DEPTH_TEST);
