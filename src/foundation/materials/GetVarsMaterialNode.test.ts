@@ -4,6 +4,8 @@ import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import ModuleManager from "../system/ModuleManager";
 
+/*
+
 test('GetVersMaterialNode vertex shader works correctly', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   const getVarsMaterialNode = new GetVarsMaterialNode();
@@ -36,7 +38,6 @@ test('GetVersMaterialNode vertex shader works correctly', async () => {
     }
   );
 
-  console.log(getVarsMaterialNode.shader.vertexShaderDefinitions);
 
 expect(getVarsMaterialNode.shader.vertexShaderDefinitions.replace(/\s+/g, "")).toEqual(`void getVars(
   out vec4 position_inLocal,
@@ -94,3 +95,4 @@ expect(getVarsMaterialNode.shader.pixelShaderDefinitions.replace(/\s+/g, "")).to
   outColor = vec4(1.0, 0.0, 0.0, 0.0);
 }`.replace(/\s+/g, ""))
 });
+*/

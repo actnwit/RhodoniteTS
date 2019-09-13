@@ -606,9 +606,6 @@ bool processGeometryWithMorphingAndSkinning(
       return data as string;
     }
   }
-  abstract get vertexShaderDefinitions(): string;
-  abstract get pixelShaderDefinitions(): string;
-  abstract get vertexShaderBody(): string;
   abstract get attributeNames(): AttributeNames;
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;

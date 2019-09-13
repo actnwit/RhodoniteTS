@@ -23,13 +23,6 @@ export default class PBRShader extends GLSLShader implements ISingleShader {
     return this.__instance;
   }
 
-  get vertexShaderDefinitions() {
-    return `
-
-`;
-
-  };
-
   getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
@@ -124,12 +117,8 @@ void main()
 `
   }
 
-  vertexShaderBody: string = `
 
-
-  `;
-
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -406,21 +395,26 @@ void main ()
   ${_def_fragColor}
 }
 `;
+
   }
 
-  get pixelShaderDefinitions() {
-    return '';
-  }
+  attributeNames: AttributeNames = [
+    'a_position', 'a_color', 'a_normal', 'a_faceNormal',
+    'a_texcoord', 'a_tangent', 'a_joint', 'a_weight',
+    'a_baryCentricCoord', 'a_instanceID'
+  ];
 
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
-  }
-
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_faceNormal', 'a_texcoord', 'a_tangent', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.FaceNormal, VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
+  attributeSemantics: Array<VertexAttributeEnum> = [
+    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal, VertexAttribute.FaceNormal,
+    VertexAttribute.Texcoord0, VertexAttribute.Tangent, VertexAttribute.Joints0, VertexAttribute.Weights0,
+    VertexAttribute.BaryCentricCoord, VertexAttribute.Instance
+  ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+    return [
+      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Vec4, CompositionType.Scalar
+    ];
   }
 }
