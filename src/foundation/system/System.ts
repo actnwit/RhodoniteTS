@@ -125,15 +125,16 @@ export default class System {
     this.__webglStrategy = webglModule.getRenderingStrategy(approach);
     const repo = webglModule.WebGLResourceRepository.getInstance();
 
-    let gl;
+    let gl: WebGLRenderingContext | null;
     if (approach === ProcessApproach.DataTextureWebGL2 ||
       approach === ProcessApproach.UBOWebGL2 ||
       approach === ProcessApproach.TransformFeedbackWebGL2 ||
       approach === ProcessApproach.UniformWebGL2
     ) {
-      gl = canvas.getContext('webgl2', webglOption);
+      gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
     } else {
-      gl = canvas.getContext('webgl', webglOption) || canvas.getContext('experimental-webgl', webglOption);
+      gl = canvas.getContext('webgl', webglOption) as WebGLRenderingContext ||
+        canvas.getContext('experimental-webgl', webglOption) as WebGLRenderingContext;
     }
 
     gl!.enable(gl!.DEPTH_TEST);
