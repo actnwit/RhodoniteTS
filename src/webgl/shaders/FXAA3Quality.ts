@@ -34,7 +34,8 @@ export default class FXAA3QualityShader extends GLSLShader implements ISingleSha
     const _out = this.glsl_vertex_out;
 
     return `${_version}
-${this.glslPrecision}
+    ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+    ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 ${_in} float a_instanceID;
 ${_in} vec3 a_position;
@@ -42,7 +43,8 @@ ${_in} vec2 a_texcoord;
 ${_out} vec2 v_texcoord;
 
 void main() {
-    v_texcoord = a_texcoord;
+  ${this.simpleMVPPosition}
+  v_texcoord = a_texcoord;
 }
 
 `;
