@@ -28,27 +28,28 @@ export default class FXAA3QualityShader extends GLSLShader implements ISingleSha
   }
 
 
-  get vertexShaderDefinitions() {
+  getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `
+    return `${_version}
+${this.glslPrecision}
+
 ${_in} float a_instanceID;
 ${_in} vec3 a_position;
 ${_in} vec2 a_texcoord;
 ${_out} vec2 v_texcoord;
-`;
 
+void main() {
+    v_texcoord = a_texcoord;
+}
+
+`;
   };
 
-  vertexShaderBody: string = `
-  ${this.simpleMVPPosition}
 
-  v_texcoord = a_texcoord;
-  `;
-
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -1215,15 +1216,6 @@ void main() {
     ${_def_fragColor}
 }
 `;
-  }
-
-  get pixelShaderDefinitions() {
-    return ``;
-
-  }
-
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];
