@@ -13,7 +13,7 @@ const IsUtil:any = {
   _all(fn:Function) {
     return function() {
       if (Array.isArray(arguments[0])) {
-        return arguments[0].every(fn);
+        return arguments[0].every(fn as any);
       }
       return [...arguments].every((fn as any));
     };
@@ -22,7 +22,7 @@ const IsUtil:any = {
   _any(fn:Function) {
     return function() {
       if (Array.isArray(arguments[0])) {
-        return arguments[0].some(fn);
+        return arguments[0].some(fn as any);
       }
       return [...arguments].some((fn as any));
     };
