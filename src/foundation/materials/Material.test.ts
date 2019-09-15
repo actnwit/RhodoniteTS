@@ -8,6 +8,7 @@ import AddMaterialNode from "./AddMaterialNode";
 import { ShaderSemantics } from "../definitions/ShaderSemantics";
 import MemoryManager from "../core/MemoryManager";
 import ModuleManager from "../system/ModuleManager";
+
 /*
 test('Material works correctly', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -119,17 +120,18 @@ test('Material works correctly', async () => {
 
 test('MaterialTID are processed correctly', () => {
 
-  // 0st: at earlier test
+  ModuleManager.getInstance().loadModule('webgl');
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
 
-  // 1st
+  // 0st
   Material.registerMaterial('MyMaterial0', []);
   const material0 = Material.createMaterial('MyMaterial0')!;
 
-  // 2nd
+  // 1st
   Material.registerMaterial('MyMaterial1', []);
   const material1a = Material.createMaterial('MyMaterial1')!;
   const material1b = Material.createMaterial('MyMaterial1')!;
 
-  expect(material1b.materialTID).toEqual(2);
+  expect(material1b.materialTID).toEqual(1);
 
 });

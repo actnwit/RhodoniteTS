@@ -4,6 +4,9 @@ import GetVarsMaterialNode from "./GetVarsMaterialNode";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import ModuleManager from "../system/ModuleManager";
 
+test('dummy', async () => {
+  expect(true).toBe(true);
+});
 /*
 
 test('GetVersMaterialNode vertex shader works correctly', async () => {
