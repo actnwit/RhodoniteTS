@@ -23,13 +23,6 @@ export default class GammaCorrectionShader extends GLSLShader implements ISingle
     return this.__instance;
   }
 
-
-  get vertexShaderDefinitions() {
-    return ``;
-  };
-
-  vertexShaderBody: string = ``;
-
   getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
@@ -57,7 +50,7 @@ void main(){
 `;
   }
 
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -94,14 +87,6 @@ void main ()
   ${_def_fragColor}
 }
 `;
-  }
-
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];
