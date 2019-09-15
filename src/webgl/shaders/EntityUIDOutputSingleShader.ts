@@ -86,17 +86,8 @@ void main()
 }`;
   }
 
-  get vertexShaderDefinitions() {
 
-    return `
-`;
-
-  };
-
-  vertexShaderBody: string = `
-  `;
-
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -127,14 +118,6 @@ void main ()
   ${_def_fragColor}
 }
 `;
-  }
-
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_instanceID'];
