@@ -429,22 +429,7 @@ export default class Material extends RnObject {
     [vertexPropertiesStr, pixelPropertiesStr] =  globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     // Shader Construction
-    let vertexShader;
-    if ((glslShader as any as ISingleShader).getVertexShaderBody) {
-      vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody!({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
-    } else {
-      vertexShader = glslShader.glsl_versionText + glslShader.glslPrecision +
-        materialNode.definitions +
-        `
-uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
-` +
-        vertexShaderMethodDefinitions_uniform +
-        glslShader.vertexShaderDefinitions +
-        glslShader.getGlslVertexShaderProperies(vertexPropertiesStr) +
-        glslShader.glslMainBegin +
-        glslShader.vertexShaderBody +
-        glslShader.glslMainEnd;
-    }
+    let vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
 
     let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
@@ -469,6 +454,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     }
   }
 
+  /*
   createProgramString(vertexShaderMethodDefinitions_uniform = '') {
 
     // Find Start Node
@@ -772,12 +758,14 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     return { vertexShader, pixelShader, attributeNames, attributeSemantics };
   }
+  */
 
   createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
 
     if (this.__materialNodes[0].isSingleOperation) {
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
     } else {
+      /*
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
 
@@ -800,6 +788,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
         Material.__shaderMap.set(hash, this._shaderProgramUid);
         return this._shaderProgramUid;
       }
+      */
+     return -1;
     }
   }
 

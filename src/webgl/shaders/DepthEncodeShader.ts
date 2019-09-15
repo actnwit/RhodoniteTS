@@ -26,11 +26,6 @@ export default class DepthEncodeShader extends GLSLShader implements ISingleShad
   }
 
 
-  get vertexShaderDefinitions() {
-    return ``;
-  };
-
-
   getVertexShaderBody(args: any) {
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
@@ -87,9 +82,7 @@ ${this.processGeometryWithSkinningOptionally}
   }
 
 
-  vertexShaderBody: string = ``;
-
-  getFragmentShader() {
+  getPixelShaderBody(args: any) {
     const _in = this.glsl_fragment_in;
 
     const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
@@ -130,14 +123,6 @@ void main ()
   ${this.glsl_fragColor}
 }
 `;
-  }
-
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
-  getPixelShaderBody() {
-    return this.getFragmentShader();
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_normal', 'a_joint', 'a_weight', 'a_instanceID'];

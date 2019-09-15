@@ -99,17 +99,7 @@ void main()
     `;
   }
 
-  get vertexShaderDefinitions() {
-
-    return `
-`;
-
-  };
-
-  vertexShaderBody: string = `
-  `;
-
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -242,19 +232,24 @@ void main ()
 `;
   }
 
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
-  }
-
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_joint', 'a_weight', 'a_baryCentricCoord', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord, VertexAttribute.Instance];
-
+  attributeNames: AttributeNames = [
+    'a_position', 'a_color', 'a_normal',
+    'a_texcoord',
+    'a_joint', 'a_weight', 'a_baryCentricCoord',
+    'a_instanceID'
+  ];
+  attributeSemantics: Array<VertexAttributeEnum> = [
+    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
+    VertexAttribute.Texcoord0,
+    VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord,
+    VertexAttribute.Instance
+  ];
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+    return [
+      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec2,
+      CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Scalar
+    ];
   }
 }

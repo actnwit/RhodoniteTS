@@ -24,17 +24,6 @@ export default class EnvConstantShader extends GLSLShader implements ISingleShad
     return this.__instance;
   }
 
-
-  get vertexShaderDefinitions() {
-    return `
-`;
-
-  };
-
-  vertexShaderBody: string = `
-  `;
-
-
   getVertexShaderBody(args: any) {
 const _version = this.glsl_versionText;
 const _in = this.glsl_vertex_in;
@@ -86,7 +75,7 @@ void main() {
     `;
   }
 
-  getFragmentShader(args: any) {
+  getPixelShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
     const _def_rt0 = this.glsl_rt0;
@@ -150,14 +139,6 @@ void main ()
 `;
   }
 
-
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
-  getPixelShaderBody(args: Object) {
-    return this.getFragmentShader(args);
-  }
 
   attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
