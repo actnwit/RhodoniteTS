@@ -36,7 +36,7 @@ export default class Matrix33 implements IMatrix33 {
       return;
     }
 
-    if (arguments.length === 9) {
+    if (9 <= arguments.length && arguments.length <= 11) {
       this.v = new Float32Array(9);
       if (_isColumnMajor === true) {
         let m = arguments;
