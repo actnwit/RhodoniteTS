@@ -43,6 +43,7 @@ export default class System {
   private __renderPassTickCount = 0;
 
   private constructor() {
+    this.__localRenderPass.toClearColorBuffer = true;
     this.__localExpression.addRenderPasses([this.__localRenderPass]);
   }
 
