@@ -31,7 +31,7 @@ export default class CameraControllerComponent extends Component {
   private __efficiency = 1;
   private __lengthOfCenterToEye = 1;
   private __foyvBias = 1.0;
-  private __scaleOfTraslation = 5.0;
+  private __scaleOfTraslation = 2.8;
   private __mouseTranslateVec = MutableVector3.zero();
   private __newEyeToCenterVec = MutableVector3.zero();
   private __newUpVec = MutableVector3.zero();
@@ -39,7 +39,7 @@ export default class CameraControllerComponent extends Component {
   private __verticalAngleThrethold = 0;
   private __verticalAngleOfVectors = 0;
   private __isForceGrab = false;
-  private __isSymmetryMode = false;
+  private __isSymmetryMode = true;
   public eventTargetDom?: HTMLElement;
   private __doResetWhenCameraSettingChanged = false;
   private __rot_bgn_x = 0;
