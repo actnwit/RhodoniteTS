@@ -319,7 +319,7 @@ export default class CameraControllerComponent extends Component {
     }
 
     const ratio = originalDistance / currentDistance;
-    this.dolly *= Math.pow(ratio * this.__efficiency, 1 / 3.0);
+    this.dolly *= Math.pow(ratio * this.__efficiency, 2.2 / 15.0);
 
     this.__pinchInOutOriginalDistance = currentDistance;
   }
@@ -340,7 +340,7 @@ export default class CameraControllerComponent extends Component {
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
 
-    this.dolly += evt.deltaY / 5000;
+    this.dolly += evt.deltaY / 30000;
   };
 
   __contextMenu(evt: Event) {
@@ -354,13 +354,13 @@ export default class CameraControllerComponent extends Component {
   set dolly(value) {
     value = Math.min(value, 1);
     value = Math.max(value, 0.0001);
-    let gamma = Math.pow(value, 2.2);
+    let gamma = Math.pow(value, 5);
     gamma = Math.max(gamma, 0.0001);
     this.__dolly = gamma;
   }
 
   get dolly() {
-    return Math.pow(this.__dolly, 1 / 2.2);
+    return Math.pow(this.__dolly, 1 / 5);
   }
 
   __mouseDblClick(evt: MouseEvent) {
