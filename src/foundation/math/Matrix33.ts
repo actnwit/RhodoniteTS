@@ -36,7 +36,7 @@ export default class Matrix33 implements IMatrix33 {
       return;
     }
 
-    if (9 <= arguments.length && arguments.length <= 11) {
+    if (9 <= arguments.length && arguments.length <= 10 && m8 != null) {
       this.v = new Float32Array(9);
       if (_isColumnMajor === true) {
         let m = arguments;
@@ -78,7 +78,7 @@ export default class Matrix33 implements IMatrix33 {
           this.v[2] = m[6]; this.v[5] = m[7]; this.v[8] = m[8];
         }
       }
-    } else if (!!m && typeof m.v[8] !== 'undefined') {
+    } else if (!!m && m.v != null && m.v[8] !== null) {
       if (_notCopyFloatArray) {
         this.v = m.v;
       } else {
