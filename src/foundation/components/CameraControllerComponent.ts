@@ -230,7 +230,7 @@ export default class CameraControllerComponent extends Component {
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
 
-    this.dolly += evt.deltaY / 600;
+    this.dolly += evt.deltaY / 5000;
   };
 
   __contextMenu(evt: Event) {
