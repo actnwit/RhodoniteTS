@@ -45,7 +45,7 @@ export default class CameraControllerComponent extends Component {
   private __rot_bgn_y = 0;
   private __rot_x = 0;
   private __rot_y = 0;
-  private __dolly = 0.5;
+  private __dolly = 0.1;
   private __dollyScale = 2.0;
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
