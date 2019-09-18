@@ -61,7 +61,8 @@ export default class CameraControllerComponent extends Component {
   private __doPreventDefault = true;
   public moveSpeed = 1;
 
-  private __pinchInOutInitDistance?: number | null = null;
+  private __pinchInOutControll = false;
+  private __pinchInOutOriginalDistance?: number | null = null;
 
   private static returnVector3Eye = MutableVector3.zero();
   private static returnVector3Center = MutableVector3.zero();
@@ -69,11 +70,6 @@ export default class CameraControllerComponent extends Component {
 
   private __maximum_y?: number;
   private __minimum_y?: number;
-
-  private __initX: number | null = null;
-  private __initY: number | null = null;
-  private __originalTranslate: Vector3 = MutableVector3.zero();
-  private __totalTranslate: MutableVector3 = MutableVector3.zero();
 
   private __resetDollyTouchTime: Count = 0;
 
@@ -152,25 +148,25 @@ export default class CameraControllerComponent extends Component {
       this.__buttonNumber = e.buttons;
     }
 
-    const movedMouseX = e.clientX;
-    const movedMouseY = e.clientY;
+    const currentMouseX = e.clientX;
+    const currentMouseY = e.clientY;
     switch (this.__buttonNumber) {
       case 1: // left
-        this.__rotateControll(this.__originalX, this.__originalY, movedMouseX, movedMouseY);
+        this.__rotateControll(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         this.__rot_bgn_x = this.__rot_x;
         this.__rot_bgn_y = this.__rot_y;
         break;
       case 2: // right
-        this.__zoomControll(this.__originalX, movedMouseX);
+        this.__zoomControll(this.__originalX, currentMouseX);
         break;
       case 4: // center
-        this.__parallelTranslateControll(this.__originalX, this.__originalY, movedMouseX, movedMouseY);
+        this.__parallelTranslateControll(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         break;
       default:
         return;
     }
-    this.__originalX = movedMouseX;
-    this.__originalY = movedMouseY;
+    this.__originalX = currentMouseX;
+    this.__originalY = currentMouseY;
   };
 
   __mouseUp(e: MouseEvent) {
@@ -203,22 +199,22 @@ export default class CameraControllerComponent extends Component {
     this.__tryToPreventDefault(e);
     if (this.__isKeyUp) return;
 
-    let movedTouchX = e.touches[0].clientX;
-    let movedTouchY = e.touches[0].clientY;
+    let currentTouchX = e.touches[0].clientX;
+    let currentTouchY = e.touches[0].clientY;
     if (e.touches.length === 1) {
-      movedTouchX = e.touches[0].clientX;
-      movedTouchY = e.touches[0].clientY;
-      this.__rotateControll(this.__originalX, this.__originalY, movedTouchX, movedTouchY);
+      currentTouchX = e.touches[0].clientX;
+      currentTouchY = e.touches[0].clientY;
+      this.__rotateControll(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
       this.__rot_bgn_x = this.__rot_x;
       this.__rot_bgn_y = this.__rot_y;
     } else {
-      movedTouchX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
-      movedTouchY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
+      currentTouchX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
+      currentTouchY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
 
-      this.__parallelTranslateControll(this.__originalX, this.__originalY, movedTouchX, movedTouchY);
+      this.__parallelTranslateControll(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
     }
-    this.__originalX = movedTouchX;
-    this.__originalY = movedTouchY;
+    this.__originalX = currentTouchX;
+    this.__originalY = currentTouchY;
   }
 
   __touchUp(e: TouchEvent) {
@@ -238,10 +234,17 @@ export default class CameraControllerComponent extends Component {
     }
   }
 
-  __rotateControll(originalX: Size, originalY: Size, movedX: Size, movedY: Size) {
+  set maximumY(maximum_y: number) {
+    this.__maximum_y = maximum_y;
+  }
+  set minimumY(minimum_y: number) {
+    this.__minimum_y = minimum_y;
+  }
+
+  __rotateControll(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     // calc rotation angle
-    let delta_x = (movedX - originalX) * this.__efficiency;
-    let delta_y = (movedY - originalY) * this.__efficiency;
+    let delta_x = (currentX - originalX) * this.__efficiency;
+    let delta_y = (currentY - originalY) * this.__efficiency;
     this.__rot_x = this.__rot_bgn_x - delta_x;
     this.__rot_y = this.__rot_bgn_y - delta_y;
 
@@ -266,13 +269,13 @@ export default class CameraControllerComponent extends Component {
     }
   }
 
-  __zoomControll(originalValue: Size, movedValue: Size) {
-    this.dolly -= ((movedValue - originalValue) / 1000) * this.__efficiency;
+  __zoomControll(originalValue: Size, currentValue: Size) {
+    this.dolly -= ((currentValue - originalValue) / 1000) * this.__efficiency;
   }
 
-  __parallelTranslateControll(originalX: Size, originalY: Size, movedX: Size, movedY: Size) {
-    this.__mouse_translate_y = ((movedY - originalY) / 1000) * this.__efficiency;
-    this.__mouse_translate_x = ((movedX - originalX) / 1000) * this.__efficiency;
+  __parallelTranslateControll(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
+    this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
+    this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
 
     const scale = this.__lengthOfCenterToEye * this.__foyvBias * this.__scaleOfTraslation;
 
@@ -286,11 +289,46 @@ export default class CameraControllerComponent extends Component {
     );
   }
 
-  set maximumY(maximum_y: number) {
-    this.__maximum_y = maximum_y;
+  __getTouchesDistance(e: TouchEvent) {
+    const touches = e.touches;
+
+    const x1 = touches[0].clientX;
+    const y1 = touches[0].clientY;
+    const x2 = touches[1].clientX;
+    const y2 = touches[1].clientY;
+
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   }
-  set minimumY(minimum_y: number) {
-    this.__minimum_y = minimum_y;
+
+  __pinchInOut(e: TouchEvent) {
+    if (e.touches.length < 2) return;
+
+    if (this.__pinchInOutOriginalDistance == null) {
+      this.__pinchInOutOriginalDistance = this.__getTouchesDistance(e);
+      return;
+    }
+
+    const currentDistance = this.__getTouchesDistance(e);
+    const originalDistance = this.__pinchInOutOriginalDistance;
+    if (!this.__pinchInOutControll) {
+      if (Math.abs(currentDistance - originalDistance) > 50.0) {
+        this.__pinchInOutOriginalDistance = currentDistance;
+        this.__pinchInOutControll = true;
+      }
+      return;
+    }
+
+    const ratio = originalDistance / currentDistance;
+    this.dolly *= Math.pow(ratio * this.__efficiency, 1 / 3.0);
+
+    this.__pinchInOutOriginalDistance = currentDistance;
+  }
+
+  __pinchInOutEnd(e: TouchEvent) {
+    if (e.touches.length < 2) {
+      this.__pinchInOutControll = false;
+      this.__pinchInOutOriginalDistance = null;
+    }
   }
 
   private __tryToPreventDefault(evt: Event) {
@@ -313,23 +351,7 @@ export default class CameraControllerComponent extends Component {
     }
   };
 
-  __mouseDblClick(evt: MouseEvent) {
-    if (evt.shiftKey) {
-      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
-    } else if (evt.ctrlKey) {
-      this.__rot_y = 0;
-      this.__rot_x = 0;
-      this.__rot_bgn_y = 0;
-      this.__rot_bgn_x = 0;
-    }
-  };
-
-  resetDolly() {
-    this.dolly = 1;
-  }
-
   set dolly(value) {
-    const minimum = 0.01
     value = Math.min(value, 1);
     value = Math.max(value, 0.0001);
     let gamma = Math.pow(value, 2.2);
@@ -341,59 +363,26 @@ export default class CameraControllerComponent extends Component {
     return Math.pow(this.__dolly, 1 / 2.2);
   }
 
-  __getTouchesDistance(event: TouchEvent) {
-    const touches = event.changedTouches;
-
-    const x1 = touches[0].pageX;
-    const y1 = touches[0].pageY;
-    const x2 = touches[1].pageX;
-    const y2 = touches[1].pageY;
-
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-  }
-
-  __pinchInOutEnd(event: TouchEvent) {
-    this.__pinchInOutInitDistance = null;
-  }
-
-  __pinchInOut(event: TouchEvent) {
-    const touches = event.changedTouches
-    if (touches.length < 2) {
-      return
+  __mouseDblClick(evt: MouseEvent) {
+    if (evt.shiftKey) {
+      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
+    } else if (evt.ctrlKey) {
+      this.__rot_y = 0;
+      this.__rot_x = 0;
+      this.__rot_bgn_y = 0;
+      this.__rot_bgn_x = 0;
     }
-    if (!this.__pinchInOutInitDistance) {
-      this.__pinchInOutInitDistance = this.__getTouchesDistance(event);
-      return
-    }
-
-    const pinchInOutInitDistance = this.__pinchInOutInitDistance
-    const pinchInOutFinalDistance = this.__getTouchesDistance(event)
-    this.__pinchInOutInitDistance = pinchInOutFinalDistance
-
-    const ratio = pinchInOutInitDistance / pinchInOutFinalDistance;
-
-    let dDistance = Math.abs(pinchInOutInitDistance - pinchInOutFinalDistance);
-
-    this.dolly /= 1 / ratio;
-
-  }
+  };
 
   __resetDollyAndPosition(e: TouchEvent) {
-    if (e.touches.length > 1) {
-      return;
-    }
+    if (e.touches.length > 1) return;
 
     const currentTime = new Date().getTime();
     if (currentTime - this.__resetDollyTouchTime < 300) {
-      this.dolly = 1.00;
-      this.__controllerTranslate.zero();
+      this.dolly = Math.pow(0.1, 1.0 / 2.2);
+      this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
       this.__rot_x = 0;
       this.__rot_y = 0;
-
-      this.__totalTranslate.x = 0;
-      this.__totalTranslate.y = 0;
-      this.__totalTranslate.z = 0;
-      this.__entityRepository.getEntity(this.__entityUid).getTransform().translate = this.__totalTranslate;
     } else {
       this.__resetDollyTouchTime = currentTime;
     }
