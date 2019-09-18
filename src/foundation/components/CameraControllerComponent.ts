@@ -243,8 +243,8 @@ export default class CameraControllerComponent extends Component {
 
   __rotateControll(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     // calc rotation angle
-    let delta_x = (currentX - originalX) * this.__efficiency;
-    let delta_y = (currentY - originalY) * this.__efficiency;
+    let delta_x = (currentX - originalX) * this.__efficiency * 0.3;
+    let delta_y = (currentY - originalY) * this.__efficiency * 0.3;
     this.__rot_x = this.__rot_bgn_x - delta_x;
     this.__rot_y = this.__rot_bgn_y - delta_y;
 
@@ -311,7 +311,7 @@ export default class CameraControllerComponent extends Component {
     const currentDistance = this.__getTouchesDistance(e);
     const originalDistance = this.__pinchInOutOriginalDistance;
     if (!this.__pinchInOutControll) {
-      if (Math.abs(currentDistance - originalDistance) > 50.0) {
+      if (Math.abs(currentDistance - originalDistance) > 35.0) {
         this.__pinchInOutOriginalDistance = currentDistance;
         this.__pinchInOutControll = true;
       }
@@ -379,7 +379,7 @@ export default class CameraControllerComponent extends Component {
 
     const currentTime = new Date().getTime();
     if (currentTime - this.__resetDollyTouchTime < 300) {
-      this.dolly = Math.pow(0.1, 1.0 / 2.2);
+      this.dolly = Math.pow(0.5, 1.0 / 2.2);
       this.__mouseTranslateVec = new MutableVector3(0, 0, 0);
       this.__rot_x = 0;
       this.__rot_y = 0;
