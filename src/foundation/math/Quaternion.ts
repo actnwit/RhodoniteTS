@@ -249,6 +249,25 @@ export default class Quaternion implements IVector4 {
     return q;
   }
 
+  toEulerAngleTo(out: Vector3) {
+    // this is from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
+    const sinr_cosp = +2.0 * (this.w * this.x + this.y * this.z);
+    const cosr_cosp = +1.0 - 2.0 * (this.x * this.x + this.y * this.y);
+    out.v[0] = Math.atan2(sinr_cosp, cosr_cosp);
+
+    const sinp = +2.0 * (this.w * this.y - this.z * this.x);
+    if (Math.abs(sinp) >= 1)
+        out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
+    else
+        out.v[1] = Math.asin(sinp);
+
+    const siny_cosp = +2.0 * (this.w * this.z + this.x * this.y);
+    const cosy_cosp = +1.0 - 2.0 * (this.y * this.y + this.z * this.z);
+    out.v[2] = Math.atan2(siny_cosp, cosy_cosp);
+
+    return out;
+  }
+
   static fromPosition(vec3: Vector3) {
     let q = new Quaternion(vec3.x, vec3.y, vec3.z, 0);
     return q;
