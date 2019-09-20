@@ -38,11 +38,7 @@ export default class SceneGraphComponent extends Component {
   // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
-  public _inverseBindMatrix?: Matrix44;
-  public _bindMatrix?: Matrix44;
-  public _jointsOfHierarchies: SceneGraphComponent[] = [];
 
-  private static __bufferView: BufferView;
   private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {

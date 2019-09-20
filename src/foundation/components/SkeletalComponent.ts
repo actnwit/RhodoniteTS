@@ -71,45 +71,6 @@ export default class SkeletalComponent extends Component {
   }
 
   $load() {
-    for (let i=0; i<this.__joints.length; i++) {
-      let inverseBindMatrix = (this._inverseBindMatrices[i] !== void 0) ? this._inverseBindMatrices[i] : Matrix44.identity();
-      this.__joints[i]._inverseBindMatrix = inverseBindMatrix;
-      this.__joints[i]._bindMatrix = Matrix44.invert(inverseBindMatrix);
-    }
-
-    const calcParentJointsMatricesRecursively = (joint: SceneGraphComponent)=> {
-      let parentJoint = joint.parent;
-
-      let results: SceneGraphComponent[] = [];
-      if (parentJoint) {
-        let result = calcParentJointsMatricesRecursively(parentJoint);
-        if (Array.isArray(result)) {
-          Array.prototype.push.apply(results, result);
-        }
-
-        // for glTF2.0
-        for (let gltfJointIndex of this._jointIndices) {
-          if (parentJoint.jointIndex === gltfJointIndex) {
-            results.push(parentJoint);
-            return results;
-          }
-        }
-
-        return results;
-      }
-
-      return null;
-    };
-
-    let jointsHierarchies = null;
-    for (let i=0; i<this.__joints.length; i++) {
-      jointsHierarchies = calcParentJointsMatricesRecursively(this.__joints[i]);
-      if (jointsHierarchies != null) {
-        jointsHierarchies.push(this.__joints[i]);
-        this.__joints[i]._jointsOfHierarchies = jointsHierarchies;
-      }
-    }
-
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -121,7 +82,7 @@ export default class SkeletalComponent extends Component {
       for (let i=0; i<this.__joints.length; i++) {
         const joint = this.__joints[i];
         let globalJointTransform = null;
-        let inverseBindMatrix = joint._inverseBindMatrix!;
+        let inverseBindMatrix = this._inverseBindMatrices[i]!;
         globalJointTransform = joint.worldMatrixInner;
         SkeletalComponent.__tmp_mat4.identity();
 
