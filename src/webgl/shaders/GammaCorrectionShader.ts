@@ -1,10 +1,9 @@
-import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
-import GLSLShader from "./GLSLShader";
-import Config from "../../foundation/core/Config";
-import { ShaderNode } from "../../foundation/definitions/ShaderNode";
-import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
+import { CompositionTypeEnum } from "../../foundation/main";
+import GLSLShader from "./GLSLShader";
 import ISingleShader from "./ISingleShader";
+import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 
 export type AttributeNames = Array<string>;
 
@@ -31,23 +30,25 @@ export default class GammaCorrectionShader extends GLSLShader implements ISingle
     return `${_version}
 ${this.glslPrecision}
 
-${_in} vec3 a_position;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
+${_in} vec3 a_position;
+
 ${_out} vec2 v_texcoord;
 
 ${this.prerequisites}
 
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
+
 void main(){
-  ${this.mainPrerequisites}
+${this.mainPrerequisites}
+
+${this.simpleMVPPosition}
 
   v_texcoord = a_texcoord;
-  ${this.simpleMVPPosition}
-}
-`;
+}`;
   }
 
   getPixelShaderBody(args: any) {
@@ -59,6 +60,10 @@ void main(){
 
     return `${_version}
 ${this.glslPrecision}
+
+${_in} vec2 v_texcoord;
+
+${_def_rt0}
 
 ${this.prerequisites}
 
@@ -72,27 +77,26 @@ vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
 
-${_in} vec2 v_texcoord;
-${_def_rt0}
-void main ()
-{
-  ${this.mainPrerequisites}
+void main(){
+${this.mainPrerequisites}
 
   vec4 baseColor = ${_texture}(u_baseColorTexture, v_texcoord);
-
   baseColor.rgb = linearToSrgb(baseColor.rgb);
 
   rt0 = vec4(baseColor.rgb, 1.0);
 
   ${_def_fragColor}
-}
-`;
+}`;
   }
 
   attributeNames: AttributeNames = ['a_position', 'a_texcoord', 'a_instanceID'];
   attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Texcoord0, VertexAttribute.Instance];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec2, CompositionType.Scalar];
+    return [
+      CompositionType.Vec3,
+      CompositionType.Vec2,
+      CompositionType.Scalar,
+    ];
   }
 }
