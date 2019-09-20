@@ -1,11 +1,9 @@
 import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
-import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
-import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -25,54 +23,44 @@ export default class EnvConstantShader extends GLSLShader implements ISingleShad
   }
 
   getVertexShaderBody(args: any) {
-const _version = this.glsl_versionText;
-const _in = this.glsl_vertex_in;
-const _out = this.glsl_vertex_out;
+    const _version = this.glsl_versionText;
+    const _in = this.glsl_vertex_in;
+    const _out = this.glsl_vertex_out;
 
     return `${_version}
 ${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
-${this.prerequisites}
-
-${_in} vec3 a_position;
-
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
-
-${_in} vec3 a_color;
-${_in} vec3 a_normal;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
-${_in} vec4 a_joint;
-${_in} vec4 a_weight;
+${_in} vec3 a_position;
+${_in} vec3 a_color;
+${_in} vec3 a_normal;
+
+${_out} vec2 v_texcoord;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec3 v_position_inWorld;
-${_out} vec2 v_texcoord;
 
+${this.prerequisites}
 
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
-${this.toNormalMatrix}
+${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
-void main() {
+void main(){
   ${this.mainPrerequisites}
 
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+${this.simpleMVPPosition}
 
-  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+  mat3 normalMatrix = get_normalMatrix(a_instanceID);
+  v_normal_inWorld = normalMatrix * a_normal;
 
   v_color = a_color;
-  v_normal_inWorld = normalMatrix * a_normal;
   v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
   v_texcoord = a_texcoord;
-}
-    `;
+}`;
   }
 
   getPixelShaderBody(args: any) {
@@ -89,19 +77,22 @@ ${this.glslPrecision}
 
 ${this.prerequisites}
 
-${(typeof args.getters !== 'undefined') ? args.getters : '' }
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
 }
 
+vec3 srgbToLinear(vec3 srgbColor) {
+  return pow(srgbColor, vec3(2.2));
+}
+
+${_in} vec2 v_texcoord;
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec3 v_position_inWorld;
-${_in} vec2 v_texcoord;
 ${_def_rt0}
-void main ()
-{
+void main(){
   ${this.mainPrerequisites}
 
   // diffuseColor
@@ -135,16 +126,28 @@ void main ()
   rt0 = vec4(diffuseColor, alpha);
 
   ${_def_fragColor}
-}
-`;
+}`;
   }
 
 
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Instance];
+  attributeNames: AttributeNames = [
+    'a_position', 'a_color', 'a_normal',
+    'a_texcoord',
+    'a_instanceID'
+  ];
+
+  attributeSemantics: Array<VertexAttributeEnum> = [
+    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
+    VertexAttribute.Texcoord0,
+    VertexAttribute.Instance
+  ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec2, CompositionType.Scalar];
+    return [
+      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec2,
+      CompositionType.Scalar
+    ];
   }
 }
+
