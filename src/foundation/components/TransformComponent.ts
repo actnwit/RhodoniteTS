@@ -455,9 +455,7 @@ export default class TransformComponent extends Component {
       this._quaternion.fromMatrix(TransformComponent.__tmpMat_updateRotation);
       this._is_quaternion_updated = true;
     } else if (!this._is_euler_angles_updated && this._is_quaternion_updated) {
-      Matrix44.fromQuaternionTo(this._quaternion, TransformComponent.updateRotationMatrix44);
-      TransformComponent.updateRotationMatrix44.toEulerAnglesTo(TransformComponent.updateRotationVector3);
-      this._rotate = TransformComponent.updateRotationVector3 as Vector3;
+      this._quaternion.toEulerAngleTo(this._rotate);
       this._is_euler_angles_updated = true;
     } else if (!this._is_euler_angles_updated && !this._is_quaternion_updated && this._is_trs_matrix_updated) {
       const m = this._matrix;
