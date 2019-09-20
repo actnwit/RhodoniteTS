@@ -7,6 +7,7 @@ import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ComponentRepository from '../../foundation/core/ComponentRepository';
 import CameraComponent from '../../foundation/components/CameraComponent';
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -25,20 +26,13 @@ export default class ShadowMapDecodeClassicShader extends GLSLShader implements 
     return this.__instance;
   }
 
-
-  get vertexShaderDefinitions() {
-    return ``;
-  };
-
-  vertexShaderBody: string = ``;
-
   getVertexShaderBody(args: any) {
     const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
     return `${_version}
-precision highp float;
+${this.glslPrecision}
 
 ${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
@@ -52,25 +46,12 @@ ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
 ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
-${_out} vec3 v_faceNormal_inWorld;
-${_out} vec3 v_tangent_inWorld;
-${_out} vec3 v_binormal_inWorld;
 ${_out} vec4 v_position_inWorld;
-${_out} vec3 v_baryCentricCoord;
 ${_out} vec2 v_texcoord_0;
 ${_out} vec4 v_texcoord_1;
 ${_out} vec4 v_projPosition_from_light;
 
-uniform float materialSID;
-uniform vec3 u_viewPosition;
-uniform mat4 u_lightViewProjectionMatrix;
-
-uniform float u_pointSize;
-uniform vec3 u_pointDistanceAttenuation;
-
-uniform int u_skinningMode;
-uniform highp vec4 u_boneCompressedChank[90];
-uniform highp vec4 u_boneCompressedInfo;
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
 
@@ -83,18 +64,27 @@ ${this.getSkinMatrix}
 ${this.processGeometryWithSkinningOptionally}
 
 void main(){
+
+  ${this.mainPrerequisites}
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(a_instanceID);
-  mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
-  v_color = a_color;
-  v_normal_inWorld = normalMatrix * a_normal;
-  v_texcoord_0 = a_texcoord_0;
-
   // Skeletal
-  bool isSkinning;
-  skinning(isSkinning, normalMatrix, normalMatrix);
+  processGeometryWithMorphingAndSkinning(
+    skeletalComponentSID,
+    worldMatrix,
+    normalMatrix,
+    normalMatrix,
+    a_position,
+    v_position_inWorld,
+    a_normal,
+    v_normal_inWorld
+  );
+
+  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
   ${this.pointSprite}
 
@@ -110,6 +100,11 @@ void main(){
     0.5, 0.5, 0.0, 1.0
   );
   v_texcoord_1 = tMatrix * v_projPosition_from_light;
+
+  v_color = a_color;
+  v_normal_inWorld = normalMatrix * a_normal;
+  v_texcoord_0 = a_texcoord_0;
+
 }
 `
   }
@@ -133,7 +128,11 @@ void main(){
       ZNearToFar = ZNearToFar + '.0';
     }
     return `${_version}
-precision highp float;
+${this.glslPrecision}
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+
+${this.prerequisites}
 
 ${_in} vec3 v_color;
 ${_in} vec3 v_normal_inWorld;
@@ -142,32 +141,6 @@ ${_in} vec2 v_texcoord_0;
 ${_in} vec4 v_texcoord_1;
 ${_in} vec4 v_projPosition_from_light;
 ${_def_rt0}
-
-struct Light {
-  vec4 lightPosition;
-  vec4 lightDirection;
-  vec4 lightIntensity;
-};
-
-struct Material {
-  vec4 diffuseColorFactor;
-};
-
-uniform float materialSID;
-
-uniform int u_shadingModel;
-uniform int u_lightNumber;
-uniform float u_shininess;
-uniform float u_shadowAlpha;
-uniform float u_nonShadowAlpha;
-uniform float u_allowableDepthError;
-uniform vec3 u_viewPosition;
-uniform vec3 u_shadowColor;
-uniform Material u_material;
-uniform sampler2D u_depthTexture;
-uniform sampler2D u_diffuseColorTexture;
-
-uniform Light u_lights[${Config.maxLightNumberInShader}];
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
@@ -181,6 +154,8 @@ float decodeRGBAToDepth(vec4 RGBA){
 }
 
 void main (){
+  ${this.mainPrerequisites}
+
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
@@ -299,22 +274,30 @@ void main (){
 `;
   }
 
-  get pixelShaderDefinitions() {
-    return '';
-  }
-
   getPixelShaderBody(args: Object) {
     return this.getFragmentShader(args);
   }
 
-  attributeNames: AttributeNames = ['a_position', 'a_color', 'a_normal', 'a_texcoord_0', 'a_joint', 'a_weight', 'a_instanceID', 'a_texcoord_1'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Color0,
-  VertexAttribute.Normal, VertexAttribute.Texcoord0, VertexAttribute.Joints0, VertexAttribute.Weights0,
-  VertexAttribute.Instance, VertexAttribute.Texcoord1];
+  attributeNames: AttributeNames = [
+    'a_instanceID',
+    'a_texcoord_0', 'a_texcoord_1',
+    'a_position', 'a_color', 'a_normal',
+    'a_joint', 'a_weight',
+
+  ];
+  attributeSemantics: Array<VertexAttributeEnum> = [
+    VertexAttribute.Instance,
+    VertexAttribute.Texcoord0, VertexAttribute.Texcoord1,
+    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
+    VertexAttribute.Joints0, VertexAttribute.Weights0,
+  ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3,
-    CompositionType.Vec3, CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4,
-    CompositionType.Scalar, CompositionType.Vec2];
+    return [
+      CompositionType.Scalar,
+      CompositionType.Vec2, CompositionType.Vec2,
+      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec4, CompositionType.Vec4,
+    ];
   }
 }

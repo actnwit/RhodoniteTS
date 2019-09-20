@@ -60,25 +60,25 @@ function createFXAA3QualityMaterial(maxInstancesNumber?: number) {
   return material;
 }
 
-function createDepthEncodeMaterial({ isSkinning = true } = {}, maxInstancesNumber?: number) {
+function createDepthEncodeMaterial({ isSkinning = false, maxInstancesNumber = 20 } = {}) {
   const materialName = 'DepthEncode'
     + (isSkinning ? '+skinning' : '');
 
   const materialNode = new DepthEncodeSingleMaterialNode({ isSkinning: isSkinning });
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial(materialName, [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
+  const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 
   return material;
 }
 
-function createShadowMapDecodeClassicSingleMaterial(depthEncodeRenderPass: RenderPass, { isSkinning = true, isLighting = true, colorAttachmentsNumber = 0 } = {}, maxInstancesNumber?: number) {
+function createShadowMapDecodeClassicSingleMaterial(depthEncodeRenderPass: RenderPass, { isMorphing = false, isSkinning = false, isLighting = true, colorAttachmentsNumber = 0, maxInstancesNumber = 20 } = {}) {
   const materialName = 'ShadowMapDecodeClassic'
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode(depthEncodeRenderPass, { isSkinning: isSkinning, isLighting: isLighting, colorAttachmentsNumber: colorAttachmentsNumber });
+  const materialNode = new ShadowMapDecodeClassicSingleMaterialNode(depthEncodeRenderPass, { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting, colorAttachmentsNumber: colorAttachmentsNumber });
   materialNode.isSingleOperation = true;
-  const material = findOrCreateMaterial(materialName, [materialNode], (maxInstancesNumber != null) ? maxInstancesNumber : 20);
+  const material = findOrCreateMaterial(materialName, [materialNode], maxInstancesNumber);
 
   return material;
 }
