@@ -1,12 +1,12 @@
 import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
-import Config from "../../foundation/core/Config";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ComponentRepository from '../../foundation/core/ComponentRepository';
 import CameraComponent from '../../foundation/components/CameraComponent';
 import ISingleShader from "./ISingleShader";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -25,35 +25,29 @@ export default class DepthEncodeShader extends GLSLShader implements ISingleShad
     return this.__instance;
   }
 
-
   getVertexShaderBody(args: any) {
+    const _version = this.glsl_versionText;
     const _in = this.glsl_vertex_in;
     const _out = this.glsl_vertex_out;
 
-    return `${this.glsl_versionText}
-precision highp float;
+    return `${_version}
+${this.glslPrecision}
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+
 ${_in} vec3 a_position;
 ${_in} vec3 a_normal;
 ${_in} float a_instanceID;
 ${_in} vec4 a_joint;
 ${_in} vec4 a_weight;
+
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inLocal;
 ${_out} vec4 v_position_inWorld;
 
-uniform float materialSID;
-uniform vec3 u_viewPosition;
-
-uniform float u_pointSize;
-uniform vec3 u_pointDistanceAttenuation;
-
-uniform int u_skinningMode;
-uniform highp vec4 u_boneCompressedChank[90];
-uniform highp vec4 u_boneCompressedInfo;
+${this.prerequisites}
 
 ${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
-
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
@@ -64,18 +58,32 @@ ${this.getSkinMatrix}
 ${this.processGeometryWithSkinningOptionally}
 
   void main(){
+
+    ${this.mainPrerequisites}
+    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
     mat4 worldMatrix = get_worldMatrix(a_instanceID);
-    mat4 viewMatrix = get_viewMatrix(a_instanceID);
-    mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+    mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+    mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
     mat3 normalMatrix = get_normalMatrix(a_instanceID);
 
     // Skeletal
-    bool isSkinning;
-    skinning(isSkinning, normalMatrix, normalMatrix);
+    processGeometryWithMorphingAndSkinning(
+      skeletalComponentSID,
+      worldMatrix,
+      normalMatrix,
+      normalMatrix,
+      a_position,
+      v_position_inWorld,
+      a_normal,
+      v_normal_inWorld
+    );
+
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+
+    v_position_inLocal = gl_Position;
 
     ${this.pointSprite}
 
-    v_position_inLocal = gl_Position;
   }
     `;
 
@@ -83,7 +91,10 @@ ${this.processGeometryWithSkinningOptionally}
 
 
   getPixelShaderBody(args: any) {
+    const _version = this.glsl_versionText;
     const _in = this.glsl_fragment_in;
+    const _def_rt0 = this.glsl_rt0;
+    const _def_fragColor = this.glsl_fragColor;
 
     const mainCameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
 
@@ -95,9 +106,17 @@ ${this.processGeometryWithSkinningOptionally}
       ZNearToFar = ZNearToFar + '.0';
     }
 
-    return `${this.glsl_versionText}
-precision highp float;
+    return `${_version}
+${this.glslPrecision}
+
+${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
+
+${this.prerequisites}
+
 ${_in} vec4 v_position_inLocal;
+${_def_rt0}
+
+${(typeof args.getters !== 'undefined') ? args.getters : ''}
 
 vec4 encodeDepthToRGBA(float depth){
   float r = depth;
@@ -111,7 +130,6 @@ vec4 encodeDepthToRGBA(float depth){
   return vec4(r, g, b, a);
 }
 
-${this.glsl_rt0}
 void main ()
 {
   float normalizationCoefficient = 1.0 / ${ZNearToFar};
@@ -120,15 +138,27 @@ void main ()
 
   rt0 = encodedLinearDepth;
 
-  ${this.glsl_fragColor}
+  ${_def_fragColor}
 }
 `;
   }
 
-  attributeNames: AttributeNames = ['a_position', 'a_normal', 'a_joint', 'a_weight', 'a_instanceID'];
-  attributeSemantics: Array<VertexAttributeEnum> = [VertexAttribute.Position, VertexAttribute.Normal, VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.Instance];
+  attributeNames: AttributeNames = [
+    'a_instanceID',
+    'a_position', 'a_normal',
+    'a_joint', 'a_weight',
+  ];
+  attributeSemantics: Array<VertexAttributeEnum> = [
+    VertexAttribute.Instance,
+    VertexAttribute.Position, VertexAttribute.Normal,
+    VertexAttribute.Joints0, VertexAttribute.Weights0,
+  ];
 
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Scalar];
+    return [
+      CompositionType.Scalar,
+      CompositionType.Vec3, CompositionType.Vec3,
+      CompositionType.Vec4, CompositionType.Vec4,
+    ];
   }
 }
