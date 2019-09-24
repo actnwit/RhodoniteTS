@@ -198,6 +198,15 @@ export default class AnimationComponent extends Component {
     return mid;
   }
 
+  static bruteForceSearch(inputArray: number[], input: number) {
+    for (let i = 0; i<inputArray.length; i++) {
+      if (inputArray[i] <= input && input < inputArray[i+1]) {
+        return i;
+      }
+    }
+    return inputArray.length - 1;
+  }
+
   static interpolate(line: AnimationLine, input: number) {
 
     const inputArray = line.input;
