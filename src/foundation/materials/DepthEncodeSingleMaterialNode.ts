@@ -19,15 +19,9 @@ import CameraComponent from "../components/CameraComponent";
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   constructor({ isSkinning }: { isSkinning: boolean }) {
-    super(DepthEncodeShader.getInstance(), 'depthEncodeShading' + (isSkinning ? '+skinning' : ''));
+    super(DepthEncodeShader.getInstance(), 'depthEncodeShading' + (isSkinning ? '+skinning' : ''), { isMorphing: false, isSkinning, isLighting: false });
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {
-        semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true,
-        initialValue: new Vector3(0, 0, 0), min: -Number.MAX_VALUE, max: Number.MAX_VALUE
-      }
-    ];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     shaderSemanticsInfoArray.push(
       {
@@ -44,25 +38,6 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
     if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING';
-
-      shaderSemanticsInfoArray.push(
-        {
-          semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-          stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new Scalar(0), min: 0, max: 1
-        },
-        {
-          semantic: ShaderSemantics.BoneCompressedChank, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float,
-          stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new VectorN(new Float32Array(0)), min: -Number.MAX_VALUE, max: Number.MAX_VALUE,
-          maxIndex: 250,
-        },
-        {
-          semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-          stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: MutableVector4.zero(), min: -Number.MAX_VALUE, max: Number.MAX_VALUE
-        },
-      );
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
