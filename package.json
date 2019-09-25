@@ -7,11 +7,9 @@
   "license": "MIT",
   "scripts": {
     "setup": "cp ./pre-commit ./.git/hooks",
-    "build": "yarn build-dev && yarn build-prod && yarn build-dev-ie11 && yarn build-prod-ie11 && yarn build-type && bash versioning.sh",
-    "build-dev-ie11": "webpack --config webpack.config.development.ie11.js",
+    "build": "yarn build-dev && yarn build-prod && yarn build-type && bash versioning.sh",
     "build-dev": "webpack --config webpack.config.development.js",
     "build-prod": "webpack --config webpack.config.production.js",
-    "build-prod-ie11": "webpack --config webpack.config.production.ie11.js",
     "build-type": "npx tsc --emitDeclarationOnly",
     "serv": "node server.js",
     "test": "yarn test-unit ; yarn test-e2e",

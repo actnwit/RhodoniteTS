@@ -7,6 +7,11 @@ Rhodonite is a WebGL library written in TypeScript.
 * Entity Component System
 * Original high speed drawing system with data texture
 
+## Support Browsers
+
+Google Chrome, Firefox, Safari and other modern browsers.
+IE11 is not supported.
+
 ## Building Rhodonite
 
 ### Prerequisites
@@ -31,8 +36,6 @@ $ yarn build
 
 ### In Javascipt
 
-#### For modern browsers (excludes IE11)
-
 ```html
 <body>
   <canvas id="world"></canvas>
@@ -53,35 +56,6 @@ $ yarn build
 </body>
 ```
 
-
-#### For All browsers which support WebGL (include IE11)
-
-```html
-<body>
-  <canvas id="world"></canvas>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script> <!-- only for IE11 support -- >
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script> <!-- only for IE11 support -- >
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.3.1/es6-promise.min.js"></script> <!-- only for IE11 support -- >
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.4/fetch.min.js"></script> <!-- only for IE11 support -- >
-  <script src="../../../dist/rhodonite.min.ie11.js"></script> <!-- only for IE11 support -- >
-  <script>
-    // All Rhodonite classes you need are window.Rn object.
-    const promises = [];
-    const promise1 = Rn.ModuleManager.getInstance().loadModule('webgl');
-    const promise2 = Rn.ModuleManager.getInstance().loadModule('pbr');
-    promises.push(promise1);
-    promises.push(promise2);
-    promises.all(promises).then(function(){
-      const system = Rn.System.getInstance();
-      const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
-      const entityRepository = Rn.EntityRepository.getInstance();
-      ...
-      (After that, please refer to the sample codes.)
-      ...
-    });
-  </script>
-</body>
-```
 
 ### In TypeScript
 
