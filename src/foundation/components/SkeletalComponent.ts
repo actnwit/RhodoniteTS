@@ -43,11 +43,12 @@ export default class SkeletalComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-    if (SkeletalComponent.__tookGlobalDataNum <= Config.maxSkeletonNumber) {
-      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
+    if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
       SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
       SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
       SkeletalComponent.__tookGlobalDataNum++;
+    } else {
+      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
 
   }

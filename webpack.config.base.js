@@ -4,18 +4,17 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(glsl|vs|fs|vert|frag)$/,
+        exclude: /node_modules/,
+        use: [
+          'shaderity-loader'
+        ]
+      },
+      {
         test: /\.ts$/,
         exclude: [/node_modules/],
         loader: 'ts-loader'
       },
-      {
-        test: /\.(glsl|vs|fs|vert|frag)$/,
-        exclude: /node_modules/,
-        use: [
-          'raw-loader',
-          'glslify-loader'
-        ]
-      }
     ]
   },
   resolve: {
