@@ -1,15 +1,11 @@
-import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
-import WebGLResourceRepository from "../WebGLResourceRepository";
+import { CompositionTypeEnum } from "../../foundation/main";
+import { ProcessApproach } from "../../foundation/definitions/ProcessApproach";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../../foundation/definitions/ShaderSemantics";
-import { ComponentTypeEnum, CompositionTypeEnum } from "../../foundation/main";
-import Component from "../../foundation/core/Component";
-import MemoryManager from "../../foundation/core/MemoryManager";
-import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
-import { ProcessApproachEnum, ProcessApproach } from "../../foundation/definitions/ProcessApproach";
-import WebGLStrategyFastestWebGL1 from "../WebGLStrategyFastestWebGL1";
+import { ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
 import System from "../../foundation/system/System";
-import LightComponent from "../../foundation/components/LightComponent";
+import { VertexAttributeEnum, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
+import WebGLResourceRepository from "../WebGLResourceRepository";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -110,7 +106,7 @@ export default abstract class GLSLShader {
 
   get glslPrecision() {
     return `precision highp float;
-    precision highp int;
+precision highp int;
     `
   }
 
@@ -142,32 +138,32 @@ export default abstract class GLSLShader {
 
   get toNormalMatrix() {
     return `
-  mat3 toNormalMatrix(mat4 m) {
-    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
-    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
-    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
-    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
+mat3 toNormalMatrix(mat4 m) {
+  float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
+  a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
+  a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
+  a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
 
-    float b00 = a00 * a11 - a01 * a10,
-    b01 = a00 * a12 - a02 * a10,
-    b02 = a00 * a13 - a03 * a10,
-    b03 = a01 * a12 - a02 * a11,
-    b04 = a01 * a13 - a03 * a11,
-    b05 = a02 * a13 - a03 * a12,
-    b06 = a20 * a31 - a21 * a30,
-    b07 = a20 * a32 - a22 * a30,
-    b08 = a20 * a33 - a23 * a30,
-    b09 = a21 * a32 - a22 * a31,
-    b10 = a21 * a33 - a23 * a31,
-    b11 = a22 * a33 - a23 * a32;
+  float b00 = a00 * a11 - a01 * a10,
+  b01 = a00 * a12 - a02 * a10,
+  b02 = a00 * a13 - a03 * a10,
+  b03 = a01 * a12 - a02 * a11,
+  b04 = a01 * a13 - a03 * a11,
+  b05 = a02 * a13 - a03 * a12,
+  b06 = a20 * a31 - a21 * a30,
+  b07 = a20 * a32 - a22 * a30,
+  b08 = a20 * a33 - a23 * a30,
+  b09 = a21 * a32 - a22 * a31,
+  b10 = a21 * a33 - a23 * a31,
+  b11 = a22 * a33 - a23 * a32;
 
-    float determinantVal = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+  float determinantVal = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-    return mat3(
-      a11 * b11 - a12 * b10 + a13 * b09, a12 * b08 - a10 * b11 - a13 * b07, a10 * b10 - a11 * b08 + a13 * b06,
-      a02 * b10 - a01 * b11 - a03 * b09, a00 * b11 - a02 * b08 + a03 * b07, a01 * b08 - a00 * b10 - a03 * b06,
-      a31 * b05 - a32 * b04 + a33 * b03, a32 * b02 - a30 * b05 - a33 * b01, a30 * b04 - a31 * b02 + a33 * b00) / determinantVal;
-  }`;
+  return mat3(
+    a11 * b11 - a12 * b10 + a13 * b09, a12 * b08 - a10 * b11 - a13 * b07, a10 * b10 - a11 * b08 + a13 * b06,
+    a02 * b10 - a01 * b11 - a03 * b09, a00 * b11 - a02 * b08 + a03 * b07, a01 * b08 - a00 * b10 - a03 * b06,
+    a31 * b05 - a32 * b04 + a33 * b03, a32 * b02 - a30 * b05 - a33 * b01, a30 * b04 - a31 * b02 + a33 * b00) / determinantVal;
+}`;
   }
 
   get getSkinMatrix() {
@@ -345,26 +341,24 @@ bool processGeometryWithMorphingAndSkinning(
   }
 
   get prerequisites() {
-    return `
-    uniform float u_materialSID;
-    uniform sampler2D u_dataTexture;
+    return `uniform float u_materialSID;
+uniform sampler2D u_dataTexture;
 
-    /*
-    * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
-    * arg = vec2(1. / size.x, 1. / size.x / size.y);
-    */
-   // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
-   // {
-   //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
-   // }
+  /*
+  * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
+  * arg = vec2(1. / size.x, 1. / size.x / size.y);
+  */
+  // highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 arg)
+  // {
+  //   return ${this.glsl_texture}( tex, arg * (index + 0.5) );
+  // }
 
-  highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize)
-  {
-    highp float t = (index + 0.5) * invSize.x;
-    highp float x = fract(t);
-    highp float y = (floor(t) + 0.5) * invSize.y;
-    return ${this.glsl_texture}( tex, vec2(x, y) );
-  }`;
+highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSize){
+  highp float t = (index + 0.5) * invSize.x;
+  highp float x = fract(t);
+  highp float y = (floor(t) + 0.5) * invSize.y;
+  return ${this.glsl_texture}( tex, vec2(x, y) );
+}`;
   }
 
   get mainPrerequisites() {
@@ -372,21 +366,37 @@ bool processGeometryWithMorphingAndSkinning(
     if (processApproach === ProcessApproach.FastestWebGL1) {
       return `
   float materialSID = u_currentComponentSIDs[0];
-  int lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
-  float skeletalComponentSID = u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
+
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = int(u_currentComponentSIDs[${WellKnownComponentTIDs.LightComponentTID}]);
+  #endif
+
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = u_currentComponentSIDs[${WellKnownComponentTIDs.SkeletalComponentTID}];
+  #endif
 `;
     } else {
       return `
   float materialSID = u_materialSID;
-  int lightNumber = u_lightNumber;
-  float skeletalComponentSID = float(u_skinningMode);
+
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = u_lightNumber;
+  #endif
+
+  float skeletalComponentSID = -1.0;
+  #ifdef RN_IS_SKINNING
+    skeletalComponentSID = float(u_skinningMode);
+  #endif
       `;
     }
   }
 
   get pointSprite() {
-    return `vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
-  vec3 viewPosition = get_viewPosition(materialSID, 0);
+    return `  vec4 position_inWorld = worldMatrix * vec4(a_position, 1.0);
+  vec3 viewPosition = get_viewPosition(cameraSID, 0);
   float distanceFromCamera = length(position_inWorld.xyz - viewPosition);
   vec3 pointDistanceAttenuation = get_pointDistanceAttenuation(materialSID, 0);
   float distanceAttenuationFactor = sqrt(1.0/(pointDistanceAttenuation.x + pointDistanceAttenuation.y * distanceFromCamera + pointDistanceAttenuation.z * distanceFromCamera * distanceFromCamera));
@@ -589,11 +599,11 @@ bool processGeometryWithMorphingAndSkinning(
 
   get simpleMVPPosition() {
     return `
-    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
-    mat4 worldMatrix = get_worldMatrix(a_instanceID);
-    mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-    mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-    gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
+  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  mat4 worldMatrix = get_worldMatrix(a_instanceID);
+  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
     `
   }
 

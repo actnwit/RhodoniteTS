@@ -7,8 +7,8 @@ export interface ComponentTypeEnum extends EnumIO {
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   readonly __sizeInBytes: number;
-  constructor({index, str, sizeInBytes} : {index: number, str: string, sizeInBytes: number}) {
-    super({index, str});
+  constructor({ index, str, sizeInBytes }: { index: number, str: string, sizeInBytes: number }) {
+    super({ index, str });
     this.__sizeInBytes = sizeInBytes
   }
 
@@ -32,11 +32,11 @@ const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({ index: 0x8D61, str
 
 const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
 
-function from( index : number ): ComponentTypeEnum {
-  return _from({typeList, index}) as ComponentTypeEnum;
+function from(index: number): ComponentTypeEnum {
+  return _from({ typeList, index }) as ComponentTypeEnum;
 }
 
-function fromTypedArray(typedArray: TypedArray) : ComponentTypeEnum {
+function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   if (typedArray instanceof Int8Array) {
     return Byte;
   } else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {

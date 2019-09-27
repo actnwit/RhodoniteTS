@@ -115,7 +115,7 @@ export type Gltf2PbrMetallicRoughness = {
 export type Gltf2Material = {
   pbrMetallicRoughness?: any,
   normalTexture?: Gltf2NormalTextureInfo,
-  occlusionTexture? : Gltf2OcclusionTextureInfo,
+  occlusionTexture?: Gltf2OcclusionTextureInfo,
   emissiveTexture?: Gltf2TextureInfo,
   emissiveFactor?: number[],
   alphaMode?: string,
@@ -404,5 +404,6 @@ export type GltfLoadOption = {
   ignoreLists?: [],
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
-  extendedJson?: string | Object | ArrayBuffer //   URI string / JSON Object / ArrayBuffer
+  extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
+  isImportVRM?: boolean
 }

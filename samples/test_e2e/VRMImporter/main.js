@@ -1,14 +1,14 @@
 
 let p = null;
 
-const load = async function(time){
+const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.VRMImporter.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
+  const importer = Rn.VRMImporter.getInstance();
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
@@ -21,37 +21,44 @@ const load = async function(time){
 
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
 
-
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity.getTransform().translate = new Rn.Vector3(1.0, 100000.0, 1.0);
   // lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
   const lightEntity2 = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  lightEntity2.getTransform().translate = new Rn.Vector3(0.0, 0.0, 10.0);
-  lightEntity2.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
+  const lightComponent2 = lightEntity2.getComponent(Rn.LightComponent);
+  lightComponent2.type = Rn.LightType.Directional;
+  lightComponent2.intensity = new Rn.Vector3(1.0, 1.0, 1.0);
+  lightEntity2.getTransform().rotate = new Rn.Vector3(0.0, 0.0, Math.PI / 8);
   //lightEntity2.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
   //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
-
-  const rootGroup = await importer.import('../../../assets/vrm/test.vrm');
+  const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
+    defaultMaterialHelperArgumentArray: [{ isLighting: true }],
+  });
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
-//  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
+
+  for (let rootGroup of rootGroups) {
+    rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
+  }
+
+  //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  cameraControllerComponent.setTarget(rootGroup);
+  cameraControllerComponent.setTarget(rootGroups[0]);
+
 
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function(time) {
+  const draw = function (time) {
 
     if (p == null && count > 0) {
-      if (rootGroup != null) {
+      if (rootGroups[0] != null) {
 
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0, 600, 600);
@@ -78,7 +85,7 @@ const load = async function(time){
         startTime = date.getTime();
       }
       //console.log(time);
-//      rootGroup.getTransform().scale = rotationVec3;
+      //      rootGroup.getTransform().scale = rotationVec3;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
@@ -97,3 +104,4 @@ function exportGltf2() {
   const exporter = Rn.Gltf2Exporter.getInstance();
   exporter.export('Rhodonite');
 }
+
