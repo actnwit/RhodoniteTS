@@ -62,6 +62,17 @@ export default class Material extends RnObject {
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> = new Map();
 
+  public cullface: boolean | null = null;
+  public cullFrontFaceCCW: boolean = true;
+
+  public depthMask: boolean | null = null;
+  public blendEquationMode: number | null = null;
+  public blendEquationModeAlpha: number | null = null;
+  public blendFuncSrcFactor: number | null = null;
+  public blendFuncDstFactor: number | null = null;
+  public blendFuncAlphaSrcFactor: number | null = null;
+  public blendFuncAlphaDstFactor: number | null = null;
+
   private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
     this.__materialNodes = materialNodes;
@@ -94,17 +105,18 @@ export default class Material extends RnObject {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created materlal.
    */
-  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[], maxInstancesNumber?: number) {
+  static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
     let materialNodes = materialNodes_;
     if (!materialNodes) {
       materialNodes = Material.__materialTypes.get(materialTypeName)!;
     }
 
-    if (!Material.__materialTypes.has(materialTypeName)) {
-      Material.registerMaterial(materialTypeName, materialNodes_!, maxInstancesNumber!);
-    }
+    return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);
+  }
 
-    return new Material(Material.__materialTids.get(materialTypeName)!, materialTypeName, materialNodes);;
+
+  static isRegistedMaterialType(materialTypeName: string) {
+    return Material.__materialTypes.has(materialTypeName);
   }
 
   static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
@@ -393,8 +405,11 @@ export default class Material extends RnObject {
       }
     });
 
-    if (firstTime === false) return;
+    this.setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args });
+  }
 
+  setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args }: { shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material.__soloDatumFields.get(materialTypeName);
     if (map == null) return;
@@ -426,7 +441,7 @@ export default class Material extends RnObject {
     });
 
     const globalDataRepository = GlobalDataRepository.getInstance();
-    [vertexPropertiesStr, pixelPropertiesStr] =  globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     // Shader Construction
     let vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
@@ -789,7 +804,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
         return this._shaderProgramUid;
       }
       */
-     return -1;
+      return -1;
     }
   }
 

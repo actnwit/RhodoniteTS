@@ -41,7 +41,7 @@ export type ShaderSocket = {
 }
 
 type MaterialNodeUID = number;
-type InputConnectionType = {materialNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string};
+type InputConnectionType = { materialNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };
 
 export default abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
@@ -79,16 +79,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private static __lightIntensities = new Float32Array(0);
 
 
-  constructor(shader: GLSLShader, shaderFunctionName: string, enables = {isMorphing: false, isSkinning: false, isLighting: false}) {
+  constructor(shader: GLSLShader, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {}) {
     super();
     this.shader = shader;
     this.shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
 
-    this.__isMorphing = enables.isMorphing;
-    this.__isSkinning = enables.isSkinning;
-    this.__isLighing = enables.isLighting;
+    this.__isMorphing = isMorphing;
+    this.__isSkinning = isSkinning;
+    this.__isLighing = isLighting;
 
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   }
@@ -112,9 +112,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
     const infoArray: ShaderSemanticsInfo[] = [];
     for (let info of shaderSemanticsInfoArray) {
-      if (info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array ||  info.compositionType == CompositionType.Vec2Array) {
+      if (info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType == CompositionType.Vec2Array) {
         if (info.setEach === true) {
-          for (let i = 0; i<info.maxIndex!; i++) {
+          for (let i = 0; i < info.maxIndex!; i++) {
             const anotherInfo = Object.assign({}, info);
             anotherInfo.index = i;
             anotherInfo.maxIndex = info.maxIndex;
@@ -131,11 +131,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
-    this.__vertexInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis});
+    this.__vertexInputConnections.push({ materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
   }
 
   addPixelInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
-    this.__pixelInputConnections.push({materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis});
+    this.__pixelInputConnections.push({ materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
   }
 
   get vertexInputConnections(): InputConnectionType[] {
@@ -146,7 +146,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return this.__pixelInputConnections;
   }
 
-  getVertexInput(name:string): ShaderSocket|undefined {
+  getVertexInput(name: string): ShaderSocket | undefined {
     for (let input of this.__vertexInputs) {
       if (input.name === name) {
         return input;
@@ -155,7 +155,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
-  getVertexOutput(name:string): ShaderSocket|undefined {
+  getVertexOutput(name: string): ShaderSocket | undefined {
     for (let output of this.__vertexOutputs) {
       if (output.name === name) {
         return output;
@@ -164,7 +164,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
-  getPixelInput(name:string): ShaderSocket|undefined {
+  getPixelInput(name: string): ShaderSocket | undefined {
     for (let input of this.__pixelInputs) {
       if (input.name === name) {
         return input;
@@ -173,7 +173,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
-  getPixelOutput(name:string): ShaderSocket|undefined {
+  getPixelOutput(name: string): ShaderSocket | undefined {
     for (let output of this.__pixelOutputs) {
       if (output.name === name) {
         return output;
@@ -213,7 +213,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
       }
     } else {
       const mat = MutableMatrix44.identity();
-      const pos = new Vector3(0,0,10);
+      const pos = new Vector3(0, 0, 10);
       if (setUniform) {
         (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, mat.v);
         (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, pos.v);
@@ -266,10 +266,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
 
       const length = Math.min(lightComponents!.length, Config.maxLightNumberInShader);
-      if (AbstractMaterialNode.__lightPositioins.length !== 4*length) {
-        AbstractMaterialNode.__lightPositioins = new Float32Array(4*length);
-        AbstractMaterialNode.__lightDirections = new Float32Array(4*length);
-        AbstractMaterialNode.__lightIntensities = new Float32Array(4*length);
+      if (AbstractMaterialNode.__lightPositioins.length !== 4 * length) {
+        AbstractMaterialNode.__lightPositioins = new Float32Array(4 * length);
+        AbstractMaterialNode.__lightDirections = new Float32Array(4 * length);
+        AbstractMaterialNode.__lightIntensities = new Float32Array(4 * length);
       }
       for (let i = 0; i < lightComponents!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
@@ -285,20 +285,20 @@ export default abstract class AbstractMaterialNode extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialNode.__lightPositioins[i*4+0] = worldLightPosition.x;
-        AbstractMaterialNode.__lightPositioins[i*4+1] = worldLightPosition.y;
-        AbstractMaterialNode.__lightPositioins[i*4+2] = worldLightPosition.z;
-        AbstractMaterialNode.__lightPositioins[i*4+3] = lightComponent.type.index;
+        AbstractMaterialNode.__lightPositioins[i * 4 + 0] = worldLightPosition.x;
+        AbstractMaterialNode.__lightPositioins[i * 4 + 1] = worldLightPosition.y;
+        AbstractMaterialNode.__lightPositioins[i * 4 + 2] = worldLightPosition.z;
+        AbstractMaterialNode.__lightPositioins[i * 4 + 3] = lightComponent.type.index;
 
-        AbstractMaterialNode.__lightDirections[i*4+0] = worldLightDirection.x;
-        AbstractMaterialNode.__lightDirections[i*4+1] = worldLightDirection.y;
-        AbstractMaterialNode.__lightDirections[i*4+2] = worldLightDirection.z;
-        AbstractMaterialNode.__lightDirections[i*4+3] = 0;
+        AbstractMaterialNode.__lightDirections[i * 4 + 0] = worldLightDirection.x;
+        AbstractMaterialNode.__lightDirections[i * 4 + 1] = worldLightDirection.y;
+        AbstractMaterialNode.__lightDirections[i * 4 + 2] = worldLightDirection.z;
+        AbstractMaterialNode.__lightDirections[i * 4 + 3] = 0;
 
-        AbstractMaterialNode.__lightIntensities[i*4+0] = worldLightIntensity.x;
-        AbstractMaterialNode.__lightIntensities[i*4+1] = worldLightIntensity.y;
-        AbstractMaterialNode.__lightIntensities[i*4+2] = worldLightIntensity.z;
-        AbstractMaterialNode.__lightIntensities[i*4+3] = 0;
+        AbstractMaterialNode.__lightIntensities[i * 4 + 0] = worldLightIntensity.x;
+        AbstractMaterialNode.__lightIntensities[i * 4 + 1] = worldLightIntensity.y;
+        AbstractMaterialNode.__lightIntensities[i * 4 + 2] = worldLightIntensity.z;
+        AbstractMaterialNode.__lightIntensities[i * 4 + 3] = 0;
 
       }
       if (length > 0) {
@@ -320,7 +320,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
     const memoryManager = MemoryManager.getInstance();
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, meshComponent.mesh!.weights.length);
-    const array: number[] = primitive.targets.map((target: Attributes)=>{
+    const array: number[] = primitive.targets.map((target: Attributes) => {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;
       if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
@@ -340,7 +340,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
 
   }
-  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
   }
 }

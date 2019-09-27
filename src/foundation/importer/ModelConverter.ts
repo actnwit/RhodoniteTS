@@ -87,8 +87,8 @@ export default class ModelConverter {
 
     const repo = EntityRepository.getInstance();
     const entity = repo.createEntity(components);
-    entity.tryToSetTag({ tag: 'SourceType', value: gltfModel.asset.extras!.fileType!});
-    entity.tryToSetTag({ tag: 'SourceTypeVersion', value: gltfModel.asset.extras!.version!});
+    entity.tryToSetTag({ tag: 'SourceType', value: gltfModel.asset.extras!.fileType! });
+    entity.tryToSetTag({ tag: 'SourceTypeVersion', value: gltfModel.asset.extras!.version! });
 
     return entity;
   }
@@ -120,7 +120,7 @@ export default class ModelConverter {
     const rnBuffer = this.createRnBuffer(gltfModel);
 
     // Mesh, Camera, Group, ...
-    const {rnEntities, rnEntitiesByNames} = this.__setupObjects(gltfModel, rnBuffer);
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffer);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
@@ -141,16 +141,16 @@ export default class ModelConverter {
     // Root Group
     const rootGroup = this.__generateGroupEntity(gltfModel);
     rootGroup.tryToSetUniqueName('FileRoot', true);
-    rootGroup.tryToSetTag({tag: 'ObjectType', value: 'top'});
+    rootGroup.tryToSetTag({ tag: 'ObjectType', value: 'top' });
     if (gltfModel.scenes[0].nodesIndices) {
       for (let nodesIndex of gltfModel.scenes[0].nodesIndices) {
         rootGroup.getSceneGraph().addChild(rnEntities[nodesIndex].getSceneGraph());
       }
     }
 
-    rootGroup.tryToSetTag({tag: 'rnEntities', value: rnEntities})
-    rootGroup.tryToSetTag({tag: 'rnEntitiesByNames', value: rnEntitiesByNames})
-    rootGroup.tryToSetTag({tag: 'gltfModel', value: gltfModel})
+    rootGroup.tryToSetTag({ tag: 'rnEntities', value: rnEntities })
+    rootGroup.tryToSetTag({ tag: 'rnEntitiesByNames', value: rnEntitiesByNames })
+    rootGroup.tryToSetTag({ tag: 'gltfModel', value: gltfModel })
 
     return rootGroup;
   }
@@ -359,7 +359,7 @@ export default class ModelConverter {
         entity = group;
       }
 
-      entity.tryToSetTag({tag: 'gltf_node_index', value: ''+ node_i});
+      entity.tryToSetTag({ tag: 'gltf_node_index', value: '' + node_i });
 
       rnEntities.push(entity);
       rnEntitiesByNames.set(node.name!, entity);
@@ -387,7 +387,7 @@ export default class ModelConverter {
       }
     }
 
-    return {rnEntities, rnEntitiesByNames};
+    return { rnEntities, rnEntitiesByNames };
   }
 
   private __hasBlendShapes(node: any) {
@@ -461,6 +461,8 @@ export default class ModelConverter {
         // indices
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
+        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive, primitive.material);
+        if (material == null) continue;
 
         if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
           indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
@@ -479,7 +481,7 @@ export default class ModelConverter {
             map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
           }
         }
-        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive.material);
+
         const rnPrimitive = new Primitive();
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
@@ -515,21 +517,40 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, materialJson: any) {
+  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
 
-    if (this._checkRnGltfLoaderOptionsExist(gltfModel) &&
-      gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension &&
-      gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
-      const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
-      return loaderExtension.generateMaterial();
-    }
+    if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
+      const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
 
-    if (gltfModel.asset.extras != null &&
-      gltfModel.asset.extras.rnLoaderOptions != null &&
-      gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperName != null) {
-      const helperName = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperName;
-      const argumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-      return (MaterialHelper as any)[helperName].apply(this, argumentArray);
+      if (rnLoaderOptions.loaderExtension &&
+        rnLoaderOptions.loaderExtension.isNeededToUseThisMaterial(gltfModel)) {
+        const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension;
+        return loaderExtension.generateMaterial();
+      }
+
+      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
+      const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
+
+      if (rnLoaderOptions.isImportVRM && materialHelperName == null) {
+        const VRMProperties = gltfModel.extensions.VRM;
+        const materialProperties = VRMProperties.rnExtension.materialPropertiesArray[primitive.materialIndex];
+
+        const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
+        if (shaderName === "VRM/MToon") {
+          if (argumentArray[0]["isOutline"] && materialProperties[0][13] === 0) {
+            return null;
+          }
+
+          argumentArray[0]["materialPropertiesArray"] = materialProperties;
+          return MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
+        } else if (argumentArray[0]["isOutline"]) {
+          return null;
+        }
+      }
+
+      if (materialHelperName != null) {
+        return (MaterialHelper as any)[materialHelperName].apply(this, argumentArray);
+      }
     }
 
     let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType
@@ -547,7 +568,7 @@ export default class ModelConverter {
   }
 
   static _createTexture(textureType: any, gltfModel: glTF2) {
-    let options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
+    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
     const rnTexture = new Texture();
     rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
     rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
@@ -565,12 +586,13 @@ export default class ModelConverter {
     return rnTexture;
   }
 
-  private __setupMaterial(entity: Entity, node: any, gltfModel: any, materialJson: any): Material | undefined {
-    let options = gltfModel.asset.extras.rnLoaderOptions;
-
-    let material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, materialJson);
-
-    if (materialJson == null) {
+  private __setupMaterial(entity: Entity, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
+    const material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, primitive, materialJson);
+    if (materialJson == null ||
+      material == null ||
+      (material.materialTypeName.match(/^PbrUber/) == null &&
+        material.materialTypeName.match(/^ClassicUber/) == null)
+    ) {
       return material;
     }
 
@@ -627,6 +649,7 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
+    const options = gltfModel.asset.extras.rnLoaderOptions;
     let alphaMode = materialJson.alphaMode;
     if (options != null && options.alphaMode) {
       alphaMode = options.alphaMode;

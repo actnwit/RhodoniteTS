@@ -1,14 +1,14 @@
 
 let p = null;
 
-const load = async function(time){
+const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
-  const importer = Rn.VRMImporter.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
+  const importer = Rn.VRMImporter.getInstance();
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
@@ -34,29 +34,35 @@ const load = async function(time){
 
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
   const animGltf2Model = await gltf2Importer.import('../../../assets/vrm/test.glb');
-  const rootGroup = await importer.import('../../../assets/vrm/test.vrm', {
-    "autoResizeTexture": true
-  });
-  //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
-  rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
-//  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
-  const animationAssigner = Rn.AnimationAssigner.getInstance();
-  animationAssigner.assignAnimation(rootGroup, animGltf2Model);
+  const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
+    defaultMaterialHelperArgumentArray: [{
+      isLighting: true,
+      isSkinning: true
+    }],
+  });
+
+  for (let rootGroup of rootGroups) {
+    //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
+    rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
+    //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
+    const animationAssigner = Rn.AnimationAssigner.getInstance();
+    animationAssigner.assignAnimation(rootGroup, animGltf2Model);
+  }
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  cameraControllerComponent.controller.setTarget(rootGroup);
+  cameraControllerComponent.controller.setTarget(rootGroups[0]);
 
 
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function(time) {
+  const draw = function (time) {
 
     if (p == null && count > 0) {
-      if (rootGroup != null) {
+      if (rootGroups[0] != null) {
 
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0, 600, 600);
@@ -83,7 +89,7 @@ const load = async function(time){
         startTime = date.getTime();
       }
       //console.log(time);
-//      rootGroup.getTransform().scale = rotationVec3;
+      //      rootGroup.getTransform().scale = rotationVec3;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
