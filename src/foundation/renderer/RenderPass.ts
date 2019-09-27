@@ -8,6 +8,7 @@ import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { EntityUID } from "../../types/CommonTypes";
 import Material from "../materials/Material";
+import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
@@ -24,6 +25,7 @@ export default class RenderPass extends RnObject {
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
   public cullface: boolean = false;
+  public cullFrontFaceCCW: boolean = true;
   public material?: Material;
 
   constructor() {
@@ -35,10 +37,10 @@ export default class RenderPass extends RnObject {
       const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
       const collectedSgComponents = SceneGraphComponent.flattenHierarchy(sceneGraphComponent, false);
-      const collectedEntities: Entity[] = collectedSgComponents.map((sg: SceneGraphComponent)=>{return sg.entity});
+      const collectedEntities: Entity[] = collectedSgComponents.map((sg: SceneGraphComponent) => { return sg.entity });
 
       // Eliminate duplicates
-      const map: Map<EntityUID, Entity> = this.__entities.concat(collectedEntities).reduce((map: Map<EntityUID, Entity>, entity:Entity)=>{
+      const map: Map<EntityUID, Entity> = this.__entities.concat(collectedEntities).reduce((map: Map<EntityUID, Entity>, entity: Entity) => {
         map.set(entity.entityUID, entity);
         return map;
       }, new Map());
@@ -64,13 +66,13 @@ export default class RenderPass extends RnObject {
 
   private __collectTopLevelSceneGraphComponents() {
     if (this.__topLevelSceneGraphComponents == null) {
-      const goToTopLevel = (sg: SceneGraphComponent)=> {
+      const goToTopLevel = (sg: SceneGraphComponent) => {
         if (sg.parent) {
           goToTopLevel(sg.parent)
         }
         return sg;
       };
-      this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map((sg: SceneGraphComponent)=>{
+      this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map((sg: SceneGraphComponent) => {
         return goToTopLevel(sg);
       });
       let set = new Set(this.__topLevelSceneGraphComponents);
@@ -82,7 +84,7 @@ export default class RenderPass extends RnObject {
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
-      this.__entities.filter((entity)=>{
+      this.__entities.filter((entity) => {
         const meshComponent = entity.getMesh();
         if (meshComponent) {
           this.__meshComponents!.push(meshComponent);
@@ -106,7 +108,7 @@ export default class RenderPass extends RnObject {
     this.setViewport(new Vector4(0, 0, framebuffer.width, framebuffer.height));
   }
 
-  getFramebuffer(): FrameBuffer|undefined {
+  getFramebuffer(): FrameBuffer | undefined {
     return this.__frameBuffer;
   }
 
