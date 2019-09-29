@@ -7,7 +7,7 @@ let maxCameraNumber = 15;
 let maxSizeLimitOfNonCompressedTexture = 512;
 let maxSkeletalBoneNumber = 250;
 let dataTextureWidth = Math.pow(2, 11);
-let dataTextureHeight = Math.pow(2, 12);
+let dataTextureHeight = Math.pow(2, 11);
 
 export default { maxEntityNumber, maxLightNumberInShader, maxVertexMorphNumberInShader, maxMaterialInstanceForEachType,
   maxSkeletonNumber, maxCameraNumber, maxSizeLimitOfNonCompressedTexture, maxSkeletalBoneNumber, dataTextureWidth, dataTextureHeight };
