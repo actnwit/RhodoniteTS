@@ -112,7 +112,7 @@ const load = function(time){
 
     // CameraComponent
     const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-    cameraControllerComponent.setTarget(rootGroup);
+    cameraControllerComponent.controller.setTarget(rootGroup);
     cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 1000;
 
     // Env Cube
@@ -170,7 +170,7 @@ const load = function(time){
     const sphere2Mesh = new Rn.Mesh();
     sphere2Mesh.addPrimitive(sphere2Primitive);
     sphere2MeshComponent.setMesh(sphere2Mesh);
-    cameraControllerComponent.setTarget(sphere2Entity);
+    cameraControllerComponent.controller.setTarget(sphere2Entity);
     const sphere2MeshRendererComponent = sphere2Entity.getComponent(Rn.MeshRendererComponent);
     window.sphere2MeshRendererComponent = sphere2MeshRendererComponent;
     sphere2MeshRendererComponent.diffuseCubeMap = diffuseCubeTexture;

@@ -6,5 +6,8 @@ test('regression test Gltf2Importer', async () => {
   await page.waitForSelector('p#rendered', {timeout: 60000});
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot();
+  expect(image).toMatchImageSnapshot({
+      failureThreshold: 0.005,
+      failureThresholdType: 'percent'
+    });
 });

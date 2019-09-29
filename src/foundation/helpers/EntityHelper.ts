@@ -5,7 +5,6 @@ import MeshComponent from "../components/MeshComponent";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import CameraComponent from "../components/CameraComponent";
 import CameraControllerComponent from "../components/CameraControllerComponent";
-import Entity from "../core/Entity";
 
 function createGroupEntity() {
   return EntityRepository.getInstance().createEntity([TransformComponent, SceneGraphComponent]);

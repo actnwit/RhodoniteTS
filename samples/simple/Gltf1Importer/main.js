@@ -57,7 +57,7 @@ const load = async function(time){
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-  cameraControllerComponent.setTarget(rootGroup);
+  cameraControllerComponent.controller.setTarget(rootGroup);
 
 
   Rn.CameraComponent.main = 0;

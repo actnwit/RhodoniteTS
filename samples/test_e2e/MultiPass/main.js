@@ -69,7 +69,7 @@
     entities.push(entity_fxaa);
 
     const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
-    cameraControllerComponent.setTarget(entity);
+    cameraControllerComponent.controller.setTarget(entity);
 
 
     const meshComponent = entity.getComponent(Rn.MeshComponent);
