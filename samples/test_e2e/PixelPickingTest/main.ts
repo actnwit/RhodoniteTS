@@ -5,6 +5,7 @@ import Entity from '../../../dist/types/foundation/core/Entity';
 import LightComponent from '../../../dist/types/foundation/components/LightComponent';
 import Vector4 from '../../../dist/types/foundation/math/Vector4';
 import { RnWebGL } from '../../../dist/types/webgl/main';
+import OrbitCameraController from '../../../dist/types/foundation/cameras/OrbitCameraController';
 
 declare const window: any;
 declare const Rn: RnType;
@@ -124,7 +125,7 @@ const load = async function(){
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent) as CameraControllerComponent;
-  cameraControllerComponent.setTarget(rootGroup);
+  (cameraControllerComponent.controller as OrbitCameraController).setTarget(rootGroup);
 
 
   Rn.CameraComponent.main = 0;
