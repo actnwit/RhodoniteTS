@@ -66,6 +66,7 @@ import VRMImporter from '../foundation/importer/VRMImporter';
 import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
 import AnimationAssigner from '../foundation/importer/AnimationAssigner';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
+import OrbitCameraController from './cameras/OrbitCameraController';
 
 const Rn = {
   EntityRepository,
@@ -136,6 +137,7 @@ const Rn = {
   BlendShapeComponent,
   AnimationAssigner,
   MiscUtil,
+  OrbitCameraController
 };
 export default Rn;
 export type RnType = typeof Rn;
