@@ -24,10 +24,10 @@ export default class WalkThroughCameraController implements ICameraController {
   private _isMouseDrag: boolean = false;
   private _lastKeyCode: number = -1;
   private _onKeyup: KeyboardEventListner;
-  private _currentDir = MutableVector3.zero();
-  private _currentPos = MutableVector3.zero();
-  private _currentCenter = MutableVector3.zero();
-  private _newDir = MutableVector3.zero();
+  private _currentDir = new MutableVector3(0, 0, -1);
+  private _currentPos = new MutableVector3(0, 0, 0);
+  private _currentCenter = new MutableVector3(0, 0, -1);
+  private _newDir = new MutableVector3(0, 0, -1);
   private _isMouseDown: boolean = false;
   private _clickedMouseXOnCanvas = -1;
   private _clickedMouseYOnCanvas = -1;
@@ -43,8 +43,8 @@ export default class WalkThroughCameraController implements ICameraController {
   constructor(
     options = {
       eventTargetDom: document,
-      virticalSpeed: 1,
-      horizontalSpeed: 1,
+      virticalSpeed: 0.01,
+      horizontalSpeed: 0.01,
       turnSpeed: 5,
       mouseWheelSpeedScale: 0.3,
       inverseVirticalRotating: false,
@@ -203,9 +203,9 @@ export default class WalkThroughCameraController implements ICameraController {
   reset() {
     this._isKeyDown = false;
     this._lastKeyCode = -1;
-    this._currentPos = MutableVector3.zero();
-    this._currentCenter = MutableVector3.zero();
-    this._currentDir = MutableVector3.zero();
+    this._currentPos = new MutableVector3(0, 0, 0);
+    this._currentCenter = new MutableVector3(0, 0, -1);
+    this._currentDir = new MutableVector3(0, 0, -1);
     this._isMouseDown = false;
     this._isMouseDrag = false;
     this._draggedMouseXOnCanvas = -1;
@@ -216,7 +216,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this._mouseYAdjustScale = 0.1;
     this._deltaY = 0;
     this._deltaX = 0;
-    this._newDir = MutableVector3.zero();
+    this._newDir = new MutableVector3(0, 0, -1);
 
   }
 

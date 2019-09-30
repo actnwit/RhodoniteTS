@@ -67,6 +67,7 @@ import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
 import AnimationAssigner from '../foundation/importer/AnimationAssigner';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import OrbitCameraController from './cameras/OrbitCameraController';
+import WalkThroughCameraController from './cameras/WalkThroughCameraController';
 
 const Rn = {
   EntityRepository,
@@ -137,7 +138,8 @@ const Rn = {
   BlendShapeComponent,
   AnimationAssigner,
   MiscUtil,
-  OrbitCameraController
+  OrbitCameraController,
+  WalkThroughCameraController
 };
 export default Rn;
 export type RnType = typeof Rn;
