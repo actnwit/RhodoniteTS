@@ -35,18 +35,18 @@ export default class WalkThroughCameraController implements ICameraController {
   private _draggedMouseYOnCanvas = -1;
   private _deltaMouseXOnCanvas = -1;
   private _deltaMouseYOnCanvas = -1;
-  private _mouseXAdjustScale = -1;
-  private _mouseYAdjustScale = -1;
+  private _mouseXAdjustScale = 1;
+  private _mouseYAdjustScale = 1;
   private _deltaY = -1;
   private _deltaX = -1;
 
   constructor(
     options = {
       eventTargetDom: document,
-      virticalSpeed: 0.01,
-      horizontalSpeed: 0.01,
-      turnSpeed: 5,
-      mouseWheelSpeedScale: 0.3,
+      virticalSpeed: 0.001,
+      horizontalSpeed: 0.001,
+      turnSpeed: 0.001,
+      mouseWheelSpeedScale: 0.01,
       inverseVirticalRotating: false,
       inverseHorizontalRotating: false
     }
@@ -55,6 +55,8 @@ export default class WalkThroughCameraController implements ICameraController {
     this._horizontalSpeed = options.horizontalSpeed;
     this._virticalSpeed = options.virticalSpeed;
     this._turnSpeed = options.turnSpeed;
+    this._mouseXAdjustScale = this._turnSpeed;
+    this._mouseYAdjustScale = this._turnSpeed;
     this._mouseWheelSpeedScale = options.mouseWheelSpeedScale;
     this._inverseVirticalRotating = options.inverseVirticalRotating;
     this._inverseHorizontalRotating = options.inverseHorizontalRotating;
@@ -84,27 +86,27 @@ export default class WalkThroughCameraController implements ICameraController {
       if ("ontouchend" in document) {
         eventTargetDom.addEventListener(
           "touchstart",
-          this._mouseDown.bind(this, new MouseEvent(''))
+          (this._mouseDown as any).bind(this)
         );
-        document.addEventListener("touchend", this._mouseUp.bind(this, new MouseEvent('')));
+        document.addEventListener("touchend", (this._mouseUp as any).bind(this));
         eventTargetDom.addEventListener(
           "touchmove",
-          this._mouseMove.bind(this, new MouseEvent(''))
+          (this._mouseMove as any).bind(this)
         );
       }
       if ("onmouseup" in document) {
         eventTargetDom.addEventListener(
           "mousedown",
-          this._mouseDown.bind(this, new MouseEvent(''))
+          (this._mouseDown as any).bind(this)
         );
-        document.addEventListener("mouseup", this._mouseUp.bind(this, new MouseEvent('')));
+        document.addEventListener("mouseup", (this._mouseUp as any).bind(this));
         eventTargetDom.addEventListener(
           "mousemove",
-          this._mouseMove.bind(this, new MouseEvent(''))
+          (this._mouseMove as any).bind(this)
         );
       }
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", this._mouseWheel.bind(this));
+        eventTargetDom.addEventListener("wheel", (this._mouseWheel as any).bind(this));
       }
     }
   }
@@ -117,9 +119,9 @@ export default class WalkThroughCameraController implements ICameraController {
       if ("ontouchend" in document) {
         eventTargetDom.removeEventListener(
           "touchstart",
-          this._mouseDown.bind(this, new MouseEvent(''))
+          (this._mouseDown as any).bind(this)
         );
-        document.removeEventListener("touchend", this._mouseUp.bind(this, new MouseEvent('')));
+        document.removeEventListener("touchend", (this._mouseUp as any).bind(this));
         eventTargetDom
           .removeEventListener("touchmove", this._mouseMove
           .bind(this) as any);
@@ -212,8 +214,8 @@ export default class WalkThroughCameraController implements ICameraController {
     this._draggedMouseYOnCanvas = -1;
     this._deltaMouseXOnCanvas = -1;
     this._deltaMouseYOnCanvas = -1;
-    this._mouseXAdjustScale = 0.1;
-    this._mouseYAdjustScale = 0.1;
+    this._mouseXAdjustScale = this._turnSpeed;
+    this._mouseYAdjustScale = this._turnSpeed;
     this._deltaY = 0;
     this._deltaX = 0;
     this._newDir = new MutableVector3(0, 0, -1);
