@@ -6,6 +6,8 @@ import ICameraController from "./ICameraController";
 import { FunctionDeclaration } from "@babel/types";
 import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "../components/CameraComponent";
+import Matrix44 from "../math/Matrix44";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 type KeyboardEventListner = (evt: KeyboardEvent) => any;
 type MouseEventListner = (evt: MouseEvent) => any;
@@ -50,8 +52,6 @@ export default class WalkThroughCameraController implements ICameraController {
     }
   ) {
 
-    this._camaras = new Set();
-
     this._horizontalSpeed = options.horizontalSpeed;
     this._virticalSpeed = options.virticalSpeed;
     this._turnSpeed = options.turnSpeed;
@@ -64,8 +64,6 @@ export default class WalkThroughCameraController implements ICameraController {
     this._onKeydown = e => {
       this._isKeyDown = true;
       this._lastKeyCode = e.keyCode;
-
-      this.updateCamera();
     };
 
     this._onKeyup = e => {
@@ -76,13 +74,6 @@ export default class WalkThroughCameraController implements ICameraController {
     const eventTargetDom = options.eventTargetDom;
 
     this.registerEventListeners(eventTargetDom);
-  }
-
-  updateCamera() {
-    this._camaras.forEach(function(camera) {
-      camera._needUpdateView(false);
-      camera._needUpdateProjection();
-    });
   }
 
   registerEventListeners(eventTargetDom = document) {
@@ -196,7 +187,6 @@ export default class WalkThroughCameraController implements ICameraController {
       this._draggedMouseYOnCanvas - this._clickedMouseYOnCanvas;
 
     this._isMouseDrag = true;
-    this.updateCamera();
   }
 
   _mouseUp(evt: MouseEvent) {
@@ -230,16 +220,36 @@ export default class WalkThroughCameraController implements ICameraController {
 
   }
 
-  convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
+  logic(cameraComponent: CameraComponent) {
+    const data = this.__convert(cameraComponent);
+    const cc = cameraComponent;
+    cc.eyeInner = data.newEyeVec;
+    cc.directionInner = data.newCenterVec;
+    cc.upInner = data.newUpVec;
+    cc.zNearInner = data.newZNear;
+    cc.zFarInner = data.newZFar;
+    cc.leftInner = data.newLeft;
+    cc.rightInner = data.newRight;
+    cc.topInner = data.newTop;
+    cc.bottomInner = data.newBottom;
+
+    cc.fovyInner = data.fovy;
+  }
+
+
+  private __convert(camera: CameraComponent) {
     if (this._currentPos === null) {
       this._currentPos = new MutableVector3(camera.eye.clone());
     }
+    const sg = camera.entity.getSceneGraph();
+    const mat = sg.worldMatrixInner;
+    const center = mat.multiplyVector3(Vector3.zero());
     if (this._currentCenter === null) {
-      this._currentCenter = new MutableVector3(camera.center.clone());
+      this._currentCenter = new MutableVector3(center);
     }
     if (this._currentDir === null) {
       this._currentDir = Vector3.subtract(
-        new MutableVector3(camera.center),
+        new MutableVector3(center),
         camera.eye
       ).normalize();
     }
@@ -386,17 +396,18 @@ export default class WalkThroughCameraController implements ICameraController {
     let newTop = camera.top;
     let newBottom = camera.bottom;
 
-    return [
-      this._currentPos,
-      this._currentCenter,
-      camera.up.clone(),
-      camera.zNear,
-      camera.zFar,
+    return {
+      newEyeVec: this._currentPos,
+      newCenterVec: this._currentCenter,
+      newUpVec: camera.up.clone(),
+      newZNear: camera.zNear,
+      newZFar: camera.zFar,
       newLeft,
       newRight,
       newTop,
-      newBottom
-    ];
+      newBottom,
+      fovy: camera.fovy
+    };
   }
 
   getDirection() {
@@ -425,9 +436,6 @@ export default class WalkThroughCameraController implements ICameraController {
     info.virticalSpeed = this.virticalSpeed;
     info.horizontalSpeed = this.horizontalSpeed;
     info._turnSpeed = this._turnSpeed;
-    info.shiftCameraTo = this.shiftCameraTo;
-    info.zFarAdjustingFactorBasedOnAABB = this.zFarAdjustingFactorBasedOnAABB;
-    info.target = this.target;
     if (this._currentPos) {
       info._currentPos = this._currentPos.clone();
     }
