@@ -90,8 +90,8 @@ const load = async function (time) {
 
   const mainCameraEntity = mainCameraComponent.entity;
   const cameraControllerComponent = mainCameraEntity.getComponent(Rn.CameraControllerComponent);
-  cameraControllerComponent.setTarget(rootGroups[0]);
-  cameraControllerComponent.zFarAdjustingFactorBasedOnAABB = 2000;
+  cameraControllerComponent.controller.setTarget(rootGroups[0]);
+  cameraControllerComponent.controller.zFarAdjustingFactorBasedOnAABB = 2000;
 
 
   Rn.CameraComponent.main = 0;
