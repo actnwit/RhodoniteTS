@@ -216,11 +216,14 @@ void main (){
   vec4 litColorFactor = get_litColor(materialSID, 0);
 
   // alpha
-  float alpha = litTextureColor.a * litColorFactor.a;
+  float alpha = 1.0;
 
   #ifdef RN_ALPHATEST_ON
+    alpha = litTextureColor.a * litColorFactor.a;
     float cutoff = get_cutoff(materialSID, 0);
     if(alpha < cutoff) discard;
+  #elif defined(RN_ALPHABLEND_ON)
+    alpha = litTextureColor.a * litColorFactor.a;
   #endif
 
   if (alpha < 0.01) {
