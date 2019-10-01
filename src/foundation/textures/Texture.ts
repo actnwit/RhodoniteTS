@@ -41,8 +41,8 @@ export default class Texture extends AbstractTexture {
 
     if (this.autoDetectTransparency) {
       this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
-      for (let y = 0; y<dstHeight; y++) {
-        for (let x = 0; x<dstWidth; x++) {
+      for (let y = 0; y < dstHeight; y++) {
+        for (let x = 0; x < dstWidth; x++) {
           const alpha = this.__imageData.data[(x + y * dstWidth) * 4 + 3];
           if (alpha < 1) {
             this.__hasTransparentPixels = true;
@@ -56,7 +56,18 @@ export default class Texture extends AbstractTexture {
     return canvas;
   }
 
-  generateTextureFromImage(image: HTMLImageElement) {
+  generateTextureFromImage(image: HTMLImageElement, {
+    level = 0,
+    internalFormat = PixelFormat.RGBA,
+    format = PixelFormat.RGBA,
+    type = ComponentType.Float,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.Linear,
+    wrapS = TextureParameter.Repeat,
+    wrapT = TextureParameter.Repeat,
+    generateMipmap = true,
+    anisotropy = true
+  } = {}) {
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
 
@@ -74,10 +85,10 @@ export default class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let texture = webGLResourceRepository.createTexture(
       img, {
-        level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
-        border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.LinearMipmapLinear,
-        wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
-      });
+      level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
+      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
+      wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy
+    });
 
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
@@ -86,10 +97,21 @@ export default class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  generateTextureFromUri(imageUri: string) {
+  generateTextureFromUri(imageUri: string, {
+    level = 0,
+    internalFormat = PixelFormat.RGBA,
+    format = PixelFormat.RGBA,
+    type = ComponentType.Float,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.Linear,
+    wrapS = TextureParameter.Repeat,
+    wrapT = TextureParameter.Repeat,
+    generateMipmap = true,
+    anisotropy = true
+  } = {}) {
     this.__uri = imageUri;
     this.__startedToLoad = true;
-    return new Promise((resolve, reject)=> {
+    return new Promise((resolve, reject) => {
       this.__img = new Image();
       if (!imageUri.match(/^data:/)) {
         this.__img.crossOrigin = 'Anonymous';
@@ -111,10 +133,10 @@ export default class Texture extends AbstractTexture {
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         let texture = webGLResourceRepository.createTexture(
           img, {
-            level: 0, internalFormat: PixelFormat.RGBA, width: this.__width, height: this.__height,
-            border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Linear, minFilter: TextureParameter.Linear,
-            wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: true, anisotropy: true
-          });
+          level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
+          border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
+          wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy
+        });
 
         this.cgApiResourceUid = texture;
         this.__isTextureReady = true;
