@@ -245,26 +245,26 @@ void main (){
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  if (abs(length(v_tangent_inWorld)) > 0.01) {
-    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+  #ifdef RN_MTOON_HAS_NORMALMAP
+    if (abs(length(v_tangent_inWorld)) > 0.01) {
+      vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+      vec3 binormal_inWorld = normalize(v_binormal_inWorld);
 
-    mat3 tbnMat_tangent_to_world = mat3(
-      tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
-      binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
-      normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
-    );
+      mat3 tbnMat_tangent_to_world = mat3(
+        tangent_inWorld.x, tangent_inWorld.y, tangent_inWorld.z,
+        binormal_inWorld.x, binormal_inWorld.y, binormal_inWorld.z,
+        normal_inWorld.x, normal_inWorld.y, normal_inWorld.z
+      );
 
-    vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz * 2.0 - 1.0;
-    float normalScale = get_normalScale(materialSID, 0);
-    normal.xy = normal.xy * normalScale;
-    normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy), 0.0, 1.0));
-    normal_inWorld = normalize(tbnMat_tangent_to_world * normal);
-  }
+      vec3 normal = ${_texture}(u_normalTexture, v_texcoord).xyz * 2.0 - 1.0;
+      float normalScale = get_normalScale(materialSID, 0);
+      normal.xy *= normalScale;
+      normal_inWorld = normalize(tbnMat_tangent_to_world * normal);
+    }
+  #endif
 
   #ifdef RN_MTOON_IS_OUTLINE
     normal_inWorld *= -1.0;
-    normal_inWorld = normalize(normal_inWorld);
   #endif
 
 
@@ -397,7 +397,7 @@ void main (){
     vec3 rimColorFactor = get_rimColor(materialSID, 0);
     vec3 rimTextureColor = ${_texture}(u_rimTexture, v_texcoord).xyz;
     vec3 rimColor = srgbToLinear(rimColorFactor * rimTextureColor);
-    vec3 rim = pow(clamp(1.0 - dot(v_normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
+    vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
     float staticRimLighting = 1.0;
     float rimLightingMix = get_rimLightingMix(materialSID, 0);
@@ -414,7 +414,7 @@ void main (){
     vec3 cameraUp = get_cameraUp(0.0, 0); //solo datum
     vec3 worldViewUp = normalize(cameraUp - viewDirection * dot(viewDirection, cameraUp));
     vec3 worldViewRight = normalize(cross(viewDirection, worldViewUp));
-    vec2 matcapUv = vec2(dot(worldViewRight, v_normal_inWorld), dot(worldViewUp, v_normal_inWorld)) * 0.5 + 0.5;
+    vec2 matcapUv = vec2(dot(worldViewRight, normal_inWorld), dot(worldViewUp, normal_inWorld)) * 0.5 + 0.5;
     vec3 matCapColor = srgbToLinear(${_texture}(u_matCapTexture, matcapUv).xyz);
     rt0.xyz += matCapColor;
 

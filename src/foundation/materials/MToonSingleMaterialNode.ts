@@ -295,6 +295,10 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
     }
 
+    if (materialPropertiesArray[2][0] !== textures.length - 2) {
+      this.__definitions += '#define RN_MTOON_HAS_NORMALMAP\n';
+    }
+
     if (isOutline) {
       this.__definitions += '#define RN_MTOON_IS_OUTLINE\n';
 
