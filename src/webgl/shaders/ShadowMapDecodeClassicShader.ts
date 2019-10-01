@@ -245,7 +245,8 @@ void main (){
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, lightDirection)) * incidentLight;
 
-      vec3 viewPosition = get_viewPosition(materialSID, 0);
+      float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+      vec3 viewPosition = get_viewPosition(cameraSID, 0);
       float shininess = get_shininess(materialSID, 0);
       if (shadingModel == 2) {// BLINN
         // ViewDirection
