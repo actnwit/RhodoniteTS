@@ -304,16 +304,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         case 1: this.__definitions += '#define RN_MTOON_OUTLINE_WIDTH_WORLD\n'; break;
         case 2:
           this.__definitions += '#define RN_MTOON_OUTLINE_WIDTH_SCREEN\n';
-
           this.__OutlineWidthModeIsScreen = true;
-
-          shaderSemanticsInfoArray.push(
-            {
-              semantic: MToonSingleMaterialNode.Aspect, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-              stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
-              initialValue: new Scalar(0.0), min: 0, max: 1,
-            },
-          );
           break;
       }
 
@@ -348,6 +339,11 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
           semantic: MToonSingleMaterialNode._OutlineLightingMix, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
           initialValue: new Scalar(this.__floatPropertiesArray[10]), min: 0, max: 1
+        },
+        {
+          semantic: MToonSingleMaterialNode.Aspect, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+          stage: ShaderType.VertexShader, isSystem: true, soloDatum: true,
+          initialValue: new Scalar(1.0), min: 0, max: 1,
         },
       );
     }
@@ -467,6 +463,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
     } else {
       material.setParameter(MToonSingleMaterialNode.CameraUp, cameraComponent.upInner);
+
       if (this.__OutlineWidthModeIsScreen) {
         material.setParameter(MToonSingleMaterialNode.Aspect, cameraComponent.aspect);
       }
