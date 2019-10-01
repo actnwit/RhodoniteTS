@@ -1,21 +1,16 @@
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-} from "../definitions/ShaderSemantics";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { CompositionType } from "../definitions/CompositionType";
-import { ComponentType } from "../definitions/ComponentType";
-import Vector3 from "../math/Vector3";
-import DepthEncodeShader from "../../webgl/shaders/DepthEncodeShader";
-import { ShaderType } from "../definitions/ShaderType";
-import Material from "./Material";
-import SkeletalComponent from "../components/SkeletalComponent";
-import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
-import Scalar from "../math/Scalar";
-import MutableVector4 from "../math/MutableVector4";
-import VectorN from "../math/VectorN";
-import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
+import ComponentRepository from "../core/ComponentRepository";
+import { ComponentType } from "../definitions/ComponentType";
+import { CompositionType } from "../definitions/CompositionType";
+import DepthEncodeShader from "../../webgl/shaders/DepthEncodeShader";
+import Material from "./Material";
+import Scalar from "../math/Scalar";
+import { ShaderSemanticsInfo, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderType } from "../definitions/ShaderType";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import SkeletalComponent from "../components/SkeletalComponent";
+import Vector3 from "../math/Vector3";
 
 export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode {
   constructor({ isSkinning }: { isSkinning: boolean }) {
@@ -25,15 +20,15 @@ export default class DepthEncodeSingleMaterialNode extends AbstractMaterialNode 
 
     shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
-        initialValue: new Scalar(100.0), min: 0, max: 100
+        semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        initialValue: new Scalar(30.0), min: 0, max: 100
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1
-      }
+      },
     );
 
     if (isSkinning) {

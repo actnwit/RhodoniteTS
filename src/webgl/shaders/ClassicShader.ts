@@ -198,7 +198,8 @@ void main ()
       float shininess = get_shininess(materialSID, 0);
       int shadingModel = get_shadingModel(materialSID, 0);
 
-      vec3 viewPosition = get_viewPosition(0.0, 0);
+      float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+      vec3 viewPosition = get_viewPosition(cameraSID, 0);
 
       if (shadingModel == 2) {// BLINN
         // ViewDirection

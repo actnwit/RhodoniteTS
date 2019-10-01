@@ -140,8 +140,8 @@ export default class MathClassUtil {
   }
 
   /**
-   * discriminate which Vector instance 
-   * @param element any Vector instance  
+   * discriminate which Vector instance
+   * @param element any Vector instance
    * @return number of Vector instance
    */
   static compomentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
@@ -458,7 +458,7 @@ export default class MathClassUtil {
       } else {
         valArray = val;
       }
-      for (let i=0; i<valArray.length; i++) {
+      for (let i = 0; i < valArray.length; i++) {
         objForDetectType.v[i] = valArray[i];
       }
     } else if (Array.isArray(objForDetectType)) {

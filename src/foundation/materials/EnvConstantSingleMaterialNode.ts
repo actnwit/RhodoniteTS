@@ -28,7 +28,7 @@ import CameraComponent from "../components/CameraComponent";
 import Material from "./Material";
 
 export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode {
-  static envRotation = new ShaderSemanticsClass({str: 'envRotation'});
+  static envRotation = new ShaderSemanticsClass({ str: 'envRotation' });
 
   constructor() {
     super(EnvConstantShader.getInstance(), "envConstantShading");
@@ -72,10 +72,7 @@ export default class EnvConstantSingleMaterialNode extends AbstractMaterialNode 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  static async initDefaultTextures() {
-  }
-
-  setParametersForGPU({material, shaderProgram, firstTime, args}: {material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any}) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

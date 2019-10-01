@@ -1,10 +1,9 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
-import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 import { Index, Size } from "../types/CommonTypes";
 
 export default class WebGLContextWrapper {
-  __gl: WebGLRenderingContext|any;
+  __gl: WebGLRenderingContext | any;
   __webglVersion: number = 1;
   public width: Size = 0;
   public height: Size = 0;
@@ -20,6 +19,7 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtSTL?: EXT_shader_texture_lod;
   public readonly webgl1ExtDRV?: OES_standard_derivatives;
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
+  public readonly webgl1ExtBM?: EXT_blend_minmax;
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
   private __activeTextures2D: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
@@ -35,6 +35,7 @@ export default class WebGLContextWrapper {
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
+      this.webgl2ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
     } else {
       this.webgl1ExtVAO = this.__getExtension(WebGLExtension.VertexArrayObject);
       this.webgl1ExtIA = this.__getExtension(WebGLExtension.InstancedArrays);
@@ -47,10 +48,11 @@ export default class WebGLContextWrapper {
       this.webgl1ExtSTL = this.__getExtension(WebGLExtension.ShaderTextureLod);
       this.webgl1ExtDRV = this.__getExtension(WebGLExtension.ShaderDerivatives);
       this.webgl1ExtDB = this.__getExtension(WebGLExtension.DrawBuffers);
+      this.webgl1ExtBM = this.__getExtension(WebGLExtension.BlendMinmax);
     }
   }
 
-  getRawContext(): WebGLRenderingContext|any {
+  getRawContext(): WebGLRenderingContext | any {
     return this.__gl;
   }
 
@@ -80,7 +82,7 @@ export default class WebGLContextWrapper {
     }
   }
 
-  deleteVertexArray(vertexArray: WebGLVertexArrayObject|WebGLVertexArrayObjectOES) {
+  deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES) {
     if (this.isWebGL2) {
       this.__gl.createVertexArray(vertexArray);
     } else {
@@ -90,7 +92,7 @@ export default class WebGLContextWrapper {
     }
   }
 
-  bindVertexArray(vao: WebGLVertexArrayObjectOES|null) {
+  bindVertexArray(vao: WebGLVertexArrayObjectOES | null) {
     if (this.isWebGL2) {
       this.__gl.bindVertexArray(vao);
     } else {
@@ -137,10 +139,10 @@ export default class WebGLContextWrapper {
     }
     let buffer = buffers;
     if (this.isWebGL2) {
-      gl.drawBuffers(buffers.map((buf)=>{return gl[buf.str]}));
+      gl.drawBuffers(buffers.map((buf) => { return gl[buf.str] }));
       buffer = gl[buffer[0].str];
     } else if (this.webgl1ExtDB) {
-      this.webgl1ExtDB.drawBuffersWEBGL(buffers.map((buf)=>{return gl[buf.str]}));
+      this.webgl1ExtDB.drawBuffersWEBGL(buffers.map((buf) => { return gl[buf.str] }));
       buffer = gl[buffer[0].str];
     }
 

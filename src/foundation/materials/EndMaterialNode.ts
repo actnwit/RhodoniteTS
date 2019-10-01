@@ -23,18 +23,13 @@ export default class EndMaterialNode extends AbstractMaterialNode {
 
 
     this.__pixelInputs.push(
-    {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      name: 'inColor',
-      isImmediateValue: false
-    });
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'inColor',
+        isImmediateValue: false
+      });
 
   }
 
-  static async initDefaultTextures() {
-  }
-
-  convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
-  }
 }

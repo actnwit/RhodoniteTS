@@ -1,8 +1,8 @@
-import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
-import GLSLShader from "./GLSLShader";
-import Config from "../../foundation/core/Config";
-import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { CompositionTypeEnum } from "../../foundation/main";
+import GLSLShader from "./GLSLShader";
+import { ShaderNode } from "../../foundation/definitions/ShaderNode";
+import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
+import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
 
 export type AttributeNames = Array<string>;
 
@@ -44,9 +44,10 @@ mat4 getSkinMatrix() {
     out mat3 outNormalMatrix
     )
   {
+    float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
     mat4 worldMatrix = get_worldMatrix(a_instanceID);
-    mat4 viewMatrix = get_viewMatrix(a_instanceID);
-    mat4 projectionMatrix = get_projectionMatrix(a_instanceID);
+    mat4 viewMatrix = get_viewMatrix(cameraSID);
+    mat4 projectionMatrix = get_projectionMatrix(cameraSID);
 
     // Skeletal
     isSkinning = false;
@@ -77,7 +78,7 @@ mat4 getSkinMatrix() {
     return '';
   }
 
-  vertexShaderBody:string = `
+  vertexShaderBody: string = `
 
 
   `;

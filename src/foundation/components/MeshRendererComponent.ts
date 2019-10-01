@@ -22,7 +22,6 @@ import CubeTexture from '../textures/CubeTexture';
 import Entity from '../core/Entity';
 import RenderPass from '../renderer/RenderPass';
 import { Visibility } from '../definitions/visibility';
-import { sign } from 'crypto';
 import RnObject from '../core/RnObject';
 import WebGLStrategyFastestWebGL1 from '../../webgl/WebGLStrategyFastestWebGL1';
 import Primitive from '../geometry/Primitive';
@@ -59,7 +58,7 @@ export default class MeshRendererComponent extends Component {
 
     this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
     const componentRepository = ComponentRepository.getInstance();
-    const cameraComponents  = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
+    const cameraComponents = componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
 
     if (cameraComponents) {
       MeshRendererComponent.__cameraComponent = cameraComponents[0];
@@ -78,10 +77,10 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__lastTransparentIndex;
   }
 
-  $create({processApproach}: {
+  $create({ processApproach }: {
     processApproach: ProcessApproachEnum
   }
-    ) {
+  ) {
     if (this.__meshComponent != null) {
       return;
     }
@@ -118,7 +117,7 @@ export default class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.Render);
   }
 
-  $render({i, renderPass, renderPassTickCount}: {i: Index, renderPass: RenderPass, renderPassTickCount: Count}) {
+  $render({ i, renderPass, renderPassTickCount }: { i: Index, renderPass: RenderPass, renderPassTickCount: Count }) {
     if (this.__webglRenderingStrategy!.$render == null) {
       return;
     }
@@ -137,7 +136,7 @@ export default class MeshRendererComponent extends Component {
     }
   }
 
-  static common_$load({processApproach} : {processApproach: ProcessApproachEnum}) {
+  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -183,8 +182,8 @@ export default class MeshRendererComponent extends Component {
     if (MeshRendererComponent.__instanceIdAccessor == null) {
       const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
       const count = Config.maxEntityNumber;
-      const bufferView = buffer.takeBufferView({byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false});
-      MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count});
+      const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false });
+      MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });
     }
 
     const meshComponents = MeshRendererComponent.__componentRepository.getComponentsWithType(MeshComponent);
@@ -199,7 +198,7 @@ export default class MeshRendererComponent extends Component {
     return MeshRendererComponent.__webglResourceRepository!.createVertexBuffer(MeshRendererComponent.__instanceIdAccessor!);
   }
 
-  static common_$render({renderPass, processStage, renderPassTickCount}: {renderPass: RenderPass, processStage: ProcessStageEnum, renderPassTickCount: Count}){
+  static common_$render({ renderPass, processStage, renderPassTickCount }: { renderPass: RenderPass, processStage: ProcessStageEnum, renderPassTickCount: Count }) {
 
     MeshRendererComponent.__cameraComponent = renderPass.cameraComponent;
     if (MeshRendererComponent.__cameraComponent == null) {
@@ -246,7 +245,7 @@ export default class MeshRendererComponent extends Component {
     if (cameraComponent) {
       cameraComponent.updateFrustum();
       const frustum = cameraComponent.frustum;
-      const frustumCullingRecursively = (sg: SceneGraphComponent)=>{
+      const frustumCullingRecursively = (sg: SceneGraphComponent) => {
         const result = frustum.culling(sg);
         if (result === Visibility.Visible) {
           const sgs = SceneGraphComponent.flattenHierarchy(sg, false);

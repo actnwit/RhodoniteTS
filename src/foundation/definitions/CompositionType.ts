@@ -12,8 +12,8 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   readonly __numberOfComponents: number = 0;
   readonly __glslStr: string;
   readonly __hlslStr: string;
-  constructor({index, str, glslStr, hlslStr, numberOfComponents} : {index: number, str: string, glslStr: string, hlslStr: string, numberOfComponents: number}) {
-    super({index, str});
+  constructor({ index, str, glslStr, hlslStr, numberOfComponents }: { index: number, str: string, glslStr: string, hlslStr: string, numberOfComponents: number }) {
+    super({ index, str });
     this.__numberOfComponents = numberOfComponents;
     this.__glslStr = glslStr;
     this.__hlslStr = hlslStr;
@@ -56,12 +56,12 @@ const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({ index: 12, str
 
 const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array];
 
-function from( index : number ): CompositionTypeEnum {
-  return _from({typeList, index}) as CompositionTypeEnum;
+function from(index: number): CompositionTypeEnum {
+  return _from({ typeList, index }) as CompositionTypeEnum;
 }
 
-function fromString( str: string ): CompositionTypeEnum {
-  return _fromString({typeList, str}) as CompositionTypeEnum;
+function fromString(str: string): CompositionTypeEnum {
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
 function isArray(compositionType: CompositionTypeEnum) {
