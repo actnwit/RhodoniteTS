@@ -31,9 +31,6 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  static async initDefaultTextures() {
-  }
-
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {

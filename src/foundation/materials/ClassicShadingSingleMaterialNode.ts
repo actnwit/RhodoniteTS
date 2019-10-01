@@ -1,34 +1,18 @@
-import RnObject from "../core/RnObject";
-import {
-  ShaderSemanticsInfo,
-  ShaderSemantics,
-  ShaderSemanticsEnum
-} from "../definitions/ShaderSemantics";
-import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
-import { CompositionType } from "../definitions/CompositionType";
-import MutableColorRgb from "../math/MutableColorRgb";
-import Vector2 from "../math/Vector2";
-import { ComponentType } from "../definitions/ComponentType";
-import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import Vector4 from "../math/Vector4";
-import MutableVector4 from "../math/MutableVector4";
-import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/shaders/ClassicShader";
-import { ShadingModel } from "../definitions/ShadingModel";
-import AbstractTexture from "../textures/AbstractTexture";
-import { ShaderType } from "../definitions/ShaderType";
-import Scalar from "../math/Scalar";
-import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
-import Config from "../core/Config";
-import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
-import { CGAPIResourceHandle } from "../../types/CommonTypes";
+import ClassicShader from "../../webgl/shaders/ClassicShader";
+import ComponentRepository from "../core/ComponentRepository";
+import { ComponentType } from "../definitions/ComponentType";
+import { CompositionType } from "../definitions/CompositionType";
 import Material from "./Material";
+import Scalar from "../math/Scalar";
 import SkeletalComponent from "../components/SkeletalComponent";
-import MeshRendererComponent from "../components/MeshRendererComponent";
-import { HdriFormat } from "../definitions/HdriFormat";
-import VectorN from "../math/VectorN";
+import { ShaderSemanticsInfo, ShaderSemantics, } from "../definitions/ShaderSemantics";
+import { ShaderType } from "../definitions/ShaderType";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import { ShadingModel } from "../definitions/ShadingModel";
+import Vector3 from "../math/Vector3";
+import Vector4 from "../math/Vector4";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
 
@@ -37,132 +21,52 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning });
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
-    let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
+    shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.DiffuseColorFactor,
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 2,
-        isSystem: false,
-        initialValue: new Vector4(1, 1, 1, 1)
+        semantic: ShaderSemantics.ShadingModel, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Scalar(ShadingModel.Constant.index), min: 0, max: 3,
       },
       {
-        semantic: ShaderSemantics.DiffuseColorTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
-        initialValue: [
-          0,
-          AbstractMaterialNode.__dummyWhiteTexture
-        ]
+        semantic: ShaderSemantics.Shininess, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Scalar(5), min: 0, max: Number.MAX_VALUE,
       },
       {
-        semantic: ShaderSemantics.NormalTexture,
-        compositionType: CompositionType.Texture2D,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isSystem: false,
-        initialValue: [
-          2,
-          AbstractMaterialNode.__dummyBlueTexture
-        ]
+        semantic: ShaderSemantics.DiffuseColorFactor, componentType: ComponentType.Float, compositionType: CompositionType.Vec4,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        initialValue: new Vector4(1, 1, 1, 1), min: 0, max: 2,
       },
       {
-        semantic: ShaderSemantics.Shininess,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_VALUE,
-        isSystem: false,
-        initialValue: new Scalar(5)
+        semantic: ShaderSemantics.DiffuseColorTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShaderSemantics.ShadingModel,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: 3,
-        isSystem: false,
-        initialValue: new Scalar(ShadingModel.Constant.index)
+        semantic: ShaderSemantics.NormalTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [1, AbstractMaterialNode.__dummyBlueTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
+    );
+
+
+    shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
+        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
-
-    ];
+    );
 
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
-
-      // const lights: ShaderSemanticsInfo[] = [];
-      // for (let i = 0; i < Config.maxLightNumberInShader; i++) {
-      //   (function(idx){
-      //   lights.push(
-      //     {
-      //       semantic: ShaderSemantics.LightPosition,
-      //       compositionType: CompositionType.Vec4,
-      //       componentType: ComponentType.Float,
-      //       stage: ShaderType.PixelShader,
-      //       min: -Number.MAX_VALUE,
-      //       max: Number.MAX_VALUE,
-      //       index: idx,
-      //       maxIndex: 4,
-      //       isSystem: true,
-      //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
-      //       initialValue: new Vector4(0, 0, 0, 1),
-      //       soloDatum: true
-      //     });
-      //   lights.push(
-      //     {
-      //     semantic: ShaderSemantics.LightDirection,
-      //     compositionType: CompositionType.Vec4,
-      //     componentType: ComponentType.Float,
-      //     stage: ShaderType.PixelShader,
-      //     min: -1,
-      //     max: 1,
-      //     index: idx,
-      //     maxIndex: 4,
-      //     isSystem: true,
-      //     initialValue: new Vector4(0, 1, 0, 1),
-      //     updateInteval: ShaderVariableUpdateInterval.EveryTime,
-      //     soloDatum: true
-      //   });
-      //   lights.push(
-      //     {
-      //       semantic: ShaderSemantics.LightIntensity,
-      //       compositionType: CompositionType.Vec4,
-      //       componentType: ComponentType.Float,
-      //       stage: ShaderType.PixelShader,
-      //       min: 0,
-      //       max: 10,
-      //       index: idx,
-      //       maxIndex: 4,
-      //       isSystem: true,
-      //       initialValue: new Vector4(1, 1, 1, 1),
-      //       updateInteval: ShaderVariableUpdateInterval.EveryTime,
-      //       soloDatum: true
-      //     });
-      //   })(i);
-      // }
-      // shaderSemanticsInfoArray = shaderSemanticsInfoArray.concat(lights);
     }
 
     if (isSkinning) {
@@ -170,9 +74,6 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
-  }
-
-  static async initDefaultTextures() {
   }
 
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {

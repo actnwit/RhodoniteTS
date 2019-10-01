@@ -27,7 +27,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.VertexShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-       
+
         compositionType: inShaderSocket.compositionType,
         componentType: inShaderSocket.componentType,
         isSystem: false,
@@ -44,7 +44,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
         stage: ShaderType.PixelShader,
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
-       
+
         compositionType: inShaderSocket.compositionType,
         componentType: inShaderSocket.componentType,
         isSystem: false,
@@ -54,6 +54,4 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
     (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket);
   }
 
-  convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
-  }
 }

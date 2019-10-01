@@ -25,9 +25,6 @@ export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialN
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  static async initDefaultTextures() {
-  }
-
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
     if (args.setUniform) {

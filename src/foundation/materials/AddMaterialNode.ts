@@ -14,12 +14,12 @@ export default class AddMaterialNode extends AbstractMaterialNode {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
 
     this.__vertexInputs.push(
-    {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      name: 'lhs',
-      isImmediateValue: false
-    });
+      {
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        name: 'lhs',
+        isImmediateValue: false
+      });
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec4,
@@ -58,9 +58,4 @@ export default class AddMaterialNode extends AbstractMaterialNode {
       });
   }
 
-  static async initDefaultTextures() {
-  }
-
-  convertValue(shaderSemantic: ShaderSemanticsEnum, value: any) {
-  }
 }
