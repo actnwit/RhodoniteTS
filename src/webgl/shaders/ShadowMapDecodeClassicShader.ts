@@ -232,7 +232,7 @@ void main (){
       }
       float spotEffect = 1.0;
       if (lightType > 1.75) { // is spotlight
-        spotEffect = dot(lightDirection, lightDirection);
+        spotEffect = dot(gotLightDirection.xyz, lightDirection);
         if (spotEffect > spotCosCutoff) {
           spotEffect = pow(spotEffect, spotExponent);
         } else {
