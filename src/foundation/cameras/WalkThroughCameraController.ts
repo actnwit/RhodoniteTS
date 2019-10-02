@@ -8,6 +8,7 @@ import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "../components/CameraComponent";
 import Matrix44 from "../math/Matrix44";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import { MathUtil } from "../math/MathUtil";
 
 type KeyboardEventListner = (evt: KeyboardEvent) => any;
 type MouseEventListner = (evt: MouseEvent) => any;
@@ -45,7 +46,7 @@ export default class WalkThroughCameraController implements ICameraController {
       eventTargetDom: document,
       virticalSpeed: 0.001,
       horizontalSpeed: 0.001,
-      turnSpeed: 0.001,
+      turnSpeed: 0.25,
       mouseWheelSpeedScale: 0.01,
       inverseVirticalRotating: false,
       inverseHorizontalRotating: false
@@ -289,7 +290,7 @@ export default class WalkThroughCameraController implements ICameraController {
             0,
             this._currentDir.z
           ).normalize();
-          const leftDir = Matrix33.rotateY(90).multiplyVector(horizontalDir);
+          const leftDir = Matrix33.rotateY(MathUtil.degreeToRadian(90)).multiplyVector(horizontalDir);
           this._currentPos.add(
             Vector3.multiply(leftDir, this._horizontalSpeed)
           );
@@ -322,7 +323,7 @@ export default class WalkThroughCameraController implements ICameraController {
             0,
             this._currentDir.z
           ).normalize();
-          const rightDir = Matrix33.rotateY(-90).multiplyVector(horizontalDir);
+          const rightDir = Matrix33.rotateY(MathUtil.degreeToRadian(-90)).multiplyVector(horizontalDir);
           this._currentPos.add(
             Vector3.multiply(rightDir, this._horizontalSpeed)
           );
@@ -374,11 +375,11 @@ export default class WalkThroughCameraController implements ICameraController {
       }
       this._deltaY = Math.max(-120, Math.min(50, this._deltaY));
 
-      this._currentDir = Matrix33.rotateY(this._deltaX).multiplyVector(
+      this._currentDir = Matrix33.rotateY(MathUtil.degreeToRadian(this._deltaX)).multiplyVector(
         this._currentDir
       );
 
-      newEyeToCenter = Matrix33.rotateY(this._deltaX).multiplyVector(
+      newEyeToCenter = Matrix33.rotateY(MathUtil.degreeToRadian(this._deltaX)).multiplyVector(
         Vector3.subtract(this._currentCenter, this._currentPos)
       );
       newEyeToCenter.x = newEyeToCenter.x * (1 - t);
