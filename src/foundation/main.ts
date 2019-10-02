@@ -9,6 +9,7 @@ import { PrimitiveMode, PrimitiveModeEnum } from './definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttribute';
 import { CompositionType, CompositionTypeEnum } from './definitions/CompositionType';
 import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
+import { CameraControllerType, CameraControllerTypeEnum } from './definitions/CameraControllerType';
 import System from './system/System';
 import Scalar from './math/Scalar';
 import Vector2 from './math/Vector2';
@@ -67,6 +68,7 @@ import BlendShapeComponent from '../foundation/components/BlendShapeComponent';
 import AnimationAssigner from '../foundation/importer/AnimationAssigner';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import OrbitCameraController from './cameras/OrbitCameraController';
+import WalkThroughCameraController from './cameras/WalkThroughCameraController';
 
 const Rn = {
   EntityRepository,
@@ -108,6 +110,7 @@ const Rn = {
   LightType,
   CubeTexture,
   CameraControllerComponent,
+  CameraControllerType,
   AlphaMode,
   Gltf2Exporter,
   detectFormat,
@@ -137,7 +140,8 @@ const Rn = {
   BlendShapeComponent,
   AnimationAssigner,
   MiscUtil,
-  OrbitCameraController
+  OrbitCameraController,
+  WalkThroughCameraController
 };
 export default Rn;
 export type RnType = typeof Rn;
@@ -149,3 +153,4 @@ export type CompositionTypeEnum = CompositionTypeEnum;
 export type ComponentTypeEnum = ComponentTypeEnum;
 export type VertexAttributeEnum = VertexAttributeEnum;
 export type PrimitiveModeEnum = PrimitiveModeEnum;
+export type CameraControllerTypeEnum = CameraControllerTypeEnum;

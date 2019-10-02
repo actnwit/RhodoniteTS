@@ -75,6 +75,7 @@ export default class OrbitCameraController implements ICameraController {
   private __mouseWheelFunc = this.__mouseWheel.bind(this);
   private __mouseDblClickFunc = this.__mouseDblClick.bind(this);
   private __contextMenuFunc = this.__contextMenu.bind(this);
+  private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
 
@@ -372,7 +373,9 @@ export default class OrbitCameraController implements ICameraController {
   }
 
 
-  registerEventListeners(eventTargetDom = document) {
+  registerEventListeners(eventTargetDom: any = document) {
+    this._eventTargetDom = eventTargetDom;
+
     if (eventTargetDom) {
       if ("ontouchend" in document) {
         eventTargetDom.addEventListener("touchstart", this.__touchDownFunc, { passive: !this.__doPreventDefault });
@@ -389,7 +392,7 @@ export default class OrbitCameraController implements ICameraController {
         eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
 
-        eventTargetDom.addEventListener("contextmenu", (e) => { e.preventDefault() });
+        eventTargetDom.addEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
 
       if (window.WheelEvent) {
@@ -401,7 +404,9 @@ export default class OrbitCameraController implements ICameraController {
     }
   }
 
-  unregisterEventListeners(eventTargetDom = document) {
+  unregisterEventListeners() {
+    const eventTargetDom = this._eventTargetDom;
+
     if (eventTargetDom) {
       if ("ontouchend" in document) {
         eventTargetDom.removeEventListener("touchstart", this.__touchDownFunc);
@@ -418,7 +423,7 @@ export default class OrbitCameraController implements ICameraController {
         eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
         eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
 
-        eventTargetDom.removeEventListener("contextmenu", (e) => { e.preventDefault() });
+        eventTargetDom.removeEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
       if (window.WheelEvent) {
         eventTargetDom.removeEventListener("wheel", this.__mouseWheelFunc);

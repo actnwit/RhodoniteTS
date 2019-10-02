@@ -7,6 +7,8 @@ import ComponentRepository from "../core/ComponentRepository";
 import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
 import OrbitCameraController from "../cameras/OrbitCameraController";
 import ICameraController from "../cameras/ICameraController";
+import WalkThroughCameraController from "../cameras/WalkThroughCameraController";
+import { CameraControllerTypeEnum, CameraControllerType } from "../definitions/CameraControllerType";
 
 export default class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
@@ -17,7 +19,16 @@ export default class CameraControllerComponent extends Component {
     this.__cameraController = new OrbitCameraController();
   }
 
-  setCameraController() {}
+  set type(type: CameraControllerTypeEnum) {
+    this.__cameraController.unregisterEventListeners();
+    if (type === CameraControllerType.Orbit) {
+      this.__cameraController = new OrbitCameraController();
+    } else if (type === CameraControllerType.WalkThrough) {
+      this.__cameraController = new WalkThroughCameraController();
+    } else {
+      console.warn('Not support type!');
+    }
+  }
 
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
