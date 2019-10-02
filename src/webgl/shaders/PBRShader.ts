@@ -37,7 +37,7 @@ ${_in} vec3 a_position;
 ${_in} vec3 a_color;
 ${_in} vec3 a_normal;
 ${_in} vec3 a_faceNormal;
-${_in} vec3 a_tangent;
+${_in} vec4 a_tangent;
 ${_in} float a_instanceID;
 ${_in} vec2 a_texcoord;
 ${_in} vec4 a_joint;
@@ -100,11 +100,11 @@ void main()
     // if normal exist
     vec3 tangent_inWorld;
     if (!isSkinning) {
-      tangent_inWorld = normalMatrix * a_tangent;
+      tangent_inWorld = normalMatrix * a_tangent.xyz;
       v_position_inWorld = worldMatrix * vec4(a_position, 1.0);
     }
 
-    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld);
+    v_binormal_inWorld = cross(v_normal_inWorld, tangent_inWorld) * a_tangent.w;
     v_tangent_inWorld = cross(v_binormal_inWorld, v_normal_inWorld);
   }
   v_baryCentricCoord = a_baryCentricCoord.xyz;
@@ -392,6 +392,8 @@ void main ()
     }
   }
 
+  rt0.xyz = v_tangent_inWorld*0.5+0.5;
+
   ${_def_fragColor}
 }
 `;
@@ -413,7 +415,7 @@ void main ()
   get attributeCompositions(): Array<CompositionTypeEnum> {
     return [
       CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
-      CompositionType.Vec2, CompositionType.Vec3, CompositionType.Vec4, CompositionType.Vec4,
+      CompositionType.Vec2, CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4,
       CompositionType.Vec4, CompositionType.Scalar
     ];
   }

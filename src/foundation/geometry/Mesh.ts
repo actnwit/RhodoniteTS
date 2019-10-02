@@ -245,7 +245,7 @@ export default class Mesh {
 
         const tangentAttributeByteSize = positionAccessor.byteLength;
         const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
-        const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec3, componentType: ComponentType.Float, count: positionAccessor.elementCount });
+        const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
           const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
@@ -282,9 +282,9 @@ export default class Mesh {
     const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, norm1, norm2);
     const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, norm1, norm2);
 
-    tangentAccessor.setVec3(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, { indicesAccessor });
-    tangentAccessor.setVec3(i + 1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, { indicesAccessor });
-    tangentAccessor.setVec3(i + 2, tan2Vec3.x, tan2Vec3.y, tan2Vec3.z, { indicesAccessor });
+    tangentAccessor.setVec4(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, 1, { indicesAccessor });
+    tangentAccessor.setVec4(i + 1, tan1Vec3.x, tan1Vec3.y, tan1Vec3.z, 1, { indicesAccessor });
+    tangentAccessor.setVec4(i + 2, tan2Vec3.x, tan2Vec3.y, tan2Vec3.z, 1, { indicesAccessor });
   }
 
   __calcTangentPerVertex(
