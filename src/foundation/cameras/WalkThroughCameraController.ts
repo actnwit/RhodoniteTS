@@ -45,6 +45,7 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseDownBind = (this._mouseDown as any).bind(this);
   private _mouseMoveBind = (this._mouseMove as any).bind(this);
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
+  private _eventTargetDom?: any;
 
   constructor(
     options = {
@@ -84,7 +85,9 @@ export default class WalkThroughCameraController implements ICameraController {
     this.registerEventListeners(eventTargetDom);
   }
 
-  registerEventListeners(eventTargetDom = document) {
+  registerEventListeners(eventTargetDom: any = document) {
+    this._eventTargetDom = eventTargetDom;
+
     if (eventTargetDom) {
       document.addEventListener("keydown", this._onKeydown);
       document.addEventListener("keyup", this._onKeyup);
@@ -117,7 +120,9 @@ export default class WalkThroughCameraController implements ICameraController {
     }
   }
 
-  unregisterEventListeners(eventTargetDom = document) {
+  unregisterEventListeners() {
+    const eventTargetDom = this._eventTargetDom;
+
     if (eventTargetDom) {
       document.removeEventListener("keydown", this._onKeydown);
       document.removeEventListener("keyup", this._onKeyup);
