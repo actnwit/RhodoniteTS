@@ -9,6 +9,7 @@ import CameraComponent from "../components/CameraComponent";
 import Matrix44 from "../math/Matrix44";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import { MathUtil } from "../math/MathUtil";
+import Entity from "../core/Entity";
 
 type KeyboardEventListner = (evt: KeyboardEvent) => any;
 type MouseEventListner = (evt: MouseEvent) => any;
@@ -40,12 +41,16 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseYAdjustScale = 1;
   private _deltaY = -1;
   private _deltaX = -1;
+  private _mouseUpBind = (this._mouseUp as any).bind(this);
+  private _mouseDownBind = (this._mouseDown as any).bind(this);
+  private _mouseMoveBind = (this._mouseMove as any).bind(this);
+  private _mouseWheelBind = (this._mouseWheel as any).bind(this);
 
   constructor(
     options = {
       eventTargetDom: document,
-      virticalSpeed: 0.001,
-      horizontalSpeed: 0.001,
+      virticalSpeed: 1,
+      horizontalSpeed: 1,
       turnSpeed: 0.25,
       mouseWheelSpeedScale: 0.01,
       inverseVirticalRotating: false,
@@ -87,27 +92,27 @@ export default class WalkThroughCameraController implements ICameraController {
       if ("ontouchend" in document) {
         eventTargetDom.addEventListener(
           "touchstart",
-          (this._mouseDown as any).bind(this)
+          this._mouseDownBind
         );
-        document.addEventListener("touchend", (this._mouseUp as any).bind(this));
+        document.addEventListener("touchend", this._mouseUpBind);
         eventTargetDom.addEventListener(
           "touchmove",
-          (this._mouseMove as any).bind(this)
+          this._mouseMoveBind
         );
       }
       if ("onmouseup" in document) {
         eventTargetDom.addEventListener(
           "mousedown",
-          (this._mouseDown as any).bind(this)
+          this._mouseDownBind
         );
-        document.addEventListener("mouseup", (this._mouseUp as any).bind(this));
+        document.addEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.addEventListener(
           "mousemove",
-          (this._mouseMove as any).bind(this)
+          this._mouseMoveBind
         );
       }
       if (window.WheelEvent) {
-        eventTargetDom.addEventListener("wheel", (this._mouseWheel as any).bind(this));
+        eventTargetDom.addEventListener("wheel", this._mouseWheelBind);
       }
     }
   }
@@ -122,26 +127,25 @@ export default class WalkThroughCameraController implements ICameraController {
           "touchstart",
           (this._mouseDown as any).bind(this)
         );
-        document.removeEventListener("touchend", (this._mouseUp as any).bind(this));
+        document.removeEventListener("touchend", this._mouseUpBind);
         eventTargetDom
-          .removeEventListener("touchmove", this._mouseMove
-          .bind(this) as any);
+          .removeEventListener("touchmove", this._mouseMoveBind)
       }
       if ("onmouseup" in document) {
         eventTargetDom.removeEventListener(
           "mousedown",
-          this._mouseDown.bind(this)
+          this._mouseDownBind
         );
-        document.removeEventListener("mouseup", this._mouseUp.bind(this));
+        document.removeEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.removeEventListener(
           "mousemove",
-          this._mouseMove.bind(this)
+          this._mouseMoveBind
         );
       }
       if (window.WheelEvent) {
         eventTargetDom.removeEventListener(
           "wheel",
-          this._mouseWheel.bind(this)
+          this._mouseWheelBind
         );
       }
     }
@@ -431,6 +435,12 @@ export default class WalkThroughCameraController implements ICameraController {
 
   get virticalSpeed() {
     return this._virticalSpeed;
+  }
+
+  setTarget(targetEntity: Entity) {
+    const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 200;
+    this.virticalSpeed = speed;
+    this.horizontalSpeed = speed;
   }
 
   get allInfo() {
