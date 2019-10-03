@@ -521,6 +521,38 @@ export default class ModelConverter {
     return meshEntity;
   }
 
+  private __setVRMMaterial(gltfModel: glTF2, primitive: any, argumentArray: any) {
+    const VRMProperties = gltfModel.extensions.VRM;
+    const rnExtension = VRMProperties.rnExtension;
+
+    const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
+    if (shaderName === "VRM/MToon") {
+      const mtoonMaterialPropertiesArray = rnExtension.mtoonMaterialPropertiesArray[primitive.materialIndex];
+      if (argumentArray[0]["isOutline"] && mtoonMaterialPropertiesArray[0][13] === 0) {
+        return null;
+      }
+
+      argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
+      return MaterialHelper.createMToonMaterial(argumentArray[0]);
+
+    } else if (shaderName.indexOf("UnityChanToonShader") >= 0) {
+      // TODO:
+      // const utsMaterialPropertiesArray = rnExtension.utsMaterialPropertiesArray[primitive.materialIndex];
+      // if (argumentArray[0]["isOutline"]) {
+      //   if (shaderName.match(/NoOutline/) || utsMaterialPropertiesArray[0][71] === 0.0) {
+      //     return null;
+      //   }
+      // }
+
+      // argumentArray[0]["materialPropertiesArray"] = utsMaterialPropertiesArray;
+      // return MaterialHelper.createUTS2Material.apply(this, argumentArray as any);
+
+    } else if (argumentArray[0]["isOutline"]) {
+      return null;
+    }
+    return undefined;
+  }
+
   private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
@@ -532,26 +564,14 @@ export default class ModelConverter {
         return loaderExtension.generateMaterial();
       }
 
-      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
 
-      if (rnLoaderOptions.isImportVRM && materialHelperName == null) {
-        const VRMProperties = gltfModel.extensions.VRM;
-        const materialProperties = VRMProperties.rnExtension.materialPropertiesArray[primitive.materialIndex];
-
-        const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
-        if (shaderName === "VRM/MToon") {
-          if (argumentArray[0]["isOutline"] && materialProperties[0][13] === 0) {
-            return null;
-          }
-
-          argumentArray[0]["materialPropertiesArray"] = materialProperties;
-          return MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
-        } else if (argumentArray[0]["isOutline"]) {
-          return null;
-        }
+      if (rnLoaderOptions.isImportVRM) {
+        const material = this.__setVRMMaterial(gltfModel, primitive, argumentArray);
+        if (material !== undefined) return material;
       }
 
+      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
         return (MaterialHelper as any)[materialHelperName].apply(this, argumentArray);
       }
