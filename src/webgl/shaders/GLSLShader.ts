@@ -367,7 +367,8 @@ float rand(const vec2 co){
 
 vec3 descramble(vec3 v) {
   float seed = 0.0;
-  v.x -= (rand(vec2(v.x, seed)) - 0.5) * 10.0;
+  v.x -= sin(fract(v.y*20.0));
+  v.z -= cos(fract(-v.y*10.0));
   return v;
 }
 
