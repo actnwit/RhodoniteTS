@@ -13,7 +13,8 @@ import Material from '../materials/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count } from '../../types/CommonTypes';
+import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
+import Vector3 from '../math/Vector3';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -340,5 +341,23 @@ export default class Primitive extends RnObject {
 
   get vertexHandles() {
     return this.__vertexHandles;
+  }
+
+  castRay() {
+
+  }
+
+  private __castRayInner(
+    origVec3: Vector3,
+    dirVec3: Vector3,
+    i: Index,
+    pos0IndexBase: Index,
+    pos1IndexBase: Index,
+    pos2IndexBase: Index,
+    isFrontFacePickable: boolean,
+    isBackFacePickable: boolean,
+    dotThreshold: number
+  ) {
+    
   }
 }

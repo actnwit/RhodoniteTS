@@ -601,4 +601,9 @@ export default class Mesh {
   get instanceCountIncludeOriginal() {
     return this.__instances.length + 1;
   }
+
+  castRay(srcPointInLocal: Vector3, directionInLocal: Vector3) {
+    const distPointInlocal = Vector3.add(srcPointInLocal, directionInLocal);
+    
+  }
 }
