@@ -617,7 +617,10 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
-        const shaderProgramUid = primitive.material!._shaderProgramUid;
+        const material: Material | undefined = renderPass.getAppropriateMaterial(entity, primitive.material);
+        if (material == null) continue;
+
+        const shaderProgramUid = material._shaderProgramUid;
         if (shaderProgramUid === -1) {
           continue;
         }
@@ -630,7 +633,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
           gl.uniform1i((shaderProgram as any).dataTexture, 7);
 
-          this.__setupMaterial(primitive.material!, renderPass);
+          this.__setupMaterial(material, renderPass);
 
 
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
@@ -640,27 +643,24 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (firstTime) {
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
         }
-        this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, primitive.material!, entity);
+        this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, material, entity);
 
-        const material = primitive.material;
-        if (material != null) {
-          WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
+        WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-          material.setParemetersForGPU({
-            material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
-            args: {
-              glw: glw,
-              entity: entity,
-              worldMatrix: entity.getSceneGraph().worldMatrixInner,
-              normalMatrix: entity.getSceneGraph().normalMatrixInner,
-              lightComponents: this.__lightComponents,
-              renderPass: renderPass,
-              primitive: primitive,
-              diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap
-            }
-          });
-        }
+        material.setParemetersForGPU({
+          material: material, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
+          args: {
+            glw: glw,
+            entity: entity,
+            worldMatrix: entity.getSceneGraph().worldMatrixInner,
+            normalMatrix: entity.getSceneGraph().normalMatrixInner,
+            lightComponents: this.__lightComponents,
+            renderPass: renderPass,
+            primitive: primitive,
+            diffuseCube: meshRendererComponent.diffuseCubeMap,
+            specularCube: meshRendererComponent.specularCubeMap
+          }
+        });
 
 
         if (primitive.indicesAccessor) {
