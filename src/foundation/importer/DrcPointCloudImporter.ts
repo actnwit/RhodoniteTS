@@ -17,7 +17,7 @@ export default class DrcPointCloudImporter {
   }
 
   // for ModelConverter,  not implemented yet
-  async importPointCloud(gltfUri: string, textureUri: string, options: GltfLoadOption) {
+  async importPointCloud(gltfUri: string, textureUri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
@@ -52,7 +52,7 @@ export default class DrcPointCloudImporter {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'drc') {
-          return await this.__decodeDraco((options.files as any)[fileName], options, defaultOptions, void 0, textureUri).catch((err) => {
+          return await this.__decodeDraco((options.files as any)[fileName], defaultOptions, options, void 0, textureUri).catch((err) => {
             console.log('this.__decodeDraco error', err);
           });
         }
@@ -67,7 +67,7 @@ export default class DrcPointCloudImporter {
     };
     const arrayBuffer = await response.arrayBuffer();
 
-    return await this.__decodeDraco(arrayBuffer, options, defaultOptions, gltfUri, textureUri).catch((err) => {
+    return await this.__decodeDraco(arrayBuffer, defaultOptions, options, gltfUri, textureUri).catch((err) => {
       console.log('this.__decodeDraco error', err);
     });
 
@@ -77,7 +77,7 @@ export default class DrcPointCloudImporter {
 
   }
 
-  private async __decodeDraco(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, gltfUri?: string, textureUri?: string) {
+  private async __decodeDraco(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, options?: {}, gltfUri?: string, textureUri?: string) {
     let gotText: any;
     let gltfJson: any;
     await this.__decodeBuffer(arrayBuffer, textureUri).then(async (json: any) => {

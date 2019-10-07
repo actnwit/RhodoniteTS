@@ -27,6 +27,7 @@ export default class RenderPass extends RnObject {
   public cullface: boolean = false;
   public cullFrontFaceCCW: boolean = true;
   public material?: Material;
+  private __entityMaterial: Map<Entity, Material | undefined> = new Map();
 
   constructor() {
     super();
@@ -118,6 +119,30 @@ export default class RenderPass extends RnObject {
 
   getViewport() {
     return this.__viewport;
+  }
+
+  setEntityUsingThisMaterial(entity: Entity, material: Material) {
+    this.__entityMaterial.set(entity, material);
+  }
+
+  private __getMaterialOf(entity: Entity) {
+    return this.__entityMaterial.get(entity);
+  }
+
+  private __hasMaterialOf(entity: Entity) {
+    return this.__entityMaterial.has(entity);
+  }
+
+  getAppropriateMaterial(entity: Entity, defaultMaterial: Material | undefined) {
+    let material: Material | undefined;
+    if (this.material != null) {
+      material = this.material;
+    } else if (this.__hasMaterialOf(entity)) {
+      material = this.__getMaterialOf(entity);
+    } else {
+      material = defaultMaterial;
+    }
+    return material;
   }
 
 }
