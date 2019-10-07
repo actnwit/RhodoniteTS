@@ -521,15 +521,25 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setVRMMaterial(gltfModel: glTF2, primitive: any, argumentArray: any) {
+  private __setVRMMaterial(entity: Entity, gltfModel: glTF2, primitive: any, argumentArray: any) {
     const VRMProperties = gltfModel.extensions.VRM;
     const rnExtension = VRMProperties.rnExtension;
 
     const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
     if (shaderName === "VRM/MToon") {
       const mtoonMaterialPropertiesArray = rnExtension.mtoonMaterialPropertiesArray[primitive.materialIndex];
-      if (argumentArray[0]["isOutline"] && mtoonMaterialPropertiesArray[0][13] === 0) {
-        return null;
+      argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
+
+      const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
+      if (renderPassOutline != null) {
+        if (mtoonMaterialPropertiesArray[0][13] !== 0) {
+          argumentArray[0]["isOutline"] = true;
+          renderPassOutline.setEntityUsingThisMaterial(entity,
+            MaterialHelper.createMToonMaterial.apply(this, argumentArray as any)
+          );
+        } else {
+          renderPassOutline.setEntityUsingThisMaterial(entity, undefined);
+        }
       }
 
       argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
@@ -567,7 +577,7 @@ export default class ModelConverter {
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
 
       if (rnLoaderOptions.isImportVRM) {
-        const material = this.__setVRMMaterial(gltfModel, primitive, argumentArray);
+        const material = this.__setVRMMaterial(entity, gltfModel, primitive, argumentArray);
         if (material !== undefined) return material;
       }
 
@@ -612,13 +622,12 @@ export default class ModelConverter {
 
   private __setupMaterial(entity: Entity, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
     const material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, primitive, materialJson);
-    if (materialJson == null ||
-      material == null ||
-      (material.materialTypeName.match(/^PbrUber/) == null &&
-        material.materialTypeName.match(/^ClassicUber/) == null)
-    ) {
-      return material;
-    }
+
+    // discard this primitive
+    if (material == null) return material;
+
+    // avoid unexpected initialization
+    if (!this.needParameterInitialization(materialJson, material.materialTypeName)) return material;
 
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
@@ -717,6 +726,19 @@ export default class ModelConverter {
     }
 
     return material;
+  }
+
+  private needParameterInitialization(materialJson: any, materialTypeName: string): boolean {
+    if (materialJson == null) return false;
+
+    if (
+      materialTypeName.match(/PbrUber/) == null &&
+      materialTypeName.match(/ClassicUber/) == null
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {

@@ -306,14 +306,11 @@ mat3 get_normalMatrix(float instanceId) {
 
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      let material: Material;
-      if (renderPass.material != null) {
-        material = renderPass.material;
-      } else {
-        material = primitive.material!;
-      }
+      const material: Material | undefined = renderPass.getAppropriateMaterial(entity, primitive.material!);
+      if (material == null) continue;
 
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLProgram;
+
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
       const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = false;
@@ -350,26 +347,24 @@ mat3 get_normalMatrix(float instanceId) {
         // });
       }
       //from material
-      if (material) {
 
-        WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
+      WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-        // material.setUniformValues(firstTime, {
-        material.setParemetersForGPU({
-          material, shaderProgram, firstTime, args: {
-            setUniform: true,
-            glw: glw,
-            entity: entity,
-            primitive: primitive,
-            worldMatrix: worldMatrix,
-            normalMatrix: normalMatrix,
-            lightComponents: this.__lightComponents,
-            renderPass: renderPass,
-            diffuseCube: diffuseCube,
-            specularCube: specularCube
-          }
-        });
-      }
+      // material.setUniformValues(firstTime, {
+      material.setParemetersForGPU({
+        material, shaderProgram, firstTime, args: {
+          setUniform: true,
+          glw: glw,
+          entity: entity,
+          primitive: primitive,
+          worldMatrix: worldMatrix,
+          normalMatrix: normalMatrix,
+          lightComponents: this.__lightComponents,
+          renderPass: renderPass,
+          diffuseCube: diffuseCube,
+          specularCube: specularCube
+        }
+      });
 
       if (primitive.indicesAccessor) {
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
