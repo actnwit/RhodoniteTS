@@ -531,14 +531,15 @@ export default class ModelConverter {
       argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
 
       const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
+
+      //exist outline
       if (renderPassOutline != null) {
         if (mtoonMaterialPropertiesArray[0][13] !== 0) {
           argumentArray[0]["isOutline"] = true;
-          renderPassOutline.setEntityUsingThisMaterial(entity,
-            MaterialHelper.createMToonMaterial.apply(this, argumentArray as any)
-          );
+          const outlineMaerial = MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
+          renderPassOutline.setMaterialForEntityInThisRenderPass(entity, outlineMaerial);
         } else {
-          renderPassOutline.setEntityUsingThisMaterial(entity, undefined);
+          renderPassOutline.setMaterialForEntityInThisRenderPass(entity, undefined);
         }
       }
 

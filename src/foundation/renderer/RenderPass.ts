@@ -4,11 +4,12 @@ import FrameBuffer from "./FrameBuffer";
 import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
-import ColorRgb from "../math/ColorRgb";
 import CameraComponent from "../components/CameraComponent";
 import { EntityUID } from "../../types/CommonTypes";
 import Material from "../materials/Material";
-import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
+import { WebGLStrategy } from "../../webgl/main";
+import System from "../system/System";
+import ModuleManager from '../system/ModuleManager';
 
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
@@ -26,8 +27,9 @@ export default class RenderPass extends RnObject {
   public cameraComponent?: CameraComponent;
   public cullface: boolean = false;
   public cullFrontFaceCCW: boolean = true;
-  public material?: Material;
+  private __material?: Material;
   private __entityMaterial: Map<Entity, Material | undefined> = new Map();
+  private __webglRenderingStrategy?: WebGLStrategy;
 
   constructor() {
     super();
@@ -121,8 +123,41 @@ export default class RenderPass extends RnObject {
     return this.__viewport;
   }
 
-  setEntityUsingThisMaterial(entity: Entity, material: Material) {
+  setMaterialForEntityInThisRenderPass(entity: Entity, material: Material, isPointSprite: boolean = false) {
     this.__entityMaterial.set(entity, material);
+
+    this.__setupMaterial(material, isPointSprite);
+  }
+
+  setMaterialForAllEntitiesInThisRenderPass(material: Material, isPointSprite: boolean = false) {
+    this.__material = material;
+
+    this.__setupMaterial(material, isPointSprite);
+  }
+
+  private __setupMaterial(material: Material, isPointSprite: boolean = false) {
+    if (material == null) return;
+
+    if (this.__webglRenderingStrategy == null) {
+      this.__setWebglRenderingStrategy();
+    }
+    (this.__webglRenderingStrategy as any).setupDefaultShaderSemantics(material, isPointSprite);
+  }
+
+
+  get material() {
+    return this.__material;
+  }
+
+
+  private __setWebglRenderingStrategy() {
+    const system = System.getInstance();
+    const processApproach = system.processApproach;
+
+    const moduleManager = ModuleManager.getInstance();
+    const moduleName = 'webgl';
+    const webglModule = (moduleManager.getModule(moduleName)! as any);
+    this.__webglRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
   }
 
   private __getMaterialOf(entity: Entity) {
@@ -135,10 +170,11 @@ export default class RenderPass extends RnObject {
 
   getAppropriateMaterial(entity: Entity, defaultMaterial: Material | undefined) {
     let material: Material | undefined;
-    if (this.material != null) {
-      material = this.material;
-    } else if (this.__hasMaterialOf(entity)) {
+
+    if (this.__hasMaterialOf(entity)) {
       material = this.__getMaterialOf(entity);
+    } else if (this.material != null) {
+      material = this.material;
     } else {
       material = defaultMaterial;
     }

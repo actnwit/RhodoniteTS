@@ -244,8 +244,8 @@ export default class Mesh {
         const vertexNum = primitive.getVertexCountAsIndicesBased();
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
-        const tangentAttributeByteSize = positionAccessor.byteLength;
-        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize*4/3, byteStride: 0, isAoS: false });
+        const tangentAttributeByteSize = positionAccessor.byteLength * 4 / 3;
+        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
         const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
@@ -356,9 +356,9 @@ export default class Mesh {
       return this.__instanceOf!.getPrimitiveAt(i);
     } else {
       // if (this.weights.length > 0) {
-        // return this.__morphPrimitives[i];
+      // return this.__morphPrimitives[i];
       // } else {
-        return this.__primitives[i];
+      return this.__primitives[i];
       // }
     }
   }
@@ -565,7 +565,7 @@ export default class Mesh {
 
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-      this.__primitives.forEach((prim, i)=>{
+      this.__primitives.forEach((prim, i) => {
         this.__vaoUids[i] = webglResourceRepository.createVertexArray();
       });
 
@@ -574,10 +574,10 @@ export default class Mesh {
       }
 
       const instanceNum = this.__instances.length;
-      const entityUIDs = new Float32Array(instanceNum+1); // instances and original
+      const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
       entityUIDs[0] = this._attatchedEntityUID;
       for (var i = 0; i < instanceNum; i++) {
-        entityUIDs[i+1] = this.__instances[i]._attatchedEntityUID;
+        entityUIDs[i + 1] = this.__instances[i]._attatchedEntityUID;
       }
 
       this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);

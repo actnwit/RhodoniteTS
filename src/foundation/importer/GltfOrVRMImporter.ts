@@ -233,8 +233,12 @@ export default class GltfOrVRMImporter {
     { gltfOptions, textureUri, cameraComponent }: { gltfOptions?: GltfLoadOption, textureUri?: string, cameraComponent?: CameraComponent } = {}
   ) {
 
+    // this.__generateRenderPassesOfModel(uri, gltfOptions, textureUri);
+
+
     const renderPass = new RenderPass();
     renderPass.toClearColorBuffer = true;
+    renderPass.toClearDepthBuffer = true;
 
     let renderPasses: RenderPass[] = [];
     let importer, gltfModel, rootGroup;
@@ -275,6 +279,7 @@ export default class GltfOrVRMImporter {
         console.error('detect invalid format');
     }
 
+
     if (cameraComponent != null) {
       renderPass.cameraComponent = cameraComponent as CameraComponent;
 
@@ -308,6 +313,12 @@ export default class GltfOrVRMImporter {
 
   }
 
+  // private __generateRenderPassesOfModel(uri: string, gltfOptions?: GltfLoadOption, textureUri?: string) {
+
+  // }
+
+
+
   private async __importVRM(uri: string, renderPassMain: RenderPass, options?: GltfLoadOption) {
     options = this.getOptions(options);
 
@@ -331,7 +342,8 @@ export default class GltfOrVRMImporter {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
     } else {
       const renderPassOutline = new RenderPass();
-      // renderPassOutline.toClearColorBuffer = true;
+      renderPassOutline.toClearColorBuffer = false;
+      renderPassOutline.toClearDepthBuffer = false;
       renderPassOutline.cameraComponent = renderPassMain.cameraComponent;
       gltfModel.extensions.VRM.rnExtension["renderPassOutline"] = renderPassOutline;
 

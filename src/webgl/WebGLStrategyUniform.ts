@@ -45,7 +45,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
-  private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __vertexShaderMethodDefinitions_uniform: string;
 
@@ -57,7 +56,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       return;
     }
 
-
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
@@ -66,49 +64,47 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
+
         const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
         const gl = glw.getRawContext();
+        const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
-        // Shader Setup
-        let args: ShaderSemanticsInfo[] = [
-          {
-            semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
-            stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          {
-            semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          {
-            semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          // {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
-          // {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
-        ];
-
-        if (primitive.primitiveMode.index === gl.POINTS) {
-          args.push(
-            {
-              semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-              stage: ShaderType.PixelShader, min: 0, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-            },
-            {
-              semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-              stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-            },
-          );
-        }
-
-        WebGLStrategyUniform.__shaderSemanticInfoArray = WebGLStrategyUniform.__shaderSemanticInfoArray.concat(args);
-
-        WebGLStrategyUniform.setupMaterial(material, WebGLStrategyUniform.__shaderSemanticInfoArray);
-
+        this.setupDefaultShaderSemantics(material, isPointSprite);
       }
     }
+  }
 
+  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+    // Shader Setup
+    const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
+      {
+        semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+      {
+        semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+      {
+        semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+    ];
+
+    if (isPointSprite) {
+      shaderSemanticsInfos.push(
+        {
+          semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+        },
+        {
+          semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+        },
+      );
+    }
+
+    WebGLStrategyUniform.setupMaterial(material, shaderSemanticsInfos);
   }
 
   static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {
