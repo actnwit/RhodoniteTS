@@ -501,7 +501,7 @@ export default class ModelConverter {
 
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
           for (let i = 0; i < primitive.targets.length; i++) {
-            if(i >= maxMorphTargetNumber){
+            if (i >= maxMorphTargetNumber) {
               break;
             }
 
@@ -557,6 +557,8 @@ export default class ModelConverter {
 
       // outline
       const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
+
+      //exist outline
       if (renderPassOutline != null) {
         let outlineMaterial: Material;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
