@@ -217,48 +217,18 @@ export default class VRMImporter {
     return this.__instance;
   }
 
+
+  async importJsonOnly(uri: string, options?: GltfLoadOption): Promise<VRM> {
+    options = this.getOptions(options);
+
+    const gltf2Importer = Gltf2Importer.getInstance();
+    return gltf2Importer.import(uri, options);
+  }
   /**
    * Import VRM file.
    */
   async import(uri: string, options?: GltfLoadOption) {
-    if (options != null) {
-      for (let file in options.files) {
-        const fileName = file.split('.vrm')[0];
-        if (fileName) {
-          const arraybuffer = options.files[file];
-          options.files[fileName + '.glb'] = arraybuffer;
-          delete options.files[file];
-        }
-      }
-
-      options.isImportVRM = true;
-      if (options.defaultMaterialHelperName === "createMToonMaterial") {
-        options.defaultMaterialHelperName = null;
-      }
-      if (options.defaultMaterialHelperArgumentArray == null) {
-        options.defaultMaterialHelperArgumentArray = [{}];
-      }
-    } else {
-      options = {
-        files: {},
-        loaderExtension: null,
-        defaultMaterialHelperName: null,
-        defaultMaterialHelperArgumentArray: [{}],
-        statesOfElements: [
-          {
-            targets: [], //["name_foo", "name_boo"],
-            states: {
-              enable: [],
-              functions: {}
-            },
-            isTransparent: true,
-            opacity: 1.0,
-            isTextureImageToLoadPreMultipliedAlpha: false,
-          }
-        ],
-        isImportVRM: true
-      }
-    }
+    options = this.getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
     const modelConverter = ModelConverter.getInstance();
@@ -287,16 +257,73 @@ export default class VRMImporter {
     helperArgument0["isOutline"] = false;
     const rootGroupMain = modelConverter.convertToRhodoniteObject(gltfModel);
     this.readSpringBone(rootGroupMain, gltfModel);
+    this.readVRMHumanoidInfo(rootGroupMain, gltfModel);
     rootGroups.push(rootGroupMain);
 
     if (existOutline) {
       helperArgument0["isOutline"] = true;
       const rootGroupOutline = modelConverter.convertToRhodoniteObject(gltfModel);
       this.readSpringBone(rootGroupOutline, gltfModel);
+      this.readVRMHumanoidInfo(rootGroupOutline, gltfModel);
       rootGroups.push(rootGroupOutline);
     }
 
     return rootGroups;
+  }
+
+
+  private getOptions(options: GltfLoadOption | undefined) {
+    if (options != null) {
+      for (let file in options.files) {
+        const fileName = file.split('.vrm')[0];
+        if (fileName) {
+          const arraybuffer = options.files[file];
+          options.files[fileName + '.glb'] = arraybuffer;
+          delete options.files[file];
+        }
+      }
+      options.isImportVRM = true;
+      if (options.defaultMaterialHelperName === "createMToonMaterial") {
+        options.defaultMaterialHelperName = null;
+      }
+      if (options.defaultMaterialHelperArgumentArray == null) {
+        options.defaultMaterialHelperArgumentArray = [{}];
+      }
+    }
+    else {
+      options = {
+        files: {},
+        loaderExtension: null,
+        defaultMaterialHelperName: null,
+        defaultMaterialHelperArgumentArray: [{}],
+        statesOfElements: [
+          {
+            targets: [],
+            states: {
+              enable: [],
+              functions: {}
+            },
+            isTransparent: true,
+            opacity: 1.0,
+            isTextureImageToLoadPreMultipliedAlpha: false,
+          }
+        ],
+        isImportVRM: true
+      };
+    }
+    return options;
+  }
+
+  readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM) {
+    const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
+    const mapNameNodeId: Map<string, number> = new Map();
+    for (let bone of humanBones) {
+      mapNameNodeId.set(bone.bone, bone.node);
+    }
+    rootEntity.tryToSetTag({
+      tag: 'humanoid_map_name_nodeId',
+      value: mapNameNodeId
+    });
   }
 
   readSpringBone(rootEntity: Entity, gltfModel: VRM) {
