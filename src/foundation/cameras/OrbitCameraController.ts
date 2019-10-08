@@ -478,13 +478,9 @@ export default class OrbitCameraController implements ICameraController {
 
     let fovy = this.__getFovyFromCamera(camera);
 
-    let centerToEyeVec = Vector3.subtract(
-      this.__eyeVec,
-      this.__centerVec
-    );
-    centerToEyeVec = Vector3.multiply(centerToEyeVec,
-      (this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
-    );
+    const centerToEyeVec = new MutableVector3(this.__eyeVec).subtract(this.__centerVec)
+    centerToEyeVec.multiply((this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0)))
+
     this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
       let horizontalAngleOfVectors = Vector3.angleOfVectors(
