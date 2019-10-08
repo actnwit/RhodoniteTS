@@ -16,10 +16,10 @@ type MouseEventListner = (evt: MouseEvent) => any;
 
 export default class WalkThroughCameraController implements ICameraController {
   private _horizontalSpeed: number;
-  private _virticalSpeed: number;
+  private _verticalSpeed: number;
   private _turnSpeed: number;
   private _mouseWheelSpeedScale: number;
-  private _inverseVirticalRotating: boolean;
+  private _inverseVerticalRotating: boolean;
   private _inverseHorizontalRotating: boolean;
   private _onKeydown: KeyboardEventListner;
   private _isKeyDown: boolean = false;
@@ -50,22 +50,22 @@ export default class WalkThroughCameraController implements ICameraController {
   constructor(
     options = {
       eventTargetDom: document,
-      virticalSpeed: 1,
+      verticalSpeed: 1,
       horizontalSpeed: 1,
       turnSpeed: 0.25,
       mouseWheelSpeedScale: 0.01,
-      inverseVirticalRotating: false,
+      inverseVerticalRotating: false,
       inverseHorizontalRotating: false
     }
   ) {
 
     this._horizontalSpeed = options.horizontalSpeed;
-    this._virticalSpeed = options.virticalSpeed;
+    this._verticalSpeed = options.verticalSpeed;
     this._turnSpeed = options.turnSpeed;
     this._mouseXAdjustScale = this._turnSpeed;
     this._mouseYAdjustScale = this._turnSpeed;
     this._mouseWheelSpeedScale = options.mouseWheelSpeedScale;
-    this._inverseVirticalRotating = options.inverseVirticalRotating;
+    this._inverseVerticalRotating = options.inverseVerticalRotating;
     this._inverseHorizontalRotating = options.inverseHorizontalRotating;
 
     this.reset();
@@ -210,7 +210,7 @@ export default class WalkThroughCameraController implements ICameraController {
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
   }
 
-  tryReset() {}
+  tryReset() { }
 
   reset() {
     this._isKeyDown = false;
@@ -362,12 +362,12 @@ export default class WalkThroughCameraController implements ICameraController {
         }
         break;
       case 82: // r key
-        this._currentPos.add(new Vector3(0, this._virticalSpeed, 0));
-        this._currentCenter.add(new Vector3(0, this._virticalSpeed, 0));
+        this._currentPos.add(new Vector3(0, this._verticalSpeed, 0));
+        this._currentCenter.add(new Vector3(0, this._verticalSpeed, 0));
         break;
       case 70: // f key
-        this._currentPos.add(new Vector3(0, -this._virticalSpeed, 0));
-        this._currentCenter.add(new Vector3(0, -this._virticalSpeed, 0));
+        this._currentPos.add(new Vector3(0, -this._verticalSpeed, 0));
+        this._currentCenter.add(new Vector3(0, -this._verticalSpeed, 0));
         break;
     }
 
@@ -377,7 +377,7 @@ export default class WalkThroughCameraController implements ICameraController {
       } else {
         this._deltaX = -this._deltaMouseXOnCanvas * this._mouseXAdjustScale;
       }
-      if (this._inverseVirticalRotating) {
+      if (this._inverseVerticalRotating) {
         this._deltaY += this._deltaMouseYOnCanvas * this._mouseYAdjustScale;
       } else {
         this._deltaY += -this._deltaMouseYOnCanvas * this._mouseYAdjustScale;
@@ -434,24 +434,24 @@ export default class WalkThroughCameraController implements ICameraController {
     return this._horizontalSpeed;
   }
 
-  set virticalSpeed(value) {
-    this._virticalSpeed = value;
+  set verticalSpeed(value) {
+    this._verticalSpeed = value;
   }
 
-  get virticalSpeed() {
-    return this._virticalSpeed;
+  get verticalSpeed() {
+    return this._verticalSpeed;
   }
 
   setTarget(targetEntity: Entity) {
     const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 200;
-    this.virticalSpeed = speed;
+    this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
   }
 
   get allInfo() {
     const info: any = {};
 
-    info.virticalSpeed = this.virticalSpeed;
+    info.verticalSpeed = this.verticalSpeed;
     info.horizontalSpeed = this.horizontalSpeed;
     info._turnSpeed = this._turnSpeed;
     if (this._currentPos) {
