@@ -4,14 +4,15 @@ import ModelConverter from "./ModelConverter";
 import EntityRepository from "../core/EntityRepository";
 import AnimationComponent from "../components/AnimationComponent";
 import { Animation } from "../definitions/Animation";
+import { Index } from "../../types/CommonTypes";
+import { VRM } from "./VRMImporter";
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
-  assignAnimation(rootEntity: Entity, json: glTF2) {
-    const rnEntitiesByNames = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, Entity>;
+  assignAnimation(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton = false) {
 
-    this._setupAnimation(json, rnEntitiesByNames);
+    this.__setupAnimationForSameSkeleton(rootEntity, gltfModel, vrmModel, isSameSkeleton);
 
     return rootEntity;
   }
@@ -30,7 +31,31 @@ export default class AnimationAssigner {
     return this.__instance;
   }
 
-  _setupAnimation(gltfModel: glTF2, rnEntities: Map<string, Entity>) {
+  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, isSameSkeleton: boolean) {
+    if (isSameSkeleton) {
+      const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, Entity>;
+      const node = gltfModel.nodes[nodeIndex];
+      let rnEntity = rnEntities.get(node.name!);
+      return rnEntity;
+    } else {
+      const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
+      const srcMapNodeIdName: Map<number, string> = new Map();
+      for (let bone of humanBones) {
+        srcMapNodeIdName.set(bone.node, bone.bone);
+      }
+      const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
+      const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
+      const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName);
+      if (dstBoneNodeId != null) {
+        const rnEntities = rootEntity.getTagValue('rnEntities')! as Entity[];
+        return rnEntities[dstBoneNodeId];
+      } else {
+        return void 0;
+      }
+    }
+  }
+
+  private __setupAnimationForSameSkeleton(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton: boolean) {
     if (gltfModel.animations) {
       const modelConverter = ModelConverter.getInstance();
 
@@ -61,8 +86,7 @@ export default class AnimationAssigner {
             animationAttributeName = channel.target.path;
           }
 
-          const node = gltfModel.nodes[channel.target.nodeIndex!];
-          let rnEntity = rnEntities.get(node.name!);
+          const rnEntity = this.__getCorrespondingEntity(rootEntity, gltfModel, vrmModel, channel.target.nodeIndex!, isSameSkeleton);
           if (rnEntity) {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
