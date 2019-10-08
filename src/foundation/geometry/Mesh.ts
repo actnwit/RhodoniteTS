@@ -244,7 +244,7 @@ export default class Mesh {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = positionAccessor.byteLength;
-        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
+        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize*4/3, byteStride: 0, isAoS: false });
         const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
