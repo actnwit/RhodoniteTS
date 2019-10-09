@@ -11,8 +11,8 @@ import MutableMatrix44 from "../math/MutableMatrix44";
 import { MathUtil } from "../math/MathUtil";
 import Entity from "../core/Entity";
 
-type KeyboardEventListner = (evt: KeyboardEvent) => any;
-type MouseEventListner = (evt: MouseEvent) => any;
+type KeyboardEventListener = (evt: KeyboardEvent) => any;
+type MouseEventListener = (evt: MouseEvent) => any;
 
 export default class WalkThroughCameraController implements ICameraController {
   private _horizontalSpeed: number;
@@ -21,11 +21,11 @@ export default class WalkThroughCameraController implements ICameraController {
   private _mouseWheelSpeedScale: number;
   private _inverseVerticalRotating: boolean;
   private _inverseHorizontalRotating: boolean;
-  private _onKeydown: KeyboardEventListner;
+  private _onKeydown: KeyboardEventListener;
   private _isKeyDown: boolean = false;
   private _isMouseDrag: boolean = false;
   private _lastKeyCode: number = -1;
-  private _onKeyup: KeyboardEventListner;
+  private _onKeyup: KeyboardEventListener;
   private _currentDir = new MutableVector3(0, 0, -1);
   private _currentPos = new MutableVector3(0, 0, 0);
   private _currentCenter = new MutableVector3(0, 0, -1);
