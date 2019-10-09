@@ -38,6 +38,7 @@ export default class Mesh {
   public _attatchedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
+  public forceCalculateTangent: boolean = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -221,7 +222,7 @@ export default class Mesh {
   __calcTangents() {
     for (let primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
-      if (tangentIdx !== -1) {
+      if (tangentIdx !== -1 && !this.forceCalculateTangent) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);

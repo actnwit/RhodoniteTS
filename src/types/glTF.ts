@@ -404,6 +404,7 @@ export type GltfLoadOption = {
   ignoreLists?: [],
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
+  forceCalculateTangent?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
   isImportVRM?: boolean
 }
