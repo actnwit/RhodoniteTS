@@ -53,7 +53,7 @@ export default class WalkThroughCameraController implements ICameraController {
       verticalSpeed: 1,
       horizontalSpeed: 1,
       turnSpeed: 0.25,
-      mouseWheelSpeedScale: 0.01,
+      mouseWheelSpeedScale: 1,
       inverseVerticalRotating: false,
       inverseHorizontalRotating: false
     }
@@ -160,7 +160,7 @@ export default class WalkThroughCameraController implements ICameraController {
     if (this._currentDir === null) {
       return;
     }
-    const delta = (e as any).wheelDelta * this._mouseWheelSpeedScale;
+    let delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
     const horizontalDir = new MutableVector3(
       this._currentDir.x,
       0,
@@ -184,10 +184,10 @@ export default class WalkThroughCameraController implements ICameraController {
 
   _mouseMove(evt: MouseEvent) {
     MiscUtil.preventDefaultForDesktopOnly(evt);
-    evt.stopPropagation();
     if (!this._isMouseDown) {
       return;
     }
+    evt.stopPropagation();
 
     let rect = (evt.target! as any).getBoundingClientRect();
     this._draggedMouseXOnCanvas = evt.clientX - rect.left;
@@ -443,7 +443,7 @@ export default class WalkThroughCameraController implements ICameraController {
   }
 
   setTarget(targetEntity: Entity) {
-    const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 200;
+    const speed = targetEntity.getSceneGraph().worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
   }
