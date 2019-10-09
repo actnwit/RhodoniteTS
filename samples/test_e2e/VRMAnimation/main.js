@@ -16,7 +16,7 @@ const load = async function (time) {
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
-  cameraComponent.setFovyAndChangeFocalLength(90);
+  cameraComponent.setFovyAndChangeFocalLength(30);
   cameraComponent.aspect = 1;
 
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);

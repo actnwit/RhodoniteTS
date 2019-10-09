@@ -55,6 +55,21 @@ export default class AnimationAssigner {
     }
   }
 
+  private __isHips(rootEntity: Entity, vrmModel: VRM, nodeIndex: Index) {
+    const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
+    const srcMapNodeIdName: Map<number, string> = new Map();
+    for (let bone of humanBones) {
+      srcMapNodeIdName.set(bone.node, bone.bone);
+    }
+    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
+    const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
+    if (humanoidBoneName === 'hips') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private __setupAnimationForSameSkeleton(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton: boolean) {
     if (gltfModel.animations) {
       const modelConverter = ModelConverter.getInstance();
@@ -91,7 +106,11 @@ export default class AnimationAssigner {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
-              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+              if (animationAttributeName === 'quaternion') {
+                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+              } else if (animationAttributeName === 'translate' && this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)) {
+                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+              }
             }
           }
         }
