@@ -33,8 +33,7 @@
     "puppeteer": "^1.17.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^2.6.3",
-    "shaderity": "^0.0.1",
-    "shaderity-loader": "^0.0.1",
+    "shaderity-loader": "^0.0.5",
     "ts-jest": "^24.0.2",
     "ts-loader": "^6.0.2",
     "typedoc": "^0.14.2",
@@ -44,8 +43,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "glslify-loader": "^2.0.0",
-    "raw-loader": "^3.0.0",
-    "requirejs": "^2.3.6"
+    "requirejs": "^2.3.6",
+    "shaderity": "^0.1.0"
   }
 }
