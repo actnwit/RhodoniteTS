@@ -27,13 +27,14 @@ import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
 import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../types/CommonTypes";
-import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import Entity from "../foundation/core/Entity";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { AlphaMode } from "../foundation/definitions/AlphaMode";
+import WebGLStrategyCommonMethod from "./WebGLStrategyCommonMethod";
+import Matrix33 from "../foundation/math/Matrix33";
+import CubeTexture from "../foundation/textures/CubeTexture";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -45,17 +46,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
-
-  private static __lastCullFace = false;
-  private static __lastFrontFaceCCW = true;
-
-  private static __isOpaqueMode = true;
-  public static __lastBlendEquationMode: number | null = null;
-  public static __lastBlendEquationModeAlpha: number | null = null;
-  public static __lastBlendFuncSrcFactor: number | null = null;
-  public static __lastBlendFuncDstFactor: number | null = null;
-  public static __lastBlendFuncAlphaSrcFactor: number | null = null;
-  public static __lastBlendFuncAlphaDstFactor: number | null = null;
 
   private constructor() { }
 
@@ -614,7 +604,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         continue;
       }
 
-      WebGLStrategyFastestWebGL1.setWebGLStatesBegin(idx, gl, renderPass);
+      WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
 
       const entity = meshComponent.entity;
       this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
@@ -626,13 +616,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
-
-        // if (WebGLStrategyFastestWebGL1.isOpaqueMode() && primitive.isBlend()) {
-        //   continue;
-        // }
-        // if (WebGLStrategyFastestWebGL1.isTransparentMode() && primitive.isOpaque()) {
-        //   continue;
-        // }
 
         const shaderProgramUid = primitive.material!._shaderProgramUid;
         if (shaderProgramUid === -1) {
@@ -661,7 +644,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         const material = primitive.material;
         if (material != null) {
-          WebGLStrategyFastestWebGL1.setWebGLStatesOfMaterial(material, renderPass, gl);
+          WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
           material.setParemetersForGPU({
             material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
@@ -688,162 +671,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         this.__lastShader = shaderProgramUid;
       }
-      WebGLStrategyFastestWebGL1.setWebGLStatesEnd(sid, gl, renderPass);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
   }
 
-  static isOpaqueMode() {
-    return WebGLStrategyFastestWebGL1.__isOpaqueMode;
+  $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
+    WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
   }
 
-  static isTransparentMode() {
-    return !WebGLStrategyFastestWebGL1.__isOpaqueMode;
-  }
-
-  private static setWebGLStatesBegin(idx: number, gl: any, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.firstTranparentIndex) {
-      gl.enable(gl.BLEND);
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-      gl.depthMask(false);
-      this.__isOpaqueMode = false;
-    }
-  }
-
-  private static setWebGLStatesEnd(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.lastTransparentIndex) {
-      gl.disable(gl.BLEND);
-      gl.depthMask(true);
-      this.__isOpaqueMode = true;
-    }
-  }
-
-  private static setWebGLStatesOfMaterial(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
-    if (material.cullface != null) {
-      this.setCull(material.cullface, material.cullFrontFaceCCW, gl);
-    } else {
-      this.setCull(renderPass.cullface, renderPass.cullFrontFaceCCW, gl);
-    }
-
-    if (material.depthMask != null) {
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    } else if ((this.__isOpaqueMode && material.alphaMode !== AlphaMode.Opaque) ||
-      (!this.__isOpaqueMode && material.alphaMode === AlphaMode.Opaque)) {
-      material.depthMask = false;
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    }
-  }
-
-  private static setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
-    if (this.__lastCullFace !== cullface) {
-      if (cullface) {
-        gl.enable(gl.CULL_FACE);
-      } else {
-        gl.disable(gl.CULL_FACE);
-      }
-      this.__lastCullFace = cullface;
-    }
-
-    if (cullface && this.__lastFrontFaceCCW !== cullFrontFaceCCW) {
-      if (cullFrontFaceCCW) {
-        gl.frontFace(gl.CCW);
-      } else {
-        gl.frontFace(gl.CW);
-      }
-      this.__lastFrontFaceCCW = cullFrontFaceCCW;
-    }
-  }
-
-  private static setTransparent(depthMask: boolean, gl: WebGLRenderingContext,
-    blendEquationMode: number | null, blendEquationModeAlpha: number | null,
-    blendFuncSrcFactor: number | null, blendFuncDstFactor: number | null,
-    blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null) {
-
-    if (this.__isOpaqueMode !== depthMask) {
-      if (depthMask) {
-        gl.disable(gl.BLEND);
-        gl.depthMask(true);
-      } else {
-        gl.enable(gl.BLEND);
-        gl.depthMask(false);
-      }
-      this.__isOpaqueMode = depthMask;
-    }
-
-    if (depthMask === false) {
-
-      if (blendEquationMode != null) {
-        if (
-          blendEquationMode != this.__lastBlendEquationMode ||
-          blendEquationModeAlpha != this.__lastBlendEquationModeAlpha
-        ) {
-          if (blendEquationModeAlpha != null) {
-            gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-          } else {
-            gl.blendEquation(blendEquationMode);
-          }
-          this.__lastBlendEquationMode = blendEquationMode;
-          this.__lastBlendEquationModeAlpha = blendEquationModeAlpha;
-        }
-      } else if (
-        this.__lastBlendEquationMode != gl.FUNC_ADD ||
-        this.__lastBlendEquationModeAlpha != null
-      ) {
-        //default
-        gl.blendEquation(gl.FUNC_ADD);
-        this.__lastBlendEquationMode = gl.FUNC_ADD;
-        this.__lastBlendEquationModeAlpha = null;
-      }
-
-
-      if (blendFuncSrcFactor != null) {
-        if (
-          blendFuncSrcFactor != this.__lastBlendFuncSrcFactor ||
-          blendFuncDstFactor != this.__lastBlendFuncDstFactor ||
-          blendFuncAlphaSrcFactor != this.__lastBlendFuncAlphaSrcFactor ||
-          blendFuncAlphaDstFactor != this.__lastBlendFuncAlphaDstFactor
-        ) {
-          if (
-            blendFuncDstFactor != null &&
-            blendFuncAlphaSrcFactor != null &&
-            blendFuncAlphaDstFactor != null
-          ) {
-            gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
-          } else if (blendFuncDstFactor != null) {
-            gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
-          } else {
-            console.warn('invalid blend func parameter');
-            return;
-          }
-          this.__lastBlendFuncSrcFactor = blendFuncSrcFactor;
-          this.__lastBlendFuncDstFactor = blendFuncDstFactor;
-          this.__lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
-          this.__lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
-        }
-      } else if (
-        this.__lastBlendFuncSrcFactor != gl.SRC_ALPHA ||
-        this.__lastBlendFuncDstFactor != gl.ONE_MINUS_SRC_ALPHA ||
-        this.__lastBlendFuncAlphaSrcFactor != gl.ONE ||
-        this.__lastBlendFuncAlphaDstFactor != gl.ONE
-      ) {
-        //default
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-        this.__lastBlendFuncSrcFactor = gl.SRC_ALPHA;
-        this.__lastBlendFuncDstFactor = gl.ONE_MINUS_SRC_ALPHA;
-        this.__lastBlendFuncAlphaSrcFactor = gl.ONE;
-        this.__lastBlendFuncAlphaDstFactor = gl.ONE;
-      }
-    }
-  }
 }

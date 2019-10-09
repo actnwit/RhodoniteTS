@@ -131,8 +131,8 @@ function createMToonMaterial({
     + `_${additionalName}_`
     + (isMorphing ? '+morphing' : '')
     + (isSkinning ? '+skinning' : '')
-    + (isLighting ? '' : '-lighting')
-    + (isOutline ? '' : '-outline');
+    + (isLighting ? '-lighting' : '')
+    + (isOutline ? '-outline' : '');
 
   const materialNode = new MToonSingleMaterialNode(isOutline, materialPropertiesArray, textures, isMorphing, isSkinning, isLighting);
 
