@@ -263,7 +263,6 @@ export default class VRMImporter {
     if (existOutline) {
       helperArgument0["isOutline"] = true;
       const rootGroupOutline = modelConverter.convertToRhodoniteObject(gltfModel);
-      this.readSpringBone(rootGroupOutline, gltfModel);
       this.readVRMHumanoidInfo(rootGroupOutline, gltfModel);
       rootGroups.push(rootGroupOutline);
     }
