@@ -1,3 +1,8 @@
+#pragma shaderity: require(./version.glsl)
+#pragma shaderity: require(./glslPrecision.glsl)
+
+#pragma shaderity: ${definitions}
+
 attribute vec3 a_position;
 attribute vec3 a_color;
 attribute vec3 a_normal;
