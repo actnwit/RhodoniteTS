@@ -25,95 +25,91 @@ function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl:
   }
 
   setCull(cullface, cullFrontFaceCCW, gl);
-
   setBlendSettings(material, gl);
+}
 
-
-  // inner functions
-  function setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
-    if (lastCullFace !== cullface) {
-      if (!cullface) {
-        gl.disable(gl.CULL_FACE);
-      } else {
-        gl.enable(gl.CULL_FACE);
-      }
-      lastCullFace = cullface;
+function setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
+  if (lastCullFace !== cullface) {
+    if (!cullface) {
+      gl.disable(gl.CULL_FACE);
+    } else {
+      gl.enable(gl.CULL_FACE);
     }
-
-    if (cullface === true && lastFrontFaceCCW !== cullFrontFaceCCW) {
-      if (cullFrontFaceCCW) {
-        gl.frontFace(gl.CCW);
-      } else {
-        gl.frontFace(gl.CW);
-      }
-      lastFrontFaceCCW = cullFrontFaceCCW;
-    }
+    lastCullFace = cullface;
   }
 
-  function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
-    const isTransparentMode = material.alphaMode === AlphaMode.Blend;
-    if (lastIsTransparentMode !== isTransparentMode) {
-      if (isTransparentMode) {
-        gl.enable(gl.BLEND);
-      } else {
-        gl.disable(gl.BLEND);
-      }
-      lastIsTransparentMode = isTransparentMode;
+  if (cullface === true && lastFrontFaceCCW !== cullFrontFaceCCW) {
+    if (cullFrontFaceCCW) {
+      gl.frontFace(gl.CCW);
+    } else {
+      gl.frontFace(gl.CW);
     }
-
-    if (isTransparentMode) {
-      setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha);
-      setBlendFuncSrcFactor(material.blendFuncSrcFactor, material.blendFuncDstFactor, material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor);
-    }
-  }
-
-  function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number | null) {
-    const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
-    if (needUpdateBlendEquation) {
-      if (blendEquationModeAlpha != null) {
-        gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-      } else {
-        gl.blendEquation(blendEquationMode);
-      }
-      lastBlendEquationMode = blendEquationMode;
-      lastBlendEquationModeAlpha = blendEquationModeAlpha;
-    }
-  }
-
-  function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number | null) {
-    const result = (
-      lastBlendEquationMode != equationMode ||
-      lastBlendEquationModeAlpha != equationModeAlpha
-    );
-    return result;
-  }
-
-  function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null) {
-    const needUpdateBlendFunc = differentWithLastBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
-    if (needUpdateBlendFunc) {
-      if (blendFuncAlphaSrcFactor != null) {
-        gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
-      } else {
-        gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
-      }
-      lastBlendFuncSrcFactor = blendFuncSrcFactor;
-      lastBlendFuncDstFactor = blendFuncDstFactor;
-      lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
-      lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
-    }
-  }
-
-  function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, alphaSrcFactor: number | null, alphaDstFactor: number | null): boolean {
-    const result = (
-      lastBlendFuncSrcFactor != srcFactor ||
-      lastBlendFuncDstFactor != dstFactor ||
-      lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
-      lastBlendFuncAlphaDstFactor != alphaDstFactor
-    );
-    return result;
+    lastFrontFaceCCW = cullFrontFaceCCW;
   }
 }
 
+function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
+  const isTransparentMode = material.alphaMode === AlphaMode.Blend;
+  if (lastIsTransparentMode !== isTransparentMode) {
+    if (isTransparentMode) {
+      gl.enable(gl.BLEND);
+    } else {
+      gl.disable(gl.BLEND);
+    }
+    lastIsTransparentMode = isTransparentMode;
+  }
+
+  if (isTransparentMode) {
+    setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
+    setBlendFuncSrcFactor(material.blendFuncSrcFactor, material.blendFuncDstFactor, material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor, gl);
+  }
+}
+
+function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number | null, gl: WebGLRenderingContext) {
+  const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
+  if (needUpdateBlendEquation) {
+    if (blendEquationModeAlpha != null) {
+      gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
+    } else {
+      gl.blendEquation(blendEquationMode);
+    }
+    lastBlendEquationMode = blendEquationMode;
+    lastBlendEquationModeAlpha = blendEquationModeAlpha;
+  }
+}
+
+function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number | null) {
+  const result = (
+    lastBlendEquationMode != equationMode ||
+    lastBlendEquationModeAlpha != equationModeAlpha
+  );
+  return result;
+}
+
+function setBlendFuncSrcFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null, gl: WebGLRenderingContext) {
+  const needUpdateBlendFunc = differentWithLastBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
+  if (needUpdateBlendFunc) {
+    if (blendFuncAlphaSrcFactor != null) {
+      gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
+    } else {
+      gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
+    }
+    lastBlendFuncSrcFactor = blendFuncSrcFactor;
+    lastBlendFuncDstFactor = blendFuncDstFactor;
+    lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
+    lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+  }
+}
+
+function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, alphaSrcFactor: number | null, alphaDstFactor: number | null): boolean {
+  const result = (
+    lastBlendFuncSrcFactor != srcFactor ||
+    lastBlendFuncDstFactor != dstFactor ||
+    lastBlendFuncAlphaSrcFactor != alphaSrcFactor ||
+    lastBlendFuncAlphaDstFactor != alphaDstFactor
+  );
+  return result;
+}
 
 function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
   if (idx === MeshRendererComponent.firstTranparentIndex) {
