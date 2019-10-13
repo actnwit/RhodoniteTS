@@ -35,7 +35,11 @@ export default class RnPromise<T> {
   }
 
   static all(args: any[]) {
-    return Promise.all(args);
+    return new RnPromise(Promise.all(args));
+  }
+
+  static race(args: any[]) {
+    return new RnPromise(Promise.race(args));
   }
 
   then(onFulfilled?: OnFulfilledFn<T>, onRejected?: OnRejectedFn<T>) {
@@ -48,5 +52,9 @@ export default class RnPromise<T> {
 
   finally(onFinally?: OnFinallyFn) {
     this.__promise.finally(onFinally);
+  }
+
+  static reject(e: Error) {
+    return new RnPromise(Promise.reject(e));
   }
 }
