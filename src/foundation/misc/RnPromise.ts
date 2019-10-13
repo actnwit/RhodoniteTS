@@ -1,6 +1,7 @@
 type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T> | undefined) => void, reject: (reason?: any) => void) => void;
 type OnFulfilledFn<T> = ((value: T) => T | PromiseLike<T>) | null | undefined;
 type OnRejectedFn<T> = ((reason: any) => PromiseLike<never>) | null | undefined;
+type OnFinallyFn = (() => void) | null | undefined;
 
 export default class RnPromise<T> {
   private __promise:Promise<T>;
@@ -38,6 +39,14 @@ export default class RnPromise<T> {
   }
 
   then(onFulfilled?: OnFulfilledFn<T>, onRejected?: OnRejectedFn<T>) {
-    this.__promise.then(onFulfilled, onRejected);
+    return new RnPromise(this.__promise.then(onFulfilled, onRejected));
+  }
+
+  catch(onRejected?: OnRejectedFn<T>) {
+    return new RnPromise(this.__promise.catch(onRejected));
+  }
+
+  finally(onFinally?: OnFinallyFn) {
+    this.__promise.finally(onFinally);
   }
 }

@@ -28,3 +28,22 @@ test('RnPromise.resolve of thenable', async () => {
     });
   });
 });
+
+test('RnPromise.resolve of thenable', async () => {
+  new Promise((resolve)=> {
+    const rnPromise = new RnPromise((resolve, reject) => {
+      resolve('resolve');
+      reject('reject')
+    });
+    const p1 = RnPromise.resolve(rnPromise);
+
+    Promise.all([p1]).then((results) => {
+      console.log(results);
+      expect(results).toEqual(['resolve']);
+    }).catch((results) => {
+      expect(results).toEqual(['reject']);
+    }).finally(()=>{
+      resolve();
+    });
+  });
+});
