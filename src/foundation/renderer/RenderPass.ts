@@ -123,7 +123,7 @@ export default class RenderPass extends RnObject {
     return this.__viewport;
   }
 
-  setMaterialForEntityInThisRenderPass(entity: Entity, material: Material, isPointSprite: boolean = false) {
+  setMaterialForEntityInThisRenderPass(entity: Entity, material: Material | undefined, isPointSprite: boolean = false) {
     this.__entityMaterial.set(entity, material);
 
     this.__setupMaterial(material, isPointSprite);
@@ -135,7 +135,7 @@ export default class RenderPass extends RnObject {
     this.__setupMaterial(material, isPointSprite);
   }
 
-  private __setupMaterial(material: Material, isPointSprite: boolean = false) {
+  private __setupMaterial(material: Material | undefined, isPointSprite: boolean = false) {
     if (material == null) return;
 
     if (this.__webglRenderingStrategy == null) {
