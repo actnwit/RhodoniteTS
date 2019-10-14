@@ -527,23 +527,22 @@ export default class ModelConverter {
 
     const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
     if (shaderName === "VRM/MToon") {
-      const mtoonMaterialPropertiesArray = rnExtension.mtoonMaterialPropertiesArray[primitive.materialIndex];
-      argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
+      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
+      argumentArray[0].materialProperties = materialProperties;
 
-      const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
-
-      //exist outline
+      // outline
+      const renderPassOutline = rnExtension.renderPassOutline;
       if (renderPassOutline != null) {
-        if (mtoonMaterialPropertiesArray[0][13] !== 0) {
-          argumentArray[0]["isOutline"] = true;
-          const outlineMaerial = MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
-          renderPassOutline.setMaterialForEntityInThisRenderPass(entity, outlineMaerial);
-        } else {
-          renderPassOutline.setMaterialForEntityInThisRenderPass(entity, undefined);
+        let outlineMaterial = undefined;
+        if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
+          argumentArray[0].isOutline = true;
+          outlineMaterial = MaterialHelper.createMToonMaterial(argumentArray[0]);
+          argumentArray[0].isOutline = false;
         }
+
+        renderPassOutline.setMaterialForEntityInThisRenderPass(entity, outlineMaterial);
       }
 
-      argumentArray[0]["materialPropertiesArray"] = mtoonMaterialPropertiesArray;
       return MaterialHelper.createMToonMaterial(argumentArray[0]);
 
     } else if (shaderName.indexOf("UnityChanToonShader") >= 0) {
