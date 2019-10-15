@@ -21,7 +21,7 @@ var Module = {
 
 
 
-  const entityRepository = Rn.EntityRepository.getInstance();
+    const entityRepository = Rn.EntityRepository.getInstance();
     const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
     const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
     //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
@@ -35,7 +35,7 @@ var Module = {
     const importer = Rn.Gltf2Importer.getInstance();
     const modelConverter = Rn.ModelConverter.getInstance();
     const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
-//    const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
+    //    const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
     const rootGroup = modelConverter.convertToRhodoniteObject(response);
 
     const entity = sparkgearModule.createSparkGearEntity();
@@ -43,10 +43,20 @@ var Module = {
     sparkGearComponent.url = '../../../assets/vfxb/sample.vfxb';
     entity.getTransform().translate = new Rn.Vector3(1, 1, 0);
 
+    // renderPass
+    const renderPass = new Rn.RenderPass();
+    renderPass.toClearColorBuffer = true;
+    renderPass.addEntities([rootGroup]);
+
+    // expression
+    const expression = new Rn.Expression();
+    expression.addRenderPasses([renderPass]);
+
+
     let startTime = Date.now();
     let p = null;
     let count = 0;
-    const draw = (time)=>{
+    const draw = (time) => {
 
       if (p == null && count > 1) {
         p = document.createElement('p');
@@ -64,7 +74,7 @@ var Module = {
         }
       }
 
-      system.process();
+      system.process([expression]);
 
       count++;
       requestAnimationFrame(draw);

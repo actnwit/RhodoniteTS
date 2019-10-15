@@ -217,8 +217,7 @@ const load = function (time) {
           //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
         }
 
-        // system.process();
-        system.process(expression);
+        system.process([expression]);
         count++;
 
         requestAnimationFrame(draw);

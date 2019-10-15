@@ -61,6 +61,15 @@ const load = async function (time) {
   controller.setTarget(rootGroup);
   controller.zFarAdjustingFactorBasedOnAABB = 1000;
 
+  // renderPass
+  const renderPass = new Rn.RenderPass();
+  renderPass.toClearColorBuffer = true;
+  renderPass.addEntities([rootGroup]);
+
+  // expression
+  const expression = new Rn.Expression();
+  expression.addRenderPasses([renderPass]);
+
 
 
   Rn.CameraComponent.main = 0;
@@ -101,7 +110,7 @@ const load = async function (time) {
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process();
+    system.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

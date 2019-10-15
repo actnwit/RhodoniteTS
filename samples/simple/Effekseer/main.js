@@ -1,7 +1,7 @@
 
 let p = null;
 
-const load = async function(time){
+const load = async function (time) {
   const moduleManager = Rn.ModuleManager.getInstance();
   await moduleManager.loadModule('webgl');
   await moduleManager.loadModule('pbr');
@@ -31,16 +31,16 @@ const load = async function(time){
 
 
   // glTF Model
-//  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
+  //  const response = await importer.import('../../../assets/gltf/2.0/Box/glTF/Box.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BoxTextured/glTF/BoxTextured.gltf');
-//  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
+  //  const response = await importer.import('../../../assets/gltf/2.0/Lantern/glTF/Lantern.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
- //const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
- //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
-//  const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
-//  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
- // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
- // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
+  //const response = await importer.import('../../../assets/gltf/2.0/VC/glTF/VC.gltf');
+  //  const response = await importer.import('../../../assets/gltf/2.0/Buggy/glTF/Buggy.gltf');
+  //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
+  // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
+  // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
@@ -48,11 +48,21 @@ const load = async function(time){
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
+  // renderPass
+  const renderPass = new Rn.RenderPass();
+  renderPass.toClearColorBuffer = true;
+  renderPass.addEntities([rootGroup]);
+
+  // expression
+  const expression = new Rn.Expression();
+  expression.addRenderPasses([renderPass]);
+
+
   Rn.CameraComponent.main = 0;
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function(time) {
+  const draw = function (time) {
 
 
     gl.enable(gl.DEPTH_TEST);
@@ -79,11 +89,11 @@ const load = async function(time){
         startTime = date.getTime();
       }
       //console.log(time);
-//      rootGroup.getTransform().scale = rotationVec3;
+      //      rootGroup.getTransform().scale = rotationVec3;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process();
+    system.process([expression]);
     count++;
 
     requestAnimationFrame(draw);
