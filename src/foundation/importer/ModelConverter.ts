@@ -462,12 +462,17 @@ export default class ModelConverter {
         if (primitive.mode != null) {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
         }
+
+        const rnPrimitive = new Primitive();
+        const material = this.__setupMaterial(rnPrimitive, node, gltfModel, primitive, primitive.material);
+        if (material == null) {
+          rnMesh.addPrimitive(rnPrimitive);
+          continue;
+        }
+
         // indices
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
-        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive, primitive.material);
-        if (material == null) continue;
-
         if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
           indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
 
@@ -486,7 +491,6 @@ export default class ModelConverter {
           }
         }
 
-        const rnPrimitive = new Primitive();
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
         // morph targets
@@ -521,7 +525,7 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __setVRMMaterial(entity: Entity, gltfModel: glTF2, primitive: any, argumentArray: any) {
+  private __setVRMMaterial(rnPrimitive: Primitive, gltfModel: glTF2, primitive: any, argumentArray: any) {
     const VRMProperties = gltfModel.extensions.VRM;
     const rnExtension = VRMProperties.rnExtension;
 
@@ -533,14 +537,16 @@ export default class ModelConverter {
       // outline
       const renderPassOutline = rnExtension.renderPassOutline;
       if (renderPassOutline != null) {
-        let outlineMaterial = undefined;
+        let outlineMaterial: Material;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
           argumentArray[0].isOutline = true;
           outlineMaterial = MaterialHelper.createMToonMaterial(argumentArray[0]);
           argumentArray[0].isOutline = false;
+        } else {
+          outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
-        renderPassOutline.setMaterialForEntityInThisRenderPass(entity, outlineMaterial);
+        renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
       }
 
       return MaterialHelper.createMToonMaterial(argumentArray[0]);
@@ -563,7 +569,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
+  private __generateAppropreateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -577,7 +583,7 @@ export default class ModelConverter {
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
 
       if (rnLoaderOptions.isImportVRM) {
-        const material = this.__setVRMMaterial(entity, gltfModel, primitive, argumentArray);
+        const material = this.__setVRMMaterial(rnPrimitive, gltfModel, primitive, argumentArray);
         if (material !== undefined) return material;
       }
 
@@ -620,8 +626,8 @@ export default class ModelConverter {
     return rnTexture;
   }
 
-  private __setupMaterial(entity: Entity, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
-    const material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, primitive, materialJson);
+  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
+    const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
     // discard this primitive
     if (material == null) return material;

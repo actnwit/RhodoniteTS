@@ -60,7 +60,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material) {
+      if (material && material.isEmptyMaterial() === false) {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
@@ -302,9 +302,10 @@ mat3 get_normalMatrix(float instanceId) {
 
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      const material: Material | undefined = renderPass.getAppropriateMaterial(entity, primitive.material!);
-      if (material == null) continue;
-
+      const material: Material | undefined = renderPass.getAppropriateMaterial(primitive, primitive.material!);
+      if (material == null || material.isEmptyMaterial()) {
+        continue;
+      }
 
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
       const shaderProgramUid = material._shaderProgramUid;

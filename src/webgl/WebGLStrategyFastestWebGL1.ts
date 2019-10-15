@@ -131,7 +131,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material) {
+      if (material && material.isEmptyMaterial() === false) {
         if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
           return;
         }
@@ -630,13 +630,16 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
-        const material: Material | undefined = renderPass.getAppropriateMaterial(entity, primitive.material);
-        if (material == null) continue;
+        const material: Material | undefined = renderPass.getAppropriateMaterial(primitive, primitive.material);
+        if (material == null || material.isEmptyMaterial()) {
+          continue;
+        }
 
         const shaderProgramUid = material._shaderProgramUid;
         if (shaderProgramUid === -1) {
           continue;
         }
+
 
 
         this.attachVertexDataInner(mesh, primitive, i, glw, mesh.variationVBOUid);

@@ -1,4 +1,4 @@
-import { PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
+import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { VertexAttributeEnum, VertexAttribute } from '../definitions/VertexAttribute';
 import Accessor from '../memory/Accessor';
 import RnObject from '../core/RnObject';
@@ -22,7 +22,7 @@ export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
-  public  material?: Material;
+  public material: Material = MaterialHelper.createEmptyMaterial();
   private __attributes: Attributes = new Map();
   private __indices?: Accessor;
   private static __primitiveCount: Count = 0;
@@ -43,8 +43,7 @@ export default class Primitive extends RnObject {
     mode: PrimitiveModeEnum,
     material?: Material,
     indicesAccessor?: Accessor,
-    )
-  {
+  ) {
 
     this.__indices = indicesAccessor;
     this.__attributes = attributes;
@@ -52,7 +51,7 @@ export default class Primitive extends RnObject {
     if (material != null) {
       this.material = material;
     } else {
-      this.material = MaterialHelper.createClassicUberMaterial({isSkinning: true, isLighting: true});
+      this.material = MaterialHelper.createClassicUberMaterial({ isSkinning: true, isLighting: true });
     }
     this.__mode = mode;
 
@@ -104,19 +103,18 @@ export default class Primitive extends RnObject {
   }
 
   static createPrimitive(
-    {indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode} :
-    {
-      indices?: TypedArray,
-      attributeCompositionTypes: Array<CompositionTypeEnum>,
-      attributeSemantics: Array<VertexAttributeEnum>,
-      attributes: Array<TypedArray>,
-      primitiveMode: PrimitiveModeEnum,
-      material?: Material
-    })
-  {
+    { indices, attributeCompositionTypes, attributeSemantics, attributes, material, primitiveMode }:
+      {
+        indices?: TypedArray,
+        attributeCompositionTypes: Array<CompositionTypeEnum>,
+        attributeSemantics: Array<VertexAttributeEnum>,
+        attributes: Array<TypedArray>,
+        primitiveMode: PrimitiveModeEnum,
+        material?: Material
+      }) {
 
     let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute=>{
+    attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
 
@@ -133,27 +131,27 @@ export default class Primitive extends RnObject {
     let indicesAccessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
-      indicesBufferView = buffer.takeBufferView({byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false});
+      indicesBufferView = buffer.takeBufferView({ byteLengthToNeed: indices.byteLength, byteStride: 0, isAoS: false });
       indicesAccessor = indicesBufferView.takeAccessor({
         compositionType: CompositionType.Scalar,
         componentType: indicesComponentType,
         count: indices.byteLength / indicesComponentType.getSizeInBytes()
       });
       // copy indices
-      for (let i=0; i<indices!.byteLength/indicesAccessor!.componentSizeInBytes; i++) {
+      for (let i = 0; i < indices!.byteLength / indicesAccessor!.componentSizeInBytes; i++) {
         indicesAccessor!.setScalar(i, indices![i], {});
       }
     }
 
-    const attributesBufferView = buffer.takeBufferView({byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false});
+    const attributesBufferView = buffer.takeBufferView({ byteLengthToNeed: sumOfAttributesByteSize, byteStride: 0, isAoS: false });
 
     const attributeAccessors: Array<Accessor> = [];
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
 
-    attributes.forEach((attribute, i)=>{
+    attributes.forEach((attribute, i) => {
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
-      const accessor:AccessorBase = attributesBufferView.takeAccessor({
+      const accessor: AccessorBase = attributesBufferView.takeAccessor({
         compositionType: attributeCompositionTypes[i],
         componentType: ComponentType.fromTypedArray(attributes[i]),
         count: attribute.byteLength / attributeCompositionTypes[i].getNumberOfComponents() / attributeComponentTypes[i].getSizeInBytes()
@@ -163,7 +161,7 @@ export default class Primitive extends RnObject {
     });
 
     const attributeMap: Map<VertexAttributeEnum, Accessor> = new Map();
-    for (let i=0; i<attributeSemantics.length; i++) {
+    for (let i = 0; i < attributeSemantics.length; i++) {
       attributeMap.set(attributeSemantics[i], attributeAccessors[i]);
     }
 
@@ -229,8 +227,8 @@ export default class Primitive extends RnObject {
   }
 
   get attributeAccessors(): Array<Accessor> {
-    const accessors:Array<Accessor> = [];
-    this.__attributes.forEach((accessor, semantic)=>{
+    const accessors: Array<Accessor> = [];
+    this.__attributes.forEach((accessor, semantic) => {
       accessors.push(accessor);
     });
     return accessors;
@@ -241,8 +239,8 @@ export default class Primitive extends RnObject {
   }
 
   get attributeSemantics(): Array<VertexAttributeEnum> {
-    const semantics:Array<VertexAttributeEnum> = [];
-    this.__attributes.forEach((accessor, semantic)=>{
+    const semantics: Array<VertexAttributeEnum> = [];
+    this.__attributes.forEach((accessor, semantic) => {
       semantics.push(semantic);
     });
     return semantics;
@@ -253,8 +251,8 @@ export default class Primitive extends RnObject {
   }
 
   get attributeCompositionTypes(): Array<CompositionTypeEnum> {
-    const types:Array<CompositionTypeEnum> = [];
-    this.__attributes.forEach((accessor, semantic)=>{
+    const types: Array<CompositionTypeEnum> = [];
+    this.__attributes.forEach((accessor, semantic) => {
       types.push(accessor.compositionType);
     });
 
@@ -262,8 +260,8 @@ export default class Primitive extends RnObject {
   }
 
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
-    const types:Array<ComponentTypeEnum> = [];
-    this.__attributes.forEach((accessor, semantic)=>{
+    const types: Array<ComponentTypeEnum> = [];
+    this.__attributes.forEach((accessor, semantic) => {
       types.push(accessor.componentType);
     });
 

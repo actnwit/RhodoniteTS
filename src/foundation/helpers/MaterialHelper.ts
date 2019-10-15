@@ -23,6 +23,13 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
   return material;
 }
 
+function createEmptyMaterial() {
+  const materialName = 'Empty';
+  const material = createMaterial(materialName, [], Config.maxMaterialInstanceForEachType);
+  return material;
+}
+
+
 function createPbrUberMaterial({
   additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
@@ -145,6 +152,6 @@ function createMToonMaterial({
 
 
 export default Object.freeze({
-  createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
+  createEmptyMaterial, createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial,
 });
