@@ -20,6 +20,8 @@ import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import CameraControllerComponent from "../components/CameraControllerComponent";
 import OrbitCameraController from "../cameras/OrbitCameraController";
+import { CameraControllerTypeEnum, CameraControllerType } from "../definitions/CameraControllerType";
+import WalkThroughCameraController from "../cameras/WalkThroughCameraController";
 
 type HumanBone = {
   bone: string,
@@ -227,85 +229,15 @@ export default class GltfOrVRMImporter {
   }
 
   /**
-   * Import VRM file.
+   * Import GLTF or VRM file.
    */
   async import(uri: string,
-    { gltfOptions, textureUri, cameraComponent }: { gltfOptions?: GltfLoadOption, textureUri?: string, cameraComponent?: CameraComponent } = {}
-  ) {
+    { gltfOptions, textureUri, cameraControllerType }: { gltfOptions?: GltfLoadOption, textureUri?: string, cameraControllerType?: CameraControllerTypeEnum } = {}
+  ): Promise<Expression> {
 
-    // this.__generateRenderPassesOfModel(uri, gltfOptions, textureUri);
+    const renderPasses: RenderPass[] = await this.__importModel(uri, gltfOptions, textureUri);
 
-
-    const renderPass = new RenderPass();
-    renderPass.toClearColorBuffer = true;
-    renderPass.toClearDepthBuffer = true;
-
-    let renderPasses: RenderPass[] = [];
-    let importer, gltfModel, rootGroup;
-    const modelConverter = ModelConverter.getInstance();
-
-    let fileType: string;
-    if (gltfOptions != null && gltfOptions.files != null) {
-      fileType = await detectFormat(uri, gltfOptions.files) as string;
-    } else {
-      fileType = await detectFormat(uri) as string;
-    }
-    switch (fileType) {
-      case 'glTF1':
-        importer = Gltf1Importer.getInstance();
-        gltfModel = await importer.import(uri, gltfOptions);
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-        renderPass.addEntities([rootGroup]);
-        renderPasses = [renderPass];
-        break;
-      case 'glTF2':
-        importer = Gltf2Importer.getInstance();
-        gltfModel = await importer.import(uri, gltfOptions);
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-        renderPass.addEntities([rootGroup]);
-        renderPasses = [renderPass];
-        break;
-      case 'Draco':
-        importer = DrcPointCloudImporter.getInstance();
-        gltfModel = await importer.importPointCloud(uri, textureUri!, gltfOptions);
-        rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
-        renderPass.addEntities([rootGroup]);
-        renderPasses = [renderPass];
-        break;
-      case 'VRM':
-        renderPasses = await this.__importVRM(uri, renderPass, gltfOptions);
-        break;
-      default:
-        console.error('detect invalid format');
-    }
-
-
-    if (cameraComponent != null) {
-      renderPass.cameraComponent = cameraComponent as CameraComponent;
-
-      const cameraControllerComponent = cameraComponent.entity.getComponent(CameraControllerComponent) as CameraControllerComponent;
-
-      if (cameraControllerComponent != null && (cameraControllerComponent.controller as any).setTarget != null) {
-        (cameraControllerComponent.controller as any).setTarget(renderPasses[0].sceneTopLevelGraphComponents![0].entity);
-      }
-
-    } else {
-      const entityRepository = EntityRepository.getInstance();
-      const cameraEntity = entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
-      const cameraComponent = cameraEntity.getComponent(CameraComponent) as CameraComponent;
-      cameraComponent.zNear = 0.1;
-      cameraComponent.zFar = 1000.0;
-      cameraComponent.setFovyAndChangeFocalLength(25.0);
-      cameraComponent.aspect = 1.0;
-      renderPass.cameraComponent = cameraComponent as CameraComponent;
-
-      const cameraControllerComponent = cameraEntity.getComponent(CameraControllerComponent) as CameraControllerComponent;
-      const controller = cameraControllerComponent.controller as OrbitCameraController;
-
-      controller.setTarget(renderPasses[0].sceneTopLevelGraphComponents![0].entity);
-      controller.zFarAdjustingFactorBasedOnAABB = 2000;
-    }
-
+    this.__setCamera(renderPasses[0], cameraControllerType);
 
     const expression = new Expression();
     expression.addRenderPasses(renderPasses);
@@ -313,44 +245,121 @@ export default class GltfOrVRMImporter {
 
   }
 
-  // private __generateRenderPassesOfModel(uri: string, gltfOptions?: GltfLoadOption, textureUri?: string) {
+  private __setCamera(renderPassMain: RenderPass, cameraControllerType?: CameraControllerTypeEnum) {
+    // camera
+    const entityRepository = EntityRepository.getInstance();
+    const cameraEntity = entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
+    const cameraComponent = cameraEntity.getComponent(CameraComponent) as CameraComponent;
+    cameraComponent.zNear = 0.1;
+    cameraComponent.zFar = 1000.0;
+    cameraComponent.setFovyAndChangeFocalLength(30.0);
+    cameraComponent.aspect = 1.0;
+    renderPassMain.cameraComponent = cameraComponent as CameraComponent;
 
-  // }
+    // cameraController
+    const cameraControllerComponent = cameraEntity.getComponent(CameraControllerComponent) as CameraControllerComponent;
+    if (cameraControllerType) {
+      cameraControllerComponent.type = cameraControllerType;
+    }
 
+    const controller = cameraControllerComponent.controller as OrbitCameraController | WalkThroughCameraController;
+    controller.setTarget(renderPassMain.sceneTopLevelGraphComponents![0].entity);
+    if (cameraControllerType !== CameraControllerType.Orbit) {
+      (controller as OrbitCameraController).zFarAdjustingFactorBasedOnAABB = 2000;
+    }
+  }
 
+  private async __importModel(uri: string, gltfOptions?: GltfLoadOption, textureUri?: string): Promise<RenderPass[]> {
 
-  private async __importVRM(uri: string, renderPassMain: RenderPass, options?: GltfLoadOption) {
-    options = this.getOptions(options);
+    let fileType: string;
+    if (gltfOptions != null && gltfOptions.files != null) {
+      fileType = await detectFormat(uri, gltfOptions.files) as string;
+    } else {
+      fileType = await detectFormat(uri) as string;
+    }
+
+    let importer: any, gltfModel: any, renderPasses: RenderPass[];
+    switch (fileType) {
+      case 'glTF1':
+        importer = Gltf1Importer.getInstance();
+        gltfModel = await importer.import(uri, gltfOptions);
+        renderPasses = this.__setupRenderPasses(gltfModel);
+        break;
+      case 'glTF2':
+        importer = Gltf2Importer.getInstance();
+        gltfModel = await importer.import(uri, gltfOptions);
+        renderPasses = this.__setupRenderPasses(gltfModel);
+        break;
+      case 'Draco':
+        importer = DrcPointCloudImporter.getInstance();
+        gltfModel = await importer.importPointCloud(uri, textureUri!, gltfOptions);
+        renderPasses = this.__setupRenderPasses(gltfModel);
+        break;
+      case 'VRM':
+        renderPasses = await this.__importVRM(uri, gltfOptions);
+        break;
+      default:
+        renderPasses = [];
+        console.error('detect invalid format');
+    }
+
+    return renderPasses;
+  }
+
+  private __setupRenderPasses(gltfModel: any) {
+    const modelConverter = ModelConverter.getInstance();
+    const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+
+    const renderPassMain = new RenderPass();
+    renderPassMain.toClearColorBuffer = true;
+    renderPassMain.toClearDepthBuffer = true;
+    renderPassMain.addEntities([rootGroup]);
+
+    return [renderPassMain];
+  }
+
+  private async __importVRM(uri: string, options?: GltfLoadOption) {
 
     const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, options);
-
+    const gltfModel = await gltf2Importer.import(uri, this.__getOptions(options));
 
     const textures = this.__createTextures(gltfModel);
-    this.__attachRnExtensionToGLTFModel(gltfModel, textures.length);
-    const existOutline = this.__findOutlineMaterial(gltfModel.extensions.VRM);
+    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+    defaultMaterialHelperArgumentArray[0].textures = textures;
 
-    const helperArgument0 = gltfModel.asset.extras!.rnLoaderOptions!.defaultMaterialHelperArgumentArray[0];
-    helperArgument0["textures"] = textures;
+    this.__initializeMaterialProperties(gltfModel, textures.length);
 
 
-    const renderPasses: RenderPass[] = [renderPassMain];
+    const renderPassMain = new RenderPass();
+    renderPassMain.toClearColorBuffer = true;
+    renderPassMain.toClearDepthBuffer = true;
+
+
     const modelConverter = ModelConverter.getInstance();
     let rootGroup;
 
+
+    let renderPasses;
+    const existOutline = this.__findOutlineMaterial(gltfModel.extensions.VRM);
     if (!existOutline) {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
+      renderPasses = [renderPassMain];
     } else {
       const renderPassOutline = new RenderPass();
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
       renderPassOutline.cameraComponent = renderPassMain.cameraComponent;
-      gltfModel.extensions.VRM.rnExtension["renderPassOutline"] = renderPassOutline;
+
+      if (gltfModel.extensions.VRM.rnExtension) {
+        gltfModel.extensions.VRM.rnExtension.renderPassOutline = renderPassOutline;
+      } else {
+        gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
+      }
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
 
-      renderPasses.push(renderPassOutline);
+      renderPasses = [renderPassMain, renderPassOutline];
     }
 
     renderPassMain.addEntities([rootGroup]);
@@ -358,13 +367,12 @@ export default class GltfOrVRMImporter {
     this.readSpringBone(rootGroup, gltfModel);
     this.readVRMHumanoidInfo(rootGroup, gltfModel);
 
-    return new Promise(function (resolve) {
-      resolve(renderPasses);
-    }) as any;
 
+
+    return renderPasses;
   }
 
-  private getOptions(options: GltfLoadOption | undefined) {
+  private __getOptions(options: GltfLoadOption | undefined) {
     if (options != null) {
       for (let file in options.files) {
         const fileName = file.split('.vrm')[0];
@@ -516,16 +524,17 @@ export default class GltfOrVRMImporter {
 
   }
 
-  private __attachRnExtensionToGLTFModel(gltfModel: glTF2, texturesLength: number) {
+  private __initializeMaterialProperties(gltfModel: glTF2, texturesLength: number) {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (let materialProperty of materialProperties) {
       if (materialProperty.shader === "VRM/MToon") {
-        this.__createMtoonMaterialPropertiesArray(gltfModel, texturesLength);
+        this.__initializeMToonMaterialProperties(gltfModel, texturesLength);
         break;
       }
     }
 
+    //TODO: do not attach materialPropertiesArray for uts shader
     let utsMaterialPropertiesArray = null;
     for (let materialProperty of materialProperties) {
       if (materialProperty.shader.indexOf("UnityChanToonShader") >= 0) {
@@ -534,12 +543,12 @@ export default class GltfOrVRMImporter {
       }
     }
 
-    gltfModel.extensions.VRM["rnExtension"] = {
+    gltfModel.extensions.VRM.rnExtension = {
       utsMaterialPropertiesArray: utsMaterialPropertiesArray
     };
   }
 
-  private __createMtoonMaterialPropertiesArray(gltfModel: glTF2, texturesLength: number) {
+  private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number) {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     const dummyWhiteTextureNumber = texturesLength - 2;
