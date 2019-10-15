@@ -121,8 +121,7 @@ const load = async function (time) {
       const date = new Date();
     }
 
-    // system.process();
-    system.process(expression);
+    system.process([expression]);
 
     count++;
 
