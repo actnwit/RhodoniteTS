@@ -38,28 +38,17 @@ export default class System {
   private __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   private __webglStrategy?: WebGLStrategy;
   private __localExpression = new Expression();
-  private __localRenderPass = new RenderPass();
   private __lastEntitiesNumber = -1;
   private __renderPassTickCount = 0;
 
   private constructor() {
-    this.__localRenderPass.toClearColorBuffer = true;
-    this.__localExpression.addRenderPasses([this.__localRenderPass]);
   }
 
-  process(expression?: Expression) {
+  process(expressions: Expression[]) {
     if (this.__processApproach === ProcessApproach.None) {
       throw new Error('Choose a process approach first.');
     }
     Time._processBegin();
-
-    let exp = (expression != null) ? expression : this.__localExpression;
-    if (exp === this.__localExpression && this.__entityRepository.getEntitiesNumber() !== this.__lastEntitiesNumber) {
-      this.__localRenderPass.clearEntities();
-      this.__localRenderPass.addEntities(this.__entityRepository._getEntities());
-
-      this.__lastEntitiesNumber = this.__entityRepository.getEntitiesNumber();
-    }
 
     if (CameraComponent.main === Component.InvalidObjectUID) {
       const cameraEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
@@ -78,40 +67,41 @@ export default class System {
       const commonMethodName = 'common_' + methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
       for (let componentTid of componentTids) {
-
-        let loopN = 1;
-        if (componentTid === MeshRendererComponent.componentTID) {
-          loopN = exp!.renderPasses.length;
-        }
-
-        for (let i = 0; i < loopN; i++) {
-          const renderPass = exp!.renderPasses[i];
-          if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
-            this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
-            this.__webglResourceRepository.setViewport(renderPass.getViewport());
-            this.__webglResourceRepository.setDrawTargets(renderPass.getFramebuffer());
-            this.__webglResourceRepository.clearFrameBuffer(renderPass);
+        for (let exp of expressions) {
+          let loopN = 1;
+          if (componentTid === MeshRendererComponent.componentTID) {
+            loopN = exp!.renderPasses.length;
           }
 
-          const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
-          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
+          for (let i = 0; i < loopN; i++) {
+            const renderPass = exp!.renderPasses[i];
+            if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
+              this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
+              this.__webglResourceRepository.setViewport(renderPass.getViewport());
+              this.__webglResourceRepository.setDrawTargets(renderPass.getFramebuffer());
+              this.__webglResourceRepository.clearFrameBuffer(renderPass);
+            }
 
-          const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-          if (componentClass_commonMethod) {
-            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
+            const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+            componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
+
+            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+            if (componentClass_commonMethod) {
+              componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
+            }
+
+            componentClass.process({
+              componentType: componentClass,
+              processStage: stage,
+              processApproach: this.__processApproach,
+              componentRepository: this.__componentRepository,
+              strategy: this.__webglStrategy!,
+              renderPass: renderPass,
+              renderPassTickCount: this.__renderPassTickCount
+            });
+
+            this.__renderPassTickCount++;
           }
-
-          componentClass.process({
-            componentType: componentClass,
-            processStage: stage,
-            processApproach: this.__processApproach,
-            componentRepository: this.__componentRepository,
-            strategy: this.__webglStrategy!,
-            renderPass: renderPass,
-            renderPassTickCount: this.__renderPassTickCount
-          });
-
-          this.__renderPassTickCount++;
         }
       }
     }
