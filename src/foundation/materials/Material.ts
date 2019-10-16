@@ -892,7 +892,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
   }
 
   isEmptyMaterial(): boolean {
-    if (this.__materialTypeName === "Empty") {
+    if (this.__materialNodes.length === 0) {
       return true;
     } else {
       return false;
