@@ -128,12 +128,17 @@ export default class GltfOrVRMImporter {
   }
 
   private async __importVRM(uri: string, options?: GltfLoadOption) {
-
+    options = this.__getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
-    const gltfModel = await gltf2Importer.import(uri, this.__getOptions(options));
+    const gltfModel = await gltf2Importer.import(uri, options);
+
+    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
+    gltfModel.extensions.VRM.rnExtension = {
+      existDefaultMorphing: defaultMaterialHelperArgumentArray[0].isMorphing != null,
+      existDefaultSkinning: defaultMaterialHelperArgumentArray[0].isSkinning != null
+    };
 
     const textures = this.__createTextures(gltfModel);
-    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
     defaultMaterialHelperArgumentArray[0].textures = textures;
 
     this.__initializeMaterialProperties(gltfModel, textures.length);
@@ -144,11 +149,10 @@ export default class GltfOrVRMImporter {
     renderPassMain.toClearDepthBuffer = true;
 
 
-    const modelConverter = ModelConverter.getInstance();
+    // setup renderPasses and rootGroup
     let renderPasses;
     let rootGroup;
-
-
+    const modelConverter = ModelConverter.getInstance();
     const existOutline = this.__findOutlineMaterial(gltfModel.extensions.VRM);
     if (!existOutline) {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
@@ -158,12 +162,7 @@ export default class GltfOrVRMImporter {
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
       renderPassOutline.cameraComponent = renderPassMain.cameraComponent;
-
-      if (gltfModel.extensions.VRM.rnExtension) {
-        gltfModel.extensions.VRM.rnExtension.renderPassOutline = renderPassOutline;
-      } else {
-        gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
-      }
+      gltfModel.extensions.VRM.rnExtension.renderPassOutline = renderPassOutline;
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
@@ -189,17 +188,25 @@ export default class GltfOrVRMImporter {
           delete options.files[file];
         }
       }
+
+      //set default values
       options.isImportVRM = true;
       if (options.defaultMaterialHelperArgumentArray == null) {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
-    }
-    else {
+      if (options.defaultMaterialHelperArgumentArray[0].isLighting == null) {
+        options.defaultMaterialHelperArgumentArray[0].isLighting = true;
+      }
+      if (options.defaultMaterialHelperArgumentArray[0].isMorphing === false) {
+        options.maxMorphTargetNumber = 0;
+      }
+
+    } else {
       options = {
         files: {},
         loaderExtension: null,
         defaultMaterialHelperName: null,
-        defaultMaterialHelperArgumentArray: [{}],
+        defaultMaterialHelperArgumentArray: [{ isLighting: true }],
         statesOfElements: [
           {
             targets: [],
@@ -212,9 +219,10 @@ export default class GltfOrVRMImporter {
             isTextureImageToLoadPreMultipliedAlpha: false,
           }
         ],
-        isImportVRM: true
+        isImportVRM: true,
       };
     }
+
     return options;
   }
 
@@ -350,9 +358,7 @@ export default class GltfOrVRMImporter {
       }
     }
 
-    gltfModel.extensions.VRM.rnExtension = {
-      utsMaterialPropertiesArray: utsMaterialPropertiesArray
-    };
+    gltfModel.extensions.VRM.rnExtension.utsMaterialPropertiesArray = utsMaterialPropertiesArray;
   }
 
   private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number) {
@@ -363,61 +369,65 @@ export default class GltfOrVRMImporter {
 
     for (let i = 0; i < materialProperties.length; i++) {
       const floatProperties = materialProperties[i].floatProperties;
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_BlendMode", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_BumpScale", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_CullMode", 2.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_Cutoff", 0.5);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_DebugMode", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_DstBlend", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_IndirectLightIntensity", 0.1);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_LightColorAttenuation", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineColorMode", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineCullMode", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineLightingMix", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineScaledMaxDistance", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineWidth", 0.5);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineWidthMode", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ReceiveShadowRate", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimFresnelPower", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimLift", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimLightingMix", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadeShift", 0.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadeToony", 0.9);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadingGradeRate", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_SrcBlend", 1.0);
-      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ZWrite", 1.0);
-      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
-      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimScrollY", 0.0);
-      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_BlendMode", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_BumpScale", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_CullMode", 2.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_Cutoff", 0.5);
+      this.__initializeForUndefinedProperty(floatProperties, "_DebugMode", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_DstBlend", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_IndirectLightIntensity", 0.1);
+      this.__initializeForUndefinedProperty(floatProperties, "_LightColorAttenuation", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineColorMode", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineCullMode", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineLightingMix", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineScaledMaxDistance", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineWidth", 0.5);
+      this.__initializeForUndefinedProperty(floatProperties, "_OutlineWidthMode", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_ReceiveShadowRate", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_RimFresnelPower", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_RimLift", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_RimLightingMix", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_ShadeShift", 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_ShadeToony", 0.9);
+      this.__initializeForUndefinedProperty(floatProperties, "_ShadingGradeRate", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_SrcBlend", 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, "_ZWrite", 1.0);
+      // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
+      // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimScrollY", 0.0);
+      // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
 
       const vectorProperties = materialProperties[i].vectorProperties;
-      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_Color", [1, 1, 1, 1]);
-      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_EmissionColor", [0, 0, 0]);
-      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
-      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
-      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_RimColor", [0, 0, 0]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_OutlineWidthTexture", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ReceiveShadowTexture", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadeTexture", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadingGradeTexture", [0, 0, 1, 1]);
-      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_SphereAdd", [0, 0, 1, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, "_Color", [1, 1, 1, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, "_EmissionColor", [0, 0, 0]);
+      this.__initializeForUndefinedProperty(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, "_RimColor", [0, 0, 0]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_OutlineWidthTexture", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_ReceiveShadowTexture", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_ShadeTexture", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_ShadingGradeTexture", [0, 0, 1, 1]);
+      // this.__initializeForUndefinedProperty(vectorProperties, "_SphereAdd", [0, 0, 1, 1]);
 
       // set num of texture array
       const textureProperties = materialProperties[i].textureProperties;
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_MainTex", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_RimTexture", dummyBlackTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
-      ModelConverter._initializeForUndefinedProperty(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
-      // ModelConverter._initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_MainTex", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_RimTexture", dummyBlackTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
+      // this.__initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
     }
+  }
+
+  private __initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any) {
+    if (object[propertyName] == null) object[propertyName] = initialValue;
   }
 
   private __createUTSMaterialPropertiesArray(gltfModel: glTF2, texturesLength: number) {
