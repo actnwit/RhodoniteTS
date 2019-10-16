@@ -60,17 +60,19 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material && material.isEmptyMaterial() === false) {
-        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-          return;
-        }
-
-        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-        const gl = glw.getRawContext();
-        const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-        this.setupDefaultShaderSemantics(material, isPointSprite);
+      if (material == null || material.isEmptyMaterial()) {
+        return;
       }
+
+      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        return;
+      }
+
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+      this.setupDefaultShaderSemantics(material, isPointSprite);
     }
   }
 
@@ -302,8 +304,8 @@ mat3 get_normalMatrix(float instanceId) {
 
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      const material: Material | undefined = renderPass.getAppropriateMaterial(primitive, primitive.material!);
-      if (material == null || material.isEmptyMaterial()) {
+      const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material!);
+      if (material.isEmptyMaterial()) {
         continue;
       }
 

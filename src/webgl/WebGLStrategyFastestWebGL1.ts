@@ -131,17 +131,19 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material && material.isEmptyMaterial() === false) {
-        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-          return;
-        }
-
-        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-        const gl = glw.getRawContext();
-        const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-        this.setupDefaultShaderSemantics(material, isPointSprite);
+      if (material == null || material.isEmptyMaterial()) {
+        return;
       }
+
+      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        return;
+      }
+
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+      this.setupDefaultShaderSemantics(material, isPointSprite);
     }
   }
 
@@ -630,8 +632,8 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
-        const material: Material | undefined = renderPass.getAppropriateMaterial(primitive, primitive.material);
-        if (material == null || material.isEmptyMaterial()) {
+        const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material);
+        if (material.isEmptyMaterial()) {
           continue;
         }
 

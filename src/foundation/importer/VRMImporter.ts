@@ -418,7 +418,7 @@ export default class VRMImporter {
 
     for (let materialProperty of materialProperties) {
       if (materialProperty.shader === "VRM/MToon") {
-        this.__createMtoonMaterialPropertiesArray(gltfModel, texturesLength);
+        this.__initializeMToonMaterialProperties(gltfModel, texturesLength);
         break;
       }
     }
@@ -436,7 +436,7 @@ export default class VRMImporter {
     };
   }
 
-  private __createMtoonMaterialPropertiesArray(gltfModel: glTF2, texturesLength: number) {
+  private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number) {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     const dummyWhiteTextureNumber = texturesLength - 2;
@@ -444,65 +444,61 @@ export default class VRMImporter {
 
     for (let i = 0; i < materialProperties.length; i++) {
       const floatProperties = materialProperties[i].floatProperties;
-      this.initializeForUndefinedProperty(floatProperties, "_BlendMode", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_BumpScale", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_CullMode", 2.0);
-      this.initializeForUndefinedProperty(floatProperties, "_Cutoff", 0.5);
-      this.initializeForUndefinedProperty(floatProperties, "_DebugMode", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_DstBlend", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_IndirectLightIntensity", 0.1);
-      this.initializeForUndefinedProperty(floatProperties, "_LightColorAttenuation", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineColorMode", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineCullMode", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineLightingMix", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineScaledMaxDistance", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineWidth", 0.5);
-      this.initializeForUndefinedProperty(floatProperties, "_OutlineWidthMode", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_ReceiveShadowRate", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_RimFresnelPower", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_RimLift", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_RimLightingMix", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_ShadeShift", 0.0);
-      this.initializeForUndefinedProperty(floatProperties, "_ShadeToony", 0.9);
-      this.initializeForUndefinedProperty(floatProperties, "_ShadingGradeRate", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_SrcBlend", 1.0);
-      this.initializeForUndefinedProperty(floatProperties, "_ZWrite", 1.0);
-      // this.initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
-      // this.initializeForUndefinedProperty(floatProperties,"_UvAnimScrollY", 0.0);
-      // this.initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_BlendMode", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_BumpScale", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_CullMode", 2.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_Cutoff", 0.5);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_DebugMode", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_DstBlend", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_IndirectLightIntensity", 0.1);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_LightColorAttenuation", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineColorMode", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineCullMode", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineLightingMix", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineScaledMaxDistance", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineWidth", 0.5);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_OutlineWidthMode", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ReceiveShadowRate", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimFresnelPower", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimLift", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_RimLightingMix", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadeShift", 0.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadeToony", 0.9);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ShadingGradeRate", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_SrcBlend", 1.0);
+      ModelConverter._initializeForUndefinedProperty(floatProperties, "_ZWrite", 1.0);
+      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
+      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimScrollY", 0.0);
+      // ModelConverter._initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
 
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.initializeForUndefinedProperty(vectorProperties, "_Color", [1, 1, 1, 1]);
-      this.initializeForUndefinedProperty(vectorProperties, "_EmissionColor", [0, 0, 0]);
-      this.initializeForUndefinedProperty(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
-      this.initializeForUndefinedProperty(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
-      this.initializeForUndefinedProperty(vectorProperties, "_RimColor", [0, 0, 0]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_OutlineWidthTexture", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_ReceiveShadowTexture", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_ShadeTexture", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_ShadingGradeTexture", [0, 0, 1, 1]);
-      // this.initializeForUndefinedProperty(vectorProperties, "_SphereAdd", [0, 0, 1, 1]);
+      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_Color", [1, 1, 1, 1]);
+      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_EmissionColor", [0, 0, 0]);
+      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
+      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
+      ModelConverter._initializeForUndefinedProperty(vectorProperties, "_RimColor", [0, 0, 0]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_OutlineWidthTexture", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ReceiveShadowTexture", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadeTexture", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_ShadingGradeTexture", [0, 0, 1, 1]);
+      // ModelConverter._initializeForUndefinedProperty(vectorProperties, "_SphereAdd", [0, 0, 1, 1]);
 
       // set num of texture array
       const textureProperties = materialProperties[i].textureProperties;
-      this.initializeForUndefinedProperty(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_MainTex", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_RimTexture", dummyBlackTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
-      this.initializeForUndefinedProperty(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
-      // this.initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_MainTex", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_RimTexture", dummyBlackTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
+      ModelConverter._initializeForUndefinedProperty(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
+      // ModelConverter._initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
     }
-  }
-
-  initializeForUndefinedProperty(properties: any, propertyName: string, initialValue: any) {
-    if (properties[propertyName] == null) properties[propertyName] = initialValue;
   }
 
 
