@@ -4,7 +4,7 @@ const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL2, document.getElementById('world'));
+  const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const GltfOrVRMImporter = Rn.GltfOrVRMImporter.getInstance();
   const entityRepository = Rn.EntityRepository.getInstance();
