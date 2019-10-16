@@ -5,7 +5,7 @@ import EntityRepository from "../core/EntityRepository";
 import AnimationComponent from "../components/AnimationComponent";
 import { Animation } from "../definitions/Animation";
 import { Index } from "../../types/CommonTypes";
-import { VRM } from "./VRMImporter";
+import { VRM } from "../../types/VRM";
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -24,7 +24,7 @@ export default class AnimationAssigner {
    * The static method to get singleton instance of this class.
    * @return The singleton instance of ModelConverter class
    */
-  static getInstance(): AnimationAssigner{
+  static getInstance(): AnimationAssigner {
     if (!this.__instance) {
       this.__instance = new AnimationAssigner();
     }
