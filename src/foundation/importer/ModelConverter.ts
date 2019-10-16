@@ -448,7 +448,8 @@ export default class ModelConverter {
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
-    if (gltfModel.asset.extras!.rnLoaderOptions && gltfModel.asset.extras!.rnLoaderOptions!.forceCalculateTangent) {
+    const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
+    if (rnLoaderOptions && rnLoaderOptions.forceCalculateTangent) {
       rnMesh.forceCalculateTangent = true;
     }
 
@@ -491,8 +492,18 @@ export default class ModelConverter {
 
         // morph targets
         if (primitive.targets != null) {
+          let maxMorphTargetNumber = 4;
+          if (rnLoaderOptions != null && rnLoaderOptions.maxMorphTargetNumber != null) {
+            maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
+          }
+
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-          for (let target of primitive.targets) {
+          for (let i = 0; i < primitive.targets.length; i++) {
+            if(i >= maxMorphTargetNumber){
+              break;
+            }
+
+            const target = primitive.targets[i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName];
@@ -502,11 +513,11 @@ export default class ModelConverter {
             }
             targets.push(targetMap);
           }
+
           rnPrimitive.setTargets(targets);
         }
 
         rnMesh.addPrimitive(rnPrimitive);
-
       }
 
       if (mesh.weights) {
@@ -521,24 +532,26 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  static _initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any) {
-    if (object[propertyName] == null) object[propertyName] = initialValue;
-  }
+
 
   private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
     const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
     if (shaderName === "VRM/MToon") {
-      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
+      // argument
       const argumentOfMaterialHelper = argumentArray[0];
-
+      const rnExtension = VRMProperties.rnExtension;
+      if (!rnExtension.existDefaultMorphing) {
+        argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
+      }
+      if (!rnExtension.existDefaultSkinning) {
+        const existSkin = node.skin != null;
+        argumentOfMaterialHelper.isSkinning = existSkin;
+        argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+      }
+      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
       argumentOfMaterialHelper.materialProperties = materialProperties;
-      ModelConverter._initializeForUndefinedProperty(argumentOfMaterialHelper, "isLighting", true);
-      ModelConverter._initializeForUndefinedProperty(argumentOfMaterialHelper, "isMorphing", this.__hasBlendShapes(node));
-      ModelConverter._initializeForUndefinedProperty(argumentOfMaterialHelper, "isSkinning", (node.skin != null) ? true : false);
-      ModelConverter._initializeForUndefinedProperty(argumentOfMaterialHelper, "additionalName",
-        (node.skin != null) ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "")
 
       // outline
       const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
