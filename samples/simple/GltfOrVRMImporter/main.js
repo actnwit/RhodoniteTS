@@ -18,8 +18,13 @@ const load = async function (time) {
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
   const expression = await GltfOrVRMImporter.import('./vrm.vrm', {
     gltfOptions: {
-      defaultMaterialHelperArgumentArray: [{ isLighting: true }],
-      // autoResizeTexture: true
+      defaultMaterialHelperArgumentArray: [{
+        isLighting: true,
+        isSkinning: false,
+        isMorphing: false,
+
+      }],
+      autoResizeTexture: true
     },
     // cameraControllerType: Rn.CameraControllerType.WalkThrough
   });

@@ -125,7 +125,7 @@ export default class RenderPass extends RnObject {
   }
 
   private __setupMaterial(material: Material, isPointSprite: boolean = false) {
-    if (material == null || material.isEmptyMaterial()) return;
+    if (material.isEmptyMaterial()) return;
 
     if (this.__webglRenderingStrategy == null) {
       this.__setWebglRenderingStrategy();
@@ -168,11 +168,11 @@ export default class RenderPass extends RnObject {
     return this.__primitiveMaterial.has(primitive);
   }
 
-  getAppropriateMaterial(primitive: Primitive, defaultMaterial: Material) {
+  getAppropriateMaterial(primitive: Primitive, defaultMaterial: Material): Material {
     let material;
 
     if (this.__hasMaterialOf(primitive)) {
-      material = this.__getMaterialOf(primitive);
+      material = this.__getMaterialOf(primitive) as Material;
     } else if (this.material != null) {
       material = this.material;
     } else {
