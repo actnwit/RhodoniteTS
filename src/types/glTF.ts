@@ -406,5 +406,6 @@ export type GltfLoadOption = {
   autoResizeTexture?: boolean,
   forceCalculateTangent?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
-  isImportVRM?: boolean
+  isImportVRM?: boolean,
+  maxMorphTargetNumber?: number
 }
