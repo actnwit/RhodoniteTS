@@ -534,7 +534,6 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-
   private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
