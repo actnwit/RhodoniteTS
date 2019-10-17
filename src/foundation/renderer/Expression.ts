@@ -13,7 +13,9 @@ export default class Expression extends RnObject {
   }
 
   addRenderPasses(renderPasses: RenderPass[]) {
-    this.__renderPasses = this.__renderPasses.concat(renderPasses);
+    for (let renderPass of renderPasses) {
+      this.__renderPasses.push(renderPass);
+    }
   }
 
   clearRenderPasses() {
