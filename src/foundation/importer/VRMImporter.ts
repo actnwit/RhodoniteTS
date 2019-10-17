@@ -13,7 +13,10 @@ import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
 import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
 import { VRM } from "../../types/VRM";
 
-
+/**
+ * The VRM Importer class.
+ * This class will be integrated into GltfImporter.
+ */
 export default class VRMImporter {
   private static __instance: VRMImporter;
 
@@ -33,6 +36,7 @@ export default class VRMImporter {
     const gltf2Importer = Gltf2Importer.getInstance();
     return gltf2Importer.import(uri, options);
   }
+
   /**
    * Import VRM file.
    */

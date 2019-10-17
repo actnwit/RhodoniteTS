@@ -1,16 +1,13 @@
-
 let p = null;
 
 const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL1, document.getElementById('world'));
+  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const gltf2Importer = Rn.Gltf2Importer.getInstance();
-
 
   // params
 
@@ -21,36 +18,26 @@ const load = async function (time) {
   // expresions
   const expressions = [];
 
+  // env
+  const envExpression = createEnvCubeExpression('./environment');
+  expressions.push(envExpression);
+
+
   // vrm
-  const animGltf2ModelPromise = gltf2Importer.import('../../../assets/vrm/test.glb');
-  const vrmModelPromise = gltfImporter.importJsonOfVRM('../../../assets/vrm/test.vrm');
-  const vrmExpressionPromise = gltfImporter.import('../../../assets/vrm/test.vrm', {
+  const vrmExpression = await gltfImporter.import('./vrm.vrm', {
     gltfOptions: {
       defaultMaterialHelperArgumentArray: [{
-        isSkinning: true,
-        isMorphing: true,
+        isSkinning: false,
+        isMorphing: false,
       }],
       autoResizeTexture: true
     }
   });
-
-  const [animGltf2Model, vrmModel, vrmExpression] = await Promise.all([animGltf2ModelPromise, vrmModelPromise, vrmExpressionPromise]);
   expressions.push(vrmExpression);
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
   const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
-
-  // animation
-  const animationAssigner = Rn.AnimationAssigner.getInstance();
-  animationAssigner.assignAnimation(vrmRootEntity, animGltf2Model, vrmModel);
-
-  // camera
-  const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
-  const controller = vrmMainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
 
 
   // post effects
@@ -58,14 +45,15 @@ const load = async function (time) {
   expressions.push(expressionPostEffect);
 
   // gamma correction (and super sampling)
+  const gammaTargetRenderPasses = envExpression.renderPasses.concat(vrmExpression.renderPasses);
   const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(displayResolution * 2, displayResolution * 2, 1, {});
-  for (let renderPass of vrmExpression.renderPasses) {
+  for (let renderPass of gammaTargetRenderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
     renderPass.toClearDepthBuffer = false;
   }
-  vrmExpression.renderPasses[0].toClearColorBuffer = true;
-  vrmExpression.renderPasses[0].toClearDepthBuffer = true;
+  gammaTargetRenderPasses[0].toClearColorBuffer = true;
+  gammaTargetRenderPasses[0].toClearDepthBuffer = true;
 
   const gammaRenderPass = createPostEffectRenderPass('createGammaCorrectionMaterial');
   setTextureParameterForMeshComponents(gammaRenderPass.meshComponents, Rn.ShaderSemantics.BaseColorTexture, gammaTargetFramebuffer.colorAttachments[0]);
@@ -96,7 +84,6 @@ const load = async function (time) {
 
 
   let count = 0;
-  let startTime = Date.now();
   const draw = function (time) {
     if (p == null && count > 0) {
       p = document.createElement('p');
@@ -106,16 +93,7 @@ const load = async function (time) {
     }
 
     if (window.isAnimating) {
-      const date = new Date();
-      const rotation = 0.001 * (date.getTime() - startTime);
-      //rotationVec3.v[0] = 0.1;
-      //rotationVec3.v[1] = rotation;
-      //rotationVec3.v[2] = 0.1;
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
-      }
+      // const date = new Date();
     }
 
     system.process(expressions);
@@ -127,13 +105,39 @@ const load = async function (time) {
 
   draw();
 
-}
+};
+
 
 document.body.onload = load;
 
-function exportGltf2() {
-  const exporter = Rn.Gltf2Exporter.getInstance();
-  exporter.export('Rhodonite');
+function createEnvCubeExpression(uri) {
+  const entityRepository = Rn.EntityRepository.getInstance();
+  const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const spherePrimitive = new Rn.Sphere();
+  window.sphereEntity = sphereEntity;
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const environmentCubeTexture = new Rn.CubeTexture();
+  environmentCubeTexture.baseUriToLoad = uri + '/environment';
+  environmentCubeTexture.isNamePosNeg = true;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+  environmentCubeTexture.mipmapLevelNumber = 1;
+  environmentCubeTexture.loadTextureImagesAsync();
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  spherePrimitive.generate({ radius: 50, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
+  const sphereMesh = new Rn.Mesh();
+  sphereMesh.addPrimitive(spherePrimitive);
+  sphereMeshComponent.setMesh(sphereMesh);
+  sphereEntity.getTransform().scale = new Rn.Vector3(-1, 1, 1);
+  sphereEntity.getTransform().translate = new Rn.Vector3(0, 20, -20);
+
+  const sphereRenderPass = new Rn.RenderPass();
+  sphereRenderPass.addEntities([sphereEntity]);
+
+  const sphereExpression = new Rn.Expression();
+  sphereExpression.addRenderPasses([sphereRenderPass]);
+
+  return sphereExpression;
 }
 
 function createPostEffectRenderPass(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
@@ -161,8 +165,6 @@ function createPostEffectRenderPass(materialHelperFunctionStr, arrayOfHelperFunc
   }
 
   const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = true;
-  renderPass.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
   renderPass.cameraComponent = createPostEffectRenderPass.cameraComponent;
   renderPass.addEntities([boardEntity]);
 
@@ -178,8 +180,8 @@ function createRenderPassSharingEntitiesAndCamera(originalRenderPass) {
 }
 
 function generateEntity() {
-  const repo = Rn.EntityRepository.getInstance();
-  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const entityRepository = Rn.EntityRepository.getInstance();
+  const entity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
   return entity;
 }
 
@@ -195,4 +197,5 @@ function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, va
     }
   }
 }
+
 

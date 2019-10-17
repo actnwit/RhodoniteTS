@@ -20,33 +20,44 @@ import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
 import CameraControllerComponent from "../components/CameraControllerComponent";
 import OrbitCameraController from "../cameras/OrbitCameraController";
-import { CameraControllerTypeEnum, CameraControllerType } from "../definitions/CameraControllerType";
-import WalkThroughCameraController from "../cameras/WalkThroughCameraController";
 import { VRM } from "../../types/VRM";
 
-
-export default class GltfOrVRMImporter {
-  private static __instance: GltfOrVRMImporter;
+/**
+ * Importer class which can import GLTF and VRM.
+ */
+export default class GltfImporter {
+  private static __instance: GltfImporter;
 
   private constructor() { }
 
   static getInstance() {
     if (!this.__instance) {
-      this.__instance = new GltfOrVRMImporter();
+      this.__instance = new GltfImporter();
     }
     return this.__instance;
+  }
+
+  /**
+   * For VRM file only
+   * Generate JSON.
+   */
+  async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<VRM> {
+    options = this.__getOptions(options);
+
+    const gltf2Importer = Gltf2Importer.getInstance();
+    return gltf2Importer.import(uri, options);
   }
 
   /**
    * Import GLTF or VRM file.
    */
   async import(uri: string,
-    { gltfOptions, textureUri, cameraControllerType }: { gltfOptions?: GltfLoadOption, textureUri?: string, cameraControllerType?: CameraControllerTypeEnum } = {}
+    { gltfOptions, textureUri }: { gltfOptions?: GltfLoadOption, textureUri?: string } = {}
   ): Promise<Expression> {
 
     const renderPasses: RenderPass[] = await this.__importModel(uri, gltfOptions, textureUri);
 
-    this.__setCamera(renderPasses[0], cameraControllerType);
+    this.__setCamera(renderPasses[0]);
 
     const expression = new Expression();
     expression.addRenderPasses(renderPasses);
@@ -54,7 +65,7 @@ export default class GltfOrVRMImporter {
 
   }
 
-  private __setCamera(renderPassMain: RenderPass, cameraControllerType?: CameraControllerTypeEnum) {
+  private __setCamera(renderPassMain: RenderPass): void {
     // camera
     const entityRepository = EntityRepository.getInstance();
     const cameraEntity = entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
@@ -67,15 +78,9 @@ export default class GltfOrVRMImporter {
 
     // cameraController
     const cameraControllerComponent = cameraEntity.getComponent(CameraControllerComponent) as CameraControllerComponent;
-    if (cameraControllerType) {
-      cameraControllerComponent.type = cameraControllerType;
-    }
-
-    const controller = cameraControllerComponent.controller as OrbitCameraController | WalkThroughCameraController;
+    const controller = cameraControllerComponent.controller as OrbitCameraController;
     controller.setTarget(renderPassMain.sceneTopLevelGraphComponents![0].entity);
-    if (cameraControllerType !== CameraControllerType.Orbit) {
-      (controller as OrbitCameraController).zFarAdjustingFactorBasedOnAABB = 2000;
-    }
+    controller.zFarAdjustingFactorBasedOnAABB = 2000;
   }
 
   private async __importModel(uri: string, gltfOptions?: GltfLoadOption, textureUri?: string): Promise<RenderPass[]> {
@@ -115,19 +120,19 @@ export default class GltfOrVRMImporter {
     return renderPasses;
   }
 
-  private __setupRenderPasses(gltfModel: any) {
+  private __setupRenderPasses(gltfModel: any): RenderPass[] {
     const modelConverter = ModelConverter.getInstance();
     const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
 
-    const renderPassMain = new RenderPass();
-    renderPassMain.toClearColorBuffer = true;
-    renderPassMain.toClearDepthBuffer = true;
-    renderPassMain.addEntities([rootGroup]);
+    const renderPass = new RenderPass();
+    renderPass.toClearColorBuffer = false;
+    renderPass.toClearDepthBuffer = false;
+    renderPass.addEntities([rootGroup]);
 
-    return [renderPassMain];
+    return [renderPass];
   }
 
-  private async __importVRM(uri: string, options?: GltfLoadOption) {
+  private async __importVRM(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
     options = this.__getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
@@ -145,15 +150,15 @@ export default class GltfOrVRMImporter {
 
 
     const renderPassMain = new RenderPass();
-    renderPassMain.toClearColorBuffer = true;
-    renderPassMain.toClearDepthBuffer = true;
+    renderPassMain.toClearColorBuffer = false;
+    renderPassMain.toClearDepthBuffer = false;
 
 
     // setup renderPasses and rootGroup
     let renderPasses;
     let rootGroup;
     const modelConverter = ModelConverter.getInstance();
-    const existOutline = this.__findOutlineMaterial(gltfModel.extensions.VRM);
+    const existOutline = this.__existOutlineMaterial(gltfModel.extensions.VRM);
     if (!existOutline) {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPasses = [renderPassMain];
@@ -178,7 +183,7 @@ export default class GltfOrVRMImporter {
     return renderPasses;
   }
 
-  private __getOptions(options: GltfLoadOption | undefined) {
+  private __getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
     if (options != null) {
       for (let file in options.files) {
         const fileName = file.split('.vrm')[0];
@@ -226,7 +231,7 @@ export default class GltfOrVRMImporter {
     return options;
   }
 
-  private readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM) {
+  private readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     for (let bone of humanBones) {
@@ -238,7 +243,7 @@ export default class GltfOrVRMImporter {
     });
   }
 
-  private readSpringBone(rootEntity: Entity, gltfModel: VRM) {
+  private readSpringBone(rootEntity: Entity, gltfModel: VRM): void {
     const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
@@ -288,7 +293,7 @@ export default class GltfOrVRMImporter {
 
   }
 
-  private addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent) {
+  private addPhysicsComponentRecursively(entityRepository: EntityRepository, sg: SceneGraphComponent): void {
     const entity = sg.entity;
     entityRepository.addComponentsToEntity([PhysicsComponent], entity.entityUID);
     VRMSpringBonePhysicsStrategy.initialize(sg);
@@ -299,12 +304,12 @@ export default class GltfOrVRMImporter {
     }
   }
 
-  private __createTextures(gltfModel: glTF2) {
+  private __createTextures(gltfModel: glTF2): Texture[] {
     const gltfTextures = gltfModel.textures;
-    const rnTextures: any = [];
+    const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
       const rnTexture = ModelConverter._createTexture({ texture: gltfTextures[i] }, gltfModel);
-      rnTextures.push(rnTexture);
+      rnTextures[i] = rnTexture;
     }
 
     const dummyWhiteTexture = new Texture();
@@ -317,7 +322,7 @@ export default class GltfOrVRMImporter {
     return rnTextures;
   }
 
-  private __findOutlineMaterial(extensionsVRM: any) {
+  private __existOutlineMaterial(extensionsVRM: any): boolean {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
       for (let materialProperty of materialProperties) {
@@ -339,7 +344,7 @@ export default class GltfOrVRMImporter {
 
   }
 
-  private __initializeMaterialProperties(gltfModel: glTF2, texturesLength: number) {
+  private __initializeMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (let materialProperty of materialProperties) {
@@ -361,7 +366,7 @@ export default class GltfOrVRMImporter {
     gltfModel.extensions.VRM.rnExtension.utsMaterialPropertiesArray = utsMaterialPropertiesArray;
   }
 
-  private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number) {
+  private __initializeMToonMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     const dummyWhiteTextureNumber = texturesLength - 2;
@@ -426,7 +431,7 @@ export default class GltfOrVRMImporter {
     }
   }
 
-  private __initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any) {
+  private __initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any): void {
     if (object[propertyName] == null) object[propertyName] = initialValue;
   }
 
