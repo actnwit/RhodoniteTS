@@ -1100,11 +1100,8 @@ export default class DrcPointCloudImporter {
           resolve(gltfJson);
         } else {
           const load = (img: HTMLImageElement, response: any) => {
-            var bytes = new Uint8Array(response);
-            var binaryData = "";
-            for (var i = 0, len = bytes.byteLength; i < len; i++) {
-              binaryData += String.fromCharCode(bytes[i]);
-            }
+            const bytes = new Uint8Array(response);
+            const binaryData = this._uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
             img.src = this._getImageType(ext) + window.btoa(binaryData);
@@ -1140,28 +1137,41 @@ export default class DrcPointCloudImporter {
     });
   }
 
-  _accessBinaryAsImage(bufferView: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferView, arrayBuffer);
-    return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
+  _accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
+    const uint8BufferView = this._takeBufferViewAsUint8Array(json, bufferViewIndex, arrayBuffer);
+    return this._accessArrayBufferAsImage(uint8BufferView as ArrayBuffer, mimeType);
   }
 
-  _sliceBufferViewToArrayBuffer(json: any, bufferView: number, arrayBuffer: ArrayBuffer) {
-    let bufferViewJson = json.bufferViews[bufferView];
-    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-    let byteLength = bufferViewJson.byteLength;
-    let arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
-    return arrayBufferSliced;
+  _takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer) {
+    const bufferViewJson = json.bufferViews[bufferViewIndex];
+    const byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    const byteLength = bufferViewJson.byteLength;
+    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+    return uint8BufferView;
   }
 
   _accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string) {
-    let bytes = new Uint8Array(arrayBuffer);
-    let binaryData = '';
-    for (let i = 0, len = bytes.byteLength; i < len; i++) {
-      binaryData += String.fromCharCode(bytes[i]);
-    }
-    let imgSrc = this._getImageType(imageType);
-    let dataUrl = imgSrc + DataUtil.btoa(binaryData);
+    const binaryData = this._uint8ArrayToString(new Uint8Array(arrayBuffer));
+    const imgSrc = this._getImageType(imageType);
+    const dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
+  }
+
+  _uint8ArrayToString(uint8: Uint8Array) {
+    const charCodeArray: number[] = new Array(uint8.byteLength);
+    for (let i = 0; i < uint8.byteLength; i++) {
+      charCodeArray[i] = uint8[i];
+    }
+
+    // the argument of String.fromCharCode has the limit of array length
+    const constant = 1024;
+    const divisionNumber = Math.ceil(charCodeArray.length / constant);
+
+    let binaryData = '';
+    for (let i = 0; i < divisionNumber; i++) {
+      binaryData += String.fromCharCode.apply(this, charCodeArray.slice(i * constant, (i + 1) * constant));
+    }
+    return binaryData;
   }
 
   _imgLoad(img: HTMLImageElement, imageUri: string) {
