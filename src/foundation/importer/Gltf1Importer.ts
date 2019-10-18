@@ -720,9 +720,9 @@ export default class Gltf1Importer {
       let imageUri: string;
 
       if (typeof imageJson.extensions !== 'undefined' && typeof imageJson.extensions.KHR_binary_glTF !== 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary, imageJson.extensions.KHR_binary_glTF.mimeType);
+        imageUri = DataUtil._accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary, imageJson.extensions.KHR_binary_glTF.mimeType);
       } else if (typeof imageJson.uri === 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+        imageUri = DataUtil._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -731,7 +731,7 @@ export default class Gltf1Importer {
           const arrayBuffer = options.files[filename];
           const splitted = filename.split('.');
           const fileExtension = splitted[splitted.length - 1];
-          imageUri = this._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil._accessArrayBufferAsImage(arrayBuffer, fileExtension);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -743,7 +743,7 @@ export default class Gltf1Importer {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await this._imgLoad(img, imageUri);
+        await DataUtil._imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
@@ -752,10 +752,10 @@ export default class Gltf1Importer {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = this._uint8ArrayToString(bytes);
+            const binaryData = DataUtil._uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
-            img.src = this._getImageType(ext) + window.btoa(binaryData);
+            img.src = DataUtil._getImageType(ext) + window.btoa(binaryData);
             img.onload = () => {
               resolve(gltfJson);
             }
@@ -783,72 +783,6 @@ export default class Gltf1Importer {
     }
 
     return Promise.all(promisesToLoadResources);
-  }
-
-  _accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    const uint8BufferView = this._takeBufferViewAsUint8Array(json, bufferViewIndex, arrayBuffer);
-    return this._accessArrayBufferAsImage(uint8BufferView as ArrayBuffer, mimeType);
-  }
-
-  _takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer) {
-    const bufferViewJson = json.bufferViews[bufferViewIndex];
-    const byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-    const byteLength = bufferViewJson.byteLength;
-    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-    return uint8BufferView;
-  }
-
-  _accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string) {
-    const binaryData = this._uint8ArrayToString(new Uint8Array(arrayBuffer));
-    const imgSrc = this._getImageType(imageType);
-    const dataUrl = imgSrc + DataUtil.btoa(binaryData);
-    return dataUrl;
-  }
-
-  _uint8ArrayToString(uint8: Uint8Array) {
-    const charCodeArray: number[] = new Array(uint8.byteLength);
-    for (let i = 0; i < uint8.byteLength; i++) {
-      charCodeArray[i] = uint8[i];
-    }
-
-    // the argument of String.fromCharCode has the limit of array length
-    const constant = 1024;
-    const divisionNumber = Math.ceil(charCodeArray.length / constant);
-
-    let binaryData = '';
-    for (let i = 0; i < divisionNumber; i++) {
-      binaryData += String.fromCharCode.apply(this, charCodeArray.slice(i * constant, (i + 1) * constant));
-    }
-    return binaryData;
-  }
-
-  _imgLoad(img: HTMLImageElement, imageUri: string) {
-    return new Promise(((resolve, reject) => {
-      img.onload = () => {
-        resolve();
-      };
-      img.src = imageUri;
-    }));
-  }
-
-  _getImageType(imageType: string) {
-    let imgSrc = null;
-    if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
-      imgSrc = "data:image/jpeg;base64,";
-    }
-    else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
-      imgSrc = "data:image/png;base64,";
-    }
-    else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
-      imgSrc = "data:image/gif;base64,";
-    }
-    else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
-      imgSrc = "data:image/bmp;base64,";
-    }
-    else {
-      imgSrc = "data:image/unknown;base64,";
-    }
-    return imgSrc;
   }
 
   static getInstance() {
