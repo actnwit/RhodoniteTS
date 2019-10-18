@@ -2,7 +2,7 @@ import RnObject from "../core/RnObject";
 import MutableColorRgb from "../math/MutableColorRgb";
 import Texture from "../textures/Texture";
 import Vector3 from "../math/Vector3";
-import { AlphaMode } from "../definitions/AlphaMode";
+import { AlphaMode, AlphaModeEnum } from "../definitions/AlphaMode";
 import { ShaderNode } from "../definitions/ShaderNode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
@@ -46,7 +46,7 @@ export default class Material extends RnObject {
   private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, any>> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  public alphaMode = AlphaMode.Opaque;
+  private __alphaMode = AlphaMode.Opaque;
   private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __materials: Material[] = [];
   private static __instancesByTypes: Map<MaterialTypeName, Material> = new Map();
@@ -65,13 +65,12 @@ export default class Material extends RnObject {
   public cullface: boolean | null = null;
   public cullFrontFaceCCW: boolean = true;
 
-  public depthMask: boolean | null = null;
-  public blendEquationMode: number | null = null;
-  public blendEquationModeAlpha: number | null = null;
-  public blendFuncSrcFactor: number | null = null;
-  public blendFuncDstFactor: number | null = null;
-  public blendFuncAlphaSrcFactor: number | null = null;
-  public blendFuncAlphaDstFactor: number | null = null;
+  private __blendEquationMode: number = 32774;            // gl.FUNC_ADD
+  private __blendEquationModeAlpha: number | null = null; // use blendEquation instead of blendEquationSeparate
+  private __blendFuncSrcFactor: number = 770;             // gl.SRC_ALPHA
+  private __blendFuncDstFactor: number = 771;             // gl.ONE_MINUS_SRC_ALPHA
+  private __blendFuncAlphaSrcFactor: number | null = 1;   // gl.ONE
+  private __blendFuncAlphaDstFactor: number | null = 1;   // gl.ONE
 
   private constructor(materialTid: Index, materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     super();
@@ -840,4 +839,56 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       return accessor;
     }
   }
+
+  get alphaMode() {
+    return this.__alphaMode;
+  }
+
+  set alphaMode(mode: AlphaModeEnum) {
+    this.__alphaMode = mode;
+  }
+
+  setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number | null) {
+    this.__blendEquationMode = blendEquationMode;
+    this.__blendEquationModeAlpha = blendEquationModeAlpha;
+  }
+
+  setBlendFuncSeparateFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number) {
+    this.__blendFuncSrcFactor = blendFuncSrcFactor;
+    this.__blendFuncDstFactor = blendFuncDstFactor;
+    this.__blendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
+    this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+  }
+
+  setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
+    this.__blendFuncSrcFactor = blendFuncSrcFactor;
+    this.__blendFuncDstFactor = blendFuncDstFactor;
+    this.__blendFuncAlphaSrcFactor = null;
+    this.__blendFuncAlphaDstFactor = null;
+  }
+
+  get blendEquationMode() {
+    return this.__blendEquationMode;
+  }
+
+  get blendEquationModeAlpha() {
+    return this.__blendEquationModeAlpha;
+  }
+
+  get blendFuncSrcFactor() {
+    return this.__blendFuncSrcFactor;
+  }
+
+  get blendFuncDstFactor() {
+    return this.__blendFuncDstFactor;
+  }
+
+  get blendFuncAlphaSrcFactor() {
+    return this.__blendFuncAlphaSrcFactor;
+  }
+
+  get blendFuncAlphaDstFactor() {
+    return this.__blendFuncAlphaDstFactor;
+  }
+
 }

@@ -21,12 +21,12 @@ export default class OrbitCameraController implements ICameraController {
   private __efficiency = 1;
   private __lengthOfCenterToEye = 1;
   private __foyvBias = 1.0;
-  private __scaleOfTraslation = 2.8;
+  private __scaleOfTranslation = 2.8;
   private __mouseTranslateVec = MutableVector3.zero();
   private __newEyeToCenterVec = MutableVector3.zero();
   private __newUpVec = MutableVector3.zero();
   private __newTangentVec = MutableVector3.zero();
-  private __verticalAngleThrethold = 0;
+  private __verticalAngleThreshold = 0;
   private __verticalAngleOfVectors = 0;
   private __isForceGrab = false;
   private __isSymmetryMode = true;
@@ -51,7 +51,7 @@ export default class OrbitCameraController implements ICameraController {
   private __doPreventDefault = true;
   public moveSpeed = 1;
 
-  private __pinchInOutControll = false;
+  private __pinchInOutControl = false;
   private __pinchInOutOriginalDistance?: number | null = null;
 
   private static returnVector3Eye = MutableVector3.zero();
@@ -136,15 +136,15 @@ export default class OrbitCameraController implements ICameraController {
     const currentMouseY = e.clientY;
     switch (this.__buttonNumber) {
       case 1: // left
-        this.__rotateControll(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+        this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         this.__rot_bgn_x = this.__rot_x;
         this.__rot_bgn_y = this.__rot_y;
         break;
       case 2: // right
-        this.__zoomControll(this.__originalX, currentMouseX);
+        this.__zoomControl(this.__originalX, currentMouseX);
         break;
       case 4: // center
-        this.__parallelTranslateControll(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+        this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         break;
       default:
         return;
@@ -188,14 +188,14 @@ export default class OrbitCameraController implements ICameraController {
     if (e.touches.length === 1) {
       currentTouchX = e.touches[0].clientX;
       currentTouchY = e.touches[0].clientY;
-      this.__rotateControll(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
+      this.__rotateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
       this.__rot_bgn_x = this.__rot_x;
       this.__rot_bgn_y = this.__rot_y;
     } else {
       currentTouchX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
       currentTouchY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
 
-      this.__parallelTranslateControll(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
+      this.__parallelTranslateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
     }
     this.__originalX = currentTouchX;
     this.__originalY = currentTouchY;
@@ -225,7 +225,7 @@ export default class OrbitCameraController implements ICameraController {
     this.__minimum_y = minimum_y;
   }
 
-  __rotateControll(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
+  __rotateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     // calc rotation angle
     let delta_x = (currentX - originalX) * this.__efficiency * 0.3;
     let delta_y = (currentY - originalY) * this.__efficiency * 0.3;
@@ -234,15 +234,15 @@ export default class OrbitCameraController implements ICameraController {
 
     // check if rotation angle is within range
     // if (
-    //   this.__verticalAngleThrethold - this.__verticalAngleOfVectors < this.__rot_y
+    //   this.__verticalAngleThreshold - this.__verticalAngleOfVectors < this.__rot_y
     // ) {
-    //          this._rot_y -= this._rot_y - (this._verticalAngleThrethold - this._verticalAngleOfVectors);
+    //          this._rot_y -= this._rot_y - (this._verticalAngleThreshold - this._verticalAngleOfVectors);
     // }
 
     // if (
-    //   this.__rot_y < -this.__verticalAngleThrethold + this.__verticalAngleOfVectors
+    //   this.__rot_y < -this.__verticalAngleThreshold + this.__verticalAngleOfVectors
     // ) {
-    //         this._rot_y += this._rot_y - (this._verticalAngleThrethold - this._verticalAngleOfVectors);
+    //         this._rot_y += this._rot_y - (this._verticalAngleThreshold - this._verticalAngleOfVectors);
     // }
 
     if (this.__maximum_y != null && this.__rot_y > this.__maximum_y) {
@@ -253,15 +253,15 @@ export default class OrbitCameraController implements ICameraController {
     }
   }
 
-  __zoomControll(originalValue: Size, currentValue: Size) {
+  __zoomControl(originalValue: Size, currentValue: Size) {
     this.dolly -= ((currentValue - originalValue) / 1000) * this.__efficiency;
   }
 
-  __parallelTranslateControll(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
+  __parallelTranslateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
     this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
 
-    const scale = this.__lengthOfCenterToEye * this.__foyvBias * this.__scaleOfTraslation;
+    const scale = this.__lengthOfCenterToEye * this.__foyvBias * this.__scaleOfTranslation;
 
     this.__mouseTranslateVec = Vector3.add(
       this.__mouseTranslateVec,
@@ -294,10 +294,10 @@ export default class OrbitCameraController implements ICameraController {
 
     const currentDistance = this.__getTouchesDistance(e);
     const originalDistance = this.__pinchInOutOriginalDistance;
-    if (!this.__pinchInOutControll) {
+    if (!this.__pinchInOutControl) {
       if (Math.abs(currentDistance - originalDistance) > 35.0) {
         this.__pinchInOutOriginalDistance = currentDistance;
-        this.__pinchInOutControll = true;
+        this.__pinchInOutControl = true;
       }
       return;
     }
@@ -310,7 +310,7 @@ export default class OrbitCameraController implements ICameraController {
 
   __pinchInOutEnd(e: TouchEvent) {
     if (e.touches.length < 2) {
-      this.__pinchInOutControll = false;
+      this.__pinchInOutControl = false;
       this.__pinchInOutOriginalDistance = null;
     }
   }
@@ -323,8 +323,7 @@ export default class OrbitCameraController implements ICameraController {
 
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
-
-    this.dolly += evt.deltaY / 30000;
+    this.dolly += Math.sign(evt.deltaY) / 10000;
   };
 
   __contextMenu(evt: Event) {
@@ -478,13 +477,9 @@ export default class OrbitCameraController implements ICameraController {
 
     let fovy = this.__getFovyFromCamera(camera);
 
-    let centerToEyeVec = Vector3.subtract(
-      this.__eyeVec,
-      this.__centerVec
-    );
-    centerToEyeVec = Vector3.multiply(centerToEyeVec,
-      (this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0))
-    );
+    const centerToEyeVec = new MutableVector3(this.__eyeVec).subtract(this.__centerVec)
+    centerToEyeVec.multiply((this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0)))
+
     this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
       let horizontalAngleOfVectors = Vector3.angleOfVectors(

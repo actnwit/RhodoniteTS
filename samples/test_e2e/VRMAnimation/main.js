@@ -8,7 +8,7 @@ const load = async function (time) {
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
-  const importer = Rn.VRMImporter.getInstance();
+  const vrmImporter = Rn.VRMImporter.getInstance();
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
@@ -16,7 +16,7 @@ const load = async function (time) {
   //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
-  cameraComponent.setFovyAndChangeFocalLength(90);
+  cameraComponent.setFovyAndChangeFocalLength(30);
   cameraComponent.aspect = 1;
 
   cameraEntity.getTransform().translate = new Rn.Vector3(0.0, 0, 0.5);
@@ -35,7 +35,8 @@ const load = async function (time) {
   const gltf2Importer = Rn.Gltf2Importer.getInstance();
   const animGltf2Model = await gltf2Importer.import('../../../assets/vrm/test.glb');
 
-  const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
+  const vrmModel = await vrmImporter.importJsonOnly('../../../assets/vrm/test.vrm');
+  const rootGroups = await vrmImporter.import('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{
       isLighting: true,
       isSkinning: true
@@ -47,7 +48,7 @@ const load = async function (time) {
     rootGroup.getTransform().rotate = new Rn.Vector3(0, Math.PI, 0.0);
     //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
     const animationAssigner = Rn.AnimationAssigner.getInstance();
-    animationAssigner.assignAnimation(rootGroup, animGltf2Model);
+    animationAssigner.assignAnimation(rootGroup, animGltf2Model, vrmModel);
   }
 
   // CameraComponent

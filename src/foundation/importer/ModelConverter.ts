@@ -448,6 +448,10 @@ export default class ModelConverter {
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
+    if (gltfModel.asset.extras!.rnLoaderOptions && gltfModel.asset.extras!.rnLoaderOptions!.forceCalculateTangent) {
+      rnMesh.forceCalculateTangent = true;
+    }
+
     let originalRnMesh = rnMesh;
     if (existingRnMesh != null) {
       rnMesh.setMesh(existingRnMesh);

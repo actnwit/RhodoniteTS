@@ -392,8 +392,6 @@ void main ()
     }
   }
 
-  rt0.xyz = v_tangent_inWorld*0.5+0.5;
-
   ${_def_fragColor}
 }
 `;

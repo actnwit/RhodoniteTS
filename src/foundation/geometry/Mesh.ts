@@ -38,6 +38,7 @@ export default class Mesh {
   public _attatchedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
+  public forceCalculateTangent: boolean = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -221,7 +222,7 @@ export default class Mesh {
   __calcTangents() {
     for (let primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
-      if (tangentIdx !== -1) {
+      if (tangentIdx !== -1 && !this.forceCalculateTangent) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
@@ -244,7 +245,7 @@ export default class Mesh {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = positionAccessor.byteLength;
-        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
+        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize*4/3, byteStride: 0, isAoS: false });
         const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
