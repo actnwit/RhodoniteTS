@@ -343,8 +343,87 @@ export default class Primitive extends RnObject {
     return this.__vertexHandles;
   }
 
-  castRay() {
+  castRay(
+    origVec3: Vector3,
+    dirVec3: Vector3,
+    isFrontFacePickable: boolean,
+    isBackFacePickable: boolean,
+    dotThreshold: number
+    )
+  {
+        let currentShortestT = Number.MAX_VALUE;
+    let currentShortestIntersectedPosVec3 = null;
 
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    // const positionElementNumPerVertex = this._vertices.components.position;
+    let incrementNum = 3; // gl.TRIANGLES
+    if (this.__mode === PrimitiveMode.TriangleStrip) {
+      // gl.TRIANGLE_STRIP
+      incrementNum = 1;
+    }
+
+    const posComponentN = positionAccessor.numberOfComponents;
+    if (!this.hasIndices()) {
+      for (let i = 0; i < positionAccessor.elementCount; i++) {
+        const j = i * incrementNum;
+        let pos0IndexBase = j * posComponentN;
+        let pos1IndexBase = (j + 1) * posComponentN;
+        let pos2IndexBase = (j + 2) * posComponentN;
+        const result = this.__castRayInner(
+          origVec3,
+          dirVec3,
+          j,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          isFrontFacePickable,
+          isBackFacePickable,
+          dotThreshold
+        );
+        if (result === null) {
+          continue;
+        }
+        const t = result[0];
+        if (result[0] < currentShortestT) {
+          currentShortestT = t;
+          currentShortestIntersectedPosVec3 = result[1];
+        }
+      }
+    } else {
+      for (let j = 0; j < this.__indices!.elementCount; j++) {
+        const k = j * incrementNum;
+        if (k+2 < this.__indices!.elementCount) {
+          break;
+        }
+        let pos0IndexBase = this.__indices!.getScalar(k, {}) * posComponentN;
+        let pos1IndexBase =
+          this.__indices!.getScalar(k + 1, {}) * posComponentN;
+        let pos2IndexBase =
+          this.__indices!.getScalar(k + 2, {}) * posComponentN;
+
+        const result = this.__castRayInner(
+          origVec3,
+          dirVec3,
+          this.__indices!.getScalar(k, {}),
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          isFrontFacePickable,
+          isBackFacePickable,
+          dotThreshold
+        );
+        if (result === null) {
+          continue;
+        }
+        const t = result[0];
+        if (result[0] < currentShortestT) {
+          currentShortestT = t;
+          currentShortestIntersectedPosVec3 = result[1];
+        }
+      }
+    }
+
+    return [currentShortestIntersectedPosVec3, currentShortestT];
   }
 
   private __castRayInner(
@@ -357,7 +436,7 @@ export default class Primitive extends RnObject {
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
     dotThreshold: number
-  ) {
-    
+  ): number[] {
+    return [0,0,0];
   }
 }
