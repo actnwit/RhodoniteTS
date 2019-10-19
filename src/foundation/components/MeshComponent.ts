@@ -24,6 +24,7 @@ import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import MathClassUtil from '../math/MathClassUtil';
+import MutableVector3 from '../math/MutableVector3';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -74,6 +75,7 @@ export default class MeshComponent extends Component {
     }
     //    this.__mesh!.makeVerticesSepareted();
     this.__mesh.__calcTangents();
+    this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
     // this.__mesh!.__calcFaceNormals();
     if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
@@ -127,10 +129,10 @@ export default class MeshComponent extends Component {
         const distVecInLocal = new Vector3(
           invWorldMatrix.multiplyVector(new Vector4(distVecInWorld))
         );
-        directionInLocal = Vector3.subtract(
+        directionInLocal = Vector3.normalize(Vector3.subtract(
           distVecInLocal,
           srcPointInLocal
-        ).normalize();
+        ));
 
         const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
@@ -162,10 +164,10 @@ export default class MeshComponent extends Component {
           invPVW,
           viewport
         );
-        const directionInLocal = Vector3.subtract(
+        const directionInLocal = Vector3.normalize(Vector3.subtract(
           distVecInLocal,
           srcPointInLocal
-        ).normalize();
+        ));
 
         const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;

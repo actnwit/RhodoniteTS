@@ -18,6 +18,8 @@ import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/Common
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
+import Entity from '../core/Entity';
+import Mesh from '../geometry/Mesh';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -288,8 +290,14 @@ export default class SceneGraphComponent extends Component {
     dotThreshold: number = 0,
     ignoreMeshComponents: MeshComponent[] = []
     ) {
-    const componentRepository = ComponentRepository.getInstance();
-    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
+    const meshComponents: MeshComponent[] = [];
+    collectedSgComponents.filter((sg: SceneGraphComponent) => {
+      const mesh = sg.entity.getMesh();
+      if (mesh) {
+        meshComponents.push(mesh);
+      }
+    });
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = null;
     let selectedMeshComponent = null;
@@ -318,13 +326,19 @@ export default class SceneGraphComponent extends Component {
     return {intersectedPosition, rayDistance, selectedMeshComponent};
   }
 
-   castRayFromScreen(
+  castRayFromScreen(
       x: number, y: number, camera: CameraComponent, viewport: Vector4,
       dotThreshold: number = 0,
       ignoreMeshComponents: MeshComponent[] = []
     ) {
-    const componentRepository = ComponentRepository.getInstance();
-    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
+    const meshComponents: MeshComponent[] = [];
+    collectedSgComponents.filter((sg: SceneGraphComponent) => {
+      const mesh = sg.entity.getMesh();
+      if (mesh) {
+        meshComponents.push(mesh);
+      }
+    });
     let rayDistance = Number.MAX_VALUE;
     let intersectedPosition = null;
     let selectedMeshComponent = null;

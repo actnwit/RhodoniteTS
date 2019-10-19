@@ -627,4 +627,10 @@ export default class Mesh {
 
     return {t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3}
   }
+
+  _calcArenbergInverseMatrices() {
+    for (let primitive of this.__primitives) {
+      primitive._calcArenbergInverseMatrices();
+    }
+  }
 }
