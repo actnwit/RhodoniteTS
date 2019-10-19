@@ -22,6 +22,8 @@ import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
 import SceneGraphComponent from './SceneGraphComponent';
 import Matrix44 from '../math/Matrix44';
+import MutableMatrix44 from '../math/MutableMatrix44';
+import MathClassUtil from '../math/MathClassUtil';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -125,6 +127,41 @@ export default class MeshComponent extends Component {
           invWorldMatrix.multiplyVector(new Vector4(distVecInWorld))
         );
         directionInLocal = Vector3.subtract(
+          distVecInLocal,
+          srcPointInLocal
+        ).normalize();
+
+        const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        let intersectPositionInWorld = null;
+        if (t >= 0) {
+          intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
+        }
+
+        return {t, intersectedPositionInWorld: intersectPositionInWorld};
+      }
+    }
+
+    return {t: -1, intersectedPositionInWorld: undefined};
+  }
+
+  castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold: number = 0) {
+    if (this.__mesh) {
+      if (this.__sceneGraphComponent) {
+        const invPVW = MutableMatrix44.multiply(
+          camera.projectionMatrix,
+          Matrix44.multiply(camera.viewMatrix, this.__sceneGraphComponent.worldMatrixInner)
+        ).invert();
+        const srcPointInLocal = MathClassUtil.unProject(
+          new Vector3(x, y, 0),
+          invPVW,
+          viewport
+        );
+        const distVecInLocal = MathClassUtil.unProject(
+          new Vector3(x, y, 1),
+          invPVW,
+          viewport
+        );
+        const directionInLocal = Vector3.subtract(
           distVecInLocal,
           srcPointInLocal
         ).normalize();

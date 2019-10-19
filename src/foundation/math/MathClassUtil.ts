@@ -181,7 +181,7 @@ export default class MathClassUtil {
     return [v0, v1];
   }
 
-  static unProject(windowPosVec3: Vector3, inversePVMat44: Matrix44, viewportVec4: Vector4, zNear: number, zFar: number) {
+  static unProject(windowPosVec3: Vector3, inversePVMat44: Matrix44, viewportVec4: Vector4) {
     const input = new Vector4(
       (windowPosVec3.x - viewportVec4.x) / viewportVec4.z * 2 - 1.0,
       (windowPosVec3.y - viewportVec4.y) / viewportVec4.w * 2 - 1.0,
