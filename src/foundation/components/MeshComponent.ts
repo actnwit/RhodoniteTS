@@ -20,11 +20,14 @@ import Mesh from '../geometry/Mesh';
 import Entity from '../core/Entity';
 import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
 import BlendShapeComponent from './BlendShapeComponent';
+import SceneGraphComponent from './SceneGraphComponent';
+import Matrix44 from '../math/Matrix44';
 
 export default class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;
   private __blendShapeComponent?: BlendShapeComponent;
+  private __sceneGraphComponent?: SceneGraphComponent;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -57,6 +60,7 @@ export default class MeshComponent extends Component {
 
   $create() {
     this.__blendShapeComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, BlendShapeComponent) as BlendShapeComponent;
+    this.__sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
 
     this.moveStageTo(ProcessStage.Load);
   }
@@ -105,6 +109,37 @@ export default class MeshComponent extends Component {
 
   static alertNoMeshSet(meshComponent: MeshComponent) {
     console.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
+  }
+
+  castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold: number = 0) {
+    if (this.__mesh) {
+      let srcPointInLocal = srcPointInWorld;
+      let directionInLocal = directionInWorld;
+      if (this.__sceneGraphComponent) {
+        const invWorldMatrix = Matrix44.invert(this.__sceneGraphComponent.worldMatrixInner);
+        srcPointInLocal = new Vector3(
+          invWorldMatrix.multiplyVector(new Vector4(srcPointInWorld))
+        );
+        const distVecInWorld = Vector3.add(srcPointInWorld, directionInWorld);
+        const distVecInLocal = new Vector3(
+          invWorldMatrix.multiplyVector(new Vector4(distVecInWorld))
+        );
+        directionInLocal = Vector3.subtract(
+          distVecInLocal,
+          srcPointInLocal
+        ).normalize();
+
+        const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        let intersectPositionInWorld = null;
+        if (t >= 0) {
+          intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
+        }
+
+        return {t, intersectedPositionInWorld: intersectPositionInWorld};
+      }
+    }
+
+    return {t: -1, intersectedPositionInWorld: undefined};
   }
 }
 

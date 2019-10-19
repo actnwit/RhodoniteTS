@@ -355,7 +355,7 @@ export default class Primitive extends RnObject {
     dotThreshold: number
     )
   {
-        let currentShortestT = Number.MAX_VALUE;
+    let currentShortestT = Number.MAX_VALUE;
     let currentShortestIntersectedPosVec3 = null;
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
@@ -427,7 +427,11 @@ export default class Primitive extends RnObject {
       }
     }
 
-    return [currentShortestIntersectedPosVec3, currentShortestT];
+    if (currentShortestT === Number.MAX_VALUE) {
+      currentShortestT === -1;
+    }
+
+    return {currentShortestIntersectedPosVec3, currentShortestT};
   }
 
   private __castRayInner(
@@ -440,7 +444,7 @@ export default class Primitive extends RnObject {
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
     dotThreshold: number
-  ): number[] | null {
+  ): any[] | null {
 
     if (!this.__arenberg3rdPosition[i]) {
       return null;

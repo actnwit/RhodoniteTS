@@ -345,6 +345,12 @@ export default class Mesh {
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
   }
 
+  private __calcArenbergInverseMatrices() {
+    for (let primitive of this.__primitives) {
+      primitive._calcArenbergInverseMatrices();
+    }
+  }
+
   getPrimitiveAt(i: number): Primitive {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getPrimitiveAt(i);
@@ -603,8 +609,18 @@ export default class Mesh {
     return this.__instances.length + 1;
   }
 
-  castRay(srcPointInLocal: Vector3, directionInLocal: Vector3) {
-    const distPointInlocal = Vector3.add(srcPointInLocal, directionInLocal);
-    
+  castRay(srcPointInLocal: Vector3, directionInLocal: Vector3, dotThreshold: number = 0) {
+    let finalShortestIntersectedPosVec3: Vector3 | undefined;
+    let finalShortestT = Number.MAX_VALUE;
+    for (let primitive of this.__primitives) {
+      const {currentShortestIntersectedPosVec3, currentShortestT} =
+        primitive.castRay(srcPointInLocal, directionInLocal, true, true, dotThreshold);
+      if (currentShortestT != null && currentShortestT < finalShortestT) {
+        finalShortestT = currentShortestT;
+        finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;
+      }
+    }
+
+    return {t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3}
   }
 }
