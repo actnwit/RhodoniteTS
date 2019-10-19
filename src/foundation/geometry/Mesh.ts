@@ -621,6 +621,10 @@ export default class Mesh {
       }
     }
 
+    if (finalShortestT === Number.MAX_VALUE) {
+      finalShortestT === -1;
+    }
+
     return {t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3}
   }
 }

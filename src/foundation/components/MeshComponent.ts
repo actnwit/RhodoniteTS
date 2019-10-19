@@ -30,6 +30,7 @@ export default class MeshComponent extends Component {
   private __mesh?: Mesh;
   private __blendShapeComponent?: BlendShapeComponent;
   private __sceneGraphComponent?: SceneGraphComponent;
+  public isPickable = true;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);

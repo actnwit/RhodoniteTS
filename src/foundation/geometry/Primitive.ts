@@ -427,10 +427,6 @@ export default class Primitive extends RnObject {
       }
     }
 
-    if (currentShortestT === Number.MAX_VALUE) {
-      currentShortestT === -1;
-    }
-
     return {currentShortestIntersectedPosVec3, currentShortestT};
   }
 
