@@ -13,7 +13,10 @@ import Material from '../materials/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count } from '../../types/CommonTypes';
+import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
+import Vector3 from '../math/Vector3';
+import Matrix33 from '../math/Matrix33';
+import MutableMatrix33 from '../math/MutableMatrix33';
 
 export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
@@ -28,6 +31,8 @@ export default class Primitive extends RnObject {
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
+  private __inverseArenbergMatrix: Matrix33[] = [];
+  private __arenberg3rdPosition: Vector3[] = [];
 
   constructor() {
     super();
@@ -340,5 +345,264 @@ export default class Primitive extends RnObject {
 
   get vertexHandles() {
     return this.__vertexHandles;
+  }
+
+  castRay(
+    origVec3: Vector3,
+    dirVec3: Vector3,
+    isFrontFacePickable: boolean,
+    isBackFacePickable: boolean,
+    dotThreshold: number
+    )
+  {
+    let currentShortestT = Number.MAX_VALUE;
+    let currentShortestIntersectedPosVec3 = null;
+
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    // const positionElementNumPerVertex = this._vertices.components.position;
+    let incrementNum = 3; // gl.TRIANGLES
+    if (this.__mode === PrimitiveMode.TriangleStrip) {
+      // gl.TRIANGLE_STRIP
+      incrementNum = 1;
+    }
+
+    const posComponentN = positionAccessor.numberOfComponents;
+    if (!this.hasIndices()) {
+      for (let i = 0; i < positionAccessor.elementCount; i++) {
+        const j = i * incrementNum;
+        let pos0IndexBase = j * posComponentN;
+        let pos1IndexBase = (j + 1) * posComponentN;
+        let pos2IndexBase = (j + 2) * posComponentN;
+        const result = this.__castRayInner(
+          origVec3,
+          dirVec3,
+          j,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          isFrontFacePickable,
+          isBackFacePickable,
+          dotThreshold
+        );
+        if (result === null) {
+          continue;
+        }
+        const t = result[0];
+        if (result[0] < currentShortestT) {
+          currentShortestT = t;
+          currentShortestIntersectedPosVec3 = result[1];
+        }
+      }
+    } else {
+      for (let j = 0; j < this.__indices!.elementCount; j++) {
+        const k = j * incrementNum;
+        if (k+2 > this.__indices!.elementCount - 1) {
+          break;
+        }
+        let pos0IndexBase = this.__indices!.getScalar(k, {}) * posComponentN;
+        let pos1IndexBase =
+          this.__indices!.getScalar(k + 1, {}) * posComponentN;
+        let pos2IndexBase =
+          this.__indices!.getScalar(k + 2, {}) * posComponentN;
+
+        const result = this.__castRayInner(
+          origVec3,
+          dirVec3,
+          this.__indices!.getScalar(k, {}),
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          isFrontFacePickable,
+          isBackFacePickable,
+          dotThreshold
+        );
+        if (result === null) {
+          continue;
+        }
+        const t = result[0];
+        if (result[0] < currentShortestT) {
+          currentShortestT = t;
+          currentShortestIntersectedPosVec3 = result[1];
+        }
+      }
+    }
+
+    return {currentShortestIntersectedPosVec3, currentShortestT};
+  }
+
+  private __castRayInner(
+    origVec3: Vector3,
+    dirVec3: Vector3,
+    i: Index,
+    pos0IndexBase: Index,
+    pos1IndexBase: Index,
+    pos2IndexBase: Index,
+    isFrontFacePickable: boolean,
+    isBackFacePickable: boolean,
+    dotThreshold: number
+  ): any[] | null {
+
+    if (!this.__arenberg3rdPosition[i]) {
+      return null;
+    }
+
+    const faceNormalAccessor = this.__attributes.get(VertexAttribute.FaceNormal)!;
+    if (faceNormalAccessor) {
+      const faceNormal = faceNormalAccessor.getVec3(i, {});
+      if (faceNormal.dotProduct(dirVec3) < dotThreshold && !isFrontFacePickable) {
+        return null;
+      }
+      if (faceNormal.dotProduct(dirVec3) > -dotThreshold && !isBackFacePickable) {
+        return null;
+      }
+    }
+
+    const vec3 = Vector3.subtract(
+      origVec3,
+      this.__arenberg3rdPosition[i]
+    );
+    const convertedOrigVec3 = this.__inverseArenbergMatrix[
+      i
+    ].multiplyVector(vec3);
+    const convertedDirVec3 = this.__inverseArenbergMatrix[
+      i
+    ].multiplyVector(dirVec3);
+
+    if (convertedDirVec3.z >= -1e-6 && convertedDirVec3.z <= 1e-6) {
+      return null;
+    }
+
+    const t = -convertedOrigVec3.z / convertedDirVec3.z;
+
+    if (t <= 1e-5) {
+      return null;
+    }
+
+    const u = convertedOrigVec3.x + t * convertedDirVec3.x;
+    const v = convertedOrigVec3.y + t * convertedDirVec3.y;
+    if (u < 0.0 || v < 0.0 || u + v > 1.0) {
+      return null;
+    }
+
+    const fDat = 1.0 - u - v;
+
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
+    const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
+    const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
+
+    const pos0 = Vector3.multiply(pos0Vec3, u);
+    const pos1 = Vector3.multiply(pos1Vec3, v);
+    const pos2 = Vector3.multiply(pos2Vec3, fDat);
+    const intersectedPosVec3 = Vector3.add(Vector3.add(pos0, pos1), pos2);
+
+    return [t, intersectedPosVec3];
+  }
+
+  _calcArenbergInverseMatrices() {
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const positionElementNumPerVertex = positionAccessor.elementCount;
+
+    let incrementNum = 3; // gl.TRIANGLES
+    if (this.__mode === PrimitiveMode.TriangleStrip) {
+      // gl.TRIANGLE_STRIP
+      incrementNum = 1;
+    }
+    this.__inverseArenbergMatrix = [];
+    this.__arenberg3rdPosition = [];
+    if (!this.hasIndices()) {
+      for (let i = 0; i < positionAccessor.elementCount - 2; i += incrementNum) {
+        let pos0IndexBase = i * positionElementNumPerVertex;
+        let pos1IndexBase = (i + 1) * positionElementNumPerVertex;
+        let pos2IndexBase = (i + 2) * positionElementNumPerVertex;
+
+        this._calcArenbergMatrixFor3Vertices(
+          i,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          incrementNum
+        );
+      }
+    } else {
+      for (let j = 0; j < this.__indices!.elementCount - 2; j += incrementNum) {
+        if (j + 2 > this.__indices!.elementCount - 1) {
+          break;
+        }
+        let pos0IndexBase = this.__indices!.getScalar(j, {}) * positionElementNumPerVertex;
+        let pos1IndexBase = this.__indices!.getScalar(j + 1, {}) * positionElementNumPerVertex;
+        let pos2IndexBase = this.__indices!.getScalar(j + 2, {}) * positionElementNumPerVertex;
+
+        this._calcArenbergMatrixFor3Vertices(
+          j,
+          pos0IndexBase,
+          pos1IndexBase,
+          pos2IndexBase,
+          incrementNum
+        );
+      }
+    }
+  }
+
+  _calcArenbergMatrixFor3Vertices(
+    i: Index,
+    pos0IndexBase: Index,
+    pos1IndexBase: Index,
+    pos2IndexBase: Index,
+    incrementNum: number
+  ) {
+
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
+    const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
+    const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
+    const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
+
+    const ax = pos0Vec3.x - pos2Vec3.x;
+    const ay = pos0Vec3.y - pos2Vec3.y;
+    const az = pos0Vec3.z - pos2Vec3.z;
+    const bx = pos1Vec3.x - pos2Vec3.x;
+    const by = pos1Vec3.y - pos2Vec3.y;
+    const bz = pos1Vec3.z - pos2Vec3.z;
+
+    let nx = ay * bz - az * by;
+    let ny = az * bx - ax * bz;
+    let nz = ax * by - ay * bx;
+    let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    if (da <= 1e-6) {
+      da  = 0.0001;
+    }
+    da = 1.0 / da;
+    nx *= da;
+    ny *= da;
+    nz *= da;
+
+    const arenbergMatrix = new MutableMatrix33(
+      pos0Vec3.x - pos2Vec3.x,
+      pos1Vec3.x - pos2Vec3.x,
+      nx - pos2Vec3.x,
+      pos0Vec3.y - pos2Vec3.y,
+      pos1Vec3.y - pos2Vec3.y,
+      ny - pos2Vec3.y,
+      pos0Vec3.z - pos2Vec3.z,
+      pos1Vec3.z - pos2Vec3.z,
+      nz - pos2Vec3.z
+    );
+
+    const inverseArenbergMatrix = arenbergMatrix.invert();
+
+    let arenberg0IndexBase = i;
+    // let arenberg1IndexBase = i + 1;
+    // let arenberg2IndexBase = i + 2;
+    if (this.hasIndices()) {
+      arenberg0IndexBase = this.__indices!.getScalar(i, {});
+      // arenberg1IndexBase = this.__indices!.getScalar(i + 1, {});
+      // arenberg2IndexBase = this.__indices!.getScalar(i + 2, {});
+    }
+
+    //    const triangleIdx = i/incrementNum;
+    this.__inverseArenbergMatrix[
+      arenberg0IndexBase
+    ] = inverseArenbergMatrix;
+    this.__arenberg3rdPosition[arenberg0IndexBase] = pos2Vec3;
   }
 }

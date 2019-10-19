@@ -14,8 +14,10 @@ import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
+import CameraComponent from './CameraComponent';
+import Vector4 from '../math/Vector4';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -280,5 +282,75 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
+  castRay(
+    srcPointInWorld: Vector3,
+    directionInWorld: Vector3,
+    dotThreshold: number = 0,
+    ignoreMeshComponents: MeshComponent[] = []
+    ) {
+    const componentRepository = ComponentRepository.getInstance();
+    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    let rayDistance = Number.MAX_VALUE;
+    let intersectedPosition = null;
+    let selectedMeshComponent = null;
+    for (let meshComponent of meshComponents) {
+      if (!meshComponent.entity.getSceneGraph().isVisible) {
+        continue;
+      }
+      if (!meshComponent.isPickable) {
+        continue;
+      }
+      if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
+        continue;
+      }
+      let {t, intersectedPositionInWorld} = meshComponent.castRay(srcPointInWorld, directionInWorld, dotThreshold);
+      if (t < rayDistance) {
+        rayDistance = t;
+        intersectedPositionInWorld = intersectedPositionInWorld;
+        selectedMeshComponent = meshComponent;
+      }
+    }
+
+    if (rayDistance === Number.MAX_VALUE) {
+      rayDistance = -1;
+    }
+
+    return {intersectedPosition, rayDistance, selectedMeshComponent};
+  }
+
+   castRayFromScreen(
+      x: number, y: number, camera: CameraComponent, viewport: Vector4,
+      dotThreshold: number = 0,
+      ignoreMeshComponents: MeshComponent[] = []
+    ) {
+    const componentRepository = ComponentRepository.getInstance();
+    const meshComponents = componentRepository.getComponentsWithType(MeshComponent) as MeshComponent[];
+    let rayDistance = Number.MAX_VALUE;
+    let intersectedPosition = null;
+    let selectedMeshComponent = null;
+    for (let meshComponent of meshComponents) {
+      if (!meshComponent.entity.getSceneGraph().isVisible) {
+        continue;
+      }
+      if (!meshComponent.isPickable) {
+        continue;
+      }
+      if (ignoreMeshComponents.indexOf(meshComponent) !== -1) {
+        continue;
+      }
+      let {t, intersectedPositionInWorld} = meshComponent.castRayFromScreen(x, y, camera, viewport, dotThreshold);
+      if (t < rayDistance) {
+        rayDistance = t;
+        intersectedPositionInWorld = intersectedPositionInWorld;
+        selectedMeshComponent = meshComponent;
+      }
+    }
+
+    if (rayDistance === Number.MAX_VALUE) {
+      rayDistance = -1;
+    }
+
+    return {intersectedPosition, rayDistance, selectedMeshComponent};
+  }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);
