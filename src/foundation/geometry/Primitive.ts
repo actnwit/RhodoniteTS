@@ -370,9 +370,9 @@ export default class Primitive extends RnObject {
     if (!this.hasIndices()) {
       for (let i = 0; i < positionAccessor.elementCount; i++) {
         const j = i * incrementNum;
-        let pos0IndexBase = j * posComponentN;
-        let pos1IndexBase = (j + 1) * posComponentN;
-        let pos2IndexBase = (j + 2) * posComponentN;
+        let pos0IndexBase = j;
+        let pos1IndexBase = (j + 1);
+        let pos2IndexBase = (j + 2);
         const result = this.__castRayInner(
           origVec3,
           dirVec3,
@@ -399,11 +399,11 @@ export default class Primitive extends RnObject {
         if (k+2 > this.__indices!.elementCount - 1) {
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(k, {}) * posComponentN;
+        let pos0IndexBase = this.__indices!.getScalar(k, {});
         let pos1IndexBase =
-          this.__indices!.getScalar(k + 1, {}) * posComponentN;
+          this.__indices!.getScalar(k + 1, {});
         let pos2IndexBase =
-          this.__indices!.getScalar(k + 2, {}) * posComponentN;
+          this.__indices!.getScalar(k + 2, {});
 
         const result = this.__castRayInner(
           origVec3,
@@ -501,7 +501,7 @@ export default class Primitive extends RnObject {
 
   _calcArenbergInverseMatrices() {
     const positionAccessor = this.__attributes.get(VertexAttribute.Position)!;
-    const positionElementNumPerVertex = positionAccessor.elementCount;
+    const positionElementNumPerVertex = positionAccessor.numberOfComponents
 
     let incrementNum = 3; // gl.TRIANGLES
     if (this.__mode === PrimitiveMode.TriangleStrip) {
@@ -512,9 +512,9 @@ export default class Primitive extends RnObject {
     this.__arenberg3rdPosition = [];
     if (!this.hasIndices()) {
       for (let i = 0; i < positionAccessor.elementCount - 2; i += incrementNum) {
-        let pos0IndexBase = i * positionElementNumPerVertex;
-        let pos1IndexBase = (i + 1) * positionElementNumPerVertex;
-        let pos2IndexBase = (i + 2) * positionElementNumPerVertex;
+        let pos0IndexBase = i;
+        let pos1IndexBase = (i + 1);
+        let pos2IndexBase = (i + 2);
 
         this._calcArenbergMatrixFor3Vertices(
           i,
@@ -529,9 +529,9 @@ export default class Primitive extends RnObject {
         if (j + 2 > this.__indices!.elementCount - 1) {
           break;
         }
-        let pos0IndexBase = this.__indices!.getScalar(j, {}) * positionElementNumPerVertex;
-        let pos1IndexBase = this.__indices!.getScalar(j + 1, {}) * positionElementNumPerVertex;
-        let pos2IndexBase = this.__indices!.getScalar(j + 2, {}) * positionElementNumPerVertex;
+        let pos0IndexBase = this.__indices!.getScalar(j, {});
+        let pos1IndexBase = this.__indices!.getScalar(j + 1, {});
+        let pos2IndexBase = this.__indices!.getScalar(j + 2, {});
 
         this._calcArenbergMatrixFor3Vertices(
           j,
