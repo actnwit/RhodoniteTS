@@ -23,6 +23,13 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
   return material;
 }
 
+function createEmptyMaterial() {
+  const materialName = 'Empty';
+  const material = createMaterial(materialName, [], Config.maxMaterialInstanceForEachType);
+  return material;
+}
+
+
 function createPbrUberMaterial({
   additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
@@ -124,7 +131,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
 
 function createMToonMaterial({
   additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
-  isOutline = false, materialPropertiesArray = undefined, textures = undefined,
+  isOutline = false, materialProperties = undefined, textures = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'MToon'
@@ -134,7 +141,7 @@ function createMToonMaterial({
     + (isLighting ? '-lighting' : '')
     + (isOutline ? '-outline' : '');
 
-  const materialNode = new MToonSingleMaterialNode(isOutline, materialPropertiesArray, textures, isMorphing, isSkinning, isLighting);
+  const materialNode = new MToonSingleMaterialNode(isOutline, materialProperties, textures, isMorphing, isSkinning, isLighting);
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
@@ -145,6 +152,6 @@ function createMToonMaterial({
 
 
 export default Object.freeze({
-  createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
+  createEmptyMaterial, createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial,
 });

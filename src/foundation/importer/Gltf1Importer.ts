@@ -720,9 +720,9 @@ export default class Gltf1Importer {
       let imageUri: string;
 
       if (typeof imageJson.extensions !== 'undefined' && typeof imageJson.extensions.KHR_binary_glTF !== 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary, imageJson.extensions.KHR_binary_glTF.mimeType);
+        imageUri = DataUtil.accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, arrayBufferBinary, imageJson.extensions.KHR_binary_glTF.mimeType);
       } else if (typeof imageJson.uri === 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
+        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView, gltfJson, arrayBufferBinary, imageJson.mimeType);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -731,7 +731,7 @@ export default class Gltf1Importer {
           const arrayBuffer = options.files[filename];
           const splitted = filename.split('.');
           const fileExtension = splitted[splitted.length - 1];
-          imageUri = this._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -743,7 +743,7 @@ export default class Gltf1Importer {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await this._imgLoad(img, imageUri);
+        await DataUtil.imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
@@ -751,14 +751,11 @@ export default class Gltf1Importer {
           resolve(gltfJson);
         } else {
           const load = (img: HTMLImageElement, response: any) => {
-            var bytes = new Uint8Array(response);
-            var binaryData = "";
-            for (var i = 0, len = bytes.byteLength; i < len; i++) {
-              binaryData += String.fromCharCode(bytes[i]);
-            }
+            const bytes = new Uint8Array(response);
+            const binaryData = DataUtil.uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
-            img.src = this._getImageType(ext) + window.btoa(binaryData);
+            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
             img.onload = () => {
               resolve(gltfJson);
             }
@@ -786,59 +783,6 @@ export default class Gltf1Importer {
     }
 
     return Promise.all(promisesToLoadResources);
-  }
-
-  _accessBinaryAsImage(bufferViewStr: string, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferViewStr, arrayBuffer);
-    return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
-  }
-
-  _sliceBufferViewToArrayBuffer(json: any, bufferViewStr: string, arrayBuffer: ArrayBuffer) {
-    let bufferViewJson = json.bufferViews[bufferViewStr];
-    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-    let byteLength = bufferViewJson.byteLength;
-    let arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
-    return arrayBufferSliced;
-  }
-
-  _accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string) {
-    let bytes = new Uint8Array(arrayBuffer);
-    let binaryData = '';
-    for (let i = 0, len = bytes.byteLength; i < len; i++) {
-      binaryData += String.fromCharCode(bytes[i]);
-    }
-    let imgSrc = this._getImageType(imageType);
-    let dataUrl = imgSrc + DataUtil.btoa(binaryData);
-    return dataUrl;
-  }
-
-  _imgLoad(img: HTMLImageElement, imageUri: string) {
-    return new Promise(((resolve, reject) => {
-      img.onload = () => {
-        resolve();
-      };
-      img.src = imageUri;
-    }));
-  }
-
-  _getImageType(imageType: string) {
-    let imgSrc = null;
-    if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
-      imgSrc = "data:image/jpeg;base64,";
-    }
-    else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
-      imgSrc = "data:image/png;base64,";
-    }
-    else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
-      imgSrc = "data:image/gif;base64,";
-    }
-    else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
-      imgSrc = "data:image/bmp;base64,";
-    }
-    else {
-      imgSrc = "data:image/unknown;base64,";
-    }
-    return imgSrc;
   }
 
   static getInstance() {

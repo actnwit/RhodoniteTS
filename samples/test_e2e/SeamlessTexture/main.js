@@ -1,6 +1,6 @@
 
-(function() {
-//    import Rn from '../../../dist/rhodonite.mjs';
+(function () {
+  //    import Rn from '../../../dist/rhodonite.mjs';
   function generateEntity() {
     const repo = Rn.EntityRepository.getInstance();
     const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
@@ -9,7 +9,7 @@
   function generateGroupEntity() {
     const repo = Rn.EntityRepository.getInstance();
     const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent]);
-//    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+    //    const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
     return entity;
   }
 
@@ -18,12 +18,12 @@
   promises.push(promise);
   promise = Rn.ModuleManager.getInstance().loadModule('pbr');
   promises.push(promise);
-  Promise.all(promises).then(function(){
+  Promise.all(promises).then(function () {
     const system = Rn.System.getInstance();
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
     const primitive = new Rn.Plane();
-    primitive.generate({width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false});
+    primitive.generate({ width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false });
     primitive.material = Rn.MaterialHelper.createClassicUberMaterial({});
 
     const entities = [];
@@ -34,7 +34,18 @@
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
-    entity.getTransform().rotate = new Rn.Vector3(-Math.PI/2, 0, 0);;
+    entity.getTransform().rotate = new Rn.Vector3(-Math.PI / 2, 0, 0);;
+
+
+    // renderPass
+    const renderPass = new Rn.RenderPass();
+    renderPass.toClearColorBuffer = true;
+    renderPass.addEntities(entities);
+
+    // expression
+    const expression = new Rn.Expression();
+    expression.addRenderPasses([renderPass]);
+
 
     const startTime = Date.now();
     let p = null;
@@ -42,9 +53,9 @@
     let count = 0
 
     const stats = new Stats();
-    stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-    document.body.appendChild( stats.domElement );
-    const draw = function(time){
+    stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.domElement);
+    const draw = function (time) {
 
       if (p == null && count > 0) {
         p = document.createElement('p');
@@ -62,17 +73,17 @@
 
       if (window.isAnimating) {
         const rotation = 0.001 * (date.getTime() - startTime);
-        entities.forEach(function(entity){
-        rotationVec3.v[0] = rotation;
-        rotationVec3.v[1] = rotation;
-        rotationVec3.v[2] = rotation;
-        entity.getTransform().rotate = rotationVec3;
+        entities.forEach(function (entity) {
+          rotationVec3.v[0] = rotation;
+          rotationVec3.v[1] = rotation;
+          rotationVec3.v[2] = rotation;
+          entity.getTransform().rotate = rotationVec3;
         });
       }
       stats.begin();
 
-  //      console.log(date.getTime());
-      system.process();
+      //      console.log(date.getTime());
+      system.process([expression]);
 
       stats.end();
       count++;

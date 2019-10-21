@@ -891,4 +891,12 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     return this.__blendFuncAlphaDstFactor;
   }
 
+  isEmptyMaterial(): boolean {
+    if (this.__materialNodes.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

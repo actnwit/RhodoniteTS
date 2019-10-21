@@ -28,6 +28,7 @@ import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
 import DrcPointCloudImporter from './importer/DrcPointCloudImporter';
+import GltfImporter from './importer/GltfImporter';
 import Gltf2Exporter from './exporter/Gltf2Exporter';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -100,6 +101,7 @@ const Rn = {
   Gltf1Importer,
   Gltf2Importer,
   DrcPointCloudImporter,
+  GltfImporter,
   ModelConverter,
   ModuleManager,
   MemoryManager,

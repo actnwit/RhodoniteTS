@@ -448,7 +448,8 @@ export default class ModelConverter {
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
-    if (gltfModel.asset.extras!.rnLoaderOptions && gltfModel.asset.extras!.rnLoaderOptions!.forceCalculateTangent) {
+    const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
+    if (rnLoaderOptions && rnLoaderOptions.forceCalculateTangent) {
       rnMesh.forceCalculateTangent = true;
     }
 
@@ -462,12 +463,13 @@ export default class ModelConverter {
         if (primitive.mode != null) {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
         }
+
+        const rnPrimitive = new Primitive();
+        const material = this.__setupMaterial(rnPrimitive, node, gltfModel, primitive, primitive.material);
+
         // indices
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
-        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive, primitive.material);
-        if (material == null) continue;
-
         if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
           indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
 
@@ -486,13 +488,24 @@ export default class ModelConverter {
           }
         }
 
-        const rnPrimitive = new Primitive();
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
+
+          // set default number
+          let maxMorphTargetNumber = 4;
+          if (rnLoaderOptions != null && rnLoaderOptions.maxMorphTargetNumber != null) {
+            maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
+          }
+
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-          for (let target of primitive.targets) {
+          for (let i = 0; i < primitive.targets.length; i++) {
+            if (i >= maxMorphTargetNumber) {
+              break;
+            }
+
+            const target = primitive.targets[i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
             for (let attributeName in target) {
               let attributeAccessor = target[attributeName];
@@ -502,11 +515,11 @@ export default class ModelConverter {
             }
             targets.push(targetMap);
           }
+
           rnPrimitive.setTargets(targets);
         }
 
         rnMesh.addPrimitive(rnPrimitive);
-
       }
 
       if (mesh.weights) {
@@ -521,7 +534,65 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
+  private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
+    const VRMProperties = gltfModel.extensions.VRM;
+
+    const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
+    if (shaderName === "VRM/MToon") {
+      // argument
+      const argumentOfMaterialHelper = argumentArray[0];
+      const rnExtension = VRMProperties.rnExtension;
+      if (rnExtension.defaultMorphingIsTrue) {
+        argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
+      }
+      if (rnExtension.defaultSkinningIsTrue) {
+        const existSkin = node.skin != null;
+        argumentOfMaterialHelper.isSkinning = existSkin;
+        argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+      }
+      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
+      argumentOfMaterialHelper.materialProperties = materialProperties;
+
+      // outline
+      const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
+
+      //exist outline
+      if (renderPassOutline != null) {
+        let outlineMaterial: Material;
+        if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
+          argumentOfMaterialHelper.isOutline = true;
+          outlineMaterial = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+          argumentOfMaterialHelper.isOutline = false;
+        } else {
+          outlineMaterial = MaterialHelper.createEmptyMaterial();
+        }
+
+        renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+      }
+
+      return MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+
+    } else if (shaderName.indexOf("UnityChanToonShader") >= 0) {
+      // TODO:
+      // const utsMaterialPropertiesArray = VRMProperties.rnExtension.utsMaterialPropertiesArray[primitive.materialIndex];
+      // if (argumentArray[0]["isOutline"]) {
+      //   if (shaderName.match(/NoOutline/) || utsMaterialPropertiesArray[0][71] === 0.0) {
+      //     return null;
+      //   }
+      // }
+
+      // argumentArray[0]["materialPropertiesArray"] = utsMaterialPropertiesArray;
+      // return MaterialHelper.createUTS2Material.apply(this, argumentArray as any);
+
+    } else if (argumentArray[0].isOutline) {
+      return MaterialHelper.createEmptyMaterial();;
+    }
+
+    // use another material
+    return undefined;
+  }
+
+  private __generateAppropreateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -532,26 +603,14 @@ export default class ModelConverter {
         return loaderExtension.generateMaterial();
       }
 
-      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
 
-      if (rnLoaderOptions.isImportVRM && materialHelperName == null) {
-        const VRMProperties = gltfModel.extensions.VRM;
-        const materialProperties = VRMProperties.rnExtension.materialPropertiesArray[primitive.materialIndex];
-
-        const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
-        if (shaderName === "VRM/MToon") {
-          if (argumentArray[0]["isOutline"] && materialProperties[0][13] === 0) {
-            return null;
-          }
-
-          argumentArray[0]["materialPropertiesArray"] = materialProperties;
-          return MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
-        } else if (argumentArray[0]["isOutline"]) {
-          return null;
-        }
+      if (rnLoaderOptions.isImportVRM) {
+        const material = this.__setVRMMaterial(rnPrimitive, node, gltfModel, primitive, argumentArray);
+        if (material != null) return material;
       }
 
+      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
         return (MaterialHelper as any)[materialHelperName].apply(this, argumentArray);
       }
@@ -571,34 +630,11 @@ export default class ModelConverter {
     }
   }
 
-  static _createTexture(textureType: any, gltfModel: glTF2) {
-    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
-    const rnTexture = new Texture();
-    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
-    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
-    const texture = textureType.texture;
-    if (texture.image.image) {
-      const image = texture.image.image;
-      rnTexture.generateTextureFromImage(image);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
-      } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
-      }
-    }
-    return rnTexture;
-  }
+  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
+    const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
-  private __setupMaterial(entity: Entity, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
-    const material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, primitive, materialJson);
-    if (materialJson == null ||
-      material == null ||
-      (material.materialTypeName.match(/^PbrUber/) == null &&
-        material.materialTypeName.match(/^ClassicUber/) == null)
-    ) {
-      return material;
-    }
+    // avoid unexpected initialization
+    if (!this.__needParameterInitialization(materialJson, material.materialTypeName)) return material;
 
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
@@ -697,6 +733,40 @@ export default class ModelConverter {
     }
 
     return material;
+  }
+
+  static _createTexture(textureType: any, gltfModel: glTF2) {
+    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
+    const rnTexture = new Texture();
+    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
+    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
+    const texture = textureType.texture;
+    if (texture.image.image) {
+      const image = texture.image.image;
+      rnTexture.generateTextureFromImage(image);
+      if (texture.image.uri) {
+        rnTexture.name = texture.image.url;
+      } else {
+        const ext = texture.image.mimeType.split('/')[1];
+        rnTexture.name = texture.image.name + `.${ext}`;
+      }
+    }
+    return rnTexture;
+  }
+
+
+  private __needParameterInitialization(materialJson: any, materialTypeName: string): boolean {
+    if (materialJson == null) return false;
+
+    if (
+      materialTypeName.match(/PbrUber/) != null ||
+      materialTypeName.match(/ClassicUber/) != null
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+
   }
 
   private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {

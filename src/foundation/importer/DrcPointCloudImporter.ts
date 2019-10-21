@@ -16,8 +16,8 @@ export default class DrcPointCloudImporter {
   private constructor() {
   }
 
-  // for ModelConverter,  not implemented yet
-  async importPointCloud(gltfUri: string, textureUri: string, options: GltfLoadOption) {
+  // for ModelConverter, mesh type is not support yet
+  async importPointCloud(gltfUri: string, textureUri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
         //        "foo.gltf": content of file as ArrayBuffer,
@@ -52,7 +52,7 @@ export default class DrcPointCloudImporter {
         const fileExtension = splitted[splitted.length - 1];
 
         if (fileExtension === 'drc') {
-          return await this.__decodeDraco((options.files as any)[fileName], options, defaultOptions, void 0, textureUri).catch((err) => {
+          return await this.__decodeDraco((options.files as any)[fileName], defaultOptions, options, void 0, textureUri).catch((err) => {
             console.log('this.__decodeDraco error', err);
           });
         }
@@ -67,7 +67,7 @@ export default class DrcPointCloudImporter {
     };
     const arrayBuffer = await response.arrayBuffer();
 
-    return await this.__decodeDraco(arrayBuffer, options, defaultOptions, gltfUri, textureUri).catch((err) => {
+    return await this.__decodeDraco(arrayBuffer, defaultOptions, options, gltfUri, textureUri).catch((err) => {
       console.log('this.__decodeDraco error', err);
     });
 
@@ -77,7 +77,7 @@ export default class DrcPointCloudImporter {
 
   }
 
-  private async __decodeDraco(arrayBuffer: ArrayBuffer, options: {}, defaultOptions: GltfLoadOption, gltfUri?: string, textureUri?: string) {
+  private async __decodeDraco(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, options?: {}, gltfUri?: string, textureUri?: string) {
     let gotText: any;
     let gltfJson: any;
     await this.__decodeBuffer(arrayBuffer, textureUri).then(async (json: any) => {
@@ -1068,7 +1068,7 @@ export default class DrcPointCloudImporter {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        imageUri = this._accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBufferBinary, imageJson.mimeType!);
+        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBufferBinary, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -1077,7 +1077,7 @@ export default class DrcPointCloudImporter {
           const arrayBuffer = options.files[filename];
           const splitted = filename.split('.');
           const fileExtension = splitted[splitted.length - 1];
-          imageUri = this._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -1092,7 +1092,7 @@ export default class DrcPointCloudImporter {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await this._imgLoad(img, imageUri);
+        await DataUtil.imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
@@ -1100,14 +1100,11 @@ export default class DrcPointCloudImporter {
           resolve(gltfJson);
         } else {
           const load = (img: HTMLImageElement, response: any) => {
-            var bytes = new Uint8Array(response);
-            var binaryData = "";
-            for (var i = 0, len = bytes.byteLength; i < len; i++) {
-              binaryData += String.fromCharCode(bytes[i]);
-            }
+            const bytes = new Uint8Array(response);
+            const binaryData = DataUtil.uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
-            img.src = this._getImageType(ext) + window.btoa(binaryData);
+            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
             img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
             img.onload = () => {
               resolve(gltfJson);
@@ -1140,58 +1137,6 @@ export default class DrcPointCloudImporter {
     });
   }
 
-  _accessBinaryAsImage(bufferView: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string) {
-    let arrayBufferSliced = this._sliceBufferViewToArrayBuffer(json, bufferView, arrayBuffer);
-    return this._accessArrayBufferAsImage(arrayBufferSliced, mimeType);
-  }
-
-  _sliceBufferViewToArrayBuffer(json: any, bufferView: number, arrayBuffer: ArrayBuffer) {
-    let bufferViewJson = json.bufferViews[bufferView];
-    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-    let byteLength = bufferViewJson.byteLength;
-    let arrayBufferSliced = arrayBuffer.slice(byteOffset, byteOffset + byteLength);
-    return arrayBufferSliced;
-  }
-
-  _accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string) {
-    let bytes = new Uint8Array(arrayBuffer);
-    let binaryData = '';
-    for (let i = 0, len = bytes.byteLength; i < len; i++) {
-      binaryData += String.fromCharCode(bytes[i]);
-    }
-    let imgSrc = this._getImageType(imageType);
-    let dataUrl = imgSrc + DataUtil.btoa(binaryData);
-    return dataUrl;
-  }
-
-  _imgLoad(img: HTMLImageElement, imageUri: string) {
-    return new Promise(((resolve, reject) => {
-      img.onload = () => {
-        resolve();
-      };
-      img.src = imageUri;
-    }));
-  }
-
-  _getImageType(imageType: string) {
-    let imgSrc = null;
-    if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
-      imgSrc = "data:image/jpeg;base64,";
-    }
-    else if (imageType == 'image/png' || imageType.toLowerCase() === 'png') {
-      imgSrc = "data:image/png;base64,";
-    }
-    else if (imageType == 'image/gif' || imageType.toLowerCase() === 'gif') {
-      imgSrc = "data:image/gif;base64,";
-    }
-    else if (imageType == 'image/bmp' || imageType.toLowerCase() === 'bmp') {
-      imgSrc = "data:image/bmp;base64,";
-    }
-    else {
-      imgSrc = "data:image/unknown;base64,";
-    }
-    return imgSrc;
-  }
 
   static getInstance() {
     if (!this.__instance) {

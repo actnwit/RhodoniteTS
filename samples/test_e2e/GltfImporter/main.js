@@ -5,47 +5,36 @@ const load = async function (time) {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const system = Rn.System.getInstance();
-  system.setProcessApproachAndCanvas(Rn.ProcessApproach.FastestWebGL1, document.getElementById('world'));
+  system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
   const entityRepository = Rn.EntityRepository.getInstance();
   const gltfImporter = Rn.GltfImporter.getInstance();
-  const gltf2Importer = Rn.Gltf2Importer.getInstance();
-
 
   // params
 
   const displayResolution = 800;
-  const vrmModelRotation = new Rn.Vector3(0, Math.PI, 0.0);
+  const vrmModelRotation = new Rn.Vector3(0, 3 / 4 * Math.PI, 0.0);
 
 
   // expresions
   const expressions = [];
 
   // vrm
-  const animGltf2ModelPromise = gltf2Importer.import('../../../assets/vrm/test.glb');
-  const vrmModelPromise = gltfImporter.importJsonOfVRM('../../../assets/vrm/test.vrm');
-  const vrmExpressionPromise = gltfImporter.import('../../../assets/vrm/test.vrm', {
+  const vrmExpression = await gltfImporter.import('../../../assets/vrm/test.vrm', {
     gltfOptions: {
       defaultMaterialHelperArgumentArray: [{
-        isSkinning: true,
-        isMorphing: true,
+        isSkinning: false,
+        isMorphing: false,
       }],
       autoResizeTexture: true
     }
   });
-
-  const [animGltf2Model, vrmModel, vrmExpression] = await Promise.all([animGltf2ModelPromise, vrmModelPromise, vrmExpressionPromise]);
   expressions.push(vrmExpression);
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
   const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
 
-  // animation
-  const animationAssigner = Rn.AnimationAssigner.getInstance();
-  animationAssigner.assignAnimation(vrmRootEntity, animGltf2Model, vrmModel);
-
-  // camera
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
   const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
@@ -96,7 +85,6 @@ const load = async function (time) {
 
 
   let count = 0;
-  let startTime = Date.now();
   const draw = function (time) {
     if (p == null && count > 0) {
       p = document.createElement('p');
@@ -106,16 +94,7 @@ const load = async function (time) {
     }
 
     if (window.isAnimating) {
-      const date = new Date();
-      const rotation = 0.001 * (date.getTime() - startTime);
-      //rotationVec3.v[0] = 0.1;
-      //rotationVec3.v[1] = rotation;
-      //rotationVec3.v[2] = 0.1;
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
-      }
+      // const date = new Date();
     }
 
     system.process(expressions);
@@ -126,7 +105,6 @@ const load = async function (time) {
   };
 
   draw();
-
 }
 
 document.body.onload = load;

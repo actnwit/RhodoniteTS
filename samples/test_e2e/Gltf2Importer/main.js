@@ -1,11 +1,11 @@
 
 let p = null;
 
-const load = function(time){
+const load = function (time) {
   const promises = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
-  Promise.all(promises).then(function(){
+  Promise.all(promises).then(function () {
     const importer = Rn.Gltf2Importer.getInstance();
     const system = Rn.System.getInstance();
     const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
@@ -28,13 +28,13 @@ const load = function(time){
     lightEntity.getTransform().translate = new Rn.Vector3(1.0, 1.0, 100000.0);
     lightEntity.getComponent(Rn.LightComponent).intensity = new Rn.Vector3(1, 1, 1);
     lightEntity.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
-    lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI/2, 0, 0);
+    lightEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
     //lightEntity2.getComponent(Rn.LightComponent).type = Rn.LightType.Directional;
 
 
     const promise = importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
-//    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
-    promise.then(function(response){
+    //    const promise = importer.import('../../../assets/gltf/2.0/WaterBottle/glTF/WaterBottle.gltf');
+    promise.then(function (response) {
       const modelConverter = Rn.ModelConverter.getInstance();
       const rootGroup = modelConverter.convertToRhodoniteObject(response);
       //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
@@ -45,11 +45,21 @@ const load = function(time){
       const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
       cameraControllerComponent.controller.setTarget(rootGroup);
 
+      // renderPass
+      const renderPass = new Rn.RenderPass();
+      renderPass.toClearColorBuffer = true;
+      renderPass.addEntities([rootGroup]);
+
+      // expression
+      const expression = new Rn.Expression();
+      expression.addRenderPasses([renderPass]);
+
+
       Rn.CameraComponent.main = 0;
       let startTime = Date.now();
       const rotationVec3 = Rn.MutableVector3.one();
       let count = 0;
-      const draw = function(time) {
+      const draw = function (time) {
 
         if (p == null && count > 0) {
           if (response != null) {
@@ -79,11 +89,11 @@ const load = function(time){
             startTime = date.getTime();
           }
           //console.log(time);
-    //      rootGroup.getTransform().scale = rotationVec3;
+          //      rootGroup.getTransform().scale = rotationVec3;
           //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
         }
 
-        system.process();
+        system.process([expression]);
         count++;
 
         requestAnimationFrame(draw);

@@ -56,11 +56,11 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static blendEquationModeAlpha: number | null = null;
   private __OutlineWidthModeIsScreen = false;
 
-  private __floatPropertiesArray: any[] = [];
-  private __vectorPropertiesArray: any[] = [];
-  private __texturePropertiesArray: any[] = [];
+  private __floatProperties: any = {};
+  private __vectorProperties: any = {};
+  private __textureProperties: any = {};
 
-  constructor(isOutline: boolean, materialPropertiesArray: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean) {
+  constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean) {
     super(MToonShader.getInstance(), 'MToonShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
@@ -70,62 +70,62 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
-    if (materialPropertiesArray != null) {
-      this.__floatPropertiesArray = materialPropertiesArray[0];
-      this.__vectorPropertiesArray = materialPropertiesArray[1];
-      this.__texturePropertiesArray = materialPropertiesArray[2];
+    if (materialProperties != null) {
+      this.__floatProperties = materialProperties.floatProperties;
+      this.__vectorProperties = materialProperties.vectorProperties;
+      this.__textureProperties = materialProperties.textureProperties;
     } else {
-      this.__floatPropertiesArray[0] = 0.0;  // _BlendMode
-      this.__floatPropertiesArray[1] = 1.0;  // _BumpScale
-      this.__floatPropertiesArray[2] = 2.0;  // _CullMode
-      this.__floatPropertiesArray[3] = 0.5;  // _Cutoff
-      this.__floatPropertiesArray[4] = 0.0;  // _DebugMode
-      this.__floatPropertiesArray[5] = 0.0;  // _DstBlend
-      this.__floatPropertiesArray[6] = 0.1;  // _IndirectLightIntensity
-      this.__floatPropertiesArray[7] = 0.0;  // _LightColorAttenuation
-      this.__floatPropertiesArray[8] = 0.0;  // _OutlineColorMode
-      this.__floatPropertiesArray[9] = 1.0;  // _OutlineCullMode
-      this.__floatPropertiesArray[10] = 1.0; // _OutlineLightingMix
-      this.__floatPropertiesArray[11] = 1.0; // _OutlineScaledMaxDistance
-      this.__floatPropertiesArray[12] = 0.5; // _OutlineWidth
-      this.__floatPropertiesArray[13] = 0.0; // _OutlineWidthMode
-      this.__floatPropertiesArray[14] = 1.0; // _ReceiveShadowRate
-      this.__floatPropertiesArray[15] = 1.0; // _RimFresnelPower
-      this.__floatPropertiesArray[16] = 0.0; // _RimLift
-      this.__floatPropertiesArray[17] = 0.0; // _RimLightingMix
-      this.__floatPropertiesArray[18] = 0.0; // _ShadeShift
-      this.__floatPropertiesArray[19] = 0.9; // _ShadeToony
-      this.__floatPropertiesArray[20] = 1.0; // _ShadingGradeRate
-      this.__floatPropertiesArray[21] = 1.0; // _SrcBlend
-      this.__floatPropertiesArray[22] = 1.0; // _ZWrite
-      // this.floatPropertiesArray[23] = 0.0; // _UvAnimScrollX
-      // this.floatPropertiesArray[24] = 0.0; // _UvAnimScrollY
-      // this.floatPropertiesArray[25] = 0.0; // _UvAnimRotation
+      this.__floatProperties._BlendMode = 0.0;
+      this.__floatProperties._BumpScale = 1.0;
+      this.__floatProperties._CullMode = 2.0;
+      this.__floatProperties._Cutoff = 0.5;
+      this.__floatProperties._DebugMode = 0.0;
+      this.__floatProperties._DstBlend = 0.0;
+      this.__floatProperties._IndirectLightIntensity = 0.1;
+      this.__floatProperties._LightColorAttenuation = 0.0;
+      this.__floatProperties._OutlineColorMode = 0.0;
+      this.__floatProperties._OutlineCullMode = 1.0;
+      this.__floatProperties._OutlineLightingMix = 1.0;
+      this.__floatProperties._OutlineScaledMaxDistance = 1.0;
+      this.__floatProperties._OutlineWidth = 0.5;
+      this.__floatProperties._OutlineWidthMode = 0.0;
+      this.__floatProperties._ReceiveShadowRate = 1.0;
+      this.__floatProperties._RimFresnelPower = 1.0;
+      this.__floatProperties._RimLift = 0.0;
+      this.__floatProperties._RimLightingMix = 0.0;
+      this.__floatProperties._ShadeShift = 0.0;
+      this.__floatProperties._ShadeToony = 0.9;
+      this.__floatProperties._ShadingGradeRate = 1.0;
+      this.__floatProperties._SrcBlend = 1.0;
+      this.__floatProperties._ZWrite = 1.0;
+      // this.__floatProperties._UvAnimScrollX = 0.0;
+      // this.__floatProperties._UvAnimScrollY = 0.0;
+      // this.__floatProperties._UvAnimRotation = 0.0;
 
-      this.__vectorPropertiesArray[0] = [1, 1, 1, 1]          // _Color
-      this.__vectorPropertiesArray[1] = [0, 0, 0]             // _EmissionColor
-      this.__vectorPropertiesArray[2] = [0, 0, 0, 1]          // _OutlineColor
-      this.__vectorPropertiesArray[3] = [0.97, 0.81, 0.86, 1] // _ShadeColor
-      this.__vectorPropertiesArray[4] = [0, 0, 0]             // _RimColor
-      // this.vectorPropertiesArray[5] = [0, 0, 1, 1]          // _BumpMap
-      // this.vectorPropertiesArray[6] = [0, 0, 1, 1]          // _EmissionMap
-      // this.vectorPropertiesArray[7] = [0, 0, 1, 1]          // _MainTex
-      // this.vectorPropertiesArray[8] = [0, 0, 1, 1]          // _OutlineWidthTexture
-      // this.vectorPropertiesArray[9] = [0, 0, 1, 1]          // _ReceiveShadowTexture
-      // this.vectorPropertiesArray[10] = [0, 0, 1, 1]         // _ShadeTexture
-      // this.vectorPropertiesArray[11] = [0, 0, 1, 1]         // _ShadingGradeTexture
-      // this.vectorPropertiesArray[12] = [0, 0, 1, 1]         // _SphereAdd
+      this.__vectorProperties._Color = [1, 1, 1, 1];
+      this.__vectorProperties._EmissionColor = [0, 0, 0];
+      this.__vectorProperties._OutlineColor = [0, 0, 0, 1];
+      this.__vectorProperties._ShadeColor = [0.97, 0.81, 0.86, 1];
+      this.__vectorProperties._RimColor = [0, 0, 0];
+      // this.__vectorProperties._BumpMap = [0, 0, 1, 1];
+      // this.__vectorProperties._EmissionMap = [0, 0, 1, 1];
+      // this.__vectorProperties._MainTex = [0, 0, 1, 1];
+      // this.__vectorProperties._OutlineWidthTexture = [0, 0, 1, 1];
+      // this.__vectorProperties._ReceiveShadowTexture = [0, 0, 1, 1];
+      // this.__vectorProperties._ShadeTexture = [0, 0, 1, 1];
+      // this.__vectorProperties._ShadingGradeTexture = [0, 0, 1, 1];
+      // this.__vectorProperties._SphereAdd = [0, 0, 1, 1];
 
-      this.__texturePropertiesArray[0] = 0 // _BumpMap
-      this.__texturePropertiesArray[1] = 1 // _EmissionMap
-      this.__texturePropertiesArray[2] = 0 // _MainTex
-      this.__texturePropertiesArray[3] = 0 // _OutlineWidthTexture
-      this.__texturePropertiesArray[4] = 0 // _ReceiveShadowTexture
-      this.__texturePropertiesArray[5] = 1 // _RimTexture
-      this.__texturePropertiesArray[6] = 0 // _ShadeTexture
-      this.__texturePropertiesArray[7] = 0 // _ShadingGradeTexture
-      this.__texturePropertiesArray[8] = 1 // _SphereAdd
-      // this.texturePropertiesArray[9] = 0 // _UvAnimMaskTexture
+      this.__textureProperties._BumpMap = 0;
+      this.__textureProperties._EmissionMap = 1;
+      this.__textureProperties._MainTex = 0;
+      this.__textureProperties._OutlineWidthTexture = 0;
+      this.__textureProperties._ReceiveShadowTexture = 0;
+      this.__textureProperties._RimTexture = 1;
+      this.__textureProperties._ShadeTexture = 0;
+      this.__textureProperties._ShadingGradeTexture = 0;
+      this.__textureProperties._SphereAdd = 1;
+      // this.__textureProperties._UvAnimMaskTexture = 0;
 
       textures = [
         AbstractMaterialNode.__dummyWhiteTexture,
@@ -138,72 +138,72 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       {
         semantic: MToonSingleMaterialNode._Cutoff, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[3]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._Cutoff), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._Color, componentType: ComponentType.Float, compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Vector4(this.__vectorPropertiesArray[0]), min: 0, max: 1,
+        initialValue: new Vector4(this.__vectorProperties._Color), min: 0, max: 1,
       },
       {
         semantic: MToonSingleMaterialNode._ShadeColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Vector3(this.__vectorPropertiesArray[3]), min: 0, max: 1,
+        initialValue: new Vector3(this.__vectorProperties._ShadeColor), min: 0, max: 1,
       },
       {
         semantic: MToonSingleMaterialNode._MainTex, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, textures[materialPropertiesArray[2][2]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [0, textures[this.__textureProperties._MainTex]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ShadeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, textures[materialPropertiesArray[2][6]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [1, textures[this.__textureProperties._ShadeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._BumpScale, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[1]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._BumpScale), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._BumpMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [2, textures[materialPropertiesArray[2][0]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [2, textures[this.__textureProperties._BumpMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ReceiveShadowRate, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[14]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._ReceiveShadowRate), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._ReceiveShadowTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [3, textures[materialPropertiesArray[2][4]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [3, textures[this.__textureProperties._ReceiveShadowTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ShadingGradeRate, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[20]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._ShadingGradeRate), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._ShadingGradeTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [4, textures[materialPropertiesArray[2][7]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [4, textures[this.__textureProperties._ShadingGradeTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._ShadeShift, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[18]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._ShadeShift), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._ShadeToony, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[19]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._ShadeToony), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._LightColorAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[7]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._LightColorAttenuation), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._AmbientColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
@@ -213,32 +213,32 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       // {
       //   semantic: MToonSingleMaterialNode._IndirectLightIntensity, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: new Scalar(this.floatPropertiesArray[6]), min: 0, max: 1
+      //   initialValue: new Scalar(this.floatPropertiesArray._IndirectLightIntensity), min: 0, max: 1
       // },
       {
         semantic: MToonSingleMaterialNode._RimColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Vector3(this.__vectorPropertiesArray[4]), min: 0, max: 1,
+        initialValue: new Vector3(this.__vectorProperties._RimColor), min: 0, max: 1,
       },
       {
         semantic: MToonSingleMaterialNode._RimTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [5, textures[materialPropertiesArray[2][5]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [5, textures[this.__textureProperties._RimTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._RimLightingMix, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[17]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._RimLightingMix), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._RimFresnelPower, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[15]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._RimFresnelPower), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode._RimLift, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Scalar(this.__floatPropertiesArray[16]), min: 0, max: 1
+        initialValue: new Scalar(this.__floatProperties._RimLift), min: 0, max: 1
       },
       {
         semantic: MToonSingleMaterialNode.CameraUp, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
@@ -248,37 +248,37 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       {
         semantic: MToonSingleMaterialNode._SphereAdd, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [6, textures[materialPropertiesArray[2][8]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [6, textures[this.__textureProperties._SphereAdd]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: MToonSingleMaterialNode._EmissionColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-        initialValue: new Vector3(this.__vectorPropertiesArray[1]), min: 0, max: 1,
+        initialValue: new Vector3(this.__vectorProperties._EmissionColor), min: 0, max: 1,
       },
       {
         semantic: MToonSingleMaterialNode._EmissionMap, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [8, textures[materialPropertiesArray[2][1]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+        initialValue: [8, textures[this.__textureProperties._EmissionMap]], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       // {
       //   semantic: MToonSingleMaterialNode._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-      //   initialValue: [9, texturePropertiesArray[9]], min: 0, max: Number.MAX_SAFE_INTEGER,
+      //   initialValue: [9, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       // },
       // {
       //   semantic: MToonSingleMaterialNode._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: new Scalar(this.floatPropertiesArray[23]), min: 0, max: 1
+      //   initialValue: new Scalar(this.floatPropertiesArray._UvAnimScrollX), min: 0, max: 1
       // },
       // {
       //   semantic: MToonSingleMaterialNode._UvAnimScrollY, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue:  new Scalar(this.floatPropertiesArray[24]), min: 0, max: 1
+      //   initialValue:  new Scalar(this.floatPropertiesArray._UvAnimScrollY), min: 0, max: 1
       // },
       // {
       //   semantic: MToonSingleMaterialNode._UvAnimRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
       //   stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: new Scalar(this.floatPropertiesArray[25]), min: 0, max: 1
+      //   initialValue: new Scalar(this.floatPropertiesArray._UvAnimRotation), min: 0, max: 1
       // },
 
       {
@@ -290,12 +290,12 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     );
 
     // _DebugMode
-    switch (this.__floatPropertiesArray[4]) {
+    switch (this.__floatProperties._DebugMode) {
       case 1: this.__definitions += '#define RN_MTOON_DEBUG_NORMAL\n'; break;
       case 2: this.__definitions += '#define RN_MTOON_DEBUG_LITSHADERATE\n'; break;
     }
 
-    if (materialPropertiesArray[2][0] !== textures.length - 2) {
+    if (this.__textureProperties._BlendMode !== textures.length - 2) {
       this.__definitions += '#define RN_MTOON_HAS_NORMALMAP\n';
     }
 
@@ -303,7 +303,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_MTOON_IS_OUTLINE\n';
 
       // _OutlineWidthMode
-      switch (this.__floatPropertiesArray[13]) {
+      switch (this.__floatProperties._OutlineWidthMode) {
         case 0: this.__definitions += '#define RN_MTOON_OUTLINE_NONE\n'; break;
         case 1: this.__definitions += '#define RN_MTOON_OUTLINE_WIDTH_WORLD\n'; break;
         case 2:
@@ -313,7 +313,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       }
 
       // _OutlineColorMode
-      switch (this.__floatPropertiesArray[8]) {
+      switch (this.__floatProperties._OutlineColorMode) {
         case 0: this.__definitions += '#define RN_MTOON_OUTLINE_COLOR_FIXED\n'; break;
         case 1: this.__definitions += '#define RN_MTOON_OUTLINE_COLOR_MIXED\n'; break;
       }
@@ -322,27 +322,27 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         {
           semantic: MToonSingleMaterialNode._OutlineWidthTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
           stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [9, textures[materialPropertiesArray[2][3]]], min: 0, max: Number.MAX_SAFE_INTEGER,
+          initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]], min: 0, max: Number.MAX_SAFE_INTEGER,
         },
         {
           semantic: MToonSingleMaterialNode._OutlineWidth, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new Scalar(this.__floatPropertiesArray[12]), min: 0, max: 1
+          initialValue: new Scalar(this.__floatProperties._OutlineWidth), min: 0, max: 1
         },
         {
           semantic: MToonSingleMaterialNode._OutlineScaledMaxDistance, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new Scalar(this.__floatPropertiesArray[11]), min: 0, max: 1
+          initialValue: new Scalar(this.__floatProperties._OutlineScaledMaxDistance), min: 0, max: 1
         },
         {
           semantic: MToonSingleMaterialNode._OutlineColor, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new Vector3(this.__vectorPropertiesArray[2]), min: 0, max: 1,
+          initialValue: new Vector3(this.__vectorProperties._OutlineColor), min: 0, max: 1,
         },
         {
           semantic: MToonSingleMaterialNode._OutlineLightingMix, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-          initialValue: new Scalar(this.__floatPropertiesArray[10]), min: 0, max: 1
+          initialValue: new Scalar(this.__floatProperties._OutlineLightingMix), min: 0, max: 1
         },
         {
           semantic: MToonSingleMaterialNode.Aspect, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
@@ -391,9 +391,8 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
       MToonSingleMaterialNode.__initializeBlendEquationModeAlpha();
     }
 
-    // _BlendMode
-    if (this.__floatPropertiesArray[0] !== 0) {
-      switch (this.__floatPropertiesArray[0]) {
+    if (this.__floatProperties._BlendMode !== 0) {
+      switch (this.__floatProperties._BlendMode) {
         case 1: this.__definitions += '#define RN_ALPHATEST_ON\n'; material.alphaMode = AlphaMode.Mask; break;
         case 2: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Blend; break;
         case 3: this.__definitions += '#define RN_ALPHABLEND_ON\n'; material.alphaMode = AlphaMode.Blend; break;
@@ -401,31 +400,27 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
       const blendEquationModeAlpha = MToonSingleMaterialNode.blendEquationModeAlpha;
-      const blendFuncSrcFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatPropertiesArray[21]);
-      const blendFuncDstFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatPropertiesArray[5]);
+      const blendFuncSrcFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatProperties._SrcBlend);
+      const blendFuncDstFactor = MToonSingleMaterialNode.unityBlendEnumCorrespondence(this.__floatProperties._DstBlend);
 
       material.setBlendEquationMode(blendEquationMode, blendEquationModeAlpha);
       material.setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor);
     }
 
     if (isOutline) {
-      // _OutlineCullMode
-      switch (this.__floatPropertiesArray[9]) {
+      switch (this.__floatProperties._OutlineCullMode) {
         case 0: material.cullface = false; break;
         case 1: material.cullface = true; material.cullFrontFaceCCW = false; break;
         case 2: material.cullface = true; material.cullFrontFaceCCW = true; break;
       }
     } else {
-      // _CullMode
-      switch (this.__floatPropertiesArray[2]) {
+      switch (this.__floatProperties._CullMode) {
         case 0: material.cullface = false; break;
         case 1: material.cullface = true; material.cullFrontFaceCCW = false; break;
         case 2: material.cullface = true; material.cullFrontFaceCCW = true; break;
       }
     }
-    this.__floatPropertiesArray = [];
-    this.__vectorPropertiesArray = [];
-    this.__texturePropertiesArray = [];
+
   }
 
   private static __initializeBlendEquationModeAlpha() {
