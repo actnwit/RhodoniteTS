@@ -33,7 +33,7 @@ export default class DataUtil {
 
   static dataUriToArrayBuffer(dataUri: string) {
     let splittedDataUri = dataUri.split(',');
-    let type = splittedDataUri[0].split(':')[1].split(';')[0];
+    // let type = splittedDataUri[0].split(':')[1].split(';')[0];
     let byteString = DataUtil.atob(splittedDataUri[1]);
     let byteStringLength = byteString.length;
     let arrayBuffer = new ArrayBuffer(byteStringLength);
@@ -46,15 +46,11 @@ export default class DataUtil {
 
   static arrayBufferToString(arrayBuffer: ArrayBuffer) {
     if (typeof TextDecoder !== 'undefined') {
-      let textDecoder = new TextDecoder();
+      const textDecoder = new TextDecoder();
       return textDecoder.decode(arrayBuffer);
     } else {
-      let bytes = new Uint8Array(arrayBuffer);
-      let result = "";
-      let length = bytes.length;
-      for (let i = 0; i < length; i++) {
-        result += String.fromCharCode(bytes[i]);
-      }
+      const bytes = new Uint8Array(arrayBuffer);
+      const result = this.uint8ArrayToString(bytes);
       return result;
     }
   }
