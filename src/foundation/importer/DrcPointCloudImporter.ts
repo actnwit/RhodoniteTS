@@ -16,7 +16,7 @@ export default class DrcPointCloudImporter {
   private constructor() {
   }
 
-  // for ModelConverter,  not implemented yet
+  // for ModelConverter, mesh type is not support yet
   async importPointCloud(gltfUri: string, textureUri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
       files: {
