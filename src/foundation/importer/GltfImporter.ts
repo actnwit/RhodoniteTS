@@ -139,8 +139,8 @@ export default class GltfImporter {
 
     const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
     gltfModel.extensions.VRM.rnExtension = {
-      existDefaultMorphing: defaultMaterialHelperArgumentArray[0].isMorphing != null,
-      existDefaultSkinning: defaultMaterialHelperArgumentArray[0].isSkinning != null
+      defaultMorphingIsTrue: defaultMaterialHelperArgumentArray[0].isMorphing === true,
+      defaultSkinningIsTrue: defaultMaterialHelperArgumentArray[0].isSkinning === true
     };
 
     const textures = this.__createTextures(gltfModel);
@@ -199,9 +199,17 @@ export default class GltfImporter {
       if (options.defaultMaterialHelperArgumentArray == null) {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
+
       if (options.defaultMaterialHelperArgumentArray[0].isLighting == null) {
         options.defaultMaterialHelperArgumentArray[0].isLighting = true;
       }
+      if (options.defaultMaterialHelperArgumentArray[0].isMorphing == null) {
+        options.defaultMaterialHelperArgumentArray[0].isMorphing = true;
+      }
+      if (options.defaultMaterialHelperArgumentArray[0].isSkinning == null) {
+        options.defaultMaterialHelperArgumentArray[0].isSkinning = true;
+      }
+
       if (options.defaultMaterialHelperArgumentArray[0].isMorphing === false) {
         options.maxMorphTargetNumber = 0;
       }
@@ -211,7 +219,7 @@ export default class GltfImporter {
         files: {},
         loaderExtension: null,
         defaultMaterialHelperName: null,
-        defaultMaterialHelperArgumentArray: [{ isLighting: true }],
+        defaultMaterialHelperArgumentArray: [{ isLighting: true, isMorphing: true, isSkinning: true }],
         statesOfElements: [
           {
             targets: [],

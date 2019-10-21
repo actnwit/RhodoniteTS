@@ -542,10 +542,10 @@ export default class ModelConverter {
       // argument
       const argumentOfMaterialHelper = argumentArray[0];
       const rnExtension = VRMProperties.rnExtension;
-      if (!rnExtension.existDefaultMorphing) {
+      if (rnExtension.defaultMorphingIsTrue) {
         argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
       }
-      if (!rnExtension.existDefaultSkinning) {
+      if (rnExtension.defaultSkinningIsTrue) {
         const existSkin = node.skin != null;
         argumentOfMaterialHelper.isSkinning = existSkin;
         argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
