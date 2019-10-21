@@ -1068,7 +1068,7 @@ export default class DrcPointCloudImporter {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        imageUri = DataUtil._accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBufferBinary, imageJson.mimeType!);
+        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBufferBinary, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -1077,7 +1077,7 @@ export default class DrcPointCloudImporter {
           const arrayBuffer = options.files[filename];
           const splitted = filename.split('.');
           const fileExtension = splitted[splitted.length - 1];
-          imageUri = DataUtil._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -1092,7 +1092,7 @@ export default class DrcPointCloudImporter {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await DataUtil._imgLoad(img, imageUri);
+        await DataUtil.imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
@@ -1101,10 +1101,10 @@ export default class DrcPointCloudImporter {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil._uint8ArrayToString(bytes);
+            const binaryData = DataUtil.uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
-            img.src = DataUtil._getImageType(ext) + window.btoa(binaryData);
+            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
             img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
             img.onload = () => {
               resolve(gltfJson);
