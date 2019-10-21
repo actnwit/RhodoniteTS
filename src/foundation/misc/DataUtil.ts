@@ -176,12 +176,12 @@ export default class DataUtil {
     return (crc ^ (-1)) >>> 0;
   }
 
-  static _accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string): string {
-    const uint8BufferView = this._takeBufferViewAsUint8Array(json, bufferViewIndex, arrayBuffer);
-    return this._accessArrayBufferAsImage(uint8BufferView as ArrayBuffer, mimeType);
+  static accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string): string {
+    const uint8BufferView = this.takeBufferViewAsUint8Array(json, bufferViewIndex, arrayBuffer);
+    return this.accessArrayBufferAsImage(uint8BufferView as ArrayBuffer, mimeType);
   }
 
-  static _takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer): Uint8Array {
+  static takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
     const byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
     const byteLength = bufferViewJson.byteLength;
@@ -189,14 +189,14 @@ export default class DataUtil {
     return uint8BufferView;
   }
 
-  static _accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string): string {
-    const binaryData = this._uint8ArrayToString(new Uint8Array(arrayBuffer));
-    const imgSrc = this._getImageType(imageType);
+  static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string): string {
+    const binaryData = this.uint8ArrayToString(new Uint8Array(arrayBuffer));
+    const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
   }
 
-  static _uint8ArrayToString(uint8: Uint8Array): string {
+  static uint8ArrayToString(uint8: Uint8Array): string {
     const charCodeArray: number[] = new Array(uint8.byteLength);
     for (let i = 0; i < uint8.byteLength; i++) {
       charCodeArray[i] = uint8[i];
@@ -213,7 +213,7 @@ export default class DataUtil {
     return binaryData;
   }
 
-  static _imgLoad(img: HTMLImageElement, imageUri: string): Promise<void> {
+  static imgLoad(img: HTMLImageElement, imageUri: string): Promise<void> {
     return new Promise(((resolve, reject) => {
       img.onload = () => {
         resolve();
@@ -222,7 +222,7 @@ export default class DataUtil {
     }));
   }
 
-  static _getImageType(imageType: string): string {
+  static getImageType(imageType: string): string {
     let imgSrc = null;
     if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
       imgSrc = "data:image/jpeg;base64,";

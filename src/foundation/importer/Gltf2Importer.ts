@@ -14,6 +14,9 @@ export default class Gltf2Importer {
 
   /**
    * Import glTF2 file or arraybuffers.
+   * @param uri - uri of glTF file
+   * @param options - options for loading process
+   * @returns a glTF2 based JSON pre-processed
    */
   async import(uri: string, options?: GltfLoadOption) {
     let defaultOptions: GltfLoadOption = {
@@ -638,7 +641,7 @@ export default class Gltf2Importer {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
           arrayBuffer = bufferView.buffer.buffer;
         }
-        imageUri = DataUtil._accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBuffer, imageJson.mimeType!);
+        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBuffer, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -647,7 +650,7 @@ export default class Gltf2Importer {
           const arrayBuffer = options.files[filename];
           const splitted = filename.split('.');
           const fileExtension = splitted[splitted.length - 1];
-          imageUri = DataUtil._accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -661,7 +664,7 @@ export default class Gltf2Importer {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await DataUtil._imgLoad(img, imageUri);
+        await DataUtil.imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
@@ -671,10 +674,10 @@ export default class Gltf2Importer {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil._uint8ArrayToString(bytes);
+            const binaryData = DataUtil.uint8ArrayToString(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
-            img.src = DataUtil._getImageType(ext) + window.btoa(binaryData);
+            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
             img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
             img.onload = () => {
               resolve(gltfJson);
@@ -702,7 +705,7 @@ export default class Gltf2Importer {
       }));
     }
 
-    return Promise.all(promisesToLoadResources).then().catch((err) => {
+    return Promise.all(promisesToLoadResources).catch((err) => {
       console.log('Promise.all error', err);
     });
   }
