@@ -163,7 +163,7 @@ export default class ModelConverter {
     const buffer = gltfModel.buffers[0] as Gltf2Buffer;
     const rnBuffer = new Buffer({
       byteLength: buffer.byteLength,
-      arrayBuffer: buffer.buffer!,
+      buffer: buffer.buffer!,
       name: `gltf2Buffer_0_(${buffer.uri})`
     });
 
@@ -1246,7 +1246,7 @@ export default class ModelConverter {
 
     const rnDracoBuffer = new Buffer({
       byteLength: lengthOfRnBufferForDraco,
-      arrayBuffer: new ArrayBuffer(lengthOfRnBufferForDraco),
+      buffer: new ArrayBuffer(lengthOfRnBufferForDraco),
       name: 'Draco'
     });
 

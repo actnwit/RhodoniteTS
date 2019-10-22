@@ -13,7 +13,7 @@ import { Byte, Index, Count, TypedArrayConstructor, TypedArray, Size } from "../
 
 export default class AccessorBase extends RnObject {
   protected __bufferView: BufferView;
-  protected __byteOffsetInBuffer: number;
+  protected __byteOffsetInRawArrayBufferOfBuffer: number;
   protected __compositionType: CompositionTypeEnum = CompositionType.Unknown;
   protected __componentType: ComponentTypeEnum = ComponentType.Unknown;
   protected __count: Count = 0;
@@ -30,16 +30,16 @@ export default class AccessorBase extends RnObject {
   protected __arrayLength = 1;
 
   constructor({bufferView, byteOffset, compositionType, componentType, byteStride, count, raw, max, min, arrayLength} :
-    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: Uint8Array, max?: number, min?: number, arrayLength: Size}) {
+    {bufferView: BufferView, byteOffset: Byte, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, byteStride: Byte, count: Count, raw: ArrayBuffer, max?: number, min?: number, arrayLength: Size}) {
     super();
 
     this.__bufferView = bufferView;
-    this.__byteOffsetInBuffer = bufferView.byteOffset + byteOffset;
+    this.__byteOffsetInRawArrayBufferOfBuffer = bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffset;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
     this.__arrayLength = arrayLength;
-    this.__raw = raw.buffer;
+    this.__raw = raw;
 
     if (max != null) {
       this.__max = max;
@@ -62,9 +62,9 @@ export default class AccessorBase extends RnObject {
     this.__typedArrayClass = typedArrayClass;
 
     if (this.__componentType.getSizeInBytes() === 8) {
-      if (this.__byteOffsetInBuffer % 8 !== 0) {
+      if (this.__byteOffsetInRawArrayBufferOfBuffer % 8 !== 0) {
         console.info('Padding added because of byteOffset of accessor is not 8 bytes aligned despite of Double precision.');
-        this.__byteOffsetInBuffer += 8 - this.__byteOffsetInBuffer % 8;
+        this.__byteOffsetInRawArrayBufferOfBuffer += 8 - this.__byteOffsetInRawArrayBufferOfBuffer % 8;
       }
     }
     //  else if (this.__componentType.getSizeInBytes() === 4) {
@@ -74,12 +74,12 @@ export default class AccessorBase extends RnObject {
     //   }
     // }
     if (this.__bufferView.isSoA) {
-      this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
+      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
-      this.__dataView = new DataView(this.__raw, this.__byteOffsetInBuffer);
+      this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer);
     }
-    if (this.__byteOffsetInBuffer % this.__componentType.getSizeInBytes() === 0) {
-      this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffsetInBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
+    if (this.__byteOffsetInRawArrayBufferOfBuffer % this.__componentType.getSizeInBytes() === 0) {
+      this.__typedArray = new typedArrayClass!(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__compositionType.getNumberOfComponents() * this.__count);
     }
     this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(this.__dataView);
     this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(this.__dataView);
@@ -142,7 +142,7 @@ export default class AccessorBase extends RnObject {
     if (this.__takenCount >= this.__count) {
       console.error('You are trying to allocate more than you have secured.');
     }
-    const subTypedArray = new this.__typedArrayClass!(arrayBufferOfBufferView, this.__byteOffsetInBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents() * this.__arrayLength);
+    const subTypedArray = new this.__typedArrayClass!(arrayBufferOfBufferView, this.__byteOffsetInRawArrayBufferOfBuffer + this.__byteStride * this.__takenCount, this.__compositionType.getNumberOfComponents() * this.__arrayLength);
     this.__takenCount += 1;
 
     (subTypedArray as any)._accessor = this;
@@ -515,11 +515,15 @@ export default class AccessorBase extends RnObject {
   }
 
   get byteOffsetInBufferView(): Byte {
-    return this.__byteOffsetInBuffer - this.__bufferView.byteOffset;
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__bufferView.byteOffsetInRawArrayBufferOfBuffer;
   }
 
   get byteOffsetInBuffer(): Byte {
-    return this.__byteOffsetInBuffer;
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__bufferView.buffer.byteOffsetInRawArrayBuffer;
+  }
+
+  get byteOffsetInRawArrayBufferOfBuffer() {
+    return this.__byteOffsetInRawArrayBufferOfBuffer;
   }
 
   get bufferView(): BufferView {

@@ -26,7 +26,7 @@ export default class MemoryManager {
       const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
+        buffer: arrayBuffer,
         name: BufferUse.CPUGeneric.toString()
       });
       this.__buffers[buffer.name] = buffer;
@@ -38,7 +38,7 @@ export default class MemoryManager {
       const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
+        buffer: arrayBuffer,
         name: BufferUse.GPUInstanceData.toString()
       });
       this.__buffers[buffer.name] = buffer;
@@ -50,7 +50,7 @@ export default class MemoryManager {
       const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
       const buffer = new Buffer({
         byteLength: arrayBuffer.byteLength,
-        arrayBuffer: arrayBuffer,
+        buffer: arrayBuffer,
         name: BufferUse.GPUVertexData.toString()
       });
       this.__buffers[buffer.name] = buffer;
@@ -94,7 +94,7 @@ export default class MemoryManager {
     const arrayBuffer = new ArrayBuffer(size);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
-      arrayBuffer: arrayBuffer,
+      buffer: arrayBuffer,
       name: BufferUse.UBOGeneric.toString()
     });
     this.__buffersOnDemand.set(object.objectUID, buffer);

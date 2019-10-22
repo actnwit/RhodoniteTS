@@ -4,16 +4,23 @@ import { Byte, Size } from "../../types/CommonTypes";
 
 export default class Buffer extends RnObject {
   private __byteLength: Size = 0;
+  private __byteOffset: Size = 0;
   private __raw: ArrayBuffer;
   private __name: string = '';
   private __takenBytesIndex: Byte = 0;
   private __bufferViews: Array<BufferView> = [];
 
-  constructor({byteLength, arrayBuffer, name} : {byteLength: Size, arrayBuffer: ArrayBuffer, name: string}) {
+  constructor({byteLength, buffer, name} : {byteLength: Size, buffer: ArrayBuffer | Uint8Array, name: string}) {
     super();
     this.__name = name;
     this.__byteLength = byteLength;
-    this.__raw = arrayBuffer;
+    if (buffer instanceof Uint8Array) {
+      this.__raw = buffer.buffer
+      this.__byteOffset = buffer.byteOffset;
+      this.__takenBytesIndex = buffer.byteOffset;
+    } else {
+      this.__raw = buffer;
+    }
   }
 
   set name(str) {
@@ -38,9 +45,7 @@ export default class Buffer extends RnObject {
     //   byteStride += 4 - (byteStride % 4);
     // }
 
-    const array = new Uint8Array(this.__raw, this.__takenBytesIndex, byteLengthToNeed);
-
-    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS});
+    const bufferView = new BufferView({buffer: this, byteOffset: this.__takenBytesIndex, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS});
     bufferView.byteStride = byteStride;
     this.__takenBytesIndex += Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed;
 
@@ -60,11 +65,9 @@ export default class Buffer extends RnObject {
     //   byteStride += 4 - (byteStride % 4);
     // }
 
-    const array = new Uint8Array(this.__raw, byteOffset, byteLengthToNeed);
+    const bufferView = new BufferView({buffer: this, byteOffset: byteOffset + this.__byteOffset, byteLength: byteLengthToNeed, raw: this.__raw, isAoS: isAoS});
 
-    const bufferView = new BufferView({buffer: this, byteOffset: byteOffset, byteLength: byteLengthToNeed, raw: array, isAoS: isAoS});
-
-    const takenBytesIndex = Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset;
+    const takenBytesIndex = Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset + this.__byteOffset;
     if (this.__takenBytesIndex < takenBytesIndex) {
       this.__takenBytesIndex = takenBytesIndex;
     }
@@ -86,6 +89,10 @@ export default class Buffer extends RnObject {
 
   get takenSizeInByte() {
     return this.__takenBytesIndex;
+  }
+
+  get byteOffsetInRawArrayBuffer() {
+    return this.__byteOffset;
   }
 
 }
