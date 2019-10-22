@@ -1020,7 +1020,7 @@ export default class DrcPointCloudImporter {
         promisesToLoadResources.push(
           new Promise((resolve, rejected) => {
             resources.buffers[i] = arrayBufferBinary;
-            bufferInfo.buffer = arrayBufferBinary;
+            bufferInfo.buffer = new Uint8Array(arrayBufferBinary);
             resolve(gltfJson);
           }
           ));
@@ -1029,7 +1029,7 @@ export default class DrcPointCloudImporter {
           new Promise((resolve, rejected) => {
             let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
             resources.buffers[i] = arrayBuffer;
-            bufferInfo.buffer = arrayBuffer;
+            bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           })
         );
@@ -1038,7 +1038,7 @@ export default class DrcPointCloudImporter {
           new Promise((resolve, rejected) => {
             const arrayBuffer = options.files[filename];
             resources.buffers[i] = arrayBuffer;
-            bufferInfo.buffer = arrayBuffer;
+            bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(gltfJson);
           }
           ));

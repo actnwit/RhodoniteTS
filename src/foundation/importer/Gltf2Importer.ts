@@ -138,7 +138,7 @@ export default class Gltf2Importer {
     let gotText = DataUtil.uint8ArrayToString(uint8ArrayJSonContent);
     let gltfJson = JSON.parse(gotText);
     options = this._getOptions(defaultOptions, gltfJson, options);
-    let arrayBufferBinary = arrayBuffer.slice(20 + lengthOfJSonChunkData + 8);
+    let uint8array = new Uint8Array(arrayBuffer, 20 + lengthOfJSonChunkData + 8);
 
     let basePath = null;
     if (uri) {
@@ -154,7 +154,7 @@ export default class Gltf2Importer {
     gltfJson.asset.extras.rnLoaderOptions = options;
 
     try {
-      await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
+      await this._loadInner(uint8array, basePath!, gltfJson, options);
     } catch (err) {
       console.log("this._loadInner error in _loadAsBinaryJson", err);
     }
@@ -185,7 +185,7 @@ export default class Gltf2Importer {
     return gltfJson;
   }
 
-  _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: GltfLoadOption) {
+  _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: glTF2, options: GltfLoadOption) {
     let promises = [];
 
     let resources = {
@@ -193,7 +193,7 @@ export default class Gltf2Importer {
       buffers: [],
       images: []
     };
-    promises.push(this._loadResources(arrayBufferBinary!, basePath, gltfJson, options, resources));
+    promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
     promises.push(new Promise((resolve, reject) => {
       this._loadJsonContent(gltfJson, options);
       resolve();
@@ -511,7 +511,7 @@ export default class Gltf2Importer {
     Object.assign(gltfJson, extendedJson);
   }
 
-  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: GltfLoadOption, resources: {
+  _loadResources(uint8Array: Uint8Array, basePath: string, gltfJson: glTF2, options: GltfLoadOption, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]
@@ -584,29 +584,29 @@ export default class Gltf2Importer {
       }
       if (typeof bufferInfo.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-          resources.buffers[i] = arrayBufferBinary;
-          bufferInfo.buffer = arrayBufferBinary;
-          resolve(arrayBufferBinary);
+          resources.buffers[i] = uint8Array;
+          bufferInfo.buffer = uint8Array;
+          resolve(uint8Array);
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
             let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
-            resources.buffers[i] = arrayBuffer;
-            bufferInfo.buffer = arrayBuffer;
+            resources.buffers[i] = new Uint8Array(arrayBuffer);
+            bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(arrayBuffer);
           });
       } else if (options.files && options.files[filename!]) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
             const arrayBuffer = options.files[filename];
-            resources.buffers[i] = arrayBuffer;
-            bufferInfo.buffer = arrayBuffer;
+            resources.buffers[i] = new Uint8Array(arrayBuffer);
+            bufferInfo.buffer = new Uint8Array(arrayBuffer);
             resolve(arrayBuffer);
           });
       } else {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
-            (resolve: Function, response: any) => {
-              resources.buffers[i] = response;
-              bufferInfo.buffer = response;
+            (resolve: Function, response: ArrayBuffer) => {
+              resources.buffers[i] = new Uint8Array(response);
+              bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
             (reject: Function, error: any) => {
@@ -628,8 +628,8 @@ export default class Gltf2Importer {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        let arrayBuffer = arrayBufferBinary;
-        if (arrayBufferBinary == null) {
+        let arrayBuffer = uint8Array;
+        if (uint8Array == null) {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
           arrayBuffer = bufferView.buffer.buffer;
         }

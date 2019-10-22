@@ -777,11 +777,11 @@ export default class ModelConverter {
     }
   }
 
-  _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
+  _adjustByteAlign(typedArrayClass: any, uint8Array: Uint8Array, alignSize: Size, byteOffset: Byte, length: Size) {
     if ((byteOffset % alignSize) != 0) {
-      return new typedArrayClass(arrayBuffer.slice(byteOffset), 0, length);
+      return new typedArrayClass(uint8Array.buffer.slice(byteOffset + uint8Array.byteOffset), 0, length);
     } else {
-      return new typedArrayClass(arrayBuffer, byteOffset, length);
+      return new typedArrayClass(uint8Array.buffer, byteOffset + uint8Array.byteOffset, length);
     }
   }
 
@@ -878,7 +878,7 @@ export default class ModelConverter {
     var bufferView = accessor.bufferView;
     const byteOffset = bufferView.byteOffset + (accessor.byteOffset !== void 0 ? accessor.byteOffset : 0);
     var buffer = bufferView.buffer;
-    var arrayBuffer = buffer.buffer;
+    var uint8Array: Uint8Array = buffer.buffer;
 
     let componentN = this._checkComponentNumber(accessor);
     let componentBytes = this._checkBytesPerComponent(accessor);
@@ -898,23 +898,23 @@ export default class ModelConverter {
     if (accessor.extras && accessor.extras.toGetAsTypedArray) {
       if (ModelConverter._isSystemLittleEndian()) {
         if (dataViewMethod === 'getFloat32') {
-          typedDataArray = this._adjustByteAlign(Float32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Float32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+          typedDataArray = new Int8Array(uint8Array, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+          typedDataArray = new Uint8Array(uint8Array, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = this._adjustByteAlign(Int16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Int16Array, uint8Array, 2, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = this._adjustByteAlign(Uint16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Uint16Array, uint8Array, 2, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = this._adjustByteAlign(Int32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Int32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = this._adjustByteAlign(Uint32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Uint32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         }
 
       } else {
-        let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
+        let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
         let byteDelta = componentBytes * componentN;
         let littleEndian = true;
         for (let pos = 0; pos < byteLength; pos += byteDelta) {
@@ -956,7 +956,7 @@ export default class ModelConverter {
         }
       }
     } else {
-      let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
+      let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset , byteLength);
       let byteDelta = componentBytes * componentN;
       if (accessor.extras && accessor.extras.weightCount) {
         byteDelta = componentBytes * componentN * accessor.extras.weightCount;

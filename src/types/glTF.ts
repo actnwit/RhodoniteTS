@@ -276,7 +276,7 @@ export type Gltf2BufferView = {
 export type Gltf2Buffer = {
   uri?: string,
   byteLength: number,
-  buffer?: ArrayBuffer,
+  buffer?: Uint8Array,
   bufferPromise?: RnPromise<ArrayBuffer>,
   name?: string,
   extensions?: any,
