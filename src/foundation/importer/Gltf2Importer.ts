@@ -1,5 +1,6 @@
 import DataUtil from "../misc/DataUtil";
 import { glTF2, GltfLoadOption, Gltf2Image } from "../../types/glTF";
+import RnPromise from "../misc/RnPromise";
 
 declare var Rn: any;
 
@@ -152,13 +153,12 @@ export default class Gltf2Importer {
     gltfJson.asset.extras.basePath = basePath;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
-    let result: any;
     try {
-      result = await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
+      await this._loadInner(arrayBufferBinary, basePath!, gltfJson, options);
     } catch (err) {
       console.log("this._loadInner error in _loadAsBinaryJson", err);
     }
-    return (result[0] as any)[0];
+    return gltfJson;
   }
 
   async _loadAsTextJson(gltfJson: glTF2, options: GltfLoadOption, defaultOptions: GltfLoadOption, uri?: string) {
@@ -177,13 +177,12 @@ export default class Gltf2Importer {
     gltfJson.asset.extras.basePath = basePath!;
     gltfJson.asset.extras.rnLoaderOptions = options;
 
-    let result: any;
     try {
-      result = await this._loadInner(undefined, basePath!, gltfJson, options);
+      await this._loadInner(undefined, basePath!, gltfJson, options);
     } catch (err) {
       console.log('this._loadInner error in _loadAsTextJson', err);
     }
-    return (result[0] as any)[0];
+    return gltfJson;
   }
 
   _loadInner(arrayBufferBinary: ArrayBuffer | undefined, basePath: string, gltfJson: glTF2, options: GltfLoadOption) {
@@ -512,7 +511,7 @@ export default class Gltf2Importer {
     Object.assign(gltfJson, extendedJson);
   }
 
-  async _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: GltfLoadOption, resources: {
+  _loadResources(arrayBufferBinary: ArrayBuffer, basePath: string, gltfJson: glTF2, options: GltfLoadOption, resources: {
     shaders: any[],
     buffers: any[],
     images: any[]
@@ -573,6 +572,7 @@ export default class Gltf2Importer {
     // }
 
     // Buffers Async load
+    let rnpArrayBuffer: RnPromise<ArrayBuffer>;
     for (let i in gltfJson.buffers) {
       let bufferInfo = gltfJson.buffers[i];
 
@@ -583,47 +583,40 @@ export default class Gltf2Importer {
         filename = splitted[splitted.length - 1];
       }
       if (typeof bufferInfo.uri === 'undefined') {
-        promisesToLoadResources.push(
-          new Promise((resolve, rejected) => {
-            resources.buffers[i] = arrayBufferBinary;
-            bufferInfo.buffer = arrayBufferBinary;
-            resolve(gltfJson);
-          }
-          ));
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+          resources.buffers[i] = arrayBufferBinary;
+          bufferInfo.buffer = arrayBufferBinary;
+          resolve(arrayBufferBinary);
+        });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
-        promisesToLoadResources.push(
-          new Promise((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
             let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
             resources.buffers[i] = arrayBuffer;
             bufferInfo.buffer = arrayBuffer;
-            resolve(gltfJson);
-          })
-        );
+            resolve(arrayBuffer);
+          });
       } else if (options.files && options.files[filename!]) {
-        promisesToLoadResources.push(
-          new Promise((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
             const arrayBuffer = options.files[filename];
             resources.buffers[i] = arrayBuffer;
             bufferInfo.buffer = arrayBuffer;
-            resolve(gltfJson);
-          }
-          ));
+            resolve(arrayBuffer);
+          });
       } else {
-        promisesToLoadResources.push(
-          DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
             (resolve: Function, response: any) => {
               resources.buffers[i] = response;
               bufferInfo.buffer = response;
-              resolve(gltfJson);
+              resolve(response);
             },
             (reject: Function, error: any) => {
 
             }
-          )
-        );
+          ))
       }
+      bufferInfo.bufferPromise = rnpArrayBuffer;
+      promisesToLoadResources.push(rnpArrayBuffer);
     }
-
 
     // Textures Async load
     for (let _i in gltfJson.images) {
@@ -705,8 +698,8 @@ export default class Gltf2Importer {
     }
 
     return Promise.all(promisesToLoadResources).catch((err) => {
-      console.log('Promise.all error', err);
-    });
+        console.log('Promise.all error', err);
+      });
   }
 
   static getInstance() {

@@ -1,4 +1,5 @@
 import Entity from "../foundation/core/Entity";
+import RnPromise from "../foundation/misc/RnPromise";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -276,6 +277,7 @@ export type Gltf2Buffer = {
   uri?: string,
   byteLength: number,
   buffer?: ArrayBuffer,
+  bufferPromise?: RnPromise<ArrayBuffer>,
   name?: string,
   extensions?: any,
   extras?: any

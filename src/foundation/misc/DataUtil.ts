@@ -101,7 +101,7 @@ export default class DataUtil {
   }
 
   static loadResourceAsync(resourceUri: string, isBinary: boolean, resolveCallback: Function, rejectCallback: Function) {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       let isNode = DataUtil.isNode();
 
       if (isNode) {
