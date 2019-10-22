@@ -624,7 +624,6 @@ export default class Gltf2Importer {
       }
     }
 
-    await Promise.all(promisesToLoadResources);
 
     // Textures Async load
     for (let _i in gltfJson.images) {
