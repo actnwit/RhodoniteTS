@@ -45,7 +45,8 @@ export default class Gltf2Importer {
           isTextureImageToLoadPreMultipliedAlpha: false,
         }
       ],
-      forceCalculateTangent: false,
+      tangentCalculationMode: 1,
+      isPrecomputeForRayCastPickingEnable: false,
       extendedJson: void 0 //   URI string / JSON Object / ArrayBuffer
     };
 

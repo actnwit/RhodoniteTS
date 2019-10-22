@@ -1,5 +1,6 @@
 import Entity from "../foundation/core/Entity";
 import RnPromise from "../foundation/misc/RnPromise";
+import { Index } from "./CommonTypes";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -406,7 +407,8 @@ export type GltfLoadOption = {
   ignoreLists?: [],
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
-  forceCalculateTangent?: boolean,
+  tangentCalculationMode?: Index,
+  isPrecomputeForRayCastPickingEnable?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
   isImportVRM?: boolean,
   maxMorphTargetNumber?: number

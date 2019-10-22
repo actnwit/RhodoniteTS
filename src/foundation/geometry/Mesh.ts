@@ -38,7 +38,8 @@ export default class Mesh {
   public _attatchedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
-  public forceCalculateTangent: boolean = false;
+  public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
+  public isPrecomputeForRayCastPickingEnable: boolean = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -220,9 +221,12 @@ export default class Mesh {
   }
 
   __calcTangents() {
+    if (this.tangentCalculationMode === 0) {
+      return;
+    }
     for (let primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
-      if (tangentIdx !== -1 && !this.forceCalculateTangent) {
+      if (tangentIdx !== -1 && this.tangentCalculationMode === 1) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
@@ -629,8 +633,10 @@ export default class Mesh {
   }
 
   _calcArenbergInverseMatrices() {
-    for (let primitive of this.__primitives) {
-      primitive._calcArenbergInverseMatrices();
+    if (this.isPrecomputeForRayCastPickingEnable) {
+      for (let primitive of this.__primitives) {
+        primitive._calcArenbergInverseMatrices();
+      }
     }
   }
 }
