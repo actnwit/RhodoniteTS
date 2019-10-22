@@ -30,7 +30,8 @@ const load = async function (time) {
         isSkinning: true,
         isMorphing: true,
       }],
-      autoResizeTexture: true
+      autoResizeTexture: true,
+      tangentCalculationMode: 0
     }
   });
 

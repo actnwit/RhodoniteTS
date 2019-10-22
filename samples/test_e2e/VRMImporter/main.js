@@ -35,6 +35,7 @@ const load = async function (time) {
 
   const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{ isLighting: true }],
+    tangentCalculationMode: 0
   });
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
 

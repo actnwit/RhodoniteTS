@@ -449,8 +449,11 @@ export default class ModelConverter {
     const rnMesh = new Mesh();
 
     const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
-    if (rnLoaderOptions && rnLoaderOptions.forceCalculateTangent) {
-      rnMesh.forceCalculateTangent = true;
+    if (rnLoaderOptions && rnLoaderOptions.tangentCalculationMode != null) {
+      rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
+    }
+    if (rnLoaderOptions && rnLoaderOptions.isPrecomputeForRayCastPickingEnable != null) {
+      rnMesh.isPrecomputeForRayCastPickingEnable = rnLoaderOptions.isPrecomputeForRayCastPickingEnable;
     }
 
     let originalRnMesh = rnMesh;
