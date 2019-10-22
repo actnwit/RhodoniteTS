@@ -50,7 +50,17 @@ export default class DataUtil {
       return textDecoder.decode(arrayBuffer);
     } else {
       const bytes = new Uint8Array(arrayBuffer);
-      const result = this.uint8ArrayToString(bytes);
+      const result = this.uint8ArrayToStringInner(bytes);
+      return result;
+    }
+  }
+
+  static uint8ArrayToString(uint8Array: Uint8Array) {
+    if (typeof TextDecoder !== 'undefined') {
+      const textDecoder = new TextDecoder();
+      return textDecoder.decode(uint8Array);
+    } else {
+      const result = this.uint8ArrayToStringInner(uint8Array);
       return result;
     }
   }
@@ -91,7 +101,7 @@ export default class DataUtil {
   }
 
   static loadResourceAsync(resourceUri: string, isBinary: boolean, resolveCallback: Function, rejectCallback: Function) {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       let isNode = DataUtil.isNode();
 
       if (isNode) {
@@ -172,27 +182,32 @@ export default class DataUtil {
     return (crc ^ (-1)) >>> 0;
   }
 
-  static accessBinaryAsImage(bufferViewIndex: number, json: any, arrayBuffer: ArrayBuffer, mimeType: string): string {
-    const uint8BufferView = this.takeBufferViewAsUint8Array(json, bufferViewIndex, arrayBuffer);
-    return this.accessArrayBufferAsImage(uint8BufferView as ArrayBuffer, mimeType);
+  static accessBinaryAsImage(bufferViewIndex: number, json: any, buffer: ArrayBuffer | Uint8Array, mimeType: string): string {
+    const uint8BufferView = this.takeBufferViewAsUint8Array(json, bufferViewIndex, buffer);
+    return this.accessArrayBufferAsImage(uint8BufferView, mimeType);
   }
 
-  static takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, arrayBuffer: ArrayBuffer): Uint8Array {
+  static takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
-    const byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
     const byteLength = bufferViewJson.byteLength;
+    let arrayBuffer: ArrayBuffer = buffer;
+    if (buffer instanceof Uint8Array) {
+      arrayBuffer = buffer.buffer;
+      byteOffset += buffer.byteOffset;
+    }
     const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
     return uint8BufferView;
   }
 
-  static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string): string {
-    const binaryData = this.uint8ArrayToString(new Uint8Array(arrayBuffer));
+  static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer | Uint8Array, imageType: string): string {
+    const binaryData = this.uint8ArrayToStringInner(new Uint8Array(arrayBuffer));
     const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
   }
 
-  static uint8ArrayToString(uint8: Uint8Array): string {
+  static uint8ArrayToStringInner(uint8: Uint8Array): string {
     const charCodeArray: number[] = new Array(uint8.byteLength);
     for (let i = 0; i < uint8.byteLength; i++) {
       charCodeArray[i] = uint8[i];

@@ -7,7 +7,7 @@ function createBuffer(byteSize: Byte) {
   const arrayBuffer = new ArrayBuffer(byteSize);
   const buffer = new Buffer({
     byteLength:arrayBuffer.byteLength,
-    arrayBuffer: arrayBuffer,
+    buffer: arrayBuffer,
     name: 'TestBuffer'});
 
   return buffer;
