@@ -133,8 +133,8 @@ export default class Gltf2Importer {
     if (chunkType !== 0x4E4F534A) {
       throw new Error('invalid chunkType of chunk0 in this binary glTF file.');
     }
-    let arrayBufferJSonContent = arrayBuffer.slice(20, 20 + lengthOfJSonChunkData);
-    let gotText = DataUtil.arrayBufferToString(arrayBufferJSonContent);
+    let uint8ArrayJSonContent = new Uint8Array(arrayBuffer, 20, lengthOfJSonChunkData);
+    let gotText = DataUtil.uint8ArrayToString(uint8ArrayJSonContent);
     let gltfJson = JSON.parse(gotText);
     options = this._getOptions(defaultOptions, gltfJson, options);
     let arrayBufferBinary = arrayBuffer.slice(20 + lengthOfJSonChunkData + 8);
@@ -673,7 +673,7 @@ export default class Gltf2Importer {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil.uint8ArrayToString(bytes);
+            const binaryData = DataUtil.uint8ArrayToStringInner(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
             img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);

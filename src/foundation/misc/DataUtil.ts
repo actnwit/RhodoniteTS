@@ -50,7 +50,17 @@ export default class DataUtil {
       return textDecoder.decode(arrayBuffer);
     } else {
       const bytes = new Uint8Array(arrayBuffer);
-      const result = this.uint8ArrayToString(bytes);
+      const result = this.uint8ArrayToStringInner(bytes);
+      return result;
+    }
+  }
+
+  static uint8ArrayToString(uint8Array: Uint8Array) {
+    if (typeof TextDecoder !== 'undefined') {
+      const textDecoder = new TextDecoder();
+      return textDecoder.decode(uint8Array);
+    } else {
+      const result = this.uint8ArrayToStringInner(uint8Array);
       return result;
     }
   }
@@ -186,13 +196,13 @@ export default class DataUtil {
   }
 
   static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer, imageType: string): string {
-    const binaryData = this.uint8ArrayToString(new Uint8Array(arrayBuffer));
+    const binaryData = this.uint8ArrayToStringInner(new Uint8Array(arrayBuffer));
     const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
   }
 
-  static uint8ArrayToString(uint8: Uint8Array): string {
+  static uint8ArrayToStringInner(uint8: Uint8Array): string {
     const charCodeArray: number[] = new Array(uint8.byteLength);
     for (let i = 0; i < uint8.byteLength; i++) {
       charCodeArray[i] = uint8[i];

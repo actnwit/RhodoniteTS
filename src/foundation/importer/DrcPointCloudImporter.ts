@@ -1101,7 +1101,7 @@ export default class DrcPointCloudImporter {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil.uint8ArrayToString(bytes);
+            const binaryData = DataUtil.uint8ArrayToStringInner(bytes);
             const split = imageUri.split('.');
             let ext = split[split.length - 1];
             img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
