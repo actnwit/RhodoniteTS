@@ -187,6 +187,13 @@ export default class DataUtil {
     return this.accessArrayBufferAsImage(uint8BufferView, mimeType);
   }
 
+  static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string) {
+    const blob = new Blob( [ uint8Array ], { type: mimeType } );
+    const urlCreator = window.URL || window.webkitURL;
+    const imageUrl = urlCreator.createObjectURL( blob );
+    return imageUrl;
+  }
+
   static takeBufferViewAsUint8Array(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
     let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
@@ -249,6 +256,26 @@ export default class DataUtil {
     }
     else {
       imgSrc = "data:image/unknown;base64,";
+    }
+    return imgSrc;
+  }
+
+  static getMimeTypeFromExtension(imageType: string): string {
+    let imgSrc = null;
+    if (imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
+      imgSrc = "image/jpeg";
+    }
+    else if (imageType.toLowerCase() === 'png') {
+      imgSrc = "image/png";
+    }
+    else if (imageType.toLowerCase() === 'gif') {
+      imgSrc = "image/gif";
+    }
+    else if (imageType.toLowerCase() === 'bmp') {
+      imgSrc = "image/bmp";
+    }
+    else {
+      imgSrc = "image/unknown";
     }
     return imgSrc;
   }

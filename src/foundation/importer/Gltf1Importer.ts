@@ -719,18 +719,18 @@ export default class Gltf1Importer {
       let imageUri: string;
 
       if (typeof imageJson.extensions !== 'undefined' && typeof imageJson.extensions.KHR_binary_glTF !== 'undefined') {
-        imageUri = DataUtil.accessBinaryAsImage(imageJson.extensions.KHR_binary_glTF.bufferView, gltfJson, uint8Array, imageJson.extensions.KHR_binary_glTF.mimeType);
+        const imageUint8Array = Gltf1Importer.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.extensions.KHR_binary_glTF.bufferView, uint8Array);
+        imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.extensions.KHR_binary_glTF.mimeType!);
       } else if (typeof imageJson.uri === 'undefined') {
-        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView, gltfJson, uint8Array, imageJson.mimeType);
+        const imageUint8Array = Gltf1Importer.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView, uint8Array);
+        imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
         const filename = splitted[splitted.length - 1];
         if (options.files && options.files[filename]) {
           const arrayBuffer = options.files[filename];
-          const splitted = filename.split('.');
-          const fileExtension = splitted[splitted.length - 1];
-          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), imageJson.mimeType!);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -742,22 +742,22 @@ export default class Gltf1Importer {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await DataUtil.imgLoad(img, imageUri);
 
         imageJson.image = img;
         resources.images[i] = img;
-        if (imageUri.match(/^data:/)) {
-          resolve(gltfJson);
+        if (imageUri.match(/^blob:/) || imageUri.match(/^data:/)) {
+          img.onload = () => {
+            resolve(gltfJson);
+          };
+          img.src = imageUri;
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil.uint8ArrayToStringInner(bytes);
-            const split = imageUri.split('.');
-            let ext = split[split.length - 1];
-            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
+            const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, imageJson.mimeType!);
             img.onload = () => {
               resolve(gltfJson);
             }
+            img.src = imageUri;
           }
 
           const loadBinaryImage = () => {
@@ -782,6 +782,19 @@ export default class Gltf1Importer {
     }
 
     return Promise.all(promisesToLoadResources);
+  }
+
+  static createUint8ArrayFromBufferViewInfo(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
+    const bufferViewJson = json.bufferViews[bufferViewIndex];
+    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    const byteLength = bufferViewJson.byteLength;
+    let arrayBuffer: ArrayBuffer = buffer;
+    if (buffer instanceof Uint8Array) {
+      arrayBuffer = buffer.buffer;
+      byteOffset += buffer.byteOffset;
+    }
+    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+    return uint8BufferView;
   }
 
   static getInstance() {
