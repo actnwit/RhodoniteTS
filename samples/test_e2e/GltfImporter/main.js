@@ -21,13 +21,11 @@ const load = async function (time) {
 
   // vrm
   const vrmExpression = await gltfImporter.import('../../../assets/vrm/test.vrm', {
-    gltfOptions: {
-      defaultMaterialHelperArgumentArray: [{
-        isSkinning: false,
-        isMorphing: false,
-      }],
-      autoResizeTexture: true
-    }
+    defaultMaterialHelperArgumentArray: [{
+      isSkinning: false,
+      isMorphing: false,
+    }],
+    autoResizeTexture: true
   });
   expressions.push(vrmExpression);
 

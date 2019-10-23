@@ -51,11 +51,9 @@ export default class GltfImporter {
   /**
    * Import GLTF or VRM file.
    */
-  async import(uri: string,
-    { gltfOptions, textureUri }: { gltfOptions?: GltfLoadOption, textureUri?: string } = {}
-  ): Promise<Expression> {
+  async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
 
-    const renderPasses: RenderPass[] = await this.__importModel(uri, gltfOptions, textureUri);
+    const renderPasses: RenderPass[] = await this.__importModel(uri, options);
 
     this.__setCamera(renderPasses[0]);
 
