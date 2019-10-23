@@ -1,6 +1,7 @@
 import DataUtil from "../misc/DataUtil";
 import { glTF2, GltfLoadOption, Gltf2Image } from "../../types/glTF";
 import RnPromise from "../misc/RnPromise";
+import { expression } from "@babel/template";
 
 declare var Rn: any;
 
@@ -634,16 +635,15 @@ export default class Gltf2Importer {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
           arrayBuffer = bufferView.buffer.buffer;
         }
-        imageUri = DataUtil.accessBinaryAsImage(imageJson.bufferView!, gltfJson, arrayBuffer, imageJson.mimeType!);
+        const imageUint8Array = Gltf2Importer.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView!, uint8Array);
+        imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
         const filename = splitted[splitted.length - 1];
         if (options.files && options.files[filename]) {
           const arrayBuffer = options.files[filename];
-          const splitted = filename.split('.');
-          const fileExtension = splitted[splitted.length - 1];
-          imageUri = DataUtil.accessArrayBufferAsImage(arrayBuffer, fileExtension);
+          imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), imageJson.mimeType!);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -657,13 +657,14 @@ export default class Gltf2Importer {
       promisesToLoadResources.push(new Promise(async (resolve, reject) => {
         let img = new Image();
         img.crossOrigin = 'Anonymous';
-        await DataUtil.imgLoad(img, imageUri);
-
-        imageJson.image = img;
         resources.images[i] = img;
 
-        if (imageUri.match(/^data:/)) {
-          resolve(gltfJson);
+        if (imageUri.match(/^blob:/) || imageUri.match(/^data:/)) {
+          imageJson.image = img;
+          img.onload = () => {
+            resolve(gltfJson);
+          };
+          img.src = imageUri;
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
@@ -694,13 +695,25 @@ export default class Gltf2Importer {
 
         }
 
-        resources.images[i] = img;
       }));
     }
 
     return Promise.all(promisesToLoadResources).catch((err) => {
         console.log('Promise.all error', err);
       });
+  }
+
+  static createUint8ArrayFromBufferViewInfo(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
+    const bufferViewJson = json.bufferViews[bufferViewIndex];
+    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    const byteLength = bufferViewJson.byteLength;
+    let arrayBuffer: ArrayBuffer = buffer;
+    if (buffer instanceof Uint8Array) {
+      arrayBuffer = buffer.buffer;
+      byteOffset += buffer.byteOffset;
+    }
+    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+    return uint8BufferView;
   }
 
   static getInstance() {
