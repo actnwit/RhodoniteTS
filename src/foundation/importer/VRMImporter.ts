@@ -48,7 +48,7 @@ export default class VRMImporter {
 
     const textures = this.__createTextures(gltfModel);
     this.__attachRnExtensionToGLTFModel(gltfModel, textures.length);
-    const existOutline = this.__findOutlineMaterial(gltfModel.extensions.VRM);
+    const existOutline = this.__existOutlineMaterial(gltfModel.extensions.VRM);
 
     const helperArgument0 = gltfModel.asset.extras!.rnLoaderOptions!.defaultMaterialHelperArgumentArray[0];
     helperArgument0["textures"] = textures;
@@ -204,11 +204,11 @@ export default class VRMImporter {
     return rnTextures;
   }
 
-  private __findOutlineMaterial(extensionsVRM: any) {
+  private __existOutlineMaterial(extensionsVRM: any) {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
       for (let materialProperty of materialProperties) {
-        if (materialProperty.floatProperties[13] !== 0) {
+        if (materialProperty.floatProperties._OutlineWidthMode !== 0) {
           return true;
         }
       }
