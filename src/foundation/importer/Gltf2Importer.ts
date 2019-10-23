@@ -668,14 +668,11 @@ export default class Gltf2Importer {
         } else {
           const load = (img: HTMLImageElement, response: any) => {
             const bytes = new Uint8Array(response);
-            const binaryData = DataUtil.uint8ArrayToStringInner(bytes);
-            const split = imageUri.split('.');
-            let ext = split[split.length - 1];
-            img.src = DataUtil.getImageType(ext) + window.btoa(binaryData);
-            img.name = (imageJson.name) ? imageJson.name! : imageJson.uri!;
+            const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, imageJson.mimeType!);
             img.onload = () => {
               resolve(gltfJson);
             }
+            img.src = imageUri;
           }
 
           const loadBinaryImage = () => {
