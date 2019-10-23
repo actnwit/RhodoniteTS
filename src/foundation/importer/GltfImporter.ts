@@ -334,7 +334,7 @@ export default class GltfImporter {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
       for (let materialProperty of materialProperties) {
-        if (materialProperty.floatProperties[13] !== 0) {
+        if (materialProperty.floatProperties._OutlineWidthMode !== 0) {
           return true;
         }
       }
