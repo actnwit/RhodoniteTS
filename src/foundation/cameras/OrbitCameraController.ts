@@ -323,7 +323,7 @@ export default class OrbitCameraController implements ICameraController {
 
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
-    this.dolly += Math.sign(evt.deltaY) / 10000;
+    this.dolly += Math.sign(evt.deltaY) * this.__getTargetAABB().lengthCenterToCorner / 300;
   };
 
   __contextMenu(evt: Event) {
