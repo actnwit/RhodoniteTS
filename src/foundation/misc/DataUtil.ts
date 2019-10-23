@@ -188,9 +188,8 @@ export default class DataUtil {
   }
 
   static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string) {
-    const blob = new Blob( [ uint8Array ], { type: mimeType } );
-    const urlCreator = window.URL || window.webkitURL;
-    const imageUrl = urlCreator.createObjectURL( blob );
+    const blob = new Blob([uint8Array], { type: mimeType });
+    const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
   }
 
@@ -278,6 +277,20 @@ export default class DataUtil {
       imgSrc = "image/unknown";
     }
     return imgSrc;
+  }
+
+
+  static createUint8ArrayFromBufferViewInfo(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
+    const bufferViewJson = json.bufferViews[bufferViewIndex];
+    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    const byteLength = bufferViewJson.byteLength;
+    let arrayBuffer: ArrayBuffer = buffer;
+    if (buffer instanceof Uint8Array) {
+      arrayBuffer = buffer.buffer;
+      byteOffset += buffer.byteOffset;
+    }
+    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+    return uint8BufferView;
   }
 }
 
