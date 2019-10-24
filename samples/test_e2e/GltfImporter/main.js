@@ -15,6 +15,13 @@ const load = async function (time) {
   const displayResolution = 800;
   const vrmModelRotation = new Rn.Vector3(0, 3 / 4 * Math.PI, 0.0);
 
+  // camera
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
+  cameraComponent.zNear = 0.1;
+  cameraComponent.zFar = 1000.0;
+  cameraComponent.setFovyAndChangeFocalLength(30.0);
+  cameraComponent.aspect = 1.0;
 
   // expresions
   const expressions = [];
@@ -25,20 +32,14 @@ const load = async function (time) {
       isSkinning: false,
       isMorphing: false,
     }],
-    autoResizeTexture: true
+    autoResizeTexture: true,
+    cameraComponent: cameraComponent
   });
   expressions.push(vrmExpression);
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
   const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
-
-  const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
-  const controller = vrmMainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
-
 
   // post effects
   const expressionPostEffect = new Rn.Expression();
@@ -72,6 +73,14 @@ const load = async function (time) {
 
   //set default camera
   Rn.CameraComponent.main = 0;
+
+  // cameraController
+  const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
+  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
+  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
+  const controller = vrmMainCameraControllerComponent.controller;
+  controller.dolly = 0.65;
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 
   // Lights

@@ -2,6 +2,7 @@ import Entity from "../foundation/core/Entity";
 import RnPromise from "../foundation/misc/RnPromise";
 import { Index } from "./CommonTypes";
 import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
+import CameraComponent from "../foundation/components/CameraComponent";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -420,5 +421,6 @@ export type GltfLoadOption = {
       fileName: string
       image?: Gltf2Image,
     }[]
-  }
+  },
+  cameraComponent?: CameraComponent
 }

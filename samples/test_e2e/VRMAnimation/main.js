@@ -17,6 +17,13 @@ const load = async function (time) {
   const displayResolution = 800;
   const vrmModelRotation = new Rn.Vector3(0, Math.PI, 0.0);
 
+  // camera
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
+  cameraComponent.zNear = 0.1;
+  cameraComponent.zFar = 1000.0;
+  cameraComponent.setFovyAndChangeFocalLength(30.0);
+  cameraComponent.aspect = 1.0;
 
   // expresions
   const expressions = [];
@@ -30,7 +37,8 @@ const load = async function (time) {
       isMorphing: true,
     }],
     autoResizeTexture: true,
-    tangentCalculationMode: 0
+    tangentCalculationMode: 0,
+    cameraComponent: cameraComponent
   });
 
   const [animGltf2Model, vrmModel, vrmExpression] = await Promise.all([animGltf2ModelPromise, vrmModelPromise, vrmExpressionPromise]);
@@ -43,14 +51,6 @@ const load = async function (time) {
   // animation
   const animationAssigner = Rn.AnimationAssigner.getInstance();
   animationAssigner.assignAnimation(vrmRootEntity, animGltf2Model, vrmModel);
-
-  // camera
-  const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
-  const controller = vrmMainCameraControllerComponent.controller;
-  controller.dolly = 0.65;
-
 
   // post effects
   const expressionPostEffect = new Rn.Expression();
@@ -84,6 +84,14 @@ const load = async function (time) {
 
   //set default camera
   Rn.CameraComponent.main = 0;
+
+  // camera controller
+  const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
+  const vrmMainCameraEntity = vrmMainCameraComponent.entity;
+  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getComponent(Rn.CameraControllerComponent);
+  const controller = vrmMainCameraControllerComponent.controller;
+  controller.dolly = 0.65;
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 
   // Lights
