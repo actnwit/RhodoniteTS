@@ -47,8 +47,7 @@ export default class Gltf1Importer {
 
     if (options && options.files) {
       for (let fileName in options.files) {
-        const splitted = fileName.split('.');
-        const fileExtension = splitted[splitted.length - 1];
+        const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
           return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options, void 0);

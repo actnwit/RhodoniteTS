@@ -60,8 +60,7 @@ export default class DrcPointCloudImporter {
 
     if (options && options.files) {
       for (let fileName in options.files) {
-        const splitted = fileName.split('.');
-        const fileExtension = splitted[splitted.length - 1];
+        const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'drc') {
           return await this.__decodeDraco((options.files as any)[fileName], defaultOptions, options, void 0).catch((err) => {
@@ -948,8 +947,7 @@ export default class DrcPointCloudImporter {
 
     if (options && options.files) {
       for (let fileName in options.files) {
-        const splitted = fileName.split('.');
-        const fileExtension = splitted[splitted.length - 1];
+        const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
           return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options, void 0).catch((err) => {

@@ -259,24 +259,30 @@ export default class DataUtil {
     return imgSrc;
   }
 
-  static getMimeTypeFromExtension(imageType: string): string {
+  static getMimeTypeFromExtension(extension: string): string {
     let imgSrc = null;
-    if (imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
+    if (extension.toLowerCase() === 'jpg' || extension.toLowerCase() === 'jpeg') {
       imgSrc = "image/jpeg";
     }
-    else if (imageType.toLowerCase() === 'png') {
+    else if (extension.toLowerCase() === 'png') {
       imgSrc = "image/png";
     }
-    else if (imageType.toLowerCase() === 'gif') {
+    else if (extension.toLowerCase() === 'gif') {
       imgSrc = "image/gif";
     }
-    else if (imageType.toLowerCase() === 'bmp') {
+    else if (extension.toLowerCase() === 'bmp') {
       imgSrc = "image/bmp";
     }
     else {
       imgSrc = "image/unknown";
     }
     return imgSrc;
+  }
+
+  static getExtension(fileName: string): string {
+    const splitted = fileName.split('.');
+    const fileExtension = splitted[splitted.length - 1];
+    return fileExtension;
   }
 
 

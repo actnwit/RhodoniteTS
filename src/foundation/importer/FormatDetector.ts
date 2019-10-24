@@ -4,8 +4,7 @@ export default async function detectFormat(uri: string, files?: { [s: string]: A
 
   if (files) {
     for (let fileName in files) {
-      const splitted = fileName.split('.');
-      const fileExtension = splitted[splitted.length - 1];
+      const fileExtension = DataUtil.getExtension(fileName);
 
       if (fileExtension === 'gltf' || fileExtension === 'glb') {
         return new Promise((resolve, reject) => {
