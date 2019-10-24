@@ -230,15 +230,6 @@ export default class DataUtil {
     return binaryData;
   }
 
-  static imgLoad(img: HTMLImageElement, imageUri: string): Promise<void> {
-    return new Promise(((resolve, reject) => {
-      img.onload = () => {
-        resolve();
-      };
-      img.src = imageUri;
-    }));
-  }
-
   static getImageType(imageType: string): string {
     let imgSrc = null;
     if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
@@ -297,6 +288,46 @@ export default class DataUtil {
     }
     const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
     return uint8BufferView;
+  }
+
+  static createImageFromUri(uri: string, mimeType: string): Promise<HTMLImageElement> {
+    return new Promise(function (resolve) {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+
+      if (uri.match(/^blob:/) || uri.match(/^data:/)) {
+        img.onload = () => {
+          resolve(img);
+        };
+        img.src = uri;
+      } else {
+        const load = (img: HTMLImageElement, response: any) => {
+          const bytes = new Uint8Array(response);
+          const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, mimeType);
+          img.onload = () => {
+            resolve(img);
+          }
+          img.src = imageUri;
+        }
+
+        const loadBinaryImage = () => {
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = (function (_img) {
+            return function () {
+              if (xhr.readyState == 4 && xhr.status == 200) {
+                load(_img, xhr.response);
+              }
+            }
+          })(img);
+          xhr.open('GET', uri);
+          xhr.responseType = 'arraybuffer';
+          xhr.send();
+        }
+        loadBinaryImage();
+
+      }
+    });
+
   }
 }
 

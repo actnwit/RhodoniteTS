@@ -653,45 +653,33 @@ export default class Gltf2Importer {
       // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       //
-      promisesToLoadResources.push(new Promise(async (resolve, reject) => {
-        let img = new Image();
-        img.crossOrigin = 'Anonymous';
-        resources.images[i] = img;
+      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
+        image.crossOrigin = 'Anonymous';
+        resources.images[i] = image;
+        imageJson.image = image;
+      });
+      promisesToLoadResources.push(promise);
 
-        if (imageUri.match(/^blob:/) || imageUri.match(/^data:/)) {
-          imageJson.image = img;
-          img.onload = () => {
-            resolve(gltfJson);
-          };
-          img.src = imageUri;
-        } else {
-          const load = (img: HTMLImageElement, response: any) => {
-            const bytes = new Uint8Array(response);
-            const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, imageJson.mimeType!);
-            img.onload = () => {
-              resolve(gltfJson);
-            }
-            img.src = imageUri;
-          }
+    }
 
-          const loadBinaryImage = () => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = (function (_img) {
-              return function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                  load(_img, xhr.response);
-                }
-              }
-            })(img);
-            xhr.open('GET', imageUri);
-            xhr.responseType = 'arraybuffer';
-            xhr.send();
-          }
-          loadBinaryImage();
+    if (options.defaultTextures) {
+      const basePath = options.defaultTextures.basePath;
+      const textureInfos = options.defaultTextures.textureInfos;
 
-        }
+      for (let textureInfo of textureInfos) {
+        const fileName = textureInfo.fileName;
+        const uri = basePath + fileName;
 
-      }));
+        const fileExtension = DataUtil.getExtension(fileName);
+        const mimeType = DataUtil.getMimeTypeFromExtension(fileExtension);
+        const promise = DataUtil.createImageFromUri(uri, mimeType).then(function (image) {
+          image.crossOrigin = 'Anonymous';
+          textureInfo.image = { image: image };
+        });
+
+        promisesToLoadResources.push(promise);
+
+      }
     }
 
     return Promise.all(promisesToLoadResources).catch((err) => {

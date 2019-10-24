@@ -470,6 +470,10 @@ export default class ModelConverter {
         const rnPrimitive = new Primitive();
         const material = this.__setupMaterial(rnPrimitive, node, gltfModel, primitive, primitive.material);
 
+        if (material.isEmptyMaterial() === false) {
+          ModelConverter.setDefaultTextures(material, gltfModel);
+        }
+
         // indices
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
@@ -535,6 +539,43 @@ export default class ModelConverter {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = originalRnMesh;
 
     return meshEntity;
+  }
+
+  static setDefaultTextures(material: Material, gltfModel: glTF2): void {
+    if (gltfModel.asset.extras == null ||
+      gltfModel.asset.extras.rnLoaderOptions == null ||
+      gltfModel.asset.extras.rnLoaderOptions.defaultTextures == null) {
+      return;
+    }
+
+    const options = gltfModel.asset.extras.rnLoaderOptions;
+
+    const defaultTextures = gltfModel.asset.extras.rnLoaderOptions.defaultTextures;
+    const basePath = defaultTextures.basePath;
+    const textureInfos = defaultTextures.textureInfos;
+
+    for (let textureInfo of textureInfos) {
+      const rnTexture = new Texture();
+
+      //options
+      rnTexture.autoDetectTransparency = options.autoDetectTextureTransparency === true;
+      rnTexture.autoResize = options.autoResizeTexture === true;
+
+      const fileName = textureInfo.fileName;
+      const uri = basePath + fileName;
+      rnTexture.name = uri;
+
+      const image = textureInfo.image;
+      if (image && image.image) {
+        rnTexture.generateTextureFromImage(image.image);
+      } else {
+        console.warn("default image not found");
+        continue;
+      }
+
+      const shaderSemantics = textureInfo.shaderSemantics;
+      material.setTextureParameter(shaderSemantics, rnTexture);
+    }
   }
 
   private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
@@ -633,7 +674,7 @@ export default class ModelConverter {
     }
   }
 
-  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
+  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material {
     const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
     // avoid unexpected initialization
@@ -959,7 +1000,7 @@ export default class ModelConverter {
         }
       }
     } else {
-      let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset , byteLength);
+      let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
       let byteDelta = componentBytes * componentN;
       if (accessor.extras && accessor.extras.weightCount) {
         byteDelta = componentBytes * componentN * accessor.extras.weightCount;
