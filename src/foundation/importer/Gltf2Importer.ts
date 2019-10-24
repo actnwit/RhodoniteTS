@@ -53,8 +53,7 @@ export default class Gltf2Importer {
 
     if (options && options.files) {
       for (let fileName in options.files) {
-        const splitted = fileName.split('.');
-        const fileExtension = splitted[splitted.length - 1];
+        const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'gltf' || fileExtension === 'glb') {
           return await this.__loadFromArrayBuffer((options.files as any)[fileName], defaultOptions, options, void 0).catch((err) => {
@@ -68,9 +67,9 @@ export default class Gltf2Importer {
     try {
       response = await fetch(uri);
     } catch (err) {
-      console.log('this.__loadFromArrayBuffer', err);
+      throw new Error('import' + err);
     };
-    const arrayBuffer = await response!.arrayBuffer();
+    const arrayBuffer = await response.arrayBuffer();
 
     return await this.__loadFromArrayBuffer(arrayBuffer, defaultOptions, options, uri).catch((err) => {
       console.log('this.__loadFromArrayBuffer error', err);
@@ -592,29 +591,29 @@ export default class Gltf2Importer {
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-            let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
-            bufferInfo.buffer = new Uint8Array(arrayBuffer);
-            resolve(arrayBuffer);
-          });
+          let arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
+          resources.buffers[i] = new Uint8Array(arrayBuffer);
+          bufferInfo.buffer = new Uint8Array(arrayBuffer);
+          resolve(arrayBuffer);
+        });
       } else if (options.files && options.files[filename!]) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
-            const arrayBuffer = options.files[filename];
-            resources.buffers[i] = new Uint8Array(arrayBuffer);
-            bufferInfo.buffer = new Uint8Array(arrayBuffer);
-            resolve(arrayBuffer);
-          });
+          const arrayBuffer = options.files[filename];
+          resources.buffers[i] = new Uint8Array(arrayBuffer);
+          bufferInfo.buffer = new Uint8Array(arrayBuffer);
+          resolve(arrayBuffer);
+        });
       } else {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>(DataUtil.loadResourceAsync(basePath + bufferInfo.uri, true,
-            (resolve: Function, response: ArrayBuffer) => {
-              resources.buffers[i] = new Uint8Array(response);
-              bufferInfo.buffer = new Uint8Array(response);
-              resolve(response);
-            },
-            (reject: Function, error: any) => {
+          (resolve: Function, response: ArrayBuffer) => {
+            resources.buffers[i] = new Uint8Array(response);
+            bufferInfo.buffer = new Uint8Array(response);
+            resolve(response);
+          },
+          (reject: Function, error: any) => {
 
-            }
-          ))
+          }
+        ))
       }
       bufferInfo.bufferPromise = rnpArrayBuffer;
       promisesToLoadResources.push(rnpArrayBuffer);
@@ -635,7 +634,7 @@ export default class Gltf2Importer {
           const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
           arrayBuffer = bufferView.buffer.buffer;
         }
-        const imageUint8Array = Gltf2Importer.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView!, uint8Array);
+        const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(gltfJson, imageJson.bufferView!, uint8Array);
         imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
         let imageFileStr = imageJson.uri;
@@ -654,63 +653,38 @@ export default class Gltf2Importer {
       // if (options.extensionLoader && options.extensionLoader.setUVTransformToTexture) {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       //
-      promisesToLoadResources.push(new Promise(async (resolve, reject) => {
-        let img = new Image();
-        img.crossOrigin = 'Anonymous';
-        resources.images[i] = img;
+      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
+        image.crossOrigin = 'Anonymous';
+        resources.images[i] = image;
+        imageJson.image = image;
+      });
+      promisesToLoadResources.push(promise);
 
-        if (imageUri.match(/^blob:/) || imageUri.match(/^data:/)) {
-          imageJson.image = img;
-          img.onload = () => {
-            resolve(gltfJson);
-          };
-          img.src = imageUri;
-        } else {
-          const load = (img: HTMLImageElement, response: any) => {
-            const bytes = new Uint8Array(response);
-            const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, imageJson.mimeType!);
-            img.onload = () => {
-              resolve(gltfJson);
-            }
-            img.src = imageUri;
-          }
+    }
 
-          const loadBinaryImage = () => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = (function (_img) {
-              return function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                  load(_img, xhr.response);
-                }
-              }
-            })(img);
-            xhr.open('GET', imageUri);
-            xhr.responseType = 'arraybuffer';
-            xhr.send();
-          }
-          loadBinaryImage();
+    if (options.defaultTextures) {
+      const basePath = options.defaultTextures.basePath;
+      const textureInfos = options.defaultTextures.textureInfos;
 
-        }
+      for (let textureInfo of textureInfos) {
+        const fileName = textureInfo.fileName;
+        const uri = basePath + fileName;
 
-      }));
+        const fileExtension = DataUtil.getExtension(fileName);
+        const mimeType = DataUtil.getMimeTypeFromExtension(fileExtension);
+        const promise = DataUtil.createImageFromUri(uri, mimeType).then(function (image) {
+          image.crossOrigin = 'Anonymous';
+          textureInfo.image = { image: image };
+        });
+
+        promisesToLoadResources.push(promise);
+
+      }
     }
 
     return Promise.all(promisesToLoadResources).catch((err) => {
-        console.log('Promise.all error', err);
-      });
-  }
-
-  static createUint8ArrayFromBufferViewInfo(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
-    const bufferViewJson = json.bufferViews[bufferViewIndex];
-    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
-    const byteLength = bufferViewJson.byteLength;
-    let arrayBuffer: ArrayBuffer = buffer;
-    if (buffer instanceof Uint8Array) {
-      arrayBuffer = buffer.buffer;
-      byteOffset += buffer.byteOffset;
-    }
-    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-    return uint8BufferView;
+      console.log('Promise.all error', err);
+    });
   }
 
   static getInstance() {

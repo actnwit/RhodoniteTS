@@ -1,6 +1,7 @@
 import Entity from "../foundation/core/Entity";
 import RnPromise from "../foundation/misc/RnPromise";
 import { Index } from "./CommonTypes";
+import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -411,5 +412,13 @@ export type GltfLoadOption = {
   isPrecomputeForRayCastPickingEnable?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
   isImportVRM?: boolean,
-  maxMorphTargetNumber?: number
+  maxMorphTargetNumber?: number,
+  defaultTextures?: {
+    basePath: string, // e.g. "./assets/jpg/"
+    textureInfos: {
+      shaderSemantics: ShaderSemanticsEnum,
+      fileName: string
+      image?: Gltf2Image,
+    }[]
+  }
 }

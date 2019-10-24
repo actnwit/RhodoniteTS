@@ -188,9 +188,8 @@ export default class DataUtil {
   }
 
   static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string) {
-    const blob = new Blob( [ uint8Array ], { type: mimeType } );
-    const urlCreator = window.URL || window.webkitURL;
-    const imageUrl = urlCreator.createObjectURL( blob );
+    const blob = new Blob([uint8Array], { type: mimeType });
+    const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
   }
 
@@ -231,15 +230,6 @@ export default class DataUtil {
     return binaryData;
   }
 
-  static imgLoad(img: HTMLImageElement, imageUri: string): Promise<void> {
-    return new Promise(((resolve, reject) => {
-      img.onload = () => {
-        resolve();
-      };
-      img.src = imageUri;
-    }));
-  }
-
   static getImageType(imageType: string): string {
     let imgSrc = null;
     if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
@@ -260,24 +250,84 @@ export default class DataUtil {
     return imgSrc;
   }
 
-  static getMimeTypeFromExtension(imageType: string): string {
+  static getMimeTypeFromExtension(extension: string): string {
     let imgSrc = null;
-    if (imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
+    if (extension.toLowerCase() === 'jpg' || extension.toLowerCase() === 'jpeg') {
       imgSrc = "image/jpeg";
     }
-    else if (imageType.toLowerCase() === 'png') {
+    else if (extension.toLowerCase() === 'png') {
       imgSrc = "image/png";
     }
-    else if (imageType.toLowerCase() === 'gif') {
+    else if (extension.toLowerCase() === 'gif') {
       imgSrc = "image/gif";
     }
-    else if (imageType.toLowerCase() === 'bmp') {
+    else if (extension.toLowerCase() === 'bmp') {
       imgSrc = "image/bmp";
     }
     else {
       imgSrc = "image/unknown";
     }
     return imgSrc;
+  }
+
+  static getExtension(fileName: string): string {
+    const splitted = fileName.split('.');
+    const fileExtension = splitted[splitted.length - 1];
+    return fileExtension;
+  }
+
+
+  static createUint8ArrayFromBufferViewInfo(json: any, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
+    const bufferViewJson = json.bufferViews[bufferViewIndex];
+    let byteOffset = (bufferViewJson.byteOffset != null) ? bufferViewJson.byteOffset : 0;
+    const byteLength = bufferViewJson.byteLength;
+    let arrayBuffer: ArrayBuffer = buffer;
+    if (buffer instanceof Uint8Array) {
+      arrayBuffer = buffer.buffer;
+      byteOffset += buffer.byteOffset;
+    }
+    const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+    return uint8BufferView;
+  }
+
+  static createImageFromUri(uri: string, mimeType: string): Promise<HTMLImageElement> {
+    return new Promise(function (resolve) {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+
+      if (uri.match(/^blob:/) || uri.match(/^data:/)) {
+        img.onload = () => {
+          resolve(img);
+        };
+        img.src = uri;
+      } else {
+        const load = (img: HTMLImageElement, response: any) => {
+          const bytes = new Uint8Array(response);
+          const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, mimeType);
+          img.onload = () => {
+            resolve(img);
+          }
+          img.src = imageUri;
+        }
+
+        const loadBinaryImage = () => {
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = (function (_img) {
+            return function () {
+              if (xhr.readyState == 4 && xhr.status == 200) {
+                load(_img, xhr.response);
+              }
+            }
+          })(img);
+          xhr.open('GET', uri);
+          xhr.responseType = 'arraybuffer';
+          xhr.send();
+        }
+        loadBinaryImage();
+
+      }
+    });
+
   }
 }
 

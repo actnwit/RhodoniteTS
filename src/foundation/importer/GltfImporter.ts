@@ -51,11 +51,9 @@ export default class GltfImporter {
   /**
    * Import GLTF or VRM file.
    */
-  async import(uri: string,
-    { gltfOptions, textureUri }: { gltfOptions?: GltfLoadOption, textureUri?: string } = {}
-  ): Promise<Expression> {
+  async import(uri: string, options?: GltfLoadOption): Promise<Expression> {
 
-    const renderPasses: RenderPass[] = await this.__importModel(uri, gltfOptions, textureUri);
+    const renderPasses: RenderPass[] = await this.__importModel(uri, options);
 
     this.__setCamera(renderPasses[0]);
 
@@ -83,11 +81,11 @@ export default class GltfImporter {
     controller.zFarAdjustingFactorBasedOnAABB = 2000;
   }
 
-  private async __importModel(uri: string, gltfOptions?: GltfLoadOption, textureUri?: string): Promise<RenderPass[]> {
+  private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
 
     let fileType: string;
-    if (gltfOptions != null && gltfOptions.files != null) {
-      fileType = await detectFormat(uri, gltfOptions.files) as string;
+    if (options != null && options.files != null) {
+      fileType = await detectFormat(uri, options.files) as string;
     } else {
       fileType = await detectFormat(uri) as string;
     }
@@ -96,21 +94,21 @@ export default class GltfImporter {
     switch (fileType) {
       case 'glTF1':
         importer = Gltf1Importer.getInstance();
-        gltfModel = await importer.import(uri, gltfOptions);
+        gltfModel = await importer.import(uri, options);
         renderPasses = this.__setupRenderPasses(gltfModel);
         break;
       case 'glTF2':
         importer = Gltf2Importer.getInstance();
-        gltfModel = await importer.import(uri, gltfOptions);
+        gltfModel = await importer.import(uri, options);
         renderPasses = this.__setupRenderPasses(gltfModel);
         break;
       case 'Draco':
         importer = DrcPointCloudImporter.getInstance();
-        gltfModel = await importer.importPointCloud(uri, textureUri!, gltfOptions);
+        gltfModel = await importer.importPointCloud(uri, options);
         renderPasses = this.__setupRenderPasses(gltfModel);
         break;
       case 'VRM':
-        renderPasses = await this.__importVRM(uri, gltfOptions);
+        renderPasses = await this.__importVRM(uri, options);
         break;
       default:
         renderPasses = [];

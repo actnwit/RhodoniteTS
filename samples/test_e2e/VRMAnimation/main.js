@@ -25,14 +25,12 @@ const load = async function (time) {
   const animGltf2ModelPromise = gltf2Importer.import('../../../assets/vrm/test.glb');
   const vrmModelPromise = gltfImporter.importJsonOfVRM('../../../assets/vrm/test.vrm');
   const vrmExpressionPromise = gltfImporter.import('../../../assets/vrm/test.vrm', {
-    gltfOptions: {
-      defaultMaterialHelperArgumentArray: [{
-        isSkinning: true,
-        isMorphing: true,
-      }],
-      autoResizeTexture: true,
-      tangentCalculationMode: 0
-    }
+    defaultMaterialHelperArgumentArray: [{
+      isSkinning: true,
+      isMorphing: true,
+    }],
+    autoResizeTexture: true,
+    tangentCalculationMode: 0
   });
 
   const [animGltf2Model, vrmModel, vrmExpression] = await Promise.all([animGltf2ModelPromise, vrmModelPromise, vrmExpressionPromise]);
