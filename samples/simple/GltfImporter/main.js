@@ -14,6 +14,13 @@ const load = async function (time) {
   const displayResolution = 800;
   const vrmModelRotation = new Rn.Vector3(0, Math.PI, 0.0);
 
+  // camera
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
+  cameraComponent.zNear = 0.1;
+  cameraComponent.zFar = 1000.0;
+  cameraComponent.setFovyAndChangeFocalLength(30.0);
+  cameraComponent.aspect = 1.0;
 
   // expresions
   const expressions = [];
@@ -30,7 +37,8 @@ const load = async function (time) {
       isMorphing: false,
     }],
     autoResizeTexture: true,
-    tangentCalculationMode: 0
+    tangentCalculationMode: 0,
+    cameraComponent: cameraComponent
   });
   expressions.push(vrmExpression);
 
@@ -72,6 +80,12 @@ const load = async function (time) {
 
   //set default camera
   Rn.CameraComponent.main = 0;
+
+  // cameraController
+  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
+  const controller = cameraControllerComponent.controller;
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
+  controller.zFarAdjustingFactorBasedOnAABB = 2000;
 
 
   // Lights

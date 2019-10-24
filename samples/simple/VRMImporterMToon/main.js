@@ -200,8 +200,8 @@ function createCameraComponent() {
   return cameraComponent;
 }
 
-function createFramebuffer(renderPass, height, width, textureNum, property) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(height, width, textureNum, property);
+function createFramebuffer(renderPass, width, height, textureNum, property) {
+  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(width, height, textureNum, property);
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }

@@ -55,30 +55,16 @@ export default class GltfImporter {
 
     const renderPasses: RenderPass[] = await this.__importModel(uri, options);
 
-    this.__setCamera(renderPasses[0]);
+    if (options && options.cameraComponent) {
+      for (let renderPass of renderPasses) {
+        renderPass.cameraComponent = options.cameraComponent;
+      }
+    }
 
     const expression = new Expression();
     expression.addRenderPasses(renderPasses);
     return expression;
 
-  }
-
-  private __setCamera(renderPassMain: RenderPass): void {
-    // camera
-    const entityRepository = EntityRepository.getInstance();
-    const cameraEntity = entityRepository.createEntity([TransformComponent, SceneGraphComponent, CameraComponent, CameraControllerComponent]);
-    const cameraComponent = cameraEntity.getComponent(CameraComponent) as CameraComponent;
-    cameraComponent.zNear = 0.1;
-    cameraComponent.zFar = 1000.0;
-    cameraComponent.setFovyAndChangeFocalLength(30.0);
-    cameraComponent.aspect = 1.0;
-    renderPassMain.cameraComponent = cameraComponent as CameraComponent;
-
-    // cameraController
-    const cameraControllerComponent = cameraEntity.getComponent(CameraControllerComponent) as CameraControllerComponent;
-    const controller = cameraControllerComponent.controller as OrbitCameraController;
-    controller.setTarget(renderPassMain.sceneTopLevelGraphComponents![0].entity);
-    controller.zFarAdjustingFactorBasedOnAABB = 2000;
   }
 
   private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
@@ -164,7 +150,6 @@ export default class GltfImporter {
       const renderPassOutline = new RenderPass();
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
-      renderPassOutline.cameraComponent = renderPassMain.cameraComponent;
       gltfModel.extensions.VRM.rnExtension.renderPassOutline = renderPassOutline;
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
