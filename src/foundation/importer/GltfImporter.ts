@@ -109,8 +109,6 @@ export default class GltfImporter {
     const rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
 
     const renderPass = new RenderPass();
-    renderPass.toClearColorBuffer = false;
-    renderPass.toClearDepthBuffer = false;
     renderPass.addEntities([rootGroup]);
 
     return [renderPass];
@@ -132,11 +130,7 @@ export default class GltfImporter {
 
     this.__initializeMaterialProperties(gltfModel, textures.length);
 
-
     const renderPassMain = new RenderPass();
-    renderPassMain.toClearColorBuffer = false;
-    renderPassMain.toClearDepthBuffer = false;
-
 
     // setup renderPasses and rootGroup
     let renderPasses;
