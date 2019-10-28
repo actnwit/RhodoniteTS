@@ -18,6 +18,7 @@ import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdat
 import Vector3 from "../math/Vector3";
 import Vector4 from "../math/Vector4";
 import VectorN from "../math/VectorN";
+import { Count } from "../../types/CommonTypes";
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -60,7 +61,7 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   private __vectorProperties: any = {};
   private __textureProperties: any = {};
 
-  constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean) {
+  constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, debugMode: Count | undefined) {
     super(MToonShader.getInstance(), 'MToonShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
@@ -131,6 +132,10 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
         AbstractMaterialNode.__dummyWhiteTexture,
         AbstractMaterialNode.__dummyBlackTexture
       ]
+    }
+
+    if (debugMode) {
+      this.__floatProperties._DebugMode = debugMode;
     }
 
 
