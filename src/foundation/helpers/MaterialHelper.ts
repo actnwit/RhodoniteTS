@@ -131,7 +131,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
 
 function createMToonMaterial({
   additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
-  isOutline = false, materialProperties = undefined, textures = undefined,
+  isOutline = false, materialProperties = undefined, textures = undefined, debugMode = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
   const materialName = 'MToon'
@@ -141,7 +141,7 @@ function createMToonMaterial({
     + (isLighting ? '-lighting' : '')
     + (isOutline ? '-outline' : '');
 
-  const materialNode = new MToonSingleMaterialNode(isOutline, materialProperties, textures, isMorphing, isSkinning, isLighting);
+  const materialNode = new MToonSingleMaterialNode(isOutline, materialProperties, textures, isMorphing, isSkinning, isLighting, debugMode);
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
