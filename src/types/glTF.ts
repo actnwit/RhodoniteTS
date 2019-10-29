@@ -308,7 +308,7 @@ export type glTF2 = {
   cameras: Gltf2Camera[],
   images: Gltf2Image[],
   animations: Gltf2Animation[],
-  textures: Gltf2Texture[],
+  textures?: Gltf2Texture[],
   samplers: Gltf2Sampler[],
   accessors: Gltf2Accessor[],
   bufferViews: Gltf2BufferView[],

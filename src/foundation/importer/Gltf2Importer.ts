@@ -356,6 +356,8 @@ export default class Gltf2Importer {
   }
 
   _loadDependenciesOfMaterials(gltfJson: glTF2) {
+    if (!gltfJson.textures) gltfJson.textures = [];
+
     // Material
     if (gltfJson.materials) {
       for (let material of gltfJson.materials) {

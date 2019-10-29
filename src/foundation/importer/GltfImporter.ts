@@ -14,12 +14,8 @@ import VRMSpringBoneGroup from "../physics/VRMSpringBoneGroup";
 import VRMSpringBonePhysicsStrategy from "../physics/VRMSpringBonePhysicsStrategy";
 import Gltf1Importer from "./Gltf1Importer";
 import DrcPointCloudImporter from "./DrcPointCloudImporter";
-import TransformComponent from "../components/TransformComponent";
-import CameraComponent from "../components/CameraComponent";
 import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
-import CameraControllerComponent from "../components/CameraControllerComponent";
-import OrbitCameraController from "../cameras/OrbitCameraController";
 import { VRM } from "../../types/VRM";
 
 /**
@@ -290,6 +286,8 @@ export default class GltfImporter {
   }
 
   private __createTextures(gltfModel: glTF2): Texture[] {
+    if (!gltfModel.textures) gltfModel.textures = [];
+
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
