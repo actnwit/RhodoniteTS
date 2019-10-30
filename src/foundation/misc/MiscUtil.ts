@@ -1,3 +1,5 @@
+import { Byte } from "../../types/CommonTypes";
+
 const isMobile = function() {
   const ua = [
     'iPod',
@@ -34,16 +36,16 @@ const isNode = function() {
   return (typeof process !== "undefined" && typeof require !== "undefined");
 }
 
-const concatArrayBuffers = function(segments: ArrayBuffer[]) {
+const concatArrayBuffers = function(segments: ArrayBuffer[], sizes: Byte[], paddingSize: Byte) {
   var sumLength = 0;
-  for(var i = 0; i < segments.length; ++i){
-      sumLength += segments[i].byteLength;
+  for(var i = 0; i < sizes.length; ++i){
+      sumLength += sizes[i];
   }
-  var whole = new Uint8Array(sumLength);
+  var whole = new Uint8Array(sumLength + paddingSize);
   var pos = 0;
   for(var i = 0; i < segments.length; ++i){
-      whole.set(new Uint8Array(segments[i]),pos);
-      pos += segments[i].byteLength;
+      whole.set(new Uint8Array(segments[i], 0, sizes[i]), pos);
+      pos += sizes[i];
   }
   return whole.buffer;
 }

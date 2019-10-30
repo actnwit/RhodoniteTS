@@ -447,11 +447,11 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      let paddingArrayBuffer = new ArrayBuffer(0);
+      let paddingArrayBufferSize = 0;
       if ((buffer.takenSizeInByte + morphBuffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
-        paddingArrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte);
+        paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte;
       }
-      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), morphBuffer.getArrayBuffer().slice(0, morphBuffer.takenSizeInByte), paddingArrayBuffer]);
+      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBuffer.getArrayBuffer()], [buffer.takenSizeInByte, morphBuffer.takenSizeInByte], paddingArrayBufferSize);
       const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
       if (concatArraybuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
