@@ -187,6 +187,8 @@ export default class VRMImporter {
   }
 
   private __createTextures(gltfModel: glTF2) {
+    if (!gltfModel.textures) gltfModel.textures = [];
+
     const gltfTextures = gltfModel.textures;
     const rnTextures: any = [];
     for (let i = 0; i < gltfTextures.length; i++) {
