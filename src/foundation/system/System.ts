@@ -109,7 +109,7 @@ export default class System {
     Time._processEnd();
   }
 
-  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1, webglOption: any = {}) {
+  setProcessApproachAndCanvas(approach: ProcessApproachEnum, canvas: HTMLCanvasElement, memoryUsageOrder: number = 1, webglOption: any = {}, rnWebGLDebug = true) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = (moduleManager.getModule(moduleName)! as any);
@@ -134,7 +134,7 @@ export default class System {
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize();
 
-    repo.addWebGLContext(gl!, canvas, true);
+    repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
     this.__processApproach = approach;
 
     return gl;

@@ -57,8 +57,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.__instance;
   }
 
-  addWebGLContext(gl: WebGLRenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean) {
-    const glw = new WebGLContextWrapper(gl, canvas);
+  addWebGLContext(gl: WebGLRenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean, isDebug: boolean) {
+    const glw = new WebGLContextWrapper(gl, canvas, isDebug);
     this.__webglContexts.set('default', glw);
     if (asCurrent) {
       this.__glw = glw;
@@ -243,12 +243,16 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
-    this.__checkShaderCompileStatus(materialTypeName, vertexShader, vertexShaderStr);
+    if (this.__glw!.isDebugMode) {
+      this.__checkShaderCompileStatus(materialTypeName, vertexShader, vertexShaderStr);
+    }
 
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
     gl.shaderSource(fragmentShader, fragmentShaderStr);
     gl.compileShader(fragmentShader);
-    this.__checkShaderCompileStatus(materialTypeName, fragmentShader, fragmentShaderStr);
+    if (this.__glw!.isDebugMode) {
+      this.__checkShaderCompileStatus(materialTypeName, fragmentShader, fragmentShaderStr);
+    }
 
     const shaderProgram = gl.createProgram()!;
     shaderProgram._gl = gl;
@@ -263,7 +267,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
-    this.__checkShaderProgramLinkStatus(materialTypeName, shaderProgram, vertexShaderStr, fragmentShaderStr);
+    if (this.__glw!.isDebugMode) {
+      this.__checkShaderProgramLinkStatus(materialTypeName, shaderProgram, vertexShaderStr, fragmentShaderStr);
+    }
 
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, shaderProgram);
