@@ -47,7 +47,8 @@ export default class Material extends RnObject {
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __alphaMode = AlphaMode.Opaque;
-  private static __shaderMap: Map<number, CGAPIResourceHandle> = new Map();
+  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
+  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
   private static __materials: Material[] = [];
   private static __instancesByTypes: Map<MaterialTypeName, Material> = new Map();
   private __materialTid: Index;
@@ -447,11 +448,19 @@ export default class Material extends RnObject {
 
     let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
 
-    const hash = DataUtil.toCRC32(vertexShader + fragmentShader);
+
+    const wholeShaderText = vertexShader + fragmentShader;
 
     // Cache
-    if (Material.__shaderMap.has(hash)) {
-      this._shaderProgramUid = Material.__shaderMap.get(hash)!;
+    let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
+    if (shaderProgramUid) {
+      this._shaderProgramUid = shaderProgramUid;
+      return shaderProgramUid;
+    }
+    const hash = DataUtil.toCRC32(wholeShaderText);
+    shaderProgramUid = Material.__shaderHashMap.get(hash);
+    if (shaderProgramUid) {
+      this._shaderProgramUid = shaderProgramUid;
       return this._shaderProgramUid;
     } else {
       this._shaderProgramUid = webglResourceRepository.createShaderProgram(
@@ -463,7 +472,8 @@ export default class Material extends RnObject {
           attributeSemantics: glslShader.attributeSemantics
         }
       );
-      Material.__shaderMap.set(hash, this._shaderProgramUid);
+      Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
+      Material.__shaderHashMap.set(hash, this._shaderProgramUid);
       return this._shaderProgramUid;
     }
   }
