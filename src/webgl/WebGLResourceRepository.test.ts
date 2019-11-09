@@ -66,7 +66,7 @@ test('Create WebGL resources.', async () => {
   var height  = 64
   var gl = require('gl')(width, height)
 
-  repo.addWebGLContext(gl, {width, height} as HTMLCanvasElement, true);
+  repo.addWebGLContext(gl, {width, height} as HTMLCanvasElement, true, false);
 
   const firstEntity = generateEntity();
 
@@ -101,7 +101,7 @@ test('Create WebGL resources. 2', async () => {
   var height  = 64
   var gl = require('gl')(width, height)
 
-  repo.addWebGLContext(gl, {width, height} as HTMLCanvasElement, true);
+  repo.addWebGLContext(gl, {width, height} as HTMLCanvasElement, true, false);
 
   const firstEntity = generateEntity();
 

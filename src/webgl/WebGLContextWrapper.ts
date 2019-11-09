@@ -27,11 +27,12 @@ export default class WebGLContextWrapper {
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
-  constructor(gl: WebGLRenderingContext, canvas: HTMLCanvasElement) {
+  constructor(gl: WebGLRenderingContext, canvas: HTMLCanvasElement, isDebug: boolean) {
     this.__gl = gl;
     this.width = canvas.width;
     this.height = canvas.height;
     this.canvas = canvas
+    this.__isDebugMode = isDebug;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
@@ -62,6 +63,10 @@ export default class WebGLContextWrapper {
     } else {
       return false;
     }
+  }
+
+  get isDebugMode() {
+    return this.__isDebugMode;
   }
 
   get isWebGL2() {
