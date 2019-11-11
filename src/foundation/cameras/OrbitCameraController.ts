@@ -327,11 +327,7 @@ export default class OrbitCameraController implements ICameraController {
   };
 
   __contextMenu(evt: Event) {
-    if (evt.preventDefault) {
-      this.__tryToPreventDefault(evt);
-    } else {
-      evt.returnValue = false;
-    }
+    this.__tryToPreventDefault(evt);
   };
 
   set dolly(value) {
