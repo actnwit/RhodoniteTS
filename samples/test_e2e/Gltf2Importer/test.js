@@ -1,5 +1,5 @@
 test('regression test Gltf2Importer', async () => {
-  jest.setTimeout(60000);
+  jest.setTimeout(600000);
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/Gltf2Importer');
   await page.setViewport({ width: 1000, height: 1000 });
