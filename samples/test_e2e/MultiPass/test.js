@@ -6,5 +6,8 @@ test('regression test MultiPass', async () => {
   await page.waitForSelector('p#rendered', { timeout: 600000 });
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot();
+  expect(image).toMatchImageSnapshot({
+    failureThreshold: 0.001,
+    failureThresholdType: 'percent'
+  });
 });
