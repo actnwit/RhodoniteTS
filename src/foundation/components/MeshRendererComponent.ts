@@ -243,7 +243,7 @@ export default class MeshRendererComponent extends Component {
     if (cameraComponent == null) {
       cameraComponent = componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    if (cameraComponent && MeshRendererComponent.isViewFrustomCullingEnabled) {
+    if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
       const frustum = cameraComponent.frustum;
       const frustumCullingRecursively = (sg: SceneGraphComponent) => {
