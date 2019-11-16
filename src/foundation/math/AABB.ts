@@ -26,6 +26,21 @@ export default class AABB {
     return instance;
   }
 
+  initialize() {
+    this.__min.x = Number.MAX_VALUE;
+    this.__min.y = Number.MAX_VALUE;
+    this.__min.z = Number.MAX_VALUE;
+    this.__max.x = -Number.MAX_VALUE;
+    this.__max.y = -Number.MAX_VALUE;
+    this.__max.z = -Number.MAX_VALUE;
+    this.__centerPoint.v[0] = 0;
+    this.__centerPoint.v[1] = 0;
+    this.__centerPoint.v[2] = 0;
+    this.__lengthCenterToCorner = 0;
+    this.__isCenterPointDirty = false;
+    this.__isLengthCenterToCornerDirty = false;
+  }
+
   set minPoint(val: Vector3) {
     this.__min = new MutableVector3(val);
   }

@@ -244,6 +244,7 @@ export default class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     const that = this;
+    this.__worldAABB.initialize();
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
       const meshComponent = elem.entity.getMesh();
 
