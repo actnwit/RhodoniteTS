@@ -1315,6 +1315,8 @@ export default class ModelConverter {
       let dracoAttributeName = attributeName;
       if (attributeName === 'TEXCOORD_0') {
         dracoAttributeName = 'TEX_COORD';
+      } else if (attributeName === 'TANGENT') {
+        dracoAttributeName = 'GENERIC';
       }
 
       const attId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);

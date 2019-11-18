@@ -734,7 +734,7 @@ export default class DrcPointCloudImporter {
       throw new Error('Draco: No position attribute found.');
     }
 
-    const geometryAttributes = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD'];
+    const geometryAttributes = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD', 'GENERIC'];
     const numPoints = dracoGeometry.num_points();
 
     const attributeDataAll: any[] = [];
@@ -874,10 +874,12 @@ export default class DrcPointCloudImporter {
 
     const attributes: any = {};
     for (let i = 0; i < geometryAttributes.length; i++) {
-      if (geometryAttributes[i] !== 'TEX_COORD') {
-        attributes[geometryAttributes[i]] = i;
-      } else {
+      if (geometryAttributes[i] === 'TEX_COORD') {
         attributes['TEXCOORD_0'] = i;
+      } else if (geometryAttributes[i] === 'GENERIC') {
+        attributes['TANGENT'] = i;
+      } else {
+        attributes[geometryAttributes[i]] = i;
       }
     }
 
@@ -957,6 +959,9 @@ export default class DrcPointCloudImporter {
     return this.__decodeDracoDirect(arrayBuffer, options);
   }
 
+
+
+  // tangent is not available
   private __decodeDracoDirect(arrayBuffer: ArrayBuffer, options: GltfLoadOption) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
