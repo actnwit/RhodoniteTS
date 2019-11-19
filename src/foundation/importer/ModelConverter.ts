@@ -586,10 +586,10 @@ export default class ModelConverter {
       // argument
       const argumentOfMaterialHelper = argumentArray[0];
       const rnExtension = VRMProperties.rnExtension;
-      if (rnExtension.defaultMorphingIsTrue) {
+      if (rnExtension && rnExtension.defaultMorphingIsTrue) {
         argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
       }
-      if (rnExtension.defaultSkinningIsTrue) {
+      if (rnExtension && rnExtension.defaultSkinningIsTrue) {
         const existSkin = node.skin != null;
         argumentOfMaterialHelper.isSkinning = existSkin;
         argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
@@ -598,7 +598,10 @@ export default class ModelConverter {
       argumentOfMaterialHelper.materialProperties = materialProperties;
 
       // outline
-      const renderPassOutline = VRMProperties.rnExtension.renderPassOutline;
+      let renderPassOutline;
+      if (rnExtension) {
+        renderPassOutline = rnExtension.renderPassOutline;
+      }
 
       //exist outline
       if (renderPassOutline != null) {
@@ -615,18 +618,6 @@ export default class ModelConverter {
       }
 
       return MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
-
-    } else if (shaderName.indexOf("UnityChanToonShader") >= 0) {
-      // TODO:
-      // const utsMaterialPropertiesArray = VRMProperties.rnExtension.utsMaterialPropertiesArray[primitive.materialIndex];
-      // if (argumentArray[0]["isOutline"]) {
-      //   if (shaderName.match(/NoOutline/) || utsMaterialPropertiesArray[0][71] === 0.0) {
-      //     return null;
-      //   }
-      // }
-
-      // argumentArray[0]["materialPropertiesArray"] = utsMaterialPropertiesArray;
-      // return MaterialHelper.createUTS2Material.apply(this, argumentArray as any);
 
     } else if (argumentArray[0].isOutline) {
       return MaterialHelper.createEmptyMaterial();;
