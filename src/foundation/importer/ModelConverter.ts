@@ -38,7 +38,7 @@ import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
-import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer } from "../../types/glTF";
+import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer, Gltf2Accessor, Gltf2BufferView } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
@@ -117,10 +117,10 @@ export default class ModelConverter {
 
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
-    const rnBuffer = this.createRnBuffer(gltfModel);
+    const rnBuffers = this.createRnBuffer(gltfModel);
 
     // Mesh, Camera, Group, ...
-    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffer);
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
@@ -159,15 +159,17 @@ export default class ModelConverter {
 
   }
 
-  private createRnBuffer(gltfModel: glTF2) {
-    const buffer = gltfModel.buffers[0] as Gltf2Buffer;
-    const rnBuffer = new Buffer({
-      byteLength: buffer.byteLength,
-      buffer: buffer.buffer!,
-      name: `gltf2Buffer_0_(${buffer.uri})`
-    });
-
-    return rnBuffer;
+  private createRnBuffer(gltfModel: glTF2): Buffer[] {
+    const rnBuffers = [];
+    for (let buffer of gltfModel.buffers) {
+      const rnBuffer = new Buffer({
+        byteLength: buffer.byteLength,
+        buffer: buffer.buffer!,
+        name: `gltf2Buffer_0_(${buffer.uri})`
+      });
+      rnBuffers.push(rnBuffer);
+    }
+    return rnBuffers;
   }
 
   _setupTransform(gltfModel: glTF2, groups: Entity[]) {
@@ -321,7 +323,7 @@ export default class ModelConverter {
   }
 
 
-  __setupObjects(gltfModel: glTF2, rnBuffer: Buffer) {
+  __setupObjects(gltfModel: glTF2, rnBuffers: Buffer[]) {
     const rnEntities: Entity[] = [];
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
@@ -333,7 +335,7 @@ export default class ModelConverter {
         if (meshIdxOrName == null) {
           meshIdxOrName = node.meshNames![0];
         }
-        const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffer, gltfModel);
+        const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffers, gltfModel);
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -441,7 +443,7 @@ export default class ModelConverter {
     return cameraEntity;
   }
 
-  private __setupMesh(node: any, mesh: any, meshIndex: Index, rnBuffer: Buffer, gltfModel: glTF2) {
+  private __setupMesh(node: any, mesh: any, meshIndex: Index, rnBuffers: Buffer[], gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
@@ -478,7 +480,7 @@ export default class ModelConverter {
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
         if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
-          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
+          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffers, gltfModel, map);
 
           if (indicesRnAccessor == null) {
             break;
@@ -486,11 +488,11 @@ export default class ModelConverter {
         } else {
           // attributes
           if (primitive.indices) {
-            indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+            indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffers[((primitive.indices as Gltf2Accessor).bufferView as Gltf2BufferView).bufferIndex!]);
           }
           for (let attributeName in primitive.attributes) {
-            let attributeAccessor = primitive.attributes[attributeName];
-            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+            let attributeAccessor = primitive.attributes[attributeName] as Gltf2Accessor;
+            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
             map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
           }
         }
@@ -515,8 +517,8 @@ export default class ModelConverter {
             const target = primitive.targets[i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
             for (let attributeName in target) {
-              let attributeAccessor = target[attributeName];
-              const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+              let attributeAccessor = target[attributeName] as Gltf2Accessor;
+              const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
               const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
               targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
             }
@@ -1243,9 +1245,9 @@ export default class ModelConverter {
     return indices;
   }
 
-  private __decodeDraco(primitive: any, rnBuffer: Buffer, gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
+  private __decodeDraco(primitive: any, rnBuffers: Buffer[], gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
     const bufferView = gltfModel.bufferViews[primitive.extensions.KHR_draco_mesh_compression.bufferView];
-    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
+    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffers[bufferView.bufferIndex!]);
     const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array()).buffer;
 
     const draco = new DracoDecoderModule();
