@@ -568,6 +568,13 @@ export default class Gltf1Importer {
       if (bufferView.buffer !== void 0) {
         bufferView.bufferName = bufferView.buffer;
         bufferView.buffer = (gltfJson.bufferDic as any)[bufferView.bufferName];
+        let bufferIdx = 0;
+        for (let bufferName in gltfJson.bufferDic) {
+          if (bufferName === bufferView.bufferName) {
+            bufferView.bufferIndex = bufferIdx;
+          }
+          bufferIdx++;
+        }
       }
     }
   }
