@@ -28,12 +28,14 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
   }
 
   getVertexShaderBody(args: any) {
-    const code = this.__shaderity.fillTemplate(classicSingleShader, {
+    const obj = this.__shaderity.fillTemplate(classicSingleShader, {
       definitions: (typeof args.definitions !== 'undefined') ? args.definitions : '',
       matricesGetters: (typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '',
       getters: (typeof args.getters !== 'undefined') ? args.getters : '',
       WellKnownComponentTIDs: WellKnownComponentTIDs
-    }).code;
+    });
+    const isWebGL2 = this.__webglResourceRepository?.currentWebGLContextWrapper?.isWebGL2;
+    const code = this.__shaderity.transformTo(isWebGL2 ? 'WebGL2' : 'WebGL1', obj).code;
 
     return code;
   }
