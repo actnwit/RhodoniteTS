@@ -44,6 +44,6 @@
   },
   "dependencies": {
     "requirejs": "^2.3.6",
-    "shaderity": "0.1.1"
+    "shaderity": "0.1.3"
   }
 }

@@ -6,12 +6,15 @@ import { CompositionTypeEnum } from "../../foundation/main";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import ISingleShader from "./ISingleShader";
 import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
+import classicSingleShader from "../shaderity_shaders/classicSingleShader.vert";
+import Shaderity from "shaderity";
 
 export type AttributeNames = Array<string>;
 
 export default class ClassicShader extends GLSLShader implements ISingleShader {
   static __instance: ClassicShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
+  private __shaderity = Shaderity.getInstance();
 
   private constructor() {
     super();
@@ -25,78 +28,14 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
   }
 
   getVertexShaderBody(args: any) {
-    const _version = this.glsl_versionText;
-    const _in = this.glsl_vertex_in;
-    const _out = this.glsl_vertex_out;
+    const code = this.__shaderity.fillTemplate(classicSingleShader, {
+      definitions: (typeof args.definitions !== 'undefined') ? args.definitions : '',
+      matricesGetters: (typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : '',
+      getters: (typeof args.getters !== 'undefined') ? args.getters : '',
+      WellKnownComponentTIDs: WellKnownComponentTIDs
+    }).code;
 
-
-    return `${_version}
-${this.glslPrecision}
-
-${(typeof args.definitions !== 'undefined') ? args.definitions : ''}
-
-${_in} vec3 a_position;
-${_in} vec3 a_color;
-${_in} vec3 a_normal;
-${_in} float a_instanceID;
-${_in} vec2 a_texcoord;
-${_in} vec4 a_joint;
-${_in} vec4 a_weight;
-${_in} vec4 a_baryCentricCoord;
-${_out} vec3 v_color;
-${_out} vec3 v_normal_inWorld;
-${_out} vec4 v_position_inWorld;
-${_out} vec2 v_texcoord;
-${_out} vec3 v_baryCentricCoord;
-
-${this.prerequisites}
-
-${(typeof args.matricesGetters !== 'undefined') ? args.matricesGetters : ''}
-
-${(typeof args.getters !== 'undefined') ? args.getters : ''}
-
-${this.toNormalMatrix}
-
-${this.getSkinMatrix}
-
-${this.processGeometryWithSkinningOptionally}
-
-void main()
-{
-
-  ${this.mainPrerequisites}
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
-  mat4 worldMatrix = get_worldMatrix(a_instanceID);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
-  mat3 normalMatrix = get_normalMatrix(a_instanceID);
-
-  // Skeletal
-  processGeometryWithMorphingAndSkinning(
-    skeletalComponentSID,
-    worldMatrix,
-    normalMatrix,
-    normalMatrix,
-    a_position,
-    v_position_inWorld,
-    a_normal,
-    v_normal_inWorld
-  );
-
-  gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-
-
-  v_color = a_color;
-  v_normal_inWorld = normalMatrix * a_normal;
-  v_texcoord = a_texcoord;
-  v_baryCentricCoord = a_baryCentricCoord.xyz;
-
-  ${this.pointSprite}
-
-//  v_color = vec3(u_boneMatrices[int(a_joint.x)][1].xyz);
-
-}
-    `;
+    return code;
   }
 
   getPixelShaderBody(args: any) {

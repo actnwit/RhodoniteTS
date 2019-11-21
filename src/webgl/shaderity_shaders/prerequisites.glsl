@@ -14,7 +14,7 @@ highp vec4 fetchElement(highp sampler2D tex, highp float index, highp vec2 invSi
   highp float t = (index + 0.5) * invSize.x;
   highp float x = fract(t);
   highp float y = (floor(t) + 0.5) * invSize.y;
-  return ${this.glsl_texture}( tex, vec2(x, y) );
+  return texture2D( tex, vec2(x, y) );
 }
 
 

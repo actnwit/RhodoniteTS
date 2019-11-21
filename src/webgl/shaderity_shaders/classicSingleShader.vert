@@ -1,7 +1,7 @@
 #pragma shaderity: require(./version.glsl)
 #pragma shaderity: require(./glslPrecision.glsl)
 
-#pragma shaderity: ${definitions}
+/* shaderity: ${definitions} */
 
 attribute vec3 a_position;
 attribute vec3 a_color;
@@ -19,9 +19,9 @@ varying vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(./prerequisites.glsl)
 
-#pragma shaderity: ${matricesGetters}
+/* shaderity: ${matricesGetters} */
 
-#pragma shaderity: ${getters}
+/* shaderity: ${getters} */
 
 #pragma shaderity: require(./toNormalMatrix.glsl)
 
@@ -34,7 +34,7 @@ void main()
 
 #pragma shaderity: require(./mainPrerequisites.glsl)
 
-  float cameraSID = u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}];
+  float cameraSID = u_currentComponentSIDs[/* shaderity: ${WellKnownComponentTIDs.CameraComponentTID} */];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
