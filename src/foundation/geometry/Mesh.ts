@@ -38,7 +38,8 @@ export default class Mesh {
   public _attatchedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
-  public forceCalculateTangent: boolean = false;
+  public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
+  public isPrecomputeForRayCastPickingEnable: boolean = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -220,9 +221,12 @@ export default class Mesh {
   }
 
   __calcTangents() {
+    if (this.tangentCalculationMode === 0) {
+      return;
+    }
     for (let primitive of this.__primitives) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent);
-      if (tangentIdx !== -1 && !this.forceCalculateTangent) {
+      if (tangentIdx !== -1 && this.tangentCalculationMode === 1) {
         continue;
       }
       const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0);
@@ -244,8 +248,8 @@ export default class Mesh {
         const vertexNum = primitive.getVertexCountAsIndicesBased();
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
 
-        const tangentAttributeByteSize = positionAccessor.byteLength;
-        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize*4/3, byteStride: 0, isAoS: false });
+        const tangentAttributeByteSize = positionAccessor.byteLength * 4 / 3;
+        const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
         const tangentAccessor = tangentBufferView.takeAccessor({ compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: positionAccessor.elementCount });
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
           const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
@@ -345,14 +349,20 @@ export default class Mesh {
     return Vector3.normalize(new Vector3(u[0], u[1], u[2]));
   }
 
+  private __calcArenbergInverseMatrices() {
+    for (let primitive of this.__primitives) {
+      primitive._calcArenbergInverseMatrices();
+    }
+  }
+
   getPrimitiveAt(i: number): Primitive {
     if (this.isInstanceMesh()) {
       return this.__instanceOf!.getPrimitiveAt(i);
     } else {
       // if (this.weights.length > 0) {
-        // return this.__morphPrimitives[i];
+      // return this.__morphPrimitives[i];
       // } else {
-        return this.__primitives[i];
+      return this.__primitives[i];
       // }
     }
   }
@@ -559,7 +569,7 @@ export default class Mesh {
 
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-      this.__primitives.forEach((prim, i)=>{
+      this.__primitives.forEach((prim, i) => {
         this.__vaoUids[i] = webglResourceRepository.createVertexArray();
       });
 
@@ -568,10 +578,10 @@ export default class Mesh {
       }
 
       const instanceNum = this.__instances.length;
-      const entityUIDs = new Float32Array(instanceNum+1); // instances and original
+      const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
       entityUIDs[0] = this._attatchedEntityUID;
       for (var i = 0; i < instanceNum; i++) {
-        entityUIDs[i+1] = this.__instances[i]._attatchedEntityUID;
+        entityUIDs[i + 1] = this.__instances[i]._attatchedEntityUID;
       }
 
       this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
@@ -601,5 +611,32 @@ export default class Mesh {
 
   get instanceCountIncludeOriginal() {
     return this.__instances.length + 1;
+  }
+
+  castRay(srcPointInLocal: Vector3, directionInLocal: Vector3, dotThreshold: number = 0) {
+    let finalShortestIntersectedPosVec3: Vector3 | undefined;
+    let finalShortestT = Number.MAX_VALUE;
+    for (let primitive of this.__primitives) {
+      const {currentShortestIntersectedPosVec3, currentShortestT} =
+        primitive.castRay(srcPointInLocal, directionInLocal, true, true, dotThreshold);
+      if (currentShortestT != null && currentShortestT < finalShortestT) {
+        finalShortestT = currentShortestT;
+        finalShortestIntersectedPosVec3 = currentShortestIntersectedPosVec3!;
+      }
+    }
+
+    if (finalShortestT === Number.MAX_VALUE) {
+      finalShortestT === -1;
+    }
+
+    return {t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3}
+  }
+
+  _calcArenbergInverseMatrices() {
+    if (this.isPrecomputeForRayCastPickingEnable) {
+      for (let primitive of this.__primitives) {
+        primitive._calcArenbergInverseMatrices();
+      }
+    }
   }
 }

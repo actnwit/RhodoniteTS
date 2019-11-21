@@ -12,17 +12,17 @@ declare const Rn: RnType;
 declare const RnWebGL: RnWebGL
 
 
-const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraComponent: CameraComponent, canvas: HTMLCanvasElement) {
+const setupRenderPassEntityUidOutput = function (rootGroup: Entity, cameraComponent: CameraComponent, canvas: HTMLCanvasElement) {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
   RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
 
-  renderPass.material = entityUidOutputMaterial;
+  renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
 
   const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
   renderPass.setFramebuffer(framebuffer);
-  renderPass.clearColor = new Rn.Vector4(0,0,0,1);
+  renderPass.clearColor = new Rn.Vector4(0, 0, 0, 1);
   renderPass.toClearColorBuffer = true;
   renderPass.toClearDepthBuffer = true;
 
@@ -33,7 +33,7 @@ const setupRenderPassEntityUidOutput = function(rootGroup: Entity, cameraCompone
   return renderPass;
 }
 
-const setupRenderPassRendering = function(rootGroup, cameraComponent) {
+const setupRenderPassRendering = function (rootGroup, cameraComponent) {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -41,7 +41,7 @@ const setupRenderPassRendering = function(rootGroup, cameraComponent) {
   return renderPass;
 }
 
-const pick = function(e: any) {
+const pick = function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
@@ -58,7 +58,7 @@ const pick = function(e: any) {
 
 let p = null;
 
-const load = async function(){
+const load = async function () {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
   await Rn.ModuleManager.getInstance().loadModule('pbr');
   const importer = Rn.Gltf1Importer.getInstance();
@@ -114,13 +114,13 @@ const load = async function(){
   //  rootGroup.getTransform().scale = new Rn.Vector3(0.01, 0.01, 0.01);
 
 
-    const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
-    window.renderPassEntityUidOutput = renderPassEntityUidOutput;
-    const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
-    // expression.addRenderPasses([renderPassEntityUidOutput]);
-    // expression.addRenderPasses([renderPassRendering]);
-    expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
-    // expression.addRenderPasses([renderPassRendering]);
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+  window.renderPassEntityUidOutput = renderPassEntityUidOutput;
+  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+  // expression.addRenderPasses([renderPassEntityUidOutput]);
+  // expression.addRenderPasses([renderPassRendering]);
+  expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
+  // expression.addRenderPasses([renderPassRendering]);
 
 
   // CameraComponent
@@ -132,7 +132,7 @@ const load = async function(){
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function(time) {
+  const draw = function (time) {
 
     if (p == null && count > 0) {
       if (response != null) {
@@ -143,7 +143,7 @@ const load = async function(){
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       }
 
-      window._pickedEntityUID = pick({offsetX: 300, offsetY:300});
+      window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
 
       p = document.createElement('p');
       p.setAttribute("id", "rendered");
@@ -164,11 +164,11 @@ const load = async function(){
         startTime = date.getTime();
       }
       //console.log(time);
-  //      rootGroup.getTransform().scale = rotationVec3;
+      //      rootGroup.getTransform().scale = rotationVec3;
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process(expression);
+    system.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

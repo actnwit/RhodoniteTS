@@ -35,6 +35,7 @@ const load = async function (time) {
 
   const rootGroups = await importer.import('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{ isLighting: true }],
+    tangentCalculationMode: 0
   });
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
 
@@ -48,6 +49,16 @@ const load = async function (time) {
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
   cameraControllerComponent.controller.setTarget(rootGroups[0]);
+
+
+  // renderPass
+  const renderPass = new Rn.RenderPass();
+  renderPass.toClearColorBuffer = true;
+  renderPass.addEntities(rootGroups);
+
+  // expression
+  const expression = new Rn.Expression();
+  expression.addRenderPasses([renderPass]);
 
 
   Rn.CameraComponent.main = 0;
@@ -88,7 +99,7 @@ const load = async function (time) {
       //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
     }
 
-    system.process();
+    system.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

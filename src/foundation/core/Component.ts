@@ -320,7 +320,7 @@ export default class Component extends RnObject {
   }
 
   static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass: Function): Byte {
-    return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffset;
+    return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffsetInBuffer;
   }
 
   static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass: Function): Byte {
@@ -414,7 +414,7 @@ export default class Component extends RnObject {
         });
         if (infoArray.length > 0) {
           const bufferView = Component.takeBufferView(bufferUse, componentClass, byteLengthSumOfMembers.get(bufferUse)!, count);
-          this.__byteOffsetOfThisComponent = bufferView!.byteOffset;
+          this.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
         }
       }
 

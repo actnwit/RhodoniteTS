@@ -11,22 +11,22 @@ import { Byte, Count, Index, Size } from "../../types/CommonTypes";
 
 export default class BufferView extends RnObject {
   private __buffer: Buffer;
-  private __byteOffset: Byte;
+  private __byteOffsetInRawArrayBufferOfBuffer: Byte;
   private __byteLength: Byte;
   private __byteStride: Byte = 0;
   private __target: Index = 0;
   private __takenByteIndex: Byte = 0;
   private __takenByteOffsetOfFirstElement = 0;
-  private __raw: Uint8Array;
+  private __raw: ArrayBuffer;
   private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
 
   constructor({buffer, byteOffset, byteLength, raw, isAoS} :
-    {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: Uint8Array, isAoS: boolean})
+    {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: ArrayBuffer, isAoS: boolean})
   {
     super();
     this.__buffer = buffer;
-    this.__byteOffset = byteOffset;
+    this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
     this.__byteLength = byteLength;
     this.__raw = raw;
     this.__isAoS = isAoS;
@@ -44,8 +44,18 @@ export default class BufferView extends RnObject {
     return this.__byteLength;
   }
 
-  get byteOffset() {
-    return this.__byteOffset;
+  /**
+   * byteOffset in Buffer (includes byteOffset of Buffer in it's inner arraybuffer)
+   */
+  get byteOffsetInBuffer() {
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__buffer.byteOffsetInRawArrayBuffer;
+  }
+
+  /**
+   * byteOffset in Buffer (includes byteOffset of Buffer in it's inner arraybuffer)
+   */
+  get byteOffsetInRawArrayBufferOfBuffer() {
+    return this.__byteOffsetInRawArrayBufferOfBuffer;
   }
 
   get buffer() {
@@ -79,7 +89,7 @@ export default class BufferView extends RnObject {
   }
 
   getUint8Array() {
-    return this.__raw;
+    return new Uint8Array(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteLength);
   }
 
   takeAccessor({compositionType, componentType, count, max, min, byteAlign = 4, arrayLength}:

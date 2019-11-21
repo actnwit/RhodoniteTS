@@ -28,12 +28,12 @@ const load = async function (time) {
   const renderPassMain = renderPassHelperSetCameraComponent(mainCameraComponent);
   const framebufferMain = createFramebuffer(renderPassMain, 2 * displayResolution, 2 * displayResolution, 1, {});
 
-  const renderPassGamma = renderPassHelperForPostEffect('createGammaCorrectionMaterial');
+  const renderPassGamma = createRenderPassForPostEffect('createGammaCorrectionMaterial');
   setTextureParameterForMeshComponents(renderPassGamma.meshComponents, Rn.ShaderSemantics.BaseColorTexture, framebufferMain.colorAttachments[0]);
   const framebufferGamma = createFramebuffer(renderPassGamma, displayResolution, displayResolution, 1, {});
 
 
-  const renderPassFxaa = renderPassHelperForPostEffect('createFXAA3QualityMaterial');
+  const renderPassFxaa = createRenderPassForPostEffect('createFXAA3QualityMaterial');
   setParameterForMeshComponents(renderPassFxaa.meshComponents, Rn.ShaderSemantics.ScreenInfo, new Rn.Vector2(displayResolution, displayResolution));
   setTextureParameterForMeshComponents(renderPassFxaa.meshComponents, Rn.ShaderSemantics.BaseColorTexture, framebufferGamma.colorAttachments[0]);
 
@@ -42,7 +42,10 @@ const load = async function (time) {
 
   // rootGroups[0]: main entity, rootGroups[1]: outline entity(if exist)
   const rootGroups = await VRMImporter.import('./vrm.vrm', {
-    defaultMaterialHelperArgumentArray: [{ isLighting: true }],
+    defaultMaterialHelperArgumentArray: [{
+      isSkinning: false,
+      isMorphing: false
+    }],
     // autoResizeTexture: true
   });
 
@@ -121,8 +124,7 @@ const load = async function (time) {
       const date = new Date();
     }
 
-    // system.process();
-    system.process(expression);
+    system.process([expression]);
 
     count++;
 
@@ -198,8 +200,8 @@ function createCameraComponent() {
   return cameraComponent;
 }
 
-function createFramebuffer(renderPass, height, width, textureNum, property) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(height, width, textureNum, property);
+function createFramebuffer(renderPass, width, height, textureNum, property) {
+  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(width, height, textureNum, property);
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }
@@ -220,7 +222,7 @@ function materialHelperForMeshComponents(meshComponents, materialHelperFunctionS
   }
 }
 
-function renderPassHelperForPostEffect(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
+function createRenderPassForPostEffect(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({
     width: 1, height: 1, uSpan: 1, vSpan: 1, isUVRepeat: false,
@@ -236,18 +238,18 @@ function renderPassHelperForPostEffect(materialHelperFunctionStr, arrayOfHelperF
   const boardMeshComponent = boardEntity.getComponent(Rn.MeshComponent);
   boardMeshComponent.setMesh(boardMesh);
 
-  if (renderPassHelperForPostEffect.cameraComponent == null) {
+  if (createRenderPassForPostEffect.cameraComponent == null) {
     const entityRepository = Rn.EntityRepository.getInstance();
     const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent]);
     const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
     cameraComponent.zFarInner = 1.0;
-    renderPassHelperForPostEffect.cameraComponent = cameraComponent;
+    createRenderPassForPostEffect.cameraComponent = cameraComponent;
   }
 
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.clearColor = new Rn.Vector4(0.0, 0.0, 0.0, 1.0);
-  renderPass.cameraComponent = renderPassHelperForPostEffect.cameraComponent;
+  renderPass.cameraComponent = createRenderPassForPostEffect.cameraComponent;
   renderPass.addEntities([boardEntity]);
 
   return renderPass;

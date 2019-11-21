@@ -38,7 +38,7 @@ import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
-import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer } from "../../types/glTF";
+import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer, Gltf2Accessor, Gltf2BufferView } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
@@ -117,10 +117,10 @@ export default class ModelConverter {
 
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
-    const rnBuffer = this.createRnBuffer(gltfModel);
+    const rnBuffers = this.createRnBuffer(gltfModel);
 
     // Mesh, Camera, Group, ...
-    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffer);
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transfrom
@@ -159,15 +159,17 @@ export default class ModelConverter {
 
   }
 
-  private createRnBuffer(gltfModel: glTF2) {
-    const buffer = gltfModel.buffers[0] as Gltf2Buffer;
-    const rnBuffer = new Buffer({
-      byteLength: buffer.byteLength,
-      arrayBuffer: buffer.buffer!,
-      name: `gltf2Buffer_0_(${buffer.uri})`
-    });
-
-    return rnBuffer;
+  private createRnBuffer(gltfModel: glTF2): Buffer[] {
+    const rnBuffers = [];
+    for (let buffer of gltfModel.buffers) {
+      const rnBuffer = new Buffer({
+        byteLength: buffer.byteLength,
+        buffer: buffer.buffer!,
+        name: `gltf2Buffer_0_(${buffer.uri})`
+      });
+      rnBuffers.push(rnBuffer);
+    }
+    return rnBuffers;
   }
 
   _setupTransform(gltfModel: glTF2, groups: Entity[]) {
@@ -321,7 +323,7 @@ export default class ModelConverter {
   }
 
 
-  __setupObjects(gltfModel: glTF2, rnBuffer: Buffer) {
+  __setupObjects(gltfModel: glTF2, rnBuffers: Buffer[]) {
     const rnEntities: Entity[] = [];
     const rnEntitiesByNames: Map<String, Entity> = new Map();
 
@@ -333,7 +335,7 @@ export default class ModelConverter {
         if (meshIdxOrName == null) {
           meshIdxOrName = node.meshNames![0];
         }
-        const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffer, gltfModel);
+        const meshEntity = this.__setupMesh(node, node.mesh, meshIdxOrName, rnBuffers, gltfModel);
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -441,15 +443,19 @@ export default class ModelConverter {
     return cameraEntity;
   }
 
-  private __setupMesh(node: any, mesh: any, meshIndex: Index, rnBuffer: Buffer, gltfModel: glTF2) {
+  private __setupMesh(node: any, mesh: any, meshIndex: Index, rnBuffers: Buffer[], gltfModel: glTF2) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();
     const rnMesh = new Mesh();
 
-    if (gltfModel.asset.extras!.rnLoaderOptions && gltfModel.asset.extras!.rnLoaderOptions!.forceCalculateTangent) {
-      rnMesh.forceCalculateTangent = true;
+    const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
+    if (rnLoaderOptions && rnLoaderOptions.tangentCalculationMode != null) {
+      rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
+    }
+    if (rnLoaderOptions && rnLoaderOptions.isPrecomputeForRayCastPickingEnable != null) {
+      rnMesh.isPrecomputeForRayCastPickingEnable = rnLoaderOptions.isPrecomputeForRayCastPickingEnable;
     }
 
     let originalRnMesh = rnMesh;
@@ -462,14 +468,19 @@ export default class ModelConverter {
         if (primitive.mode != null) {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
         }
+
+        const rnPrimitive = new Primitive();
+        const material = this.__setupMaterial(rnPrimitive, node, gltfModel, primitive, primitive.material);
+
+        if (material.isEmptyMaterial() === false) {
+          ModelConverter.setDefaultTextures(material, gltfModel);
+        }
+
         // indices
         let indicesRnAccessor;
         const map: Map<VertexAttributeEnum, Accessor> = new Map();
-        const material = this.__setupMaterial(meshEntity, node, gltfModel, primitive, primitive.material);
-        if (material == null) continue;
-
         if (primitive.extensions && primitive.extensions.KHR_draco_mesh_compression) {
-          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffer, gltfModel, map);
+          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffers, gltfModel, map);
 
           if (indicesRnAccessor == null) {
             break;
@@ -477,36 +488,47 @@ export default class ModelConverter {
         } else {
           // attributes
           if (primitive.indices) {
-            indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffer);
+            indicesRnAccessor = this.__getRnAccessor(primitive.indices, rnBuffers[((primitive.indices as Gltf2Accessor).bufferView as Gltf2BufferView).bufferIndex!]);
           }
           for (let attributeName in primitive.attributes) {
-            let attributeAccessor = primitive.attributes[attributeName];
-            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+            let attributeAccessor = primitive.attributes[attributeName] as Gltf2Accessor;
+            const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
             map.set(VertexAttribute.fromString(attributeAccessor.extras.attributeName), attributeRnAccessor);
           }
         }
 
-        const rnPrimitive = new Primitive();
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
+
+          // set default number
+          let maxMorphTargetNumber = 4;
+          if (rnLoaderOptions != null && rnLoaderOptions.maxMorphTargetNumber != null) {
+            maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
+          }
+
           const targets: Array<Map<VertexAttributeEnum, Accessor>> = [];
-          for (let target of primitive.targets) {
+          for (let i = 0; i < primitive.targets.length; i++) {
+            if (i >= maxMorphTargetNumber) {
+              break;
+            }
+
+            const target = primitive.targets[i];
             const targetMap: Map<VertexAttributeEnum, Accessor> = new Map();
             for (let attributeName in target) {
-              let attributeAccessor = target[attributeName];
-              const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffer);
+              let attributeAccessor = target[attributeName] as Gltf2Accessor;
+              const attributeRnAccessor = this.__getRnAccessor(attributeAccessor, rnBuffers[(attributeAccessor.bufferView as Gltf2BufferView).bufferIndex!]);
               const attributeRnAccessorInGPUInstanceData = this.__copyRnAccessorAndBufferView(attributeRnAccessor, primitive);
               targetMap.set(VertexAttribute.fromString(attributeName), attributeRnAccessorInGPUInstanceData);
             }
             targets.push(targetMap);
           }
+
           rnPrimitive.setTargets(targets);
         }
 
         rnMesh.addPrimitive(rnPrimitive);
-
       }
 
       if (mesh.weights) {
@@ -521,7 +543,93 @@ export default class ModelConverter {
     return meshEntity;
   }
 
-  private __generateAppropreateMaterial(entity: Entity, node: any, gltfModel: glTF2, primitive: any, materialJson: any) {
+  static setDefaultTextures(material: Material, gltfModel: glTF2): void {
+    if (gltfModel.asset.extras == null ||
+      gltfModel.asset.extras.rnLoaderOptions == null ||
+      gltfModel.asset.extras.rnLoaderOptions.defaultTextures == null) {
+      return;
+    }
+
+    const options = gltfModel.asset.extras.rnLoaderOptions;
+
+    const defaultTextures = gltfModel.asset.extras.rnLoaderOptions.defaultTextures;
+    const basePath = defaultTextures.basePath;
+    const textureInfos = defaultTextures.textureInfos;
+
+    for (let textureInfo of textureInfos) {
+      const rnTexture = new Texture();
+
+      //options
+      rnTexture.autoDetectTransparency = options.autoDetectTextureTransparency === true;
+      rnTexture.autoResize = options.autoResizeTexture === true;
+
+      const fileName = textureInfo.fileName;
+      const uri = basePath + fileName;
+      rnTexture.name = uri;
+
+      const image = textureInfo.image;
+      if (image && image.image) {
+        rnTexture.generateTextureFromImage(image.image);
+      } else {
+        console.warn("default image not found");
+        continue;
+      }
+
+      const shaderSemantics = textureInfo.shaderSemantics;
+      material.setTextureParameter(shaderSemantics, rnTexture);
+    }
+  }
+
+  private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
+    const VRMProperties = gltfModel.extensions.VRM;
+
+    const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
+    if (shaderName === "VRM/MToon") {
+      // argument
+      const argumentOfMaterialHelper = argumentArray[0];
+      const rnExtension = VRMProperties.rnExtension;
+      if (rnExtension && rnExtension.defaultMorphingIsTrue) {
+        argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
+      }
+      if (rnExtension && rnExtension.defaultSkinningIsTrue) {
+        const existSkin = node.skin != null;
+        argumentOfMaterialHelper.isSkinning = existSkin;
+        argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+      }
+      const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
+      argumentOfMaterialHelper.materialProperties = materialProperties;
+
+      // outline
+      let renderPassOutline;
+      if (rnExtension) {
+        renderPassOutline = rnExtension.renderPassOutline;
+      }
+
+      //exist outline
+      if (renderPassOutline != null) {
+        let outlineMaterial: Material;
+        if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
+          argumentOfMaterialHelper.isOutline = true;
+          outlineMaterial = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+          argumentOfMaterialHelper.isOutline = false;
+        } else {
+          outlineMaterial = MaterialHelper.createEmptyMaterial();
+        }
+
+        renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+      }
+
+      return MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+
+    } else if (argumentArray[0].isOutline) {
+      return MaterialHelper.createEmptyMaterial();;
+    }
+
+    // use another material
+    return undefined;
+  }
+
+  private __generateAppropreateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -532,26 +640,14 @@ export default class ModelConverter {
         return loaderExtension.generateMaterial();
       }
 
-      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       const argumentArray = rnLoaderOptions.defaultMaterialHelperArgumentArray;
 
-      if (rnLoaderOptions.isImportVRM && materialHelperName == null) {
-        const VRMProperties = gltfModel.extensions.VRM;
-        const materialProperties = VRMProperties.rnExtension.materialPropertiesArray[primitive.materialIndex];
-
-        const shaderName = VRMProperties.materialProperties[primitive.materialIndex].shader;
-        if (shaderName === "VRM/MToon") {
-          if (argumentArray[0]["isOutline"] && materialProperties[0][13] === 0) {
-            return null;
-          }
-
-          argumentArray[0]["materialPropertiesArray"] = materialProperties;
-          return MaterialHelper.createMToonMaterial.apply(this, argumentArray as any);
-        } else if (argumentArray[0]["isOutline"]) {
-          return null;
-        }
+      if (rnLoaderOptions.isImportVRM) {
+        const material = this.__setVRMMaterial(rnPrimitive, node, gltfModel, primitive, argumentArray);
+        if (material != null) return material;
       }
 
+      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
       if (materialHelperName != null) {
         return (MaterialHelper as any)[materialHelperName].apply(this, argumentArray);
       }
@@ -571,34 +667,11 @@ export default class ModelConverter {
     }
   }
 
-  static _createTexture(textureType: any, gltfModel: glTF2) {
-    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
-    const rnTexture = new Texture();
-    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
-    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
-    const texture = textureType.texture;
-    if (texture.image.image) {
-      const image = texture.image.image;
-      rnTexture.generateTextureFromImage(image);
-      if (texture.image.uri) {
-        rnTexture.name = texture.image.url;
-      } else {
-        const ext = texture.image.mimeType.split('/')[1];
-        rnTexture.name = texture.image.name + `.${ext}`;
-      }
-    }
-    return rnTexture;
-  }
+  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material {
+    const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
-  private __setupMaterial(entity: Entity, node: any, gltfModel: any, primitive: any, materialJson: any): Material | undefined {
-    const material: Material = this.__generateAppropreateMaterial(entity, node, gltfModel, primitive, materialJson);
-    if (materialJson == null ||
-      material == null ||
-      (material.materialTypeName.match(/^PbrUber/) == null &&
-        material.materialTypeName.match(/^ClassicUber/) == null)
-    ) {
-      return material;
-    }
+    // avoid unexpected initialization
+    if (!this.__needParameterInitialization(materialJson, material.materialTypeName)) return material;
 
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
@@ -699,6 +772,40 @@ export default class ModelConverter {
     return material;
   }
 
+  static _createTexture(textureType: any, gltfModel: glTF2) {
+    const options = (gltfModel.asset.extras) ? gltfModel.asset.extras.rnLoaderOptions : undefined;
+    const rnTexture = new Texture();
+    rnTexture.autoDetectTransparency = (options && options.autoDetectTextureTransparency === true) ? true : false;
+    rnTexture.autoResize = (options && options.autoResizeTexture === true) ? true : false;
+    const texture = textureType.texture;
+    if (texture.image.image) {
+      const image = texture.image.image;
+      rnTexture.generateTextureFromImage(image);
+      if (texture.image.uri) {
+        rnTexture.name = texture.image.url;
+      } else {
+        const ext = texture.image.mimeType.split('/')[1];
+        rnTexture.name = texture.image.name + `.${ext}`;
+      }
+    }
+    return rnTexture;
+  }
+
+
+  private __needParameterInitialization(materialJson: any, materialTypeName: string): boolean {
+    if (materialJson == null) return false;
+
+    if (
+      materialTypeName.match(/PbrUber/) != null ||
+      materialTypeName.match(/ClassicUber/) != null
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
   private _checkRnGltfLoaderOptionsExist(gltfModel: glTF2) {
     if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
       return true;
@@ -707,11 +814,11 @@ export default class ModelConverter {
     }
   }
 
-  _adjustByteAlign(typedArrayClass: any, arrayBuffer: ArrayBuffer, alignSize: Size, byteOffset: Byte, length: Size) {
+  _adjustByteAlign(typedArrayClass: any, uint8Array: Uint8Array, alignSize: Size, byteOffset: Byte, length: Size) {
     if ((byteOffset % alignSize) != 0) {
-      return new typedArrayClass(arrayBuffer.slice(byteOffset), 0, length);
+      return new typedArrayClass(uint8Array.buffer.slice(byteOffset + uint8Array.byteOffset), 0, length);
     } else {
-      return new typedArrayClass(arrayBuffer, byteOffset, length);
+      return new typedArrayClass(uint8Array.buffer, byteOffset + uint8Array.byteOffset, length);
     }
   }
 
@@ -808,7 +915,7 @@ export default class ModelConverter {
     var bufferView = accessor.bufferView;
     const byteOffset = bufferView.byteOffset + (accessor.byteOffset !== void 0 ? accessor.byteOffset : 0);
     var buffer = bufferView.buffer;
-    var arrayBuffer = buffer.buffer;
+    var uint8Array: Uint8Array = buffer.buffer;
 
     let componentN = this._checkComponentNumber(accessor);
     let componentBytes = this._checkBytesPerComponent(accessor);
@@ -828,23 +935,23 @@ export default class ModelConverter {
     if (accessor.extras && accessor.extras.toGetAsTypedArray) {
       if (ModelConverter._isSystemLittleEndian()) {
         if (dataViewMethod === 'getFloat32') {
-          typedDataArray = this._adjustByteAlign(Float32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Float32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt8') {
-          typedDataArray = new Int8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+          typedDataArray = new Int8Array(uint8Array, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint8') {
-          typedDataArray = new Uint8Array(arrayBuffer, byteOffset, byteLength / componentBytes);
+          typedDataArray = new Uint8Array(uint8Array, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt16') {
-          typedDataArray = this._adjustByteAlign(Int16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Int16Array, uint8Array, 2, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint16') {
-          typedDataArray = this._adjustByteAlign(Uint16Array, arrayBuffer, 2, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Uint16Array, uint8Array, 2, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getInt32') {
-          typedDataArray = this._adjustByteAlign(Int32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Int32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         } else if (dataViewMethod === 'getUint32') {
-          typedDataArray = this._adjustByteAlign(Uint32Array, arrayBuffer, 4, byteOffset, byteLength / componentBytes);
+          typedDataArray = this._adjustByteAlign(Uint32Array, uint8Array, 4, byteOffset, byteLength / componentBytes);
         }
 
       } else {
-        let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
+        let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
         let byteDelta = componentBytes * componentN;
         let littleEndian = true;
         for (let pos = 0; pos < byteLength; pos += byteDelta) {
@@ -886,7 +993,7 @@ export default class ModelConverter {
         }
       }
     } else {
-      let dataView: any = new DataView(arrayBuffer, byteOffset, byteLength);
+      let dataView: any = new DataView(uint8Array.buffer, byteOffset + uint8Array.byteOffset, byteLength);
       let byteDelta = componentBytes * componentN;
       if (accessor.extras && accessor.extras.weightCount) {
         byteDelta = componentBytes * componentN * accessor.extras.weightCount;
@@ -1138,9 +1245,9 @@ export default class ModelConverter {
     return indices;
   }
 
-  private __decodeDraco(primitive: any, rnBuffer: Buffer, gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
+  private __decodeDraco(primitive: any, rnBuffers: Buffer[], gltfModel: glTF2, map: Map<VertexAttributeEnum, Accessor>) {
     const bufferView = gltfModel.bufferViews[primitive.extensions.KHR_draco_mesh_compression.bufferView];
-    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
+    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffers[bufferView.bufferIndex!]);
     const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array()).buffer;
 
     const draco = new DracoDecoderModule();
@@ -1176,7 +1283,7 @@ export default class ModelConverter {
 
     const rnDracoBuffer = new Buffer({
       byteLength: lengthOfRnBufferForDraco,
-      arrayBuffer: new ArrayBuffer(lengthOfRnBufferForDraco),
+      buffer: new ArrayBuffer(lengthOfRnBufferForDraco),
       name: 'Draco'
     });
 
@@ -1201,6 +1308,8 @@ export default class ModelConverter {
       let dracoAttributeName = attributeName;
       if (attributeName === 'TEXCOORD_0') {
         dracoAttributeName = 'TEX_COORD';
+      } else if (attributeName === 'TANGENT') {
+        dracoAttributeName = 'GENERIC';
       }
 
       const attId = decoder.GetAttributeId(dracoGeometry, draco[dracoAttributeName]);

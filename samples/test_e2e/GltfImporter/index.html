@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Gltf or VRM Importer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 class="header-title">Rhodonite E2E Test - Gltf or VRM Importer</h1>
+  </header>
+  <main>
+    <section class="test">
+      <h2>Rendering Test Image</h2>
+      <canvas id="world" width="600" height="600"></canvas>
+      <div>
+        <button onclick="window.isAnimating = true;">Animate</button>
+        <button onclick="exportGltf2();">Export as glTF2</button>
+      </div>
+    </section>
+    <section class="correct">
+      <h2>Correct PNG Image</h2>
+      <img src="__image_snapshots__/test-js-regression-test-gltf-importer-1-snap.png" />
+    </section>
+  </main>
+  <script src="../../assets/navigate.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
+  <script src="../../../dist/rhodonite.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>

@@ -1,9 +1,8 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -49,7 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var renderPass = new Rn.RenderPass();
         var entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
         RnWebGL.WebGLStrategyUniform.setupMaterial(entityUidOutputMaterial);
-        renderPass.material = entityUidOutputMaterial;
+        renderPass.setMaterial(entityUidOutputMaterial);
         renderPass.cameraComponent = cameraComponent;
         var framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(canvas.clientWidth, canvas.clientHeight, 1, {});
         renderPass.setFramebuffer(framebuffer);
@@ -154,7 +153,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                                 //      rootGroup.getTransform().scale = rotationVec3;
                                 //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
                             }
-                            system.process(expression);
+                            system.process([expression]);
                             count++;
                             requestAnimationFrame(draw);
                         };

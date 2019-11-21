@@ -1,4 +1,8 @@
 import Entity from "../foundation/core/Entity";
+import RnPromise from "../foundation/misc/RnPromise";
+import { Index } from "./CommonTypes";
+import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
+import CameraComponent from "../foundation/components/CameraComponent";
 
 export type Gltf2Scene = {
   nodes?: any[],
@@ -275,7 +279,8 @@ export type Gltf2BufferView = {
 export type Gltf2Buffer = {
   uri?: string,
   byteLength: number,
-  buffer?: ArrayBuffer,
+  buffer?: Uint8Array,
+  bufferPromise?: RnPromise<ArrayBuffer>,
   name?: string,
   extensions?: any,
   extras?: any
@@ -303,7 +308,7 @@ export type glTF2 = {
   cameras: Gltf2Camera[],
   images: Gltf2Image[],
   animations: Gltf2Animation[],
-  textures: Gltf2Texture[],
+  textures?: Gltf2Texture[],
   samplers: Gltf2Sampler[],
   accessors: Gltf2Accessor[],
   bufferViews: Gltf2BufferView[],
@@ -404,7 +409,18 @@ export type GltfLoadOption = {
   ignoreLists?: [],
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
-  forceCalculateTangent?: boolean,
+  tangentCalculationMode?: Index,
+  isPrecomputeForRayCastPickingEnable?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
-  isImportVRM?: boolean
+  isImportVRM?: boolean,
+  maxMorphTargetNumber?: number,
+  defaultTextures?: {
+    basePath: string, // e.g. "./assets/jpg/"
+    textureInfos: {
+      shaderSemantics: ShaderSemanticsEnum,
+      fileName: string
+      image?: Gltf2Image,
+    }[]
+  },
+  cameraComponent?: CameraComponent
 }

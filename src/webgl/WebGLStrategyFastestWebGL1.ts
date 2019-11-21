@@ -27,13 +27,15 @@ import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
 import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../types/CommonTypes";
-import CubeTexture from "../foundation/textures/CubeTexture";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import Entity from "../foundation/core/Entity";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { AlphaMode } from "../foundation/definitions/AlphaMode";
+import WebGLStrategyCommonMethod from "./WebGLStrategyCommonMethod";
+import Matrix33 from "../foundation/math/Matrix33";
+import CubeTexture from "../foundation/textures/CubeTexture";
+import { ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
 
 export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private static __instance: WebGLStrategyFastestWebGL1;
@@ -45,17 +47,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
-
-  private static __lastCullFace = false;
-  private static __lastFrontFaceCCW = true;
-
-  private static __isOpaqueMode = true;
-  public static __lastBlendEquationMode: number | null = null;
-  public static __lastBlendEquationModeAlpha: number | null = null;
-  public static __lastBlendFuncSrcFactor: number | null = null;
-  public static __lastBlendFuncDstFactor: number | null = null;
-  public static __lastBlendFuncAlphaSrcFactor: number | null = null;
-  public static __lastBlendFuncAlphaDstFactor: number | null = null;
 
   private constructor() { }
 
@@ -136,210 +127,224 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       return;
     }
 
-    const getOffset = (info: ShaderSemanticsInfo) => {
-      let offset = 1;
-      switch (info.compositionType) {
-        case CompositionType.Mat4:
-          offset = 4;
-          break;
-        case CompositionType.Mat3:
-          offset = 3;
-          break;
-        case CompositionType.Mat2:
-          offset = 2;
-          break;
-        default:
-        // console.error('unknown composition type', info.compositionType.str, memberName);
-        // return '';
-      }
-      return offset;
-    }
-
-    const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlogalData: boolean) => {
-      const returnType = info.compositionType.getGlslStr(info.componentType);
-
-      const indexArray = [];
-      let maxIndex = 1;
-      let index = -1;
-      let indexStr;
-
-      const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
-
-      const methodName = info.semantic.str.replace('.', '_');
-
-      // definition of uniform variable
-      let varDef = '';
-      //      if (isTexture) {
-      const varType = info.compositionType.getGlslStr(info.componentType);
-      let varIndexStr = '';
-      if (info.maxIndex) {
-        varIndexStr = `[${info.maxIndex}]`;
-      }
-      if (info.needUniformInFastest || isTexture) {
-        varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
-      }
-      //    }
-      // inner contents of 'get_' shader function
-      if (propertyIndex < 0) {
-        if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
-          return '';
-        }
-        const offset = getOffset(info);
-        for (let i = 0; i < info.maxIndex!; i++) {
-          const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
-          indexArray.push(index)
-        }
-        maxIndex = info.maxIndex!;
-
-        let arrayStr = `highp float indices[${maxIndex}];`
-        indexArray.forEach((idx, i) => {
-          arrayStr += `\nindices[${i}] = ${idx}.0;`
-        });
-
-        indexStr = `
-          ${arrayStr}
-          highp float idx = 0.0;
-          for (int i=0; i<${maxIndex}; i++) {
-            idx = indices[i] + ${offset}.0 * instanceId;
-            if (i == index) {
-              break;
-            }
-          }`;
-      } else {
-        const offset = getOffset(info);
-        let idx;
-        let secondOffset = 0;
-        if (isGlogalData) {
-          const globalDataRepository = GlobalDataRepository.getInstance();
-          index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
-          let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
-          secondOffset = offset;
-        } else {
-          index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
-        }
-        if (CompositionType.isArray(info.compositionType)) {
-          idx = 'float(index)';
-          if (info.maxIndex != null) {
-            secondOffset = offset * info.maxIndex;
-          }
-        } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
-          idx = 'float(index)';
-        } else {
-          idx = 'instanceId';
-        }
-        indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
-      }
-
-
-      let intStr = '';
-      if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
-        intStr = 'i';
-      }
-
-      let firstPartOfInnerFunc = '';
-      if (!isTexture) {
-        firstPartOfInnerFunc += `
-  ${returnType} get_${methodName}(highp float instanceId, const int index) {
-    ${indexStr}
-    highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
-    highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
-    highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
-    highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
-`
-      }
-
-      let str = `${varDef}${firstPartOfInnerFunc}`;
-
-      switch (info.compositionType) {
-        case CompositionType.Vec4:
-        case CompositionType.Vec4Array:
-          str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
-        case CompositionType.Vec3:
-        case CompositionType.Vec3Array:
-          str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
-        case CompositionType.Vec2:
-        case CompositionType.Vec2Array:
-          str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
-        case CompositionType.Scalar:
-        case CompositionType.ScalarArray:
-          if (info.componentType === ComponentType.Int) {
-            str += `        int val = int(col0.x);`;
-          } else if (info.componentType === ComponentType.Bool) {
-            str += `        bool val = bool(col0.x);`;
-          } else {
-            str += `       float val = col0.x;`;
-          }
-          break;
-        case CompositionType.Mat4:
-          str += `
-          vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
-          vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
-          vec4 col3 = fetchElement(u_dataTexture, idx + 3.0, arg);
-
-          mat4 val = mat4(
-            col0.x, col0.y, col0.z, col0.w,
-            col1.x, col1.y, col1.z, col1.w,
-            col2.x, col2.y, col2.z, col2.w,
-            col3.x, col3.y, col3.z, col3.w
-            );
-          `; break;
-        case CompositionType.Mat3:
-          str += `
-          vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
-          vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
-          mat3 val = mat3(
-            col0.x, col0.y, col0.z,
-            col0.w, col1.x, col1.y,
-            col1.z, col1.w, col2.x
-            );
-          `; break;
-        default:
-          // console.error('unknown composition type', info.compositionType.str, memberName);
-          str += '';
-      }
-
-      if (!isTexture) {
-        str += `
-        return val;
-      }
-    `
-      }
-
-      return str;
-    };
-
     const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material) {
-        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-          return;
-        }
-
-        material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, getShaderProperty);
-        this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
-          [
-            {
-              semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true
-            },
-            {
-              semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-              stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true
-            }
-          ]);
-
-        material.setUniformLocations(material._shaderProgramUid);
-
-        const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
-        (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-        (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
+      if (material == null || material.isEmptyMaterial()) {
+        return;
       }
+
+      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        return;
+      }
+
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+      this.setupDefaultShaderSemantics(material, isPointSprite);
     }
   }
 
+  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+    material.createProgram(this.vertexShaderMethodDefinitions_dataTexture, this.__getShaderProperty);
+
+    if (isPointSprite) {
+      this.__webglResourceRepository.setupUniformLocations(material._shaderProgramUid,
+        [
+          {
+            semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+            stage: ShaderType.PixelShader, min: 0, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+          },
+          {
+            semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+            stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+          },
+        ]
+      );
+    }
+
+    material.setUniformLocations(material._shaderProgramUid);
+
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
+
+    const gl = this.__webglResourceRepository.currentWebGLContextWrapper!.getRawContext();
+    (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
+  }
+
+  private static __getOffsetOfShaderSemanticsInfo(info: ShaderSemanticsInfo) {
+    let offset = 1;
+    switch (info.compositionType) {
+      case CompositionType.Mat4:
+        offset = 4;
+        break;
+      case CompositionType.Mat3:
+        offset = 3;
+        break;
+      case CompositionType.Mat2:
+        offset = 2;
+        break;
+      default:
+      // console.error('unknown composition type', info.compositionType.str, memberName);
+      // return '';
+    }
+    return offset;
+  }
+
+  private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlogalData: boolean) {
+    const returnType = info.compositionType.getGlslStr(info.componentType);
+
+    const indexArray = [];
+    let maxIndex = 1;
+    let index = -1;
+    let indexStr;
+
+    const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
+
+    const methodName = info.semantic.str.replace('.', '_');
+
+    // definition of uniform variable
+    let varDef = '';
+    //      if (isTexture) {
+    const varType = info.compositionType.getGlslStr(info.componentType);
+    let varIndexStr = '';
+    if (info.maxIndex) {
+      varIndexStr = `[${info.maxIndex}]`;
+    }
+    if (info.needUniformInFastest || isTexture) {
+      varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+    }
+    //    }
+    // inner contents of 'get_' shader function
+    if (propertyIndex < 0) {
+      if (Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0) {
+        return '';
+      }
+      const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      for (let i = 0; i < info.maxIndex!; i++) {
+        const index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+        indexArray.push(index)
+      }
+      maxIndex = info.maxIndex!;
+
+      let arrayStr = `highp float indices[${maxIndex}];`
+      indexArray.forEach((idx, i) => {
+        arrayStr += `\nindices[${i}] = ${idx}.0;`
+      });
+
+      indexStr = `
+        ${arrayStr}
+        highp float idx = 0.0;
+        for (int i=0; i<${maxIndex}; i++) {
+          idx = indices[i] + ${offset}.0 * instanceId;
+          if (i == index) {
+            break;
+          }
+        }`;
+    } else {
+      const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      let idx;
+      let secondOffset = 0;
+      if (isGlogalData) {
+        const globalDataRepository = GlobalDataRepository.getInstance();
+        index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
+        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+        secondOffset = offset;
+      } else {
+        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+      }
+      if (CompositionType.isArray(info.compositionType)) {
+        idx = 'float(index)';
+        if (info.maxIndex != null) {
+          secondOffset = offset * info.maxIndex;
+        }
+      } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
+        idx = 'float(index)';
+      } else {
+        idx = 'instanceId';
+      }
+      indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
+    }
+
+
+    let intStr = '';
+    if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
+      intStr = 'i';
+    }
+
+    let firstPartOfInnerFunc = '';
+    if (!isTexture) {
+      firstPartOfInnerFunc += `
+${returnType} get_${methodName}(highp float instanceId, const int index) {
+  ${indexStr}
+  highp float powWidthVal = ${MemoryManager.bufferWidthLength}.0;
+  highp float powHeightVal = ${MemoryManager.bufferHeightLength}.0;
+  highp vec2 arg = vec2(1.0/powWidthVal, 1.0/powHeightVal);
+  highp vec4 col0 = fetchElement(u_dataTexture, idx + 0.0, arg);
+`
+    }
+
+    let str = `${varDef}${firstPartOfInnerFunc}`;
+
+    switch (info.compositionType) {
+      case CompositionType.Vec4:
+      case CompositionType.Vec4Array:
+        str += `        highp ${intStr}vec4 val = ${intStr}vec4(col0);`; break;
+      case CompositionType.Vec3:
+      case CompositionType.Vec3Array:
+        str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`; break;
+      case CompositionType.Vec2:
+      case CompositionType.Vec2Array:
+        str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`; break;
+      case CompositionType.Scalar:
+      case CompositionType.ScalarArray:
+        if (info.componentType === ComponentType.Int) {
+          str += `        int val = int(col0.x);`;
+        } else if (info.componentType === ComponentType.Bool) {
+          str += `        bool val = bool(col0.x);`;
+        } else {
+          str += `       float val = col0.x;`;
+        }
+        break;
+      case CompositionType.Mat4:
+        str += `
+        vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
+        vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
+        vec4 col3 = fetchElement(u_dataTexture, idx + 3.0, arg);
+
+        mat4 val = mat4(
+          col0.x, col0.y, col0.z, col0.w,
+          col1.x, col1.y, col1.z, col1.w,
+          col2.x, col2.y, col2.z, col2.w,
+          col3.x, col3.y, col3.z, col3.w
+          );
+        `; break;
+      case CompositionType.Mat3:
+        str += `
+        vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
+        vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);
+        mat3 val = mat3(
+          col0.x, col0.y, col0.z,
+          col0.w, col1.x, col1.y,
+          col1.z, col1.w, col2.x
+          );
+        `; break;
+      default:
+        // console.error('unknown composition type', info.compositionType.str, memberName);
+        str += '';
+    }
+
+    if (!isTexture) {
+      str += `
+      return val;
+    }
+  `
+    }
+
+    return str;
+  }
 
 
   private __isLoaded(meshComponent: MeshComponent) {
@@ -442,11 +447,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      let paddingArrayBuffer = new ArrayBuffer(0);
+      let paddingArrayBufferSize = 0;
       if ((buffer.takenSizeInByte + morphBuffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
-        paddingArrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte);
+        paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte;
       }
-      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), morphBuffer.getArrayBuffer().slice(0, morphBuffer.takenSizeInByte), paddingArrayBuffer]);
+      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBuffer.getArrayBuffer()], [buffer.takenSizeInByte, morphBuffer.takenSizeInByte], paddingArrayBufferSize);
       const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
       if (concatArraybuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
@@ -614,7 +619,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         continue;
       }
 
-      WebGLStrategyFastestWebGL1.setWebGLStatesBegin(idx, gl, renderPass);
+      WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
 
       const entity = meshComponent.entity;
       this.__setCurrentComponentSIDsForEachEntity(gl, renderPass, entity);
@@ -627,17 +632,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       for (let i = 0; i < primitiveNum; i++) {
         const primitive = mesh.getPrimitiveAt(i);
 
-        // if (WebGLStrategyFastestWebGL1.isOpaqueMode() && primitive.isBlend()) {
-        //   continue;
-        // }
-        // if (WebGLStrategyFastestWebGL1.isTransparentMode() && primitive.isOpaque()) {
-        //   continue;
-        // }
+        const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material);
+        if (material.isEmptyMaterial()) {
+          continue;
+        }
 
-        const shaderProgramUid = primitive.material!._shaderProgramUid;
+        const shaderProgramUid = material._shaderProgramUid;
         if (shaderProgramUid === -1) {
           continue;
         }
+
 
 
         this.attachVertexDataInner(mesh, primitive, i, glw, mesh.variationVBOUid);
@@ -647,7 +651,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
           gl.uniform1i((shaderProgram as any).dataTexture, 7);
 
-          this.__setupMaterial(primitive.material!, renderPass);
+          this.__setupMaterial(material, renderPass);
 
 
           WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
@@ -657,27 +661,24 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
         if (firstTime) {
           this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
         }
-        this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, primitive.material!, entity);
+        this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, material, entity);
 
-        const material = primitive.material;
-        if (material != null) {
-          WebGLStrategyFastestWebGL1.setWebGLStatesOfMaterial(material, renderPass, gl);
+        WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-          material.setParemetersForGPU({
-            material: primitive.material!, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
-            args: {
-              glw: glw,
-              entity: entity,
-              worldMatrix: entity.getSceneGraph().worldMatrixInner,
-              normalMatrix: entity.getSceneGraph().normalMatrixInner,
-              lightComponents: this.__lightComponents,
-              renderPass: renderPass,
-              primitive: primitive,
-              diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap
-            }
-          });
-        }
+        material.setParemetersForGPU({
+          material: material, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
+          args: {
+            glw: glw,
+            entity: entity,
+            worldMatrix: entity.getSceneGraph().worldMatrixInner,
+            normalMatrix: entity.getSceneGraph().normalMatrixInner,
+            lightComponents: this.__lightComponents,
+            renderPass: renderPass,
+            primitive: primitive,
+            diffuseCube: meshRendererComponent.diffuseCubeMap,
+            specularCube: meshRendererComponent.specularCubeMap
+          }
+        });
 
 
         if (primitive.indicesAccessor) {
@@ -688,162 +689,16 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
         this.__lastShader = shaderProgramUid;
       }
-      WebGLStrategyFastestWebGL1.setWebGLStatesEnd(sid, gl, renderPass);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
     return false;
   }
 
-  static isOpaqueMode() {
-    return WebGLStrategyFastestWebGL1.__isOpaqueMode;
+  $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
+    WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
   }
 
-  static isTransparentMode() {
-    return !WebGLStrategyFastestWebGL1.__isOpaqueMode;
-  }
-
-  private static setWebGLStatesBegin(idx: number, gl: any, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.firstTranparentIndex) {
-      gl.enable(gl.BLEND);
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-      gl.depthMask(false);
-      this.__isOpaqueMode = false;
-    }
-  }
-
-  private static setWebGLStatesEnd(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.lastTransparentIndex) {
-      gl.disable(gl.BLEND);
-      gl.depthMask(true);
-      this.__isOpaqueMode = true;
-    }
-  }
-
-  private static setWebGLStatesOfMaterial(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
-    if (material.cullface != null) {
-      this.setCull(material.cullface, material.cullFrontFaceCCW, gl);
-    } else {
-      this.setCull(renderPass.cullface, renderPass.cullFrontFaceCCW, gl);
-    }
-
-    if (material.depthMask != null) {
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    } else if ((this.__isOpaqueMode && material.alphaMode !== AlphaMode.Opaque) ||
-      (!this.__isOpaqueMode && material.alphaMode === AlphaMode.Opaque)) {
-      material.depthMask = false;
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    }
-  }
-
-  private static setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
-    if (this.__lastCullFace !== cullface) {
-      if (cullface) {
-        gl.enable(gl.CULL_FACE);
-      } else {
-        gl.disable(gl.CULL_FACE);
-      }
-      this.__lastCullFace = cullface;
-    }
-
-    if (cullface && this.__lastFrontFaceCCW !== cullFrontFaceCCW) {
-      if (cullFrontFaceCCW) {
-        gl.frontFace(gl.CCW);
-      } else {
-        gl.frontFace(gl.CW);
-      }
-      this.__lastFrontFaceCCW = cullFrontFaceCCW;
-    }
-  }
-
-  private static setTransparent(depthMask: boolean, gl: WebGLRenderingContext,
-    blendEquationMode: number | null, blendEquationModeAlpha: number | null,
-    blendFuncSrcFactor: number | null, blendFuncDstFactor: number | null,
-    blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null) {
-
-    if (this.__isOpaqueMode !== depthMask) {
-      if (depthMask) {
-        gl.disable(gl.BLEND);
-        gl.depthMask(true);
-      } else {
-        gl.enable(gl.BLEND);
-        gl.depthMask(false);
-      }
-      this.__isOpaqueMode = depthMask;
-    }
-
-    if (depthMask === false) {
-
-      if (blendEquationMode != null) {
-        if (
-          blendEquationMode != this.__lastBlendEquationMode ||
-          blendEquationModeAlpha != this.__lastBlendEquationModeAlpha
-        ) {
-          if (blendEquationModeAlpha != null) {
-            gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-          } else {
-            gl.blendEquation(blendEquationMode);
-          }
-          this.__lastBlendEquationMode = blendEquationMode;
-          this.__lastBlendEquationModeAlpha = blendEquationModeAlpha;
-        }
-      } else if (
-        this.__lastBlendEquationMode != gl.FUNC_ADD ||
-        this.__lastBlendEquationModeAlpha != null
-      ) {
-        //default
-        gl.blendEquation(gl.FUNC_ADD);
-        this.__lastBlendEquationMode = gl.FUNC_ADD;
-        this.__lastBlendEquationModeAlpha = null;
-      }
-
-
-      if (blendFuncSrcFactor != null) {
-        if (
-          blendFuncSrcFactor != this.__lastBlendFuncSrcFactor ||
-          blendFuncDstFactor != this.__lastBlendFuncDstFactor ||
-          blendFuncAlphaSrcFactor != this.__lastBlendFuncAlphaSrcFactor ||
-          blendFuncAlphaDstFactor != this.__lastBlendFuncAlphaDstFactor
-        ) {
-          if (
-            blendFuncDstFactor != null &&
-            blendFuncAlphaSrcFactor != null &&
-            blendFuncAlphaDstFactor != null
-          ) {
-            gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
-          } else if (blendFuncDstFactor != null) {
-            gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
-          } else {
-            console.warn('invalid blend func parameter');
-            return;
-          }
-          this.__lastBlendFuncSrcFactor = blendFuncSrcFactor;
-          this.__lastBlendFuncDstFactor = blendFuncDstFactor;
-          this.__lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
-          this.__lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
-        }
-      } else if (
-        this.__lastBlendFuncSrcFactor != gl.SRC_ALPHA ||
-        this.__lastBlendFuncDstFactor != gl.ONE_MINUS_SRC_ALPHA ||
-        this.__lastBlendFuncAlphaSrcFactor != gl.ONE ||
-        this.__lastBlendFuncAlphaDstFactor != gl.ONE
-      ) {
-        //default
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-        this.__lastBlendFuncSrcFactor = gl.SRC_ALPHA;
-        this.__lastBlendFuncDstFactor = gl.ONE_MINUS_SRC_ALPHA;
-        this.__lastBlendFuncAlphaSrcFactor = gl.ONE;
-        this.__lastBlendFuncAlphaDstFactor = gl.ONE;
-      }
-    }
-  }
 }

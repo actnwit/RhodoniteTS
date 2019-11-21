@@ -30,7 +30,7 @@ import { BufferUse } from "../foundation/definitions/BufferUse";
 import Buffer from "../foundation/memory/Buffer";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
-import { AlphaMode } from "../foundation/definitions/AlphaMode";
+import WebGLStrategyCommonMethod from "./WebGLStrategyCommonMethod";
 
 type ShaderVariableArguments = {
   glw: WebGLContextWrapper, shaderProgram: WebGLProgram, primitive: Primitive, shaderProgramUid: WebGLResourceHandle,
@@ -45,20 +45,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
-  private static __shaderSemanticInfoArray: ShaderSemanticsInfo[] = [];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __vertexShaderMethodDefinitions_uniform: string;
-
-  private static __lastCullFace = false;
-  private static __lastFrontFaceCCW = true;
-
-  private static __isOpaqueMode = true;
-  public static __lastBlendEquationMode: number = 0x8006; // gl.FUNC_ADD
-  public static __lastBlendEquationModeAlpha: number | null = null;
-  public static __lastBlendFuncSrcFactor: number = 0x0302; // gl.SRC_ALPHA
-  public static __lastBlendFuncDstFactor: number = 0x0303; // gl.ONE_MINUS_SRC_ALPHA
-  public static __lastBlendFuncAlphaSrcFactor: number | null = 1; // gl.ONE
-  public static __lastBlendFuncAlphaDstFactor: number | null = 1; // gl.ONE
 
   private constructor() { }
 
@@ -68,58 +56,57 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       return;
     }
 
-
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material) {
-        if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-          return;
-        }
-        const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-        const gl = glw.getRawContext();
-
-        // Shader Setup
-        let args: ShaderSemanticsInfo[] = [
-          {
-            semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
-            stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          {
-            semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          {
-            semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
-            stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-          },
-          // {semantic: ShaderSemantics.ViewMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly},
-          // {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-          //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly },
-        ];
-
-        if (primitive.primitiveMode.index === gl.POINTS) {
-          args.push(
-            {
-              semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-              stage: ShaderType.PixelShader, min: 0, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-            },
-            {
-              semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-              stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
-            },
-          );
-        }
-
-        WebGLStrategyUniform.__shaderSemanticInfoArray = WebGLStrategyUniform.__shaderSemanticInfoArray.concat(args);
-
-        WebGLStrategyUniform.setupMaterial(material, WebGLStrategyUniform.__shaderSemanticInfoArray);
-
+      if (material == null || material.isEmptyMaterial()) {
+        return;
       }
+
+      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        return;
+      }
+
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+      this.setupDefaultShaderSemantics(material, isPointSprite);
+    }
+  }
+
+  setupDefaultShaderSemantics(material: Material, isPointSprite: boolean) {
+    // Shader Setup
+    const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
+      {
+        semantic: ShaderSemantics.VertexAttributesExistenceArray, compositionType: CompositionType.ScalarArray, componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+      {
+        semantic: ShaderSemantics.WorldMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+      {
+        semantic: ShaderSemantics.NormalMatrix, compositionType: CompositionType.Mat3, componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+      },
+    ];
+
+    if (isPointSprite) {
+      shaderSemanticsInfos.push(
+        {
+          semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: 0, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+        },
+        {
+          semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
+          stage: ShaderType.PixelShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime
+        },
+      );
     }
 
+    WebGLStrategyUniform.setupMaterial(material, shaderSemanticsInfos);
   }
 
   static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]) {
@@ -230,11 +217,11 @@ mat3 get_normalMatrix(float instanceId) {
       if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
-      let paddingArrayBuffer = new ArrayBuffer(0);
+      let paddingArrayBufferSize = 0;
       if ((buffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
-        paddingArrayBuffer = new ArrayBuffer(MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte);
+        paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte;
       }
-      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte), paddingArrayBuffer]);
+      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer()], [buffer.takenSizeInByte], paddingArrayBufferSize);
       const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
@@ -299,19 +286,11 @@ mat3 get_normalMatrix(float instanceId) {
     return false;
   }
 
-  static isOpaqueMode() {
-    return WebGLStrategyUniform.__isOpaqueMode;
-  }
-
-  static isTransparentMode() {
-    return !WebGLStrategyUniform.__isOpaqueMode;
-  }
-
   $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    WebGLStrategyUniform.setWebGLStatesBegin(idx, gl, renderPass);
+    WebGLStrategyCommonMethod.startDepthMasking(idx, gl, renderPass);
 
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
@@ -322,23 +301,15 @@ mat3 get_normalMatrix(float instanceId) {
 
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      // if (WebGLStrategyUniform.isOpaqueMode() && primitive.isBlend()) {
-      //   continue;
-      // }
-      // if (WebGLStrategyUniform.isTransparentMode() && primitive.isOpaque()) {
-      //   continue;
-      // }
 
       this.attachVertexDataInner(meshComponent.mesh, primitive, i, glw, CGAPIResourceRepository.InvalidCGAPIResourceUid);
 
-      let material: Material;
-      if (renderPass.material != null) {
-        material = renderPass.material;
-      } else {
-        material = primitive.material!;
+      const material: Material = renderPass.getAppropriateMaterial(primitive, primitive.material!);
+      if (material.isEmptyMaterial()) {
+        continue;
       }
 
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material!._shaderProgramUid)! as WebGLProgram;
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(material._shaderProgramUid)! as WebGLProgram;
       const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = false;
@@ -375,26 +346,24 @@ mat3 get_normalMatrix(float instanceId) {
         // });
       }
       //from material
-      if (material) {
 
-        WebGLStrategyUniform.setWebGLStatesOfMaterial(material, renderPass, gl);
+      WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-        // material.setUniformValues(firstTime, {
-        material.setParemetersForGPU({
-          material, shaderProgram, firstTime, args: {
-            setUniform: true,
-            glw: glw,
-            entity: entity,
-            primitive: primitive,
-            worldMatrix: worldMatrix,
-            normalMatrix: normalMatrix,
-            lightComponents: this.__lightComponents,
-            renderPass: renderPass,
-            diffuseCube: diffuseCube,
-            specularCube: specularCube
-          }
-        });
-      }
+      // material.setUniformValues(firstTime, {
+      material.setParemetersForGPU({
+        material, shaderProgram, firstTime, args: {
+          setUniform: true,
+          glw: glw,
+          entity: entity,
+          primitive: primitive,
+          worldMatrix: worldMatrix,
+          normalMatrix: normalMatrix,
+          lightComponents: this.__lightComponents,
+          renderPass: renderPass,
+          diffuseCube: diffuseCube,
+          specularCube: specularCube
+        }
+      });
 
       if (primitive.indicesAccessor) {
         gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
@@ -405,7 +374,7 @@ mat3 get_normalMatrix(float instanceId) {
 
     }
 
-    WebGLStrategyUniform.setWebGLStatesEnd(idx, gl, renderPass);
+    WebGLStrategyCommonMethod.endDepthMasking(idx, gl, renderPass);
     this.__lastRenderPassTickCount = renderPassTickCount;
   }
 
@@ -419,150 +388,5 @@ mat3 get_normalMatrix(float instanceId) {
     }
   }
 
-
-  private static setWebGLStatesBegin(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.firstTranparentIndex) {
-      gl.enable(gl.BLEND);
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-      gl.depthMask(false);
-      this.__isOpaqueMode = false;
-    }
-  }
-
-  private static setWebGLStatesEnd(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
-    if (idx === MeshRendererComponent.lastTransparentIndex) {
-      gl.disable(gl.BLEND);
-      gl.depthMask(true);
-      this.__isOpaqueMode = true;
-    }
-  }
-
-  private static setWebGLStatesOfMaterial(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
-    if (material.cullface != null) {
-      this.setCull(material.cullface, material.cullFrontFaceCCW, gl);
-    } else {
-      this.setCull(renderPass.cullface, renderPass.cullFrontFaceCCW, gl);
-    }
-
-    if (material.depthMask != null) {
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    } else if ((this.__isOpaqueMode && material.alphaMode !== AlphaMode.Opaque) ||
-      (!this.__isOpaqueMode && material.alphaMode === AlphaMode.Opaque)) {
-      material.depthMask = false;
-      this.setTransparent(material.depthMask, gl,
-        material.blendEquationMode, material.blendEquationModeAlpha,
-        material.blendFuncSrcFactor, material.blendFuncDstFactor,
-        material.blendFuncAlphaSrcFactor, material.blendFuncAlphaDstFactor
-      );
-    }
-  }
-
-  private static setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
-    if (this.__lastCullFace !== cullface) {
-      if (cullface) {
-        gl.enable(gl.CULL_FACE);
-      } else {
-        gl.disable(gl.CULL_FACE);
-      }
-      this.__lastCullFace = cullface;
-    }
-
-    if (cullface && this.__lastFrontFaceCCW !== cullFrontFaceCCW) {
-      if (cullFrontFaceCCW) {
-        gl.frontFace(gl.CCW);
-      } else {
-        gl.frontFace(gl.CW);
-      }
-      this.__lastFrontFaceCCW = cullFrontFaceCCW;
-    }
-  }
-
-  private static setTransparent(depthMask: boolean, gl: WebGLRenderingContext,
-    blendEquationMode: number | null, blendEquationModeAlpha: number | null,
-    blendFuncSrcFactor: number | null, blendFuncDstFactor: number | null,
-    blendFuncAlphaSrcFactor: number | null, blendFuncAlphaDstFactor: number | null) {
-
-    if (this.__isOpaqueMode !== depthMask) {
-      if (depthMask) {
-        gl.disable(gl.BLEND);
-        gl.depthMask(true);
-      } else {
-        gl.enable(gl.BLEND);
-        gl.depthMask(false);
-      }
-      this.__isOpaqueMode = depthMask;
-    }
-
-    if (depthMask === false) {
-
-      if (blendEquationMode != null) {
-        if (
-          blendEquationMode != this.__lastBlendEquationMode ||
-          blendEquationModeAlpha != this.__lastBlendEquationModeAlpha
-        ) {
-          if (blendEquationModeAlpha != null) {
-            gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-          } else {
-            gl.blendEquation(blendEquationMode);
-          }
-          this.__lastBlendEquationMode = blendEquationMode;
-          this.__lastBlendEquationModeAlpha = blendEquationModeAlpha;
-        }
-      } else if (
-        this.__lastBlendEquationMode != gl.FUNC_ADD ||
-        this.__lastBlendEquationModeAlpha != null
-      ) {
-        //default
-        gl.blendEquation(gl.FUNC_ADD);
-        this.__lastBlendEquationMode = gl.FUNC_ADD;
-        this.__lastBlendEquationModeAlpha = null;
-      }
-
-
-      if (blendFuncSrcFactor != null) {
-        if (
-          blendFuncSrcFactor != this.__lastBlendFuncSrcFactor ||
-          blendFuncDstFactor != this.__lastBlendFuncDstFactor ||
-          blendFuncAlphaSrcFactor != this.__lastBlendFuncAlphaSrcFactor ||
-          blendFuncAlphaDstFactor != this.__lastBlendFuncAlphaDstFactor
-        ) {
-          if (
-            blendFuncDstFactor != null &&
-            blendFuncAlphaSrcFactor != null &&
-            blendFuncAlphaDstFactor != null
-          ) {
-            gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
-          } else if (blendFuncDstFactor != null) {
-            gl.blendFunc(blendFuncSrcFactor, blendFuncDstFactor);
-          } else {
-            console.warn('invalid blend func parameter');
-            return;
-          }
-          this.__lastBlendFuncSrcFactor = blendFuncSrcFactor;
-          this.__lastBlendFuncDstFactor = blendFuncDstFactor;
-          this.__lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
-          this.__lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
-        }
-      } else if (
-        this.__lastBlendFuncSrcFactor != gl.SRC_ALPHA ||
-        this.__lastBlendFuncDstFactor != gl.ONE_MINUS_SRC_ALPHA ||
-        this.__lastBlendFuncAlphaSrcFactor != gl.ONE ||
-        this.__lastBlendFuncAlphaDstFactor != gl.ONE
-      ) {
-        //default
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-        this.__lastBlendFuncSrcFactor = gl.SRC_ALPHA;
-        this.__lastBlendFuncDstFactor = gl.ONE_MINUS_SRC_ALPHA;
-        this.__lastBlendFuncAlphaSrcFactor = gl.ONE;
-        this.__lastBlendFuncAlphaDstFactor = gl.ONE;
-      }
-
-    }
-  }
 }
 

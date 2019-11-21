@@ -1,22 +1,21 @@
 import DataUtil from "../misc/DataUtil";
 
-export default async function detectFormat(uri: string, files: {[s:string]: ArrayBuffer}) {
+export default async function detectFormat(uri: string, files?: { [s: string]: ArrayBuffer }) {
 
   if (files) {
     for (let fileName in files) {
-      const splitted = fileName.split('.');
-      const fileExtension = splitted[splitted.length - 1];
+      const fileExtension = DataUtil.getExtension(fileName);
 
       if (fileExtension === 'gltf' || fileExtension === 'glb') {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           checkArrayBufferOfGltf(files[fileName], resolve);
         });
       } else if (fileExtension === 'drc') {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           resolve('Draco');
         });
       } else if (fileExtension === 'vrm') {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           resolve('VRM');
         });
       }
@@ -27,26 +26,25 @@ export default async function detectFormat(uri: string, files: {[s:string]: Arra
   const fileExtension = splitted[splitted.length - 1];
 
   if (fileExtension === 'efk') {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       resolve('Effekseer');
     });
   } else if (fileExtension === 'drc') {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       resolve('Draco');
     });
   } else if (fileExtension === 'vrm') {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       resolve('VRM');
     });
   }
 
   // glTF
   return DataUtil.loadResourceAsync(uri, true,
-    (resolve: Function, response: any)=>
-    {
+    (resolve: Function, response: any) => {
       const arrayBuffer = response;
       checkArrayBufferOfGltf(arrayBuffer, resolve);
-    },(rejects: any, status: any)=>{
+    }, (rejects: any, status: any) => {
       console.log(status);
     }
   );
@@ -69,13 +67,13 @@ function checkArrayBufferOfGltf(arrayBuffer: ArrayBuffer, resolve: Function) {
 
     let glTFVer = checkGLTFVersion(gltfJson);
 
-    resolve("glTF"+glTFVer);
+    resolve("glTF" + glTFVer);
 
     return;
   }
 
   let glTFVer = dataView.getUint32(4, isLittleEndian);
-  resolve("glTF"+glTFVer);
+  resolve("glTF" + glTFVer);
 }
 
 function checkGLTFVersion(gltfJson: any) {

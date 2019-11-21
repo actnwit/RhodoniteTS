@@ -5,11 +5,11 @@ import SceneGraphComponent from './components/SceneGraphComponent';
 import MeshComponent from './components/MeshComponent';
 import MeshRendererComponent from './components/MeshRendererComponent';
 import Primitive from './geometry/Primitive';
-import { PrimitiveMode, PrimitiveModeEnum } from './definitions/PrimitiveMode';
-import { VertexAttribute, VertexAttributeEnum } from './definitions/VertexAttribute';
-import { CompositionType, CompositionTypeEnum } from './definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from './definitions/ComponentType';
-import { CameraControllerType, CameraControllerTypeEnum } from './definitions/CameraControllerType';
+import { PrimitiveMode, PrimitiveModeEnum as primitiveModeEnum } from './definitions/PrimitiveMode';
+import { VertexAttribute, VertexAttributeEnum as vertexAttributeEnum } from './definitions/VertexAttribute';
+import { CompositionType, CompositionTypeEnum as compositionTypeEnum } from './definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum as componentTypeEnum } from './definitions/ComponentType';
+import { CameraControllerType, CameraControllerTypeEnum as cameraControllerTypeEnum } from './definitions/CameraControllerType';
 import System from './system/System';
 import Scalar from './math/Scalar';
 import Vector2 from './math/Vector2';
@@ -28,6 +28,7 @@ import { ProcessApproach } from './definitions/ProcessApproach';
 import Gltf1Importer from './importer/Gltf1Importer';
 import Gltf2Importer from './importer/Gltf2Importer';
 import DrcPointCloudImporter from './importer/DrcPointCloudImporter';
+import GltfImporter from './importer/GltfImporter';
 import Gltf2Exporter from './exporter/Gltf2Exporter';
 import ModelConverter from './importer/ModelConverter';
 import ModuleManager from './system/ModuleManager';
@@ -100,6 +101,7 @@ const Rn = {
   Gltf1Importer,
   Gltf2Importer,
   DrcPointCloudImporter,
+  GltfImporter,
   ModelConverter,
   ModuleManager,
   MemoryManager,
@@ -149,8 +151,8 @@ export type RnType = typeof Rn;
 declare var window: any;
 window.Rn = Rn;
 
-export type CompositionTypeEnum = CompositionTypeEnum;
-export type ComponentTypeEnum = ComponentTypeEnum;
-export type VertexAttributeEnum = VertexAttributeEnum;
-export type PrimitiveModeEnum = PrimitiveModeEnum;
-export type CameraControllerTypeEnum = CameraControllerTypeEnum;
+export type CompositionTypeEnum = compositionTypeEnum;
+export type ComponentTypeEnum = componentTypeEnum;
+export type VertexAttributeEnum = vertexAttributeEnum;
+export type PrimitiveModeEnum = primitiveModeEnum;
+export type CameraControllerTypeEnum = cameraControllerTypeEnum;

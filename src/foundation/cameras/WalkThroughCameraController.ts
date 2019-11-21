@@ -114,7 +114,7 @@ export default class WalkThroughCameraController implements ICameraController {
           this._mouseMoveBind
         );
       }
-      if (window.WheelEvent) {
+      if ("onwheel" in document) {
         eventTargetDom.addEventListener("wheel", this._mouseWheelBind);
       }
     }
@@ -147,7 +147,7 @@ export default class WalkThroughCameraController implements ICameraController {
           this._mouseMoveBind
         );
       }
-      if (window.WheelEvent) {
+      if ("onwheel" in document) {
         eventTargetDom.removeEventListener(
           "wheel",
           this._mouseWheelBind

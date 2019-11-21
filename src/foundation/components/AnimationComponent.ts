@@ -250,8 +250,9 @@ export default class AnimationComponent extends Component {
       }
 
       if (method === Animation.Linear) {
+        const j = Math.max(this.bruteForceSearch(inputArray, input), 0);
         // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
-        const j = Math.max(this.binarySearch(inputArray, input), 0);
+        // const j = Math.max(this.binarySearch(inputArray, input), 0);
 
         if (inputArray[j+1] != null) {
           let ratio = (input - inputArray[j]) / (inputArray[j+1] - inputArray[j]);
