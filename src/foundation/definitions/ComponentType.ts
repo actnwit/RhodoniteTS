@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 import { TypedArray, Byte } from "../../types/CommonTypes";
 
 export interface ComponentTypeEnum extends EnumIO {
@@ -36,6 +36,10 @@ function from(index: number): ComponentTypeEnum {
   return _from({ typeList, index }) as ComponentTypeEnum;
 }
 
+function fromString(str: string): ComponentTypeEnum {
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
+}
+
 function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   if (typedArray instanceof Int8Array) {
     return Byte;
@@ -58,4 +62,22 @@ function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   return Unknown;
 }
 
-export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, Bool, HalfFloat, from, fromTypedArray });
+function fromGlslString(str_: string): ComponentTypeEnum {
+  let str = str_;
+  switch (str_) {
+    case 'int': str = 'INT'; break;
+    case 'float': str = 'FLOAT'; break;
+    case 'vec2': str = 'FLOAT'; break;
+    case 'vec3': str = 'FLOAT'; break;
+    case 'vec4': str = 'FLOAT'; break;
+    case 'mat2': str = 'FLOAT'; break;
+    case 'mat3': str = 'FLOAT'; break;
+    case 'mat4': str = 'FLOAT'; break;
+    case 'ivec2': str = 'INT'; break;
+    case 'ivec3': str = 'INT'; break;
+    case 'ivec4': str = 'INT'; break;
+  }
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
+}
+
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, Bool, HalfFloat, from, fromTypedArray, fromString, fromGlslString });

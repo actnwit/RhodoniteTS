@@ -12,7 +12,6 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics, ShaderSemanticsInfo, ShaderSemanticsClass } from "../foundation/definitions/ShaderSemantics";
-import ClassicShader from "./shaders/ClassicShader";
 import Material from "../foundation/materials/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Component from "../foundation/core/Component";
@@ -51,7 +50,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private constructor() { }
 
   get vertexShaderMethodDefinitions_dataTexture() {
-    const _texture = ClassicShader.getInstance().glsl_texture;
 
     return `
 

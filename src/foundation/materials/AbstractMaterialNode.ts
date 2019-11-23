@@ -29,6 +29,7 @@ import MemoryManager from "../core/MemoryManager";
 import { BufferUse } from "../definitions/BufferUse";
 import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
+import { ShaderityObject } from "shaderity";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -56,7 +57,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialNode[] = [];
-  public readonly shader: GLSLShader;
+  public readonly shader: GLSLShader|null;
   public readonly shaderFunctionName: string;
   public isSingleOperation = false;
   protected __definitions = '';
@@ -78,8 +79,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private static __lightDirections = new Float32Array(0);
   private static __lightIntensities = new Float32Array(0);
 
+  private __vertexShaderityObject?: ShaderityObject;
+  private __pixelShaderityObject?: ShaderityObject;
 
-  constructor(shader: GLSLShader, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {}) {
+  constructor(shader: GLSLShader|null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
+    vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject) {
     super();
     this.shader = shader;
     this.shaderFunctionName = shaderFunctionName;
@@ -90,7 +94,18 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighing = isLighting;
 
+    this.__vertexShaderityObject = vertexShaderityObject;
+    this.__pixelShaderityObject = pixelShaderityObject;
+
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  }
+
+  get vertexShaderityObject() {
+    return this.__vertexShaderityObject;
+  }
+
+  get pixelShaderityObject() {
+    return this.__pixelShaderityObject;
   }
 
   get definitions() {

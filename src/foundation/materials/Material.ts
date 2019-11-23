@@ -31,6 +31,7 @@ import DataUtil from "../misc/DataUtil";
 import GlobalDataRepository from "../core/GlobalDataRepository";
 import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
+import ShaderityUntility from "./ShaderityUtility";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -451,9 +452,15 @@ export default class Material extends RnObject {
     }
 
     // Shader Construction
-    let vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
-
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
+    let vertexShader;
+    let fragmentShader;
+    if (materialNode.vertexShaderityObject != null) {
+      vertexShader = ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
+      fragmentShader = ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+    } else {
+      vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+      fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
+    }
 
 
     const wholeShaderText = vertexShader + fragmentShader;
@@ -470,13 +477,24 @@ export default class Material extends RnObject {
       this._shaderProgramUid = shaderProgramUid;
       return this._shaderProgramUid;
     } else {
+      let attributeNames;
+      let attributeSemantics;
+      if (materialNode.vertexShaderityObject != null) {
+        const reflection = ShaderityUntility.getInstance().getReflection(materialNode.vertexShaderityObject);
+        attributeNames = reflection.names;
+        attributeSemantics = reflection.semantics;
+      } else {
+        attributeNames = glslShader!.attributeNames
+        attributeSemantics = glslShader!.attributeSemantics;
+      }
+
       this._shaderProgramUid = webglResourceRepository.createShaderProgram(
         {
           materialTypeName: this.__materialTypeName,
           vertexShaderStr: vertexShader,
           fragmentShaderStr: fragmentShader,
-          attributeNames: glslShader.attributeNames,
-          attributeSemantics: glslShader.attributeSemantics
+          attributeNames: attributeNames,
+          attributeSemantics: attributeSemantics
         }
       );
       Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
