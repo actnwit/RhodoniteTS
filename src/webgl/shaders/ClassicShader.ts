@@ -9,6 +9,7 @@ import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownCom
 import classicSingleShaderVertex from "../shaderity_shaders/classicSingleShader.vert";
 import classicSingleShaderFragment from "../shaderity_shaders/classicSingleShader.frag";
 import Shaderity from "shaderity";
+import { Reflection } from "shaderity";
 
 export type AttributeNames = Array<string>;
 
@@ -16,9 +17,16 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
   static __instance: ClassicShader;
   public static readonly materialElement = ShaderNode.ClassicShading;
   private __shaderity = Shaderity.getInstance();
+  private __reflection: Reflection;
 
   private constructor() {
     super();
+    const attributeSemanticsMap = new Map();
+    attributeSemanticsMap.set('instanceid', 'INSTANCE');
+    attributeSemanticsMap.set('facenormal', 'FACE_NORMAL');
+    attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
+    this.__shaderity.addAttributeSemanticsMap(attributeSemanticsMap);
+    this.__reflection = this.__shaderity.reflect(classicSingleShaderVertex);
   }
 
   static getInstance(): ClassicShader {
@@ -54,24 +62,15 @@ export default class ClassicShader extends GLSLShader implements ISingleShader {
     return code;
   }
 
-  attributeNames: AttributeNames = [
-    'a_position', 'a_color', 'a_normal',
-    'a_texcoord',
-    'a_joint', 'a_weight', 'a_baryCentricCoord',
-    'a_instanceID'
-  ];
-  attributeSemantics: Array<VertexAttributeEnum> = [
-    VertexAttribute.Position, VertexAttribute.Color0, VertexAttribute.Normal,
-    VertexAttribute.Texcoord0,
-    VertexAttribute.Joints0, VertexAttribute.Weights0, VertexAttribute.BaryCentricCoord,
-    VertexAttribute.Instance
-  ];
+  get attributeNames(): AttributeNames {
+    return this.__reflection.attributesNames;
+  }
+  get attributeSemantics(): Array<VertexAttributeEnum> {
+    const semantics = this.__reflection.attributesSemantics;
+    return semantics.map((semantic)=>{return VertexAttribute.fromString(semantic)});
+  }
   get attributeCompositions(): Array<CompositionTypeEnum> {
-    return [
-      CompositionType.Vec3, CompositionType.Vec3, CompositionType.Vec3,
-      CompositionType.Vec2,
-      CompositionType.Vec4, CompositionType.Vec4, CompositionType.Vec4,
-      CompositionType.Scalar
-    ];
+    const types = this.__reflection.attributesTypes;
+    return types.map((type)=>{return CompositionType.fromGlslString(type)});
   }
 }
