@@ -5,7 +5,6 @@ import { ComponentType } from "../definitions/ComponentType";
 import EndShader from "../../webgl/shaders/EndShader";
 import GetVarsShader from "../../webgl/shaders/GetVarsShader";
 import { AttributeNames } from "../../webgl/shaders/GLSLShader";
-import { VertexAttributeEnum, CompositionTypeEnum } from "../main";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
 import { ShaderType } from "../definitions/ShaderType";
 

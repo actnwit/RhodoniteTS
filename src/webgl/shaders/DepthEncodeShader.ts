@@ -1,8 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";
 import GLSLShader from "./GLSLShader";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
-import { CompositionTypeEnum } from "../../foundation/main";
-import { CompositionType } from "../../foundation/definitions/CompositionType";
+import { CompositionTypeEnum, CompositionType } from "../../foundation/definitions/CompositionType";
 import ComponentRepository from '../../foundation/core/ComponentRepository';
 import CameraComponent from '../../foundation/components/CameraComponent';
 import ISingleShader from "./ISingleShader";

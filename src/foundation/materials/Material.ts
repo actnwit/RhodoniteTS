@@ -15,7 +15,6 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { runInThisContext } from "vm";
 import GLSLShader, { AttributeNames } from "../../webgl/shaders/GLSLShader";
 import { pathExists } from "fs-extra";
-import { VertexAttributeEnum } from "../main";
 import { VertexAttribute } from "../definitions/VertexAttribute";
 import AbstractTexture from "../textures/AbstractTexture";
 import MemoryManager from "../core/MemoryManager";

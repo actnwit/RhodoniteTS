@@ -4,7 +4,7 @@ import Vector4 from './Vector4';
 import Quaternion from './Quaternion';
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
-import { CompositionTypeEnum } from '../main';
+import { CompositionTypeEnum } from '../definitions/CompositionType';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableMatrix33 from './MutableMatrix33';

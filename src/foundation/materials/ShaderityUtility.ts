@@ -1,7 +1,7 @@
 import Shaderity, { ShaderityObject } from "shaderity";
 import { Reflection } from "shaderity";
-import { VertexAttributeEnum, CompositionTypeEnum } from "../main";
-import { VertexAttribute } from "../definitions/VertexAttribute";
+import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
+import { VertexAttributeEnum, VertexAttribute } from "../definitions/VertexAttribute";
 import { CompositionType } from "../definitions/CompositionType";
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";

@@ -7,7 +7,7 @@ test('regression test GltfImporter', async () => {
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.005,
+    failureThreshold: 0.03,
     failureThresholdType: 'percent'
   });
 });

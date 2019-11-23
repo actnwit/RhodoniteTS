@@ -1,7 +1,7 @@
 import RnObject from "../core/RnObject";
 import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
-import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../main";
+import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../../rhodonite";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
 import GLSLShader from "../../webgl/shaders/GLSLShader";

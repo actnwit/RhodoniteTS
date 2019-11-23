@@ -1,4 +1,4 @@
-import { CompositionTypeEnum } from "../../foundation/main";
+import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
 import { ProcessApproach } from "../../foundation/definitions/ProcessApproach";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
 import { ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";

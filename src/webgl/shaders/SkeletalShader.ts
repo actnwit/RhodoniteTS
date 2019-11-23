@@ -1,4 +1,4 @@
-import { CompositionTypeEnum } from "../../foundation/main";
+import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
 import GLSLShader from "./GLSLShader";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";
 import { VertexAttributeEnum, VertexAttribute } from "../../foundation/definitions/VertexAttribute";

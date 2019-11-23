@@ -1,15 +1,7 @@
-import WebGLResourceRepository from './WebGLResourceRepository';
-import EntityRepository from '../foundation/core/EntityRepository';
-import TransformComponent from '../foundation/components/TransformComponent';
-import SceneGraphComponent from '../foundation/components/SceneGraphComponent';
-import MeshComponent from '../foundation/components/MeshComponent';
-import Primitive from '../foundation/geometry/Primitive';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { PrimitiveMode } from '../foundation/definitions/PrimitiveMode';
-import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
-import MemoryManager from '../foundation/core/MemoryManager';
-import Mesh from '../foundation/geometry/Mesh';
-import ModuleManager from '../foundation/system/ModuleManager';
+import RnObj, { RnType } from "../../dist/rhodonite";
+import WebGLResourceRepository from "../../dist/webgl/WebGLResourceRepository";
+
+const Rn: RnType = RnObj as any;
 
 const puppeteer = require('puppeteer')
 
@@ -21,8 +13,8 @@ beforeAll(async () => {
 }, timeout)
 
 function generateEntity() {
-  const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent, SceneGraphComponent, MeshComponent]);
+  const repo = Rn.EntityRepository.getInstance();
+  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent]);
   return entity;
 }
 
@@ -45,22 +37,24 @@ function readyBasicVerticesData() {
     0.0, 0.0, 1.0
   ]);
 
-  const primitive = Primitive.createPrimitive({
+  const primitive = Rn.Primitive.createPrimitive({
     indices: indices,
-    attributeCompositionTypes: [CompositionType.Vec3, CompositionType.Vec3],
-    attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
+    attributeCompositionTypes: [Rn.CompositionType.Vec3, Rn.CompositionType.Vec3],
+    attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
     attributes: [positions, colors],
     material: void 0,
-    primitiveMode: PrimitiveMode.Triangles
+    primitiveMode: Rn.PrimitiveMode.Triangles
   });
 
   return primitive;
 }
 
 test('Create WebGL resources.', async () => {
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
-  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  await ModuleManager.getInstance().loadModule('webgl')
+  // console.log(Rn)
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  const RnWebGL = await Rn.ModuleManager.getInstance().loadModule('webgl');
+
+  const repo: WebGLResourceRepository = RnWebGL.WebGLResourceRepository.getInstance();
 
   var width   = 64
   var height  = 64
@@ -72,7 +66,7 @@ test('Create WebGL resources.', async () => {
 
   const primitive = readyBasicVerticesData();
   const meshComponent = firstEntity.getMesh();
-  const mesh = new Mesh();
+  const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -94,8 +88,8 @@ test('Create WebGL resources.', async () => {
 });
 
 test('Create WebGL resources. 2', async () => {
-  const repo: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  await ModuleManager.getInstance().loadModule('webgl')
+  const RnWebGL = await Rn.ModuleManager.getInstance().loadModule('webgl')
+  const repo: WebGLResourceRepository = RnWebGL.WebGLResourceRepository.getInstance();
 
   var width   = 64
   var height  = 64
@@ -107,7 +101,7 @@ test('Create WebGL resources. 2', async () => {
 
   const primitive = readyBasicVerticesData();
   const meshComponent = firstEntity.getMesh();
-  const mesh = new Mesh();
+  const mesh = new Rn.Mesh();
 
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);

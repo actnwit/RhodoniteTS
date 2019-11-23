@@ -1,10 +1,6 @@
-import Primitive from '../geometry/Primitive';
-import { CompositionType } from '../definitions/CompositionType';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
-import MemoryManager from '../core/MemoryManager';
-import Mesh from '../geometry/Mesh';
-import ModuleManager from '../system/ModuleManager';
+import RnObj, { RnType } from "../../../dist/rhodonite";
+
+const Rn: RnType = RnObj as any;
 
 function generatePrimitive() {
   const indices = new Uint32Array([
@@ -18,13 +14,13 @@ function generatePrimitive() {
     -1.5, 0.5, 0.0
   ]);
 
-  const primitive = Primitive.createPrimitive({
+  const primitive = Rn.Primitive.createPrimitive({
     indices: indices,
-    attributeCompositionTypes: [CompositionType.Vec3],
-    attributeSemantics: [VertexAttribute.Position],
+    attributeCompositionTypes: [Rn.CompositionType.Vec3],
+    attributeSemantics: [Rn.VertexAttribute.Position],
     attributes: [positions],
     material: void 0,
-    primitiveMode: PrimitiveMode.Triangles
+    primitiveMode: Rn.PrimitiveMode.Triangles
   });
 
   return primitive;
@@ -32,15 +28,15 @@ function generatePrimitive() {
 
 
 test('mesh.instanceIndex is correct', async () => {
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
-  await ModuleManager.getInstance().loadModule('webgl');
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
 
   const primitive = generatePrimitive();
 
-  const mesh = new Mesh();
+  const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
 
-  const mesh2 = new Mesh();
+  const mesh2 = new Rn.Mesh();
   mesh2.setMesh(mesh);
 
   mesh2.instanceIndex
@@ -49,15 +45,15 @@ test('mesh.instanceIndex is correct', async () => {
 });
 
 test('mesh.isInstanceMesh() is correct', async () => {
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
-  await ModuleManager.getInstance().loadModule('webgl');
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
 
   const primitive = generatePrimitive();
 
-  const mesh = new Mesh();
+  const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
 
-  const mesh2 = new Mesh();
+  const mesh2 = new Rn.Mesh();
   mesh2.setMesh(mesh);
 
   mesh2.instanceIndex

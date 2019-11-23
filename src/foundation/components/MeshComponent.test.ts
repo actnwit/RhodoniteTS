@@ -1,25 +1,21 @@
-import EntityRepository from '../core/EntityRepository';
-import TransformComponent from './TransformComponent';
-import SceneGraphComponent from './SceneGraphComponent';
-import MeshComponent from './MeshComponent';
-import Primitive from '../geometry/Primitive';
-import { CompositionType } from '../definitions/CompositionType';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
+import RnObj, { RnType } from "../../../dist/rhodonite";
+
 import MemoryManager from '../core/MemoryManager';
-import Mesh from '../geometry/Mesh';
 import ModuleManager from '../system/ModuleManager';
+import MeshComponent from "../../../dist/foundation/components/MeshComponent";
+
+const Rn: RnType = RnObj as any;
 
 function generateEntity() {
-  const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent, SceneGraphComponent, MeshComponent]);
+  const repo = Rn.EntityRepository.getInstance();
+  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent]);
   return entity;
 }
 
 test('Use translate simply', async () => {
-  await ModuleManager.getInstance().loadModule('webgl');
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
 
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
   const firstEntity = generateEntity();
 
   const indices = new Uint32Array([
@@ -40,17 +36,17 @@ test('Use translate simply', async () => {
     0.0, 0.0, 1.0
   ]);
 
-  const primitive = Primitive.createPrimitive({
+  const primitive = Rn.Primitive.createPrimitive({
     indices: indices,
-    attributeCompositionTypes: [CompositionType.Vec3, CompositionType.Vec3],
-    attributeSemantics: [VertexAttribute.Position, VertexAttribute.Color0],
+    attributeCompositionTypes: [Rn.CompositionType.Vec3, Rn.CompositionType.Vec3],
+    attributeSemantics: [Rn.VertexAttribute.Position, Rn.VertexAttribute.Color0],
     attributes: [positions, colors],
     material: void 0,
-    primitiveMode: PrimitiveMode.Triangles
+    primitiveMode: Rn.PrimitiveMode.Triangles
   });
 
-  const meshComponent = firstEntity.getComponent(MeshComponent) as MeshComponent;
-  const mesh = new Mesh();
+  const meshComponent = firstEntity.getComponent(Rn.MeshComponent) as MeshComponent;
+  const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 

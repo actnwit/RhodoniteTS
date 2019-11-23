@@ -6,7 +6,7 @@ import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
-import { ComponentTypeEnum, VertexAttributeEnum } from "../main";
+import { ComponentTypeEnum, VertexAttributeEnum } from "../../rhodonite";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/Material";
 import Vector3 from "../math/Vector3";
