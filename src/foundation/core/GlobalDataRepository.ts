@@ -68,6 +68,7 @@ export default class GlobalDataRepository {
     this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
     this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
     this.registerProperty(skeletalComponentSIDInfo, 1);
+    this.takeOne(ShaderSemantics.SkinningMode);
 
     // Lighting
     const lightPositionInfo = { semantic: ShaderSemantics.LightPosition, compositionType: CompositionType.Vec4Array, componentType: ComponentType.Float, stage: ShaderType.PixelShader, maxIndex: Config.maxLightNumberInShader,
@@ -95,6 +96,7 @@ export default class GlobalDataRepository {
       initialValue: new Scalar(0),
     };
     this.registerProperty(lightNumberInfo, 1);
+    this.takeOne(ShaderSemantics.LightNumber);
 
 
   }

@@ -60,17 +60,6 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
-      {
-        semantic: ShaderSemantics.EntityUID,
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader,
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-        isSystem: true,
-        updateInteval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: new Scalar(0)
-      },
       // {
       //   semantic: ShaderSemantics.ViewPosition,
       //   compositionType: CompositionType.Vec3,
@@ -125,6 +114,5 @@ export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialN
     // Lights
     this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
-    this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.EntityUID.str, true, args.entity.entityUID);
   }
 }

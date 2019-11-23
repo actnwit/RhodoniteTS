@@ -29,6 +29,8 @@ import { thisExpression } from "@babel/types";
 import { Index, CGAPIResourceHandle, Count, Byte } from "../../types/CommonTypes";
 import DataUtil from "../misc/DataUtil";
 import GlobalDataRepository from "../core/GlobalDataRepository";
+import System from "../system/System";
+import { ProcessApproach } from "../definitions/ProcessApproach";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -443,10 +445,15 @@ export default class Material extends RnObject {
     const globalDataRepository = GlobalDataRepository.getInstance();
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
-    // Shader Construction
-    let vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: materialNode.definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+    let definitions = materialNode.definitions;
+    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+      definitions += '#define RN_IS_FASTEST_MODE\n';
+    }
 
-    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: materialNode.definitions });
+    // Shader Construction
+    let vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+
+    let fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
 
 
     const wholeShaderText = vertexShader + fragmentShader;

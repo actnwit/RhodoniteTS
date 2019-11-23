@@ -397,12 +397,12 @@ vec3 descramble(vec3 v) {
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = u_lightNumber;
+    lightNumber = get_lightNumber(0.0, 0);
   #endif
 
   float skeletalComponentSID = -1.0;
   #ifdef RN_IS_SKINNING
-    skeletalComponentSID = float(u_skinningMode);
+    skeletalComponentSID = float(get_skinningMode(0.0, 0));
   #endif
       `;
     }
