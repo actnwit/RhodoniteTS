@@ -1,5 +1,5 @@
 import { CompositionType } from "../../foundation/definitions/CompositionType";
-import { CompositionTypeEnum } from "../../foundation/main";
+import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
 import GLSLShader from "./GLSLShader";
 import ISingleShader from "./ISingleShader";
 import { ShaderNode } from "../../foundation/definitions/ShaderNode";

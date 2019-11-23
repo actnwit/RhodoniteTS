@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './src/foundation/main.ts',
+  entry: './src/rhodonite.ts',
 
   module: {
     rules: [

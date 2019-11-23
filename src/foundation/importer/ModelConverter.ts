@@ -31,7 +31,7 @@ import Vector2 from "../math/Vector2";
 import Material from "../materials/Material";
 import { ShadingModel } from "../definitions/ShadingModel";
 import Component from "../core/Component";
-import { VertexAttributeEnum } from "../main";
+import { VertexAttributeEnum } from "../../rhodonite";
 import Accessor from "../memory/Accessor";
 import Mesh from "../geometry/Mesh";
 import MutableVector4 from "../math/MutableVector4";

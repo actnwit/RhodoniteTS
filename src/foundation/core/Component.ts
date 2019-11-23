@@ -3,7 +3,7 @@ import EntityRepository from './EntityRepository';
 import BufferView from '../memory/BufferView';
 import Accessor from '../memory/Accessor';
 import { BufferUseEnum, BufferUse } from '../definitions/BufferUse';
-import { CompositionTypeEnum, ComponentTypeEnum } from '../main';
+import { CompositionTypeEnum, ComponentTypeEnum } from '../../rhodonite';
 import Matrix44 from '../math/Matrix44';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions/ProcessApproach';

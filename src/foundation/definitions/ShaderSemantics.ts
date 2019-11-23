@@ -1,6 +1,6 @@
 import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 import { CompositionType } from "./CompositionType";
-import { CompositionTypeEnum, ComponentTypeEnum } from "../main";
+import { CompositionTypeEnum, ComponentTypeEnum } from "../../rhodonite";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
 import Material from "../materials/Material";
