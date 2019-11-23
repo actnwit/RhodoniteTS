@@ -64,6 +64,18 @@ function fromString(str: string): CompositionTypeEnum {
   return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
+function fromGlslString(str_: string): CompositionTypeEnum {
+  let str = str_;
+  switch (str_) {
+    case 'int': str = 'scalar'; break;
+    case 'float': str = 'scalar'; break;
+    case 'ivec2': str = 'vec2'; break;
+    case 'ivec3': str = 'vec3'; break;
+    case 'ivec4': str = 'vec4'; break;
+  }
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
+}
+
 function isArray(compositionType: CompositionTypeEnum) {
   if (compositionType === ScalarArray || compositionType === Vec2Array || compositionType === Vec3Array || compositionType === Vec4Array) {
     return true;
@@ -72,4 +84,4 @@ function isArray(compositionType: CompositionTypeEnum) {
   }
 }
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, from, fromString, isArray });
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, from, fromString, fromGlslString, isArray });
