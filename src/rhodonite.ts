@@ -146,15 +146,15 @@ let Rn = {
   WalkThroughCameraController
 };
 
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+if (typeof exports !== 'undefined') {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Rn;
+}
 
 export type RnType = typeof Rn;
-
 (0,eval)('this').Rn = Rn;
-exports.default = Rn;
 
 export type CompositionTypeEnum = compositionTypeEnum;
 export type ComponentTypeEnum = componentTypeEnum;

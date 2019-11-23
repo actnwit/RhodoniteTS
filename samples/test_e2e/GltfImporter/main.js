@@ -45,8 +45,8 @@ const load = async function (time) {
   const expressionPostEffect = new Rn.Expression();
   expressions.push(expressionPostEffect);
 
-  // gamma correction (and super sampling)
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(displayResolution * 2, displayResolution * 2, 1, {});
+  // gamma correction
+  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(displayResolution, displayResolution, 1, {});
   for (let renderPass of vrmExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
