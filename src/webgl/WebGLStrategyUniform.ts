@@ -25,7 +25,6 @@ import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
-import ClassicShader from "./shaders/ClassicShader";
 import { BufferUse } from "../foundation/definitions/BufferUse";
 import Buffer from "../foundation/memory/Buffer";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
@@ -117,7 +116,6 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       infoArray = material.fieldsInfoArray;
     }
 
-    const _texture = ClassicShader.getInstance().glsl_texture;
     WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform =
       `
 uniform mat4 u_worldMatrix;

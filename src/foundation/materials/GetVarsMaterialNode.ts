@@ -17,9 +17,9 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
 
   addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
     if (inShaderSocket.name instanceof VertexAttributeClass) {
-      this.shader.attributeSemantics.push(inShaderSocket.name);
-      this.shader.attributeNames.push(inShaderSocket.name.shaderStr);
-      this.shader.attributeCompositions.push(inShaderSocket.compositionType);
+      this.shader!.attributeSemantics.push(inShaderSocket.name);
+      this.shader!.attributeNames.push(inShaderSocket.name.shaderStr);
+      this.shader!.attributeCompositions.push(inShaderSocket.compositionType);
     }
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({

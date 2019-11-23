@@ -1,6 +1,5 @@
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import CameraComponent from "../components/CameraComponent";
-import ClassicShader from "../../webgl/shaders/ClassicShader";
 import ComponentRepository from "../core/ComponentRepository";
 import { ComponentType } from "../definitions/ComponentType";
 import { CompositionType } from "../definitions/CompositionType";
@@ -14,12 +13,16 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import Vector3 from "../math/Vector3";
 import Vector4 from "../math/Vector4";
 
+import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSingleShader.vert";
+import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader.frag";
+
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
 
   constructor({ isSkinning, isLighting }: { isSkinning: boolean, isLighting: boolean }) {
-    super(ClassicShader.getInstance(), "classicShading"
+    super(null, "classicShading"
       + (isSkinning ? '+skinning' : '')
-      + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning });
+      + (isLighting ? '' : '-lighting'), { isMorphing: false, isLighting: isLighting, isSkinning: isSkinning },
+      classicSingleShaderVertex, classicSingleShaderFragment);
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 

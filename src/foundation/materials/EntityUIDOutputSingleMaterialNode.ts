@@ -18,7 +18,6 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import MutableVector4 from "../math/MutableVector4";
 import Vector3 from "../math/Vector3";
-import ClassicShader from "../../webgl/shaders/ClassicShader";
 import { ShadingModel } from "../definitions/ShadingModel";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
