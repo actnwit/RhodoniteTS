@@ -201,7 +201,7 @@ mat3 get_normalMatrix(float instanceId) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
       this.__webglResourceRepository.setVertexDataToPipeline(
         { vaoHandle: meshComponent.mesh.getVaoUids(i), iboHandle: primitive.vertexHandles!.iboHandle, vboHandles: primitive.vertexHandles!.vboHandles },
-        primitive, instanceIDBufferUid);
+        primitive, meshComponent.mesh.variationVBOUid);
     }
   }
 
@@ -366,9 +366,9 @@ mat3 get_normalMatrix(float instanceId) {
       });
 
       if (primitive.indicesAccessor) {
-        gl.drawElements(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0);
+        glw.drawElementsInstanced(primitive.primitiveMode.index, primitive.indicesAccessor.elementCount, primitive.indicesAccessor.componentType.index, 0, 1);
       } else {
-        gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
+        glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), 1);
       }
       // this.dettachVertexData(glw);
 

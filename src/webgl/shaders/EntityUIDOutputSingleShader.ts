@@ -46,6 +46,7 @@ ${_out} vec3 v_color;
 ${_out} vec3 v_normal_inWorld;
 ${_out} vec4 v_position_inWorld;
 ${_out} vec2 v_texcoord;
+${_out} float v_instanceID;
 
 ${this.prerequisites}
 
@@ -83,6 +84,8 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   ${this.pointSprite}
+
+  v_instanceID = a_instanceID;
 }`;
   }
 
@@ -104,6 +107,7 @@ ${this.prerequisites}
 
 ${_in} vec3 v_normal_inWorld;
 ${_in} vec4 v_position_inWorld;
+${_in} float v_instanceID;
 ${_def_rt0}
 
 ${(typeof args.getters !== 'undefined') ? args.getters : ''}
@@ -113,7 +117,7 @@ ${this.packing}
 void main ()
 {
   ${this.mainPrerequisites}
-  rt0 = encodeFloatRGBA(u_entityUID);
+  rt0 = encodeFloatRGBA(v_instanceID);
 
   ${_def_fragColor}
 }
