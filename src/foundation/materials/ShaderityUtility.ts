@@ -6,6 +6,7 @@ import { CompositionType } from "../definitions/CompositionType";
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Config from "../core/Config";
+import { ComponentType } from "../definitions/ComponentType";
 
 export default class ShaderityUntility {
   static __instance: ShaderityUntility;
@@ -63,7 +64,8 @@ export default class ShaderityUntility {
     const reflectionSoA: any = {};
     reflectionSoA.names = reflection.attributesNames;
     reflectionSoA.semantics = reflection.attributesSemantics.map((semantic)=>{return VertexAttribute.fromString(semantic)});;
-    reflectionSoA.compositions = reflection.attributesTypes.map((type)=>{return CompositionType.fromString(type)});;
+    reflectionSoA.compositions = reflection.attributesTypes.map((type)=>{return CompositionType.fromGlslString(type)});;
+    reflectionSoA.components = reflection.attributesTypes.map((type)=>{return ComponentType.fromGlslString(type)});;
 
     return reflectionSoA;
   }
