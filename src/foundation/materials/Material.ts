@@ -425,6 +425,25 @@ export default class Material extends RnObject {
     });
   }
 
+  private __setupGlobalShaderDefinition() {
+    let definitions = '';
+    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+      definitions += '#define RN_IS_FASTEST_MODE\n';
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+      definitions += '#define GLSL_ES3\n';
+    }
+    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtSTL) {
+      definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
+    }
+    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtDRV) {
+      definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
+    }
+
+    return definitions;
+  }
+
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
@@ -446,9 +465,7 @@ export default class Material extends RnObject {
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     let definitions = materialNode.definitions;
-    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
-      definitions += '#define RN_IS_FASTEST_MODE\n';
-    }
+    definitions += this.__setupGlobalShaderDefinition();
 
     // Shader Construction
     let vertexShader;

@@ -13,8 +13,8 @@ import { ShadingModel } from "../definitions/ShadingModel";
 import Vector3 from "../math/Vector3";
 import Vector4 from "../math/Vector4";
 
-import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSingleShader.vert";
-import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader.frag";
+import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert";
+import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
 
 export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNode {
 
