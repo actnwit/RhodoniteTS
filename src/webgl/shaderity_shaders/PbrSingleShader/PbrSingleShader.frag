@@ -17,7 +17,7 @@ in vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(../common/pbrDefinition.glsl)
+#pragma shaderity: require(./pbrDefinition.glsl)
 
 /* shaderity: ${getters} */
 
@@ -31,7 +31,7 @@ vec3 IBLContribution(float materialSID, vec3 n, float NV, vec3 reflection, vec3 
   vec3 diffuseLight;
   diffuseLight = srgbToLinear(diffuseTexel.rgb);
 
-#pragma shaderity: require(../common/fetchCubeTexture.glsl)
+#pragma shaderity: require(./fetchCubeTexture.glsl)
 
   vec3 specularLight;
   specularLight = srgbToLinear(specularTexel.rgb);

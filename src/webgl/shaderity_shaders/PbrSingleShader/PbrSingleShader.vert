@@ -1,5 +1,5 @@
-#pragma shaderity: require(./common/version.glsl)
-#pragma shaderity: require(./common/glslPrecision.glsl)
+#pragma shaderity: require(../common/version.glsl)
+#pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: ${definitions} */
 
@@ -22,22 +22,22 @@ out vec4 v_position_inWorld;
 out vec2 v_texcoord;
 out vec3 v_baryCentricCoord;
 
-#pragma shaderity: require(./common/prerequisites.glsl)
+#pragma shaderity: require(../common/prerequisites.glsl)
 
 /* shaderity: ${matricesGetters} */
 
 /* shaderity: ${getters} */
 
-#pragma shaderity: require(./common/toNormalMatrix.glsl)
+#pragma shaderity: require(../common/toNormalMatrix.glsl)
 
-#pragma shaderity: require(./common/getSkinMatrix.glsl)
+#pragma shaderity: require(../common/getSkinMatrix.glsl)
 
-#pragma shaderity: require(./common/processGeometryWithSkinningOptionally.glsl)
+#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
 
 void main()
 {
 
-#pragma shaderity: require(./common/mainPrerequisites.glsl)
+#pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: ${WellKnownComponentTIDs.CameraComponentTID} */];
   mat4 worldMatrix = get_worldMatrix(a_instanceID);
@@ -80,6 +80,6 @@ void main()
   }
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
-#pragma shaderity: require(./common/pointSprite.glsl)
+#pragma shaderity: require(../common/pointSprite.glsl)
 
 }

@@ -465,17 +465,16 @@ export default class Material extends RnObject {
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     let definitions = materialNode.definitions;
-    definitions += this.__setupGlobalShaderDefinition();
 
     // Shader Construction
-    let vertexShader;
-    let fragmentShader;
+    let vertexShader = this.__setupGlobalShaderDefinition();
+    let fragmentShader = this.__setupGlobalShaderDefinition();
     if (materialNode.vertexShaderityObject != null) {
-      vertexShader = ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      fragmentShader = ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShader += ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
+      fragmentShader += ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
     } else {
-      vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
-      fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
+      vertexShader += (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+      fragmentShader += (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
     }
 
 
