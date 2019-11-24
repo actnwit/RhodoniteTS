@@ -10,7 +10,6 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import AbstractTexture from "../textures/AbstractTexture";
-import PBRShader from "../../webgl/shaders/PBRShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
