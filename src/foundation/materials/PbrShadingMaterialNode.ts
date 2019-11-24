@@ -26,7 +26,9 @@ import MutableVector4 from "../math/MutableVector4";
 import VectorN from "../math/VectorN";
 import MeshComponent from "../components/MeshComponent";
 import BlendShapeComponent from "../components/BlendShapeComponent";
-import MutableMatrix44 from "../math/MutableMatrix44";
+
+import pbrSingleShaderVertex from "../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert";
+import pbrSingleShaderFragment from "../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag";
 
 export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   private static __pbrCookTorranceBrdfLutDataUrlUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -39,11 +41,12 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
 
   constructor({ isMorphing, isSkinning, isLighting }: { isMorphing: boolean, isSkinning: boolean, isLighting: boolean }) {
-    super(PBRShader.getInstance(), 'pbrShading'
+    super(null, 'pbrShading'
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting'),
-      { isMorphing, isSkinning, isLighting }
+      { isMorphing, isSkinning, isLighting },
+      pbrSingleShaderVertex, pbrSingleShaderFragment
     );
 
 

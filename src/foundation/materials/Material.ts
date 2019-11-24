@@ -425,6 +425,25 @@ export default class Material extends RnObject {
     });
   }
 
+  private __setupGlobalShaderDefinition() {
+    let definitions = '';
+    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+      definitions += '#define RN_IS_FASTEST_MODE\n';
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+      definitions += '#define GLSL_ES3\n';
+    }
+    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtSTL) {
+      definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
+    }
+    if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtDRV) {
+      definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
+    }
+
+    return definitions;
+  }
+
   createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this.__materialNodes[0];
@@ -446,19 +465,16 @@ export default class Material extends RnObject {
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
 
     let definitions = materialNode.definitions;
-    if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
-      definitions += '#define RN_IS_FASTEST_MODE\n';
-    }
 
     // Shader Construction
-    let vertexShader;
-    let fragmentShader;
+    let vertexShader = this.__setupGlobalShaderDefinition();
+    let fragmentShader = this.__setupGlobalShaderDefinition();
     if (materialNode.vertexShaderityObject != null) {
-      vertexShader = ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      fragmentShader = ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShader += ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
+      fragmentShader += ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
     } else {
-      vertexShader = (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
-      fragmentShader = (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
+      vertexShader += (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
+      fragmentShader += (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
     }
 
 
