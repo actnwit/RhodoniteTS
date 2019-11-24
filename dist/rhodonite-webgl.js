@@ -92,3 +92,5 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _get
 (0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-1096-g4aec3-mod branch: master';
 
 (0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.3-mod branch: master';
+
+(0,eval)('this').Rn.WEBGL_VERSION='version: 0.1.1-1554-g2e5a5-mod branch: master';
