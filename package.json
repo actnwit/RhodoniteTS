@@ -1,7 +1,8 @@
 {
   "name": "rhodonite-ts",
   "version": "0.1.4",
-  "main": "index.js",
+  "main": "dist/rhodonite.js",
+  "types": "dist/rhodonite.d.ts",
   "repository": "https://github.com/emadurandal/RhodoniteTS.git",
   "author": "Yuki Shimada <emadurandal@gmail.com>",
   "license": "MIT",

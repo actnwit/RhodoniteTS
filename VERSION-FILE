@@ -1,6 +1,6 @@
-version: 0.1.4-mod
+version: 0.1.4-1-g01487-mod
 branch: master
-45dac143724ac5851b1c28ac89e93498d9bc07c96a3c24e0511e7aeecd5c8329 ./dist/rhodonite.js
-627c07c738ce94b0a0a9a84afe751035f5fa599722af3508bab4f928c0ceabdf ./dist/rhodonite.min.js
-5ee8d876b5929342e8eebdfc009ce28b8f9886bdc54bf4f4304ff27251a6dcda ./dist/rhodonite-webgl.js
-f72430ea28491750b51ed0fcc3810d125ca539564f8ffd03538d0bcafbcdef22 ./dist/rhodonite-webgl.min.js
+ada266d94374e4473a6aef1661353b8ae46d92c2fcbf2f536fd0681ee187a2aa ./dist/rhodonite.js
+b9a49128284f6604f13914df2445079789cc88b61a050e69638cdeb0e8aae1f9 ./dist/rhodonite.min.js
+40867fa7d50b2e6d9db0d17b7fcfb4e801fa67c2861ff23b6ef38fb46cfbeb52 ./dist/rhodonite-webgl.js
+1fe219b89ec370daaa82734934cefa759211f54c23527050a4335bbcab8fd16b ./dist/rhodonite-webgl.min.js
