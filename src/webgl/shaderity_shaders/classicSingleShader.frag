@@ -1,9 +1,9 @@
-#pragma shaderity: require(./version.glsl)
-#pragma shaderity: require(./glslPrecision.glsl)
+#pragma shaderity: require(./common/version.glsl)
+#pragma shaderity: require(./common/glslPrecision.glsl)
 
 /* shaderity: ${definitions} */
 
-#pragma shaderity: require(./prerequisites.glsl)
+#pragma shaderity: require(./common/prerequisites.glsl)
 
 in vec3 v_color;
 in vec3 v_normal_inWorld;
@@ -11,14 +11,14 @@ in vec4 v_position_inWorld;
 in vec2 v_texcoord;
 in vec3 v_baryCentricCoord;
 
-#pragma shaderity: require(./rt0.glsl)
+#pragma shaderity: require(./common/rt0.glsl)
 
 /* shaderity: ${getters} */
 
 void main ()
 {
 
-#pragma shaderity: require(./mainPrerequisites.glsl)
+#pragma shaderity: require(./common/mainPrerequisites.glsl)
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -121,6 +121,6 @@ void main ()
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
 
-#pragma shaderity: require(./glFragColor.glsl)
+#pragma shaderity: require(./common/glFragColor.glsl)
 
 }
