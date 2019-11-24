@@ -1,6 +1,6 @@
 {
   "name": "rhodonite-ts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "dist/rhodonite.js",
   "types": "dist/rhodonite.d.ts",
   "repository": "https://github.com/emadurandal/RhodoniteTS.git",
