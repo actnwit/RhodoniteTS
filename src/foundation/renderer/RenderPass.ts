@@ -7,7 +7,7 @@ import Vector4 from "../math/Vector4";
 import CameraComponent from "../components/CameraComponent";
 import { EntityUID } from "../../types/CommonTypes";
 import Material from "../materials/Material";
-import { WebGLStrategy } from "../../webgl/main";
+import { WebGLStrategy } from "../../rhodonite-webgl";
 import System from "../system/System";
 import ModuleManager from '../system/ModuleManager';
 import Primitive from "../geometry/Primitive";
