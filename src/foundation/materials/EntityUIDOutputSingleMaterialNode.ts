@@ -35,16 +35,19 @@ import VectorN from "../math/VectorN";
 import EntityUIDOutputShader from "../../webgl/shaders/EntityUIDOutputSingleShader";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import MutableMatrix33 from "../math/MutableMatrix33";
+import entityUIDOutputSingleShaderVertex from "../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert";
+import entityUIDOutputSingleShaderFragment from "../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag";
 
 export default class EntityUIDOutputSingleMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(EntityUIDOutputShader.getInstance(), "entityUidOutputShading"
+    super(null, "entityUidOutputShading"
       + (true ? '+skinning' : '')
       + (false ? '' : '-lighting'),
-      { isMorphing: false, isSkinning: true, isLighting: false });
+      { isMorphing: false, isSkinning: true, isLighting: false },
+      entityUIDOutputSingleShaderVertex, entityUIDOutputSingleShaderFragment
+      );
     EntityUIDOutputSingleMaterialNode.initDefaultTextures();
-
 
     let shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
