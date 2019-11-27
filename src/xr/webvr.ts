@@ -1,6 +1,7 @@
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Vector3 from "../foundation/math/Vector3";
 import Matrix44 from "../foundation/math/Matrix44";
+import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 
 export default class WebVRSystem {
   private __isWebVRMode = false;
@@ -10,11 +11,13 @@ export default class WebVRSystem {
   private __isReadyForWebVR = false;
   private __animationFrameObject: Window|VRDisplay = window;
   private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
-  private __sittingToStandingTransform: Matrix44 = Matrix44.identity();
+  private __invertSittingToStandingTransform: Matrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
   private __canvasWidthBackup = 0;
   private __canvasHeightBackup = 0;
+  private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
+  private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
 
   async enterWebVR(
     initialUserSittingPositionIfStageParametersDoNotExist?: Vector3,
@@ -64,11 +67,11 @@ export default class WebVRSystem {
             if (this.__animationFrameObject === this.__webvrDisplay) {
               this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
               if (this.__webvrDisplay.stageParameters) {
-                this.__sittingToStandingTransform = new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!);
+                this.__invertSittingToStandingTransform = Matrix44.invert(new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!));
               } else {
-                this.__sittingToStandingTransform = Matrix44.translate(
+                this.__invertSittingToStandingTransform = Matrix44.invert(Matrix44.translate(
                   this.__defaultUserSittingPositionInVR
-                );
+                ));
               }
             }
             this.__requestedToEnterWebVR = true;
@@ -190,5 +193,33 @@ export default class WebVRSystem {
     if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
       this.__webvrDisplay.submitFrame();
     }
+  }
+
+  get webVrFrameData() {
+    return this.__webvrFrameData;
+  }
+
+  get leftViewMatrix() {
+    return Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.leftViewMatrix), this.__invertSittingToStandingTransform, this.__leftViewMatrix);
+  }
+
+  get rightViewMatrix() {
+    return Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.rightViewMatrix), this.__invertSittingToStandingTransform, this.__rightViewMatrix);
+  }
+
+  get leftProjectionMatrix() {
+    return this.__webvrFrameData?.leftProjectionMatrix;
+  }
+
+  get rightProjectionMatrix() {
+    return this.__webvrFrameData?.rightProjectionMatrix;
+  }
+
+  getLeftViewport(originalViewport: number[]) {
+    return [originalViewport[0], originalViewport[1], originalViewport[2] * 0.5, originalViewport[3]];
+  }
+
+  getRightViewport(originalViewport: number[]) {
+    return [originalViewport[2] * 0.5, originalViewport[1], originalViewport[2] * 0.5, originalViewport[3]];
   }
 }
