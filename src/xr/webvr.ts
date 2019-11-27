@@ -1,4 +1,6 @@
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
+import Vector3 from "../foundation/math/Vector3";
+import Matrix44 from "../foundation/math/Matrix44";
 
 export default class WebVRSystem {
   private __isWebVRMode = false;
@@ -7,14 +9,15 @@ export default class WebVRSystem {
   private __requestedToEnterWebVR = false;
   private __isReadyForWebVR = false;
   private __animationFrameObject: Window|VRDisplay = window;
-  private __defaultUserSittingPositionInVR = false;
+  private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
+  private __sittingToStandingTransform: Matrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
   private __minRenderHeightFromUser = 0;
   private __canvasWidthBackup = 0;
   private __canvasHeightBackup = 0;
 
   async enterWebVR(
-    initialUserSittingPositionIfStageParametersDoNotExist: boolean = false,
+    initialUserSittingPositionIfStageParametersDoNotExist?: Vector3,
     minRenderWidth?: number,
     minRenderHeight?: number
   ) {
@@ -23,7 +26,7 @@ export default class WebVRSystem {
       const glw = webglResourceRepository.currentWebGLContextWrapper;
       if (glw != null && this.__webvrDisplay != null && !this.__webvrDisplay.isPresenting) {
 
-        if (initialUserSittingPositionIfStageParametersDoNotExist) {
+        if (initialUserSittingPositionIfStageParametersDoNotExist != null) {
           this.__defaultUserSittingPositionInVR = initialUserSittingPositionIfStageParametersDoNotExist;
         }
         if (minRenderWidth != null)  {
@@ -58,7 +61,16 @@ export default class WebVRSystem {
         this.__webvrDisplay
           .requestPresent([{ source: glw.canvas }])
           .then(() => {
-            //this.__switchAnimationFrameFunctions(this.__webvrDisplay);
+            if (this.__animationFrameObject === this.__webvrDisplay) {
+              this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
+              if (this.__webvrDisplay.stageParameters) {
+                this.__sittingToStandingTransform = new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!);
+              } else {
+                this.__sittingToStandingTransform = Matrix44.translate(
+                  this.__defaultUserSittingPositionInVR
+                );
+              }
+            }
             this.__requestedToEnterWebVR = true;
             resolve();
           })

@@ -1280,4 +1280,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const vbo = this.getWebGLResource(vboUid);
     gl.deleteBuffer(vbo);
   }
+
+  resizeCanvas(width: Size, height: Size) {
+    this.__glw!.width = width;
+    this.__glw!.height = height;
+    this.__glw!.canvas.width = width;
+    this.__glw!.canvas.height = height;
+  }
 }
