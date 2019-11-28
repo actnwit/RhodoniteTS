@@ -18,19 +18,19 @@ import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
 
 
 type AnimationLine = {
-    input: number[]
-    output: any[],
-    inTangent: number[],
-    outTangent: number[],
-    outputAttributeName: string,
-    outputCompositionType: CompositionTypeEnum
-    interpolationMethod: AnimationEnum,
-    targetEntityUid?: EntityUID
-  }
+  input: number[]
+  output: any[],
+  inTangent: number[],
+  outTangent: number[],
+  outputAttributeName: string,
+  outputCompositionType: CompositionTypeEnum
+  interpolationMethod: AnimationEnum,
+  targetEntityUid?: EntityUID
+}
 
 export default class AnimationComponent extends Component {
-  private __animationLine: {[s:string]: AnimationLine} = {};
-  private __backupDefaultValues: {[s:string]: any} = {};
+  private __animationLine: { [s: string]: AnimationLine } = {};
+  private __backupDefaultValues: { [s: string]: any } = {};
   public static globalTime: number = 0;
   public static isAnimating = true;
   private __transformComponent?: TransformComponent;
@@ -38,7 +38,7 @@ export default class AnimationComponent extends Component {
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
   private static returnVector3 = MutableVector3.zero();
-  private static returnQuaternion = new MutableQuaternion([0,0,0,1]);
+  private static returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -80,7 +80,7 @@ export default class AnimationComponent extends Component {
         return this.returnVector3;
       } else {
         const returnArray = [];
-        for (let i=0; i<start.length; i++) {
+        for (let i = 0; i < start.length; i++) {
           returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
         }
         return returnArray;
@@ -89,53 +89,53 @@ export default class AnimationComponent extends Component {
   }
 
   static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, deltaInput: number, compositionType: CompositionTypeEnum) {
-    const ratio2 = ratio*ratio;
-    const ratio3 = ratio2*ratio;
+    const ratio2 = ratio * ratio;
+    const ratio3 = ratio2 * ratio;
     if (compositionType === CompositionType.Scalar) {
-      return (2*ratio3 - 3*ratio2 + 1) * start +
-        (ratio3 - 2*ratio2 + ratio) * inTangent +
-        (-2*ratio3 + 3*ratio2) * end +
+      return (2 * ratio3 - 3 * ratio2 + 1) * start +
+        (ratio3 - 2 * ratio2 + ratio) * inTangent +
+        (-2 * ratio3 + 3 * ratio2) * end +
         (ratio3 - ratio2) * outTangent;
     } else {
       if (start instanceof Vector3) {
-        (this.returnVector3 as MutableVector3).x = (2*ratio3 - 3*ratio2 + 1) * start.x +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.x +
-        (-2*ratio3 + 3*ratio2) * end.x +
-        (ratio3 - ratio2) * outTangent.x;
-        (this.returnVector3 as MutableVector3).y = (2*ratio3 - 3*ratio2 + 1) * start.y +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.y +
-        (-2*ratio3 + 3*ratio2) * end.y +
-        (ratio3 - ratio2) * outTangent.y;
-        (this.returnVector3 as MutableVector3).z = (2*ratio3 - 3*ratio2 + 1) * start.z +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.z +
-        (-2*ratio3 + 3*ratio2) * end.z +
-        (ratio3 - ratio2) * outTangent.z;
+        (this.returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
+          (-2 * ratio3 + 3 * ratio2) * end.x +
+          (ratio3 - ratio2) * outTangent.x;
+        (this.returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
+          (-2 * ratio3 + 3 * ratio2) * end.y +
+          (ratio3 - ratio2) * outTangent.y;
+        (this.returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
+          (-2 * ratio3 + 3 * ratio2) * end.z +
+          (ratio3 - ratio2) * outTangent.z;
         return this.returnVector3;
       } else if (start instanceof Quaternion) {
-        this.returnQuaternion.x = (2*ratio3 - 3*ratio2 + 1) * start.x +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.x +
-        (-2*ratio3 + 3*ratio2) * end.x +
-        (ratio3 - ratio2) * outTangent.x;
-        this.returnQuaternion.y = (2*ratio3 - 3*ratio2 + 1) * start.y +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.y +
-        (-2*ratio3 + 3*ratio2) * end.y +
-        (ratio3 - ratio2) * outTangent.y;
-        this.returnQuaternion.z = (2*ratio3 - 3*ratio2 + 1) * start.z +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.z +
-        (-2*ratio3 + 3*ratio2) * end.z +
-        (ratio3 - ratio2) * outTangent.z;
-        this.returnQuaternion.w = (2*ratio3 - 3*ratio2 + 1) * start.w +
-        (ratio3 - 2*ratio2 + ratio) * inTangent.w +
-        (-2*ratio3 + 3*ratio2) * end.w +
-        (ratio3 - ratio2) * outTangent.w;
+        this.returnQuaternion.x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
+          (-2 * ratio3 + 3 * ratio2) * end.x +
+          (ratio3 - ratio2) * outTangent.x;
+        this.returnQuaternion.y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
+          (-2 * ratio3 + 3 * ratio2) * end.y +
+          (ratio3 - ratio2) * outTangent.y;
+        this.returnQuaternion.z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
+          (-2 * ratio3 + 3 * ratio2) * end.z +
+          (ratio3 - ratio2) * outTangent.z;
+        this.returnQuaternion.w = (2 * ratio3 - 3 * ratio2 + 1) * start.w +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.w +
+          (-2 * ratio3 + 3 * ratio2) * end.w +
+          (ratio3 - ratio2) * outTangent.w;
         return this.returnQuaternion;
       } else {
         const returnArray = [];
-        for (let j=0; j<start.length; j++) {
-          returnArray[j] = (2*ratio3 - 3*ratio2 + 1) * start.x +
-          (ratio3 - 2*ratio2 + ratio) * inTangent[j] +
-          (-2*ratio3 + 3*ratio2) * end.x +
-          (ratio3 - ratio2) * outTangent[j];
+        for (let j = 0; j < start.length; j++) {
+          returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+            (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
+            (-2 * ratio3 + 3 * ratio2) * end.x +
+            (ratio3 - ratio2) * outTangent[j];
         }
         return returnArray;
       }
@@ -181,14 +181,14 @@ export default class AnimationComponent extends Component {
     let lower = 0;
     let upper = inputArray.length - 1;
 
-    while( lower <= upper ) {
+    while (lower <= upper) {
       mid = Math.floor(lower + ((value - inputArray[lower]) * (upper - lower)) / (inputArray[upper] - inputArray[lower]));
-      if( mid < lower || upper < mid ){
+      if (mid < lower || upper < mid) {
         break;
       }
-      if ( inputArray[mid] === value ) {
+      if (inputArray[mid] === value) {
         return mid;
-      } else if ( inputArray[mid] < value ) {
+      } else if (inputArray[mid] < value) {
         lower = mid + 1;
       } else {
         upper = mid - 1;
@@ -199,8 +199,8 @@ export default class AnimationComponent extends Component {
   }
 
   static bruteForceSearch(inputArray: number[], input: number) {
-    for (let i = 0; i<inputArray.length; i++) {
-      if (inputArray[i] <= input && input < inputArray[i+1]) {
+    for (let i = 0; i < inputArray.length; i++) {
+      if (inputArray[i] <= input && input < inputArray[i + 1]) {
         return i;
       }
     }
@@ -215,29 +215,29 @@ export default class AnimationComponent extends Component {
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : Animation.Linear;
 
     if (method === Animation.CubicSpline) {
-      for (let i = 0; i<inputArray.length-1; i++) {
-        if (inputArray[i] <= input && input < inputArray[i+1]) {
-          const i_minus_b = AnimationComponent.__isClamped(i-1, inputArray);
-          const i_plus_b = AnimationComponent.__isClamped(i+1, inputArray);
-          const i_pp_b = AnimationComponent.__isClamped(i+2, inputArray);
+      for (let i = 0; i < inputArray.length - 1; i++) {
+        if (inputArray[i] <= input && input < inputArray[i + 1]) {
+          const i_minus_b = AnimationComponent.__isClamped(i - 1, inputArray);
+          const i_plus_b = AnimationComponent.__isClamped(i + 1, inputArray);
+          const i_pp_b = AnimationComponent.__isClamped(i + 2, inputArray);
           let m_i = MathClassUtil.initWithScalar(outputArray[0], 0);
           if (!i_minus_b) {
             m_i = MathClassUtil.multiplyNumber(
               MathClassUtil.add(
-                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i+1], outputArray[i]), MathClassUtil.subtract(inputArray[i+1], inputArray[i]))
-              , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i], outputArray[i-1]), MathClassUtil.subtract(inputArray[i], inputArray[i-1]))
-              ), 1/2);
+                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 1], outputArray[i]), MathClassUtil.subtract(inputArray[i + 1], inputArray[i]))
+                , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i], outputArray[i - 1]), MathClassUtil.subtract(inputArray[i], inputArray[i - 1]))
+              ), 1 / 2);
           }
           let m_iplus = MathClassUtil.initWithScalar(outputArray[0], 0);
           if (!(i_plus_b || i_pp_b)) {
             m_iplus = MathClassUtil.multiplyNumber(
               MathClassUtil.add(
-                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i+2], outputArray[i+1]), MathClassUtil.subtract(inputArray[i+2], inputArray[i+1]))
-              , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i+1], outputArray[i]), MathClassUtil.subtract(inputArray[i+1], inputArray[i]))
-              ), 1/2);
+                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 2], outputArray[i + 1]), MathClassUtil.subtract(inputArray[i + 2], inputArray[i + 1]))
+                , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 1], outputArray[i]), MathClassUtil.subtract(inputArray[i + 1], inputArray[i]))
+              ), 1 / 2);
           }
-          let ratio = (input - inputArray[i]) / (inputArray[i+1] - inputArray[i]);
-          let resultValue = this.cubicSpline(outputArray[i], outputArray[i+1], m_i, m_iplus, ratio, inputArray[i+1] - inputArray[i], compositionType);
+          let ratio = (input - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
+          let resultValue = this.cubicSpline(outputArray[i], outputArray[i + 1], m_i, m_iplus, ratio, inputArray[i + 1] - inputArray[i], compositionType);
           return resultValue;
         }
       }
@@ -245,8 +245,8 @@ export default class AnimationComponent extends Component {
       if (input < inputArray[0]) {
         return outputArray[0]; // out of range!
       }
-      if (inputArray[inputArray.length-1] <= input) {
-        return outputArray[outputArray.length-1]; // out of range!
+      if (inputArray[inputArray.length - 1] <= input) {
+        return outputArray[outputArray.length - 1]; // out of range!
       }
 
       if (method === Animation.Linear) {
@@ -254,19 +254,19 @@ export default class AnimationComponent extends Component {
         // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
         // const j = Math.max(this.binarySearch(inputArray, input), 0);
 
-        if (inputArray[j+1] != null) {
-          let ratio = (input - inputArray[j]) / (inputArray[j+1] - inputArray[j]);
-          let resultValue = this.lerp(outputArray[j], outputArray[j+1], ratio, compositionType);
+        if (inputArray[j + 1] != null) {
+          let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+          let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType);
           return resultValue;
         } else {
-          return outputArray[outputArray.length-1]; // out of range!
+          return outputArray[outputArray.length - 1]; // out of range!
         }
       } else if (method === Animation.Step) {
-        for (let i = 0; i<inputArray.length; i++) {
-          if (typeof inputArray[i+1] === "undefined") {
+        for (let i = 0; i < inputArray.length; i++) {
+          if (typeof inputArray[i + 1] === "undefined") {
             break;
           }
-          if (inputArray[i] <= input && input < inputArray[i+1]) {
+          if (inputArray[i] <= input && input < inputArray[i + 1]) {
             return outputArray[i];
           }
         }
