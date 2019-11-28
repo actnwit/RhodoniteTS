@@ -10,7 +10,7 @@ import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import MutableQuaternion from '../math/MutableQuaterion';
+import MutableQuaternion from '../math/MutableQuaternion';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';

@@ -3,7 +3,7 @@ import { IVector4 } from './IVector';
 import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
-import MutableQuaternion from './MutableQuaterion';
+import MutableQuaternion from './MutableQuaternion';
 import LogQuaternion from './LogQuaternion';
 import { TypedArray } from '../../types/CommonTypes';
 

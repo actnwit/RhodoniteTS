@@ -9,7 +9,7 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import Quaternion from '../math/Quaternion';
-import MutableQuaternion from '../math/MutableQuaterion';
+import MutableQuaternion from '../math/MutableQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import Vector4 from '../math/Vector4';
 import Scalar from '../math/Scalar';

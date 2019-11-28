@@ -12,7 +12,7 @@ import MutableVector4 from './MutableVector4';
 import MutableVector3 from './MutableVector3';
 import MutableVector2 from './MutableVector2';
 import Scalar from './Scalar';
-import MutableQuaternion from './MutableQuaterion';
+import MutableQuaternion from './MutableQuaternion';
 import MutableScalar from './MutableScalar';
 import VectorN from './VectorN';
 
