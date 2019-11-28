@@ -191,7 +191,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     return offset;
   }
 
-  private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlogalData: boolean) {
+  private __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     const indexArray = [];
@@ -245,7 +245,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
       let idx;
       let secondOffset = 0;
-      if (isGlogalData) {
+      if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
         index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
         let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
@@ -498,7 +498,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     gl.uniform1i(uniform_dataTexture, 0);
   }
 
-  attatchShaderProgram(material: Material): void {
+  attachShaderProgram(material: Material): void {
     const shaderProgramUid = material._shaderProgramUid;
 
     if (shaderProgramUid !== this.__lastShader) {
@@ -663,7 +663,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
         WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-        material.setParemetersForGPU({
+        material.setParametersForGPU({
           material: material, shaderProgram: WebGLStrategyFastestWebGL1.__shaderProgram, firstTime: firstTime,
           args: {
             glw: glw,

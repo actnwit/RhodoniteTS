@@ -241,7 +241,7 @@ mat3 get_normalMatrix(float instanceId) {
   attachGPUData(primitive: Primitive): void {
   }
 
-  attatchShaderProgram(material: Material): void {
+  attachShaderProgram(material: Material): void {
   }
 
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle) {
@@ -348,7 +348,7 @@ mat3 get_normalMatrix(float instanceId) {
       WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
       // material.setUniformValues(firstTime, {
-      material.setParemetersForGPU({
+      material.setParametersForGPU({
         material, shaderProgram, firstTime, args: {
           setUniform: true,
           glw: glw,

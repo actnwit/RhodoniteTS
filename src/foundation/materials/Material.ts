@@ -390,7 +390,7 @@ export default class Material extends RnObject {
     });
   }
 
-  setParemetersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     this.__materialNodes.forEach((materialNode) => {
       if (materialNode.setParametersForGPU) {
         materialNode.setParametersForGPU({ material, shaderProgram, firstTime, args });
@@ -407,10 +407,10 @@ export default class Material extends RnObject {
       }
     });
 
-    this.setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args });
+    this.setSoloDatumParametersForGPU({ shaderProgram, firstTime, args });
   }
 
-  setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args }: { shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+  setSoloDatumParametersForGPU({ shaderProgram, firstTime, args }: { shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material.__soloDatumFields.get(materialTypeName);
