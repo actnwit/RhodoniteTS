@@ -414,15 +414,15 @@ export default class MToonSingleMaterialNode extends AbstractMaterialNode {
 
     if (isOutline) {
       switch (this.__floatProperties._OutlineCullMode) {
-        case 0: material.cullface = false; break;
-        case 1: material.cullface = true; material.cullFrontFaceCCW = false; break;
-        case 2: material.cullface = true; material.cullFrontFaceCCW = true; break;
+        case 0: material.cullFace = false; break;
+        case 1: material.cullFace = true; material.cullFrontFaceCCW = false; break;
+        case 2: material.cullFace = true; material.cullFrontFaceCCW = true; break;
       }
     } else {
       switch (this.__floatProperties._CullMode) {
-        case 0: material.cullface = false; break;
-        case 1: material.cullface = true; material.cullFrontFaceCCW = false; break;
-        case 2: material.cullface = true; material.cullFrontFaceCCW = true; break;
+        case 0: material.cullFace = false; break;
+        case 1: material.cullFace = true; material.cullFrontFaceCCW = false; break;
+        case 2: material.cullFace = true; material.cullFrontFaceCCW = true; break;
       }
     }
 
