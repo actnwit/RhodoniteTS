@@ -4,6 +4,7 @@ import Matrix44 from "../foundation/math/Matrix44";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
 
 export default class WebVRSystem {
+  private static __instance: WebVRSystem;
   private __isWebVRMode = false;
   private __webvrFrameData?: VRFrameData;
   private __webvrDisplay?: VRDisplay;
@@ -18,6 +19,17 @@ export default class WebVRSystem {
   private __canvasHeightBackup = 0;
   private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
+
+  private constructor() {
+  }
+
+  static getInstance() {
+    if (!this.__instance) {
+      this.__instance = new WebVRSystem();
+    }
+
+    return this.__instance;
+  }
 
   async enterWebVR(
     initialUserSittingPositionIfStageParametersDoNotExist?: Vector3,
