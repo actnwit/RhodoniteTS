@@ -123,7 +123,7 @@ export default class ModelConverter {
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
-    // Transfrom
+    // Transform
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
@@ -629,7 +629,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropreateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
+  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -668,7 +668,7 @@ export default class ModelConverter {
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material {
-    const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
+    const material: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
     // avoid unexpected initialization
     if (!this.__needParameterInitialization(materialJson, material.materialTypeName)) return material;
