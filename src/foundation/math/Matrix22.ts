@@ -176,7 +176,7 @@ export default class Matrix22 implements IMatrix22 {
   }
 
   /**
-   * multiply matrixs (static version)
+   * multiply matrixes (static version)
    */
   static multiply(l_m: Matrix22, r_m: Matrix22) {
     const m00 = l_m.v[0] * r_m.v[0] + l_m.v[2] * r_m.v[1];

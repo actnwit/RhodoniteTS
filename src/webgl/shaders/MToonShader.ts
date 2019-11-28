@@ -315,7 +315,7 @@ void main (){
     float spotExponent = gotLightIntensity.w;
 
     float distanceAttenuation = 1.0;
-    if (lightType > 0.75) { // is pointlight or spotlight
+    if (lightType > 0.75) { // is point light or spotlight
       lightDirection = normalize(lightPosition.xyz - v_position_inWorld.xyz);
 
       float distance = dot(lightPosition - v_position_inWorld.xyz, lightPosition - v_position_inWorld.xyz);

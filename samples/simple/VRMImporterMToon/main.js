@@ -81,7 +81,7 @@ const load = async function (time) {
 
 
   // Lights
-  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
+  const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent]);
   const lightComponent = lightEntity.getComponent(Rn.LightComponent);
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = new Rn.Vector3(1.0, 1.0, 1.0);

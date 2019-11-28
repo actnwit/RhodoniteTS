@@ -29,7 +29,7 @@ export type BlendShapeGroup = {
 
 export type BoneGroup = {
   comment: string,
-  stiffiness: number,
+  stiffness: number,
   gravityPower: number,
   gravityDir: {
     x: number,
@@ -152,9 +152,9 @@ export type VRM = {
         title: string,
         texture: 30,
         allowedUserName: string,
-        violentUssageName: string,
-        sexualUssageName: string,
-        commercialUssageName: string,
+        violentUsageName: string,
+        sexualUsageName: string,
+        commercialUsageName: string,
         otherPermissionUrl: string,
         licenseName: string,
         otherLicenseUrl: string

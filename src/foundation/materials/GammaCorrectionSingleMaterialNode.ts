@@ -2,23 +2,24 @@ import { ShaderSemanticsInfo, ShaderSemantics } from "../definitions/ShaderSeman
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import GammaCorrectionShader from "../../webgl/shaders/GammaCorrectionShader";
 import { ShaderType } from "../definitions/ShaderType";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
 import Material from "./Material";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import GammaCorrectionShaderVertex from "../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert";
+import GammaCorrectionShaderFragment from "../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag";
 
 export default class GammaCorrectionSingleMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(GammaCorrectionShader.getInstance(), "GammaCorrection");
+    super(null, "GammaCorrection", {}, GammaCorrectionShaderVertex, GammaCorrectionShaderFragment);
     GammaCorrectionSingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: 10,
       }
     ];

@@ -13,7 +13,7 @@ import ModuleManager from '../system/ModuleManager';
 import Primitive from "../geometry/Primitive";
 
 /**
- * A render pass is a collecion of the resources which is used in rendering process.
+ * A render pass is a collection of the resources which is used in rendering process.
  */
 export default class RenderPass extends RnObject {
   private __entities: Entity[] = [];
@@ -29,7 +29,7 @@ export default class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  public cullface: boolean = false;
+  public cullFace: boolean = false;
   public cullFrontFaceCCW: boolean = true;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();

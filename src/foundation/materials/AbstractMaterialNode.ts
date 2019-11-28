@@ -57,7 +57,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialNode[] = [];
-  public readonly shader: GLSLShader|null;
+  public readonly shader: GLSLShader | null;
   public readonly shaderFunctionName: string;
   public isSingleOperation = false;
   protected __definitions = '';
@@ -74,15 +74,15 @@ export default abstract class AbstractMaterialNode extends RnObject {
   protected static __tmp_vector2 = MutableVector2.zero();
   private __isMorphing: boolean;
   private __isSkinning: boolean;
-  private __isLighing: boolean;
-  private static __lightPositioins = new Float32Array(0);
+  private __isLighting: boolean;
+  private static __lightPositions = new Float32Array(0);
   private static __lightDirections = new Float32Array(0);
   private static __lightIntensities = new Float32Array(0);
 
   private __vertexShaderityObject?: ShaderityObject;
   private __pixelShaderityObject?: ShaderityObject;
 
-  constructor(shader: GLSLShader|null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
+  constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject) {
     super();
     this.shader = shader;
@@ -92,7 +92,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
-    this.__isLighing = isLighting;
+    this.__isLighting = isLighting;
 
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
@@ -274,15 +274,15 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
 
   protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean) {
-    if (!this.__isLighing) {
+    if (!this.__isLighting) {
       return;
     }
     if (setUniform) {
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponents!.length);
 
       const length = Math.min(lightComponents!.length, Config.maxLightNumberInShader);
-      if (AbstractMaterialNode.__lightPositioins.length !== 4 * length) {
-        AbstractMaterialNode.__lightPositioins = new Float32Array(4 * length);
+      if (AbstractMaterialNode.__lightPositions.length !== 4 * length) {
+        AbstractMaterialNode.__lightPositions = new Float32Array(4 * length);
         AbstractMaterialNode.__lightDirections = new Float32Array(4 * length);
         AbstractMaterialNode.__lightIntensities = new Float32Array(4 * length);
       }
@@ -300,10 +300,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialNode.__lightPositioins[i * 4 + 0] = worldLightPosition.x;
-        AbstractMaterialNode.__lightPositioins[i * 4 + 1] = worldLightPosition.y;
-        AbstractMaterialNode.__lightPositioins[i * 4 + 2] = worldLightPosition.z;
-        AbstractMaterialNode.__lightPositioins[i * 4 + 3] = lightComponent.type.index;
+        AbstractMaterialNode.__lightPositions[i * 4 + 0] = worldLightPosition.x;
+        AbstractMaterialNode.__lightPositions[i * 4 + 1] = worldLightPosition.y;
+        AbstractMaterialNode.__lightPositions[i * 4 + 2] = worldLightPosition.z;
+        AbstractMaterialNode.__lightPositions[i * 4 + 3] = lightComponent.type.index;
 
         AbstractMaterialNode.__lightDirections[i * 4 + 0] = worldLightDirection.x;
         AbstractMaterialNode.__lightDirections[i * 4 + 1] = worldLightDirection.y;
@@ -317,7 +317,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
       }
       if (length > 0) {
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, AbstractMaterialNode.__lightPositioins);
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightPosition, AbstractMaterialNode.__lightPositions);
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightDirection, AbstractMaterialNode.__lightDirections);
         (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).lightIntensity, AbstractMaterialNode.__lightIntensities);
       }

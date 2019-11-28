@@ -21,9 +21,8 @@ export default class BufferView extends RnObject {
   private __isAoS: boolean;
   private __accessors: Array<Accessor> = [];
 
-  constructor({buffer, byteOffset, byteLength, raw, isAoS} :
-    {buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: ArrayBuffer, isAoS: boolean})
-  {
+  constructor({ buffer, byteOffset, byteLength, raw, isAoS }:
+    { buffer: Buffer, byteOffset: Byte, byteLength: Byte, raw: ArrayBuffer, isAoS: boolean }) {
     super();
     this.__buffer = buffer;
     this.__byteOffsetInRawArrayBufferOfBuffer = byteOffset;
@@ -92,45 +91,45 @@ export default class BufferView extends RnObject {
     return new Uint8Array(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteLength);
   }
 
-  takeAccessor({compositionType, componentType, count, max, min, byteAlign = 4, arrayLength}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size}): Accessor {
+  takeAccessor({ compositionType, componentType, count, max, min, byteAlign = 4, arrayLength }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size }): Accessor {
     const byteStride = this.byteStride;
     const _arrayLength = (arrayLength != null) ? arrayLength : 1;
 
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min, byteAlign, arrayLength: _arrayLength});
+    const accessor = this.__takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass: Accessor, max: max, min: min, byteAlign, arrayLength: _arrayLength });
 
     return accessor;
   }
 
-  takeFlexibleAccessor({compositionType, componentType, count, byteStride, max, min, byteAlign = 4, arrayLength}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size}): FlexibleAccessor {
+  takeFlexibleAccessor({ compositionType, componentType, count, byteStride, max, min, byteAlign = 4, arrayLength }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, max?: number, min?: number, byteAlign?: Byte, arrayLength?: Size }): FlexibleAccessor {
     const _arrayLength = (arrayLength != null) ? arrayLength : 1;
 
-    const accessor = this.__takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min, byteAlign, arrayLength: _arrayLength});
+    const accessor = this.__takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass: FlexibleAccessor, max: max, min: min, byteAlign, arrayLength: _arrayLength });
 
     return accessor;
 
   }
 
-  takeAccessorWithByteOffset({compositionType, componentType, count, byteOffset, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteOffset: Byte, max?: number, min?: number}): Accessor {
+  takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffset, max, min }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteOffset: Byte, max?: number, min?: number }): Accessor {
     const byteStride = this.byteStride;
 
-    const accessor = this.__takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass: Accessor, max, min});
+    const accessor = this.__takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass: Accessor, max, min });
 
     return accessor;
   }
 
-  takeFlexibleAccessorWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, max?: number, min?: number}): FlexibleAccessor {
-    const accessor = this.__takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass: FlexibleAccessor, max, min});
+  takeFlexibleAccessorWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, max, min }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, max?: number, min?: number }): FlexibleAccessor {
+    const accessor = this.__takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass: FlexibleAccessor, max, min });
 
     return accessor;
 
   }
 
-  private __takeAccessorInner({compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign, arrayLength}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass:any, max?: number, min?: number, byteAlign: Byte, arrayLength: Size}): AccessorBase {
+  private __takeAccessorInner({ compositionType, componentType, count, byteStride, accessorClass, max, min, byteAlign, arrayLength }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, accessorClass: any, max?: number, min?: number, byteAlign: Byte, arrayLength: Size }): AccessorBase {
     let byteOffset = 0;
     if (this.isSoA) {
       byteOffset = this.__takenByteIndex;
@@ -173,8 +172,8 @@ export default class BufferView extends RnObject {
 
   }
 
-  private __takeAccessorInnerWithByteOffset({compositionType, componentType, count, byteStride, byteOffset, accessorClass, max, min}:
-    {compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, accessorClass:any, max?: number, min?: number}): AccessorBase {
+  private __takeAccessorInnerWithByteOffset({ compositionType, componentType, count, byteStride, byteOffset, accessorClass, max, min }:
+    { compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count, byteStride: Byte, byteOffset: Byte, accessorClass: any, max?: number, min?: number }): AccessorBase {
 
     // if (byteOffset % 4 !== 0) {
     //   console.info('Padding bytes added because byteOffset is not 4byte aligned.');

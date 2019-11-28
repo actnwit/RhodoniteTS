@@ -81,9 +81,9 @@ export default class Frustum {
     const dot = Vector3.dotProduct(plane as any as Vector3, point);
     const d = dot + plane.w;
     if (d + bias < 0) {
-      return Visibility.Invisible; // outside completly
+      return Visibility.Invisible; // outside completely
     } else if (d - bias > 0) {
-      return Visibility.Visible; // inside completly
+      return Visibility.Visible; // inside completely
     } else {
       return Visibility.Neutral; // neutral
     }

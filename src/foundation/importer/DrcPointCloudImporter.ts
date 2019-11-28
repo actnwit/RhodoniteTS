@@ -54,7 +54,7 @@ export default class DrcPointCloudImporter {
         }
       ],
       tangentCalculationMode: 1,
-      isPrecomputeForRayCastPickingEnable: false,
+      isPreComputeForRayCastPickingEnable: false,
       extendedJson: void 0 //   URI string / JSON Object / ArrayBuffer
     };
 
@@ -763,22 +763,22 @@ export default class DrcPointCloudImporter {
     }
 
     const buffer = new Float32Array(bufferLength);
-    for (let i = 0, currentBufferindex = 0; i < geometryAttributes.length; i++) {
+    for (let i = 0, currentBufferIndex = 0; i < geometryAttributes.length; i++) {
       if (geometryAttributes[i] === 'COLOR' && attributeComponents[i] === 3) {
-        for (var j = 0; j < numPoints; currentBufferindex += 4, j += 3) {
-          buffer[currentBufferindex] = attributeDataAll[i].GetValue(j);
-          buffer[currentBufferindex + 1] = attributeDataAll[i].GetValue(j + 1);
-          buffer[currentBufferindex + 2] = attributeDataAll[i].GetValue(j + 2);
-          buffer[currentBufferindex + 3] = 1.0; // alpha value
+        for (var j = 0; j < numPoints; currentBufferIndex += 4, j += 3) {
+          buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
+          buffer[currentBufferIndex + 1] = attributeDataAll[i].GetValue(j + 1);
+          buffer[currentBufferIndex + 2] = attributeDataAll[i].GetValue(j + 2);
+          buffer[currentBufferIndex + 3] = 1.0; // alpha value
         }
       } else if (geometryAttributes[i] === 'TEX_COORD') {
-        for (var j = 0; j < numPoints; currentBufferindex += 2, j++) {
-          buffer[currentBufferindex] = attributeDataAll[i].GetValue(2 * j);
-          buffer[currentBufferindex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
+        for (var j = 0; j < numPoints; currentBufferIndex += 2, j++) {
+          buffer[currentBufferIndex] = attributeDataAll[i].GetValue(2 * j);
+          buffer[currentBufferIndex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
         }
       } else {
-        for (var j = 0; j < numPoints * attributeComponents[i]; currentBufferindex++ , j++) {
-          buffer[currentBufferindex] = attributeDataAll[i].GetValue(j);
+        for (var j = 0; j < numPoints * attributeComponents[i]; currentBufferIndex++ , j++) {
+          buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
         }
       }
       draco.destroy(attributeDataAll[i]);
@@ -1052,10 +1052,10 @@ export default class DrcPointCloudImporter {
     decoder.GetAttributeFloatForAllPoints(dracoGeometry, posAttribute, posAttributeData);
 
     const numPoints = dracoGeometry.num_points();
-    const numVertces = numPoints * 3;
-    const positions = new Float32Array(numVertces);
+    const numVertices = numPoints * 3;
+    const positions = new Float32Array(numVertices);
 
-    for (var i = 0; i < numVertces; i += 1) {
+    for (var i = 0; i < numVertices; i += 1) {
       positions[i] = posAttributeData.GetValue(i);  // XYZ XYZ
     }
 
@@ -1085,9 +1085,9 @@ export default class DrcPointCloudImporter {
 
       const numPoints = dracoGeometry.num_points();
       const numComponents = colAttribute.num_components();
-      const numVertces = numPoints * 4;
-      const colors = new Float32Array(numVertces);
-      for (let i = 0; i < numVertces; i += numComponents) {
+      const numVertices = numPoints * 4;
+      const colors = new Float32Array(numVertices);
+      for (let i = 0; i < numVertices; i += numComponents) {
         colors[i] = colAttributeData.GetValue(i);
         colors[i + 1] = colAttributeData.GetValue(i + 1);
         colors[i + 2] = colAttributeData.GetValue(i + 2);
@@ -1125,9 +1125,9 @@ export default class DrcPointCloudImporter {
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, norAttribute, norAttributeData);
 
       const numPoints = dracoGeometry.num_points();
-      const numVertces = numPoints * 3;
-      const normals = new Float32Array(numVertces);
-      for (var i = 0; i < numVertces; i += 1) {
+      const numVertices = numPoints * 3;
+      const normals = new Float32Array(numVertices);
+      for (var i = 0; i < numVertices; i += 1) {
         normals[i] = norAttributeData.GetValue(i);  // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec3);
@@ -1155,9 +1155,9 @@ export default class DrcPointCloudImporter {
       decoder.GetAttributeFloatForAllPoints(dracoGeometry, texCoordAttribute, texCoordAttributeData);
 
       const numPoints = dracoGeometry.num_points();
-      const numVertces = numPoints * 2;
-      const texCoords = new Float32Array(numVertces);
-      for (var i = 0; i < numVertces; i += 1) {
+      const numVertices = numPoints * 2;
+      const texCoords = new Float32Array(numVertices);
+      for (var i = 0; i < numVertices; i += 1) {
         texCoords[i] = texCoordAttributeData.GetValue(i);  // XYZ XYZ
       }
       attributeCompositionTypes.push(CompositionType.Vec2);

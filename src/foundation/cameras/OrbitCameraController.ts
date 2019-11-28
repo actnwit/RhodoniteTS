@@ -20,7 +20,7 @@ export default class OrbitCameraController implements ICameraController {
   private __mouse_translate_x = 0;
   private __efficiency = 1;
   private __lengthOfCenterToEye = 1;
-  private __foyvBias = 1.0;
+  private __fovyBias = 1.0;
   private __scaleOfTranslation = 2.8;
   private __mouseTranslateVec = MutableVector3.zero();
   private __newEyeToCenterVec = MutableVector3.zero();
@@ -261,7 +261,7 @@ export default class OrbitCameraController implements ICameraController {
     this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
     this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
 
-    const scale = this.__lengthOfCenterToEye * this.__foyvBias * this.__scaleOfTranslation;
+    const scale = this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
 
     this.__mouseTranslateVec = Vector3.add(
       this.__mouseTranslateVec,
@@ -583,7 +583,7 @@ export default class OrbitCameraController implements ICameraController {
       }
     }
 
-    this.__foyvBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
+    this.__fovyBias = Math.tan(MathUtil.degreeToRadian(fovy / 2.0));
     return {
       newEyeVec,
       newCenterVec,

@@ -17,7 +17,7 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   static readonly _scale = 10000;
   private static __classes: ShaderSemanticsClass[] = [];
   constructor({ str }: { index?: number, str: string }) {
-    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str, noCheckStrUnique: true});
+    super({ index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale, str, noCheckStrUnique: true });
     ShaderSemanticsClass.__classes[this.index] = this;
   }
 
@@ -34,7 +34,7 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   }
 
   static isArrayAndZeroIndexShaderSemanticIndex(index: Index) {
-    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0 ) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0) {
       return true;
     } else {
       return false;
@@ -42,7 +42,7 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   }
 
   static isArrayAndNonZeroIndexShaderSemanticIndex(index: Index) {
-    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0 ) {
+    if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0) {
       return true;
     } else {
       return false;
@@ -128,7 +128,7 @@ type UpdateFunc = (
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum, prefix?: string, index?: Count, maxIndex?: Count, setEach?: boolean
   compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, min: number, max: number, valueStep?: number,
-  isSystem: boolean, initialValue?: any, updateInteval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
+  isSystem: boolean, initialValue?: any, updateInterval?: ShaderVariableUpdateIntervalEnum, stage: ShaderTypeEnum,
   xName?: string, yName?: string, zName?: string, wName?: string, soloDatum?: boolean, isComponentData?: boolean, noControlUi?: boolean,
   needUniformInFastest?: boolean
 };

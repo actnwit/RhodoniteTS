@@ -35,11 +35,11 @@ export default class Mesh {
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __instances: Mesh[] = [];
-  public _attatchedEntityUID = Entity.invalidEntityUID;
+  public _attachedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
   public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
-  public isPrecomputeForRayCastPickingEnable: boolean = false;
+  public isPreComputeForRayCastPickingEnable: boolean = false;
 
   constructor() {
     this.__meshUID = ++Mesh.__mesh_uid_count;
@@ -110,7 +110,7 @@ export default class Mesh {
     mesh._addMeshToInstanceArray(this);
     this.__instanceIdx = mesh.instanceIndex + 1;
 
-    // Remove this from original meshe list
+    // Remove this from original mesh list
     Mesh.__originalMeshes = Mesh.__originalMeshes.filter(mesh => mesh !== this);
 
     return true;
@@ -404,7 +404,7 @@ export default class Mesh {
     }
   }
 
-  makeVerticesSepareted() {
+  makeVerticesSeparated() {
     for (let primitive of this.__primitives) {
       if (primitive.hasIndices()) {
         const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
@@ -579,9 +579,9 @@ export default class Mesh {
 
       const instanceNum = this.__instances.length;
       const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
-      entityUIDs[0] = this._attatchedEntityUID;
+      entityUIDs[0] = this._attachedEntityUID;
       for (var i = 0; i < instanceNum; i++) {
-        entityUIDs[i + 1] = this.__instances[i]._attatchedEntityUID;
+        entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
       }
 
       this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);
@@ -617,7 +617,7 @@ export default class Mesh {
     let finalShortestIntersectedPosVec3: Vector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
     for (let primitive of this.__primitives) {
-      const {currentShortestIntersectedPosVec3, currentShortestT} =
+      const { currentShortestIntersectedPosVec3, currentShortestT } =
         primitive.castRay(srcPointInLocal, directionInLocal, true, true, dotThreshold);
       if (currentShortestT != null && currentShortestT < finalShortestT) {
         finalShortestT = currentShortestT;
@@ -629,11 +629,11 @@ export default class Mesh {
       finalShortestT === -1;
     }
 
-    return {t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3}
+    return { t: finalShortestT, intersectedPosition: finalShortestIntersectedPosVec3 }
   }
 
   _calcArenbergInverseMatrices() {
-    if (this.isPrecomputeForRayCastPickingEnable) {
+    if (this.isPreComputeForRayCastPickingEnable) {
       for (let primitive of this.__primitives) {
         primitive._calcArenbergInverseMatrices();
       }

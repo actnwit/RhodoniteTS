@@ -9,7 +9,7 @@ import { ProcessStage } from '../definitions/ProcessStage';
 import Vector3 from '../math/Vector3';
 import MutableVector3 from '../math/MutableVector3';
 import Quaternion from '../math/Quaternion';
-import MutableQuaternion from '../math/MutableQuaterion';
+import MutableQuaternion from '../math/MutableQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import Vector4 from '../math/Vector4';
 import Scalar from '../math/Scalar';
@@ -75,12 +75,12 @@ export default class SkeletalComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic({processApproach} : {processApproach: ProcessApproachEnum}) {
+  $logic({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const meshComponent = this.entity.getMesh();
     const maxPrimitive = meshComponent.mesh!.getPrimitiveNumber();
 
     if (this.isSkinning) {
-      for (let i=0; i<this.__joints.length; i++) {
+      for (let i = 0; i < this.__joints.length; i++) {
         const joint = this.__joints[i];
         let globalJointTransform = null;
         let inverseBindMatrix = this._inverseBindMatrices[i]!;
@@ -95,9 +95,9 @@ export default class SkeletalComponent extends Component {
         }
         let m = SkeletalComponent.__tmp_mat4;
 
-        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
-        SkeletalComponent.__scaleVec3.y = Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
-        SkeletalComponent.__scaleVec3.z = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
+        SkeletalComponent.__scaleVec3.x = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+        SkeletalComponent.__scaleVec3.y = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+        SkeletalComponent.__scaleVec3.z = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
         m.m00 /= SkeletalComponent.__scaleVec3.x;
         m.m01 /= SkeletalComponent.__scaleVec3.x;
         m.m02 /= SkeletalComponent.__scaleVec3.x;
@@ -110,15 +110,15 @@ export default class SkeletalComponent extends Component {
 
         let q = (MutableQuaternion.fromMatrix(m));
 
-        this.__qArray[i*4+0] = q.x;
-        this.__qArray[i*4+1] = q.y;
-        this.__qArray[i*4+2] = q.z;
-        this.__qArray[i*4+3] = q.w;
+        this.__qArray[i * 4 + 0] = q.x;
+        this.__qArray[i * 4 + 1] = q.y;
+        this.__qArray[i * 4 + 2] = q.z;
+        this.__qArray[i * 4 + 3] = q.w;
         const t = m.getTranslate();
-        this.__tArray[i*4+0] = t.x;
-        this.__tArray[i*4+1] = t.y;
-        this.__tArray[i*4+2] = t.z;
-        this.__tArray[i*4+3] = Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z);
+        this.__tArray[i * 4 + 0] = t.x;
+        this.__tArray[i * 4 + 1] = t.y;
+        this.__tArray[i * 4 + 2] = t.z;
+        this.__tArray[i * 4 + 3] = Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z);
 
       }
 

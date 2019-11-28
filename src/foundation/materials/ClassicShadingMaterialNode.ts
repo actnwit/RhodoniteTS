@@ -16,12 +16,12 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.ShadingModel, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(ShadingModel.Constant.index), min: 0, max: 3,
       },
       {
         semantic: ShaderSemantics.Shininess, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(5), min: 0, max: Number.MAX_VALUE,
       },
     ];

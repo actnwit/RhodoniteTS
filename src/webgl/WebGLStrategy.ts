@@ -19,6 +19,6 @@ export default interface WebGLStrategy {
   attachGPUData(primitive: Primitive): void;
   attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
-  attatchShaderProgram(material: Material): void;
+  attachShaderProgram(material: Material): void;
 }
 

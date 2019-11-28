@@ -30,7 +30,7 @@ import DataUtil from "../misc/DataUtil";
 import GlobalDataRepository from "../core/GlobalDataRepository";
 import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
-import ShaderityUntility from "./ShaderityUtility";
+import ShaderityUtility from "./ShaderityUtility";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -65,7 +65,7 @@ export default class Material extends RnObject {
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> = new Map();
 
-  public cullface: boolean | null = null;
+  public cullFace: boolean | null = null;
   public cullFrontFaceCCW: boolean = true;
 
   private __blendEquationMode: number = 32774;            // gl.FUNC_ADD
@@ -105,7 +105,7 @@ export default class Material extends RnObject {
   /**
    * Creates an instance of this Material class.
    * @param materialTypeName The material type to create.
-   * @param materialNodes_ The material nodes to add to the created materlal.
+   * @param materialNodes_ The material nodes to add to the created material.
    */
   static createMaterial(materialTypeName: string, materialNodes_?: AbstractMaterialNode[]) {
     let materialNodes = materialNodes_;
@@ -122,9 +122,9 @@ export default class Material extends RnObject {
   }
 
   static _calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
-    const compsitionNumber = semanticInfo.compositionType.getNumberOfComponents();
+    const compositionNumber = semanticInfo.compositionType.getNumberOfComponents();
     const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
-    const semanticInfoByte = compsitionNumber * componentSizeInByte;
+    const semanticInfoByte = compositionNumber * componentSizeInByte;
     let alignedByteLength = semanticInfoByte;
     if (alignedByteLength % 16 !== 0) {
       alignedByteLength = semanticInfoByte + 16 - semanticInfoByte % 16;
@@ -143,7 +143,7 @@ export default class Material extends RnObject {
 
   private static __allocateBufferView(materialTypeName: string, materialNodes: AbstractMaterialNode[]) {
     let totalByteLength = 0;
-    const alignedByteLengthAndsemanticInfoArray = [];
+    const alignedByteLengthAndSemanticInfoArray = [];
     for (let materialNode of materialNodes) {
       for (let semanticInfo of materialNode._semanticsInfoArray) {
         const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
@@ -153,7 +153,7 @@ export default class Material extends RnObject {
         }
 
         totalByteLength += alignedByteLength * dataCount;
-        alignedByteLengthAndsemanticInfoArray.push({ alignedByte: alignedByteLength, semanticInfo: semanticInfo });
+        alignedByteLengthAndSemanticInfoArray.push({ alignedByte: alignedByteLength, semanticInfo: semanticInfo });
 
       }
     }
@@ -177,9 +177,9 @@ export default class Material extends RnObject {
       this.__bufferViews.set(materialTypeName, bufferView);
     }
 
-    for (let i = 0; i < alignedByteLengthAndsemanticInfoArray.length; i++) {
-      const alignedByte = alignedByteLengthAndsemanticInfoArray[i].alignedByte;
-      const semanticInfo = alignedByteLengthAndsemanticInfoArray[i].semanticInfo;
+    for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
+      const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
+      const semanticInfo = alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
 
       let count = 1;
       if (!semanticInfo.soloDatum) {
@@ -390,7 +390,7 @@ export default class Material extends RnObject {
     });
   }
 
-  setParemetersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+  setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     this.__materialNodes.forEach((materialNode) => {
       if (materialNode.setParametersForGPU) {
         materialNode.setParametersForGPU({ material, shaderProgram, firstTime, args });
@@ -407,10 +407,10 @@ export default class Material extends RnObject {
       }
     });
 
-    this.setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args });
+    this.setSoloDatumParametersForGPU({ shaderProgram, firstTime, args });
   }
 
-  setSoloDatumParemetersForGPU({ shaderProgram, firstTime, args }: { shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
+  setSoloDatumParametersForGPU({ shaderProgram, firstTime, args }: { shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material.__soloDatumFields.get(materialTypeName);
@@ -470,8 +470,8 @@ export default class Material extends RnObject {
     let vertexShader = this.__setupGlobalShaderDefinition();
     let fragmentShader = this.__setupGlobalShaderDefinition();
     if (materialNode.vertexShaderityObject != null) {
-      vertexShader += ShaderityUntility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
-      fragmentShader += ShaderityUntility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
+      vertexShader += ShaderityUtility.getInstance().getVertexShaderBody(materialNode.vertexShaderityObject, { getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform })
+      fragmentShader += ShaderityUtility.getInstance().getPixelShaderBody(materialNode.pixelShaderityObject!, { getters: pixelPropertiesStr, definitions: definitions });
     } else {
       vertexShader += (glslShader as any as ISingleShader).getVertexShaderBody({ getters: vertexPropertiesStr, definitions: definitions, matricesGetters: vertexShaderMethodDefinitions_uniform });
       fragmentShader += (glslShader as any as ISingleShader).getPixelShaderBody({ getters: pixelPropertiesStr, definitions: definitions });
@@ -495,7 +495,7 @@ export default class Material extends RnObject {
       let attributeNames;
       let attributeSemantics;
       if (materialNode.vertexShaderityObject != null) {
-        const reflection = ShaderityUntility.getInstance().getReflection(materialNode.vertexShaderityObject);
+        const reflection = ShaderityUtility.getInstance().getReflection(materialNode.vertexShaderityObject);
         attributeNames = reflection.names;
         attributeSemantics = reflection.semantics;
       } else {

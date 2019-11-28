@@ -13,7 +13,7 @@ import { WellKnownComponentTIDs } from "../foundation/components/WellKnownCompon
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
 
-declare var effekseer:any;
+declare var effekseer: any;
 
 export default class EffekseerComponent extends Component {
   private __effect?: any;
@@ -26,7 +26,7 @@ export default class EffekseerComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private static __isInitialized = false;
-  private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
+  private static __tmp_identityMatrix: Matrix44 = Matrix44.identity();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -59,10 +59,10 @@ export default class EffekseerComponent extends Component {
 
   $load() {
     if (this.__effect == null) {
-      this.__effect = effekseer.loadEffect(this.uri, ()=>{
+      this.__effect = effekseer.loadEffect(this.uri, () => {
         if (this.playJustAfterLoaded) {
           if (this.isLoop) {
-            this.__timer = setInterval(()=>{ this.play(); }, 500);
+            this.__timer = setInterval(() => { this.play(); }, 500);
           } else {
             this.play();
           }
@@ -77,7 +77,7 @@ export default class EffekseerComponent extends Component {
   }
 
   play() {
-    const __play = ()=>{
+    const __play = () => {
       // Play the loaded effect
       this.__handle = effekseer.play(this.__effect);
     };
@@ -104,8 +104,8 @@ export default class EffekseerComponent extends Component {
 
   static common_$render() {
     const cameraComponent = ComponentRepository.getInstance().getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
-    let viewMatrix = EffekseerComponent.__tmp_indentityMatrix;
-    let projectionMatrix = EffekseerComponent.__tmp_indentityMatrix;
+    let viewMatrix = EffekseerComponent.__tmp_identityMatrix;
+    let projectionMatrix = EffekseerComponent.__tmp_identityMatrix;
     if (cameraComponent) {
       viewMatrix = cameraComponent.viewMatrix;
       projectionMatrix = cameraComponent.projectionMatrix;

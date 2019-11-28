@@ -15,30 +15,30 @@ let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
 
 function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext) {
-  let cullface, cullFrontFaceCCW;
-  if (material.cullface != null) {
-    cullface = material.cullface;
+  let cullFace, cullFrontFaceCCW;
+  if (material.cullFace != null) {
+    cullFace = material.cullFace;
     cullFrontFaceCCW = material.cullFrontFaceCCW;
   } else {
-    cullface = renderPass.cullface;
+    cullFace = renderPass.cullFace;
     cullFrontFaceCCW = renderPass.cullFrontFaceCCW;
   }
 
-  setCull(cullface, cullFrontFaceCCW, gl);
+  setCull(cullFace, cullFrontFaceCCW, gl);
   setBlendSettings(material, gl);
 }
 
-function setCull(cullface: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
-  if (lastCullFace !== cullface) {
-    if (!cullface) {
+function setCull(cullFace: boolean, cullFrontFaceCCW: boolean, gl: WebGLRenderingContext) {
+  if (lastCullFace !== cullFace) {
+    if (!cullFace) {
       gl.disable(gl.CULL_FACE);
     } else {
       gl.enable(gl.CULL_FACE);
     }
-    lastCullFace = cullface;
+    lastCullFace = cullFace;
   }
 
-  if (cullface === true && lastFrontFaceCCW !== cullFrontFaceCCW) {
+  if (cullFace === true && lastFrontFaceCCW !== cullFrontFaceCCW) {
     if (cullFrontFaceCCW) {
       gl.frontFace(gl.CCW);
     } else {
@@ -112,7 +112,7 @@ function differentWithLastBlendFuncFactor(srcFactor: number, dstFactor: number, 
 }
 
 function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass) {
-  if (idx === MeshRendererComponent.firstTranparentIndex) {
+  if (idx === MeshRendererComponent.firstTransparentIndex) {
     gl.depthMask(false);
   }
 }

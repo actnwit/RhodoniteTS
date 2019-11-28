@@ -113,7 +113,7 @@ void main(){
 
   // diffuseColorTexture
 
-  // adapt OpenGL (RenderMan) Cubemap convension
+  // adapt OpenGL (RenderMan) CubeMap convention
   float envRotation = get_envRotation(materialSID, 0);
   float rot = envRotation + 3.1415;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));

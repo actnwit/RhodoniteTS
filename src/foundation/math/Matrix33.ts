@@ -247,7 +247,7 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   /**
-   * multiply matrixs (static version)
+   * multiply matrixes (static version)
    */
   static multiply(l_m: Matrix33, r_m: Matrix33) {
     var m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];

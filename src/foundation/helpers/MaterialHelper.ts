@@ -130,7 +130,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
 }
 
 function createMToonMaterial({
-  additionalName = '', isMorphing = false, isSkinning = false, isLighting = false,
+  additionalName = '', isMorphing = false, isSkinning = false, isLighting = true,
   isOutline = false, materialProperties = undefined, textures = undefined, debugMode = undefined,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
