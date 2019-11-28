@@ -19,12 +19,12 @@ export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.BaseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: ShaderSemantics.ScreenInfo, compositionType: CompositionType.Vec2, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector2(0, 0), min: 0, max: Number.MAX_SAFE_INTEGER,
       },
     ];

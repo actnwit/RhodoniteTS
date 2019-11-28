@@ -420,7 +420,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     if (!firstTime) {
-      const updateInterval = info.updateInteval!;
+      const updateInterval = info.updateInterval!;
       if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
         return false;
       }

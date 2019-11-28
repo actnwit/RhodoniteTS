@@ -49,7 +49,7 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.LightViewProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: MutableMatrix44.zero(), min: -Number.MAX_VALUE, max: Number.MAX_VALUE,
       },
     );
@@ -57,47 +57,47 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.ShadingModel, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(ShadingModel.Constant.index), min: 0, max: 3,
       },
       {
         semantic: ShaderSemantics.Shininess, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: 5, min: 0, max: Number.MAX_VALUE,
       },
       {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowAlpha, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(0.5), min: 0, max: 1,
       },
       {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.NonShadowAlpha, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(0.0), min: 0, max: 1,
       },
       {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.AllowableDepthError, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(0.0001), min: 0, max: 1,
       },
       {
         semantic: ShadowMapDecodeClassicSingleMaterialNode.ShadowColor, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector3(0, 0, 0), min: 0, max: 1,
       },
       {
         semantic: ShaderSemantics.DiffuseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector4(1, 1, 1, 1), min: 0, max: 2,
       },
       {
         semantic: ShaderSemantics.DepthTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, encodedDepthTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: ShaderSemantics.DiffuseColorTexture, compositionType: CompositionType.Texture2D, componentType: ComponentType.Int,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
     );
@@ -105,12 +105,12 @@ export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMa
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     );
