@@ -498,7 +498,7 @@ export default class Component extends RnObject {
 
   // $create() {
   //   // Define process dependencies with other components.
-  //   // If circular depenencies are detected, the error will be repoated.
+  //   // If circular dependencies are detected, the error will be reported.
 
   //   // this.registerDependency(TransformComponent);
   // }

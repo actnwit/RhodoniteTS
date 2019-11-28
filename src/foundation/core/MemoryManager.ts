@@ -8,7 +8,7 @@ import RnObject from './RnObject';
  * Usage
  * const mm = MemoryManager.getInstance();
  * this.translate = new Vector3(
- *   mm.assignMem(componentUID, propetyId, entityUID, isRendered)
+ *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
  * );
  */
 
@@ -120,10 +120,10 @@ export default class MemoryManager {
     const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
 
     console.log(`Memory Usage in Memory Manager:`);
-    console.log(`CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${cpuGeneric.takenSizeInByte/cpuGeneric.byteLength * 100} %) `);
-    console.log(`GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${gpuInstanceData.byteLength} bytes. (${gpuInstanceData.takenSizeInByte/gpuInstanceData.byteLength * 100} %) `);
-    console.log(`GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${gpuVertexData.byteLength} bytes. (${gpuVertexData.takenSizeInByte/gpuVertexData.byteLength * 100} %) `);
-    console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte/uboGeneric.byteLength * 100} %) `);
+    console.log(`CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${cpuGeneric.takenSizeInByte / cpuGeneric.byteLength * 100} %) `);
+    console.log(`GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${gpuInstanceData.byteLength} bytes. (${gpuInstanceData.takenSizeInByte / gpuInstanceData.byteLength * 100} %) `);
+    console.log(`GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${gpuVertexData.byteLength} bytes. (${gpuVertexData.takenSizeInByte / gpuVertexData.byteLength * 100} %) `);
+    console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
   }
 
 }
