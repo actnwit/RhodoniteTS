@@ -10,7 +10,7 @@ import { TypedArray } from '../../types/CommonTypes';
 export default class Quaternion implements IVector4 {
   v: TypedArray;
 
-  constructor(x?:number|TypedArray|Vector3|Vector4|Quaternion|Array<number>|null, y?:number, z?:number, w?:number) {
+  constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -26,11 +26,11 @@ export default class Quaternion implements IVector4 {
       this.v[2] = 0;
       this.v[3] = 1;
     } else if (x instanceof LogQuaternion) {
-      const theta = x.x*x.x + x.y*x.y + x.z*x.z;
+      const theta = x.x * x.x + x.y * x.y + x.z * x.z;
       const sin = Math.sin(theta);
-      this.v[0] = x.x*(sin/theta);
-      this.v[1] = x.y*(sin/theta);
-      this.v[2] = x.z*(sin/theta);
+      this.v[0] = x.x * (sin / theta);
+      this.v[1] = x.y * (sin / theta);
+      this.v[2] = x.z * (sin / theta);
       this.v[3] = Math.cos(theta);
     } else if (Array.isArray(x)) {
       this.v[0] = x[0];
@@ -95,7 +95,7 @@ export default class Quaternion implements IVector4 {
 
   static invert(quat: Quaternion) {
     quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-    const inorm2 = 1.0/(quat.x*quat.x + quat.y*quat.y + quat.z*quat.z + quat.w*quat.w);
+    const inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
     quat.v[0] *= inorm2;
     quat.v[1] *= inorm2;
     quat.v[2] *= inorm2;
@@ -103,7 +103,7 @@ export default class Quaternion implements IVector4 {
     return quat;
   }
 
-  static qlerp(lhq: Quaternion, rhq: Quaternion, ratio:number) {
+  static qlerp(lhq: Quaternion, rhq: Quaternion, ratio: number) {
 
     let q = new Quaternion(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
@@ -126,7 +126,7 @@ export default class Quaternion implements IVector4 {
 
       let ph = Math.acos(qr);
       let s2;
-      if(qr < 0.0 && ph > Math.PI / 2.0){
+      if (qr < 0.0 && ph > Math.PI / 2.0) {
         qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
         ph = Math.acos(qr);
         s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
@@ -144,16 +144,16 @@ export default class Quaternion implements IVector4 {
     }
   }
 
-  static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
+  static lerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
     outQ.x = lhq.x * (1 - ratio) + rhq.x * ratio;
     outQ.y = lhq.y * (1 - ratio) + rhq.y * ratio;
     outQ.z = lhq.z * (1 - ratio) + rhq.z * ratio;
     outQ.w = lhq.w * (1 - ratio) + rhq.w * ratio;
   }
 
-  static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio:number, outQ: MutableQuaternion) {
+  static qlerpTo(lhq: Quaternion, rhq: Quaternion, ratio: number, outQ: MutableQuaternion) {
 
-//    let q = new Quaternion(0, 0, 0, 1);
+    //    let q = new Quaternion(0, 0, 0, 1);
     let qr = lhq.w * rhq.w + lhq.x * rhq.x + lhq.y * rhq.y + lhq.z * rhq.z;
     let ss = 1.0 - qr * qr;
 
@@ -173,7 +173,7 @@ export default class Quaternion implements IVector4 {
 
       let ph = Math.acos(qr);
       let s2;
-      if(qr < 0.0 && ph > Math.PI / 2.0){
+      if (qr < 0.0 && ph > Math.PI / 2.0) {
         qr = - lhq.w * rhq.w - lhq.x * rhq.x - lhq.y * rhq.y - lhq.z * rhq.z;
         ph = Math.acos(qr);
         s2 = -1 * Math.sin(ph * ratio) / Math.sin(ph);
@@ -202,26 +202,26 @@ export default class Quaternion implements IVector4 {
       Math.cos(halfAngle));
   }
 
-  static multiply(q1:Quaternion, q2:Quaternion) {
+  static multiply(q1: Quaternion, q2: Quaternion) {
     let result = new Quaternion(0, 0, 0, 1);
-    result.v[0] =   q2.w*q1.x + q2.z*q1.y - q2.y*q1.z + q2.x*q1.w;
-    result.v[1] = - q2.z*q1.x + q2.w*q1.y + q2.x*q1.z + q2.y*q1.w;
-    result.v[2] =   q2.y*q1.x - q2.x*q1.y + q2.w*q1.z + q2.z*q1.w;
-    result.v[3] = - q2.x*q1.x - q2.y*q1.y - q2.z*q1.z + q2.w*q1.w;
+    result.v[0] = q2.w * q1.x + q2.z * q1.y - q2.y * q1.z + q2.x * q1.w;
+    result.v[1] = - q2.z * q1.x + q2.w * q1.y + q2.x * q1.z + q2.y * q1.w;
+    result.v[2] = q2.y * q1.x - q2.x * q1.y + q2.w * q1.z + q2.z * q1.w;
+    result.v[3] = - q2.x * q1.x - q2.y * q1.y - q2.z * q1.z + q2.w * q1.w;
     return result;
   }
 
-  static multiplyNumber(q1:Quaternion, val: number) {
-    return new Quaternion(q1.x*val, q1.y*val, q1.z*val, q1.w*val);
+  static multiplyNumber(q1: Quaternion, val: number) {
+    return new Quaternion(q1.x * val, q1.y * val, q1.z * val, q1.w * val);
   }
 
-  static fromMatrix(m:Matrix44) {
+  static fromMatrix(m: Matrix44) {
 
     let q = new Quaternion(0, 0, 0, 1);
     let tr = m.m00 + m.m11 + m.m22;
 
     if (tr > 0) {
-      let S = 0.5 / Math.sqrt(tr+1.0);
+      let S = 0.5 / Math.sqrt(tr + 1.0);
       q.v[3] = 0.25 / S;
       q.v[0] = (m.m21 - m.m12) * S;
       q.v[1] = (m.m02 - m.m20) * S;
@@ -257,9 +257,9 @@ export default class Quaternion implements IVector4 {
 
     const sinp = +2.0 * (this.w * this.y - this.z * this.x);
     if (Math.abs(sinp) >= 1)
-        out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
+      out.v[1] = Math.PI / 2 * Math.sign(sinp); // use 90 degrees if out of range
     else
-        out.v[1] = Math.asin(sinp);
+      out.v[1] = Math.asin(sinp);
 
     const siny_cosp = +2.0 * (this.w * this.z + this.x * this.y);
     const cosy_cosp = +1.0 - 2.0 * (this.y * this.y + this.z * this.z);
@@ -274,25 +274,25 @@ export default class Quaternion implements IVector4 {
   }
 
   length() {
-    return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z + this.w*this.w);
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
   }
 
   at(i: number) {
-    switch (i%4) {
-    case 0: return this.x;
-    case 1: return this.y;
-    case 2: return this.z;
-    case 3: return this.w;
-    default: return void 0;
+    switch (i % 4) {
+      case 0: return this.x;
+      case 1: return this.y;
+      case 2: return this.z;
+      case 3: return this.w;
+      default: return void 0;
     }
   }
 
   static add(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z, lhs.w+rhs.w)
+    return new Quaternion(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
   }
 
   static subtract(lhs: Quaternion, rhs: Quaternion) {
-    return new Quaternion(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z, lhs.w-rhs.w)
+    return new Quaternion(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w)
   }
 
   static lookFromTo(fromDirection: Vector3, toDirection: Vector3) {
@@ -305,7 +305,7 @@ export default class Quaternion implements IVector4 {
 
   static lookForward(forward: Vector3) {
     const up = new Vector3(0, 1, 0);
-		return this.lookForwardAccordingToThisUp(forward, up);
+    return this.lookForwardAccordingToThisUp(forward, up);
   }
 
   static lookForwardAccordingToThisUp(forward: Vector3, up: Vector3) {
@@ -324,32 +324,31 @@ export default class Quaternion implements IVector4 {
     const m22 = forward.z;
 
     const num8 = (m00 + m11) + m22;
-    if (num8 > 0)
-		{
+    if (num8 > 0) {
       let num = Math.sqrt(num8 + 1);
-			let num2 = 0.5 / num;
-			return new Quaternion(
+      let num2 = 0.5 / num;
+      return new Quaternion(
         (m12 - m21) * num2,
-	      (m20 - m02) * num2,
+        (m20 - m02) * num2,
         (m01 - m10) * num2,
         num * 0.5);
-		} else if ((m00 >= m11) && (m00 >= m22)) {
-			let num7 = Math.sqrt(((1 + m00) - m11) - m22);
-			let num4 = 0.5 / num7;
-			return new Quaternion(
+    } else if ((m00 >= m11) && (m00 >= m22)) {
+      let num7 = Math.sqrt(((1 + m00) - m11) - m22);
+      let num4 = 0.5 / num7;
+      return new Quaternion(
         0.5 * num7,
         (m01 + m10) * num4,
         (m02 + m20) * num4,
         (m12 - m21) * num4);
-		} else if (m11 > m22) {
-			let num6 = Math.sqrt(((1 + m11) - m00) - m22);
-			let num3 = 0.5 / num6;
-			return new Quaternion(
+    } else if (m11 > m22) {
+      let num6 = Math.sqrt(((1 + m11) - m00) - m22);
+      let num3 = 0.5 / num6;
+      return new Quaternion(
         (m10 + m01) * num3,
         0.5 * num6,
         (m21 + m12) * num3,
         (m20 - m02) * num3);
-		} else {
+    } else {
       let num5 = Math.sqrt(((1 + m22) - m00) - m11);
       let num2 = 0.5 / num5;
       return new Quaternion(
@@ -360,45 +359,44 @@ export default class Quaternion implements IVector4 {
     }
   }
 
-  multiplyVector3(point: Vector3)
-	{
-		const num = this.x * 2;
-		const num2 = this.y * 2;
-		const num3 = this.z * 2;
-		const num4 = this.x * num;
-		const num5 = this.y * num2;
-		const num6 = this.z * num3;
-		const num7 = this.x * num2;
-		const num8 = this.x * num3;
-		const num9 = this.y * num3;
-		const num10 = this.w * num;
-		const num11 = this.w * num2;
-		const num12 = this.w * num3;
-		const result = new Vector3(
+  multiplyVector3(point: Vector3) {
+    const num = this.x * 2;
+    const num2 = this.y * 2;
+    const num3 = this.z * 2;
+    const num4 = this.x * num;
+    const num5 = this.y * num2;
+    const num6 = this.z * num3;
+    const num7 = this.x * num2;
+    const num8 = this.x * num3;
+    const num9 = this.y * num3;
+    const num10 = this.w * num;
+    const num11 = this.w * num2;
+    const num12 = this.w * num3;
+    const result = new Vector3(
       (1 - (num5 + num6)) * point.x + (num7 - num12) * point.y + (num8 + num11) * point.z,
-		  (num7 + num12) * point.x + (1 - (num4 + num6)) * point.y + (num9 - num10) * point.z,
+      (num7 + num12) * point.x + (1 - (num4 + num6)) * point.y + (num9 - num10) * point.z,
       (num8 - num11) * point.x + (num9 + num10) * point.y + (1 - (num4 + num5)) * point.z);
 
-		return result;
-	}
+    return result;
+  }
 
   toString() {
     return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
   }
 
-  get x():number {
+  get x(): number {
     return this.v[0];
   }
 
-  get y():number {
+  get y(): number {
     return this.v[1];
   }
 
-  get z():number {
+  get z(): number {
     return this.v[2];
   }
 
-  get w():number {
+  get w(): number {
     return this.v[3];
   }
 

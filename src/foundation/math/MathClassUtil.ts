@@ -144,7 +144,7 @@ export default class MathClassUtil {
    * @param element any Vector instance
    * @return number of Vector instance
    */
-  static compomentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
+  static componentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
     if (element instanceof Vector2) {
       return 2;
     } else if (element instanceof Vector3) {
