@@ -35,7 +35,7 @@ export default class Mesh {
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __instances: Mesh[] = [];
-  public _attatchedEntityUID = Entity.invalidEntityUID;
+  public _attachedEntityUID = Entity.invalidEntityUID;
   private __instancesDirty = true;
   private static __originalMeshes: Mesh[] = [];
   public tangentCalculationMode: Index = 1; // 0: Off, 1: auto, 2: force calculation
@@ -579,9 +579,9 @@ export default class Mesh {
 
       const instanceNum = this.__instances.length;
       const entityUIDs = new Float32Array(instanceNum + 1); // instances and original
-      entityUIDs[0] = this._attatchedEntityUID;
+      entityUIDs[0] = this._attachedEntityUID;
       for (var i = 0; i < instanceNum; i++) {
-        entityUIDs[i + 1] = this.__instances[i]._attatchedEntityUID;
+        entityUIDs[i + 1] = this.__instances[i]._attachedEntityUID;
       }
 
       this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityUIDs);

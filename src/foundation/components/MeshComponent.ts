@@ -45,14 +45,14 @@ export default class MeshComponent extends Component {
 
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
-    mesh._attatchedEntityUID = this.entityUID;
+    mesh._attachedEntityUID = this.entityUID;
   }
 
   unsetMesh() {
     if (this.__mesh == null) {
       return false;
     }
-    this.__mesh._attatchedEntityUID = Entity.invalidEntityUID;
+    this.__mesh._attachedEntityUID = Entity.invalidEntityUID;
     this.__mesh = void 0;
 
     return true;
