@@ -580,6 +580,18 @@ export default class ModelConverter {
     }
   }
 
+  private __setMorphingAndSkinningArgument(node: any, argumentOfMaterialHelper: any, isMorphingOriginal: boolean, isSkinningOriginal: boolean): void {
+    if (isMorphingOriginal) {
+      argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
+    }
+
+    if (isSkinningOriginal) {
+      const existSkin = node.skin != null;
+      argumentOfMaterialHelper.isSkinning = existSkin;
+      argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+    }
+  }
+
   private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
@@ -588,14 +600,12 @@ export default class ModelConverter {
       // argument
       const argumentOfMaterialHelper = argumentArray[0];
       const rnExtension = VRMProperties.rnExtension;
-      if (rnExtension && rnExtension.defaultMorphingIsTrue) {
-        argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
-      }
-      if (rnExtension && rnExtension.defaultSkinningIsTrue) {
-        const existSkin = node.skin != null;
-        argumentOfMaterialHelper.isSkinning = existSkin;
-        argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
-      }
+
+      const isMorphingOriginal = argumentOfMaterialHelper.isMorphing;
+      const isSkinningOriginal = argumentOfMaterialHelper.isSkinning;
+
+      this.__setMorphingAndSkinningArgument(node, argumentOfMaterialHelper, isMorphingOriginal, isSkinningOriginal);
+
       const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
       argumentOfMaterialHelper.materialProperties = materialProperties;
 
@@ -619,7 +629,12 @@ export default class ModelConverter {
         renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
       }
 
-      return MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+      const material = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+
+      argumentOfMaterialHelper.isMorphing = isMorphingOriginal;
+      argumentOfMaterialHelper.isSkinning = isSkinningOriginal;
+
+      return material;
 
     } else if (argumentArray[0].isOutline) {
       return MaterialHelper.createEmptyMaterial();;

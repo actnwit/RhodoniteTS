@@ -115,13 +115,8 @@ export default class GltfImporter {
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
 
-    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
-    gltfModel.extensions.VRM.rnExtension = {
-      defaultMorphingIsTrue: defaultMaterialHelperArgumentArray[0].isMorphing === true,
-      defaultSkinningIsTrue: defaultMaterialHelperArgumentArray[0].isSkinning === true
-    };
-
     const textures = this.__createTextures(gltfModel);
+    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
     defaultMaterialHelperArgumentArray[0].textures = textures;
 
     this.__initializeMaterialProperties(gltfModel, textures.length);
@@ -140,7 +135,7 @@ export default class GltfImporter {
       const renderPassOutline = new RenderPass();
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
-      gltfModel.extensions.VRM.rnExtension.renderPassOutline = renderPassOutline;
+      gltfModel.extensions.VRM.rnExtension = { renderPassOutline: renderPassOutline };
 
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
@@ -173,17 +168,7 @@ export default class GltfImporter {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
 
-      if (options.defaultMaterialHelperArgumentArray[0].isLighting == null) {
-        options.defaultMaterialHelperArgumentArray[0].isLighting = true;
-      }
-      if (options.defaultMaterialHelperArgumentArray[0].isMorphing == null) {
-        options.defaultMaterialHelperArgumentArray[0].isMorphing = true;
-      }
-      if (options.defaultMaterialHelperArgumentArray[0].isSkinning == null) {
-        options.defaultMaterialHelperArgumentArray[0].isSkinning = true;
-      }
-
-      if (options.defaultMaterialHelperArgumentArray[0].isMorphing === false) {
+      if (!options.defaultMaterialHelperArgumentArray[0].isMorphing) {
         options.maxMorphTargetNumber = 0;
       }
 
