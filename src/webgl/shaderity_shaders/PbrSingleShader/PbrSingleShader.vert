@@ -24,9 +24,9 @@ out vec3 v_baryCentricCoord;
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-/* shaderity: ${matricesGetters} */
-
 /* shaderity: ${getters} */
+
+/* shaderity: ${matricesGetters} */
 
 #pragma shaderity: require(../common/toNormalMatrix.glsl)
 
