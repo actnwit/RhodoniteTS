@@ -60,16 +60,16 @@ export default class Primitive extends RnObject {
     // if (Primitive.__headerAccessor == null) {
     //   // primitive 0
     //   // prim0.indices.byteOffset, prim0.indices.componentSizeInByte, prim0.indices.indicesLength, null
-    //   //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compopisionN, prim0.attrib0.componentSizeInByte
-    //   //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compopisionN, prim0.attrib1.componentSizeInByte
+    //   //   prim0.attrb0.byteOffset, prim0.attrib0.byteStride, prim0.attrib0.compositionN, prim0.attrib0.componentSizeInByte
+    //   //   prim0.attrb1.byteOffset, prim0.attrib1.byteStride, prim0.attrib1.compositionN, prim0.attrib1.componentSizeInByte
     //   //   ...
-    //   //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compopisionN, prim0.attrib7.componentSizeInByte
+    //   //   prim0.attrb7.byteOffset, prim0.attrib7.byteStride, prim0.attrib7.compositionN, prim0.attrib7.componentSizeInByte
     //   // primitive 1
     //   // prim1.indices.byteOffset, prim1.indices.componentSizeInByte, prim0.indices.indicesLength, null
-    //   //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compopisionN, prim1.attrib0.componentSizeInByte
-    //   //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compopisionN, prim1.attrib1.componentSizeInByte
+    //   //   prim1.attrb0.byteOffset, prim1.attrib0.byteStride, prim1.attrib0.compositionN, prim1.attrib0.componentSizeInByte
+    //   //   prim1.attrb1.byteOffset, prim1.attrib1.byteStride, prim1.attrib1.compositionN, prim1.attrib1.componentSizeInByte
     //   //   ...
-    //   //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compopisionN, prim1.attrib7.componentSizeInByte
+    //   //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compositionN, prim1.attrib7.componentSizeInByte
 
     //   const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
     //   const bufferView = buffer.takeBufferView({byteLengthToNeed: ((1*4) + (8*4)) * 4/*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS:false });
@@ -351,8 +351,7 @@ export default class Primitive extends RnObject {
     isFrontFacePickable: boolean,
     isBackFacePickable: boolean,
     dotThreshold: number
-    )
-  {
+  ) {
     let currentShortestT = Number.MAX_VALUE;
     let currentShortestIntersectedPosVec3 = null;
 
@@ -394,7 +393,7 @@ export default class Primitive extends RnObject {
     } else {
       for (let j = 0; j < this.__indices!.elementCount; j++) {
         const k = j * incrementNum;
-        if (k+2 > this.__indices!.elementCount - 1) {
+        if (k + 2 > this.__indices!.elementCount - 1) {
           break;
         }
         let pos0IndexBase = this.__indices!.getScalar(k, {});
@@ -425,7 +424,7 @@ export default class Primitive extends RnObject {
       }
     }
 
-    return {currentShortestIntersectedPosVec3, currentShortestT};
+    return { currentShortestIntersectedPosVec3, currentShortestT };
   }
 
   private __castRayInner(
@@ -567,7 +566,7 @@ export default class Primitive extends RnObject {
     let nz = ax * by - ay * bx;
     let da = Math.sqrt(nx * nx + ny * ny + nz * nz);
     if (da <= 1e-6) {
-      da  = 0.0001;
+      da = 0.0001;
     }
     da = 1.0 / da;
     nx *= da;

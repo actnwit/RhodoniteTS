@@ -454,8 +454,8 @@ export default class ModelConverter {
     if (rnLoaderOptions && rnLoaderOptions.tangentCalculationMode != null) {
       rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
     }
-    if (rnLoaderOptions && rnLoaderOptions.isPrecomputeForRayCastPickingEnable != null) {
-      rnMesh.isPrecomputeForRayCastPickingEnable = rnLoaderOptions.isPrecomputeForRayCastPickingEnable;
+    if (rnLoaderOptions && rnLoaderOptions.isPreComputeForRayCastPickingEnable != null) {
+      rnMesh.isPreComputeForRayCastPickingEnable = rnLoaderOptions.isPreComputeForRayCastPickingEnable;
     }
 
     let originalRnMesh = rnMesh;

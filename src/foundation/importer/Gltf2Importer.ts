@@ -47,7 +47,7 @@ export default class Gltf2Importer {
         }
       ],
       tangentCalculationMode: 1,
-      isPrecomputeForRayCastPickingEnable: false,
+      isPreComputeForRayCastPickingEnable: false,
       extendedJson: void 0 //   URI string / JSON Object / ArrayBuffer
     };
 
