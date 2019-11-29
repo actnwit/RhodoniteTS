@@ -10,7 +10,7 @@ export default class WebVRSystem {
   private __webvrDisplay?: VRDisplay;
   private __requestedToEnterWebVR = false;
   private __isReadyForWebVR = false;
-  private __animationFrameObject: Window|VRDisplay = window;
+  private __vrDisplay?: VRDisplay;
   private __defaultUserSittingPositionInVR = new Vector3(0.0, 1.1, 1.5);
   private __invertSittingToStandingTransform: Matrix44 = Matrix44.identity();
   private __minRenderWidthFromUser = 0;
@@ -51,7 +51,7 @@ export default class WebVRSystem {
           this.__minRenderHeightFromUser = minRenderHeight;
         }
 
-        this.__animationFrameObject = this.__webvrDisplay;
+        this.__vrDisplay = this.__webvrDisplay;
         const leftEye = this.__webvrDisplay.getEyeParameters("left");
         const rightEye = this.__webvrDisplay.getEyeParameters("right");
 
@@ -76,7 +76,7 @@ export default class WebVRSystem {
         this.__webvrDisplay
           .requestPresent([{ source: glw.canvas }])
           .then(() => {
-            if (this.__animationFrameObject === this.__webvrDisplay) {
+            if (this.__webvrDisplay != null) {
               this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
               if (this.__webvrDisplay.stageParameters) {
                 this.__invertSittingToStandingTransform = Matrix44.invert(new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!));
@@ -179,7 +179,6 @@ export default class WebVRSystem {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.resizeCanvas(this.__canvasWidthBackup, this.__canvasHeightBackup);
     this.__isReadyForWebVR = false;
-    this.__animationFrameObject = window;
   }
 
   async disableWebVR() {
@@ -189,7 +188,6 @@ export default class WebVRSystem {
     if (this.__webvrDisplay && this.__webvrDisplay.isPresenting) {
       await this.__webvrDisplay.exitPresent();
     }
-    this.__animationFrameObject = window;
     this.__webvrDisplay = void 0;
   }
 
@@ -233,5 +231,9 @@ export default class WebVRSystem {
 
   getRightViewport(originalViewport: number[]) {
     return [originalViewport[2] * 0.5, originalViewport[1], originalViewport[2] * 0.5, originalViewport[3]];
+  }
+
+  get vrDisplay() {
+    return this.__vrDisplay;
   }
 }
