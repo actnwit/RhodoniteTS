@@ -131,7 +131,7 @@ export default class WebGLContextWrapper {
     }
   }
 
-  colorAttachiment(index: Index) {
+  colorAttachment(index: Index) {
     return this.webgl1ExtDB ?
       (this.webgl1ExtDB as any)[`COLOR_ATTACHMENT${index}_WEBGL`] :
       (this.__gl as any)[`COLOR_ATTACHMENT${index}`];

@@ -1,13 +1,13 @@
 import Vector2 from "./Vector2";
 import Vector3 from "./Vector3";
 import Vector4, { Vector4_ } from "./Vector4";
-import {IVector4, IMutableVector4, IVector3} from "./IVector";
+import { IVector4, IMutableVector4, IVector3 } from "./IVector";
 import { CompositionType } from "../definitions/CompositionType";
 import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
 
 export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T> implements IMutableVector4 {
-  constructor(x: number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y: number, z: number, w: number, {type}: {type: T}) {
-    super(x, y, z, w, {type});
+  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
+    super(x, y, z, w, { type });
   }
 
   static get compositionType() {
@@ -22,7 +22,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
   }
 
   normalize3() {
-    var length = Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+    var length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     this.x /= length;
     this.y /= length;
     this.z /= length;
@@ -41,10 +41,10 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-    /**
-   * add value except w component
-   */
-  addWithOutW(v: IVector4|Vector3) {
+  /**
+ * add value except w component
+ */
+  addWithOutW(v: IVector4 | Vector3) {
     this.x += v.x;
     this.y += v.y;
     this.z += v.z;
@@ -86,7 +86,7 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
       this.z /= val;
       this.w /= val;
     } else {
-      console.error("0 division occured!");
+      console.error("0 division occurred!");
       this.x = Infinity;
       this.y = Infinity;
       this.z = Infinity;
@@ -104,19 +104,19 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
     return this;
   }
 
-  get x():number {
+  get x(): number {
     return this.v[0];
   }
 
-  get y():number {
+  get y(): number {
     return this.v[1];
   }
 
-  get z():number {
+  get z(): number {
     return this.v[2];
   }
 
-  get w():number {
+  get w(): number {
     return this.v[3];
   }
 
@@ -153,8 +153,8 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
   // }
 
   private __Error() {
-    //console.error('Not avavailabe because this Vector class is immutable.');
-    throw new Error('Not avavailabe because this Vector class is immutable.');
+    //console.error('Not available because this Vector class is immutable.');
+    throw new Error('Not available because this Vector class is immutable.');
   }
 
 
@@ -162,8 +162,8 @@ export class MutableVector4_<T extends TypedArrayConstructor> extends Vector4_<T
 
 
 export default class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number, w?:number) {
-    super(x, y!, z!, w!, {type: Float32Array})
+  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, { type: Float32Array })
   }
 
   clone() {
@@ -188,8 +188,8 @@ export default class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
 }
 
 export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-  constructor(x:number|TypedArray|Vector2|IVector3|IVector4|Array<number>|null, y?:number, z?:number, w?:number) {
-    super(x, y!, z!, w!, {type: Float64Array})
+  constructor(x: number | TypedArray | Vector2 | IVector3 | IVector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, { type: Float64Array })
   }
 
   clone() {
@@ -201,7 +201,7 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
   }
 
   static dummy() {
-    return new MutableVector4d(null, 0 ,0, 0);
+    return new MutableVector4d(null, 0, 0, 0);
   }
 
   static zero() {

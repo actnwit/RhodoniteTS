@@ -18,7 +18,7 @@ import { TextureParameter } from "../definitions/TextureParameter";
 import Vector4 from "../math/Vector4";
 import Vector3 from "../math/Vector3";
 import { ShadingModel } from "../definitions/ShadingModel";
-import EnvConstantShader from "../../webgl/shaders/EnvCostantShader";
+import EnvConstantShader from "../../webgl/shaders/EnvConstantShader";
 import AbstractTexture from "../textures/AbstractTexture";
 import { ShaderType } from "../definitions/ShaderType";
 import { CGAPIResourceHandle } from "../../types/CommonTypes";

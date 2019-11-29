@@ -46,7 +46,7 @@ export default class MeshRendererComponent extends Component {
   private static __instanceIDBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private static __webGLStrategy?: WebGLStrategy;
   private static __instanceIdAccessor?: Accessor;
-  private static __tmp_indentityMatrix: Matrix44 = Matrix44.identity();
+  private static __tmp_identityMatrix: Matrix44 = Matrix44.identity();
   private static __cameraComponent?: CameraComponent;
   private static __firstTransparentIndex = -1;
   private static __lastTransparentIndex = -1;
@@ -70,7 +70,7 @@ export default class MeshRendererComponent extends Component {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
-  static get firstTranparentIndex() {
+  static get firstTransparentIndex() {
     return MeshRendererComponent.__firstTransparentIndex;
   }
 
@@ -205,8 +205,8 @@ export default class MeshRendererComponent extends Component {
     if (MeshRendererComponent.__cameraComponent == null) {
       MeshRendererComponent.__cameraComponent = MeshRendererComponent.__componentRepository.getComponent(CameraComponent, CameraComponent.main) as CameraComponent;
     }
-    let viewMatrix = MeshRendererComponent.__tmp_indentityMatrix;
-    let projectionMatrix = MeshRendererComponent.__tmp_indentityMatrix;
+    let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
+    let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
     if (MeshRendererComponent.__cameraComponent) {
       viewMatrix = MeshRendererComponent.__cameraComponent.viewMatrix;
       projectionMatrix = MeshRendererComponent.__cameraComponent.projectionMatrix;

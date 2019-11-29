@@ -18,9 +18,9 @@ out float v_instanceID;
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-/* shaderity: ${matricesGetters} */
-
 /* shaderity: ${getters} */
+
+/* shaderity: ${matricesGetters} */
 
 #pragma shaderity: require(../common/toNormalMatrix.glsl)
 

@@ -1,14 +1,14 @@
 //import GLBoost from '../../globals';
 import Vector2 from './Vector2';
 import Vector3 from './Vector3';
-import {IVector3} from './IVector';
+import { IVector3 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 
 export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   v: TypedArray;
 
-  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y:number, z:number, w:number, {type}: {type: T}) {
+  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, w: number, { type }: { type: T }) {
     if (ArrayBuffer.isView(x)) {
       this.v = ((x as any) as TypedArray);
       return;
@@ -63,7 +63,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     }
   }
 
-  isStrictEqual(vec:Vector4_<T>): boolean {
+  isStrictEqual(vec: Vector4_<T>): boolean {
     if (this.v[0] === vec.v[0] && this.v[1] === vec.v[1] && this.v[2] === vec.v[2] && this.v[3] === vec.v[3]) {
       return true;
     } else {
@@ -94,7 +94,7 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   }
 
   length() {
-    return Math.sqrt(this.v[0]*this.v[0] + this.v[1]*this.v[1] + this.v[2]*this.v[2] + this.v[3]*this.v[3]);
+    return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2] + this.v[3] * this.v[3]);
   }
 
 
@@ -108,44 +108,44 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   /**
    * add value（static version）
    */
-  static add(lv:Vector4, rv:Vector4) {
+  static add(lv: Vector4, rv: Vector4) {
     return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2] + rv.v[2]);
   }
 
 
-  static subtract(lv:Vector4, rv:Vector4) {
-    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3]  - rv.v[3]);
+  static subtract(lv: Vector4, rv: Vector4) {
+    return new (lv.constructor as any)(lv.v[0] - rv.v[0], lv.v[1] - rv.v[1], lv.v[2] - rv.v[2], lv.v[3] - rv.v[3]);
   }
   /**
    * add value except w component（static version）
    */
-  static addWithOutW(lv:Vector4, rv:Vector4) {
+  static addWithOutW(lv: Vector4, rv: Vector4) {
     return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2], lv.v[2]);
   }
 
-  static multiply(vec4:Vector4, val:number) {
+  static multiply(vec4: Vector4, val: number) {
     return new (vec4.constructor as any)(vec4.v[0] * val, vec4.v[1] * val, vec4.v[2] * val, vec4.v[3] * val);
   }
 
-  static multiplyVector(vec4:Vector4, vec:Vector4) {
+  static multiplyVector(vec4: Vector4, vec: Vector4) {
     return new (vec4.constructor as any)(vec4.v[0] * vec.v[0], vec4.v[1] * vec.v[1], vec4.v[2] * vec.v[2], vec4.v[3] * vec.v[3]);
   }
 
 
-  static divide(vec4:Vector4, val:number) {
+  static divide(vec4: Vector4, val: number) {
     if (val !== 0) {
       return new (vec4.constructor as any)(vec4.v[0] / val, vec4.v[1] / val, vec4.v[2] / val, vec4.v[3] / val);
     } else {
-      console.warn("0 division occured!");
+      console.warn("0 division occurred!");
       return new (vec4.constructor as any)(Infinity, Infinity, Infinity, Infinity);
     }
   }
 
-  static divideVector(lvec4:Vector4, rvec4:Vector4) {
+  static divideVector(lvec4: Vector4, rvec4: Vector4) {
     return new (lvec4.constructor as any)(lvec4.v[0] / rvec4.v[0], lvec4.v[1] / rvec4.v[1], lvec4.v[2] / rvec4.v[2], lvec4.v[3] / rvec4.v[3]);
   }
 
-  static normalize(vec4:Vector4) {
+  static normalize(vec4: Vector4) {
     const length = vec4.length();
     let newVec = new (vec4.constructor as any)(vec4.v[0], vec4.v[1], vec4.v[2], vec4.v[3]);
     newVec = Vector4_.divide(newVec, length);
@@ -156,14 +156,14 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   /**
    * dot product
    */
-  dotProduct(vec4:Vector4_<T>) {
+  dotProduct(vec4: Vector4_<T>) {
     return this.v[0] * vec4.v[0] + this.v[1] * vec4.v[1] + this.v[2] * vec4.v[2] + this.v[3] * vec4.v[3];
   }
 
   /**
    * dot product(static version)
    */
-  static dotProduct<T extends TypedArrayConstructor>(lv:Vector4_<T>, rv:Vector4_<T>) {
+  static dotProduct<T extends TypedArrayConstructor>(lv: Vector4_<T>, rv: Vector4_<T>) {
     return lv.v[0] * rv.v[0] + lv.v[1] * rv.v[1] + lv.v[2] * rv.v[2] + lv.v[3] * rv.v[3];
   }
 
@@ -171,27 +171,27 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     return '(' + this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ', ' + this.v[3] + ')';
   }
 
-  get x():number {
+  get x(): number {
     return this.v[0];
   }
 
-  get y():number {
+  get y(): number {
     return this.v[1];
   }
 
-  get z():number {
+  get z(): number {
     return this.v[2];
   }
 
-  get w():number {
+  get w(): number {
     return this.v[3];
   }
 
 }
 
 export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
-  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?: number, z?: number, w?: number) {
-    super(x, y!, z!, w!, {type: Float32Array})
+  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, { type: Float32Array })
   }
 
   static zeroWithWOne() {
@@ -216,8 +216,8 @@ export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
 }
 
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
-  constructor(x:number|TypedArray|Vector2|IVector3|Vector4|Array<number>|null, y?: number, z?: number, w?: number) {
-    super(x, y!, z!, w!, {type: Float64Array})
+  constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number, w?: number) {
+    super(x, y!, z!, w!, { type: Float64Array })
   }
 
   static zeroWithWOne() {

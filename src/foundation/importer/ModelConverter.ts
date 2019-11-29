@@ -123,7 +123,7 @@ export default class ModelConverter {
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
-    // Transfrom
+    // Transform
     this._setupTransform(gltfModel, rnEntities);
 
     // Skeleton
@@ -454,8 +454,8 @@ export default class ModelConverter {
     if (rnLoaderOptions && rnLoaderOptions.tangentCalculationMode != null) {
       rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
     }
-    if (rnLoaderOptions && rnLoaderOptions.isPrecomputeForRayCastPickingEnable != null) {
-      rnMesh.isPrecomputeForRayCastPickingEnable = rnLoaderOptions.isPrecomputeForRayCastPickingEnable;
+    if (rnLoaderOptions && rnLoaderOptions.isPreComputeForRayCastPickingEnable != null) {
+      rnMesh.isPreComputeForRayCastPickingEnable = rnLoaderOptions.isPreComputeForRayCastPickingEnable;
     }
 
     let originalRnMesh = rnMesh;
@@ -580,6 +580,18 @@ export default class ModelConverter {
     }
   }
 
+  private __setMorphingAndSkinningArgument(node: any, argumentOfMaterialHelper: any, isMorphingOriginal: boolean, isSkinningOriginal: boolean): void {
+    if (isMorphingOriginal) {
+      argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
+    }
+
+    if (isSkinningOriginal) {
+      const existSkin = node.skin != null;
+      argumentOfMaterialHelper.isSkinning = existSkin;
+      argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+    }
+  }
+
   private __setVRMMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, argumentArray: any): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
@@ -588,14 +600,12 @@ export default class ModelConverter {
       // argument
       const argumentOfMaterialHelper = argumentArray[0];
       const rnExtension = VRMProperties.rnExtension;
-      if (rnExtension && rnExtension.defaultMorphingIsTrue) {
-        argumentOfMaterialHelper.isMorphing = this.__hasBlendShapes(node);
-      }
-      if (rnExtension && rnExtension.defaultSkinningIsTrue) {
-        const existSkin = node.skin != null;
-        argumentOfMaterialHelper.isSkinning = existSkin;
-        argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
-      }
+
+      const isMorphingOriginal = argumentOfMaterialHelper.isMorphing;
+      const isSkinningOriginal = argumentOfMaterialHelper.isSkinning;
+
+      this.__setMorphingAndSkinningArgument(node, argumentOfMaterialHelper, isMorphingOriginal, isSkinningOriginal);
+
       const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.materialIndex];
       argumentOfMaterialHelper.materialProperties = materialProperties;
 
@@ -619,7 +629,12 @@ export default class ModelConverter {
         renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
       }
 
-      return MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+      const material = MaterialHelper.createMToonMaterial(argumentOfMaterialHelper);
+
+      argumentOfMaterialHelper.isMorphing = isMorphingOriginal;
+      argumentOfMaterialHelper.isSkinning = isSkinningOriginal;
+
+      return material;
 
     } else if (argumentArray[0].isOutline) {
       return MaterialHelper.createEmptyMaterial();;
@@ -629,7 +644,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropreateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
+  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -668,7 +683,7 @@ export default class ModelConverter {
   }
 
   private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material {
-    const material: Material = this.__generateAppropreateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
+    const material: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
 
     // avoid unexpected initialization
     if (!this.__needParameterInitialization(materialJson, material.materialTypeName)) return material;

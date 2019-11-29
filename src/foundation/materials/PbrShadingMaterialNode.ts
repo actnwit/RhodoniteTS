@@ -58,7 +58,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         //   {semantic: ShaderSemantics.ProjectionMatrix, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
         //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, initialValue: MutableMatrix44.identity()},
         //   {semantic: ShaderSemantics.ViewPosition, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true},
+        //   stage: ShaderType.VertexAndPixelShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new Vector3(0, 0, 1), soloDatum: true},
         {
           semantic: ShaderSemantics.BaseColorFactor, compositionType: CompositionType.Vec4, componentType: ComponentType.Float,
           stage: ShaderType.PixelShader, min: 0, max: 2, isSystem: false, initialValue: new Vector4(1, 1, 1, 1)
@@ -103,7 +103,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         //   min: -Number.MAX_VALUE,
         //   max: Number.MAX_VALUE,
         //   isSystem: true,
-        //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         //   initialValue: new Vector3(0, 0, 0),
         //   soloDatum: true
         // },
@@ -116,7 +116,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           max: Number.MAX_VALUE,
           isSystem: true,
           initialValue: new Vector4(1, 1, 1, 1),
-          updateInteval: ShaderVariableUpdateInterval.EveryTime
+          updateInterval: ShaderVariableUpdateInterval.EveryTime
         },
         {
           semantic: ShaderSemantics.HDRIFormat,
@@ -126,7 +126,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           min: 0,
           max: 5,
           isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          updateInterval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: new Vector2(0, 0)
         },
         // {
@@ -137,7 +137,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
         //   min: 0,
         //   max: Number.MAX_SAFE_INTEGER,
         //   isSystem: true,
-        //   updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly,
+        //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         //   initialValue: new Scalar(0),
         //   soloDatum: true
         // },
@@ -148,7 +148,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           stage: ShaderType.PixelShader, min: 0,
           max: Number.MAX_SAFE_INTEGER,
           isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          updateInterval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: [5, AbstractMaterialNode.__dummyWhiteTexture]
         },
         {
@@ -159,7 +159,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
           isSystem: true,
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          updateInterval: ShaderVariableUpdateInterval.EveryTime,
           initialValue: [6, AbstractMaterialNode.__dummyWhiteTexture]
         },
         {
@@ -192,12 +192,12 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize, compositionType: CompositionType.Scalar, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Scalar(100.0), min: 0, max: 100
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, compositionType: CompositionType.Vec3, componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1
       }
     );
@@ -219,7 +219,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
             index: idx,
             maxIndex: 4,
             isSystem: true,
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateInterval: ShaderVariableUpdateInterval.EveryTime,
             initialValue: new Vector4(0, 0, 0, 1),
             soloDatum: true
           });
@@ -235,7 +235,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
           maxIndex: 4,
           isSystem: true,
           initialValue: new Vector4(0, 1, 0, 1),
-          updateInteval: ShaderVariableUpdateInterval.EveryTime,
+          updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: true
         });
         lights.push(
@@ -250,7 +250,7 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
             maxIndex: 4,
             isSystem: true,
             initialValue: new Vector4(1, 1, 1, 1),
-            updateInteval: ShaderVariableUpdateInterval.EveryTime,
+            updateInterval: ShaderVariableUpdateInterval.EveryTime,
             soloDatum: true
           });
         })(i);
@@ -263,11 +263,11 @@ export default class PbrShadingMaterialNode extends AbstractMaterialNode {
       this.__definitions += '#define RN_IS_SKINNING\n';
 
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: true, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: 250, componentType: ComponentType.Float, soloDatum: true,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new VectorN(new Float32Array(0))});
       // shaderSemanticsInfoArray.push({semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
-      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInteval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1) });
+      //   stage: ShaderType.VertexShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1) });
     }
 
     if (isMorphing) {

@@ -117,13 +117,13 @@ export default class EntityRepository {
    * @param tags The tags to search
    */
   searchByTags(tags: RnTags) {
-    const matchEntites = [];
+    const matchEntities = [];
     for (let entity of this.__entities) {
       if (entity.matchTags(tags)) {
-        matchEntites.push(entity);
+        matchEntities.push(entity);
       }
     }
-    return matchEntites;
+    return matchEntities;
   }
 
   /**

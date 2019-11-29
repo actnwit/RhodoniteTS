@@ -45,14 +45,14 @@ export default class MeshComponent extends Component {
 
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
-    mesh._attatchedEntityUID = this.entityUID;
+    mesh._attachedEntityUID = this.entityUID;
   }
 
   unsetMesh() {
     if (this.__mesh == null) {
       return false;
     }
-    this.__mesh._attatchedEntityUID = Entity.invalidEntityUID;
+    this.__mesh._attachedEntityUID = Entity.invalidEntityUID;
     this.__mesh = void 0;
 
     return true;
@@ -73,7 +73,7 @@ export default class MeshComponent extends Component {
     if (this.__mesh == null) {
       return;
     }
-    //    this.__mesh!.makeVerticesSepareted();
+    //    this.__mesh!.makeVerticesSeparated();
     this.__mesh.__calcTangents();
     this.__mesh._calcArenbergInverseMatrices();
     // this.__mesh.__initMorphPrimitives();
@@ -95,7 +95,7 @@ export default class MeshComponent extends Component {
     if (this.__mesh == null) {
       return;
     }
-    //    this.__mesh!.makeVerticesSepareted();
+    //    this.__mesh!.makeVerticesSeparated();
     this.__mesh.weights = value;
   }
 
@@ -134,17 +134,17 @@ export default class MeshComponent extends Component {
           srcPointInLocal
         ));
 
-        const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        const { t, intersectedPosition } = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
         if (t >= 0) {
           intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
         }
 
-        return {t, intersectedPositionInWorld: intersectPositionInWorld};
+        return { t, intersectedPositionInWorld: intersectPositionInWorld };
       }
     }
 
-    return {t: -1, intersectedPositionInWorld: undefined};
+    return { t: -1, intersectedPositionInWorld: undefined };
   }
 
   castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold: number = 0) {
@@ -169,17 +169,17 @@ export default class MeshComponent extends Component {
           srcPointInLocal
         ));
 
-        const {t, intersectedPosition} = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        const { t, intersectedPosition } = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
         if (t >= 0) {
           intersectPositionInWorld = new Vector3(this.__sceneGraphComponent.worldMatrixInner.multiplyVector(new Vector4(intersectedPosition!)));
         }
 
-        return {t, intersectedPositionInWorld: intersectPositionInWorld};
+        return { t, intersectedPositionInWorld: intersectPositionInWorld };
       }
     }
 
-    return {t: -1, intersectedPositionInWorld: undefined};
+    return { t: -1, intersectedPositionInWorld: undefined };
   }
 }
 

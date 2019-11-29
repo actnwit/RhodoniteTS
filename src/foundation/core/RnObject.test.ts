@@ -7,7 +7,7 @@ beforeEach(() => {
   RnObject._reset();
 });
 
-test('ObjectUID countup correctly', () => {
+test('ObjectUID count up correctly', () => {
   expect(RnObject.currentMaxObjectCount).toBe(0);
 
   const obj0 = new RnObject();

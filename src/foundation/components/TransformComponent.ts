@@ -10,7 +10,7 @@ import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import MutableQuaternion from '../math/MutableQuaterion';
+import MutableQuaternion from '../math/MutableQuaternion';
 import { ProcessStage } from '../definitions/ProcessStage';
 import MutableMatrix33 from '../math/MutableMatrix33';
 import MutableVector3 from '../math/MutableVector3';
@@ -41,9 +41,9 @@ export default class TransformComponent extends Component {
   private __toUpdateAllTransform = true;
   private _updateCount = 0;
   private __updateCountAtLastLogic = 0;
-  private static returnMatrix33 = new MutableMatrix33([0,0,0,0,0,0,0,0,0]);
-  private static invertedMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
-  private static updateRotationMatrix44 = new MutableMatrix44([0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]);
+  private static returnMatrix33 = new MutableMatrix33([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  private static updateRotationMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static updateRotationVector3 = MutableVector3.zero();
 
   // dependencies
@@ -184,9 +184,9 @@ export default class TransformComponent extends Component {
       return this._scale;
     } else if (this._is_trs_matrix_updated) {
       let m = this._matrix;
-      this._scale.v[0] = Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
-      this._scale.v[1] = Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
-      this._scale.v[2] = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
+      this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+      this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+      this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
       this._is_scale_updated = true;
     }
 
@@ -304,19 +304,19 @@ export default class TransformComponent extends Component {
     const translate = this.translateInner;
 
     // TranslateMatrix * RotateMatrix * ScaleMatrix
-    this._matrix.m00 = m00*n00;
-    this._matrix.m01 = m01*n11;
-    this._matrix.m02 = m02*n22;
+    this._matrix.m00 = m00 * n00;
+    this._matrix.m01 = m01 * n11;
+    this._matrix.m02 = m02 * n22;
     this._matrix.m03 = translate.v[0];
 
-    this._matrix.m10 = m10*n00;
-    this._matrix.m11 = m11*n11;
-    this._matrix.m12 = m12*n22;
+    this._matrix.m10 = m10 * n00;
+    this._matrix.m11 = m11 * n11;
+    this._matrix.m12 = m12 * n22;
     this._matrix.m13 = translate.v[1];
 
-    this._matrix.m20 = m20*n00;
-    this._matrix.m21 = m21*n11;
-    this._matrix.m22 = m22*n22;
+    this._matrix.m20 = m20 * n00;
+    this._matrix.m21 = m21 * n11;
+    this._matrix.m22 = m22 * n22;
     this._matrix.m23 = translate.v[2];
 
     this._matrix.m30 = 0;
@@ -413,7 +413,7 @@ export default class TransformComponent extends Component {
       this._is_translate_updated = true;
     }
 
-    // Roatation
+    // Rotation
     if (rotate != null && quaternion != null) {
       this._rotate = rotate.clone();
       this._quaternion = new MutableQuaternion(quaternion);
@@ -423,7 +423,7 @@ export default class TransformComponent extends Component {
       this._rotate = rotate.clone();
       this._is_euler_angles_updated = true;
       this._is_quaternion_updated = false;
-     } else if (quaternion != null) {
+    } else if (quaternion != null) {
       this._quaternion = new MutableQuaternion(quaternion);
       this._is_euler_angles_updated = false;
       this._is_quaternion_updated = true;
@@ -479,9 +479,9 @@ export default class TransformComponent extends Component {
   __updateScale() {
     if (!this._is_scale_updated && this._is_trs_matrix_updated) {
       const m = this._matrix;
-      this._scale.v[0] = Math.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
-      this._scale.v[1] = Math.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
-      this._scale.v[2] = Math.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
+      this._scale.v[0] = Math.sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+      this._scale.v[1] = Math.sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+      this._scale.v[2] = Math.sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
       this._is_scale_updated = true;
     }
   }
@@ -508,8 +508,8 @@ export default class TransformComponent extends Component {
     if (typeof arg === "string") {
       json = JSON.parse(arg);
     }
-    for(let key in json) {
-      if(json.hasOwnProperty(key) && key in this) {
+    for (let key in json) {
+      if (json.hasOwnProperty(key) && key in this) {
         if (key === "quaternion") {
           this[key] = new Quaternion((json as any)[key] as Array<number>);
         } else if (key === 'matrix') {

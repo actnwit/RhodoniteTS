@@ -410,7 +410,7 @@ export type GltfLoadOption = {
   autoDetectTextureTransparency?: boolean,
   autoResizeTexture?: boolean,
   tangentCalculationMode?: Index,
-  isPrecomputeForRayCastPickingEnable?: boolean,
+  isPreComputeForRayCastPickingEnable?: boolean,
   extendedJson?: string | Object | ArrayBuffer, //   URI string / JSON Object / ArrayBuffer
   isImportVRM?: boolean,
   maxMorphTargetNumber?: number,

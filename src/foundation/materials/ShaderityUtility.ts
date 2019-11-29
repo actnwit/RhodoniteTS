@@ -8,8 +8,8 @@ import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Config from "../core/Config";
 import { ComponentType } from "../definitions/ComponentType";
 
-export default class ShaderityUntility {
-  static __instance: ShaderityUntility;
+export default class ShaderityUtility {
+  static __instance: ShaderityUtility;
   private __shaderity = Shaderity.getInstance();
   private __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
 
@@ -21,9 +21,9 @@ export default class ShaderityUntility {
     this.__shaderity.addAttributeSemanticsMap(attributeSemanticsMap);
   }
 
-  static getInstance(): ShaderityUntility{
+  static getInstance(): ShaderityUtility {
     if (!this.__instance) {
-      this.__instance = new ShaderityUntility();
+      this.__instance = new ShaderityUtility();
     }
     return this.__instance;
   }
@@ -56,16 +56,16 @@ export default class ShaderityUntility {
   }
 
   getReflection(shaderityObject: ShaderityObject): {
-      names: string[],
-      semantics: VertexAttributeEnum[],
-      compositions: CompositionTypeEnum[]
-    } {
+    names: string[],
+    semantics: VertexAttributeEnum[],
+    compositions: CompositionTypeEnum[]
+  } {
     const reflection = this.__shaderity.reflect(shaderityObject);
     const reflectionSoA: any = {};
     reflectionSoA.names = reflection.attributesNames;
-    reflectionSoA.semantics = reflection.attributesSemantics.map((semantic)=>{return VertexAttribute.fromString(semantic)});;
-    reflectionSoA.compositions = reflection.attributesTypes.map((type)=>{return CompositionType.fromGlslString(type)});;
-    reflectionSoA.components = reflection.attributesTypes.map((type)=>{return ComponentType.fromGlslString(type)});;
+    reflectionSoA.semantics = reflection.attributesSemantics.map((semantic) => { return VertexAttribute.fromString(semantic) });;
+    reflectionSoA.compositions = reflection.attributesTypes.map((type) => { return CompositionType.fromGlslString(type) });;
+    reflectionSoA.components = reflection.attributesTypes.map((type) => { return ComponentType.fromGlslString(type) });;
 
     return reflectionSoA;
   }

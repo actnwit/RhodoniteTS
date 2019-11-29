@@ -64,7 +64,7 @@ export default class CameraComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
 
-    this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber/100));
+    this.maxNumberOfComponent = Math.max(10, Math.floor(Config.maxEntityNumber / 100));
 
     this.registerMember(BufferUse.CPUGeneric, 'eyeInner', Vector3, ComponentType.Float, [0, 0, 0]);
     this.registerMember(BufferUse.CPUGeneric, 'direction', Vector3, ComponentType.Float, [0, 0, -1]);
@@ -159,16 +159,16 @@ export default class CameraComponent extends Component {
     const newDirection = vec;
     const oldUp = this._up;
 
-    let newUpNonNomalize;
+    let newUpNonNormalize;
     if (Vector3.cross(newDirection, oldUp).isEqual(Vector3.zero())) {
       const relativeXaxis = Vector3.cross(oldDirection, oldUp);
-      newUpNonNomalize = Vector3.cross(relativeXaxis, newDirection);
+      newUpNonNormalize = Vector3.cross(relativeXaxis, newDirection);
     } else {
       const newDirectionComponentInOldUp = Vector3.multiply(newDirection, newDirection.dotProduct(oldUp));
-      newUpNonNomalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
+      newUpNonNormalize = Vector3.subtract(oldUp, newDirectionComponentInOldUp);
     }
 
-    this._up = Vector3.normalize(newUpNonNomalize);
+    this._up = Vector3.normalize(newUpNonNormalize);
     this._direction.copyComponents(newDirection);
   }
 
@@ -278,7 +278,7 @@ export default class CameraComponent extends Component {
 
   set focalLength(val: number) {
     this._focalLength = val;
-    this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight/(val * 2)));
+    this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
   }
   get focalLength() {
     return this._focalLength;

@@ -29,27 +29,27 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.ShadingModel, componentType: ComponentType.Int, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(ShadingModel.Constant.index), min: 0, max: 3,
       },
       {
         semantic: ShaderSemantics.Shininess, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Scalar(5), min: 0, max: Number.MAX_VALUE,
       },
       {
         semantic: ShaderSemantics.DiffuseColorFactor, componentType: ComponentType.Float, compositionType: CompositionType.Vec4,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
         initialValue: new Vector4(1, 1, 1, 1), min: 0, max: 2,
       },
       {
         semantic: ShaderSemantics.DiffuseColorTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, AbstractMaterialNode.__dummyWhiteTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
       {
         semantic: ShaderSemantics.NormalTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.EveryTime,
+        stage: ShaderType.PixelShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, AbstractMaterialNode.__dummyBlueTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       },
     );
@@ -58,12 +58,12 @@ export default class ClassicShadingSingleMaterialNode extends AbstractMaterialNo
     shaderSemanticsInfoArray.push(
       {
         semantic: ShaderSemantics.PointSize, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Scalar(30.0), min: 0, max: 100,
       },
       {
         semantic: ShaderSemantics.PointDistanceAttenuation, componentType: ComponentType.Float, compositionType: CompositionType.Vec3,
-        stage: ShaderType.VertexShader, isSystem: false, updateInteval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
+        stage: ShaderType.VertexShader, isSystem: false, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: false,
         initialValue: new Vector3(0.0, 0.1, 0.01), min: 0, max: 1,
       },
     );
