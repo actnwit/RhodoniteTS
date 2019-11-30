@@ -2,6 +2,13 @@ import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceReposit
 import Vector3 from "../foundation/math/Vector3";
 import Matrix44 from "../foundation/math/Matrix44";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
+import { Index } from "../types/CommonTypes";
+import Vector4 from "../foundation/math/Vector4";
+import Entity from "../foundation/core/Entity";
+import EntityRepository from "../foundation/core/EntityRepository";
+import TransformComponent from "../foundation/components/TransformComponent";
+import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
+import CameraComponent from "../foundation/components/CameraComponent";
 
 export default class WebVRSystem {
   private static __instance: WebVRSystem;
@@ -19,8 +26,13 @@ export default class WebVRSystem {
   private __canvasHeightBackup = 0;
   private __leftViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __rightViewMatrix: MutableMatrix44 = MutableMatrix44.identity();
+  private __leftCameraEntity: Entity;
+  private __rightCameraEntity: Entity;
 
   private constructor() {
+    const repo = EntityRepository.getInstance();
+    this.__leftCameraEntity = repo.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
+    this.__rightCameraEntity = repo.createEntity([TransformComponent, SceneGraphComponent, CameraComponent]);
   }
 
   static getInstance() {
@@ -210,11 +222,13 @@ export default class WebVRSystem {
   }
 
   get leftViewMatrix() {
-    return Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.leftViewMatrix), this.__invertSittingToStandingTransform, this.__leftViewMatrix);
+    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.leftViewMatrix), this.__invertSittingToStandingTransform, this.__leftViewMatrix);
+    return this.__leftViewMatrix;
   }
 
   get rightViewMatrix() {
-    return Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.rightViewMatrix), this.__invertSittingToStandingTransform, this.__rightViewMatrix);
+    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.rightViewMatrix), this.__invertSittingToStandingTransform, this.__rightViewMatrix);
+    return this.__rightViewMatrix
   }
 
   get leftProjectionMatrix() {
@@ -225,15 +239,54 @@ export default class WebVRSystem {
     return this.__webvrFrameData?.rightProjectionMatrix;
   }
 
-  getLeftViewport(originalViewport: number[]) {
-    return [originalViewport[0], originalViewport[1], originalViewport[2] * 0.5, originalViewport[3]];
+  getLeftViewport(originalViewport: Vector4) {
+    return new Vector4(originalViewport.x, originalViewport.y, originalViewport.z * 0.5, originalViewport.w);
   }
 
-  getRightViewport(originalViewport: number[]) {
-    return [originalViewport[2] * 0.5, originalViewport[1], originalViewport[2] * 0.5, originalViewport[3]];
+  getRightViewport(originalViewport: Vector4) {
+    return new Vector4(originalViewport.z * 0.5, originalViewport.y, originalViewport.z * 0.5, originalViewport.w);
+  }
+
+  getViewMatrixAt(index: Index) {
+    if (index === 0) {
+      return this.leftViewMatrix;
+    } else {
+      return this.rightViewMatrix;
+    }
+  }
+
+  getProjectMatrixAt(index: Index) {
+    if (index === 0) {
+      return this.leftProjectionMatrix;
+    } else {
+      return this.rightProjectionMatrix;
+    }
+  }
+
+  getViewportAt(viewport: Vector4, index: Index) {
+    if (index === 0) {
+      return this.getLeftViewport(viewport);
+    } else {
+      return this.getRightViewport(viewport);
+    }
   }
 
   get vrDisplay() {
     return this.__vrDisplay;
+  }
+
+  setValuesToGlobalDataRepository() {
+    this.__leftCameraEntity.getCamera().viewMatrix = this.leftViewMatrix;
+    this.__rightCameraEntity.getCamera().viewMatrix = this.rightViewMatrix;
+    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
+    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
+  }
+
+  getCameraComponentSIDAt(index: Index) {
+    if (index === 0) {
+      return this.__leftCameraEntity.getCamera().componentSID;
+    } else {
+      return this.__rightCameraEntity.getCamera().componentSID;
+    }
   }
 }
