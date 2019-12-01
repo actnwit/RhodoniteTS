@@ -1,13 +1,14 @@
 import RnObject from "../core/RnObject";
 import IRenderable from "./IRenderable";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { TextureParameterEnum } from "../definitions/TextureParameter";
+import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import { Size, CGAPIResourceHandle } from "../../types/CommonTypes";
 import FrameBuffer from "../renderer/FrameBuffer";
 
 export default class RenderBuffer extends RnObject implements IRenderable {
   width: number = 0;
   height: number = 0;
+  private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;
   public cgApiResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
 
@@ -26,8 +27,14 @@ export default class RenderBuffer extends RnObject implements IRenderable {
   create(width: Size, height: Size, internalFormat: TextureParameterEnum) {
     this.width = width;
     this.height = height;
+    this.__internalFormat = TextureParameter.Depth24;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(width, height, internalFormat);
+  }
+
+  resize(width: Size, height: Size) {
+    this.destroy3DAPIResources();
+    this.create(width, height, this.__internalFormat);
   }
 
   destroy3DAPIResources() {

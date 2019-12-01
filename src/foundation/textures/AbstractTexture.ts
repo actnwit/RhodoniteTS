@@ -1,13 +1,24 @@
 import RnObject from "../core/RnObject";
-import { PixelFormat } from "../definitions/PixelFormat";
-import { ComponentType } from "../definitions/ComponentType";
-import { TextureParameter } from "../definitions/TextureParameter";
+import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
+import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
+import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
-import { CGAPIResourceHandle, TextureUID, Size } from "../../types/CommonTypes";
+import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../types/CommonTypes";
+import Component from "../core/Component";
+import Texture from "./Texture";
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
+  protected __level: Index = 0;
+  protected __internalFormat: PixelFormatEnum = PixelFormat.RGBA;
+  protected __format: PixelFormatEnum = PixelFormat.RGBA;
+  protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
+  protected __magFilter: TextureParameterEnum = TextureParameter.Linear;
+  protected __minFilter: TextureParameterEnum = TextureParameter.Linear;
+  protected __wrapS: TextureParameterEnum = TextureParameter.ClampToEdge;
+  protected __wrapT: TextureParameterEnum = TextureParameter.ClampToEdge;
+
   protected __hasTransparentPixels = false;
 
   private static readonly InvalidTextureUid: TextureUID = -1;

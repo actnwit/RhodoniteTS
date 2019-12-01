@@ -567,7 +567,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
   private __setCamera(renderPass: RenderPass, displayIdx: Index) {
 
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode) {
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       this.__webglResourceRepository.setViewport(webvrSystem.getViewportAt(this.__getViewport(renderPass), displayIdx));
       webvrSystem.setValuesToGlobalDataRepository();
@@ -584,7 +584,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   private __setCurrentComponentSIDsForEachRenderPass(renderPass: RenderPass, displayIdx: Index) {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode) {
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
       const webvrSystem = rnXRModule.WebVRSystem.getInstance();
       WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v[WellKnownComponentTIDs.CameraComponentTID] = webvrSystem.getCameraComponentSIDAt(displayIdx);
     } else {
@@ -619,10 +619,10 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     gl.uniform1fv((WebGLStrategyFastestWebGL1.__shaderProgram as any).currentComponentSIDs, WebGLStrategyFastestWebGL1.__currentComponentSIDs!.v);
   }
 
-  private __getDisplayNumber() {
+  private __getDisplayNumber(renderPass: RenderPass) {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     let displayNumber = 1;
-    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode) {
+    if (rnXRModule?.WebVRSystem.getInstance().isWebVRMode && renderPass.isMainPass) {
       displayNumber = 2;
     }
     return displayNumber;
@@ -632,7 +632,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
 
-    const displayNumber = this.__getDisplayNumber();
+    const displayNumber = this.__getDisplayNumber(renderPass);
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       this.__setCamera(renderPass, displayIdx);

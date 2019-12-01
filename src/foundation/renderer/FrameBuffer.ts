@@ -33,11 +33,11 @@ export default class FrameBuffer extends RnObject {
     return this.__depthAttachment;
   }
 
-  get stencilAttachement() {
+  get stencilAttachment() {
     return this.__stencilAttachment;
   }
 
-  get depthStancilAttachment() {
+  get depthStencilAttachment() {
     return this.__depthStencilAttachment;
   }
 
@@ -104,6 +104,31 @@ export default class FrameBuffer extends RnObject {
     return true;
   }
 
+  resize(width: Size, height: Size) {
+    this.destroy3DAPIResources();
+    this.create(width, height);
+    if (this.depthAttachment) {
+      this.depthAttachment.resize(width, height);
+      this.setDepthAttachment(this.depthAttachment);
+    }
+
+    if (this.depthStencilAttachment) {
+      this.depthStencilAttachment.resize(width, height);
+      this.setDepthStencilAttachment(this.depthStencilAttachment);
+    }
+
+    if (this.stencilAttachment) {
+      this.stencilAttachment.resize(width, height);
+      this.setStencilAttachment(this.stencilAttachment);
+    }
+
+    for (let i=0; i<this.colorAttachments.length; i++) {
+      this.colorAttachments[i].resize(width, height);
+      this.setColorAttachmentAt(i, this.colorAttachments[i]);
+    }
+
+  }
+
   destroy3DAPIResources() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
@@ -112,12 +137,12 @@ export default class FrameBuffer extends RnObject {
       this.depthAttachment.destroy3DAPIResources();
     }
 
-    if (this.depthStancilAttachment) {
-      this.depthStancilAttachment.destroy3DAPIResources();
+    if (this.depthStencilAttachment) {
+      this.depthStencilAttachment.destroy3DAPIResources();
     }
 
-    if (this.stencilAttachement) {
-      this.stencilAttachement.destroy3DAPIResources();
+    if (this.stencilAttachment) {
+      this.stencilAttachment.destroy3DAPIResources();
     }
 
     for (let colorAttachment of this.colorAttachments) {
