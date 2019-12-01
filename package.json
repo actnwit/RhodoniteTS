@@ -26,6 +26,7 @@
     "@types/node": "^12.6.2",
     "@types/webgl-ext": "^0.0.30",
     "@types/webgl2": "^0.0.5",
+    "@types/webvr-api": "^0.0.35",
     "@typescript-eslint/parser": "2.7.0",
     "express": "^4.17.1",
     "gl": "^4.3.3",

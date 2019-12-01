@@ -40,13 +40,16 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
       }) {
     this.__width = width;
     this.__height = height;
+    this.__level = level;
+    this.__internalFormat = internalFormat;
+    this.__format = format;
+    this.__type = type;
+    this.__magFilter = magFilter;
+    this.__minFilter = minFilter;
+    this.__wrapS = wrapS;
+    this.__wrapT = wrapT;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createRenderTargetTexture(
-      { width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT });
-    this.cgApiResourceUid = texture;
-
-    AbstractTexture.__textureMap.set(texture, this);
+    this.__createRenderTargetTexture();
   }
 
   set _fbo(fbo: FrameBuffer) {
@@ -57,7 +60,34 @@ export default class RenderTargetTexture extends AbstractTexture implements IRen
     return this.__fbo;
   }
 
+  private __createRenderTargetTexture() {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createRenderTargetTexture(
+      { width: this.__width,
+        height: this.__height,
+        level: this.__level,
+        internalFormat: this.__internalFormat,
+        format: this.__format,
+        type: this.__type,
+        magFilter: this.__magFilter,
+        minFilter: this.__minFilter,
+        wrapS: this.__wrapS,
+        wrapT: this.__wrapT
+      });
+    this.cgApiResourceUid = texture;
+
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  resize(width: Size, height: Size) {
+    this.destroy3DAPIResources();
+    this.__width = width;
+    this.__height = height
+    this.__createRenderTargetTexture();
+  }
+
   destroy3DAPIResources() {
+    AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
 

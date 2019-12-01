@@ -19,6 +19,7 @@ import Vector3 from "../math/Vector3";
 import { CameraType } from "../definitions/CameraType";
 import Vector4 from "../math/Vector4";
 import Time from "../misc/Time";
+import { RnXR } from "../../rhodonite-xr";
 
 export default class System {
   private static __instance: System;
@@ -40,8 +41,49 @@ export default class System {
   private __localExpression = new Expression();
   private __lastEntitiesNumber = -1;
   private __renderPassTickCount = 0;
+  private __animationFrameId = -1;
 
   private constructor() {
+  }
+
+  doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
+    args.splice(0, 0, time);
+    renderLoopFunc.apply(renderLoopFunc, args);
+
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
+    if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
+      webVRSystem.vrDisplay!.submitFrame();
+    }
+    const animationFrameObject = this.__getAnimationFrameObject();
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(
+      (_time: number) => {
+        if (webVRSystem?.requestedToEnterWebVR) {
+          webVRSystem._setIsWebVRMode();
+        }
+        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
+          webVRSystem.getFrameData();
+        }
+        this.doRenderLoop(renderLoopFunc, _time, args);
+      }
+    );
+
+  }
+
+  private __getAnimationFrameObject() {
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    let animationFrameObject: Window|VRDisplay = window;
+    const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
+    if (webVRSystem?.isWebVRMode) {
+      animationFrameObject = webVRSystem.vrDisplay!;
+    }
+    return animationFrameObject;
+  }
+
+  stopRenderLoop() {
+    const animationFrameObject = this.__getAnimationFrameObject();
+    animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
+    this.__animationFrameId = -1;
   }
 
   process(expressions: Expression[]) {

@@ -13,15 +13,17 @@ export default class ModuleManager {
       module = await import(/* webpackChunkName: "sparkgear" */'../../sparkgear/main');
     } else if (moduleName.toLowerCase() === 'pbr') {
       module = await import(/* webpackChunkName: "pbr" */'../../pbr/main');
+    } else if (moduleName.toLowerCase() === 'xr') {
+      module = await import(/* webpackChunkName: "xr" */'../../rhodonite-xr');
     }
     this.__modules.set(moduleName, module);
     console.log('Module Loaded:', module);
 
-    return module!.default;
+    return module?.default;
   }
 
   getModule(moduleName: string) {
-    return this.__modules.get(moduleName).default;
+    return this.__modules.get(moduleName)?.default;
   }
 
   static getInstance() {

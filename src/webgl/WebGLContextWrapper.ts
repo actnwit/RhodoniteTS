@@ -1,6 +1,7 @@
 import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 import { Index, Size } from "../types/CommonTypes";
+import Vector4 from "../foundation/math/Vector4";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext | any;
@@ -24,6 +25,7 @@ export default class WebGLContextWrapper {
   private __activeTextures2D: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
   private __isDebugMode = false;
+  private __viewport = new Vector4(0, 0, 1, 1);
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -32,6 +34,8 @@ export default class WebGLContextWrapper {
     this.width = canvas.width;
     this.height = canvas.height;
     this.canvas = canvas
+    this.__viewport = new Vector4(0, 0, this.width, this.height);
+
     this.__isDebugMode = isDebug;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
@@ -55,6 +59,18 @@ export default class WebGLContextWrapper {
 
   getRawContext(): WebGLRenderingContext | any {
     return this.__gl;
+  }
+
+  get viewport() {
+    return this.__viewport;
+  }
+
+  /**
+   * @param viewport 
+   * @private
+   */
+  _setViewport(viewport: Vector4) {
+    this.__viewport = viewport;
   }
 
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
