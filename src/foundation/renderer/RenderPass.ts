@@ -34,6 +34,7 @@ export default class RenderPass extends RnObject {
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();
   private __webglRenderingStrategy?: WebGLStrategy;
+  public isMainPass = false;
 
   constructor() {
     super();

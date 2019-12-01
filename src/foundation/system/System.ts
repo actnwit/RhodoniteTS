@@ -50,18 +50,24 @@ export default class System {
     args.splice(0, 0, time);
     renderLoopFunc.apply(renderLoopFunc, args);
 
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
+    if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
+      webVRSystem.vrDisplay!.submitFrame();
+    }
     const animationFrameObject = this.__getAnimationFrameObject();
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(
       (_time: number) => {
+        if (webVRSystem?.requestedToEnterWebVR) {
+          webVRSystem._setIsWebVRMode();
+        }
+        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
+          webVRSystem.getFrameData();
+        }
         this.doRenderLoop(renderLoopFunc, _time, args);
       }
     );
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
-    if (webVRSystem?.isWebVRMode) {
-      webVRSystem.vrDisplay!.submitFrame();
-    }
   }
 
   private __getAnimationFrameObject() {

@@ -441,11 +441,11 @@ export default class CameraComponent extends Component {
   }
 
   set viewMatrix(viewMatrix: Matrix44) {
-    this._viewMatrix = new MutableMatrix44(viewMatrix);
+    this._viewMatrix = new MutableMatrix44(viewMatrix, true);
   }
 
   set projectionMatrix(projectionMatrix: Matrix44) {
-    this._projectionMatrix = new MutableMatrix44(projectionMatrix);
+    this._projectionMatrix = new MutableMatrix44(projectionMatrix, true);
   }
 
   get viewProjectionMatrix() {

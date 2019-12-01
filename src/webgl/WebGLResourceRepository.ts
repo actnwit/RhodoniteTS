@@ -1286,5 +1286,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.height = height;
     this.__glw!.canvas.width = width;
     this.__glw!.canvas.height = height;
+    this.__glw!._setViewport(new Vector4(0, 0, width, height));
   }
 }

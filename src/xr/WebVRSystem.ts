@@ -43,6 +43,20 @@ export default class WebVRSystem {
     return this.__instance;
   }
 
+  getFrameData() {
+    if (this.__webvrDisplay == null) {
+      return;
+    }
+    this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
+    if (this.__webvrDisplay.stageParameters) {
+        this.__invertSittingToStandingTransform = Matrix44.invert(new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!, true));
+    } else {
+      this.__invertSittingToStandingTransform = Matrix44.invert(Matrix44.translate(
+        this.__defaultUserSittingPositionInVR
+      ));
+    }
+  }
+
   async enterWebVR(
     initialUserSittingPositionIfStageParametersDoNotExist?: Vector3,
     minRenderWidth?: number,
@@ -88,17 +102,10 @@ export default class WebVRSystem {
         this.__webvrDisplay
           .requestPresent([{ source: glw.canvas }])
           .then(() => {
-            if (this.__webvrDisplay != null) {
-              this.__webvrDisplay.getFrameData(this.__webvrFrameData!);
-              if (this.__webvrDisplay.stageParameters) {
-                this.__invertSittingToStandingTransform = Matrix44.invert(new Matrix44(this.__webvrDisplay.stageParameters.sittingToStandingTransform!));
-              } else {
-                this.__invertSittingToStandingTransform = Matrix44.invert(Matrix44.translate(
-                  this.__defaultUserSittingPositionInVR
-                ));
-              }
-            }
             this.__requestedToEnterWebVR = true;
+            console.info(
+              "requestPresent is succeeded."
+            );
             resolve();
           })
           .catch(() => {
@@ -108,7 +115,7 @@ export default class WebVRSystem {
             reject();
           });
       } else {
-        reject("WebGL context or WebVRDisplay is not readly yet.")
+        reject("WebGL context or WebVRDisplay is not ready yet.")
       }
     });
   }
@@ -222,21 +229,21 @@ export default class WebVRSystem {
   }
 
   get leftViewMatrix() {
-    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.leftViewMatrix), this.__invertSittingToStandingTransform, this.__leftViewMatrix);
+    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.leftViewMatrix, true), this.__invertSittingToStandingTransform, this.__leftViewMatrix);
     return this.__leftViewMatrix;
   }
 
   get rightViewMatrix() {
-    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.rightViewMatrix), this.__invertSittingToStandingTransform, this.__rightViewMatrix);
+    Matrix44.multiplyTo(new Matrix44(this.__webvrFrameData!.rightViewMatrix, true), this.__invertSittingToStandingTransform, this.__rightViewMatrix);
     return this.__rightViewMatrix
   }
 
   get leftProjectionMatrix() {
-    return this.__webvrFrameData?.leftProjectionMatrix;
+    return new MutableMatrix44(this.__webvrFrameData!.leftProjectionMatrix, true);
   }
 
   get rightProjectionMatrix() {
-    return this.__webvrFrameData?.rightProjectionMatrix;
+    return new MutableMatrix44(this.__webvrFrameData!.rightProjectionMatrix, true);
   }
 
   getLeftViewport(originalViewport: Vector4) {
@@ -278,6 +285,8 @@ export default class WebVRSystem {
   setValuesToGlobalDataRepository() {
     this.__leftCameraEntity.getCamera().viewMatrix = this.leftViewMatrix;
     this.__rightCameraEntity.getCamera().viewMatrix = this.rightViewMatrix;
+    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
+    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
     this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
     this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
   }
@@ -288,5 +297,13 @@ export default class WebVRSystem {
     } else {
       return this.__rightCameraEntity.getCamera().componentSID;
     }
+  }
+
+  get requestedToEnterWebVR() {
+    return this.__requestedToEnterWebVR;
+  }
+
+  _setIsWebVRMode() {
+    this.__isWebVRMode = true;
   }
 }

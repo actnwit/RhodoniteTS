@@ -558,9 +558,9 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   private __getViewport(renderPass: RenderPass) {
     let viewport = renderPass.getViewport();
-    if (viewport != null) {
+    // if (viewport == null) {
       viewport = this.__webglResourceRepository.currentWebGLContextWrapper!.viewport;
-    }
+    // }
     return viewport!;
   }
 

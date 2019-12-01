@@ -65,6 +65,14 @@ export default class WebGLContextWrapper {
     return this.__viewport;
   }
 
+  /**
+   * @param viewport 
+   * @private
+   */
+  _setViewport(viewport: Vector4) {
+    this.__viewport = viewport;
+  }
+
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     if (this.__getExtension(webGLExtension)) {
       return true;
