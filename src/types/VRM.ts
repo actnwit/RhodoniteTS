@@ -29,7 +29,7 @@ export type BlendShapeGroup = {
 
 export type BoneGroup = {
   comment: string,
-  stiffness: number,
+  stiffiness: number, // don't fix typo https://github.com/vrm-c/UniVRM/issues/18
   gravityPower: number,
   gravityDir: {
     x: number,

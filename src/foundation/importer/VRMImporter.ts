@@ -132,7 +132,7 @@ export default class VRMImporter {
       const vrmSpringBoneGroup = new VRMSpringBoneGroup();
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
       vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
-      vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffness;
+      vrmSpringBoneGroup.stiffnessForce = boneGroup.stiffiness;
       vrmSpringBoneGroup.gravityPower = boneGroup.gravityPower;
       vrmSpringBoneGroup.gravityDir = new Vector3(boneGroup.gravityDir.x, boneGroup.gravityDir.y, boneGroup.gravityDir.z);
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
