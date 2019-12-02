@@ -109,42 +109,65 @@ export default class System {
       const commonMethodName = 'common_' + methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();
       for (let componentTid of componentTids) {
-        for (let exp of expressions) {
-          let loopN = 1;
-          if (componentTid === MeshRendererComponent.componentTID) {
-            loopN = exp!.renderPasses.length;
-          }
-
-          for (let i = 0; i < loopN; i++) {
-            const renderPass = exp!.renderPasses[i];
-            if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
-              this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
-              this.__webglResourceRepository.setViewport(renderPass.getViewport());
-              this.__webglResourceRepository.setDrawTargets(renderPass.getFramebuffer());
-              this.__webglResourceRepository.clearFrameBuffer(renderPass);
+        if (stage === ProcessStage.Render) {
+          for (let exp of expressions) {
+            let loopN = 1;
+            if (componentTid === MeshRendererComponent.componentTID) {
+              loopN = exp!.renderPasses.length;
             }
 
-            const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
-            componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
+            for (let i = 0; i < loopN; i++) {
+              const renderPass = exp!.renderPasses[i];
+              if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
+                this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
+                this.__webglResourceRepository.setViewport(renderPass.getViewport());
+                this.__webglResourceRepository.setDrawTargets(renderPass.getFramebuffer());
+                this.__webglResourceRepository.clearFrameBuffer(renderPass);
+              }
 
-            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-            if (componentClass_commonMethod) {
-              componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+              componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository, renderPass);
+
+              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+              if (componentClass_commonMethod) {
+                componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: renderPass, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
+              }
+
+              componentClass.process({
+                componentType: componentClass,
+                processStage: stage,
+                processApproach: this.__processApproach,
+                componentRepository: this.__componentRepository,
+                strategy: this.__webglStrategy!,
+                renderPass: renderPass,
+                renderPassTickCount: this.__renderPassTickCount
+              });
+
+              this.__renderPassTickCount++;
             }
-
-            componentClass.process({
-              componentType: componentClass,
-              processStage: stage,
-              processApproach: this.__processApproach,
-              componentRepository: this.__componentRepository,
-              strategy: this.__webglStrategy!,
-              renderPass: renderPass,
-              renderPassTickCount: this.__renderPassTickCount
-            });
-
-            this.__renderPassTickCount++;
           }
+        } else {
+          const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+          componentClass.updateComponentsOfEachProcessStage(componentClass, stage, this.__componentRepository);
+
+          const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+          if (componentClass_commonMethod) {
+            componentClass_commonMethod({ processApproach: this.__processApproach, renderPass: void 0, processStage: stage, renderPassTickCount: this.__renderPassTickCount });
+          }
+
+          componentClass.process({
+            componentType: componentClass,
+            processStage: stage,
+            processApproach: this.__processApproach,
+            componentRepository: this.__componentRepository,
+            strategy: this.__webglStrategy!,
+            renderPass: void 0,
+            renderPassTickCount: this.__renderPassTickCount
+          });
+
+
         }
+
       }
     }
 
