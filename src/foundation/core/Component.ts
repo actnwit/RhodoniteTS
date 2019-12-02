@@ -162,7 +162,7 @@ export default class Component extends RnObject {
     processApproach: ProcessApproachEnum,
     componentRepository: ComponentRepository,
     strategy: WebGLStrategy,
-    renderPass: RenderPass,
+    renderPass?: RenderPass,
     renderPassTickCount: Count
   }
   ) {
@@ -194,7 +194,7 @@ export default class Component extends RnObject {
    * Update all components at each process stage.
    */
   static updateComponentsOfEachProcessStage(componentClass: typeof Component,
-    processStage: ProcessStageEnum, componentRepository: ComponentRepository, renderPass: RenderPass) {
+    processStage: ProcessStageEnum, componentRepository: ComponentRepository, renderPass?: RenderPass) {
     if (!Component.isExistProcessStageMethod(componentClass, processStage, componentRepository)) {
       return;
     }
