@@ -46,6 +46,7 @@ import ILoaderExtension from "./ILoaderExtension";
 import BlendShapeComponent from "../components/BlendShapeComponent";
 import GlobalDataRepository from "../core/GlobalDataRepository";
 import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
+import Scalar from "../math/Scalar";
 
 declare var DracoDecoderModule: any;
 
@@ -731,7 +732,7 @@ export default class ModelConverter {
           case ShadingModel.BlinnPhong.str: param = ShadingModel.BlinnPhong.index; break;
           case ShadingModel.Phong.str: param = ShadingModel.Phong.index; break;
         }
-        material.setParameter(ShaderSemantics.ShadingModel, param);
+        material.setParameter(ShaderSemantics.ShadingModel, new Scalar(param));
       }
     }
 
