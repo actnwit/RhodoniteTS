@@ -47,22 +47,22 @@ export default class System {
   }
 
   doRenderLoop(renderLoopFunc: Function, time: number, ...args: any[]) {
-    args.splice(0, 0, time);
-    renderLoopFunc.apply(renderLoopFunc, args);
-
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
-    if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
-      webVRSystem.vrDisplay!.submitFrame();
-    }
     const animationFrameObject = this.__getAnimationFrameObject();
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(
       (_time: number) => {
-        if (webVRSystem?.requestedToEnterWebVR) {
-          webVRSystem._setIsWebVRMode();
-        }
+        const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+        const webVRSystem = rnXRModule?.WebVRSystem.getInstance();
         if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
           webVRSystem.getFrameData();
+        }
+        args.splice(0, 0, time);
+        renderLoopFunc.apply(renderLoopFunc, args);
+
+        if (webVRSystem?.isWebVRMode && webVRSystem.vrDisplay?.isPresenting) {
+          webVRSystem.vrDisplay!.submitFrame();
+        }
+        if (webVRSystem?.requestedToEnterWebVR) {
+          webVRSystem._setIsWebVRMode();
         }
         this.doRenderLoop(renderLoopFunc, _time, args);
       }
