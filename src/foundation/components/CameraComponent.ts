@@ -54,7 +54,7 @@ export default class CameraComponent extends Component {
   private _tmp_f: Vector3 = Vector3.dummy();
   private _tmp_s: Vector3 = Vector3.dummy();
   private _tmp_u: Vector3 = Vector3.dummy();
-  private static __main: ComponentSID = 0;
+  private static __main: ComponentSID = -1;
   private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -95,6 +95,10 @@ export default class CameraComponent extends Component {
     globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
 
     this.setFovyAndChangeFocalLength(90);
+
+    if (CameraComponent.main === -1) {
+      CameraComponent.main = componentSid;
+    }
   }
 
 
