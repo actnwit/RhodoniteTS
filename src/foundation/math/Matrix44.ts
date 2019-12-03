@@ -98,18 +98,10 @@ export default class Matrix44 implements IMatrix44 {
       } else {
         this.v = new FloatArray(16);
         const v: FloatArray = (m as any).v;
-        if (_isColumnMajor === true) {
-          this.v[0] = v[0]; this.v[4] = v[4]; this.v[8] = v[8]; this.v[12] = v[12];
-          this.v[1] = v[1]; this.v[5] = v[5]; this.v[9] = v[9]; this.v[13] = v[13];
-          this.v[2] = v[2]; this.v[6] = v[6]; this.v[10] = v[10]; this.v[14] = v[14];
-          this.v[3] = v[3]; this.v[7] = v[7]; this.v[11] = v[11]; this.v[15] = v[15];
-        } else {
-          // 'm' must be row major values if isColumnMajor is false
-          this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = v[3];
-          this.v[1] = v[4]; this.v[5] = v[5]; this.v[9] = v[6]; this.v[13] = v[7];
-          this.v[2] = v[8]; this.v[6] = v[9]; this.v[10] = v[10]; this.v[14] = v[11];
-          this.v[3] = v[12]; this.v[7] = v[13]; this.v[11] = v[14]; this.v[15] = v[15];
-        }
+        this.v[0] = v[0]; this.v[4] = v[4]; this.v[8] = v[8]; this.v[12] = v[12];
+        this.v[1] = v[1]; this.v[5] = v[5]; this.v[9] = v[9]; this.v[13] = v[13];
+        this.v[2] = v[2]; this.v[6] = v[6]; this.v[10] = v[10]; this.v[14] = v[14];
+        this.v[3] = v[3]; this.v[7] = v[7]; this.v[11] = v[11]; this.v[15] = v[15];
       }
     } else if (!!m && typeof m.v[15] === 'undefined' && typeof m.v[10] !== 'undefined') {
       if (_notCopyFloatArray) {
@@ -117,18 +109,10 @@ export default class Matrix44 implements IMatrix44 {
       } else {
         this.v = new FloatArray(16);
         const v: FloatArray = (m as any).v;
-        if (_isColumnMajor === true) {
-          this.v[0] = v[0]; this.v[4] = v[3]; this.v[8] = v[6]; this.v[12] = 0;
-          this.v[1] = v[1]; this.v[5] = v[4]; this.v[9] = v[7]; this.v[13] = 0;
-          this.v[2] = v[2]; this.v[6] = v[5]; this.v[10] = v[8]; this.v[14] = 0;
-          this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
-        } else {
-          // 'm' must be row major values if isColumnMajor is false
-          this.v[0] = v[0]; this.v[4] = v[1]; this.v[8] = v[2]; this.v[12] = 0;
-          this.v[1] = v[3]; this.v[5] = v[4]; this.v[9] = v[5]; this.v[13] = 0;
-          this.v[2] = v[6]; this.v[6] = v[7]; this.v[10] = v[8]; this.v[14] = 0;
-          this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
-        }
+        this.v[0] = v[0]; this.v[4] = v[3]; this.v[8] = v[6]; this.v[12] = 0;
+        this.v[1] = v[1]; this.v[5] = v[4]; this.v[9] = v[7]; this.v[13] = 0;
+        this.v[2] = v[2]; this.v[6] = v[5]; this.v[10] = v[8]; this.v[14] = 0;
+        this.v[3] = 0; this.v[7] = 0; this.v[11] = 0; this.v[15] = 1;
       }
     } else if (!!m && typeof m.className !== 'undefined' && m instanceof Quaternion) {
       this.v = new FloatArray(16);

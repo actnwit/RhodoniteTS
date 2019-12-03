@@ -83,18 +83,10 @@ export default class Matrix33 implements IMatrix33 {
         this.v = m.v;
       } else {
         this.v = new Float32Array(9);
-        if (_isColumnMajor === true) {
-          const v = (m as Matrix33 | Matrix44).v;
-          this.v[0] = v[0]; this.v[3] = v[3]; this.v[6] = v[6];
-          this.v[1] = v[1]; this.v[4] = v[4]; this.v[7] = v[7];
-          this.v[2] = v[2]; this.v[5] = v[5]; this.v[8] = v[8];
-        } else {
-          const v = (m as Matrix33 | Matrix44).v;
-          // 'm' must be row major array if isColumnMajor is false
-          this.v[0] = v[0]; this.v[3] = v[1]; this.v[6] = v[2];
-          this.v[1] = v[3]; this.v[4] = v[4]; this.v[7] = v[5];
-          this.v[2] = v[6]; this.v[5] = v[7]; this.v[8] = v[8];
-        }
+        const v = (m as Matrix33 | Matrix44).v;
+        this.v[0] = v[0]; this.v[3] = v[3]; this.v[6] = v[6];
+        this.v[1] = v[1]; this.v[4] = v[4]; this.v[7] = v[7];
+        this.v[2] = v[2]; this.v[5] = v[5]; this.v[8] = v[8];
       }
     } else if (!!m && typeof (m as Quaternion).className !== 'undefined' && (m as Quaternion).className === 'Quaternion') {
       this.v = new Float32Array(9);
