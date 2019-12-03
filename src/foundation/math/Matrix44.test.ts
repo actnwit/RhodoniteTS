@@ -42,6 +42,17 @@ test('Make Matrix44 from MutableMatrix44 (3)', () => {
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1, true);
+  const b = new Matrix44(a);
+
+  expect(a.m03).toBe(0);
+});
+
+test('Make Matrix44 from MutableMatrix44 (4)', () => {
+  const a = new MutableMatrix44(
+    1, 0, 0, 1,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1, true);
   const b = new Matrix44(a, true);
 
   expect(a.m03).toBe(0);
