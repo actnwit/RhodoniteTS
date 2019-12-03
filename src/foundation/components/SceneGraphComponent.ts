@@ -104,13 +104,6 @@ export default class SceneGraphComponent extends Component {
     }
   }
 
-  applyFunctionRecursively(func: Function, args:any[]) {
-    for (let child of this.__children) {
-      func(child, args);
-      child.applyFunctionRecursively(func, args);
-    }
-  }
-
   get isTopLevel() {
     return this.__parent == null;
   }
