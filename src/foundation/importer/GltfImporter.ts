@@ -38,7 +38,7 @@ export default class GltfImporter {
    * Generate JSON.
    */
   async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<VRM> {
-    options = this.__getOptions(options);
+    options = this._getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
     return gltf2Importer.import(uri, options);
@@ -111,15 +111,15 @@ export default class GltfImporter {
   }
 
   private async __importVRM(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
-    options = this.__getOptions(options)
+    options = this._getOptions(options)
     const gltf2Importer = Gltf2Importer.getInstance();
     const gltfModel = await gltf2Importer.import(uri, options);
 
-    const textures = this.__createTextures(gltfModel);
+    const textures = this._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray = gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray;
     defaultMaterialHelperArgumentArray[0].textures = textures;
 
-    this.__initializeMaterialProperties(gltfModel, textures.length);
+    this._initializeMaterialProperties(gltfModel, textures.length);
 
     const renderPassMain = new RenderPass();
 
@@ -127,7 +127,7 @@ export default class GltfImporter {
     let renderPasses;
     let rootGroup;
     const modelConverter = ModelConverter.getInstance();
-    const existOutline = this.__existOutlineMaterial(gltfModel.extensions.VRM);
+    const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (!existOutline) {
       rootGroup = modelConverter.convertToRhodoniteObject(gltfModel);
       renderPasses = [renderPassMain];
@@ -145,13 +145,13 @@ export default class GltfImporter {
 
     renderPassMain.addEntities([rootGroup]);
 
-    this.readSpringBone(rootGroup, gltfModel);
-    this.readVRMHumanoidInfo(rootGroup, gltfModel);
+    this._readSpringBone(rootGroup, gltfModel);
+    this._readVRMHumanoidInfo(rootGroup, gltfModel);
 
     return renderPasses;
   }
 
-  private __getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
+  _getOptions(options: GltfLoadOption | undefined): GltfLoadOption {
     if (options != null) {
       for (let file in options.files) {
         const fileName = file.split('.vrm')[0];
@@ -197,7 +197,7 @@ export default class GltfImporter {
     return options;
   }
 
-  private readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM): void {
+  _readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     for (let bone of humanBones) {
@@ -209,7 +209,7 @@ export default class GltfImporter {
     });
   }
 
-  private readSpringBone(rootEntity: Entity, gltfModel: VRM): void {
+  _readSpringBone(rootEntity: Entity, gltfModel: VRM): void {
     const entityRepository = EntityRepository.getInstance();
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (let boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
@@ -270,7 +270,7 @@ export default class GltfImporter {
     }
   }
 
-  private __createTextures(gltfModel: glTF2): Texture[] {
+  _createTextures(gltfModel: glTF2): Texture[] {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
@@ -290,7 +290,7 @@ export default class GltfImporter {
     return rnTextures;
   }
 
-  private __existOutlineMaterial(extensionsVRM: any): boolean {
+  _existOutlineMaterial(extensionsVRM: any): boolean {
     const materialProperties = extensionsVRM.materialProperties;
     if (materialProperties != null) {
       for (let materialProperty of materialProperties) {
@@ -303,7 +303,7 @@ export default class GltfImporter {
     return false;
   }
 
-  private __initializeMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
+  _initializeMaterialProperties(gltfModel: glTF2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (let materialProperty of materialProperties) {
