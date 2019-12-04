@@ -18,17 +18,33 @@ export default class AABBGizmo extends Gizmo {
     super(substance);
   }
 
+  get isSetup() {
+    if (this.__topEntity != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   setup(): void {
-    if (AABBGizmo.__aabbMesh == null) {
-      AABBGizmo.__aabbMesh = new Mesh();
-      AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
+    if (this.isSetup) {
+      return;
     }
 
     this.__topEntity = this.__entityRepository.createEntity([TransformComponent, SceneGraphComponent, MeshComponent, MeshRendererComponent]);
     const meshComponent = this.__topEntity.getMesh();
-    const mesh = new Mesh();
-    mesh.setMesh(AABBGizmo.__aabbMesh);
-    meshComponent.setMesh(mesh);
+
+    // if (AABBGizmo.__aabbMesh == null) {
+      AABBGizmo.__aabbMesh = new Mesh();
+      AABBGizmo.__aabbMesh.addPrimitive(AABBGizmo.generatePrimitive());
+      meshComponent.setMesh(AABBGizmo.__aabbMesh);
+    // } else {
+    //   const mesh = new Mesh();
+    //   mesh.setMesh(AABBGizmo.__aabbMesh);
+    //   meshComponent.setMesh(mesh);
+    // }
+
+    this.setGizmoTag();
   }
 
   private static generatePrimitive() {
@@ -60,7 +76,6 @@ export default class AABBGizmo extends Gizmo {
       attributeCompositionTypes: [CompositionType.Vec3],
       attributeSemantics: [VertexAttribute.Position],
       attributes: [positions],
-      material: void 0,
       primitiveMode: PrimitiveMode.LineLoop
     });
 
@@ -71,7 +86,8 @@ export default class AABBGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
-    const aabb = this.__substance as any as AABB;
+    const sg = this.__substance as any as SceneGraphComponent;
+    const aabb = sg.worldAABB;
     this.__topEntity.getTransform().translate = aabb.centerPoint;
     this.__topEntity.getTransform().scale = new Vector3(aabb.sizeX/2, aabb.sizeY/2, aabb.sizeZ/2);
   }

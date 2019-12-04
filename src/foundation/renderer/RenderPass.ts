@@ -36,8 +36,24 @@ export default class RenderPass extends RnObject {
   private __webglRenderingStrategy?: WebGLStrategy;
   public isMainPass = false;
 
+  private __preRenderFunc?: Function;
+
   constructor() {
     super();
+  }
+
+  setPreRenderFunction(func: Function) {
+    this.__preRenderFunc = func;
+  }
+
+  unsetPreRenderFunction() {
+    this.__preRenderFunc = void 0;
+  }
+
+  doPreRender() {
+    if (this.__preRenderFunc != null) {
+      this.__preRenderFunc();
+    }
   }
 
   /**

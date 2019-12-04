@@ -7,23 +7,37 @@ export default abstract class Gizmo extends RnObject {
   protected __entityRepository = EntityRepository.getInstance();
   protected __topEntity?: Entity;
   protected __substance: RnObject;
+  protected __isVisible: boolean = false;
+
   constructor(substance: RnObject) {
     super();
     this.__substance = substance;
-    this.setup();
     this.setGizmoTag();
   }
 
   abstract setup(): void;
 
+  abstract isSetup: boolean;
+
   abstract update(): void;
 
-  private setGizmoTag() {
+  protected setGizmoTag() {
     if (this.__topEntity) {
       const sceneGraphs = SceneGraphComponent.flattenHierarchy(this.__topEntity.getSceneGraph(), false);
       for (let sg of sceneGraphs) {
         sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
       }
     }
+  }
+
+  set isVisible(flg: boolean) {
+    this.__isVisible = flg;
+    if (this.__topEntity) {
+      this.__topEntity.getSceneGraph().setVisibilityRecursively(flg);
+    }
+  }
+
+  get isVisible() {
+    return this.__isVisible;
   }
 }

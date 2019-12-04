@@ -103,6 +103,11 @@ export default class System {
       cameraEntity.getCamera().yMag = 1;
     }
 
+    for (let exp of expressions) {
+      for (let renderPass of exp.renderPasses) {
+        renderPass.doPreRender();
+      }
+    }
 
     for (let stage of this.__processStages) {
       const methodName = stage.methodName;
