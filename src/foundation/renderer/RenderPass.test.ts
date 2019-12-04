@@ -1,17 +1,15 @@
-import EntityRepository from "../core/EntityRepository";
-import SceneGraphComponent from "../components/SceneGraphComponent";
-import TransformComponent from "../components/TransformComponent";
-import RenderPass from "./RenderPass";
-import MemoryManager from "../core/MemoryManager";
+import RnObj, { RnType } from "../../../dist/rhodonite";
+
+const Rn: RnType = RnObj as any;
 
 function generateEntity() {
-  const repo = EntityRepository.getInstance();
-  const entity = repo.createEntity([TransformComponent, SceneGraphComponent]);
+  const repo = Rn.EntityRepository.getInstance();
+  const entity = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent]);
   return entity;
 }
 
 test('addEntities and get entities', () => {
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
 
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1
@@ -20,7 +18,7 @@ test('addEntities and get entities', () => {
   const entityGrandChildOf1st = generateEntity(); // Uid is 3
   entityChildOf1st.getSceneGraph().addChild(entityGrandChildOf1st.getSceneGraph());
 
-  const renderPass = new RenderPass();
+  const renderPass = new Rn.RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   const entities = renderPass.entities;
@@ -33,12 +31,12 @@ test('addEntities and get entities', () => {
 
 
 test('clearEntities and get entities', () => {
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
 
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1
 
-  const renderPass = new RenderPass();
+  const renderPass = new Rn.RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   expect(renderPass.entities.length).toBe(2);

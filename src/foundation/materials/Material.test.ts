@@ -1,3 +1,6 @@
+import RnObj, { RnType } from "../../../dist/rhodonite";
+
+const Rn: RnType = RnObj as any;
 import { ComponentType } from "../../foundation/definitions/ComponentType";
 import { CompositionType } from "../../foundation/definitions/CompositionType";
 import GetVarsMaterialNode from "./GetVarsMaterialNode";
@@ -120,17 +123,17 @@ test('Material works correctly', async () => {
 
 test('MaterialTID are processed correctly', () => {
 
-  ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.ModuleManager.getInstance().loadModule('webgl');
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
 
   // 0st
-  Material.registerMaterial('MyMaterial0', []);
-  const material0 = Material.createMaterial('MyMaterial0')!;
+  Rn.Material.registerMaterial('MyMaterial0', []);
+  const material0 = Rn.Material.createMaterial('MyMaterial0')!;
 
   // 1st
-  Material.registerMaterial('MyMaterial1', []);
-  const material1a = Material.createMaterial('MyMaterial1')!;
-  const material1b = Material.createMaterial('MyMaterial1')!;
+  Rn.Material.registerMaterial('MyMaterial1', []);
+  const material1a = Rn.Material.createMaterial('MyMaterial1')!;
+  const material1b = Rn.Material.createMaterial('MyMaterial1')!;
 
   expect(material1b.materialTID).toEqual(1);
 

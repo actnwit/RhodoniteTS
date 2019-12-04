@@ -4,13 +4,15 @@ import WebGLContextWrapper from './webgl/WebGLContextWrapper';
 import WebGLResourceRepository, { VertexHandles as vertexHandles } from './webgl/WebGLResourceRepository';
 import webGLStrategy from './webgl/WebGLStrategy';
 import WebGLStrategyUniform from './webgl/WebGLStrategyUniform';
+import GetVarsShader from './webgl/shaders/GetVarsShader';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
   GLSLShader,
   WebGLContextWrapper,
   WebGLResourceRepository,
-  WebGLStrategyUniform
+  WebGLStrategyUniform,
+  GetVarsShader
 });
 export default WebGL;
 

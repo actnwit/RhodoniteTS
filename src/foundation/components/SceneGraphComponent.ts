@@ -20,6 +20,7 @@ import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Entity from '../core/Entity';
 import Mesh from '../geometry/Mesh';
+import AABBGizmo from '../gizmos/AABBGizmo';
 
 export default class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent
@@ -38,6 +39,7 @@ export default class SceneGraphComponent extends Component {
   private static returnVector3 = MutableVector3.zero();
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
+  private __AABBGizmo = new AABBGizmo(this);
 
   // Skeletal
   public isRootJoint = false;
@@ -60,6 +62,17 @@ export default class SceneGraphComponent extends Component {
 
     this.submitToAllocation(this.maxNumberOfComponent);
 
+  }
+
+  set isGizmoVisible(flg: boolean) {
+    if (flg) {
+      this.__AABBGizmo.setup();
+    }
+    this.__AABBGizmo.isVisible = flg;
+  }
+
+  get isGizmoVisible() {
+    return this.__AABBGizmo.isVisible;
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
@@ -101,13 +114,6 @@ export default class SceneGraphComponent extends Component {
       this.__children.push(sg);
     } else {
       console.error('This is not allowed to have children.');
-    }
-  }
-
-  applyFunctionRecursively(func: Function, args:any[]) {
-    for (let child of this.__children) {
-      func(child, args);
-      child.applyFunctionRecursively(func, args);
     }
   }
 
@@ -162,13 +168,13 @@ export default class SceneGraphComponent extends Component {
 
   $logic() {
 
-//    this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-//    const world = this.worldMatrixInner;
     this._worldMatrix.copyComponents(this.calcWorldMatrixRecursively(false));//this.isJoint()));
-
     const normal = this.normalMatrixInner;
-//    const normal = this.normalMatrixInner;
-    // console.log(normal.toString());
+
+    if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
+      this.__AABBGizmo.update();
+    }
+
   }
 
   static common_$prerender() {

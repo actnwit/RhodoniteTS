@@ -1,34 +1,35 @@
-import GetVarsShader from "./GetVarsShader";
-import { ComponentType } from "../../foundation/definitions/ComponentType";
-import { CompositionType } from "../../foundation/definitions/CompositionType";
+import RnObj, { RnType } from "../../../dist/rhodonite";
 
-test('GetVersShader vertex shader works correctly', () => {
+const Rn: RnType = RnObj as any;
 
-  const getVarsShader = new GetVarsShader();
+test('GetVersShader vertex shader works correctly', async () => {
+  const moduleManager = Rn.ModuleManager.getInstance();
+  const webglModule = await moduleManager.loadModule('webgl');
+  const getVarsShader = new webglModule.GetVarsShader();
   getVarsShader.addVertexInputAndOutput(
     {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Vec4,
+      componentType: Rn.ComponentType.Float,
       name: 'a_position',
       isImmediateValue: false
     },
     {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Vec4,
+      componentType: Rn.ComponentType.Float,
       name: 'position_inLocal',
       isImmediateValue: false
     }
   );
   getVarsShader.addVertexInputAndOutput(
     {
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Mat4,
+      componentType: Rn.ComponentType.Float,
       name: 'u_viewMatrix',
       isImmediateValue: false
     },
     {
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Mat4,
+      componentType: Rn.ComponentType.Float,
       name: 'viewMatrix',
       isImmediateValue: false
     }
@@ -48,33 +49,34 @@ expect(getVarsShader.vertexShaderDefinitions.replace(/\s+/g, "")).toEqual(`void 
 }`.replace(/\s+/g, ""))
 });
 
-test('GetVersShader pixel shader works correctly', () => {
-
-  const getVarsShader = new GetVarsShader();
+test('GetVersShader pixel shader works correctly', async () => {
+  const moduleManager = Rn.ModuleManager.getInstance();
+  const webglModule = await moduleManager.loadModule('webgl');
+  const getVarsShader = new webglModule.GetVarsShader();
   getVarsShader.addPixelInputAndOutput(
     {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Vec4,
+      componentType: Rn.ComponentType.Float,
       name: 'v_position',
       isImmediateValue: false
     },
     {
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Vec4,
+      componentType: Rn.ComponentType.Float,
       name: 'position_inWorld',
       isImmediateValue: false
     }
   );
   getVarsShader.addPixelInputAndOutput(
     {
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Mat4,
+      componentType: Rn.ComponentType.Float,
       name: 'u_viewMatrix',
       isImmediateValue: false
     },
     {
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
+      compositionType: Rn.CompositionType.Mat4,
+      componentType: Rn.ComponentType.Float,
       name: 'viewMatrix',
       isImmediateValue: false
     }

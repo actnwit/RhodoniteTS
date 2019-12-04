@@ -85,6 +85,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
+    this.__glw!.bindVertexArray(null);
     const ibo = gl.createBuffer();
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, ibo!);
@@ -104,6 +105,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
+    this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vbo!);
@@ -124,6 +126,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
+    this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vbo!);
@@ -143,6 +146,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
 
+    this.__glw!.bindVertexArray(null);
     const vbo = gl.createBuffer();
     const resourceHandle = this.getResourceNumber();
     this.__webglResources.set(resourceHandle, vbo!);
