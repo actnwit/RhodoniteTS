@@ -37,7 +37,7 @@ test('mesh.instanceIndex is correct', async () => {
   mesh.addPrimitive(primitive);
 
   const mesh2 = new Rn.Mesh();
-  mesh2.setMesh(mesh);
+  mesh2.setOriginalMesh(mesh);
 
   mesh2.instanceIndex
 
@@ -54,7 +54,7 @@ test('mesh.isInstanceMesh() is correct', async () => {
   mesh.addPrimitive(primitive);
 
   const mesh2 = new Rn.Mesh();
-  mesh2.setMesh(mesh);
+  mesh2.setOriginalMesh(mesh);
 
   mesh2.instanceIndex
 

@@ -461,7 +461,7 @@ export default class ModelConverter {
 
     let originalRnMesh = rnMesh;
     if (existingRnMesh != null) {
-      rnMesh.setMesh(existingRnMesh);
+      rnMesh.setOriginalMesh(existingRnMesh);
       originalRnMesh = existingRnMesh;
     } else {
       for (let i in mesh.primitives) {
