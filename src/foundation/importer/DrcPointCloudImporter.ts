@@ -828,7 +828,13 @@ export default class DrcPointCloudImporter {
     let byteOffsetOfBufferView = 0;
     for (let i = 0, currentIndexOfBufferView = 0; i < geometryAttributes.length; currentIndexOfBufferView++) {
       const currentComponent = attributeComponents[i];
-      const type = "VEC" + currentComponent;
+
+      let type;
+      if (currentComponent === 1) {
+        type = "SCALAR";
+      } else {
+        type = "VEC" + currentComponent;
+      }
 
       let byteOffsetOfAccessor = 0;
       while (i < geometryAttributes.length && currentComponent === attributeComponents[i]) {
