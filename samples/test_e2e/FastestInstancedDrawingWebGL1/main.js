@@ -136,7 +136,7 @@
         meshComponent.setMesh(originalMesh);
       } else {
         const mesh = new Rn.Mesh();
-        mesh.setMesh(originalMesh);
+        mesh.setOriginalMesh(originalMesh);
         meshComponent.setMesh(mesh);
       }
       entity.getTransform().toUpdateAllTransform = false;

@@ -40,7 +40,7 @@ export default class AABBGizmo extends Gizmo {
       meshComponent.setMesh(AABBGizmo.__aabbMesh);
     // } else {
     //   const mesh = new Mesh();
-    //   mesh.setMesh(AABBGizmo.__aabbMesh);
+    //   mesh.setOriginalMesh(AABBGizmo.__aabbMesh);
     //   meshComponent.setMesh(mesh);
     // }
 

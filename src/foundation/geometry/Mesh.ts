@@ -100,7 +100,7 @@ export default class Mesh {
    * Sets mesh.
    * @param mesh The mesh.
    */
-  setMesh(mesh: Mesh) {
+  setOriginalMesh(mesh: Mesh) {
     if (mesh.isInstanceMesh()) {
       console.error(`Don't set InstanceMesh.`);
       return false;
