@@ -43,9 +43,8 @@ void main ()
 
   // diffuseColorTexture
   vec4 textureColor = texture2D(u_diffuseColorTexture, v_texcoord);
-  if (textureColor.r > 0.05) {
-    diffuseColor *= textureColor.rgb;
-  }
+  diffuseColor *= textureColor.rgb;
+  alpha *= textureColor.a;
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
