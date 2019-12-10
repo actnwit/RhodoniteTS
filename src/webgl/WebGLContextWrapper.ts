@@ -230,9 +230,6 @@ export default class WebGLContextWrapper {
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
     if (this.__isDebugMode) {
       if (texture) {
-        this.__activeTextures2D[activeTextureIndex] = texture;
-      }
-      if (texture) {
         if ((texture as any)._bound_as === 'CUBE_MAP') {
           debugger
         }
@@ -240,15 +237,18 @@ export default class WebGLContextWrapper {
       }
     }
 
+    if (this.__activeTextures2D[activeTextureIndex] === texture) {
+      return;
+    }
+
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
+
+    this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
     if (this.__isDebugMode) {
-      if (texture) {
-        this.__activeTexturesCube[activeTextureIndex] = texture;
-      }
       if (texture) {
         if ((texture as any)._bound_as === '2D') {
           debugger
@@ -256,8 +256,15 @@ export default class WebGLContextWrapper {
         (texture as any)._bound_as = 'CUBE_MAP';
       }
     }
+
+    if (this.__activeTextures2D[activeTextureIndex] === texture) {
+      return;
+    }
+
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
+
+    this.__activeTexturesCube[activeTextureIndex] = texture;
   }
 
   unbindTexture2D(activeTextureIndex: Index) {
