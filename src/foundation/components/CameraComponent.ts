@@ -259,6 +259,10 @@ export default class CameraComponent extends Component {
     this._parametersInner.copyComponents(vec);
   }
 
+  get parametersInner() {
+    return this._parametersInner;
+  }
+
   get parameters(): Vector4 {
     return this._parameters.clone();
   }
@@ -354,13 +358,25 @@ export default class CameraComponent extends Component {
   $logic() {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this.eyeInner = this.eye;
-      this.directionInner = this.direction;
-      this.upInner = this.up;
-      this.cornerInner = this.corner;
-      this.parametersInner = this.parameters;
+      this.eyeInner.v[0] = this._eye.x;
+      this.eyeInner.v[1] = this._eye.y;
+      this.eyeInner.v[2] = this._eye.z;
+      this.directionInner.v[0] = this._direction.x;
+      this.directionInner.v[1] = this._direction.y;
+      this.directionInner.v[2] = this._direction.z;
+      this.upInner.v[0] = this._up.x;
+      this.upInner.v[1] = this._up.y;
+      this.upInner.v[2] = this._up.z;
+      this.cornerInner.v[0] = this._corner.x;
+      this.cornerInner.v[1] = this._corner.y;
+      this.cornerInner.v[2] = this._corner.z;
+      this.cornerInner.v[3] = this._corner.w;
+      this.parametersInner.v[0] = this._parameters.x;
+      this.parametersInner.v[1] = this._parameters.y;
+      this.parametersInner.v[2] = this._parameters.z;
+      this.parametersInner.v[3] = this._parameters.w;
     } else {
-      this._parametersInner.w = this.parameters.w;
+      this._parametersInner.w = this._parameters.w;
     }
 
     this.moveStageTo(ProcessStage.PreRender);
