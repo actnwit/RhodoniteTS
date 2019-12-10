@@ -114,10 +114,9 @@ export default class SkeletalComponent extends Component {
         this.__qArray[i * 4 + 1] = q.y;
         this.__qArray[i * 4 + 2] = q.z;
         this.__qArray[i * 4 + 3] = q.w;
-        const t = m.getTranslate();
-        this.__tArray[i * 4 + 0] = t.x;
-        this.__tArray[i * 4 + 1] = t.y;
-        this.__tArray[i * 4 + 2] = t.z;
+        this.__tArray[i * 4 + 0] = m.m03; // m.getTranslate().x
+        this.__tArray[i * 4 + 1] = m.m13; // m.getTranslate().y
+        this.__tArray[i * 4 + 2] = m.m23; // m.getTranslate().z
         this.__tArray[i * 4 + 3] = Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z);
 
       }
