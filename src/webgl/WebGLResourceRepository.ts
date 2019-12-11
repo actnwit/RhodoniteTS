@@ -1226,11 +1226,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setViewport(viewport?: Vector4) {
-    const gl = this.__glw!.getRawContext();
     if (viewport) {
-      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
+      this.__glw?.setViewportAsVector4(viewport);
     } else {
-      gl.viewport(0, 0, this.__glw!.width, this.__glw!.height);
+      this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
     }
   }
 
@@ -1290,6 +1289,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.height = height;
     this.__glw!.canvas.width = width;
     this.__glw!.canvas.height = height;
-    this.__glw!._setViewport(new Vector4(0, 0, width, height));
+    this.__glw!.setViewportAsVector4(new Vector4(0, 0, width, height));
   }
 }
