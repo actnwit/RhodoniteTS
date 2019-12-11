@@ -257,7 +257,7 @@ export default class WebGLContextWrapper {
       }
     }
 
-    if (this.__activeTextures2D[activeTextureIndex] === texture) {
+    if (this.__activeTexturesCube[activeTextureIndex] === texture) {
       return;
     }
 
