@@ -57,4 +57,8 @@ export default class LogQuaternion implements IVector3 {
   get z() {
     return this.v[2];
   }
+
+  get w() {
+    return 1;
+  }
 }
