@@ -379,13 +379,11 @@ export default class Material extends RnObject {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
 
-    this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
+    this.__fieldsInfo.forEach((info, key) => {
       if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        this.__fields.forEach((value, key) => {
-          const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
-          webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
-        });
+      const value = this.__fields.get(key)!;
+        const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
+        webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
       }
     });
   }
@@ -398,10 +396,10 @@ export default class Material extends RnObject {
     });
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
-      if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        if (!info.isSystem) {
+    this.__fieldsInfo.forEach((info, key) => {
+      if (!info.isSystem) {
+        if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+          const value = this.__fields.get(key)!;
           webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
         }
       }

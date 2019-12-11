@@ -168,6 +168,17 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return new (lv.constructor as any)(lv.v[0] + rv.v[0], lv.v[1] + rv.v[1], lv.v[2] + rv.v[2]);
   }
 
+  /**
+   * add value（static version）
+   */
+  static addTo<T extends TypedArrayConstructor>(lv: Vector3_<T>, rv: Vector3_<T>, out: MutableVector3_<T>) {
+    out.v[0] = lv.v[0] + rv.v[0];
+    out.v[1] = lv.v[1] + rv.v[1];
+    out.v[2] = lv.v[2] + rv.v[2];
+
+    return out;
+  }
+
 
   /**
    * subtract(subtract)
