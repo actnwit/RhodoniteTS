@@ -58,6 +58,9 @@ export default class CameraComponent extends Component {
   private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __tmp_f: MutableVector3 = MutableVector3.zero();
+  private static __tmp_s: MutableVector3 = MutableVector3.zero();
+  private static __tmp_u: MutableVector3 = MutableVector3.zero();
 
   private __frustum = new Frustum();
 
@@ -427,9 +430,9 @@ export default class CameraComponent extends Component {
 
   calcViewMatrix() {
     const eye = this.eyeInner;
-    const f = Vector3.normalize(Vector3.subtract(this._directionInner, eye));
-    const s = Vector3.normalize(Vector3.cross(f, this._upInner));
-    const u = Vector3.cross(s, f);
+    const f = Vector3.subtractTo(this._directionInner, eye, CameraComponent.__tmp_f).normalize();
+    const s = Vector3.crossTo(f, this._upInner, CameraComponent.__tmp_s).normalize();
+    const u = Vector3.crossTo(s, f, CameraComponent.__tmp_u);
 
     this._viewMatrix.setComponents(
       s.x,
