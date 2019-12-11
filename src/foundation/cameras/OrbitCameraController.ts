@@ -8,6 +8,7 @@ import Entity from "../core/Entity";
 import Matrix44 from "../math/Matrix44";
 import { ComponentTID, ComponentSID, EntityUID, Count, Size } from "../../types/CommonTypes";
 import ICameraController from "./ICameraController";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 declare var window: any;
 
@@ -78,6 +79,10 @@ export default class OrbitCameraController implements ICameraController {
   private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
+
+  private static __tmp_mat: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmp_centerToCameraVec: MutableVector3 = MutableVector3.zero();
+  private static __tmp_centerToCameraVecMultiplied: MutableVector3 = MutableVector3.zero();
 
   constructor() {
     this.registerEventListeners();
@@ -445,7 +450,7 @@ export default class OrbitCameraController implements ICameraController {
     const up = data0.newUpVec;
 
 
-    const data = this.__convert(cameraComponent!, eye, center, up);
+    const data = this.__convert(cameraComponent!, eye as MutableVector3, center, up);
     const cc = cameraComponent!;
     cc.eyeInner = data.newEyeVec;
     cc.directionInner = data.newCenterVec;
@@ -460,7 +465,7 @@ export default class OrbitCameraController implements ICameraController {
     cc.fovyInner = data.fovy;
   }
 
-  __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
+  __convert(camera: CameraComponent, eye: MutableVector3, center: Vector3, up: Vector3) {
     let newEyeVec = null;
     let newCenterVec: MutableVector3;
     let newUpVec = null;
@@ -468,7 +473,9 @@ export default class OrbitCameraController implements ICameraController {
     if (this.__isKeyUp || !this.__isForceGrab) {
       this.__eyeVec = Vector3.add(eye, this.__shiftCameraTo);
       this.__centerVec = Vector3.add(center, this.__shiftCameraTo);
-      this.__upVec = new MutableVector3(up);
+      this.__upVec.x = up!.x;
+      this.__upVec.y = up!.y;
+      this.__upVec.z = up!.z;
     }
 
     let fovy = this.__getFovyFromCamera(camera);
@@ -606,7 +613,7 @@ export default class OrbitCameraController implements ICameraController {
 
     const eyeVec = camera.eye;
     const centerVec = camera.direction;
-    const upVec = (camera as any)._up;
+    const upVec = (camera as any)._up as Vector3;
     const fovy = camera.fovy;
 
     if (this.__targetEntity == null) {
@@ -623,23 +630,23 @@ export default class OrbitCameraController implements ICameraController {
 
     let newCenterVec = targetAABB.centerPoint;
 
-    let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
-    let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);
+    let centerToCameraVec = Vector3.subtractTo(eyeVec, centerVec, OrbitCameraController.__tmp_centerToCameraVec);
+    let centerToCameraVecNormalized = centerToCameraVec.normalize();
 
-    let newEyeVec = Vector3.add(Vector3.multiply(
+    let newEyeVec = Vector3.multiplyTo(
       centerToCameraVecNormalized,
-      this.__lengthCameraToObject
-    ), newCenterVec);
+      this.__lengthCameraToObject, OrbitCameraController.__tmp_centerToCameraVecMultiplied
+    ).add(newCenterVec);
 
-    let newUpVec = null;
+    let newUpVec: Vector3|null = null;
     if (camera.entity.getSceneGraph()) {
       const sg = camera.entity.getSceneGraph();
-      let mat = Matrix44.invert(sg.worldMatrixInner);
+      let mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
 
       mat.multiplyVector3To(
         newEyeVec, OrbitCameraController.returnVector3Eye
       );
-      newEyeVec = OrbitCameraController.returnVector3Eye as Vector3;
+      newEyeVec = OrbitCameraController.returnVector3Eye;
 
       mat.multiplyVector3To(
         newCenterVec, OrbitCameraController.returnVector3Center
@@ -649,7 +656,7 @@ export default class OrbitCameraController implements ICameraController {
       mat.multiplyVector3To(
         upVec, OrbitCameraController.returnVector3Up
       );
-      newUpVec = OrbitCameraController.returnVector3Up as Vector3;
+      newUpVec = OrbitCameraController.returnVector3Up;
 
     } else {
       newUpVec = upVec;
