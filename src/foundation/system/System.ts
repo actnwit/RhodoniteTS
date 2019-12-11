@@ -23,16 +23,6 @@ import { RnXR } from "../../rhodonite-xr";
 
 export default class System {
   private static __instance: System;
-  private __processStages: Array<ProcessStageEnum> = [
-    ProcessStage.Create,
-    ProcessStage.Load,
-    // ProcessStage.Mount,
-    ProcessStage.Logic,
-    ProcessStage.PreRender,
-    ProcessStage.Render,
-    // ProcessStage.Unmount,
-    // ProcessStage.Discard
-  ];
   private __componentRepository: ComponentRepository = ComponentRepository.getInstance();
   private __entityRepository: EntityRepository = EntityRepository.getInstance();
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
@@ -108,7 +98,7 @@ export default class System {
       }
     }
 
-    for (let stage of this.__processStages) {
+    for (let stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
       const componentTids = this.__componentRepository.getComponentTIDs();

@@ -24,7 +24,7 @@ import { MathUtil } from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
 
 export default class CameraComponent extends Component {
-  private readonly _eye: Vector3 = Vector3.zero();
+  private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: Vector3 = Vector3.dummy();
   private _direction: Vector3 = Vector3.dummy();
   private _directionInner: Vector3 = Vector3.dummy();
@@ -361,9 +361,9 @@ export default class CameraComponent extends Component {
   $logic() {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this.eyeInner.v[0] = this._eye.x;
-      this.eyeInner.v[1] = this._eye.y;
-      this.eyeInner.v[2] = this._eye.z;
+      this.eyeInner.v[0] = CameraComponent._eye.x;
+      this.eyeInner.v[1] = CameraComponent._eye.y;
+      this.eyeInner.v[2] = CameraComponent._eye.z;
       this.directionInner.v[0] = this._direction.x;
       this.directionInner.v[1] = this._direction.y;
       this.directionInner.v[2] = this._direction.z;
