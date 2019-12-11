@@ -130,11 +130,8 @@ export default class Component extends RnObject {
    * Get true or false whether the specified ProcessStage exists in Component.
    */
   static isExistProcessStageMethod(componentType: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
-    const component = componentRepository.getComponent(componentType, 0)!;
-    if (component == null) {
-      return false;
-    }
-    if ((component as any)[processStage.methodName] == null) {
+
+    if ((componentType.prototype as any)[processStage.methodName] == null) {
       return false;
     }
 
