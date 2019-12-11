@@ -40,6 +40,7 @@ export default class SkeletalComponent extends Component {
   private __tArray = new Float32Array(0);
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
+  private static __tmp_q: MutableQuaternion = new MutableQuaternion(0, 0, 0, 1);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -108,7 +109,7 @@ export default class SkeletalComponent extends Component {
         m.m21 /= SkeletalComponent.__scaleVec3.z;
         m.m22 /= SkeletalComponent.__scaleVec3.z;
 
-        let q = (MutableQuaternion.fromMatrix(m));
+        let q = MutableQuaternion.fromMatrixTo(m, SkeletalComponent.__tmp_q);
 
         this.__qArray[i * 4 + 0] = q.x;
         this.__qArray[i * 4 + 1] = q.y;
