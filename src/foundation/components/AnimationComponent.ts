@@ -258,8 +258,9 @@ export default class AnimationComponent extends Component {
         // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
         // const j = Math.max(this.binarySearch(inputArray, input), 0);
 
-        if (inputArray[j + 1] != null) {
-          let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+        const input_jpp = inputArray[j + 1];
+        if (input_jpp != null) {
+          let ratio = (input - inputArray[j]) / (input_jpp - inputArray[j]);
           let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType);
           return resultValue;
         } else {
