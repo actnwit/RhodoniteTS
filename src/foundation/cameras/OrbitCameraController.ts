@@ -82,6 +82,7 @@ export default class OrbitCameraController implements ICameraController {
 
   private static __tmp_mat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_mat3: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_mat3_2: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_centerToCameraVec: MutableVector3 = MutableVector3.zero();
   private static __tmp_centerToCameraVecMultiplied: MutableVector3 = MutableVector3.zero();
   private static __tmp_horizontalSign: MutableVector3 = MutableVector3.zero();
@@ -513,13 +514,9 @@ export default class OrbitCameraController implements ICameraController {
       let rotateM_X = MutableMatrix33.rotateXTo(MathUtil.degreeToRadian(this.__rot_y), OrbitCameraController.__tmp_rotateM_X);
       let rotateM_Y = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(this.__rot_x), OrbitCameraController.__tmp_rotateM_Y);
       let rotateM_Revert = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(-horizontalAngleOfVectors), OrbitCameraController.__tmp_rotateM_Revert);
-      let rotateM = MutableMatrix33.multiplyTo(
-        rotateM_Revert,
-        MutableMatrix33.multiplyTo(
-          rotateM_Y,
-          MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, OrbitCameraController.__tmp_mat3), OrbitCameraController.__tmp_mat3
-        ), OrbitCameraController.__tmp_rotateM
-      );
+      MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, OrbitCameraController.__tmp_mat3);
+      MutableMatrix33.multiplyTo(rotateM_Y, OrbitCameraController.__tmp_mat3, OrbitCameraController.__tmp_mat3_2);
+      let rotateM = MutableMatrix33.multiplyTo(rotateM_Revert, OrbitCameraController.__tmp_mat3_2, OrbitCameraController.__tmp_rotateM);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
