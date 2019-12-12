@@ -710,7 +710,8 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
               renderPass: renderPass,
               primitive: primitive,
               diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap
+              specularCube: meshRendererComponent.specularCubeMap,
+              setUniform: false
             }
           });
 
