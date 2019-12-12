@@ -45,6 +45,7 @@ export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSeman
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
   private __fields: Map<ShaderSemanticsIndex, any> = new Map();
+  private __fieldsForSystem: Map<ShaderSemanticsIndex, any> = new Map();
   private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, any>> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -363,33 +364,6 @@ export default class Material extends RnObject {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, array);
   }
 
-  setUniformValues(firstTime: boolean, args?: Object) {
-    const shaderProgramUid = this._shaderProgramUid;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
-
-    this.__fields.forEach((value, key) => {
-      const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
-      webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
-    });
-  }
-
-  setUniformValuesForOnlyTextures(firstTime: boolean) {
-    const shaderProgramUid = this._shaderProgramUid;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const shaderProgram = webglResourceRepository.getWebGLResource(shaderProgramUid) as any;
-
-    this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
-      if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-        this.__fields.forEach((value, key) => {
-          const shaderSemantic = ShaderSemanticsClass.getShaderSemanticByIndex(key);
-          webglResourceRepository.setUniformValue(shaderProgram, shaderSemantic.str, firstTime, value);
-        });
-      }
-    });
-  }
-
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
     this.__materialNodes.forEach((materialNode) => {
       if (materialNode.setParametersForGPU) {
@@ -398,14 +372,23 @@ export default class Material extends RnObject {
     });
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__fields.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
-      if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+    if (args.setUniform) {
+      this.__fields.forEach((value, key) => {
+        const info = this.__fieldsInfo.get(key)!;
         if (!info.isSystem) {
           webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
         }
-      }
-    });
+      });
+    } else {
+      this.__fields.forEach((value, key) => {
+        const info = this.__fieldsInfo.get(key)!;
+        if (!info.isSystem) {
+          if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+            webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
+          }
+        }
+      });
+    }
 
     this.setSoloDatumParametersForGPU({ shaderProgram, firstTime, args });
   }

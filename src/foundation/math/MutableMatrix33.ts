@@ -74,6 +74,17 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
   }
 
   /**
+   * Make this identity matrix（static method version）
+   */
+  static identity() {
+    return new MutableMatrix33(
+      1, 0, 0,
+      0, 1, 0,
+      0, 0, 1
+    );
+  }
+
+  /**
    * Create X oriented Rotation Matrix
    */
   rotateX(radian:number) {
@@ -115,7 +126,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
     );
   }
 
-    /**
+  /**
    * Create X oriented Rotation Matrix
    */
   static rotateX(radian:number) {
@@ -127,6 +138,7 @@ export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix3
       0, sin, cos
     );
   }
+
 
   /**
    * Create Y oriented Rotation Matrix

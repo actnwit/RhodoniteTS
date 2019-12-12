@@ -40,6 +40,7 @@ export default class SkeletalComponent extends Component {
   private __tArray = new Float32Array(0);
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
+  private static __tmp_q: MutableQuaternion = new MutableQuaternion(0, 0, 0, 1);
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -108,16 +109,15 @@ export default class SkeletalComponent extends Component {
         m.m21 /= SkeletalComponent.__scaleVec3.z;
         m.m22 /= SkeletalComponent.__scaleVec3.z;
 
-        let q = (MutableQuaternion.fromMatrix(m));
+        let q = MutableQuaternion.fromMatrixTo(m, SkeletalComponent.__tmp_q);
 
         this.__qArray[i * 4 + 0] = q.x;
         this.__qArray[i * 4 + 1] = q.y;
         this.__qArray[i * 4 + 2] = q.z;
         this.__qArray[i * 4 + 3] = q.w;
-        const t = m.getTranslate();
-        this.__tArray[i * 4 + 0] = t.x;
-        this.__tArray[i * 4 + 1] = t.y;
-        this.__tArray[i * 4 + 2] = t.z;
+        this.__tArray[i * 4 + 0] = m.m03; // m.getTranslate().x
+        this.__tArray[i * 4 + 1] = m.m13; // m.getTranslate().y
+        this.__tArray[i * 4 + 2] = m.m23; // m.getTranslate().z
         this.__tArray[i * 4 + 3] = Math.max(SkeletalComponent.__scaleVec3.x, SkeletalComponent.__scaleVec3.y, SkeletalComponent.__scaleVec3.z);
 
       }

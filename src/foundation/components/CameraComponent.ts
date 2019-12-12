@@ -24,7 +24,7 @@ import { MathUtil } from '../math/MathUtil';
 import CameraControllerComponent from './CameraControllerComponent';
 
 export default class CameraComponent extends Component {
-  private readonly _eye: Vector3 = Vector3.zero();
+  private static readonly _eye: Vector3 = Vector3.zero();
   private _eyeInner: Vector3 = Vector3.dummy();
   private _direction: Vector3 = Vector3.dummy();
   private _directionInner: Vector3 = Vector3.dummy();
@@ -58,6 +58,9 @@ export default class CameraComponent extends Component {
   private static invertedMatrix44 = new MutableMatrix44([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   private static returnVector3 = MutableVector3.zero();
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __tmp_f: MutableVector3 = MutableVector3.zero();
+  private static __tmp_s: MutableVector3 = MutableVector3.zero();
+  private static __tmp_u: MutableVector3 = MutableVector3.zero();
 
   private __frustum = new Frustum();
 
@@ -259,6 +262,10 @@ export default class CameraComponent extends Component {
     this._parametersInner.copyComponents(vec);
   }
 
+  get parametersInner() {
+    return this._parametersInner;
+  }
+
   get parameters(): Vector4 {
     return this._parameters.clone();
   }
@@ -354,13 +361,25 @@ export default class CameraComponent extends Component {
   $logic() {
     const cameraControllerComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraControllerComponent) as CameraControllerComponent;
     if (cameraControllerComponent == null) {
-      this.eyeInner = this.eye;
-      this.directionInner = this.direction;
-      this.upInner = this.up;
-      this.cornerInner = this.corner;
-      this.parametersInner = this.parameters;
+      this.eyeInner.v[0] = CameraComponent._eye.x;
+      this.eyeInner.v[1] = CameraComponent._eye.y;
+      this.eyeInner.v[2] = CameraComponent._eye.z;
+      this.directionInner.v[0] = this._direction.x;
+      this.directionInner.v[1] = this._direction.y;
+      this.directionInner.v[2] = this._direction.z;
+      this.upInner.v[0] = this._up.x;
+      this.upInner.v[1] = this._up.y;
+      this.upInner.v[2] = this._up.z;
+      this.cornerInner.v[0] = this._corner.x;
+      this.cornerInner.v[1] = this._corner.y;
+      this.cornerInner.v[2] = this._corner.z;
+      this.cornerInner.v[3] = this._corner.w;
+      this.parametersInner.v[0] = this._parameters.x;
+      this.parametersInner.v[1] = this._parameters.y;
+      this.parametersInner.v[2] = this._parameters.z;
+      this.parametersInner.v[3] = this._parameters.w;
     } else {
-      this._parametersInner.w = this.parameters.w;
+      this._parametersInner.w = this._parameters.w;
     }
 
     this.moveStageTo(ProcessStage.PreRender);
@@ -411,9 +430,9 @@ export default class CameraComponent extends Component {
 
   calcViewMatrix() {
     const eye = this.eyeInner;
-    const f = Vector3.normalize(Vector3.subtract(this._directionInner, eye));
-    const s = Vector3.normalize(Vector3.cross(f, this._upInner));
-    const u = Vector3.cross(s, f);
+    const f = Vector3.subtractTo(this._directionInner, eye, CameraComponent.__tmp_f).normalize();
+    const s = Vector3.crossTo(f, this._upInner, CameraComponent.__tmp_s).normalize();
+    const u = Vector3.crossTo(s, f, CameraComponent.__tmp_u);
 
     this._viewMatrix.setComponents(
       s.x,

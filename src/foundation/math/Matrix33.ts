@@ -175,6 +175,26 @@ export default class Matrix33 implements IMatrix33 {
   }
 
   /**
+   * Create X oriented Rotation Matrix
+   */
+  static rotateXTo(radian:number, out: MutableMatrix33) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+
+    out.m00 = 1;
+    out.m01 = 0;
+    out.m02 = 0;
+    out.m10 = 0;
+    out.m11 = cos;
+    out.m12 = -sin;
+    out.m20 = 0;
+    out.m21 = sin;
+    out.m22 = cos;
+
+    return out;
+  }
+
+  /**
    * Create Y oriented Rotation Matrix
    */
   static rotateY(radian: number) {
@@ -185,6 +205,26 @@ export default class Matrix33 implements IMatrix33 {
       0, 1, 0,
       -sin, 0, cos
     );
+  }
+
+  /**
+   * Create Y oriented Rotation Matrix
+   */
+  static rotateYTo(radian:number, out: MutableMatrix33) {
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+
+    out.m00 = cos;
+    out.m01 = 0;
+    out.m02 = sin;
+    out.m10 = 0;
+    out.m11 = 1;
+    out.m12 = 0;
+    out.m20 = -sin;
+    out.m21 = 0;
+    out.m22 = cos;
+
+    return out;
   }
 
   /**
@@ -260,6 +300,29 @@ export default class Matrix33 implements IMatrix33 {
       m20, m21, m22
     );
   }
+
+  /**
+   * multiply matrixes (static version)
+   */
+  static multiplyTo(l_m: Matrix33, r_m: Matrix33, out: MutableMatrix33) {
+    out.m00 = l_m.v[0] * r_m.v[0] + l_m.v[3] * r_m.v[1] + l_m.v[6] * r_m.v[2];
+    out.m10 = l_m.v[1] * r_m.v[0] + l_m.v[4] * r_m.v[1] + l_m.v[7] * r_m.v[2];
+    out.m20 = l_m.v[2] * r_m.v[0] + l_m.v[5] * r_m.v[1] + l_m.v[8] * r_m.v[2];
+
+    out.m01 = l_m.v[0] * r_m.v[3] + l_m.v[3] * r_m.v[4] + l_m.v[6] * r_m.v[5];
+    out.m11 = l_m.v[1] * r_m.v[3] + l_m.v[4] * r_m.v[4] + l_m.v[7] * r_m.v[5];
+    out.m21 = l_m.v[2] * r_m.v[3] + l_m.v[5] * r_m.v[4] + l_m.v[8] * r_m.v[5];
+
+    out.m02 = l_m.v[0] * r_m.v[6] + l_m.v[3] * r_m.v[7] + l_m.v[6] * r_m.v[8];
+    out.m12 = l_m.v[1] * r_m.v[6] + l_m.v[4] * r_m.v[7] + l_m.v[7] * r_m.v[8];
+    out.m22 = l_m.v[2] * r_m.v[6] + l_m.v[5] * r_m.v[7] + l_m.v[8] * r_m.v[8];
+
+    return out;
+
+  }
+
+
+
 
   determinant() {
     return this.v[0] * this.v[4] * this.v[8] + this.v[1] * this.v[5] * this.v[6] + this.v[2] * this.v[3] * this.v[7]

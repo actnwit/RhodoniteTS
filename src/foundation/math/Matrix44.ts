@@ -9,6 +9,7 @@ import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
 import { TypedArray } from '../../types/CommonTypes';
+import { IVector3 } from './IVector';
 
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
@@ -390,7 +391,7 @@ export default class Matrix44 implements IMatrix44 {
     return new Vector3(x, y, z);
   }
 
-  multiplyVector3To(vec: Vector3, outVec: MutableVector3) {
+  multiplyVector3To(vec: IVector3, outVec: MutableVector3) {
     outVec.x = this.v[0]*vec.x + this.v[4]*vec.y + this.v[8]*vec.z + this.m03*vec.w;
     outVec.y = this.v[1]*vec.x + this.v[5]*vec.y + this.v[9]*vec.z + this.m13*vec.w;
     outVec.z = this.v[2]*vec.x + this.v[6]*vec.y + this.v[10]*vec.z + this.m23*vec.w;
@@ -559,6 +560,8 @@ export default class Matrix44 implements IMatrix44 {
     outM.v[7] = (m.v[0] * n09 - m.v[4] * n07 + m.v[8] * n06) * det;
     outM.v[11] = (m.v[7] * n01 - m.v[3] * n03 - m.v[11] * n00) * det;
     outM.v[15] = (m.v[2] * n03 - m.v[6] * n01 + m.v[10] * n00) * det;
+
+    return outM;
   }
 
   public get m00() {

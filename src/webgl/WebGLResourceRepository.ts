@@ -423,38 +423,38 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       return false;
     }
 
-    if (!firstTime) {
-      const updateInterval = info.updateInterval!;
-      if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
-        return false;
-      }
-      // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
-      //   return false;
-      // }
-    }
+    // if (!firstTime) {
+    //   const updateInterval = info.updateInterval!;
+    //   if (updateInterval != null && updateInterval === ShaderVariableUpdateInterval.FirstTimeOnly) {
+    //     return false;
+    //   }
+    //   // if (!this.__isUniformValueDirty(isVector, shaderProgram, identifier, {x, y, z, w}, delta)) {
+    //   //   return false;
+    //   // }
+    // }
 
     let setAsMatrix = false;
-    let componentNumber = info.compositionType!.getNumberOfComponents();
+    let componentNumber = 0;
     if (info.compositionType === CompositionType.Mat3) {
       setAsMatrix = true;
       componentNumber = 3;
     } else if (info.compositionType === CompositionType.Mat4) {
       setAsMatrix = true;
       componentNumber = 4;
+    } else {
+      componentNumber = info.compositionType!.getNumberOfComponents();
     }
 
     const key = semanticStr;
     let updated = false;
     if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-      if (value[0] != null && value[1] != null) {
-        if (info.compositionType === CompositionType.Texture2D) {
-          this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-        } else if (info.compositionType === CompositionType.TextureCube) {
-          this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-        }
-        if (firstTime) {
-          updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
-        }
+      if (info.compositionType === CompositionType.Texture2D) {
+        this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+      } else if (info.compositionType === CompositionType.TextureCube) {
+        this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+      }
+      if (firstTime) {
+        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
     } else if (index == null && (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array)) {
       if (value.v == null) {
@@ -1226,11 +1226,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
   }
 
   setViewport(viewport?: Vector4) {
-    const gl = this.__glw!.getRawContext();
     if (viewport) {
-      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
+      this.__glw?.setViewportAsVector4(viewport);
     } else {
-      gl.viewport(0, 0, this.__glw!.width, this.__glw!.height);
+      this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
     }
   }
 
@@ -1290,6 +1289,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.height = height;
     this.__glw!.canvas.width = width;
     this.__glw!.canvas.height = height;
-    this.__glw!._setViewport(new Vector4(0, 0, width, height));
+    this.__glw!.setViewportAsVector4(new Vector4(0, 0, width, height));
   }
 }

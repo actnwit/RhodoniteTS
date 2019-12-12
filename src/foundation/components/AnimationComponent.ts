@@ -39,6 +39,8 @@ export default class AnimationComponent extends Component {
   private static __endInputValueOfAllComponent: number = - Number.MAX_VALUE;
   private static returnVector3 = MutableVector3.zero();
   private static returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
+  private static __startInputValueDirty = false;
+  private static __endInputValueDirty = false;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -63,6 +65,8 @@ export default class AnimationComponent extends Component {
     };
 
     this.__animationLine[animationAttributeName] = line;
+    AnimationComponent.__startInputValueDirty = true;
+    AnimationComponent.__endInputValueDirty = true;
   }
 
   static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum) {
@@ -254,8 +258,9 @@ export default class AnimationComponent extends Component {
         // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
         // const j = Math.max(this.binarySearch(inputArray, input), 0);
 
-        if (inputArray[j + 1] != null) {
-          let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+        const input_jpp = inputArray[j + 1];
+        if (input_jpp != null) {
+          let ratio = (input - inputArray[j]) / (input_jpp - inputArray[j]);
           let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType);
           return resultValue;
         } else {
@@ -308,18 +313,24 @@ export default class AnimationComponent extends Component {
   }
 
   static get startInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
-    components!.forEach(component => {
-      component.getStartInputValueOfAnimation();
-    });
+    if (this.__startInputValueDirty) {
+      const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
+      components!.forEach(component => {
+        component.getStartInputValueOfAnimation();
+      });
+      this.__startInputValueDirty = false;
+    }
     return AnimationComponent.__startInputValueOfAllComponent;
   }
 
   static get endInputValue() {
-    const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
-    components!.forEach(component => {
-      component.getEndInputValueOfAnimation();
-    });
+    if (this.__endInputValueDirty) {
+      const components = ComponentRepository.getInstance().getComponentsWithType(AnimationComponent) as AnimationComponent[];
+      components!.forEach(component => {
+        component.getEndInputValueOfAnimation();
+      });
+      this.__endInputValueDirty = false;
+    }
     return AnimationComponent.__endInputValueOfAllComponent;
   }
 

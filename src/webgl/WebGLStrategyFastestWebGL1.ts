@@ -429,7 +429,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
 
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer().slice(0, buffer.takenSizeInByte));
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, buffer.takenSizeInByte/4);
       const bufferSizeInByte = buffer.takenSizeInByte;
       if (bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
@@ -710,7 +710,8 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
               renderPass: renderPass,
               primitive: primitive,
               diffuseCube: meshRendererComponent.diffuseCubeMap,
-              specularCube: meshRendererComponent.specularCubeMap
+              specularCube: meshRendererComponent.specularCubeMap,
+              setUniform: false
             }
           });
 

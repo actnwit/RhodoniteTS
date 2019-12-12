@@ -41,6 +41,17 @@ export default class Component extends RnObject {
   protected __entityRepository: EntityRepository;
   private __maxComponentNumber: Count = Config.maxEntityNumber;
 
+  public static readonly _processStages: Array<ProcessStageEnum> = [
+    ProcessStage.Create,
+    ProcessStage.Load,
+    // ProcessStage.Mount,
+    ProcessStage.Logic,
+    ProcessStage.PreRender,
+    ProcessStage.Render,
+    // ProcessStage.Unmount,
+    // ProcessStage.Discard
+  ];
+
   /**
    * The constructor of the Component class.
    * When creating an Component, use the createComponent method of the ComponentRepository class
@@ -56,16 +67,7 @@ export default class Component extends RnObject {
     this._component_sid = componentSid;
     this.__isAlive = true;
 
-    const stages = [
-      ProcessStage.Create,
-      ProcessStage.Load,
-      ProcessStage.Mount,
-      ProcessStage.Logic,
-      ProcessStage.PreRender,
-      ProcessStage.Render,
-      ProcessStage.Unmount,
-      ProcessStage.Discard
-    ];
+    const stages = Component._processStages;
 
     stages.forEach(stage => {
       if (this.isExistProcessStageMethod(stage)) {
@@ -130,11 +132,8 @@ export default class Component extends RnObject {
    * Get true or false whether the specified ProcessStage exists in Component.
    */
   static isExistProcessStageMethod(componentType: typeof Component, processStage: ProcessStageEnum, componentRepository: ComponentRepository) {
-    const component = componentRepository.getComponent(componentType, 0)!;
-    if (component == null) {
-      return false;
-    }
-    if ((component as any)[processStage.methodName] == null) {
+
+    if ((componentType.prototype as any)[processStage.methodName] == null) {
       return false;
     }
 
@@ -199,22 +198,19 @@ export default class Component extends RnObject {
       return;
     }
 
-    const dirty = Component.__componentsOfProcessStages.get(processStage)!
-    if (dirty) {
+    const array = Component.__componentsOfProcessStages.get(processStage)!
+    if (array) {
       const method = (componentClass as any)['sort_' + processStage.methodName];
-      const components = componentRepository.getComponentsWithType(componentClass)!;
-      const array = Component.__componentsOfProcessStages.get(processStage)!;
 
-      let sids = [];
       if (method != null) {
+        let sids = [];
         sids = method(renderPass);
         for (let i = 0; i < sids.length; i++) {
           array[i] = sids[i];
         }
-      }
-
-      if (sids.length === 0) {
+      } else {
         let count = 0;
+        const components = componentRepository.getComponentsWithType(componentClass)!;
         for (let i = 0; i < components.length; ++i) {
           const component = components[i];
           if (processStage === component.__currentProcessStage) {

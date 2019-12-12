@@ -8,6 +8,7 @@ import Entity from "../core/Entity";
 import Matrix44 from "../math/Matrix44";
 import { ComponentTID, ComponentSID, EntityUID, Count, Size } from "../../types/CommonTypes";
 import ICameraController from "./ICameraController";
+import MutableMatrix44 from "../math/MutableMatrix44";
 
 declare var window: any;
 
@@ -78,6 +79,21 @@ export default class OrbitCameraController implements ICameraController {
   private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
+
+  private static __tmp_mat: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmp_mat3: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_mat3_2: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_centerToCameraVec: MutableVector3 = MutableVector3.zero();
+  private static __tmp_centerToCameraVecMultiplied: MutableVector3 = MutableVector3.zero();
+  private static __tmp_horizontalSign: MutableVector3 = MutableVector3.zero();
+  private static __tmp_newEyeVec: MutableVector3 = MutableVector3.zero();
+  private static __tmp_verticalSign: MutableVector3 = MutableVector3.zero();
+  private static readonly __tmp_up: Vector3 = new Vector3(0, 0, 1);
+  private static __tmp_rotateM_Reset: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_X: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM: MutableMatrix33 = MutableMatrix33.identity();
 
   constructor() {
     this.registerEventListeners();
@@ -445,7 +461,7 @@ export default class OrbitCameraController implements ICameraController {
     const up = data0.newUpVec;
 
 
-    const data = this.__convert(cameraComponent!, eye, center, up);
+    const data = this.__convert(cameraComponent!, eye as MutableVector3, center, up);
     const cc = cameraComponent!;
     cc.eyeInner = data.newEyeVec;
     cc.directionInner = data.newCenterVec;
@@ -460,31 +476,33 @@ export default class OrbitCameraController implements ICameraController {
     cc.fovyInner = data.fovy;
   }
 
-  __convert(camera: CameraComponent, eye: Vector3, center: Vector3, up: Vector3) {
+  __convert(camera: CameraComponent, eye: MutableVector3, center: Vector3, up: Vector3) {
     let newEyeVec = null;
     let newCenterVec: MutableVector3;
     let newUpVec = null;
 
     if (this.__isKeyUp || !this.__isForceGrab) {
-      this.__eyeVec = Vector3.add(eye, this.__shiftCameraTo);
-      this.__centerVec = Vector3.add(center, this.__shiftCameraTo);
-      this.__upVec = new MutableVector3(up);
+      Vector3.addTo(eye, this.__shiftCameraTo, this.__eyeVec);
+      Vector3.addTo(center, this.__shiftCameraTo, this.__centerVec);
+      this.__upVec.x = up!.x;
+      this.__upVec.y = up!.y;
+      this.__upVec.z = up!.z;
     }
 
     let fovy = this.__getFovyFromCamera(camera);
 
-    const centerToEyeVec = new MutableVector3(this.__eyeVec).subtract(this.__centerVec)
+    const centerToEyeVec = this.__eyeVec.subtract(this.__centerVec);
     centerToEyeVec.multiply((this.__dolly * this.__dollyScale) / Math.tan(MathUtil.degreeToRadian(fovy / 2.0)))
 
     this.__lengthOfCenterToEye = centerToEyeVec.length();
     if (this.__isSymmetryMode) {
       let horizontalAngleOfVectors = Vector3.angleOfVectors(
         new Vector3(centerToEyeVec.x, 0, centerToEyeVec.z),
-        new Vector3(0, 0, 1)
+        OrbitCameraController.__tmp_up
       );
-      let horizontalSign = Vector3.cross(
+      let horizontalSign = Vector3.crossTo(
         new Vector3(centerToEyeVec.x, 0, centerToEyeVec.z),
-        new Vector3(0, 0, 1)
+        OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_horizontalSign
       ).y;
       if (horizontalSign >= 0) {
         horizontalSign = 1;
@@ -492,22 +510,18 @@ export default class OrbitCameraController implements ICameraController {
         horizontalSign = -1;
       }
       horizontalAngleOfVectors *= horizontalSign;
-      let rotateM_Reset = MutableMatrix33.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
-      let rotateM_X = MutableMatrix33.rotateX(MathUtil.degreeToRadian(this.__rot_y));
-      let rotateM_Y = MutableMatrix33.rotateY(MathUtil.degreeToRadian(this.__rot_x));
-      let rotateM_Revert = MutableMatrix33.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
-      let rotateM = MutableMatrix33.multiply(
-        rotateM_Revert,
-        MutableMatrix33.multiply(
-          rotateM_Y,
-          MutableMatrix33.multiply(rotateM_X, rotateM_Reset)
-        )
-      );
+      let rotateM_Reset = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(horizontalAngleOfVectors), OrbitCameraController.__tmp_rotateM_Reset);
+      let rotateM_X = MutableMatrix33.rotateXTo(MathUtil.degreeToRadian(this.__rot_y), OrbitCameraController.__tmp_rotateM_X);
+      let rotateM_Y = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(this.__rot_x), OrbitCameraController.__tmp_rotateM_Y);
+      let rotateM_Revert = MutableMatrix33.rotateYTo(MathUtil.degreeToRadian(-horizontalAngleOfVectors), OrbitCameraController.__tmp_rotateM_Revert);
+      MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, OrbitCameraController.__tmp_mat3);
+      MutableMatrix33.multiplyTo(rotateM_Y, OrbitCameraController.__tmp_mat3, OrbitCameraController.__tmp_mat3_2);
+      let rotateM = MutableMatrix33.multiplyTo(rotateM_Revert, OrbitCameraController.__tmp_mat3_2, OrbitCameraController.__tmp_rotateM);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
       newEyeVec = rotateM.multiplyVector(centerToEyeVec).add(this.__centerVec);
-      newCenterVec = new MutableVector3(this.__centerVec);
+      newCenterVec = this.__centerVec;
       this.__newEyeToCenterVec = Vector3.subtract(newCenterVec, newEyeVec);
       this.__newTangentVec = Vector3.cross(
         this.__newUpVec,
@@ -520,9 +534,9 @@ export default class OrbitCameraController implements ICameraController {
       let horizonResetVec = rotateM_Reset.multiplyVector(centerToEyeVec);
       this.__verticalAngleOfVectors = Vector3.angleOfVectors(
         horizonResetVec,
-        new Vector3(0, 0, 1)
+        OrbitCameraController.__tmp_up
       );
-      let verticalSign = Vector3.cross(horizonResetVec, new Vector3(0, 0, 1)).x;
+      let verticalSign = Vector3.crossTo(horizonResetVec, OrbitCameraController.__tmp_up, OrbitCameraController.__tmp_verticalSign).x;
       if (verticalSign >= 0) {
         verticalSign = 1;
       } else {
@@ -530,18 +544,19 @@ export default class OrbitCameraController implements ICameraController {
       }
       //this._verticalAngleOfVectors *= verticalSign;
     } else {
-      let rotateM_X = Matrix33.rotateX(MathUtil.degreeToRadian(this.__rot_y));
-      let rotateM_Y = Matrix33.rotateY(MathUtil.degreeToRadian(this.__rot_x));
+      let rotateM_X = Matrix33.rotateXTo(MathUtil.degreeToRadian(this.__rot_y), OrbitCameraController.__tmp_rotateM_X);
+      let rotateM_Y = Matrix33.rotateYTo(MathUtil.degreeToRadian(this.__rot_x), OrbitCameraController.__tmp_rotateM_Y);
       let rotateM = Matrix33.multiply(rotateM_Y, rotateM_X);
 
       newUpVec = rotateM.multiplyVector(this.__upVec);
       this.__newUpVec = newUpVec;
-      newEyeVec = Vector3.add(rotateM.multiplyVector(centerToEyeVec), this.__centerVec);
-      newCenterVec = new MutableVector3(this.__centerVec);
-      this.__newEyeToCenterVec = Vector3.subtract(newCenterVec, newEyeVec);
-      this.__newTangentVec = Vector3.cross(
+      newEyeVec = Vector3.addTo(rotateM.multiplyVector(centerToEyeVec), this.__centerVec, OrbitCameraController.__tmp_newEyeVec);
+      newCenterVec = this.__centerVec;
+      Vector3.subtractTo(newCenterVec, newEyeVec, this.__newEyeToCenterVec);
+      Vector3.crossTo(
         this.__newUpVec,
-        this.__newEyeToCenterVec
+        this.__newEyeToCenterVec,
+        this.__newTangentVec
       );
 
       newEyeVec.add(this.__mouseTranslateVec);
@@ -606,7 +621,7 @@ export default class OrbitCameraController implements ICameraController {
 
     const eyeVec = camera.eye;
     const centerVec = camera.direction;
-    const upVec = (camera as any)._up;
+    const upVec = (camera as any)._up as Vector3;
     const fovy = camera.fovy;
 
     if (this.__targetEntity == null) {
@@ -623,23 +638,23 @@ export default class OrbitCameraController implements ICameraController {
 
     let newCenterVec = targetAABB.centerPoint;
 
-    let centerToCameraVec = Vector3.subtract(eyeVec, centerVec);
-    let centerToCameraVecNormalized = Vector3.normalize(centerToCameraVec);
+    let centerToCameraVec = Vector3.subtractTo(eyeVec, centerVec, OrbitCameraController.__tmp_centerToCameraVec);
+    let centerToCameraVecNormalized = centerToCameraVec.normalize();
 
-    let newEyeVec = Vector3.add(Vector3.multiply(
+    let newEyeVec = Vector3.multiplyTo(
       centerToCameraVecNormalized,
-      this.__lengthCameraToObject
-    ), newCenterVec);
+      this.__lengthCameraToObject, OrbitCameraController.__tmp_centerToCameraVecMultiplied
+    ).add(newCenterVec);
 
-    let newUpVec = null;
+    let newUpVec: Vector3|null = null;
     if (camera.entity.getSceneGraph()) {
       const sg = camera.entity.getSceneGraph();
-      let mat = Matrix44.invert(sg.worldMatrixInner);
+      let mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
 
       mat.multiplyVector3To(
         newEyeVec, OrbitCameraController.returnVector3Eye
       );
-      newEyeVec = OrbitCameraController.returnVector3Eye as Vector3;
+      newEyeVec = OrbitCameraController.returnVector3Eye;
 
       mat.multiplyVector3To(
         newCenterVec, OrbitCameraController.returnVector3Center
@@ -649,7 +664,7 @@ export default class OrbitCameraController implements ICameraController {
       mat.multiplyVector3To(
         upVec, OrbitCameraController.returnVector3Up
       );
-      newUpVec = OrbitCameraController.returnVector3Up as Vector3;
+      newUpVec = OrbitCameraController.returnVector3Up;
 
     } else {
       newUpVec = upVec;

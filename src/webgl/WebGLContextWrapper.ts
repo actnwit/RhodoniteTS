@@ -22,10 +22,14 @@ export default class WebGLContextWrapper {
   public readonly webgl1ExtDB?: WEBGL_draw_buffers;
   public readonly webgl1ExtBM?: EXT_blend_minmax;
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
+  private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
   private __isDebugMode = false;
-  private __viewport = new Vector4(0, 0, 1, 1);
+  private __viewport_left = 0;
+  private __viewport_top = 0;
+  private __viewport_width = 0;
+  private __viewport_height = 0;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -34,7 +38,8 @@ export default class WebGLContextWrapper {
     this.width = canvas.width;
     this.height = canvas.height;
     this.canvas = canvas
-    this.__viewport = new Vector4(0, 0, this.width, this.height);
+    this.__viewport_width = this.width;
+    this.__viewport_height = this.height;
 
     this.__isDebugMode = isDebug;
 
@@ -62,15 +67,7 @@ export default class WebGLContextWrapper {
   }
 
   get viewport() {
-    return this.__viewport;
-  }
-
-  /**
-   * @param viewport 
-   * @private
-   */
-  _setViewport(viewport: Vector4) {
-    this.__viewport = viewport;
+    return new Vector4(this.__viewport_left, this.__viewport_top, this.__viewport_width, this.__viewport_height);
   }
 
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
@@ -175,6 +172,9 @@ export default class WebGLContextWrapper {
   }
 
   private __activeTexture(activeTextureIndex: number) {
+    if (this.__activeTextureBackup === activeTextureIndex) {
+      return;
+    }
     switch (activeTextureIndex) {
       case 0:
         this.__gl.activeTexture(this.__gl.TEXTURE0);
@@ -225,13 +225,11 @@ export default class WebGLContextWrapper {
         this.__gl.activeTexture(this.__gl.TEXTURE15);
         break;
     }
+    this.__activeTextureBackup = activeTextureIndex;
   }
 
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
     if (this.__isDebugMode) {
-      if (texture) {
-        this.__activeTextures2D[activeTextureIndex] = texture;
-      }
       if (texture) {
         if ((texture as any)._bound_as === 'CUBE_MAP') {
           debugger
@@ -240,15 +238,18 @@ export default class WebGLContextWrapper {
       }
     }
 
+    if (this.__activeTextures2D[activeTextureIndex] === texture) {
+      return;
+    }
+
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
+
+    this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
     if (this.__isDebugMode) {
-      if (texture) {
-        this.__activeTexturesCube[activeTextureIndex] = texture;
-      }
       if (texture) {
         if ((texture as any)._bound_as === '2D') {
           debugger
@@ -256,8 +257,15 @@ export default class WebGLContextWrapper {
         (texture as any)._bound_as = 'CUBE_MAP';
       }
     }
+
+    if (this.__activeTexturesCube[activeTextureIndex] === texture) {
+      return;
+    }
+
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
+
+    this.__activeTexturesCube[activeTextureIndex] = texture;
   }
 
   unbindTexture2D(activeTextureIndex: Index) {
@@ -313,5 +321,32 @@ export default class WebGLContextWrapper {
       return extObj;
     }
     return this.__extensions.get(extension);
+  }
+
+  setViewport(left: number, top: number, width: number, height: number): void {
+    const gl: any = this.__gl;
+    if (this.__viewport_width === width && this.__viewport_height === height && this.__viewport_left === left && this.__viewport_top === top) {
+      return;
+    } else {
+      gl.viewport(left, top, width, height);
+      this.__viewport_left = left;
+      this.__viewport_top = top;
+      this.__viewport_width = width;
+      this.__viewport_height = height;
+    }
+  }
+
+  setViewportAsVector4(viewport: Vector4): void
+  {
+    const gl: any = this.__gl;
+    if (this.__viewport_width === viewport.z && this.__viewport_height === viewport.w && this.__viewport_left === viewport.x && this.__viewport_top === viewport.y) {
+      return;
+    } else {
+      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.z);
+      this.__viewport_left = viewport.x;
+      this.__viewport_top = viewport.y;
+      this.__viewport_width = viewport.z;
+      this.__viewport_height = viewport.w;
+    }
   }
 }
