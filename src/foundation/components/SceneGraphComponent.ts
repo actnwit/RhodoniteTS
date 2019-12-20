@@ -174,11 +174,9 @@ export default class SceneGraphComponent extends Component {
     if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
       this.__AABBGizmo.update();
     }
-
-  }
-
-  static common_$prerender() {
-    // SceneGraphComponent._isAllUpdate = true;
+    // if (this.parent == null) {
+      // this.calcWorldAABB();
+    // }
   }
 
   isWorldMatrixUpToDateRecursively() : boolean {
@@ -250,19 +248,25 @@ export default class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     const that = this;
-    this.__worldAABB.initialize();
+    // this.__worldAABB.initialize();
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
       const meshComponent = elem.entity.getMesh();
 
+      elem.__worldAABB.initialize();
       if (meshComponent != null && meshComponent.mesh != null) {
-        AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        const skeletalComponent = elem.entity.getSkeletal();
+        if (skeletalComponent) {
+          AABB.multiplyMatrixTo(skeletalComponent.rootJointWorldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        } else {
+          AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        }
       }
 
       var children = elem.children;
       for (let i = 0; i < children.length; i++) {
         var aabb = mergeAABBRecursively(children[i], true);
         if (flg && elem.__animationComponent == null) {
-          elem.worldAABB.mergeAABB(aabb);
+          elem.__worldAABB.mergeAABB(aabb);
         } else {
           elem.__worldAABB.mergeAABB(aabb);
         }
@@ -277,7 +281,8 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldAABB() {
-    if (this.__isWorldAABBDirty) {
+    // if (this.__isWorldAABBDirty || this.entity.getSkeletal()) {
+    if (true) {
       this.calcWorldAABB();
       this.__isWorldAABBDirty = false;
     }

@@ -46,7 +46,7 @@ export default class AABB {
   }
 
   get minPoint() {
-    return new Vector3(this.__min);
+    return this.__min as Vector3;
   }
 
   set maxPoint(val: Vector3) {
@@ -54,7 +54,7 @@ export default class AABB {
   }
 
   get maxPoint() {
-    return new Vector3(this.__max);
+    return this.__max as Vector3;
   }
 
   isVanilla() {

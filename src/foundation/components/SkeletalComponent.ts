@@ -68,6 +68,10 @@ export default class SkeletalComponent extends Component {
     this.__tArray = SkeletalComponent.__globalDataRepository.getValue(ShaderSemantics.BoneTranslateScale, index).v;
   }
 
+  get rootJointWorldMatrixInner() {
+    return this.__joints[0].worldMatrixInner;
+  }
+
   $create() {
     this.moveStageTo(ProcessStage.Load);
   }
