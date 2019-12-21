@@ -92,10 +92,10 @@ export default class AnimationComponent extends Component {
     }
   }
 
-  static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, deltaInput: number, compositionType: CompositionTypeEnum) {
+  static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, compositionType: CompositionTypeEnum) {
     const ratio2 = ratio * ratio;
     const ratio3 = ratio2 * ratio;
-    if (compositionType === CompositionType.Scalar) {
+    if (!isNaN(start)) {
       return (2 * ratio3 - 3 * ratio2 + 1) * start +
         (ratio3 - 2 * ratio2 + ratio) * inTangent +
         (-2 * ratio3 + 3 * ratio2) * end +
@@ -219,32 +219,28 @@ export default class AnimationComponent extends Component {
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : Animation.Linear;
 
     if (method === Animation.CubicSpline) {
-      for (let i = 0; i < inputArray.length - 1; i++) {
-        if (inputArray[i] <= input && input < inputArray[i + 1]) {
-          const i_minus_b = AnimationComponent.__isClamped(i - 1, inputArray);
-          const i_plus_b = AnimationComponent.__isClamped(i + 1, inputArray);
-          const i_pp_b = AnimationComponent.__isClamped(i + 2, inputArray);
-          let m_i = MathClassUtil.initWithScalar(outputArray[0], 0);
-          if (!i_minus_b) {
-            m_i = MathClassUtil.multiplyNumber(
-              MathClassUtil.add(
-                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 1], outputArray[i]), MathClassUtil.subtract(inputArray[i + 1], inputArray[i]))
-                , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i], outputArray[i - 1]), MathClassUtil.subtract(inputArray[i], inputArray[i - 1]))
-              ), 1 / 2);
-          }
-          let m_iplus = MathClassUtil.initWithScalar(outputArray[0], 0);
-          if (!(i_plus_b || i_pp_b)) {
-            m_iplus = MathClassUtil.multiplyNumber(
-              MathClassUtil.add(
-                MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 2], outputArray[i + 1]), MathClassUtil.subtract(inputArray[i + 2], inputArray[i + 1]))
-                , MathClassUtil.divideNumber(MathClassUtil.subtract(outputArray[i + 1], outputArray[i]), MathClassUtil.subtract(inputArray[i + 1], inputArray[i]))
-              ), 1 / 2);
-          }
-          let ratio = (input - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
-          let resultValue = this.cubicSpline(outputArray[i], outputArray[i + 1], m_i, m_iplus, ratio, inputArray[i + 1] - inputArray[i], compositionType);
-          return resultValue;
-        }
+      if (input < inputArray[0]) {
+        return outputArray[0][1]; // out of range!
       }
+      if (inputArray[inputArray.length - 1] <= input) {
+        return outputArray[outputArray.length - 1][1]; // out of range!
+      }
+      // for (let i = 0; i < inputArray.length - 1; i++) {
+      //   if (inputArray[i] <= input && input < inputArray[i + 1]) {
+      const i = Math.max(this.bruteForceSearch(inputArray, input), 0);
+      const t_ip_minus_i = inputArray[i + 1] - inputArray[i];
+      const p_0 = outputArray[i][1];
+      const p_1 = outputArray[i+1][1];
+      const a_k_plus_1 = outputArray[i+1][0];
+      const b_k = outputArray[i][2];
+      const m_0 = t_ip_minus_i * b_k;
+      const m_1 = t_ip_minus_i * a_k_plus_1;
+
+      let ratio = (input - inputArray[i]) / t_ip_minus_i;
+      let resultValue = this.cubicSpline(p_0, p_1, m_0, m_1, ratio, compositionType);
+      return resultValue;
+      //   }
+      // }
     } else {
       if (input < inputArray[0]) {
         return outputArray[0]; // out of range!
