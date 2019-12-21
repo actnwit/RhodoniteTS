@@ -22,6 +22,8 @@ export default class AABB {
     instance.__min = this.__min.clone();
     instance.__centerPoint = this.__centerPoint.clone();
     instance.__lengthCenterToCorner = this.__lengthCenterToCorner;
+    instance.__isCenterPointDirty = this.__isCenterPointDirty;
+    instance.__isLengthCenterToCornerDirty = this.__isLengthCenterToCornerDirty;
 
     return instance;
   }
