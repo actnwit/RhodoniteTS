@@ -40,6 +40,7 @@ export default class SceneGraphComponent extends Component {
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
   private __AABBGizmo = new AABBGizmo(this);
+  private static isJointAABBShouldBeCalculated = false;
 
   // Skeletal
   public isRootJoint = false;
@@ -53,7 +54,7 @@ export default class SceneGraphComponent extends Component {
     const thisClass = SceneGraphComponent;
 
     SceneGraphComponent.__sceneGraphs.push(this);
-//    this.__currentProcessStage = ProcessStage.Logic;
+
 
     this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
@@ -106,7 +107,6 @@ export default class SceneGraphComponent extends Component {
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldAABBDirty = true;
-    // SceneGraphComponent._isAllUpdate = false;
 
     this.children.forEach((child)=> {
       child.setWorldMatrixDirtyRecursively();
@@ -291,6 +291,10 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldAABB() {
+    if (!SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint()) {
+      return this.__worldAABB;
+    }
+
     if (this.__isWorldAABBDirty) {
       this.calcWorldAABB();
       this.__isWorldAABBDirty = false;
