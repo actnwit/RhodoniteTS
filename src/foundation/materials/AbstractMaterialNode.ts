@@ -334,7 +334,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
 
     const memoryManager = MemoryManager.getInstance();
-    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, meshComponent.mesh!.weights.length);
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, primitive.targets.length);
     const array: number[] = primitive.targets.map((target: Attributes) => {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;

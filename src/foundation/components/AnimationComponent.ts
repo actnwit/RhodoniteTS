@@ -349,7 +349,7 @@ export default class AnimationComponent extends Component {
         const line = this.__animationLine[attributeName];
         let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime);
         if (attributeName === 'weights') {
-          (this.__meshComponent! as any)[attributeName] = value;
+          (this.__meshComponent! as any)[attributeName] = [value];
         } else {
           (this.__transformComponent! as any)[attributeName] = value;
         }
