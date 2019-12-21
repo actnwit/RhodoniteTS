@@ -9,6 +9,7 @@ import Matrix44 from "../math/Matrix44";
 import { ComponentTID, ComponentSID, EntityUID, Count, Size } from "../../types/CommonTypes";
 import ICameraController from "./ICameraController";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import AABB from "../math/AABB";
 
 declare var window: any;
 
@@ -94,6 +95,7 @@ export default class OrbitCameraController implements ICameraController {
   private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM: MutableMatrix33 = MutableMatrix33.identity();
+  private __firstTargetAABB?: AABB;
 
   constructor() {
     this.registerEventListeners();
@@ -614,7 +616,10 @@ export default class OrbitCameraController implements ICameraController {
   }
 
   __getTargetAABB() {
-    return this.__targetEntity!.getSceneGraph().worldAABB;
+    if (this.__firstTargetAABB == null) {
+      this.__firstTargetAABB = this.__targetEntity!.getSceneGraph().worldAABB.clone();
+    }
+    return this.__firstTargetAABB;
   }
 
   __updateTargeting(camera: CameraComponent) {

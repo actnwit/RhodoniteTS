@@ -40,6 +40,7 @@ export default class SceneGraphComponent extends Component {
   public isVisible = true;
   private __animationComponent?: AnimationComponent;
   private __AABBGizmo = new AABBGizmo(this);
+  private static isJointAABBShouldBeCalculated = false;
 
   // Skeletal
   public isRootJoint = false;
@@ -53,7 +54,7 @@ export default class SceneGraphComponent extends Component {
     const thisClass = SceneGraphComponent;
 
     SceneGraphComponent.__sceneGraphs.push(this);
-//    this.__currentProcessStage = ProcessStage.Logic;
+
 
     this.isAbleToBeParent = false;
     this.beAbleToBeParent(true);
@@ -98,14 +99,23 @@ export default class SceneGraphComponent extends Component {
   }
 
   setWorldMatrixDirty() {
+    this.setWorldMatrixDirtyRecursively();
+    this.parent?.setWorldAABBDirtyParentRecursively();
+  }
+
+  setWorldMatrixDirtyRecursively() {
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
-    // SceneGraphComponent._isAllUpdate = false;
     this.__isWorldAABBDirty = true;
 
     this.children.forEach((child)=> {
-      child.setWorldMatrixDirty();
+      child.setWorldMatrixDirtyRecursively();
     });
+  }
+
+  setWorldAABBDirtyParentRecursively() {
+    this.__isWorldAABBDirty = true;
+    this.parent?.setWorldAABBDirtyParentRecursively()
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -174,11 +184,9 @@ export default class SceneGraphComponent extends Component {
     if (this.__AABBGizmo.isSetup && this.__AABBGizmo.isVisible) {
       this.__AABBGizmo.update();
     }
-
-  }
-
-  static common_$prerender() {
-    // SceneGraphComponent._isAllUpdate = true;
+    // if (this.parent == null) {
+      // this.calcWorldAABB();
+    // }
   }
 
   isWorldMatrixUpToDateRecursively() : boolean {
@@ -250,19 +258,25 @@ export default class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     const that = this;
-    this.__worldAABB.initialize();
+    // this.__worldAABB.initialize();
     var aabb = (function mergeAABBRecursively(elem: SceneGraphComponent, flg: boolean): AABB {
       const meshComponent = elem.entity.getMesh();
 
+      elem.__worldAABB.initialize();
       if (meshComponent != null && meshComponent.mesh != null) {
-        AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        const skeletalComponent = elem.entity.getSkeletal();
+        if (skeletalComponent) {
+          AABB.multiplyMatrixTo(skeletalComponent.rootJointWorldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        } else {
+          AABB.multiplyMatrixTo(elem.worldMatrixInner as any as Matrix44, meshComponent.mesh.AABB, elem.__worldAABB);
+        }
       }
 
       var children = elem.children;
       for (let i = 0; i < children.length; i++) {
         var aabb = mergeAABBRecursively(children[i], true);
         if (flg && elem.__animationComponent == null) {
-          elem.worldAABB.mergeAABB(aabb);
+          elem.__worldAABB.mergeAABB(aabb);
         } else {
           elem.__worldAABB.mergeAABB(aabb);
         }
@@ -277,9 +291,15 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldAABB() {
+    if (!SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint()) {
+      return this.__worldAABB;
+    }
+
     if (this.__isWorldAABBDirty) {
       this.calcWorldAABB();
       this.__isWorldAABBDirty = false;
+    } else {
+      // console.count('skipped')
     }
     return this.__worldAABB;
   }
