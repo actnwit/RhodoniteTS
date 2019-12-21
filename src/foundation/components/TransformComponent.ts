@@ -85,11 +85,17 @@ export default class TransformComponent extends Component {
   }
 
   $logic() {
+      const sceneGraphComponent = this.entity.getSceneGraph();
     if (this.__updateCountAtLastLogic !== this._updateCount) {
-      const sceneGraphComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, SceneGraphComponent) as SceneGraphComponent;
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this._updateCount;
+    } else {
+      const skeletalComponent = this.entity.getSkeletal();
+      if (skeletalComponent != null) {
+        sceneGraphComponent.setWorldMatrixDirty();
+      }
     }
+
   }
 
   set toUpdateAllTransform(flag: boolean) {

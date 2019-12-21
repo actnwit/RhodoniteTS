@@ -98,14 +98,24 @@ export default class SceneGraphComponent extends Component {
   }
 
   setWorldMatrixDirty() {
+    this.setWorldMatrixDirtyRecursively();
+    this.parent?.setWorldAABBDirtyParentRecursively();
+  }
+
+  setWorldMatrixDirtyRecursively() {
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
-    // SceneGraphComponent._isAllUpdate = false;
     this.__isWorldAABBDirty = true;
+    // SceneGraphComponent._isAllUpdate = false;
 
     this.children.forEach((child)=> {
-      child.setWorldMatrixDirty();
+      child.setWorldMatrixDirtyRecursively();
     });
+  }
+
+  setWorldAABBDirtyParentRecursively() {
+    this.__isWorldAABBDirty = true;
+    this.parent?.setWorldAABBDirtyParentRecursively()
   }
 
   addChild(sg: SceneGraphComponent) {
@@ -281,10 +291,11 @@ export default class SceneGraphComponent extends Component {
   }
 
   get worldAABB() {
-    // if (this.__isWorldAABBDirty || this.entity.getSkeletal()) {
-    if (true) {
+    if (this.__isWorldAABBDirty) {
       this.calcWorldAABB();
       this.__isWorldAABBDirty = false;
+    } else {
+      // console.count('skipped')
     }
     return this.__worldAABB;
   }
