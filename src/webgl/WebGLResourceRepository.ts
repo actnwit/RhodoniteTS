@@ -25,6 +25,8 @@ import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "
 import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
+import { BasisFile } from "../types/BasisTexture";
+import { BasisCompressionTypeEnum, BasisCompressionType } from "../foundation/definitions/BasisCompressionType";
 
 
 declare var HDRImage: any;
@@ -666,6 +668,67 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
+    this.__glw!.unbindTexture2D(0);
+
+    return resourceHandle;
+  }
+
+  createCompressedTextureFromBasis(basisFile: BasisFile, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
+    {
+      level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, width: Size, height: Size, border: Size, format: PixelFormatEnum,
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
+    }): WebGLResourceHandle {
+
+    let basisCompressionType: BasisCompressionTypeEnum;
+    let compressionType: Index;
+
+    const gl = this.__glw!.getRawContext();
+    const texture = gl.createTexture();
+    const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
+    this.__webglResources.set(resourceHandle, texture!);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    let s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
+    if (s3tc) {
+      basisCompressionType = BasisCompressionType.BC1;
+      compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+    }
+
+    const extractSize = basisFile.getImageTranscodedSizeInBytes(0, 0, basisCompressionType!.index);
+    const textureSource = new Uint8Array(extractSize);
+
+    if (!basisFile.transcodeImage(textureSource, 0, 0, basisCompressionType!.index, 0, 0)) {
+      console.error("failed to transcode the image.");
+    }
+
+    const mipmapDepth = 0;
+
+    if (mipmapDepth == 0) {
+      gl.compressedTexImage2D(gl.TEXTURE_2D, 0, compressionType!, width, height, border, textureSource);
+    } else {
+      for (let level = 0; level < mipmapDepth; level++) {
+        gl.compressedTexImage2D(gl.TEXTURE_2D, level, compressionType!, width / Math.pow(2, level), height / Math.pow(2, level), border, textureSource);
+        if (width / Math.pow(2, level) <= 1 || height / Math.pow(2, level) <= 1) {
+          break;
+        }
+      }
+    }
+
+    if (mipmapDepth == 0) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+      if (anisotropy && this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      }
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;

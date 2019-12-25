@@ -8,6 +8,9 @@ import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { thisExpression } from "@babel/types";
 import { Size } from "../../types/CommonTypes";
 import Config from "../core/Config";
+import {BasisFile, BasisTranscoder, BASIS} from "../../types/BasisTexture";
+
+declare const BASIS: BASIS;
 
 export default class Texture extends AbstractTexture {
   private __imageData?: ImageData;
@@ -54,6 +57,61 @@ export default class Texture extends AbstractTexture {
     }
 
     return canvas;
+  }
+
+  async generateTextureFromBasis(uri: string, {
+    level = 0,
+    internalFormat = PixelFormat.RGBA,
+    format = PixelFormat.RGBA,
+    type = ComponentType.Float,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.Linear,
+    wrapS = TextureParameter.Repeat,
+    wrapT = TextureParameter.Repeat,
+    generateMipmap = true,
+    anisotropy = true
+  } = {}) {
+    this.__startedToLoad = true;
+    const response = await fetch(uri);
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+
+    if (typeof BASIS === 'undefined') {
+      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+    }
+
+    BASIS().then((basisTransCoder: BasisTranscoder) => {
+      const {initializeBasis} = basisTransCoder;
+      initializeBasis();
+
+      const BasisFile = basisTransCoder.BasisFile;
+      const basisFile = new BasisFile(uint8Array);
+      const width = basisFile.getImageWidth(0, 0);
+      const height = basisFile.getImageHeight(0, 0);
+
+      if (!basisFile.startTranscoding()) {
+        console.error("failed to start transcoding.");
+        basisFile.close();
+        basisFile.delete();
+        return;
+      }
+
+      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
+        level: level, internalFormat: internalFormat, width: width, height: height,
+        border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
+        wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy
+      });
+
+      this.cgApiResourceUid = texture;
+      this.__isTextureReady = true;
+      this.__uri = uri;
+
+      AbstractTexture.__textureMap.set(texture, this);
+
+      basisFile.close();
+      basisFile.delete();
+    });
   }
 
   generateTextureFromImage(image: HTMLImageElement, {
