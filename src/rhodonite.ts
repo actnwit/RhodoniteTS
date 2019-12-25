@@ -70,6 +70,7 @@ import AnimationAssigner from './foundation/importer/AnimationAssigner';
 import { MiscUtil } from './foundation/misc/MiscUtil';
 import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
+import { BoneDataType } from './foundation/definitions/BoneDataType';
 
 let Rn = {
   EntityRepository,
@@ -143,7 +144,8 @@ let Rn = {
   AnimationAssigner,
   MiscUtil,
   OrbitCameraController,
-  WalkThroughCameraController
+  WalkThroughCameraController,
+  BoneDataType
 };
 
 if (typeof exports !== 'undefined') {
