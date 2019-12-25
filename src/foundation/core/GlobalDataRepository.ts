@@ -79,6 +79,14 @@ export default class GlobalDataRepository {
       semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
     };
+    const boneCompressedChunkInfo = {
+      semantic: ShaderSemantics.BoneCompressedChunk, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
+    };
+    const boneCompressedInfoInfo = {
+      semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector4.zero()
+    };
     const skeletalComponentSIDInfo = {
       semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
       stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1)
@@ -88,6 +96,11 @@ export default class GlobalDataRepository {
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
       this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneCompressedInfoInfo, 1);
+      this.takeOne(ShaderSemantics.BoneCompressedInfo);
     }
     this.registerProperty(skeletalComponentSIDInfo, 1);
     this.takeOne(ShaderSemantics.SkinningMode);

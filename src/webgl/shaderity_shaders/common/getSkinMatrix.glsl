@@ -88,6 +88,26 @@ mat4 getSkinMatrix(float skeletalComponentSID) {
   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.w)),
     get_boneTranslateScale(skeletalComponentSID, int(a_joint.w)));
+#elif defined(RN_BONE_DATA_TYPE_VEC4X1)
+  highp vec4 boneCompressedChunksX = get_boneCompressedChunk(skeletalComponentSID, int(a_joint.x));
+  highp vec4 boneCompressedChunksY = get_boneCompressedChunk(skeletalComponentSID, int(a_joint.y));
+  highp vec4 boneCompressedChunksZ = get_boneCompressedChunk(skeletalComponentSID, int(a_joint.z));
+  highp vec4 boneCompressedChunksW = get_boneCompressedChunk(skeletalComponentSID, int(a_joint.w));
+
+  highp vec2 criteria = vec2(4096.0, 4096.0);
+  highp vec4 boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
+  highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksX.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksX.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.y * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksY.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksY.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.z * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.zw, criteria.y)*boneCompressedInfo);
+  skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksW.xy, criteria.x),
+    unpackedVec2ToNormalizedVec4(boneCompressedChunksW.zw, criteria.y)*boneCompressedInfo);
 #endif
 
   return skinMat;

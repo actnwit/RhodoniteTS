@@ -268,6 +268,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
           const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+        } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+          const jointCompressedChunk = skeletalComponent.jointCompressedChunk;
+          const jointCompressedInfo = skeletalComponent.jointCompressedInfo;
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChunk, jointCompressedChunk);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, jointCompressedInfo.v);
         }
 
         (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, 0);
