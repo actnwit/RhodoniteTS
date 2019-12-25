@@ -307,7 +307,11 @@ export default class ModelConverter {
             joints.push(rnEntities[i].getSceneGraph());
           }
           skeletalComponent!.joints = joints;
-          //skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+          if (node.skin.skeletonIndex != null) {
+            skeletalComponent!.jointsHierarchy = rnEntities[node.skin.skeletonIndex].getSceneGraph();
+          } else {
+            skeletalComponent!.jointsHierarchy = joints[0];
+          }
         }
       }
 
