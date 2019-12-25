@@ -83,7 +83,7 @@ const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'gen
 const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'vertexAttributesExistenceArray' });
 const BoneQuaternion: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneQuaternion' });
 const BoneTranslateScale: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneTranslateScale' });
-const BoneCompressedChank: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedChank' });
+const BoneCompressedChunk: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedChunk' });
 const BoneCompressedInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'boneCompressedInfo' });
 const PointSize: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'pointSize' });
 const ColorEnvTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({ str: 'colorEnvTexture' });
@@ -107,7 +107,7 @@ const typeList = [WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneM
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
+  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation, HDRIFormat,
   ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
   EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs];
 
@@ -206,7 +206,7 @@ export const ShaderSemantics = Object.freeze({
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
-  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChank, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
+  VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk: BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
   from, fromString, fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs
 });

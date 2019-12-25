@@ -19,6 +19,7 @@ import Vector3 from "../math/Vector3";
 import Matrix44 from "../math/Matrix44";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
+import { BoneDataType } from "../definitions/BoneDataType";
 
 
 type GlobalPropertyStruct = {
@@ -66,6 +67,10 @@ export default class GlobalDataRepository {
     this.registerProperty(viewPositionInfo, Config.maxCameraNumber);
 
     // Skinning
+    const boneMatrixInfo = {
+      semantic: ShaderSemantics.BoneMatrix, compositionType: CompositionType.Mat4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))
+    };
     const boneQuaternionInfo = {
       semantic: ShaderSemantics.BoneQuaternion, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, soloDatum: true, initialValue: new VectorN(new Float32Array(0))
@@ -74,12 +79,29 @@ export default class GlobalDataRepository {
       semantic: ShaderSemantics.BoneTranslateScale, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
       stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
     };
+    const boneCompressedChunkInfo = {
+      semantic: ShaderSemantics.BoneCompressedChunk, compositionType: CompositionType.Vec4Array, maxIndex: Config.maxSkeletalBoneNumber, componentType: ComponentType.Float, soloDatum: true,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: new VectorN(new Float32Array(0))
+    };
+    const boneCompressedInfoInfo = {
+      semantic: ShaderSemantics.BoneCompressedInfo, compositionType: CompositionType.Vec4, componentType: ComponentType.Float, soloDatum: true,
+      stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isSystem: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: Vector4.zero()
+    };
     const skeletalComponentSIDInfo = {
       semantic: ShaderSemantics.SkinningMode, compositionType: CompositionType.Scalar, componentType: ComponentType.Int,
       stage: ShaderType.VertexAndPixelShader, min: 0, max: 1, isSystem: true, updateInterval: ShaderVariableUpdateInterval.EveryTime, initialValue: new Scalar(-1)
     };
-    this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
-    this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+    if (Config.boneDataType === BoneDataType.Mat4x4) {
+      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      this.registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+      this.registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
+      this.registerProperty(boneCompressedInfoInfo, 1);
+      this.takeOne(ShaderSemantics.BoneCompressedInfo);
+    }
     this.registerProperty(skeletalComponentSIDInfo, 1);
     this.takeOne(ShaderSemantics.SkinningMode);
 

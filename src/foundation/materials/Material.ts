@@ -31,6 +31,7 @@ import GlobalDataRepository from "../core/GlobalDataRepository";
 import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
 import ShaderityUtility from "./ShaderityUtility";
+import { BoneDataType } from "../definitions/BoneDataType";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -422,6 +423,13 @@ export default class Material extends RnObject {
     }
     if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtDRV) {
       definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
+    }
+    if (Config.boneDataType === BoneDataType.Mat4x4) {
+      definitions += '#define RN_BONE_DATA_TYPE_MAT4X4\n';
+    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
+    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+      definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
     }
 
     return definitions;

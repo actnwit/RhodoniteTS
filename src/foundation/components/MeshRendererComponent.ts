@@ -245,31 +245,50 @@ export default class MeshRendererComponent extends Component {
     }
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
+
+      const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
+        const skeletalComponent = sg.entity.getSkeletal();
+        if (skeletalComponent != null) {
+          return true;
+        } else {
+          const children = sg.children;
+          for (let child of children) {
+            return whetherContainsSkeletal(child);
+          }
+          return false;
+        }
+      }
+
       const frustum = cameraComponent.frustum;
-      const frustumCullingRecursively = (sg: SceneGraphComponent) => {
+      const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
+        const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
+        for (let sg of sgs) {
+          const mesh = sg.entity.getMesh();
+          if (mesh) {
+            meshComponents!.push(mesh);
+          }
+        }
+      }
+      const frustumCullingRecursively = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
         const result = frustum.culling(sg);
         if (result === Visibility.Visible) {
-          const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
-          for (let sg of sgs) {
-            const mesh = sg.entity.getMesh();
-            if (mesh) {
-              meshComponents!.push(mesh);
-            }
-          }
-        } else if (result === Visibility.Neutral) {
+          doAsVisible(sg, meshComponents);
+        } else if (result === Visibility.Neutral ||
+          whetherContainsSkeletal(sg)
+          ) {
           const children = sg.children;
           const mesh = sg.entity.getMesh();
           if (mesh) {
             meshComponents!.push(mesh);
           }
           for (let child of children) {
-            frustumCullingRecursively(child);
+            frustumCullingRecursively(child, meshComponents);
           }
         }
       };
 
       for (let tlsg of sceneGraphComponents) {
-        frustumCullingRecursively(tlsg);
+        frustumCullingRecursively(tlsg, meshComponents);
       }
     } else {
       meshComponents = renderPass!.meshComponents!;
