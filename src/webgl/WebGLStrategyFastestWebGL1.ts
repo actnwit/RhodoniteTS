@@ -178,6 +178,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     let offset = 1;
     switch (info.compositionType) {
       case CompositionType.Mat4:
+      case CompositionType.Mat4Array:
         offset = 4;
         break;
       case CompositionType.Mat3:
@@ -198,7 +199,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
 
     const indexArray = [];
     let maxIndex = 1;
-    let index = -1;
     let indexStr;
 
     const isTexture = info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube;
@@ -244,28 +244,30 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
           }
         }`;
     } else {
-      const offset = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
-      let idx;
-      let secondOffset = 0;
+      const typeSize = WebGLStrategyFastestWebGL1.__getOffsetOfShaderSemanticsInfo(info);
+      let dataBeginPos = -1;
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
-        index = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
-        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
-        secondOffset = offset;
+        dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
+//        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
       } else {
-        index = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
+        dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
       }
+
+      let instanceSize = typeSize;
       if (CompositionType.isArray(info.compositionType)) {
-        idx = 'float(index)';
         if (info.maxIndex != null) {
-          secondOffset = offset * info.maxIndex;
+          instanceSize = typeSize * info.maxIndex;
         }
-      } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
-        idx = 'float(index)';
-      } else {
-        idx = 'instanceId';
       }
-      indexStr = `highp float idx = ${index}.0 + ${secondOffset}.0 * instanceId + ${offset}.0 * ${idx};`;
+
+      if (CompositionType.isArray(info.compositionType)) {
+        indexStr = `highp float idx = ${dataBeginPos}.0 + ${instanceSize}.0 * instanceId + ${typeSize}.0 * float(index);`;
+      } else if (info.compositionType === CompositionType.Mat4 || info.compositionType === CompositionType.Mat3 || info.compositionType === CompositionType.Mat2) {
+        indexStr = `highp float idx = ${dataBeginPos}.0 + ${instanceSize}.0 * instanceId;`;
+      } else {
+        indexStr = `highp float idx = ${dataBeginPos}.0 + instanceId;`;
+      }
     }
 
 
@@ -309,6 +311,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
         }
         break;
       case CompositionType.Mat4:
+      case CompositionType.Mat4Array:
         str += `
         vec4 col1 = fetchElement(u_dataTexture, idx + 1.0, arg);
         vec4 col2 = fetchElement(u_dataTexture, idx + 2.0, arg);

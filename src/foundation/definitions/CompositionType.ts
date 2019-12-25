@@ -53,6 +53,7 @@ const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({ index: 9, st
 const Vec2Array: CompositionTypeEnum = new CompositionTypeClass({ index: 10, str: 'VEC2_ARRAY', glslStr: 'vec2', hlslStr: 'float2', numberOfComponents: 2 });
 const Vec3Array: CompositionTypeEnum = new CompositionTypeClass({ index: 11, str: 'VEC3_ARRAY', glslStr: 'vec3', hlslStr: 'float3', numberOfComponents: 3 });
 const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({ index: 12, str: 'VEC4_ARRAY', glslStr: 'vec4', hlslStr: 'float4', numberOfComponents: 4 });
+const Mat4Array: CompositionTypeEnum = new CompositionTypeClass({ index: 13, str: 'MAT4_ARRAY', glslStr: 'mat4', hlslStr: 'float4x4', numberOfComponents: 16 });
 
 const typeList = [Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array];
 
@@ -77,11 +78,11 @@ function fromGlslString(str_: string): CompositionTypeEnum {
 }
 
 function isArray(compositionType: CompositionTypeEnum) {
-  if (compositionType === ScalarArray || compositionType === Vec2Array || compositionType === Vec3Array || compositionType === Vec4Array) {
+  if (compositionType === ScalarArray || compositionType === Vec2Array || compositionType === Vec3Array || compositionType === Vec4Array || compositionType === Mat4Array) {
     return true;
   } else {
     return false;
   }
 }
 
-export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, from, fromString, fromGlslString, isArray });
+export const CompositionType = Object.freeze({ Unknown, Scalar, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Texture2D, TextureCube, ScalarArray, Vec2Array, Vec3Array, Vec4Array, Mat4Array, from, fromString, fromGlslString, isArray });

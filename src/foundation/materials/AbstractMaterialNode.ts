@@ -30,6 +30,7 @@ import { BufferUse } from "../definitions/BufferUse";
 import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
 import { ShaderityObject } from "shaderity";
+import { BoneDataType } from "../definitions/BoneDataType";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -259,10 +260,15 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
     if (skeletalComponent) {
       if (setUniform) {
-        const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
-        const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+        if (Config.boneDataType === BoneDataType.Mat4x4) {
+          const jointMatricesArray = skeletalComponent.jointMatricesArray;
+          (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).boneMatrix, false, jointMatricesArray);
+        } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+          const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
+          const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
+        }
 
         (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, 0);
       }

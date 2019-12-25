@@ -68,6 +68,13 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 }
 
 mat4 getSkinMatrix(float skeletalComponentSID) {
+
+#ifdef RN_BONE_DATA_TYPE_MAT4X4
+  mat4 skinMat = a_weight.x * get_boneMatrix(skeletalComponentSID, int(a_joint.x));
+  skinMat += a_weight.y * get_boneMatrix(skeletalComponentSID, int(a_joint.y));
+  skinMat += a_weight.z * get_boneMatrix(skeletalComponentSID, int(a_joint.z));
+  skinMat += a_weight.w * get_boneMatrix(skeletalComponentSID, int(a_joint.w));
+#elif defined(RN_BONE_DATA_TYPE_VEC4X2)
   highp vec2 criteria = vec2(4096.0, 4096.0);
   highp mat4 skinMat = a_weight.x * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.x)),
@@ -81,11 +88,7 @@ mat4 getSkinMatrix(float skeletalComponentSID) {
   skinMat += a_weight.w * createMatrixFromQuaternionTransformUniformScale(
     get_boneQuaternion(skeletalComponentSID, int(a_joint.w)),
     get_boneTranslateScale(skeletalComponentSID, int(a_joint.w)));
-
-  // mat4 skinMat = a_weight.x * u_boneMatrices[int(a_joint.x)];
-  // skinMat += a_weight.y * u_boneMatrices[int(a_joint.y)];
-  // skinMat += a_weight.z * u_boneMatrices[int(a_joint.z)];
-  // skinMat += a_weight.w * u_boneMatrices[int(a_joint.w)];
+#endif
 
   return skinMat;
 }
