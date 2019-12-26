@@ -575,6 +575,8 @@ export default class ModelConverter {
       const image = textureInfo.image;
       if (image && image.image) {
         rnTexture.generateTextureFromImage(image.image);
+      } else if (image && image.basis) {
+        rnTexture.generateTextureFromBasis(image.basis);
       } else {
         console.warn("default image not found");
         continue;
@@ -807,7 +809,16 @@ export default class ModelConverter {
         const ext = texture.image.mimeType.split('/')[1];
         rnTexture.name = texture.image.name + `.${ext}`;
       }
+    } else if (texture.image.basis) {
+      rnTexture.generateTextureFromBasis(texture.image.basis);
+      if (texture.image.uri) {
+        rnTexture.name = texture.image.url;
+      } else {
+        const ext = texture.image.mimeType.split('/')[1];
+        rnTexture.name = texture.image.name + `.${ext}`;
+      }
     }
+
     return rnTexture;
   }
 

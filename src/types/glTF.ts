@@ -163,6 +163,7 @@ export type Gltf2Image = {
   mimeType?: string,
   bufferView?: number,
   image?: HTMLImageElement,
+  basis?: any,
   name?: string,
   extensions?: any,
   extras?: any

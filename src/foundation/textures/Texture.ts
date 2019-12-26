@@ -59,7 +59,7 @@ export default class Texture extends AbstractTexture {
     return canvas;
   }
 
-  async generateTextureFromBasis(uri: string, {
+  async generateTextureFromBasis(uint8Array: Uint8Array, {
     level = 0,
     internalFormat = PixelFormat.RGBA,
     format = PixelFormat.RGBA,
@@ -72,9 +72,6 @@ export default class Texture extends AbstractTexture {
     anisotropy = true
   } = {}) {
     this.__startedToLoad = true;
-    const response = await fetch(uri);
-    const buffer = await response.arrayBuffer();
-    const uint8Array = new Uint8Array(buffer);
 
     if (typeof BASIS === 'undefined') {
       console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
@@ -105,7 +102,6 @@ export default class Texture extends AbstractTexture {
 
       this.cgApiResourceUid = texture;
       this.__isTextureReady = true;
-      this.__uri = uri;
 
       AbstractTexture.__textureMap.set(texture, this);
 
