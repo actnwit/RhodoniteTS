@@ -692,8 +692,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
     if (s3tc) {
-      basisCompressionType = BasisCompressionType.BC1;
-      compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+      basisCompressionType = BasisCompressionType.BC3;
+      compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
     const etc1 = gl.getExtension("WEBGL_compressed_texture_etc1");
     if (etc1) {
