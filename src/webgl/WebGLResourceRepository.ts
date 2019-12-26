@@ -751,43 +751,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return textureSource;
   }
 
-  createAtfTexture(atf: any, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
-    {
-      level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, width: Size, height: Size, border: Size, format: PixelFormatEnum,
-      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
-    }): WebGLResourceHandle {
-    const gl = this.__glw!.getRawContext();
-
-    const texture = gl.createTexture();
-    const resourceHandle = this.getResourceNumber();
-    texture._resourceUid = resourceHandle;
-    this.__webglResources.set(resourceHandle, texture!);
-
-    this.__glw!.bindTexture2D(0, texture);
-
-    let s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc")
-    if (s3tc) {
-      gl.compressedTexImage2D(gl.TEXTURE_2D, level, s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT, atf.width, atf.height, border, atf.dataArray)
-    }
-
-    let etc1 = gl.getExtension("WEBGL_compressed_texture_etc1")
-    if (etc1) {
-      gl.compressedTexImage2D(gl.TEXTURE_2D, level, etc1.COMPRESSED_RGB_ETC1_WEBGL, atf.width, atf.height, border, atf.dataArray)
-    }
-
-    let pvrtc = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc")
-    if (pvrtc) {
-      gl.compressedTexImage2D(gl.TEXTURE_2D, level, pvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, atf.width, atf.height, border, atf.dataArray)
-    }
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
-    this.__glw!.unbindTexture2D(0);
-
-    return resourceHandle;
-  }
-
   createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
     var fbo = gl.createFramebuffer();
