@@ -690,12 +690,21 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    let s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
+    const s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
     if (s3tc) {
       basisCompressionType = BasisCompressionType.BC1;
       compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
     }
-
+    const etc1 = gl.getExtension("WEBGL_compressed_texture_etc1");
+    if (etc1) {
+      basisCompressionType = BasisCompressionType.ETC1;
+      compressionType = etc1.COMPRESSED_RGB_ETC1_WEBGL;
+    }
+    const pvrtc = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc");
+    if (pvrtc) {
+      basisCompressionType = BasisCompressionType.PVRTC1_RGBA;
+      compressionType = pvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+    }
     const mipmapDepth = basisFile.getNumLevels(0);
 
     if (mipmapDepth == 0) {
