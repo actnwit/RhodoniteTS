@@ -65,7 +65,7 @@ export default class Texture extends AbstractTexture {
     format = PixelFormat.RGBA,
     type = ComponentType.Float,
     magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.LinearMipmapLinear,
     wrapS = TextureParameter.Repeat,
     wrapT = TextureParameter.Repeat,
     generateMipmap = true,
@@ -98,9 +98,9 @@ export default class Texture extends AbstractTexture {
 
       const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
-        level: level, internalFormat: internalFormat, width: width, height: height,
+        width: width, height: height,
         border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
-        wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy
+        wrapS: wrapS, wrapT: wrapT, anisotropy: anisotropy
       });
 
       this.cgApiResourceUid = texture;
