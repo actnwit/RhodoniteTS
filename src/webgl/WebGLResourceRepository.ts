@@ -673,10 +673,10 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  createCompressedTextureFromBasis(basisFile: BasisFile, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
+  createCompressedTextureFromBasis(basisFile: BasisFile, { width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }:
     {
-      level: Index, internalFormat: TextureParameterEnum | PixelFormatEnum, width: Size, height: Size, border: Size, format: PixelFormatEnum,
-      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, generateMipmap: boolean, anisotropy: boolean
+      width: Size, height: Size, border: Size, format: PixelFormatEnum,
+      type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, anisotropy: boolean
     }): WebGLResourceHandle {
 
     let basisCompressionType: BasisCompressionTypeEnum;
@@ -696,19 +696,14 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
       compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
     }
 
-    const extractSize = basisFile.getImageTranscodedSizeInBytes(0, 0, basisCompressionType!.index);
-    const textureSource = new Uint8Array(extractSize);
-
-    if (!basisFile.transcodeImage(textureSource, 0, 0, basisCompressionType!.index, 0, 0)) {
-      console.error("failed to transcode the image.");
-    }
-
-    const mipmapDepth = 0;
+    const mipmapDepth = basisFile.getNumLevels(0);
 
     if (mipmapDepth == 0) {
+      const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, 0);
       gl.compressedTexImage2D(gl.TEXTURE_2D, 0, compressionType!, width, height, border, textureSource);
     } else {
       for (let level = 0; level < mipmapDepth; level++) {
+        const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, level);
         gl.compressedTexImage2D(gl.TEXTURE_2D, level, compressionType!, width / Math.pow(2, level), height / Math.pow(2, level), border, textureSource);
         if (width / Math.pow(2, level) <= 1 || height / Math.pow(2, level) <= 1) {
           break;
@@ -718,7 +713,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     if (mipmapDepth == 0) {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+      let minFilter_ = minFilter
+      if (minFilter === TextureParameter.LinearMipmapLinear) {
+        minFilter_ = TextureParameter.Linear;
+      }
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter_.index);
     } else {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
@@ -732,6 +731,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
+  }
+
+  private decodeBasisImage(basisFile: BasisFile, basisCompressionType: BasisCompressionTypeEnum, imageIndex: Index, levelIndex: Index) {
+    const extractSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisCompressionType!.index);
+    const textureSource = new Uint8Array(extractSize);
+    if (!basisFile.transcodeImage(textureSource, imageIndex, levelIndex, basisCompressionType!.index, 0, 0)) {
+      console.error("failed to transcode the image.");
+    }
+    return textureSource;
   }
 
   createAtfTexture(atf: any, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }:
