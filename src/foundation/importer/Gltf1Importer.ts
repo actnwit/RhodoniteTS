@@ -744,13 +744,30 @@ export default class Gltf1Importer {
         }
       }
 
-      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
-        image.crossOrigin = 'Anonymous';
-        resources.images[i] = image;
-        imageJson.image = image;
-      });
-      promisesToLoadResources.push(promise);
+      if (imageUri.match(/basis$/)) {
+        const promise = new Promise(async (resolve)=> {
+          const response = await fetch(imageUri);
+          const buffer = await response.arrayBuffer();
+          const uint8Array = new Uint8Array(buffer);
+          imageJson.basis = uint8Array;
+          resolve();
+        });
+        promisesToLoadResources.push(promise);
 
+      } else if (imageJson.uri != null && imageJson.uri.match(/basis$/)) {
+        const promise = new Promise((resolve)=>{
+          imageJson.basis = new Uint8Array(options.files[imageJson.uri!])
+          resolve();
+        });
+        promisesToLoadResources.push(promise);
+      } else {
+        const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(function (image) {
+          image.crossOrigin = 'Anonymous';
+          resources.images[i] = image;
+          imageJson.image = image;
+        });
+        promisesToLoadResources.push(promise);
+      }
     }
 
     if (options.defaultTextures) {
