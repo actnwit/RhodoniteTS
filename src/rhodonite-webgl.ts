@@ -4,7 +4,7 @@ import WebGLContextWrapper from './webgl/WebGLContextWrapper';
 import WebGLResourceRepository, { VertexHandles as vertexHandles } from './webgl/WebGLResourceRepository';
 import webGLStrategy from './webgl/WebGLStrategy';
 import WebGLStrategyUniform from './webgl/WebGLStrategyUniform';
-import GetVarsShader from './webgl/shaders/GetVarsShader';
+import GetVarsShader from './webgl/shaders/nodes/GetVarsShader';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
