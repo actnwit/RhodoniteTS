@@ -677,6 +677,7 @@ export default class Gltf2Importer {
           resources.images[i] = image;
           imageJson.image = image;
         });
+        promisesToLoadResources.push(promise);
       }
     }
 
