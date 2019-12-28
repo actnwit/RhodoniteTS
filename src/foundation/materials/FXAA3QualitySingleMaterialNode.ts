@@ -3,17 +3,20 @@ import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import Vector2 from "../math/Vector2";
 import { ComponentType } from "../definitions/ComponentType";
-import FXAA3QualityShader from "../../webgl/shaders/FXAA3Quality";
 import { ShaderType } from "../definitions/ShaderType";
 import ComponentRepository from "../core/ComponentRepository";
 import CameraComponent from "../components/CameraComponent";
 import Material from "./Material";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
+import shaderVertex from "../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert";
+import shaderFragment from "../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag";
 
 export default class FXAA3QualitySingleMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(FXAA3QualityShader.getInstance(), "FXAA3QualityShading");
+    super(null, "FXAA3QualityShading",
+      { isMorphing: false, isSkinning: false, isLighting: false },
+      shaderVertex, shaderFragment, );
     FXAA3QualitySingleMaterialNode.initDefaultTextures();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
