@@ -12,8 +12,13 @@ const load = async function (time) {
 
 
   // Plane
-  const texture = new Rn.Texture();
-  texture.generateTextureFromBasis('../../../assets/images/Rn.basis');
+    const texture = new Rn.Texture();
+  {
+    const response = await fetch('../../../assets/images/Rn.basis');
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+    texture.generateTextureFromBasis(uint8Array);
+  }
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
   modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
 
@@ -25,6 +30,23 @@ const load = async function (time) {
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
   planeEntity.getTransform().rotate = new Rn.Vector3(Math.PI / 2, 0, 0);
+
+  const sphereEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+  const spherePrimitive = new Rn.Sphere();
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  spherePrimitive.generate({ radius: 100, widthSegments: 40, heightSegments: 40, material: sphereMaterial });
+  const environmentCubeTexture = new Rn.CubeTexture();
+  {
+    const response = await fetch('../../../assets/images/cubemap_test.basis');
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+    environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
+  }
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  const sphereMeshComponent = sphereEntity.getComponent(Rn.MeshComponent);
+  const sphereMesh = new Rn.Mesh();
+  sphereMesh.addPrimitive(spherePrimitive);
+  sphereMeshComponent.setMesh(sphereMesh);
 
   // Camera
   const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
@@ -47,7 +69,7 @@ const load = async function (time) {
   // renderPass
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
-  renderPass.addEntities([planeEntity]);
+  renderPass.addEntities([planeEntity, sphereEntity]);
 
   // expression
   const expression = new Rn.Expression();
