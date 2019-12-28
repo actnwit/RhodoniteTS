@@ -2,7 +2,7 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../de
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import AddShader from "../../webgl/shaders/AddShader";
+import AddShader from "../../webgl/shaders/nodes/AddShader";
 
 export default class AddMaterialNode extends AbstractMaterialNode {
 
