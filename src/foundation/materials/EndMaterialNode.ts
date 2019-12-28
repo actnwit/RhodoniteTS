@@ -2,7 +2,7 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../de
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import EndShader from "../../webgl/shaders/EndShader";
+import EndShader from "../../webgl/shaders/nodes/EndShader";
 
 export default class EndMaterialNode extends AbstractMaterialNode {
 

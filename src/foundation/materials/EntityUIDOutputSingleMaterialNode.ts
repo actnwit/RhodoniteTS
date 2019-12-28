@@ -32,7 +32,6 @@ import SkeletalComponent from "../components/SkeletalComponent";
 import MeshRendererComponent from "../components/MeshRendererComponent";
 import { HdriFormat } from "../definitions/HdriFormat";
 import VectorN from "../math/VectorN";
-import EntityUIDOutputShader from "../../webgl/shaders/EntityUIDOutputSingleShader";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import entityUIDOutputSingleShaderVertex from "../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert";

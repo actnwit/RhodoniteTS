@@ -1,7 +1,7 @@
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { CompositionType } from "../definitions/CompositionType";
 import { ComponentType } from "../definitions/ComponentType";
-import ClassicShadingShader from "../../webgl/shaders/ClassicShadingShader";
+import ClassicShadingShader from "../../webgl/shaders/nodes/ClassicShadingShader";
 import { ShaderType } from "../definitions/ShaderType";
 import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 import { ShaderSemanticsInfo, ShaderSemantics } from "../definitions/ShaderSemantics";
