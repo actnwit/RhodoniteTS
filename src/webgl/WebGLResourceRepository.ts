@@ -1079,6 +1079,87 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
   }
 
+  createCubeTextureFromBasis(basisFile: BasisFile, {
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.LinearMipmapLinear,
+    wrapS = TextureParameter.Repeat,
+    wrapT = TextureParameter.Repeat,
+    border = 0
+  }) {
+    const gl = this.__glw!.getRawContext();
+    let basisCompressionType: BasisCompressionTypeEnum;
+    let compressionType: Index;
+
+    const texture = gl.createTexture();
+    const resourceHandle = this.getResourceNumber();
+    texture._resourceUid = resourceHandle;
+    this.__webglResources.set(resourceHandle, texture!);
+
+    this.__glw!.bindTextureCube(0, texture);
+
+    const s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
+    if (s3tc) {
+      basisCompressionType = BasisCompressionType.BC3;
+      compressionType = s3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
+    const etc1 = gl.getExtension("WEBGL_compressed_texture_etc1");
+    if (etc1) {
+      basisCompressionType = BasisCompressionType.ETC1;
+      compressionType = etc1.COMPRESSED_RGB_ETC1_WEBGL;
+    }
+    const atc = gl.getExtension("WEBGL_compressed_texture_atc")
+    if (atc) {
+      basisCompressionType = BasisCompressionType.ATC_RGBA;
+      compressionType = atc.COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL;
+    }
+    const etc2 = gl.getExtension("WEBGL_compressed_texture_etc");
+    if (etc2) {
+      basisCompressionType = BasisCompressionType.ETC2;
+      compressionType = etc2.COMPRESSED_RGBA8_ETC2_EAC;
+    }
+    const pvrtc = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc");
+    if (pvrtc) {
+      basisCompressionType = BasisCompressionType.PVRTC1_RGBA;
+      compressionType = pvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+    }
+    const astc = gl.getExtension("WEBGL_compressed_texture_astc");
+    if (astc) {
+      basisCompressionType = BasisCompressionType.ASTC;
+      compressionType = astc.COMPRESSED_RGBA_ASTC_4x4_KHR;
+    }
+
+    const numImages = basisFile.getNumImages();
+    const mipmapDepth = basisFile.getNumLevels(0);
+
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, wrapT.index);
+    if (mipmapDepth >= 2) {
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, minFilter.index);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    } else {
+      let minFilter_ = minFilter;
+      if (minFilter === TextureParameter.LinearMipmapLinear) {
+        minFilter_ = TextureParameter.Linear;
+      }
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, minFilter_.index);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    }
+
+    for (let i=0; i<mipmapDepth; i++) {
+      for (let j=0; j<numImages; j++) {
+        const width = basisFile.getImageWidth(j, i);
+        const height = basisFile.getImageHeight(j, i);
+        const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, j, i);
+        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + j, i, compressionType!, width, height, border, textureSource);
+      }
+    }
+
+
+    this.__glw!.unbindTextureCube(0);
+
+    return resourceHandle;
+  }
+
   createDummyBlackCubeTexture() {
     const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==';
     const arrayBuffer = this.__createDummyTextureInner(base64);
