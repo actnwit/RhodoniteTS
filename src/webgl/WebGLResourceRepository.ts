@@ -673,9 +673,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     return resourceHandle;
   }
 
-  createCompressedTextureFromBasis(basisFile: BasisFile, { width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }:
+  createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }:
     {
-      width: Size, height: Size, border: Size, format: PixelFormatEnum,
+      border: Size, format: PixelFormatEnum,
       type: ComponentTypeEnum, magFilter: TextureParameterEnum, minFilter: TextureParameterEnum, wrapS: TextureParameterEnum, wrapT: TextureParameterEnum, anisotropy: boolean
     }): WebGLResourceHandle {
 
@@ -722,17 +722,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
     const mipmapDepth = basisFile.getNumLevels(0);
 
-    if (mipmapDepth == 0) {
-      const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, 0);
-      gl.compressedTexImage2D(gl.TEXTURE_2D, 0, compressionType!, width, height, border, textureSource);
-    } else {
-      for (let level = 0; level < mipmapDepth; level++) {
-        const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, level);
-        gl.compressedTexImage2D(gl.TEXTURE_2D, level, compressionType!, width / Math.pow(2, level), height / Math.pow(2, level), border, textureSource);
-        if (width / Math.pow(2, level) <= 1 || height / Math.pow(2, level) <= 1) {
-          break;
-        }
-      }
+    for (let i=0; i<mipmapDepth; i++) {
+      const width = basisFile.getImageWidth(0, i);
+      const height = basisFile.getImageHeight(0, i);
+      const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, i);
+      gl.compressedTexImage2D(gl.TEXTURE_2D, i, compressionType!, width, height, border, textureSource);
     }
 
     if (mipmapDepth == 0) {
