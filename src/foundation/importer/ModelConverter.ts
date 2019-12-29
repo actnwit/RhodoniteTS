@@ -471,7 +471,7 @@ export default class ModelConverter {
       for (let i in mesh.primitives) {
         let primitive = mesh.primitives[i];
         if (primitive.mode != null) {
-          rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
+          rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
         }
 
         const rnPrimitive = new Primitive();
@@ -754,7 +754,7 @@ export default class ModelConverter {
       alphaMode = options.alphaMode;
     }
     if (alphaMode != null) {
-      material.alphaMode = AlphaMode.fromString(alphaMode);
+      material.alphaMode = AlphaMode.fromString(alphaMode)!;
     }
 
     // For glTF1.0

@@ -21,7 +21,7 @@ const FastestWebGL1: ProcessApproachEnum = new ProcessApproachClass({ index: 7, 
 
 const typeList = [None, UniformWebGL1, UniformWebGL2, DataTextureWebGL1, DataTextureWebGL2, UBOWebGL2, TransformFeedbackWebGL2, FastestWebGL1];
 
-function from(index: number): ProcessApproachEnum {
+function from(index: number): ProcessApproachEnum|undefined {
   return _from({ typeList, index });
 }
 

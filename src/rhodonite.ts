@@ -71,6 +71,7 @@ import { MiscUtil } from './foundation/misc/MiscUtil';
 import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import { BoneDataType } from './foundation/definitions/BoneDataType';
+import ShaderityUtility from './foundation/materials/ShaderityUtility';
 
 let Rn = {
   EntityRepository,
@@ -145,7 +146,8 @@ let Rn = {
   MiscUtil,
   OrbitCameraController,
   WalkThroughCameraController,
-  BoneDataType
+  BoneDataType,
+  ShaderityUtility
 };
 
 if (typeof exports !== 'undefined') {

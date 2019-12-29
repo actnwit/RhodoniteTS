@@ -21,7 +21,7 @@ const TriangleFan: PrimitiveModeEnum = new PrimitiveModeClass({index:6, str:'TRI
 
 const typeList = [Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
 
-function from( index : number): PrimitiveModeEnum {
+function from( index : number): PrimitiveModeEnum|undefined {
   return _from({typeList, index});
 }
 
