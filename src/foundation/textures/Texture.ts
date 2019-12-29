@@ -95,7 +95,6 @@ export default class Texture extends AbstractTexture {
 
       const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
-        width: width, height: height,
         border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
         wrapS: wrapS, wrapT: wrapT, anisotropy: anisotropy
       });
