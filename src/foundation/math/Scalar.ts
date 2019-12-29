@@ -34,6 +34,22 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     return this.v;
   }
 
+  isStrictEqual(scalar: Scalar_<T>) {
+    if (this.x === scalar.x) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isEqual(scalar: Scalar_<T>, delta: number = Number.EPSILON) {
+    if (Math.abs(scalar.x - this.x) < delta) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }
 
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {
