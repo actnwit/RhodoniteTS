@@ -349,7 +349,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
           shaderVarName += `[${data.index}]`;
         }
       }
-      const location = gl.getUniformLocation(shaderProgram, 'u_' + shaderVarName);
+
+      if (data.none_u_prefix !== true) {
+        shaderVarName = 'u_' + shaderVarName;
+      }
+      const location = gl.getUniformLocation(shaderProgram, shaderVarName);
 
 
       if (data.index != null) {

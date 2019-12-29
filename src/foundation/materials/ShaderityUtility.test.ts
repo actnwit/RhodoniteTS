@@ -22,9 +22,9 @@ out vec2 v_texcoord;
 out vec3 v_baryCentricCoord;
 
 
-uniform float worldMatrix;
+uniform float u_worldMatrix;
 uniform float shadingModel; // initialValue=0
-uniform vec2 screenInfo; // soloDatum=true, initialValue=(100,100)
+uniform vec2 u_screenInfo; // soloDatum=true, initialValue=(100,100)
 
 void main() {
 
@@ -38,11 +38,14 @@ void main() {
   expect(array[0].componentType).toBe(Rn.ComponentType.Float);
   expect(array[0].compositionType).toBe(Rn.CompositionType.Scalar);
   expect(array[0].soloDatum).toBe(false);
+  expect(array[0].none_u_prefix).toBe(false);
   expect(array[1].semantic.str).toBe('shadingModel');
   expect(array[1].soloDatum).toBe(false);
   expect(array[1].initialValue.isStrictEqual(new MutableScalar(0))).toBe(true);
+  expect(array[1].none_u_prefix).toBe(true);
   expect(array[2].semantic.str).toBe('screenInfo');
   expect(array[2].soloDatum).toBe(true);
   expect(array[2].initialValue.isStrictEqual(new MutableVector2(100,100))).toBe(true);
+  expect(array[2].none_u_prefix).toBe(false);
 
 });

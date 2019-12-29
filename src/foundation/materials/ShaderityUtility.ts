@@ -89,7 +89,14 @@ export default class ShaderityUtility {
       if (match) {
         const shaderSemanticsInfo: any = {};
         const type = match[1];
-        const variableName = match[2];
+        let variableName = match[2];
+        const u_prefixedName = variableName.match(/u_(\w+)/);
+        if (u_prefixedName) {
+          variableName = u_prefixedName[1];
+          shaderSemanticsInfo.none_u_prefix = false;
+        } else {
+          shaderSemanticsInfo.none_u_prefix = true;
+        }
         const info = match[4];
         const systemSemantic = ShaderSemantics.fromStringCaseSensitively(variableName);
         shaderSemanticsInfo.semantic = systemSemantic;
