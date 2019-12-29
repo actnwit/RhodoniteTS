@@ -96,6 +96,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
+    AbstractMaterialNode.__dummyBlackTexture.tryToSetUniqueName('dummyBlackTexture', true);
+    AbstractMaterialNode.__dummyWhiteTexture.tryToSetUniqueName('dummyWhiteTexture', true);
+    AbstractMaterialNode.__dummyBlueTexture.tryToSetUniqueName('dummyBlueTexture', true);
+    AbstractMaterialNode.__dummyBlackCubeTexture.tryToSetUniqueName('dummyBlackCubeTexture', true);
+
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
@@ -212,6 +217,19 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__dummyBlueTexture.generate1x1TextureFrom("rgba(127.5, 127.5, 255, 1)");
     this.__dummyBlackTexture.generate1x1TextureFrom("rgba(0, 0, 0, 1)");
     this.__dummyBlackCubeTexture.load1x1Texture("rgba(0, 0, 0, 1)");
+  }
+
+  static get dummyWhiteTexture() {
+    return this.__dummyWhiteTexture;
+  }
+  static get dummyBlackTexture() {
+    return this.__dummyBlackTexture;
+  }
+  static get dummyBlueTexture() {
+    return this.__dummyBlueTexture;
+  }
+  static get dummyBlackCubeTexture() {
+    return this.__dummyWhiteTexture;
   }
 
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {

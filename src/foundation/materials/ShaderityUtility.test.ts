@@ -25,6 +25,7 @@ out vec3 v_baryCentricCoord;
 uniform float u_worldMatrix;
 uniform float shadingModel; // initialValue=0
 uniform vec2 u_screenInfo; // soloDatum=true, initialValue=(100,100)
+uniform sampler2D u_diffuseColorTexture; // initialValue=(7,white)
 
 void main() {
 
@@ -47,5 +48,9 @@ void main() {
   expect(array[2].soloDatum).toBe(true);
   expect(array[2].initialValue.isStrictEqual(new MutableVector2(100,100))).toBe(true);
   expect(array[2].none_u_prefix).toBe(false);
+  expect(array[3].semantic.str).toBe('diffuseColorTexture');
+  expect(array[3].compositionType).toBe(Rn.CompositionType.Texture2D);
+  expect(array[3].initialValue[0]).toBe(7);
+  expect(array[3].initialValue[1]).toBe(Rn.AbstractMaterialNode.dummyWhiteTexture);
 
 });

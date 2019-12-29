@@ -33,9 +33,9 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
 
-  constructor({ isMorphing, isSkinning, isLighting, vertexShader, pixelShader}:
-    { isMorphing: boolean, isSkinning: boolean, isLighting: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
-    super(null, 'pbrShading'
+  constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader}:
+    { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
+    super(null, name
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting'),

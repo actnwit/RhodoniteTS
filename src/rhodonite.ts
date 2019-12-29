@@ -72,6 +72,7 @@ import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import { BoneDataType } from './foundation/definitions/BoneDataType';
 import ShaderityUtility from './foundation/materials/ShaderityUtility';
+import AbstractMaterialNode from './foundation/materials/AbstractMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -147,7 +148,8 @@ let Rn = {
   OrbitCameraController,
   WalkThroughCameraController,
   BoneDataType,
-  ShaderityUtility
+  ShaderityUtility,
+  AbstractMaterialNode
 };
 
 if (typeof exports !== 'undefined') {
