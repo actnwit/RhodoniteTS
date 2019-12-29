@@ -62,3 +62,12 @@ export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: s
 
   return match;
 }
+
+export function _fromStringCaseSensitively({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO|undefined {
+  const match = typeList.find(type => type.str === str);
+  if (!match) {
+    return void 0;
+  }
+
+  return match;
+}

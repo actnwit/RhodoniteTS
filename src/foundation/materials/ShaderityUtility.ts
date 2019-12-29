@@ -83,77 +83,91 @@ export default class ShaderityUtility {
 
     const shaderSemanticsInfoArray = [];
     for (let row of splitCode) {
-      const reg = /\/\/[\t ]*rn_data:[\t ]*(.)+/;
+      const reg = /[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const match = row.match(reg);
 
       if (match) {
         const shaderSemanticsInfo: any = {};
-        const rnData = match[0];
-        const semantic = rnData.match(/rn_data:[\t ]*(\w+)[\t ]*:/);
-        if (semantic) {
-          const semanticName = semantic[1];
-          const variableName = semanticName.charAt(0).toLowerCase() + semanticName.slice(1);
-          const systemSemantic = ShaderSemantics.fromString(semanticName);
-          shaderSemanticsInfo.semantic = systemSemantic;
-          if (systemSemantic == null) {
-            const semantic = new ShaderSemanticsClass({str: variableName})
-            shaderSemanticsInfo.semantic = semantic;
-          }
+        const type = match[1];
+        const variableName = match[2];
+        const info = match[4];
+        const systemSemantic = ShaderSemantics.fromStringCaseSensitively(variableName);
+        shaderSemanticsInfo.semantic = systemSemantic;
+        if (systemSemantic == null) {
+          const semantic = new ShaderSemanticsClass({str: variableName})
+          shaderSemanticsInfo.semantic = semantic;
         }
-        const componentType = rnData.match(/componentType[\t ]*=[\t ]*(\w+)[,\t ]*/);
-        if (componentType) {
-          const componentTypeText = componentType[1];
-          shaderSemanticsInfo.componentType = ComponentType.fromString(componentTypeText);
-        }
-        const compositionType = rnData.match(/compositionType[\t ]*=[\t ]*(\w+)[,\t ]*/);
-        if (compositionType) {
-          const compositionTypeText = compositionType[1];
-          shaderSemanticsInfo.compositionType = CompositionType.fromString(compositionTypeText);
-        }
-        const soloDatum = rnData.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
+        shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
+        shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(type);
+        const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
+        let bool = false;
         if (soloDatum) {
           const soloDatumText = soloDatum[1];
-          let bool = false;
           if (soloDatumText === 'true') {
             bool = true;
           }
-          shaderSemanticsInfo.soloDatum = bool;
         }
-        const initialValue = rnData.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
+        shaderSemanticsInfo.soloDatum = bool;
+        const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
         if (initialValue) {
           const initialValueText = initialValue[1];
           const tuple = initialValueText.match(/\(([\d, ]+)\)/);
+          const checkCompositionNumber = (expected: CompositionTypeEnum)=>{
+            if (shaderSemanticsInfo.compositionType !== expected) {
+              console.error('component number of initialValue is invalid!');
+            }
+          }
           if (tuple) {
             const text = tuple[1];
             const split = text.split(',');
             switch (split.length) {
               case 2:
-                shaderSemanticsInfo.initialValue = new MutableVector2(parseFloat(split[0]), parseFloat(split[1]))
+                checkCompositionNumber(CompositionType.Vec2);
+                shaderSemanticsInfo.initialValue = new MutableVector2(parseFloat(split[0]), parseFloat(split[1]));
                 break;
               case 3:
-                shaderSemanticsInfo.initialValue = new MutableVector3(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]))
+                checkCompositionNumber(CompositionType.Vec3);
+                shaderSemanticsInfo.initialValue = new MutableVector3(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]));
                 break;
               case 4:
-                shaderSemanticsInfo.initialValue = new MutableVector4(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]), parseFloat(split[3]))
+                checkCompositionNumber(CompositionType.Vec4);
+                shaderSemanticsInfo.initialValue = new MutableVector4(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]), parseFloat(split[3]));``
                 break;
               case 9:
+                checkCompositionNumber(CompositionType.Mat3);
                 shaderSemanticsInfo.initialValue = new MutableMatrix33(
                   parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]),
                   parseFloat(split[3]), parseFloat(split[4]), parseFloat(split[5]),
-                  parseFloat(split[6]), parseFloat(split[7]), parseFloat(split[8]))
+                  parseFloat(split[6]), parseFloat(split[7]), parseFloat(split[8]));
                 break;
               case 16:
+                checkCompositionNumber(CompositionType.Mat4);
                 shaderSemanticsInfo.initialValue = new MutableMatrix44(
                   parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]), parseFloat(split[3]),
                   parseFloat(split[4]), parseFloat(split[5]), parseFloat(split[6]), parseFloat(split[7]),
                   parseFloat(split[8]), parseFloat(split[9]), parseFloat(split[10]), parseFloat(split[11]),
-                  parseFloat(split[12]), parseFloat(split[13]), parseFloat(split[14]), parseFloat(split[15]))
+                  parseFloat(split[12]), parseFloat(split[13]), parseFloat(split[14]), parseFloat(split[15]));
                 break;
               default:
               console.error('Invalid format');
             }
           } else {
+            checkCompositionNumber(CompositionType.Scalar);
             shaderSemanticsInfo.initialValue = new MutableScalar(parseFloat(initialValueText));
+          }
+        } else {
+          if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
+            shaderSemanticsInfo.initialValue = new MutableScalar(0);
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
+            shaderSemanticsInfo.initialValue = MutableVector2.zero();
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
+            shaderSemanticsInfo.initialValue = MutableVector3.zero();
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
+            shaderSemanticsInfo.initialValue = MutableVector4.zero();
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
+            shaderSemanticsInfo.initialValue = MutableMatrix33.identity();
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
+            shaderSemanticsInfo.initialValue = MutableMatrix44.identity();
           }
         }
         shaderSemanticsInfoArray.push(shaderSemanticsInfo)
@@ -162,4 +176,5 @@ export default class ShaderityUtility {
 
     return shaderSemanticsInfoArray;
   }
+
 }

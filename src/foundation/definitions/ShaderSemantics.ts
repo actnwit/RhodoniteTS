@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
+import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from "../misc/EnumIO";
 import { CompositionType } from "./CompositionType";
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../rhodonite";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
@@ -118,6 +118,9 @@ function from(index: number): ShaderSemanticsEnum {
 function fromString(str: string): ShaderSemanticsEnum {
   return _fromString({ typeList, str }) as ShaderSemanticsEnum;
 }
+function fromStringCaseSensitively(str: string): ShaderSemanticsEnum {
+  return _fromStringCaseSensitively({ typeList, str }) as ShaderSemanticsEnum;
+}
 
 
 type UpdateFunc = (
@@ -202,11 +205,12 @@ const getShaderProperty = (materialTypeName: string, info: ShaderSemanticsInfo, 
 };
 
 export const ShaderSemantics = Object.freeze({
+  from, fromString, fromStringCaseSensitively,
   WorldMatrix, ViewMatrix, ProjectionMatrix, NormalMatrix, BoneMatrix, BaseColorFactor, BaseColorTexture,
   NormalTexture, MetallicRoughnessTexture, OcclusionTexture, EmissiveTexture, LightNumber, LightPosition, LightDirection, LightIntensity,
   MetallicRoughnessFactor, BrdfLutTexture, DiffuseEnvTexture, SpecularEnvTexture, IBLParameter, ViewPosition, Wireframe,
   DiffuseColorFactor, DiffuseColorTexture, SpecularColorFactor, SpecularColorTexture, Shininess, ShadingModel, SkinningMode, GeneralTexture,
   VertexAttributesExistenceArray, BoneQuaternion, BoneTranslateScale, BoneCompressedChunk: BoneCompressedChunk, BoneCompressedInfo, PointSize, ColorEnvTexture, PointDistanceAttenuation,
   HDRIFormat, ScreenInfo, DepthTexture, LightViewProjectionMatrix, Anisotropy, ClearCoatParameter, SheenParameter, SpecularGlossinessFactor, SpecularGlossinessTexture,
-  from, fromString, fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs
+  fullSemanticStr, getShaderProperty, EntityUID, MorphTargetNumber, DataTextureMorphOffsetPosition, MorphWeights, CurrentComponentSIDs
 });
