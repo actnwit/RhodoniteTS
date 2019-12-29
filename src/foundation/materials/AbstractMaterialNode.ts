@@ -1,5 +1,5 @@
 import RnObject from "../core/RnObject";
-import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../../rhodonite";
 import { CompositionType } from "../definitions/CompositionType";
@@ -47,6 +47,7 @@ type InputConnectionType = { materialNodeUid: number, outputNameOfPrev: string, 
 
 export default abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
+  protected __semanticsMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   private __shaderNode: ShaderNodeEnum[] = [];
   protected __vertexInputs: ShaderSocket[] = [];
   protected __pixelInputs: ShaderSocket[] = [];
@@ -144,6 +145,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
       }
     }
     this.__semantics = infoArray;
+
+    for (let semantic of this.__semantics) {
+      this.__semanticsMap.set(semantic.semantic.index, semantic);
+    }
   }
 
   addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {

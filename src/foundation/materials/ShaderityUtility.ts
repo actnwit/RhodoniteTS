@@ -77,9 +77,12 @@ export default class ShaderityUtility {
     return reflectionSoA;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject): ShaderSemanticsInfo[] {
+  getShaderDataRefection(shaderityObject: ShaderityObject):
+    { shaderSemanticsInfoArray: ShaderSemanticsInfo[], code: string}
+  {
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
+    const uniformOmittedShaderRows = [];
 
     const shaderSemanticsInfoArray = [];
     for (let row of splitCode) {
@@ -178,10 +181,15 @@ export default class ShaderityUtility {
           }
         }
         shaderSemanticsInfoArray.push(shaderSemanticsInfo)
+      } else {
+        uniformOmittedShaderRows.push(row);
       }
     }
 
-    return shaderSemanticsInfoArray;
+    return {
+      shaderSemanticsInfoArray: shaderSemanticsInfoArray,
+      code: uniformOmittedShaderRows.join('\n')
+    }
   }
 
 }
