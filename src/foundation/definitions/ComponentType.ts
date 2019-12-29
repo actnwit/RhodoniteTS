@@ -23,14 +23,14 @@ const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({ index: 5121, st
 const Short: ComponentTypeEnum = new ComponentTypeClass({ index: 5122, str: 'SHORT', sizeInBytes: 2 });
 const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({ index: 5123, str: 'UNSIGNED_SHORT', sizeInBytes: 2 });
 const Int: ComponentTypeEnum = new ComponentTypeClass({ index: 5124, str: 'INT', sizeInBytes: 4 });
-const UnsingedInt: ComponentTypeEnum = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
+const UnsignedInt: ComponentTypeEnum = new ComponentTypeClass({ index: 5125, str: 'UNSIGNED_INT', sizeInBytes: 4 });
 const Float: ComponentTypeEnum = new ComponentTypeClass({ index: 5126, str: 'FLOAT', sizeInBytes: 4 });
 const Double: ComponentTypeEnum = new ComponentTypeClass({ index: 5127, str: 'DOUBLE', sizeInBytes: 8 });
 const Bool: ComponentTypeEnum = new ComponentTypeClass({ index: 35670, str: 'BOOL', sizeInBytes: 1 });
 const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({ index: 0x8D61, str: 'HALF_FLOAT_OES', sizeInBytes: 2 });
 
 
-const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, HalfFloat];
+const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsignedInt, Float, Double, HalfFloat];
 
 function from(index: number): ComponentTypeEnum {
   return _from({ typeList, index }) as ComponentTypeEnum;
@@ -52,7 +52,7 @@ function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   } else if (typedArray instanceof Int32Array) {
     return Int;
   } else if (typedArray instanceof Uint32Array) {
-    return UnsingedInt;
+    return UnsignedInt;
   } else if (typedArray instanceof Float32Array) {
     return Float;
   } else if (typedArray instanceof Float64Array) {
@@ -76,8 +76,11 @@ function fromGlslString(str_: string): ComponentTypeEnum {
     case 'ivec2': str = 'INT'; break;
     case 'ivec3': str = 'INT'; break;
     case 'ivec4': str = 'INT'; break;
+    case 'sampler2D': str = 'INT'; break;
+    case 'sampler3D': str = 'INT'; break;
+    case 'samplerCube': str = 'INT'; break;
   }
   return _fromString({ typeList, str }) as ComponentTypeEnum;
 }
 
-export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsingedInt, Float, Double, Bool, HalfFloat, from, fromTypedArray, fromString, fromGlslString });
+export const ComponentType = Object.freeze({ Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsignedInt: UnsignedInt, Float, Double, Bool, HalfFloat, from, fromTypedArray, fromString, fromGlslString });
