@@ -16,11 +16,11 @@ const Blend: AlphaModeEnum = new AlphaModeClass({index:2, str:'BLEND'});
 
 const typeList = [Opaque, Mask, Blend];
 
-function from( index : number): AlphaModeEnum {
+function from( index : number): AlphaModeEnum|undefined {
   return _from({typeList, index});
 }
 
-function fromString( str: string ): AlphaModeEnum {
+function fromString( str: string ): AlphaModeEnum|undefined {
   return _fromString({typeList, str}) as AlphaModeEnum;
 }
 

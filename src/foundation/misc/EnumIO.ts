@@ -45,19 +45,19 @@ export class EnumClass implements EnumIO {
   }
 }
 
-export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: number }): EnumIO {
+export function _from({ typeList, index }: { typeList: Array<EnumIO>, index: number }): EnumIO|undefined {
   const match = typeList.find(type => type.index === index);
   if (!match) {
-    throw new Error(`Invalid index: [${index}]`);
+    return void 0;
   }
 
   return match;
 }
 
-export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO {
+export function _fromString({ typeList, str }: { typeList: Array<EnumIO>, str: string }): EnumIO|undefined {
   const match = typeList.find(type => type.str.toLowerCase() === str.toLowerCase());
   if (!match) {
-    throw new Error(`Invalid str: [${str}]`);
+    return void 0;
   }
 
   return match;
