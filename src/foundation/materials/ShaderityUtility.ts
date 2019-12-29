@@ -107,7 +107,6 @@ export default class ShaderityUtility {
             bool = true;
           }
         }
-        console.log(info)
         shaderSemanticsInfo.soloDatum = bool;
         const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
         if (initialValue) {
