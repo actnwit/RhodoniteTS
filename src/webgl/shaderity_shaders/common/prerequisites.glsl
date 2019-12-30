@@ -1,5 +1,5 @@
-uniform float u_materialSID;
-uniform sampler2D u_dataTexture;
+uniform float u_materialSID; // skipProcess=true
+uniform sampler2D u_dataTexture; // skipProcess=true
 
   /*
   * This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885

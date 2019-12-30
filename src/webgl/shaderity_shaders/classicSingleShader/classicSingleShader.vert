@@ -17,8 +17,8 @@ out vec4 v_position_inWorld;
 out vec2 v_texcoord;
 out vec3 v_baryCentricCoord;
 
-// uniform float u_pointSize; // initialValue=30
-// uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
+uniform float u_pointSize; // initialValue=30
+uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 

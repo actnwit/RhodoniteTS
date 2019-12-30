@@ -32,6 +32,7 @@ import System from "../system/System";
 import { ProcessApproach } from "../definitions/ProcessApproach";
 import ShaderityUtility from "./ShaderityUtility";
 import { BoneDataType } from "../definitions/BoneDataType";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -405,7 +406,13 @@ export default class Material extends RnObject {
     if (args.setUniform) {
       this.__fieldsForNonSystem.forEach((value) => {
         const info = value.info
-        webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+        if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+        } else {
+          if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+            webglResourceRepository.bindTexture(info, value.value);
+          }
+        }
       });
     } else {
       this.__fieldsForNonSystem.forEach((value) => {
@@ -428,7 +435,9 @@ export default class Material extends RnObject {
       const info = value.info;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
+            webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+          }
         }
       }
     });

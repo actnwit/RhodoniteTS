@@ -170,14 +170,14 @@ export default class AnimationComponent extends Component {
     while (low <= high) {
       mid = low + ((high - low) >> 1);
 
-      if (inputArray[mid] === input) {
-        return mid;
-      } else if (inputArray[mid] < input) {
+      if (inputArray[mid] < input) {
         low = mid + 1;
         retVal = mid;
-      } else {
+      } else if (input < inputArray[mid]) {
         high = mid - 1;
         retVal = high;
+      } else { // if (inputArray[mid] === input) {
+        return mid;
       }
     }
 
@@ -193,14 +193,15 @@ export default class AnimationComponent extends Component {
 
     while (lower <= upper && input >= inputArray[lower] && input <= inputArray[upper]) {
       mid = Math.floor(lower + (input - inputArray[lower]) * ((upper - lower)) / (inputArray[upper] - inputArray[lower]));
-      if (inputArray[mid] === input) {
-        return mid;
-      } else if (inputArray[mid] < input) {
+
+      if (inputArray[mid] < input) {
         lower = mid + 1;
         retVal = mid;
-      } else {
+      } else if (input < inputArray[mid]) {
         upper = mid - 1;
         retVal = upper;
+      } else { // if (inputArray[mid] === input) {
+        return mid;
       }
     }
 
@@ -224,7 +225,7 @@ export default class AnimationComponent extends Component {
     const method = (line.interpolationMethod != null) ? line.interpolationMethod : AnimationInterpolation.Linear;
 
     if (method === AnimationInterpolation.CubicSpline) {
-      if (input < inputArray[0]) {
+      if (input <= inputArray[0]) {
         return outputArray[0][1]; // out of range!
       }
       if (inputArray[inputArray.length - 1] <= input) {
@@ -232,7 +233,7 @@ export default class AnimationComponent extends Component {
       }
       // for (let i = 0; i < inputArray.length - 1; i++) {
       //   if (inputArray[i] <= input && input < inputArray[i + 1]) {
-      const i = Math.max(this.bruteForceSearch(inputArray, input), 0);
+      const i = this.interpolationSearch(inputArray, input);
       const t_ip_minus_i = inputArray[i + 1] - inputArray[i];
       const p_0 = outputArray[i][1];
       const p_1 = outputArray[i+1][1];
@@ -246,35 +247,31 @@ export default class AnimationComponent extends Component {
       return resultValue;
       //   }
       // }
-    } else {
-      if (input < inputArray[0]) {
+    } else if (method === AnimationInterpolation.Linear) {
+      if (input <= inputArray[0]) {
         return outputArray[0]; // out of range!
-      }
-      if (inputArray[inputArray.length - 1] <= input) {
+      } else if (inputArray[inputArray.length - 1] <= input) {
         return outputArray[outputArray.length - 1]; // out of range!
       }
+      // const j = this.bruteForceSearch(inputArray, input);
+      // const j = this.binarySearch(inputArray, input);
+      const j = this.interpolationSearch(inputArray, input);
 
-      if (method === AnimationInterpolation.Linear) {
-        // const j = this.bruteForceSearch(inputArray, input);
-        // const j = this.binarySearch(inputArray, input);
-        const j = this.interpolationSearch(inputArray, input);
-
-        const input_jpp = inputArray[j + 1];
-        if (input_jpp != null) {
-          let ratio = (input - inputArray[j]) / (input_jpp - inputArray[j]);
-          let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
-          return resultValue;
-        } else {
-          return outputArray[outputArray.length - 1]; // out of range!
+      let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
+      return resultValue;
+    } else if (method === AnimationInterpolation.Step) {
+      if (input <= inputArray[0]) {
+        return outputArray[0]; // out of range!
+      } else if (inputArray[inputArray.length - 1] <= input) {
+        return outputArray[outputArray.length - 1]; // out of range!
+      }
+      for (let i = 0; i < inputArray.length; i++) {
+        if (typeof inputArray[i + 1] === "undefined") {
+          break;
         }
-      } else if (method === AnimationInterpolation.Step) {
-        for (let i = 0; i < inputArray.length; i++) {
-          if (typeof inputArray[i + 1] === "undefined") {
-            break;
-          }
-          if (inputArray[i] <= input && input < inputArray[i + 1]) {
-            return outputArray[i];
-          }
+        if (inputArray[i] <= input && input < inputArray[i + 1]) {
+          return outputArray[i];
         }
       }
     }

@@ -149,9 +149,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     this.__glw!.bindVertexArray(null);
-    const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    // const vbo = gl.createBuffer();
+    // const resourceHandle = this.getResourceNumber();
+    // this.__webglResources.set(resourceHandle, vbo!);
 
     primitive.attributeAccessors.forEach((accessor, i) => {
       const vbo = this.getWebGLResource(vboHandles[i]);
@@ -454,11 +454,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const key = semanticStr;
     let updated = false;
     if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-      if (info.compositionType === CompositionType.Texture2D) {
-        this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-      } else if (info.compositionType === CompositionType.TextureCube) {
-        this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
-      }
+      this.bindTexture(info, value);
       if (firstTime) {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       }
@@ -484,6 +480,15 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     return updated;
+  }
+
+  bindTexture(info: any, value: any) {
+    if (info.compositionType === CompositionType.Texture2D) {
+      this.bindTexture2D(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+    }
+    else if (info.compositionType === CompositionType.TextureCube) {
+      this.bindTextureCube(value[0], (value[1] instanceof AbstractTexture) ? value[1].cgApiResourceUid : value[1]);
+    }
   }
 
   setUniformValueInner(shaderProgram: WebGLProgram, semanticStr: string, info: ShaderSemanticsInfo, isMatrix: boolean, componentNumber: number,
