@@ -32,7 +32,8 @@ export default class AnimationComponent extends Component {
   private __animationLine: { [s: string]: AnimationLine } = {};
   private __backupDefaultValues: { [s: string]: any } = {};
   public static globalTime: number = 0;
-  public static isAnimating = true;
+  private static __isAnimating = true;
+  private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
@@ -41,6 +42,7 @@ export default class AnimationComponent extends Component {
   private static returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
   private static __startInputValueDirty = false;
   private static __endInputValueDirty = false;
+  private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -52,19 +54,21 @@ export default class AnimationComponent extends Component {
     return WellKnownComponentTIDs.AnimationComponentTID;
   }
 
-  setAnimation(animationAttributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum) {
+  setAnimation(attributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum) {
 
     const line: AnimationLine = {
       input: animationInputArray,
       output: animationOutputArray,
       inTangent: [],
       outTangent: [],
-      outputAttributeName: animationAttributeName,
+      outputAttributeName: attributeName,
       outputCompositionType: animationOutputArray[0].compositionType,
       interpolationMethod: interpolation
     };
 
-    this.__animationLine[animationAttributeName] = line;
+    this.__animationLine[attributeName] = line;
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.backupDefaultValues(attributeName);
     AnimationComponent.__startInputValueDirty = true;
     AnimationComponent.__endInputValueDirty = true;
   }
@@ -337,15 +341,8 @@ export default class AnimationComponent extends Component {
   }
 
   $logic() {
-    for (let attributeName in this.__animationLine) {
-      if (this.__backupDefaultValues[attributeName] == null) {
-        if (attributeName === 'weights') {
-          this.__backupDefaultValues[attributeName] = (this.__meshComponent! as any)[attributeName];
-        } else {
-          this.__backupDefaultValues[attributeName] = (this.__transformComponent! as any)[attributeName];
-        }
-      }
-      if (AnimationComponent.isAnimating) {
+    if (AnimationComponent.isAnimating) {
+      for (let attributeName in this.__animationLine) {
         const line = this.__animationLine[attributeName];
         let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime);
         if (attributeName === 'weights') {
@@ -353,12 +350,56 @@ export default class AnimationComponent extends Component {
         } else {
           (this.__transformComponent! as any)[attributeName] = value;
         }
-      } else {
-        if (attributeName === 'weights') {
-          (this.__meshComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
-        } else {
-          (this.__transformComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
-        }
+      }
+    }
+  }
+
+  static get isAnimating() {
+    return this.__isAnimating;
+  }
+
+  static set isAnimating(flg: boolean) {
+    const animationComponents = this.__componentRepository._getComponents(AnimationComponent)! as AnimationComponent[];
+    for (let animationComponent of animationComponents) {
+      animationComponent.isAnimating = flg;
+    }
+  }
+
+  get isAnimating() {
+    return this.__isAnimating;
+  }
+
+  set isAnimating(flg: boolean) {
+    if (flg) {
+      for (let attributeName in this.__animationLine) {
+        this.backupDefaultValues(attributeName);
+      }
+    } else {
+      for (let attributeName in this.__animationLine) {
+        this.restoreDefaultValues(attributeName);
+      }
+    }
+    this.__isAnimating = flg;
+  }
+
+  private restoreDefaultValues(attributeName: string) {
+    if (this.__backupDefaultValues[attributeName] == null) {
+      if (attributeName === 'weights') {
+        (this.__meshComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
+      }
+      else {
+        (this.__transformComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
+      }
+    }
+  }
+
+  private backupDefaultValues(attributeName: string) {
+    if (this.__backupDefaultValues[attributeName] == null) {
+      if (attributeName === 'weights') {
+        this.__backupDefaultValues[attributeName] = (this.__meshComponent! as any)[attributeName];
+      }
+      else {
+        this.__backupDefaultValues[attributeName] = (this.__transformComponent! as any)[attributeName];
       }
     }
   }
