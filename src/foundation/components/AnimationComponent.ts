@@ -167,45 +167,44 @@ export default class AnimationComponent extends Component {
     let high = inputArray.length - 1;
     let mid = 0;
     let retVal = 0;
-    while (low < high) {
+    while (low <= high) {
       mid = low + ((high - low) >> 1);
 
-      const value = inputArray[mid];
-      if (value === input) {
+      if (inputArray[mid] === input) {
         return mid;
-      } else if (value > input) {
-        high = mid - 1;
-        retVal = high;
-      } else {
+      } else if (inputArray[mid] < input) {
         low = mid + 1;
         retVal = mid;
+      } else {
+        high = mid - 1;
+        retVal = high;
       }
     }
 
     return retVal;
   }
 
-  static interpolationSearch(inputArray: number[], value: number) {
+  static interpolationSearch(inputArray: number[], input: number) {
 
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
+    let retVal = 0;
 
-    while (lower <= upper) {
-      mid = Math.floor(lower + ((value - inputArray[lower]) * (upper - lower)) / (inputArray[upper] - inputArray[lower]));
-      if (mid < lower || upper < mid) {
-        break;
-      }
-      if (inputArray[mid] === value) {
+    while (lower <= upper && input >= inputArray[lower] && input <= inputArray[upper]) {
+      mid = Math.floor(lower + (input - inputArray[lower]) * ((upper - lower)) / (inputArray[upper] - inputArray[lower]));
+      if (inputArray[mid] === input) {
         return mid;
-      } else if (inputArray[mid] < value) {
+      } else if (inputArray[mid] < input) {
         lower = mid + 1;
+        retVal = mid;
       } else {
         upper = mid - 1;
+        retVal = upper;
       }
     }
 
-    return mid;
+    return retVal;
   }
 
   static bruteForceSearch(inputArray: number[], input: number) {
@@ -256,9 +255,9 @@ export default class AnimationComponent extends Component {
       }
 
       if (method === AnimationInterpolation.Linear) {
-        const j = Math.max(this.bruteForceSearch(inputArray, input), 0);
-        // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
-        // const j = Math.max(this.binarySearch(inputArray, input), 0);
+        // const j = this.bruteForceSearch(inputArray, input);
+        // const j = this.binarySearch(inputArray, input);
+        const j = this.interpolationSearch(inputArray, input);
 
         const input_jpp = inputArray[j + 1];
         if (input_jpp != null) {
