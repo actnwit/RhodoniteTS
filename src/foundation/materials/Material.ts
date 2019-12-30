@@ -45,10 +45,11 @@ export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSeman
  */
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
+
   private __fields: Map<ShaderSemanticsIndex, any> = new Map();
-  private __fieldsForSystem: Map<ShaderSemanticsIndex, any> = new Map();
   private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, any>> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
+
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __alphaMode = AlphaMode.Opaque;
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();

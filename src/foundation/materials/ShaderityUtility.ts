@@ -7,7 +7,7 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Config from "../core/Config";
 import { ComponentType } from "../definitions/ComponentType";
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
 import MutableVector2 from "../math/MutableVector2";
 import MutableVector3 from "../math/MutableVector3";
 import MutableVector4 from "../math/MutableVector4";
@@ -78,7 +78,7 @@ export default class ShaderityUtility {
     return reflectionSoA;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject):
+  getShaderDataRefection(shaderityObject: ShaderityObject, existingShaderInfoMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>):
     { shaderSemanticsInfoArray: ShaderSemanticsInfo[], code: string}
   {
 

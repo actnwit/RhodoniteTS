@@ -72,12 +72,12 @@ function createClassicUberMaterialAsCustom({
   additionalName = '', isSkinning = true, isLighting = true, isMorphing = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
-  const materialName = 'ClassicUber'
+  const materialName = 'ClassicUberAsCustom'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUberAsCustom', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
     vertexShader: classicSingleShaderVertex,
     pixelShader: classicSingleShaderFragment });
   materialNode.isSingleOperation = true;
@@ -175,5 +175,5 @@ function createMToonMaterial({
 
 export default Object.freeze({
   createEmptyMaterial, createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
-  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial,
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, createClassicUberMaterialAsCustom
 });
