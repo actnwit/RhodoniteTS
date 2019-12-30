@@ -257,12 +257,9 @@ export default class AnimationComponent extends Component {
       // const j = this.binarySearch(inputArray, input);
       const j = this.interpolationSearch(inputArray, input);
 
-      const input_jpp = inputArray[j + 1];
-      if (input_jpp != null) {
-        let ratio = (input - inputArray[j]) / (input_jpp - inputArray[j]);
-        let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
-        return resultValue;
-      }
+      let ratio = (input - inputArray[j]) / (inputArray[j + 1] - inputArray[j]);
+      let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
+      return resultValue;
     } else if (method === AnimationInterpolation.Step) {
       if (input <= inputArray[0]) {
         return outputArray[0]; // out of range!

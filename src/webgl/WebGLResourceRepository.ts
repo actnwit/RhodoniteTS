@@ -149,9 +149,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     }
 
     this.__glw!.bindVertexArray(null);
-    const vbo = gl.createBuffer();
-    const resourceHandle = this.getResourceNumber();
-    this.__webglResources.set(resourceHandle, vbo!);
+    // const vbo = gl.createBuffer();
+    // const resourceHandle = this.getResourceNumber();
+    // this.__webglResources.set(resourceHandle, vbo!);
 
     primitive.attributeAccessors.forEach((accessor, i) => {
       const vbo = this.getWebGLResource(vboHandles[i]);

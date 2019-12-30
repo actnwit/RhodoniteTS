@@ -188,12 +188,12 @@ mat3 get_normalMatrix(float instanceId) {
 
     const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
 
-    if (meshComponent.mesh.weights.length > 0) {
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-        this.__webglResourceRepository.resendVertexBuffer(primitive, primitive.vertexHandles!.vboHandles);
-      }
-    }
+    // if (meshComponent.mesh.weights.length > 0) {
+    //   for (let i = 0; i < primitiveNum; i++) {
+    //     const primitive = meshComponent!.mesh.getPrimitiveAt(i);
+    //     this.__webglResourceRepository.resendVertexBuffer(primitive, primitive.vertexHandles!.vboHandles);
+    //   }
+    // }
 
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent!.mesh.getPrimitiveAt(i);
