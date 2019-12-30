@@ -124,22 +124,10 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, firstTime, [6, AbstractMaterialNode.__dummyBlackCubeTexture]);
     }
 
-    if (firstTime) {
 
-      let mipmapLevelNumber = 1;
-      if (args.specularCube) {
-        mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
-      }
-      const meshRenderComponent = args.entity.getMeshRenderer();
-      let diffuseHdriType = HdriFormat.LDR_SRGB.index;
-      let specularHdriType = HdriFormat.LDR_SRGB.index;
-      if (meshRenderComponent.diffuseCubeMap) {
-        diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
-      }
-      if (meshRenderComponent.specularCubeMap) {
-        specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
-      }
-      if (args.setUniform) {
+    if (args.setUniform) {
+      if (firstTime) {
+        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } = this.setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime,
           {
             x: mipmapLevelNumber, y: meshRenderComponent!.diffuseCubeMapContribution,
@@ -147,34 +135,39 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
           },
         );
         this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, { x: diffuseHdriType, y: specularHdriType })
-      } else {
-        const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
-        tmp_vector4.x = mipmapLevelNumber;
-        tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-        tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-        tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-        material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
-        const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
-        tmp_vector2.x = diffuseHdriType;
-        tmp_vector2.y = specularHdriType;
-        material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
       }
+    } else {
+      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } = this.setupHdriParameters(args);
+      const tmp_vector4 = AbstractMaterialNode.__tmp_vector4;
+      tmp_vector4.x = mipmapLevelNumber;
+      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+      const tmp_vector2 = AbstractMaterialNode.__tmp_vector2;
+      tmp_vector2.x = diffuseHdriType;
+      tmp_vector2.y = specularHdriType;
+      material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
     }
-
-    // BRDF LUT
-    // updated = this.__webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.BrdfLutTexture.str, firstTime, [5, -1]);
-    // if (updated) {
-    //   if (this.__pbrCookTorranceBrdfLutDataUrlUid != null) {
-    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__pbrCookTorranceBrdfLutDataUrlUid!) as WebGLTexture;
-    //     glw.bindTexture2D(5, texture);
-    //   } else {
-    //     const texture = this.__webglResourceRepository.getWebGLResource(this.__dummyWhiteTexture!) as WebGLTexture;
-    //     glw.bindTexture2D(5, texture);
-    //   }
-    // }
-
 
     // Morph
     this.setMorphInfo(shaderProgram, args.entity.getComponent(MeshComponent), args.entity.getComponent(BlendShapeComponent), args.primitive);
+  }
+
+  private setupHdriParameters(args: any) {
+    let mipmapLevelNumber = 1;
+    if (args.specularCube) {
+      mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
+    }
+    const meshRenderComponent = args.entity.getMeshRenderer();
+    let diffuseHdriType = HdriFormat.LDR_SRGB.index;
+    let specularHdriType = HdriFormat.LDR_SRGB.index;
+    if (meshRenderComponent.diffuseCubeMap) {
+      diffuseHdriType = meshRenderComponent.diffuseCubeMap!.hdriFormat.index;
+    }
+    if (meshRenderComponent.specularCubeMap) {
+      specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
+    }
+    return { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType };
   }
 }
