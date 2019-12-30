@@ -78,7 +78,7 @@ export default class ShaderityUtility {
     return reflectionSoA;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject, existingShaderInfoMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>):
+  getShaderDataRefection(shaderityObject: ShaderityObject)://, existingShaderInfoMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>):
     { shaderSemanticsInfoArray: ShaderSemanticsInfo[], code: string}
   {
 

@@ -3,7 +3,7 @@ import { glTF2 } from "../../types/glTF";
 import ModelConverter from "./ModelConverter";
 import EntityRepository from "../core/EntityRepository";
 import AnimationComponent from "../components/AnimationComponent";
-import { Animation } from "../definitions/Animation";
+import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { Index } from "../../types/CommonTypes";
 import { VRM } from "../../types/VRM";
 
@@ -107,9 +107,9 @@ export default class AnimationAssigner {
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
               if (animationAttributeName === 'quaternion') {
-                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, AnimationInterpolation.fromString(interpolation));
               } else if (animationAttributeName === 'translate' && this.__isHips(rootEntity, vrmModel, channel.target.nodeIndex!)) {
-                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+                animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, AnimationInterpolation.fromString(interpolation));
               }
             }
           }
