@@ -215,13 +215,16 @@ export default class Material extends RnObject {
         }
 
         map.set(
-          this._getPropertyIndex(semanticInfo),
-          MathClassUtil.initWithFloat32Array(
-            semanticInfo.initialValue,
-            semanticInfo.initialValue,
-            typedArray,
-            semanticInfo.compositionType
-          ));
+          this._getPropertyIndex(semanticInfo), {
+            info: semanticInfo,
+            value: MathClassUtil.initWithFloat32Array(
+              semanticInfo.initialValue,
+              semanticInfo.initialValue,
+              typedArray,
+              semanticInfo.compositionType
+            )
+          }
+        );
       } else {
         const properties = this.__accessors.get(materialTypeName)!;
         properties.set(propertyName, accessor);
