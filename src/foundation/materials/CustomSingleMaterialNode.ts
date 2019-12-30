@@ -32,6 +32,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
   static normalTextureRotation = new ShaderSemanticsClass({ str: 'normalTextureRotation' });
   static metallicRoughnessTextureTransform = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureTransform' });
   static metallicRoughnessTextureRotation = new ShaderSemanticsClass({ str: 'metallicRoughnessTextureRotation' });
+  private static __shaderityUtility: ShaderityUtility = ShaderityUtility.getInstance();
 
   constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader}:
     { name: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, vertexShader: ShaderityObject, pixelShader: ShaderityObject }) {
@@ -39,20 +40,21 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       + (isMorphing ? '+morphing' : '')
       + (isSkinning ? '+skinning' : '')
       + (isLighting ? '' : '-lighting'),
-      { isMorphing, isSkinning, isLighting },
-      vertexShader, pixelShader
+      { isMorphing, isSkinning, isLighting }
     );
 
 
     CustomSingleMaterialNode.initDefaultTextures();
 
-    const shaderityUtility = ShaderityUtility.getInstance();
-    const vertexShaderData = shaderityUtility.getShaderDataRefection(vertexShader);
-    const pixelShaderData = shaderityUtility.getShaderDataRefection(pixelShader);
+    const vertexShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(vertexShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
+    const pixelShaderData = CustomSingleMaterialNode.__shaderityUtility.getShaderDataRefection(pixelShader, AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName));
+    this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+    this.__pixelShaderityObject = pixelShaderData.shaderityObject;
 
     const shaderSemanticsInfoArray: any = [];
 
     for (let vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
+      vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
       shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
     }
     for (let pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
@@ -66,6 +68,7 @@ export default class CustomSingleMaterialNode extends AbstractMaterialNode {
       if (foundShaderSemanticsInfo) {
         foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
       } else {
+        pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
         shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
       }
     }

@@ -1,5 +1,5 @@
 import RnObject from "../core/RnObject";
-import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
+import { ShaderSemanticsInfo, ShaderSemanticsEnum, ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsStr } from "../definitions/ShaderSemantics";
 import { ShaderNodeEnum } from "../definitions/ShaderNode";
 import { CompositionTypeEnum, ComponentTypeEnum, VertexAttributeEnum } from "../../rhodonite";
 import { CompositionType } from "../definitions/CompositionType";
@@ -42,12 +42,13 @@ export type ShaderSocket = {
   immediateValue?: string
 }
 
+type MaterialNodeTypeName = string;
 type MaterialNodeUID = number;
 type InputConnectionType = { materialNodeUid: number, outputNameOfPrev: string, inputNameOfThis: string };
 
 export default abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
-  protected __semanticsMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
+  protected static __semanticsMap: Map<MaterialNodeTypeName, Map<ShaderSemanticsStr, ShaderSemanticsInfo>> = new Map();
   private __shaderNode: ShaderNodeEnum[] = [];
   protected __vertexInputs: ShaderSocket[] = [];
   protected __pixelInputs: ShaderSocket[] = [];
@@ -81,8 +82,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
   private static __lightDirections = new Float32Array(0);
   private static __lightIntensities = new Float32Array(0);
 
-  private __vertexShaderityObject?: ShaderityObject;
-  private __pixelShaderityObject?: ShaderityObject;
+  protected __vertexShaderityObject?: ShaderityObject;
+  protected __pixelShaderityObject?: ShaderityObject;
 
   constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject) {
@@ -151,8 +152,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
     this.__semantics = infoArray;
 
+    if (!AbstractMaterialNode.__semanticsMap.has(this.shaderFunctionName)) {
+      AbstractMaterialNode.__semanticsMap.set(this.shaderFunctionName, new Map());
+    }
+    const map = AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)!;
     for (let semantic of this.__semantics) {
-      this.__semanticsMap.set(semantic.semantic.index, semantic);
+      map.set(semantic.semantic.str, semantic);
     }
   }
 

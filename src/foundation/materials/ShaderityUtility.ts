@@ -7,7 +7,7 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Config from "../core/Config";
 import { ComponentType } from "../definitions/ComponentType";
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsStr } from "../definitions/ShaderSemantics";
 import MutableVector2 from "../math/MutableVector2";
 import MutableVector3 from "../math/MutableVector3";
 import MutableVector4 from "../math/MutableVector4";
@@ -78,9 +78,19 @@ export default class ShaderityUtility {
     return reflectionSoA;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject)://, existingShaderInfoMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>):
-    { shaderSemanticsInfoArray: ShaderSemanticsInfo[], code: string}
+  copyShaderityObject(obj: ShaderityObject) {
+    const copiedObj: ShaderityObject = {
+      code: obj.code,
+      shaderStage: obj.shaderStage
+    }
+
+    return copiedObj;
+  }
+
+  getShaderDataRefection(shaderityObject: ShaderityObject, existingShaderInfoMap?: Map<ShaderSemanticsStr, ShaderSemanticsInfo>):
+    { shaderSemanticsInfoArray: ShaderSemanticsInfo[], shaderityObject: ShaderityObject}
   {
+    const copiedShaderityObject = this.copyShaderityObject(shaderityObject);
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
     const uniformOmittedShaderRows = [];
@@ -102,11 +112,30 @@ export default class ShaderityUtility {
           shaderSemanticsInfo.none_u_prefix = true;
         }
         const info = match[4];
+
+        const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
+        if (skipProcess) {
+          if(skipProcess[1] == 'true') {
+            uniformOmittedShaderRows.push(row);
+            continue;
+          }
+        }
+
         const systemSemantic = ShaderSemantics.fromStringCaseSensitively(variableName);
         shaderSemanticsInfo.semantic = systemSemantic;
         if (systemSemantic == null) {
-          const semantic = new ShaderSemanticsClass({str: variableName})
-          shaderSemanticsInfo.semantic = semantic;
+          if (existingShaderInfoMap) {
+            const semanticInfo = existingShaderInfoMap.get(variableName);
+            if (semanticInfo != null) {
+              shaderSemanticsInfo.semantic = semanticInfo.semantic;
+            } else {
+              const semantic = new ShaderSemanticsClass({str: variableName})
+              shaderSemanticsInfo.semantic = semantic;
+            }
+          } else {
+            const semantic = new ShaderSemanticsClass({str: variableName})
+            shaderSemanticsInfo.semantic = semantic;
+          }
         }
         shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
         shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(type);
@@ -150,7 +179,7 @@ export default class ShaderityUtility {
                 break;
               case 4:
                 checkCompositionNumber(CompositionType.Vec4);
-                shaderSemanticsInfo.initialValue = new MutableVector4(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]), parseFloat(split[3]));``
+                shaderSemanticsInfo.initialValue = new MutableVector4(parseFloat(split[0]), parseFloat(split[1]), parseFloat(split[2]), parseFloat(split[3]));
                 break;
               case 9:
                 checkCompositionNumber(CompositionType.Mat3);
@@ -199,9 +228,11 @@ export default class ShaderityUtility {
       }
     }
 
+    copiedShaderityObject.code = uniformOmittedShaderRows.join('\n');
+
     return {
       shaderSemanticsInfoArray: shaderSemanticsInfoArray,
-      code: uniformOmittedShaderRows.join('\n')
+      shaderityObject: copiedShaderityObject
     }
   }
 

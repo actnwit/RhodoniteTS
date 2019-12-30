@@ -997,7 +997,7 @@ export default class DrcPointCloudImporter {
       attributeCompositionTypes: attributeCompositionTypes,
       attributeSemantics: attributeSemantics,
       attributes: attributes,
-      material: MaterialHelper.createClassicUberMaterial({ isSkinning: false, isLighting: true }),
+      material: MaterialHelper.createClassicUberMaterialAsCustom({ isSkinning: false, isLighting: true }),
       primitiveMode: PrimitiveMode.Points
     });
 

@@ -685,7 +685,7 @@ export default class ModelConverter {
     if (materialJson != null && materialJson.pbrMetallicRoughness) {
       return MaterialHelper.createPbrUberMaterial({ isMorphing: isMorphing, isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     } else {
-      return MaterialHelper.createClassicUberMaterial({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
+      return MaterialHelper.createClassicUberMaterialAsCustom({ isSkinning: isSkinning, isLighting: true, additionalName, maxInstancesNumber: maxMaterialInstanceNumber });
     }
   }
 

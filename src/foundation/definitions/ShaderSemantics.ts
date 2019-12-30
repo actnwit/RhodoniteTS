@@ -7,6 +7,7 @@ import Material from "../materials/Material";
 import { Count, Index } from "../../types/CommonTypes";
 
 export type ShaderSemanticsIndex = number;
+export type ShaderSemanticsStr = string;
 
 export interface ShaderSemanticsEnum extends EnumIO {
   str: string;
