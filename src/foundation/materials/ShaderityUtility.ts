@@ -15,6 +15,7 @@ import MutableScalar from "../math/MutableScalar";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import AbstractMaterialNode from "./AbstractMaterialNode";
+import { ShaderVariableUpdateInterval } from "../definitions/ShaderVariableUpdateInterval";
 
 export default class ShaderityUtility {
   static __instance: ShaderityUtility;
@@ -139,6 +140,7 @@ export default class ShaderityUtility {
         }
         shaderSemanticsInfo.componentType = ComponentType.fromGlslString(type);
         shaderSemanticsInfo.compositionType = CompositionType.fromGlslString(type);
+
         const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
         let bool = false;
         if (soloDatum) {
@@ -148,6 +150,27 @@ export default class ShaderityUtility {
           }
         }
         shaderSemanticsInfo.soloDatum = bool;
+
+        const isSystem = info.match(/isSystem[\t ]*=[\t ]*(\w+)[,\t ]*/);
+        let isSystemFlg = false;
+        if (isSystem) {
+          const isSystemText = isSystem[1];
+          if (isSystemText === 'true') {
+            isSystemFlg = true;
+          }
+        }
+        shaderSemanticsInfo.isSystem = isSystemFlg;
+
+        const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
+        let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;
+        if (updateInterval) {
+          const updateIntervalText = updateInterval[1];
+          if (updateIntervalText.toLowerCase() === 'everytime') {
+            updateIntervalObj = ShaderVariableUpdateInterval.EveryTime;
+          }
+        }
+        shaderSemanticsInfo.updateInterval = updateIntervalObj;
+
         const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
         if (initialValue) {
           const initialValueText = initialValue[1];
