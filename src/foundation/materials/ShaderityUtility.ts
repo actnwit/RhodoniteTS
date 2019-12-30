@@ -7,13 +7,14 @@ import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import WebGLResourceRepository from "../../webgl/WebGLResourceRepository";
 import Config from "../core/Config";
 import { ComponentType } from "../definitions/ComponentType";
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo } from "../definitions/ShaderSemantics";
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsInfo, ShaderSemanticsIndex } from "../definitions/ShaderSemantics";
 import MutableVector2 from "../math/MutableVector2";
 import MutableVector3 from "../math/MutableVector3";
 import MutableVector4 from "../math/MutableVector4";
 import MutableScalar from "../math/MutableScalar";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import MutableMatrix44 from "../math/MutableMatrix44";
+import AbstractMaterialNode from "./AbstractMaterialNode";
 
 export default class ShaderityUtility {
   static __instance: ShaderityUtility;
@@ -77,9 +78,12 @@ export default class ShaderityUtility {
     return reflectionSoA;
   }
 
-  getShaderDataRefection(shaderityObject: ShaderityObject): ShaderSemanticsInfo[] {
+  getShaderDataRefection(shaderityObject: ShaderityObject)://, existingShaderInfoMap: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>):
+    { shaderSemanticsInfoArray: ShaderSemanticsInfo[], code: string}
+  {
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
+    const uniformOmittedShaderRows = [];
 
     const shaderSemanticsInfoArray = [];
     for (let row of splitCode) {
@@ -89,7 +93,14 @@ export default class ShaderityUtility {
       if (match) {
         const shaderSemanticsInfo: any = {};
         const type = match[1];
-        const variableName = match[2];
+        let variableName = match[2];
+        const u_prefixedName = variableName.match(/u_(\w+)/);
+        if (u_prefixedName) {
+          variableName = u_prefixedName[1];
+          shaderSemanticsInfo.none_u_prefix = false;
+        } else {
+          shaderSemanticsInfo.none_u_prefix = true;
+        }
         const info = match[4];
         const systemSemantic = ShaderSemantics.fromStringCaseSensitively(variableName);
         shaderSemanticsInfo.semantic = systemSemantic;
@@ -111,7 +122,7 @@ export default class ShaderityUtility {
         const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
         if (initialValue) {
           const initialValueText = initialValue[1];
-          const tuple = initialValueText.match(/\(([\d, ]+)\)/);
+          const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
           const checkCompositionNumber = (expected: CompositionTypeEnum)=>{
             if (shaderSemanticsInfo.compositionType !== expected) {
               console.error('component number of initialValue is invalid!');
@@ -122,8 +133,16 @@ export default class ShaderityUtility {
             const split = text.split(',');
             switch (split.length) {
               case 2:
-                checkCompositionNumber(CompositionType.Vec2);
-                shaderSemanticsInfo.initialValue = new MutableVector2(parseFloat(split[0]), parseFloat(split[1]));
+                if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
+                  const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
+                  shaderSemanticsInfo.initialValue = [parseInt(split[0]), (AbstractMaterialNode as any)[`dummy${color}Texture`]];
+                } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
+                  const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
+                  shaderSemanticsInfo.initialValue = [parseInt(split[0]), (AbstractMaterialNode as any)[`dummy${color}CubeTexture`]];
+                } else {
+                  checkCompositionNumber(CompositionType.Vec2);
+                  shaderSemanticsInfo.initialValue = new MutableVector2(parseFloat(split[0]), parseFloat(split[1]));
+                }
                 break;
               case 3:
                 checkCompositionNumber(CompositionType.Vec3);
@@ -168,13 +187,22 @@ export default class ShaderityUtility {
             shaderSemanticsInfo.initialValue = MutableMatrix33.identity();
           } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
             shaderSemanticsInfo.initialValue = MutableMatrix44.identity();
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
+            shaderSemanticsInfo.initialValue = [0, AbstractMaterialNode.dummyWhiteTexture];
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
+            shaderSemanticsInfo.initialValue = [0, AbstractMaterialNode.dummyBlackTexture];
           }
         }
         shaderSemanticsInfoArray.push(shaderSemanticsInfo)
+      } else {
+        uniformOmittedShaderRows.push(row);
       }
     }
 
-    return shaderSemanticsInfoArray;
+    return {
+      shaderSemanticsInfoArray: shaderSemanticsInfoArray,
+      code: uniformOmittedShaderRows.join('\n')
+    }
   }
 
 }

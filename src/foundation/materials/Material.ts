@@ -35,6 +35,10 @@ import { BoneDataType } from "../definitions/BoneDataType";
 
 type MaterialTypeName = string;
 type PropertyName = string;
+type ShaderVariable = {
+  value: any,
+  info: ShaderSemanticsInfo
+};
 
 export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 
@@ -45,10 +49,12 @@ export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSeman
  */
 export default class Material extends RnObject {
   private __materialNodes: AbstractMaterialNode[] = [];
-  private __fields: Map<ShaderSemanticsIndex, any> = new Map();
-  private __fieldsForSystem: Map<ShaderSemanticsIndex, any> = new Map();
-  private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, any>> = new Map();
+
+  private __fields: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
+  private __fieldsForNonSystem: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
+  private static __soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> = new Map();
   private __fieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
+
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __alphaMode = AlphaMode.Opaque;
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -210,13 +216,16 @@ export default class Material extends RnObject {
         }
 
         map.set(
-          this._getPropertyIndex(semanticInfo),
-          MathClassUtil.initWithFloat32Array(
-            semanticInfo.initialValue,
-            semanticInfo.initialValue,
-            typedArray,
-            semanticInfo.compositionType
-          ));
+          this._getPropertyIndex(semanticInfo), {
+            info: semanticInfo,
+            value: MathClassUtil.initWithFloat32Array(
+              semanticInfo.initialValue,
+              semanticInfo.initialValue,
+              typedArray,
+              semanticInfo.compositionType
+            )
+          }
+        );
       } else {
         const properties = this.__accessors.get(materialTypeName)!;
         properties.set(propertyName, accessor);
@@ -300,14 +309,25 @@ export default class Material extends RnObject {
         if (!semanticsInfo.soloDatum) {
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
+          const shaderVariable = {
+              info: semanticsInfo,
+              value: MathClassUtil.initWithFloat32Array(
+                semanticsInfo.initialValue,
+                semanticsInfo.initialValue,
+                typedArray,
+                semanticsInfo.compositionType
+              )
+            };
           this.__fields.set(
             propertyIndex,
-            MathClassUtil.initWithFloat32Array(
-              semanticsInfo.initialValue,
-              semanticsInfo.initialValue,
-              typedArray,
-              semanticsInfo.compositionType
-            ));
+            shaderVariable
+          )
+          if (!semanticsInfo.isSystem) {
+            this.__fieldsForNonSystem.set(
+              propertyIndex,
+              shaderVariable
+            );
+          }
         }
       });
     });
@@ -317,21 +337,30 @@ export default class Material extends RnObject {
     const propertyIndex = Material._getPropertyIndex2(shaderSemantic, index);
     const info = this.__fieldsInfo.get(propertyIndex);
     if (info != null) {
-      let valueObj;
+      let valueObj: ShaderVariable|undefined;
       if (info.soloDatum) {
         valueObj = Material.__soloDatumFields.get(this.__materialTypeName)!.get(propertyIndex);
       } else {
         valueObj = this.__fields.get(propertyIndex);
       }
-      MathClassUtil._setForce(valueObj, value);
+      MathClassUtil._setForce(valueObj!.value, value);
     }
   }
 
   setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void {
     if (this.__fieldsInfo.has(shaderSemantic.index)) {
       const array = this.__fields.get(shaderSemantic.index)!;
-      this.__fields.set(shaderSemantic.index, [array[0], value]);
-
+      const shaderVariable = {
+        value: [array.value[0], value],
+        info: array.info
+      };
+      this.__fields.set(shaderSemantic.index, shaderVariable);
+      if (!array.info.isSystem) {
+        this.__fieldsForNonSystem.set(
+          shaderSemantic.index,
+          shaderVariable
+        );
+      }
       if (shaderSemantic === ShaderSemantics.DiffuseColorTexture || shaderSemantic === ShaderSemantics.BaseColorTexture) {
         if (value.isTransparent) {
           this.alphaMode = AlphaMode.Blend;
@@ -346,7 +375,7 @@ export default class Material extends RnObject {
       if (info.soloDatum) {
         return Material.__soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index);
       } else {
-        return this.__fields.get(shaderSemantic.index);
+        return this.__fields.get(shaderSemantic.index)?.value;
       }
     }
 
@@ -374,19 +403,15 @@ export default class Material extends RnObject {
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
-      this.__fields.forEach((value, key) => {
-        const info = this.__fieldsInfo.get(key)!;
-        if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
-        }
+      this.__fieldsForNonSystem.forEach((value) => {
+        const info = value.info
+        webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
       });
     } else {
-      this.__fields.forEach((value, key) => {
-        const info = this.__fieldsInfo.get(key)!;
-        if (!info.isSystem) {
-          if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-            webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
-          }
+      this.__fieldsForNonSystem.forEach((value) => {
+        const info = value.info
+        if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
         }
       });
     }
@@ -400,10 +425,10 @@ export default class Material extends RnObject {
     const map = Material.__soloDatumFields.get(materialTypeName);
     if (map == null) return;
     map.forEach((value, key) => {
-      const info = this.__fieldsInfo.get(key)!;
+      const info = value.info;
       if (args.setUniform || info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
         if (!info.isSystem) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value, info.index);
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
         }
       }
     });
@@ -861,7 +886,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     const info = material.__fieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
       const value = Material.__soloDatumFields.get(material.__materialTypeName)!.get(propertyIndex);
-      return (value.v as Float32Array).byteOffset / 4 / 4;
+      return (value!.value.v as Float32Array).byteOffset / 4 / 4;
     } else {
       const properties = this.__accessors.get(materialTypeName);
       const accessor = properties!.get(propertyIndex);

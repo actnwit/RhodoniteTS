@@ -11,6 +11,10 @@ import ShadowMapDecodeClassicSingleMaterialNode from "../materials/ShadowMapDeco
 import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
 import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterialNode";
 import MToonSingleMaterialNode from "../materials/MToonSingleMaterialNode";
+import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert";
+import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
+import CustomSingleMaterialNode from "../materials/CustomSingleMaterialNode";
+import Shaderity, { ShaderityObject } from "shaderity";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const isRegistMaterialType = Material.isRegistedMaterialType(materialName);
@@ -58,6 +62,24 @@ function createClassicUberMaterial({
     + (isLighting ? '' : '-lighting');
 
   const materialNode = new ClassicShadingSingleMaterialNode({ isSkinning: isSkinning, isLighting: isLighting });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
+
+  return material;
+}
+
+function createClassicUberMaterialAsCustom({
+  additionalName = '', isSkinning = true, isLighting = true, isMorphing = false,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType
+} = {}) {
+  const materialName = 'ClassicUberAsCustom'
+    + `_${additionalName}_`
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
+
+  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUberAsCustom', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    vertexShader: classicSingleShaderVertex,
+    pixelShader: classicSingleShaderFragment });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);
 
@@ -153,5 +175,5 @@ function createMToonMaterial({
 
 export default Object.freeze({
   createEmptyMaterial, createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
-  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial,
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, createClassicUberMaterialAsCustom
 });

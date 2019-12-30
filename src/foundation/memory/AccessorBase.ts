@@ -93,7 +93,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.Short: return Int16Array;
       case ComponentType.UnsignedShort: return Uint16Array;
       case ComponentType.Int: return Int32Array;
-      case ComponentType.UnsingedInt: return Uint32Array;
+      case ComponentType.UnsignedInt: return Uint32Array;
       case ComponentType.Float: return Float32Array;
       case ComponentType.Double: return Float64Array;
       default: console.error('Unexpected ComponentType!'); return void 0;
@@ -107,7 +107,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.Short: return 'getInt16';
       case ComponentType.UnsignedShort: return 'getUint16';
       case ComponentType.Int: return 'getInt32';
-      case ComponentType.UnsingedInt: return 'getUint32';
+      case ComponentType.UnsignedInt: return 'getUint32';
       case ComponentType.Float: return 'getFloat32';
       case ComponentType.Double: return 'getFloat64';
       default: console.error('Unexpected ComponentType!'); return 'unknown';
@@ -121,7 +121,7 @@ export default class AccessorBase extends RnObject {
       case ComponentType.Short: return 'setInt16';
       case ComponentType.UnsignedShort: return 'setUint16';
       case ComponentType.Int: return 'setInt32';
-      case ComponentType.UnsingedInt: return 'setUint32';
+      case ComponentType.UnsignedInt: return 'setUint32';
       case ComponentType.Float: return 'setFloat32';
       case ComponentType.Double: return 'setFloat64';
       default: console.error('Unexpected ComponentType!');

@@ -21,7 +21,7 @@ import Texture from "../textures/Texture";
 import Vector4 from "../math/Vector4";
 import Vector2_F64 from "../math/Vector2";
 import AnimationComponent from "../components/AnimationComponent";
-import { Animation } from "../definitions/Animation";
+import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { MathUtil } from "../math/MathUtil";
 import SkeletalComponent from "../components/SkeletalComponent";
 import { AlphaMode } from "../definitions/AlphaMode";
@@ -247,7 +247,7 @@ export default class ModelConverter {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;
             if (animationComponent) {
-              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, Animation.fromString(interpolation));
+              animationComponent.setAnimation(animationAttributeName, animInputArray, animOutputArray, AnimationInterpolation.fromString(interpolation));
             }
           }
         }

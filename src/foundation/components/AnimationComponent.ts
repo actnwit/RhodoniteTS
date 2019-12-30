@@ -2,7 +2,8 @@ import Component from "../core/Component";
 import ComponentRepository from "../core/ComponentRepository";
 import EntityRepository from "../core/EntityRepository";
 import { WellKnownComponentTIDs } from "./WellKnownComponentTIDs";
-import { AnimationEnum, Animation } from "../definitions/Animation";
+import { AnimationInterpolationEnum, AnimationInterpolation } from "../definitions/AnimationInterpolation";
+import { AnimationAttributeEnum, AnimationAttribute } from "../definitions/AnimationAttribute";
 import { CompositionTypeEnum, CompositionType } from "../definitions/CompositionType";
 import Quaternion from "../math/Quaternion";
 import TransformComponent from "./TransformComponent";
@@ -14,7 +15,7 @@ import MeshComponent from "./MeshComponent";
 import Vector4 from "../math/Vector4";
 import MutableVector4 from "../math/MutableVector4";
 import MathClassUtil from "../math/MathClassUtil";
-import { ComponentTID, ComponentSID, EntityUID } from "../../types/CommonTypes";
+import { ComponentTID, ComponentSID, EntityUID, Index } from "../../types/CommonTypes";
 
 
 type AnimationLine = {
@@ -24,15 +25,16 @@ type AnimationLine = {
   outTangent: number[],
   outputAttributeName: string,
   outputCompositionType: CompositionTypeEnum
-  interpolationMethod: AnimationEnum,
+  interpolationMethod: AnimationInterpolationEnum,
   targetEntityUid?: EntityUID
 }
 
 export default class AnimationComponent extends Component {
-  private __animationLine: { [s: string]: AnimationLine } = {};
-  private __backupDefaultValues: { [s: string]: any } = {};
+  private __animationLine: Map<Index, AnimationLine> = new Map();
+  private __backupDefaultValues: Map<Index, any> = new Map();
   public static globalTime: number = 0;
-  public static isAnimating = true;
+  private static __isAnimating = true;
+  private __isAnimating = true;
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
   private static __startInputValueOfAllComponent: number = Number.MAX_VALUE;
@@ -41,6 +43,7 @@ export default class AnimationComponent extends Component {
   private static returnQuaternion = new MutableQuaternion([0, 0, 0, 1]);
   private static __startInputValueDirty = false;
   private static __endInputValueDirty = false;
+  private static __componentRepository: ComponentRepository = ComponentRepository.getInstance();
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
@@ -52,47 +55,50 @@ export default class AnimationComponent extends Component {
     return WellKnownComponentTIDs.AnimationComponentTID;
   }
 
-  setAnimation(animationAttributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationEnum) {
+  setAnimation(attributeName: string, animationInputArray: number[], animationOutputArray: any[], interpolation: AnimationInterpolationEnum) {
 
     const line: AnimationLine = {
       input: animationInputArray,
       output: animationOutputArray,
       inTangent: [],
       outTangent: [],
-      outputAttributeName: animationAttributeName,
+      outputAttributeName: attributeName,
       outputCompositionType: animationOutputArray[0].compositionType,
       interpolationMethod: interpolation
     };
 
-    this.__animationLine[animationAttributeName] = line;
+    this.__animationLine.set(AnimationAttribute.fromString(attributeName).index, line);
+    this.__transformComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, TransformComponent) as TransformComponent;
+    this.__meshComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, MeshComponent) as MeshComponent;
+    this.backupDefaultValues(AnimationAttribute.fromString(attributeName).index);
     AnimationComponent.__startInputValueDirty = true;
     AnimationComponent.__endInputValueDirty = true;
   }
 
-  static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum) {
+  static lerp(start: any, end: any, ratio: number, compositionType: CompositionTypeEnum, animationAttributeIndex: Index) {
     if (compositionType === CompositionType.Scalar) {
       return start * (1 - ratio) + end * ratio;
     } else {
-      if (start instanceof Quaternion) {
+      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
         Quaternion.qlerpTo(start, end, ratio, AnimationComponent.returnQuaternion);
         // Quaternion.lerpTo(start, end, ratio, AnimationComponent.returnQuaternion); // This is faster and enough approximation
         return AnimationComponent.returnQuaternion as Quaternion;
-      } else if (start instanceof Vector3) {
+      } else {
         (this.returnVector3 as MutableVector3).x = start.x * (1 - ratio) + end.x * ratio;
         (this.returnVector3 as MutableVector3).y = start.y * (1 - ratio) + end.y * ratio;
         (this.returnVector3 as MutableVector3).z = start.z * (1 - ratio) + end.z * ratio;
         return this.returnVector3;
-      } else {
-        const returnArray = [];
-        for (let i = 0; i < start.length; i++) {
-          returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
-        }
-        return returnArray;
+      // } else {
+      //   const returnArray = [];
+      //   for (let i = 0; i < start.length; i++) {
+      //     returnArray[i] = start[i] * (1 - ratio) + end[i] * ratio;
+      //   }
+    //   return returnArray;
       }
     }
   }
 
-  static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, compositionType: CompositionTypeEnum) {
+  static cubicSpline(start: any, end: any, inTangent: any, outTangent: any, ratio: number, animationAttributeIndex: Index) {
     const ratio2 = ratio * ratio;
     const ratio3 = ratio2 * ratio;
     if (!isNaN(start)) {
@@ -101,21 +107,7 @@ export default class AnimationComponent extends Component {
         (-2 * ratio3 + 3 * ratio2) * end +
         (ratio3 - ratio2) * outTangent;
     } else {
-      if (start instanceof Vector3) {
-        (this.returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
-          (-2 * ratio3 + 3 * ratio2) * end.x +
-          (ratio3 - ratio2) * outTangent.x;
-        (this.returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
-          (-2 * ratio3 + 3 * ratio2) * end.y +
-          (ratio3 - ratio2) * outTangent.y;
-        (this.returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
-          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
-          (-2 * ratio3 + 3 * ratio2) * end.z +
-          (ratio3 - ratio2) * outTangent.z;
-        return this.returnVector3;
-      } else if (start instanceof Quaternion) {
+      if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
         this.returnQuaternion.x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
           (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
           (-2 * ratio3 + 3 * ratio2) * end.x +
@@ -134,14 +126,28 @@ export default class AnimationComponent extends Component {
           (ratio3 - ratio2) * outTangent.w;
         return this.returnQuaternion;
       } else {
-        const returnArray = [];
-        for (let j = 0; j < start.length; j++) {
-          returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
-            (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
-            (-2 * ratio3 + 3 * ratio2) * end.x +
-            (ratio3 - ratio2) * outTangent[j];
-        }
-        return returnArray;
+        (this.returnVector3 as MutableVector3).x = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.x +
+          (-2 * ratio3 + 3 * ratio2) * end.x +
+          (ratio3 - ratio2) * outTangent.x;
+        (this.returnVector3 as MutableVector3).y = (2 * ratio3 - 3 * ratio2 + 1) * start.y +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.y +
+          (-2 * ratio3 + 3 * ratio2) * end.y +
+          (ratio3 - ratio2) * outTangent.y;
+        (this.returnVector3 as MutableVector3).z = (2 * ratio3 - 3 * ratio2 + 1) * start.z +
+          (ratio3 - 2 * ratio2 + ratio) * inTangent.z +
+          (-2 * ratio3 + 3 * ratio2) * end.z +
+          (ratio3 - ratio2) * outTangent.z;
+        return this.returnVector3;
+      // } else {
+      //   const returnArray = [];
+      //   for (let j = 0; j < start.length; j++) {
+      //     returnArray[j] = (2 * ratio3 - 3 * ratio2 + 1) * start.x +
+      //       (ratio3 - 2 * ratio2 + ratio) * inTangent[j] +
+      //       (-2 * ratio3 + 3 * ratio2) * end.x +
+      //       (ratio3 - ratio2) * outTangent[j];
+      //   }
+      //   return returnArray;
       }
     }
   }
@@ -161,45 +167,44 @@ export default class AnimationComponent extends Component {
     let high = inputArray.length - 1;
     let mid = 0;
     let retVal = 0;
-    while (low < high) {
+    while (low <= high) {
       mid = low + ((high - low) >> 1);
 
-      const value = inputArray[mid];
-      if (value === input) {
+      if (inputArray[mid] === input) {
         return mid;
-      } else if (value > input) {
-        high = mid - 1;
-        retVal = high;
-      } else {
+      } else if (inputArray[mid] < input) {
         low = mid + 1;
         retVal = mid;
+      } else {
+        high = mid - 1;
+        retVal = high;
       }
     }
 
     return retVal;
   }
 
-  static interpolationSearch(inputArray: number[], value: number) {
+  static interpolationSearch(inputArray: number[], input: number) {
 
     let mid = 0;
     let lower = 0;
     let upper = inputArray.length - 1;
+    let retVal = 0;
 
-    while (lower <= upper) {
-      mid = Math.floor(lower + ((value - inputArray[lower]) * (upper - lower)) / (inputArray[upper] - inputArray[lower]));
-      if (mid < lower || upper < mid) {
-        break;
-      }
-      if (inputArray[mid] === value) {
+    while (lower <= upper && input >= inputArray[lower] && input <= inputArray[upper]) {
+      mid = Math.floor(lower + (input - inputArray[lower]) * ((upper - lower)) / (inputArray[upper] - inputArray[lower]));
+      if (inputArray[mid] === input) {
         return mid;
-      } else if (inputArray[mid] < value) {
+      } else if (inputArray[mid] < input) {
         lower = mid + 1;
+        retVal = mid;
       } else {
         upper = mid - 1;
+        retVal = upper;
       }
     }
 
-    return mid;
+    return retVal;
   }
 
   static bruteForceSearch(inputArray: number[], input: number) {
@@ -211,14 +216,14 @@ export default class AnimationComponent extends Component {
     return inputArray.length - 1;
   }
 
-  static interpolate(line: AnimationLine, input: number) {
+  static interpolate(line: AnimationLine, input: number, animationAttributeIndex: Index) {
 
     const inputArray = line.input;
     const outputArray = line.output;
     const compositionType = line.outputCompositionType;
-    const method = (line.interpolationMethod != null) ? line.interpolationMethod : Animation.Linear;
+    const method = (line.interpolationMethod != null) ? line.interpolationMethod : AnimationInterpolation.Linear;
 
-    if (method === Animation.CubicSpline) {
+    if (method === AnimationInterpolation.CubicSpline) {
       if (input < inputArray[0]) {
         return outputArray[0][1]; // out of range!
       }
@@ -237,7 +242,7 @@ export default class AnimationComponent extends Component {
       const m_1 = t_ip_minus_i * a_k_plus_1;
 
       let ratio = (input - inputArray[i]) / t_ip_minus_i;
-      let resultValue = this.cubicSpline(p_0, p_1, m_0, m_1, ratio, compositionType);
+      let resultValue = this.cubicSpline(p_0, p_1, m_0, m_1, ratio, animationAttributeIndex);
       return resultValue;
       //   }
       // }
@@ -249,20 +254,20 @@ export default class AnimationComponent extends Component {
         return outputArray[outputArray.length - 1]; // out of range!
       }
 
-      if (method === Animation.Linear) {
-        const j = Math.max(this.bruteForceSearch(inputArray, input), 0);
-        // const j = Math.max(this.interpolationSearch(inputArray, input), 0);
-        // const j = Math.max(this.binarySearch(inputArray, input), 0);
+      if (method === AnimationInterpolation.Linear) {
+        // const j = this.bruteForceSearch(inputArray, input);
+        // const j = this.binarySearch(inputArray, input);
+        const j = this.interpolationSearch(inputArray, input);
 
         const input_jpp = inputArray[j + 1];
         if (input_jpp != null) {
           let ratio = (input - inputArray[j]) / (input_jpp - inputArray[j]);
-          let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType);
+          let resultValue = this.lerp(outputArray[j], outputArray[j + 1], ratio, compositionType, animationAttributeIndex);
           return resultValue;
         } else {
           return outputArray[outputArray.length - 1]; // out of range!
         }
-      } else if (method === Animation.Step) {
+      } else if (method === AnimationInterpolation.Step) {
         for (let i = 0; i < inputArray.length; i++) {
           if (typeof inputArray[i + 1] === "undefined") {
             break;
@@ -279,8 +284,8 @@ export default class AnimationComponent extends Component {
 
   getStartInputValueOfAnimation() {
     let latestInputValue = Number.MAX_VALUE;
-    for (let attributeName in this.__animationLine) {
-      let inputValueArray = this.__animationLine[attributeName].input;
+    for (let line of this.__animationLine.values()) {
+      let inputValueArray = line.input;
       let inputLatestValueAtThisAttribute = inputValueArray[0];
       if (inputLatestValueAtThisAttribute < latestInputValue) {
         latestInputValue = inputLatestValueAtThisAttribute;
@@ -295,8 +300,8 @@ export default class AnimationComponent extends Component {
   getEndInputValueOfAnimation() {
     let latestInputValue = - Number.MAX_VALUE;
 
-    for (let attributeName in this.__animationLine) {
-      let inputValueArray = this.__animationLine[attributeName].input;
+    for (let line of this.__animationLine.values()) {
+      let inputValueArray = line.input;
       let inputLatestValueAtThisAttribute = inputValueArray[inputValueArray.length - 1];
       if (inputLatestValueAtThisAttribute > latestInputValue) {
         latestInputValue = inputLatestValueAtThisAttribute;
@@ -337,28 +342,74 @@ export default class AnimationComponent extends Component {
   }
 
   $logic() {
-    for (let attributeName in this.__animationLine) {
-      if (this.__backupDefaultValues[attributeName] == null) {
-        if (attributeName === 'weights') {
-          this.__backupDefaultValues[attributeName] = (this.__meshComponent! as any)[attributeName];
-        } else {
-          this.__backupDefaultValues[attributeName] = (this.__transformComponent! as any)[attributeName];
+    if (AnimationComponent.isAnimating) {
+        for (var [i, line] of this.__animationLine) {
+        let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime, i);
+        if (i === AnimationAttribute.Quaternion.index) {
+          this.__transformComponent!.quaternion = value;
+        } else if (i === AnimationAttribute.Translate.index) {
+          this.__transformComponent!.translate = value;
+        } else if (i === AnimationAttribute.Scale.index) {
+          this.__transformComponent!.scale = value;
+        } else if (i === AnimationAttribute.Weights.index) {
+          this.__meshComponent!.weights = [value];
         }
       }
-      if (AnimationComponent.isAnimating) {
-        const line = this.__animationLine[attributeName];
-        let value = AnimationComponent.interpolate(line, AnimationComponent.globalTime);
-        if (attributeName === 'weights') {
-          (this.__meshComponent! as any)[attributeName] = [value];
-        } else {
-          (this.__transformComponent! as any)[attributeName] = value;
-        }
-      } else {
-        if (attributeName === 'weights') {
-          (this.__meshComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
-        } else {
-          (this.__transformComponent! as any)[attributeName] = this.__backupDefaultValues[attributeName];
-        }
+    }
+  }
+
+  static get isAnimating() {
+    return this.__isAnimating;
+  }
+
+  static set isAnimating(flg: boolean) {
+    const animationComponents = this.__componentRepository._getComponents(AnimationComponent)! as AnimationComponent[];
+    for (let animationComponent of animationComponents) {
+      animationComponent.isAnimating = flg;
+    }
+  }
+
+  get isAnimating() {
+    return this.__isAnimating;
+  }
+
+  set isAnimating(flg: boolean) {
+    if (flg) {
+      for (var [i, line] of this.__animationLine) {
+        this.backupDefaultValues(i);
+      }
+    } else {
+      for (var [i, line] of this.__animationLine) {
+        this.restoreDefaultValues(i);
+      }
+    }
+    this.__isAnimating = flg;
+  }
+
+  private restoreDefaultValues(i: Index) {
+    if (this.__backupDefaultValues.get(i) == null) {
+      if (i === AnimationAttribute.Quaternion.index) {
+        this.__transformComponent!.quaternion = this.__backupDefaultValues.get(i);
+      } else if (i === AnimationAttribute.Translate.index) {
+        this.__transformComponent!.translate = this.__backupDefaultValues.get(i);
+      } else if (i === AnimationAttribute.Scale.index) {
+        this.__transformComponent!.scale = this.__backupDefaultValues.get(i);
+      } else if (i === AnimationAttribute.Weights.index) {
+        this.__meshComponent!.weights = this.__backupDefaultValues.get(i);
+      }
+    }
+  }
+
+  private backupDefaultValues(i: Index) {
+    if (this.__backupDefaultValues.get(i) == null) {
+      if (i === AnimationAttribute.Quaternion.index) {
+        this.__backupDefaultValues.set(i, this.__transformComponent!.quaternion);
+      } else if (i === AnimationAttribute.Translate.index) {
+        this.__backupDefaultValues.set(i, this.__transformComponent!.translate);
+      } else if (i === AnimationAttribute.Scale.index) {
+        this.__backupDefaultValues.set(i, this.__transformComponent!.scale);
+      } else if (i === AnimationAttribute.Weights.index) {
+        this.__backupDefaultValues.set(i, this.__meshComponent!.weights);
       }
     }
   }

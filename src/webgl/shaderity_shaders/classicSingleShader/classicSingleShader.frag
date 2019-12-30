@@ -11,6 +11,12 @@ in vec4 v_position_inWorld;
 in vec2 v_texcoord;
 in vec3 v_baryCentricCoord;
 
+// uniform int u_shadingModel; // initialValue=0
+// uniform float u_shininess; // initialValue=5
+// uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
+// uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
+// uniform sampler2D u_normalTexture; // initialValue=(1,blue)
+
 #pragma shaderity: require(../common/rt0.glsl)
 
 /* shaderity: ${getters} */
