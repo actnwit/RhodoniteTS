@@ -38,7 +38,7 @@ import MutableVector4 from "../math/MutableVector4";
 import LightComponent from "../components/LightComponent";
 import { LightType } from "../definitions/LightType";
 import { Count, Byte, Size, Index } from "../../types/CommonTypes";
-import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer, Gltf2Accessor, Gltf2BufferView } from "../../types/glTF";
+import { GltfLoadOption, glTF2, Gltf2Node, Gltf2Buffer, Gltf2Accessor, Gltf2BufferView, Gltf2Primitive, Gltf2Material } from "../../types/glTF";
 import Config from "../core/Config";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
@@ -119,6 +119,7 @@ export default class ModelConverter {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
+    gltfModel.asset.extras!.rnMaterials = [];
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
@@ -651,7 +652,7 @@ export default class ModelConverter {
     return undefined;
   }
 
-  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: any, materialJson: any): Material {
+  private __generateAppropriateMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
 
     if (gltfModel.asset.extras != null && gltfModel.asset.extras.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -689,8 +690,13 @@ export default class ModelConverter {
     }
   }
 
-  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: any, primitive: any, materialJson: any): Material {
-    const material: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
+  private __setupMaterial(rnPrimitive: Primitive, node: any, gltfModel: glTF2, primitive: Gltf2Primitive, materialJson: any): Material {
+    let material = gltfModel.asset.extras?.rnMaterials![primitive.materialIndex!];
+    if (material == null) {
+      const newMaterial: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
+      gltfModel.asset.extras?.rnMaterials![primitive.materialIndex!] = newMaterial;
+      material = newMaterial;
+    }
 
     // avoid unexpected initialization
     if (!this.__needParameterInitialization(materialJson, material.materialTypeName)) return material;
@@ -748,7 +754,7 @@ export default class ModelConverter {
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
     }
 
-    const options = gltfModel.asset.extras.rnLoaderOptions;
+    const options = gltfModel.asset.extras!.rnLoaderOptions;
     let alphaMode = materialJson.alphaMode;
     if (options != null && options.alphaMode) {
       alphaMode = options.alphaMode;
@@ -763,8 +769,8 @@ export default class ModelConverter {
       const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
 
-      if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
-        const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension as ILoaderExtension;
+      if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension) {
+        const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!.loaderExtension as ILoaderExtension;
         if (loaderExtension.setUVTransformToTexture) {
           loaderExtension.setUVTransformToTexture(material, diffuseColorTexture.texture.sampler);
         }
@@ -786,7 +792,7 @@ export default class ModelConverter {
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
 
     // For Extension
-    if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras.rnLoaderOptions.loaderExtension) {
+    if (this._checkRnGltfLoaderOptionsExist(gltfModel) && gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension) {
       const loaderExtension = gltfModel.asset.extras.rnLoaderOptions.loaderExtension;
       loaderExtension.setupMaterial(gltfModel, materialJson, material);
     }

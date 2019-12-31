@@ -42,6 +42,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
+  private __lastMaterial?: Material;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -311,43 +312,29 @@ mat3 get_normalMatrix(float instanceId) {
       const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = false;
-      if (renderPassTickCount !== this.__lastRenderPassTickCount) {
-        firstTime = true;
-      }
+      // if (renderPassTickCount !== this.__lastRenderPassTickCount) {
+      //   firstTime = true;
+      // }
       if (shaderProgramUid !== this.__lastShader) {
         gl.useProgram(shaderProgram);
 
         gl.uniform1i((shaderProgram as any).dataTexture, 7);
 
-
         this.__lastShader = shaderProgramUid;
-        firstTime = true;
-      }
-      this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
-      // this.__setUniformBySystem({glw, shaderProgram, primitive, shaderProgramUid,
-      //   entity, worldMatrix, normalMatrix, renderPass,
-      //   diffuseCube, specularCube, firstTime});
-      if (firstTime) {
-        // this.setCamera(renderPass);
-        // WebGLStrategyUniform.__globalDataRepository.setUniformValues(shaderProgram, {
-        //   setUniform: true,
-        //   glw: glw,
-        //   entity: entity,
-        //   primitive: primitive,
-        //   worldMatrix: worldMatrix,
-        //   normalMatrix: normalMatrix,
-        //   lightComponents: this.__lightComponents,
-        //   renderPass: renderPass,
-        //   diffuseCube: diffuseCube,
-        //   specularCube: specularCube
-        // });
+        firstTime = true;
+
+        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
       }
-      //from material
+
+      if (this.__lastMaterial !== material) {
+        firstTime = true;
+        this.__lastMaterial = material;
+      }
+
 
       WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);
 
-      // material.setUniformValues(firstTime, {
       material.setParametersForGPU({
         material, shaderProgram, firstTime, args: {
           setUniform: true,
@@ -369,6 +356,7 @@ mat3 get_normalMatrix(float instanceId) {
         glw.drawArraysInstanced(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased(), 1);
       }
       // this.dettachVertexData(glw);
+
 
     }
 
