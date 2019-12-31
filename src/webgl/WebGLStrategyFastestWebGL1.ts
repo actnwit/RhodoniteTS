@@ -43,6 +43,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
@@ -690,14 +691,16 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
             this.__setupMaterial(material, renderPass);
 
+            this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
             WebGLStrategyFastestWebGL1.__shaderProgram = shaderProgram;
             firstTime = true;
           }
-
-          if (firstTime) {
-            this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+          if (this.__lastMaterial !== material) {
+            firstTime = true;
+            this.__lastMaterial = material;
           }
+
           this.__setCurrentComponentSIDsForEachPrimitive(gl, renderPass, material, entity);
 
           WebGLStrategyCommonMethod.setCullAndBlendSettings(material, renderPass, gl);

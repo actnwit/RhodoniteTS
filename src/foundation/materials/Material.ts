@@ -418,7 +418,11 @@ export default class Material extends RnObject {
       this.__fieldsForNonSystem.forEach((value) => {
         const info = value.info
         if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
+            webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+          } else {
+            webglResourceRepository.bindTexture(info, value.value);
+          }
         }
       });
     }
@@ -437,6 +441,8 @@ export default class Material extends RnObject {
         if (!info.isSystem) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
             webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, firstTime, value.value, info.index);
+          } else {
+            webglResourceRepository.bindTexture(info, value.value);
           }
         }
       }

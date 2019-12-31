@@ -454,10 +454,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     const key = semanticStr;
     let updated = false;
     if (info.compositionType === CompositionType.Texture2D || info.compositionType === CompositionType.TextureCube) {
+      updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
       this.bindTexture(info, value);
-      if (firstTime) {
-        updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, false, { x: value[0] }, { firstTime: firstTime }, index);
-      }
     } else if (index == null && (info.compositionType === CompositionType.ScalarArray || info.compositionType === CompositionType.Vec4Array || info.compositionType === CompositionType.Vec3Array || info.compositionType === CompositionType.Vec2Array)) {
       if (value.v == null) {
         updated = this.setUniformValueInner(shaderProgram, key, info, setAsMatrix, componentNumber, true, { x: value }, { firstTime: firstTime }, index);
