@@ -133,11 +133,11 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
       if (material == null || material.isEmptyMaterial()) {
-        return;
+        continue;
       }
 
       if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        return;
+        continue;
       }
 
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;

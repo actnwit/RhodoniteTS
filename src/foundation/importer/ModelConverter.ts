@@ -696,6 +696,8 @@ export default class ModelConverter {
       const newMaterial: Material = this.__generateAppropriateMaterial(rnPrimitive, node, gltfModel, primitive, materialJson);
       gltfModel.asset.extras?.rnMaterials![primitive.materialIndex!] = newMaterial;
       material = newMaterial;
+    } else {
+      return material;
     }
 
     // avoid unexpected initialization
