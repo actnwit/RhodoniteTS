@@ -30,6 +30,7 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
 function createEmptyMaterial() {
   const materialName = 'Empty';
   const material = createMaterial(materialName, [], Config.maxMaterialInstanceForEachType);
+  material.tryToSetUniqueName('EmptyMaterial', true);
   return material;
 }
 
