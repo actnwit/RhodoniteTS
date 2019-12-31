@@ -255,6 +255,10 @@ export default class Gltf1Importer {
     }
 
     gltfJson.materialDic = gltfJson.materials;
+    gltfJson.materials = [];
+    for (let materialName in gltfJson.materialDic) {
+      gltfJson.materials.push((gltfJson.materialDic as any)[materialName]);
+    }
     gltfJson.cameraDic = gltfJson.cameras;
     gltfJson.shaderDic = gltfJson.shaders;
     gltfJson.imageDic = gltfJson.images;
@@ -366,6 +370,7 @@ export default class Gltf1Importer {
         if (primitive.material !== void 0) {
           primitive.materialName = primitive.material;
           primitive.material = (gltfJson.materialDic as any)[primitive.materialName];
+          primitive.materialIndex = gltfJson.materials.indexOf(primitive.material);
         }
 
         primitive.attributeNames = Object.assign({}, primitive.attributes);
