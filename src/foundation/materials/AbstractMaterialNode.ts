@@ -106,6 +106,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     this.__pixelShaderityObject = pixelShaderityObject;
 
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 
   get vertexShaderityObject() {
