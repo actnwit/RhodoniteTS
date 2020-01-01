@@ -1,6 +1,7 @@
 import { WebGLExtensionEnum } from "./WebGLExtension";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 import { Index, Size } from "../types/CommonTypes";
+import Vector4 from "../foundation/math/Vector4";
 export default class WebGLContextWrapper {
     __gl: WebGLRenderingContext | any;
     __webglVersion: number;
@@ -20,12 +21,18 @@ export default class WebGLContextWrapper {
     readonly webgl1ExtDB?: WEBGL_draw_buffers;
     readonly webgl1ExtBM?: EXT_blend_minmax;
     readonly webgl2ExtTFL?: OES_texture_float_linear;
+    private __activeTextureBackup;
     private __activeTextures2D;
     private __activeTexturesCube;
     private __isDebugMode;
+    private __viewport_left;
+    private __viewport_top;
+    private __viewport_width;
+    private __viewport_height;
     __extensions: Map<WebGLExtensionEnum, WebGLObject>;
     constructor(gl: WebGLRenderingContext, canvas: HTMLCanvasElement, isDebug: boolean);
     getRawContext(): WebGLRenderingContext | any;
+    get viewport(): Vector4;
     isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
     get isDebugMode(): boolean;
     get isWebGL2(): boolean;
@@ -35,7 +42,7 @@ export default class WebGLContextWrapper {
     vertexAttribDivisor(index: number, divisor: number): void;
     drawElementsInstanced(primitiveMode: number, indexCount: number, type: number, offset: number, instanceCount: number): void;
     drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number): void;
-    colorAttachiment(index: Index): any;
+    colorAttachment(index: Index): any;
     drawBuffers(buffers: RenderBufferTargetEnum[]): void;
     private __activeTexture;
     bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture): void;
@@ -44,4 +51,6 @@ export default class WebGLContextWrapper {
     unbindTextureCube(activeTextureIndex: Index): void;
     unbindTextures(): void;
     private __getExtension;
+    setViewport(left: number, top: number, width: number, height: number): void;
+    setViewportAsVector4(viewport: Vector4): void;
 }

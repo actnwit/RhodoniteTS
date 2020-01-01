@@ -17,5 +17,5 @@ export default interface WebGLStrategy {
     common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     attachGPUData(primitive: Primitive): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
-    attatchShaderProgram(material: Material): void;
+    attachShaderProgram(material: Material): void;
 }

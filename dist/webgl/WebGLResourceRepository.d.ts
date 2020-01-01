@@ -14,6 +14,7 @@ import { HdriFormatEnum } from "../foundation/definitions/HdriFormat";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
+import { BasisFile } from "../types/BasisTexture";
 export declare type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
@@ -34,7 +35,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     get currentWebGLContextWrapper(): WebGLContextWrapper | undefined;
     private getResourceNumber;
     getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLObject | null;
-    createIndexBuffer(accsessor: Accessor): number;
+    createIndexBuffer(accessor: Accessor): number;
     createVertexBuffer(accessor: Accessor): number;
     createVertexBufferFromTypedArray(typedArray: TypedArray): number;
     resendVertexBuffer(primitive: Primitive, vboHandles: Array<WebGLResourceHandle>): void;
@@ -56,6 +57,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     setupUniformLocations(shaderProgramUid: WebGLResourceHandle, dataArray: ShaderSemanticsInfo[]): WebGLProgram;
     private __isUniformValueDirty;
     setUniformValue(shaderProgram: WebGLProgram, semanticStr: string, firstTime: boolean, value: any, index?: Index): boolean;
+    bindTexture(info: any, value: any): void;
     setUniformValueInner(shaderProgram: WebGLProgram, semanticStr: string, info: ShaderSemanticsInfo, isMatrix: boolean, componentNumber: number, isVector: boolean, { x, y, z, w }: {
         x: number | TypedArray | Array<number> | Array<boolean> | boolean;
         y?: number | boolean;
@@ -85,11 +87,7 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         generateMipmap: boolean;
         anisotropy: boolean;
     }): WebGLResourceHandle;
-    createAtfTexture(atf: any, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
-        level: Index;
-        internalFormat: TextureParameterEnum | PixelFormatEnum;
-        width: Size;
-        height: Size;
+    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy }: {
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
@@ -97,9 +95,9 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         minFilter: TextureParameterEnum;
         wrapS: TextureParameterEnum;
         wrapT: TextureParameterEnum;
-        generateMipmap: boolean;
         anisotropy: boolean;
     }): WebGLResourceHandle;
+    private decodeBasisImage;
     createFrameBufferObject(): number;
     attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
     attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
@@ -137,6 +135,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
      * @returns the WebGLResourceHandle for the generated Cube Texture
      */
     createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<number>;
+    createCubeTextureFromBasis(basisFile: BasisFile, { magFilter, minFilter, wrapS, wrapT, border }: {
+        magFilter?: TextureParameterEnum | undefined;
+        minFilter?: TextureParameterEnum | undefined;
+        wrapS?: TextureParameterEnum | undefined;
+        wrapT?: TextureParameterEnum | undefined;
+        border?: number | undefined;
+    }): number;
     createDummyBlackCubeTexture(): number;
     createDummyCubeTexture(rgbaStr?: string): number;
     createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy }: {
@@ -181,5 +186,6 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     deleteVertexDataResources(vertexHandles: VertexHandles): void;
     deleteVertexArray(vaoHandle: WebGLResourceHandle): void;
     deleteVertexBuffer(vboUid: WebGLResourceHandle): void;
+    resizeCanvas(width: Size, height: Size): void;
 }
 export {};

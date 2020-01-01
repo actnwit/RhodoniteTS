@@ -9,7 +9,7 @@ module.exports = {
     headless: false,
     devtools: false,
 
-    // executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/usr/bin/chromium-browser",
 
     args: ["--start-maximized", "--no-sandbox"],
   },
