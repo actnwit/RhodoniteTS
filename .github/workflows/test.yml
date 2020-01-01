@@ -13,6 +13,7 @@ jobs:
       with:
         node-version: 12.4.0
     - run: npm install -g yarn
+    - run: npx npm-cli-login -u rhodoniteuser -p 1q2w3e4r -e rhodoniteuser@example.com
     - run: yarn install
     - run: yarn build
     - run: yarn test
