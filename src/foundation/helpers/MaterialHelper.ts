@@ -53,11 +53,11 @@ function createPbrUberMaterial({
   return material;
 }
 
-function createClassicUberMaterial({
+function createClassicUberMaterialOld({
   additionalName = '', isSkinning = false, isLighting = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
-  const materialName = 'ClassicUber'
+  const materialName = 'ClassicUberOld'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
@@ -69,16 +69,16 @@ function createClassicUberMaterial({
   return material;
 }
 
-function createClassicUberMaterialAsCustom({
-  additionalName = '', isSkinning = true, isLighting = true, isMorphing = false,
+function createClassicUberMaterial({
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType
 } = {}) {
-  const materialName = 'ClassicUberAsCustom'
+  const materialName = 'ClassicUber'
     + `_${additionalName}_`
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUberAsCustom', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+  const materialNode = new CustomSingleMaterialNode({ name: 'ClassicUber', isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
     vertexShader: classicSingleShaderVertex,
     pixelShader: classicSingleShaderFragment });
   materialNode.isSingleOperation = true;
@@ -175,6 +175,6 @@ function createMToonMaterial({
 
 
 export default Object.freeze({
-  createEmptyMaterial, createPbrUberMaterial, createClassicUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
-  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, createClassicUberMaterialAsCustom
+  createEmptyMaterial, createClassicUberMaterial, createPbrUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial
 });

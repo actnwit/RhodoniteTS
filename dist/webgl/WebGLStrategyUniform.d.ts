@@ -17,6 +17,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     private __webglResourceRepository;
     private __dataTextureUid;
     private __lastShader;
+    private __lastMaterial?;
     private __lastRenderPassTickCount;
     private __lightComponents?;
     private static __globalDataRepository;
@@ -29,7 +30,7 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     common_$prerender(): void;
     attachGPUData(primitive: Primitive): void;
-    attatchShaderProgram(material: Material): void;
+    attachShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     dettachVertexData(glw: WebGLContextWrapper): void;

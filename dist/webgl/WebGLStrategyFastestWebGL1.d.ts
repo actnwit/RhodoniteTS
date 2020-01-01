@@ -16,6 +16,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     private __webglResourceRepository;
     private __dataTextureUid;
     private __lastShader;
+    private __lastMaterial?;
     private static __shaderProgram;
     private __lastRenderPassTickCount;
     private __lightComponents?;
@@ -34,15 +35,17 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     common_$prerender(): void;
     attachGPUData(primitive: Primitive): void;
     attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram): void;
-    attatchShaderProgram(material: Material): void;
+    attachShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyFastestWebGL1;
     private __setupMaterial;
+    private __getViewport;
     private __setCamera;
     private __setCurrentComponentSIDsForEachRenderPass;
     private __setCurrentComponentSIDsForEachEntity;
     private __setCurrentComponentSIDsForEachPrimitive;
+    private __getDisplayNumber;
     common_$render(meshComponentSids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     $render(idx: Index, meshComponent: MeshComponent, worldMatrix: Matrix44, normalMatrix: Matrix33, entity: Entity, renderPass: RenderPass, renderPassTickCount: Count, diffuseCube?: CubeTexture, specularCube?: CubeTexture): void;
 }
