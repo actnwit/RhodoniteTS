@@ -596,7 +596,7 @@ export default class ModelConverter {
     if (isSkinningOriginal) {
       const existSkin = node.skin != null;
       argumentOfMaterialHelper.isSkinning = existSkin;
-      argumentOfMaterialHelper.additionalName = existSkin ? "skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}" : "";
+      argumentOfMaterialHelper.additionalName = existSkin ? `skin${(node.skinIndex != null ? node.skinIndex : node.skinName)}` : "";
     }
   }
 

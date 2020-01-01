@@ -447,6 +447,7 @@ export default class Material extends RnObject {
 
   private __setupGlobalShaderDefinition() {
     let definitions = '';
+    definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
     }
