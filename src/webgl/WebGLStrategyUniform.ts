@@ -312,9 +312,9 @@ mat3 get_normalMatrix(float instanceId) {
       const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = false;
-      // if (renderPassTickCount !== this.__lastRenderPassTickCount) {
-      //   firstTime = true;
-      // }
+      if (renderPassTickCount !== this.__lastRenderPassTickCount) {
+        firstTime = true;
+      }
       if (shaderProgramUid !== this.__lastShader) {
         gl.useProgram(shaderProgram);
 
