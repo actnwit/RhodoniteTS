@@ -1,9 +1,12 @@
 {
-  "name": "rhodonite-ts",
+  "name": "@emadurandal/rhodonite-ts",
   "version": "0.1.5",
   "main": "dist/rhodonite.js",
   "types": "dist/rhodonite.d.ts",
-  "repository": "https://github.com/emadurandal/RhodoniteTS.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emadurandal/RhodoniteTS.git"
+  },
   "author": "Yuki Shimada <emadurandal@gmail.com>",
   "license": "MIT",
   "scripts": {
@@ -19,7 +22,8 @@
     "test-e2e": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest ./samples/test_e2e --runInBand --config jest.config.e2e.js",
     "test-e2e-update": "JEST_PUPPETEER_CONFIG=jest-puppeteer-config.js jest ./samples/test_e2e --runInBand --config jest.config.e2e.js --updateSnapshot",
     "test-coverage": "jest --coverage",
-    "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/"
+    "doc": "typedoc --includeDeclarations --ignoreCompilerErrors --exclude '**/*+(test|d).ts' --out ./docs/ ./src/",
+    "start": "node server.js"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
@@ -29,7 +33,6 @@
     "@types/webvr-api": "^0.0.35",
     "@typescript-eslint/parser": "2.7.0",
     "express": "^4.17.1",
-    "gl": "^4.3.3",
     "http-server": "^0.11.1",
     "jest": "^24.8.0",
     "jest-image-snapshot": "^2.8.2",
@@ -37,7 +40,7 @@
     "puppeteer": "^1.17.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^2.6.3",
-    "shaderity-loader": "0.0.7",
+    "shaderity-loader": "^0.0.8",
     "ts-jest": "^24.0.2",
     "ts-loader": "^6.0.2",
     "typedoc": "^0.14.2",
@@ -48,6 +51,14 @@
   },
   "dependencies": {
     "requirejs": "^2.3.6",
-    "shaderity": "0.1.14"
+    "shaderity": "^0.1.14"
+  },
+  "description": "Rhodonite is a WebGL library written in TypeScript.",
+  "bugs": {
+    "url": "https://github.com/emadurandal/RhodoniteTS/issues"
+  },
+  "homepage": "https://github.com/emadurandal/RhodoniteTS#readme",
+  "directories": {
+    "doc": "docs"
   }
 }

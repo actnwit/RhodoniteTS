@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: macOS-latest
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v1
@@ -14,5 +14,4 @@ jobs:
         node-version: 12.4.0
     - run: npm install -g yarn
     - run: yarn install
-    - run: yarn build
     - run: yarn test
