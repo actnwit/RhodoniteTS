@@ -41,7 +41,9 @@ export default class GltfImporter {
     options = this._getOptions(options);
 
     const gltf2Importer = Gltf2Importer.getInstance();
-    return gltf2Importer.import(uri, options);
+    const gltfModel = await gltf2Importer.import(uri, options);
+    this._readVRMHumanoidInfo(gltfModel);
+    return gltfModel;
   }
 
   /**
@@ -146,7 +148,7 @@ export default class GltfImporter {
     renderPassMain.addEntities([rootGroup]);
 
     this._readSpringBone(rootGroup, gltfModel);
-    this._readVRMHumanoidInfo(rootGroup, gltfModel);
+    this._readVRMHumanoidInfo(gltfModel, rootGroup);
 
     return renderPasses;
   }
@@ -197,16 +199,25 @@ export default class GltfImporter {
     return options;
   }
 
-  _readVRMHumanoidInfo(rootEntity: Entity, gltfModel: VRM): void {
+  _readVRMHumanoidInfo(gltfModel: VRM, rootEntity?: Entity): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
+    // const mapNameNodeName: Map<string, string> = new Map();
     for (let bone of humanBones) {
       mapNameNodeId.set(bone.bone, bone.node);
+      const boneNode = gltfModel.nodes[bone.node];
+      bone.name = boneNode.name;
     }
-    rootEntity.tryToSetTag({
-      tag: 'humanoid_map_name_nodeId',
-      value: mapNameNodeId
-    });
+    if (rootEntity != null) {
+      rootEntity.tryToSetTag({
+        tag: 'humanoid_map_name_nodeId',
+        value: mapNameNodeId
+      });
+    }
+    // rootEntity.tryToSetTag({
+    //   tag: 'humanoid_map_name_nodeName',
+    //   value: mapNameNodeName
+    // });
   }
 
   _readSpringBone(rootEntity: Entity, gltfModel: VRM): void {

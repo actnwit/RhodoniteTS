@@ -5,6 +5,7 @@ import Entity from "../foundation/core/Entity";
 export type HumanBone = {
   bone: string,
   node: number,
+  name?: string,
   useDefaultValues: boolean
 };
 

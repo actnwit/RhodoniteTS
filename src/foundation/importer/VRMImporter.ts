@@ -49,7 +49,7 @@ export default class VRMImporter {
     }
 
     gltfImporter._readSpringBone(rootGroupMain, gltfModel);
-    gltfImporter._readVRMHumanoidInfo(rootGroupMain, gltfModel);
+    gltfImporter._readVRMHumanoidInfo(gltfModel, rootGroupMain);
 
     return rootGroups;
   }

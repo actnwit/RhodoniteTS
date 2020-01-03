@@ -6,6 +6,9 @@ import AnimationComponent from "../components/AnimationComponent";
 import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
 import { Index } from "../../types/CommonTypes";
 import { VRM } from "../../types/VRM";
+import Quaternion from "../math/Quaternion";
+import Matrix44 from "../math/Matrix44";
+import Vector3 from "../math/Vector3";
 
 export default class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -31,7 +34,7 @@ export default class AnimationAssigner {
     return this.__instance;
   }
 
-  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, isSameSkeleton: boolean) {
+  private __getCorrespondingEntity(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, nodeIndex: Index, nodeName: string|undefined, isSameSkeleton: boolean) {
     if (isSameSkeleton) {
       const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, Entity>;
       const node = gltfModel.nodes[nodeIndex];
@@ -39,13 +42,21 @@ export default class AnimationAssigner {
       return rnEntity;
     } else {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
-      const srcMapNodeIdName: Map<number, string> = new Map();
-      for (let bone of humanBones) {
-        srcMapNodeIdName.set(bone.node, bone.bone);
+      let humanoidBoneName: string|undefined;
+        const srcMapNodeIdName: Map<number, string> = new Map();
+        const srcMapNodeNameName: Map<string, string> = new Map();
+        for (let bone of humanBones) {
+          srcMapNodeIdName.set(bone.node, bone.bone);
+          srcMapNodeNameName.set(bone.name!, bone.bone);
+        }
+      if (nodeName != null) {
+        humanoidBoneName = srcMapNodeNameName.get(nodeName);
+        if (humanoidBoneName == null) {
+          humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
+        }
       }
       const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
-      const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
-      const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName);
+      const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
       if (dstBoneNodeId != null) {
         const rnEntities = rootEntity.getTagValue('rnEntities')! as Entity[];
         return rnEntities[dstBoneNodeId];
@@ -100,8 +111,8 @@ export default class AnimationAssigner {
           } else {
             animationAttributeName = channel.target.path;
           }
-
-          const rnEntity = this.__getCorrespondingEntity(rootEntity, gltfModel, vrmModel, channel.target.nodeIndex!, isSameSkeleton);
+          const node = gltfModel.nodes[channel.target.nodeIndex!];
+          const rnEntity = this.__getCorrespondingEntity(rootEntity, gltfModel, vrmModel, channel.target.nodeIndex!, node.name, isSameSkeleton);
           if (rnEntity) {
             entityRepository.addComponentsToEntity([AnimationComponent], rnEntity.entityUID);
             const animationComponent = rnEntity.getComponent(AnimationComponent) as AnimationComponent;

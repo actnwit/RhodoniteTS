@@ -95,7 +95,8 @@ export default class Quaternion implements IVector4 {
 
   static invert(quat: Quaternion) {
     quat = new Quaternion(-quat.x, -quat.y, -quat.z, quat.w);
-    const inorm2 = 1.0 / (quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);
+    const norm = quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w;
+    const inorm2 = norm ? 1.0 / norm : 0;
     quat.v[0] *= inorm2;
     quat.v[1] *= inorm2;
     quat.v[2] *= inorm2;
