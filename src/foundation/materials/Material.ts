@@ -122,7 +122,7 @@ export default class Material extends RnObject {
   }
 
 
-  static isRegistedMaterialType(materialTypeName: string) {
+  static isRegisteredMaterialType(materialTypeName: string) {
     return Material.__materialTypes.has(materialTypeName);
   }
 

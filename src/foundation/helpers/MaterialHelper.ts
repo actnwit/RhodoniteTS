@@ -17,7 +17,7 @@ import CustomSingleMaterialNode from "../materials/CustomSingleMaterialNode";
 import Shaderity, { ShaderityObject } from "shaderity";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
-  const isRegistMaterialType = Material.isRegistedMaterialType(materialName);
+  const isRegistMaterialType = Material.isRegisteredMaterialType(materialName);
 
   if (!isRegistMaterialType) {
     Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);

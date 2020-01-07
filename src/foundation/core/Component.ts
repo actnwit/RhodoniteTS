@@ -437,10 +437,20 @@ export default class Component extends RnObject {
 
   }
 
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
   get entity() {
     return this.__entityRepository.getEntity(this.__entityUid);
   }
 
+  /**
+   * get the bytes Information of the member
+   * @param component a instance of the component
+   * @param memberName the member of component in string
+   * @returns bytes information
+   */
   static getDataByteInfoInner(component: Component, memberName: string) {
     const data = (component as any)['_' + memberName];
     const typedArray = data.v as TypedArray;
@@ -465,10 +475,23 @@ export default class Component extends RnObject {
     };
   }
 
+  /**
+   * get the bytes Information of the member
+   * @param memberName the member of component in string
+   * @returns bytes information
+   */
   getDataByteInfo(memberName: string) {
     return Component.getDataByteInfoInner(this, memberName);
   }
 
+
+  /**
+   * get the bytes Information of the member (static version) by ComponentSID
+   * @param componentType the Component type
+   * @param componentSID the ComponentSID of the component
+   * @param memberName the member of component in string
+   * @returns bytes information
+   */
   static getDataByteInfoByComponentSID(componentType: typeof Component, componentSID: ComponentSID, memberName: string) {
     const component = ComponentRepository.getInstance().getComponent(componentType, componentSID);
     if (component) {
@@ -478,6 +501,13 @@ export default class Component extends RnObject {
     return void 0;
   }
 
+  /**
+   * get the bytes Information of the member (static version) by EntityUID
+   * @param componentType the component type
+   * @param entityUID the EntityUID
+   * @param memberName the member of component in string
+   * @returns bytes information
+   */
   static getDataByteInfoByEntityUID(componentType: typeof Component, entityUID: EntityUID, memberName: string) {
     const component = EntityRepository.getInstance().getComponentOfEntity(entityUID, componentType);
     if (component) {
@@ -487,6 +517,12 @@ export default class Component extends RnObject {
     return void 0;
   }
 
+  /**
+   * get the Pixel Location Offset in the Buffer of the Member
+   * @param componentType the component type (e.g. TransformComponent )
+   * @param memberName the member name in string
+   * @returns the pixel offsets
+   */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
     const component = ComponentRepository.getInstance().getComponent(componentType, 0);
     return (component as any)['_byteOffsetOfAccessorInBuffer_' + memberName] / 4 / 4;
