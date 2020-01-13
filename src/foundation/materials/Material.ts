@@ -447,13 +447,13 @@ export default class Material extends RnObject {
 
   private __setupGlobalShaderDefinition() {
     let definitions = '';
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+      definitions += '#version 300 es\n#define GLSL_ES3\n';
+    }
     definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
     if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
       definitions += '#define RN_IS_FASTEST_MODE\n';
-    }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
-      definitions += '#define GLSL_ES3\n';
     }
     if (webglResourceRepository.currentWebGLContextWrapper?.webgl1ExtSTL) {
       definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
@@ -977,4 +977,10 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     }
   }
 
+  getShaderSemanticInfoFromName(name: string) {
+    for (let materialNode of this.__materialNodes) {
+      return materialNode.getShaderSemanticInfoFromName(name);
+    }
+    return void 0
+  }
 }
