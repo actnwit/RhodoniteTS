@@ -1,14 +1,15 @@
 import RnObject from "../core/RnObject";
-import { PixelFormat } from "../definitions/PixelFormat";
+import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
-import { TextureParameter } from "../definitions/TextureParameter";
+import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { thisExpression } from "@babel/types";
-import { Size } from "../../types/CommonTypes";
+import { Size, TypedArray } from "../../types/CommonTypes";
 import Config from "../core/Config";
 import {BasisFile, BasisTranscoder, BASIS} from "../../types/BasisTexture";
+import { ComponentTypeEnum } from "../../rhodonite";
 
 declare const BASIS: BASIS;
 
@@ -220,6 +221,44 @@ export default class Texture extends AbstractTexture {
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  generateTextureFromTypedArray(typedArray: TypedArray,
+    {
+      level = 0,
+      internalFormat = PixelFormat.RGBA,
+      format = PixelFormat.RGBA,
+      magFilter = TextureParameter.Linear,
+      minFilter = TextureParameter.LinearMipmapLinear,
+      wrapS = TextureParameter.Repeat,
+      wrapT = TextureParameter.Repeat,
+      generateMipmap = true,
+      anisotropy = true
+    }: {
+      level: number,
+      internalFormat: PixelFormatEnum,
+      format: PixelFormatEnum,
+      magFilter: TextureParameterEnum,
+      minFilter: TextureParameterEnum,
+      wrapS: TextureParameterEnum,
+      wrapT: TextureParameterEnum,
+      generateMipmap: boolean,
+      anisotropy: boolean
+    })
+    {
+
+    const type = ComponentType.fromTypedArray(typedArray);
+
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    let texture = webGLResourceRepository.createTexture(
+      typedArray, {
+      level: level, internalFormat: internalFormat, width: this.__width, height: this.__height,
+      border: 0, format: format, type: type, magFilter: magFilter, minFilter: minFilter,
+      wrapS: wrapS, wrapT: wrapT, generateMipmap: generateMipmap, anisotropy: anisotropy
+    });
+
+    this.cgApiResourceUid = texture;
+    this.__isTextureReady = true;
   }
 
 }

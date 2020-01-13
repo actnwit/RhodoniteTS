@@ -32,6 +32,10 @@ export default class TextureDataFloat {
     return this.__height;
   }
 
+  get data() {
+    return this.__data;
+  }
+
   getPixel(x: Index, y: Index, channelIdx: Index) {
     return this.__data[y * this.__width * this.__channels + x * this.__channels + channelIdx]
   }

@@ -73,6 +73,7 @@ import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraC
 import { BoneDataType } from './foundation/definitions/BoneDataType';
 import ShaderityUtility from './foundation/materials/ShaderityUtility';
 import AbstractMaterialNode from './foundation/materials/AbstractMaterialNode';
+import { PixelFormat } from './foundation/definitions/PixelFormat';
 
 let Rn = {
   EntityRepository,
@@ -149,7 +150,8 @@ let Rn = {
   WalkThroughCameraController,
   BoneDataType,
   ShaderityUtility,
-  AbstractMaterialNode
+  AbstractMaterialNode,
+  PixelFormat,
 };
 
 if (typeof exports !== 'undefined') {
