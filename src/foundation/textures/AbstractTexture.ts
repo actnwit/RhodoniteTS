@@ -4,8 +4,7 @@ import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
 import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../types/CommonTypes";
-import Component from "../core/Component";
-import Texture from "./Texture";
+import TextureDataFloat from "./TextureDataFloat";
 
 export default abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -100,6 +99,10 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__name;
   }
 
+  getImageData(x: Index, y:Index, width: Size, height: Size) {
+    return this.__canvasContext!.getImageData(x, y, width, height);
+  }
+
   get isTransparent() {
     return this.__hasTransparentPixels;
   }
@@ -115,5 +118,19 @@ export default abstract class AbstractTexture extends RnObject {
     }
     this.__htmlCanvasElement = canvas;
     this.__canvasContext = canvas.getContext("2d")!;
+  }
+
+  getTextureDataFloat(channels: Size) {
+    const pixel = this.getImageData(0, 0, this.width, this.height);
+    const textureDataFloat = new TextureDataFloat(this.width, this.height, channels);
+    const data = pixel.data;
+    for(let i=0; i<this.height; i++) {
+      for(let j=0; j<this.width; j++) {
+        for(let k=0; k<channels; k++) {
+          textureDataFloat.setPixelAtChannel(j, i, k, data[(i*this.width * 4) + (j*4) + k]/255);
+        }
+      }
+    }
+    return textureDataFloat;
   }
 }
