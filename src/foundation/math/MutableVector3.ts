@@ -167,7 +167,11 @@ export class MutableVector3_<T extends TypedArrayConstructor> extends Vector3_<T
   get raw() {
     return this.v;
   }
-}
+
+  setAt(i: number, value: number) {
+    this.v[i] = value;
+  }
+} 
 
 
 export default class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {

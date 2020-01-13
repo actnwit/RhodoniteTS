@@ -30,6 +30,7 @@ export default abstract class AbstractTexture extends RnObject {
   protected __startedToLoad = false;
   protected __htmlImageElement?: HTMLImageElement;
   protected __htmlCanvasElement?: HTMLCanvasElement;
+  protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
   protected __name: string = 'untitled';
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
@@ -103,4 +104,16 @@ export default abstract class AbstractTexture extends RnObject {
     return this.__hasTransparentPixels;
   }
 
+  createInternalCanvasContext() {
+    let canvas;
+    if (this.__htmlCanvasElement != null) {
+      canvas = this.__htmlCanvasElement;
+    } else {
+      canvas = document.createElement("canvas");
+      canvas.width = this.width;
+      canvas.height = this.height;
+    }
+    this.__htmlCanvasElement = canvas;
+    this.__canvasContext = canvas.getContext("2d")!;
+  }
 }

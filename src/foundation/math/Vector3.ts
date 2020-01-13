@@ -272,6 +272,9 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
     return 1;
   }
 
+  at(i: number) {
+    return this.v[i];
+  }
 
   get raw() {
     return this.v;
