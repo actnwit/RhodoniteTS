@@ -162,6 +162,11 @@ export default abstract class AbstractMaterialNode extends RnObject {
     }
   }
 
+  getShaderSemanticInfoFromName(name: string) {
+    const map = AbstractMaterialNode.__semanticsMap.get(this.shaderFunctionName)!;
+    return map.get(name);
+  }
+
   addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
     this.__vertexInputConnections.push({ materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
   }

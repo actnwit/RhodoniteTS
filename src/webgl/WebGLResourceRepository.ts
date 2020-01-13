@@ -653,8 +653,13 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, format.index, type.index, data);
       }
     } else {
-      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
-        format.index, type.index, data);
+      if (this.__glw!.isWebGL2) {
+        gl.texImage2D(gl.TEXTURE_2D, level, TextureParameter.RGB32F.index, width, height, border,
+          format.index, ComponentType.Float.index, data);
+      } else {
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat.index, width, height, border,
+          format.index, type.index, data);
+      }
     }
 
     const isGenerateMipmap = generateMipmap && (width === height && width !== 1 && !(this.__glw!.isWebGL2 && MiscUtil.isMobile()));
