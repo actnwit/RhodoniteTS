@@ -7,7 +7,7 @@ const load = async function (time) {
   await moduleManager.loadModule('pbr');
   const effekseerModule = await moduleManager.loadModule('effekseer');
 
-  const importer = Rn.Gltf2Importer.getInstance();
+  const importer = Rn.Gltf1Importer.getInstance();
   const system = Rn.System.getInstance();
   const gl = system.setProcessApproachAndCanvas(Rn.ProcessApproach.UniformWebGL1, document.getElementById('world'));
 
@@ -17,11 +17,11 @@ const load = async function (time) {
   const effekseerEntity = effekseerModule.createEffekseerEntity();
   const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent);
   effekseerComponent.playJustAfterLoaded = true;
-  //effekseerComponent.isLoop = true;
-  effekseerComponent.uri = '../../../assets/effekseer/HomingLaser.glb';
+  // effekseerComponent.isLoop = true;
+  effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
   effekseerEntity.getTransform().rotate = new Rn.Vector3(0, 1.54, 0);
   // Camera
-  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent])
+  const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent])
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -41,17 +41,24 @@ const load = async function (time) {
   //  const response = await importer.import('../../../assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
   // const response = await importer.import('../../../assets/gltf/2.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
   // const response = await importer.import('../../../assets/gltf/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-  const response = await importer.import('../../../assets/gltf/2.0/BoxAnimated/glTF/BoxAnimated.gltf');
+  const response = await importer.import('../../../assets/gltf/1.0/BoxAnimated/glTF/BoxAnimated.gltf');
   //const response = await importer.import('../../../assets/gltf/2.0/BrainStem/glTF/BrainStem.gltf');
   const modelConverter = Rn.ModelConverter.getInstance();
   const rootGroup = modelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = new Rn.Vector3(1.0, 0, 0);
   rootGroup.getTransform().rotate = new Rn.Vector3(0, 1.0, 0.0);
 
+  // CameraComponent
+  const cameraControllerComponent = cameraEntity.getComponent(Rn.CameraControllerComponent);
+  const controller = cameraControllerComponent.controller;
+  controller.setTarget(rootGroup);
+  controller.zFarAdjustingFactorBasedOnAABB = 1000;
+
   // renderPass
   const renderPass = new Rn.RenderPass();
+  renderPass.clearColor = new Rn.Vector3(0.5, 0.5, 0.5);
   renderPass.toClearColorBuffer = true;
-  renderPass.addEntities([rootGroup]);
+  renderPass.addEntities([rootGroup])
 
   // expression
   const expression = new Rn.Expression();
@@ -63,12 +70,6 @@ const load = async function (time) {
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
   const draw = function (time) {
-
-
-    gl.enable(gl.DEPTH_TEST);
-    gl.viewport(0, 0, 600, 600);
-    gl.clearColor(0.5, 0.2, 0., 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     if (p == null && count > 0) {
       p = document.createElement('p');
