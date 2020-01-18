@@ -425,5 +425,6 @@ export type GltfLoadOption = {
       image?: Gltf2Image,
     }[]
   },
-  cameraComponent?: CameraComponent
+  cameraComponent?: CameraComponent,
+  fileType?: string
 }
