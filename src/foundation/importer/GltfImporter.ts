@@ -67,8 +67,9 @@ export default class GltfImporter {
 
   private async __importModel(uri: string, options?: GltfLoadOption): Promise<RenderPass[]> {
 
-    let fileType: string;
-    if (options != null && options.files != null) {
+    let fileType = options?.fileType;
+    if (fileType != null) {
+    } else if (options != null && options.files != null) {
       fileType = await detectFormat(uri, options.files) as string;
     } else {
       fileType = await detectFormat(uri) as string;
