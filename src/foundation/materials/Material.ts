@@ -268,6 +268,16 @@ export default class Material extends RnObject {
     return this.__materialSid;
   }
 
+  get isSkinning() {
+    return this.__materialNodes[0].isSkinning;
+  }
+  get isMorphing() {
+    return this.__materialNodes[0].isMorphing;
+  }
+  get isLighting() {
+    return this.__materialNodes[0].isLighting;
+  }
+
   /**
    * @private
    */
