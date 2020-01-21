@@ -133,6 +133,16 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return this.__semantics;
   }
 
+  get isSkinning() {
+    return this.__isSkinning;
+  }
+  get isMorphing() {
+    return this.__isMorphing;
+  }
+  get isLighting() {
+    return this.__isLighting;
+  }
+
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
     const infoArray: ShaderSemanticsInfo[] = [];
     for (let info of shaderSemanticsInfoArray) {
