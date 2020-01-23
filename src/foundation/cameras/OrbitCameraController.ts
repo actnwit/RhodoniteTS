@@ -52,7 +52,7 @@ export default class OrbitCameraController implements ICameraController {
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   public moveSpeed = 1;
-  private __isPressShift = false;
+  private __isPressingShift = false;
 
   private __pinchInOutControl = false;
   private __pinchInOutOriginalDistance?: number | null = null;
@@ -157,7 +157,7 @@ export default class OrbitCameraController implements ICameraController {
     const currentMouseY = e.clientY;
     switch (this.__buttonNumber) {
       case 1: // left
-        if (this.__isPressShift) {
+        if (this.__isPressingShift) {
           this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         } else {
           this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
@@ -394,13 +394,13 @@ export default class OrbitCameraController implements ICameraController {
 
   __pressShift(e: KeyboardEvent) {
     if (e.keyCode === 16) {
-      this.__isPressShift = true;
+      this.__isPressingShift = true;
     }
   }
 
   __releaseShift(e: KeyboardEvent) {
     if (e.keyCode === 16) {
-      this.__isPressShift = false;
+      this.__isPressingShift = false;
     }
   }
 
