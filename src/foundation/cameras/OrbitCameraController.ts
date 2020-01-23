@@ -52,6 +52,7 @@ export default class OrbitCameraController implements ICameraController {
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = true;
   public moveSpeed = 1;
+  private __isPressingShift = false;
 
   private __pinchInOutControl = false;
   private __pinchInOutOriginalDistance?: number | null = null;
@@ -77,6 +78,8 @@ export default class OrbitCameraController implements ICameraController {
   private __mouseWheelFunc = this.__mouseWheel.bind(this);
   private __mouseDblClickFunc = this.__mouseDblClick.bind(this);
   private __contextMenuFunc = this.__contextMenu.bind(this);
+  private __pressShiftFunc = this.__pressShift.bind(this);
+  private __releaseShiftFunc = this.__releaseShift.bind(this);
   private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
@@ -154,9 +157,13 @@ export default class OrbitCameraController implements ICameraController {
     const currentMouseY = e.clientY;
     switch (this.__buttonNumber) {
       case 1: // left
-        this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
-        this.__rot_bgn_x = this.__rot_x;
-        this.__rot_bgn_y = this.__rot_y;
+        if (this.__isPressingShift) {
+          this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+        } else {
+          this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
+          this.__rot_bgn_x = this.__rot_x;
+          this.__rot_bgn_y = this.__rot_y;
+        }
         break;
       case 2: // right
         this.__zoomControl(this.__originalX, currentMouseX);
@@ -385,6 +392,18 @@ export default class OrbitCameraController implements ICameraController {
     }
   }
 
+  __pressShift(e: KeyboardEvent) {
+    if (e.keyCode === 16) {
+      this.__isPressingShift = true;
+    }
+  }
+
+  __releaseShift(e: KeyboardEvent) {
+    if (e.keyCode === 16) {
+      this.__isPressingShift = false;
+    }
+  }
+
 
   registerEventListeners(eventTargetDom: any = document) {
     this._eventTargetDom = eventTargetDom;
@@ -404,6 +423,8 @@ export default class OrbitCameraController implements ICameraController {
         eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("keydown", this.__pressShiftFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("keyup", this.__releaseShiftFunc, { passive: !this.__doPreventDefault });
 
         eventTargetDom.addEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
@@ -435,6 +456,9 @@ export default class OrbitCameraController implements ICameraController {
         eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
         eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
         eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
+
+        eventTargetDom.removeEventListener("keydown", this.__pressShiftFunc);
+        eventTargetDom.removeEventListener("keyup", this.__releaseShiftFunc);
 
         eventTargetDom.removeEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
@@ -651,7 +675,7 @@ export default class OrbitCameraController implements ICameraController {
       this.__lengthCameraToObject, OrbitCameraController.__tmp_centerToCameraVecMultiplied
     ).add(newCenterVec);
 
-    let newUpVec: Vector3|null = null;
+    let newUpVec: Vector3 | null = null;
     if (camera.entity.getSceneGraph()) {
       const sg = camera.entity.getSceneGraph();
       let mat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmp_mat);
