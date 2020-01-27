@@ -675,6 +675,8 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
       if (anisotropy && this.__glw!.webgl1ExtTFA) {
         gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      } else if (this.__glw!.webgl1ExtTFA) {
+        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 1);
       }
       if (isGenerateMipmap) {
         gl.generateMipmap(gl.TEXTURE_2D);
@@ -943,7 +945,11 @@ export default class WebGLResourceRepository extends CGAPIResourceRepository {
 
     const loadImageToGPU = (image: DirectTextureData, cubeMapSide: number, i: Index) => {
       if ((image as any).hdriFormat === HdriFormat.HDR) {
-        gl.texImage2D(cubeMapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
+        if (this.__glw!.isWebGL2) {
+          gl.texImage2D(cubeMapSide, i, gl.RGB32F, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
+        } else {
+          gl.texImage2D(cubeMapSide, i, gl.RGB, (image as any).width, (image as any).height, 0, gl.RGB, gl.FLOAT, (image as any).dataFloat);
+        }
       } else
         if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) {
           gl.texImage2D(cubeMapSide, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
