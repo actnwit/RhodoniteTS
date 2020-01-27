@@ -1,9 +1,5 @@
 import RnObj, { RnType } from "../../../dist/rhodonite";
 
-import MemoryManager from '../core/MemoryManager';
-import ModuleManager from '../system/ModuleManager';
-import MeshComponent from "../../../dist/foundation/components/MeshComponent";
-
 const Rn: RnType = RnObj as any;
 
 function generateEntity() {
