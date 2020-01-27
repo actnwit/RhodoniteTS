@@ -2,6 +2,7 @@ import { WebGLExtensionEnum, WebGLExtension } from "./WebGLExtension";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
 import { Index, Size } from "../types/CommonTypes";
 import Vector4 from "../foundation/math/Vector4";
+import Config from "../foundation/core/Config";
 
 export default class WebGLContextWrapper {
   __gl: WebGLRenderingContext | any;
@@ -238,7 +239,7 @@ export default class WebGLContextWrapper {
       }
     }
 
-    if (this.__activeTextures2D[activeTextureIndex] === texture) {
+    if (!Config.noWebGLTex2DStateCache && this.__activeTextures2D[activeTextureIndex] === texture) {
       return;
     }
 

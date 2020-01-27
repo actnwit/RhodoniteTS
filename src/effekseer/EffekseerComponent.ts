@@ -12,6 +12,7 @@ import ModuleManager from "../foundation/system/ModuleManager";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
+import Config from "../foundation/core/Config";
 
 declare var effekseer: any;
 
@@ -30,7 +31,7 @@ export default class EffekseerComponent extends Component {
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository) {
     super(entityUid, componentSid, entityRepository);
-
+    Config.noWebGLTex2DStateCache = true;
   }
 
   $create() {
