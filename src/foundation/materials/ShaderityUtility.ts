@@ -98,7 +98,7 @@ export default class ShaderityUtility {
 
     const shaderSemanticsInfoArray = [];
     for (let row of splitCode) {
-      const reg = /[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg = /^(?![\/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const match = row.match(reg);
 
       if (match) {
