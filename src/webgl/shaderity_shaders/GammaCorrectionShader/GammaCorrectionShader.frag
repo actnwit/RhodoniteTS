@@ -22,7 +22,7 @@ void main ()
 vec4 baseColor = texture2D(u_baseColorTexture, v_texcoord);
 baseColor.rgb = linearToSrgb(baseColor.rgb);
 
-rt0 = vec4(baseColor.rgb, 1.0);
+rt0 = baseColor;
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 
