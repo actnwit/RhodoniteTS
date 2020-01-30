@@ -92,12 +92,6 @@ export default class System {
       cameraEntity.getCamera().yMag = 1;
     }
 
-    for (let exp of expressions) {
-      for (let renderPass of exp.renderPasses) {
-        renderPass.doPreRender();
-      }
-    }
-
     for (let stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
@@ -112,6 +106,7 @@ export default class System {
 
             for (let i = 0; i < loopN; i++) {
               const renderPass = exp!.renderPasses[i];
+              renderPass.doPreRender();
               if (componentTid === MeshRendererComponent.componentTID && (stage == ProcessStage.Render)) {
                 this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
                 this.__webglResourceRepository.setViewport(renderPass.getViewport());
