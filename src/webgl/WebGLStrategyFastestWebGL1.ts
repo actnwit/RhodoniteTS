@@ -429,47 +429,63 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+    const buffer: Buffer|undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
+    if (buffer == null) {
+      return;
+    }
 
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, buffer.takenSizeInByte/4);
       const bufferSizeInByte = buffer.takenSizeInByte;
+      const height = Math.min(Math.ceil(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4), MemoryManager.bufferHeightLength);
+      const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize);
       if (bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4, MemoryManager.bufferHeightLength),
+          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: height,
           format: PixelFormat.RGBA, type: ComponentType.Float
         });
       } else {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: Math.min(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4, MemoryManager.bufferHeightLength),
+          level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: height,
           format: PixelFormat.RGBA, type: ComponentType.Float
         });
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      let paddingArrayBufferSize = 0;
-      if ((buffer.takenSizeInByte + morphBuffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
-        paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte + morphBuffer.takenSizeInByte;
+      let morphBufferTakenSizeInByte = 0;
+      if (morphBuffer != null) {
+        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
       }
-      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBuffer.getArrayBuffer()], [buffer.takenSizeInByte, morphBuffer.takenSizeInByte], paddingArrayBufferSize);
-      const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
-      if (concatArraybuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
+      let paddingArrayBufferSize = 0;
+      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+      if ((buffer.takenSizeInByte + morphBufferTakenSizeInByte) < dataTextureByteSize) {
+        paddingArrayBufferSize = dataTextureByteSize - (buffer.takenSizeInByte + morphBufferTakenSizeInByte);
+      }
+
+      let morphBufferArrayBuffer = new ArrayBuffer(0);
+      if (morphBuffer != null) {
+        morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
+      }
+      const finalArrayBuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBufferArrayBuffer], [buffer.takenSizeInByte, morphBufferTakenSizeInByte], paddingArrayBufferSize);
+      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+      if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
 
+      const height = MemoryManager.bufferHeightLength;
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+          level: 0, internalFormat: TextureParameter.RGBA32F, width: MemoryManager.bufferWidthLength, height: height,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
         });
       } else {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
-          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: MemoryManager.bufferHeightLength,
+          level: 0, internalFormat: PixelFormat.RGBA, width: MemoryManager.bufferWidthLength, height: height,
           border: 0, format: PixelFormat.RGBA, type: ComponentType.Float, magFilter: TextureParameter.Nearest, minFilter: TextureParameter.Nearest,
           wrapS: TextureParameter.Repeat, wrapT: TextureParameter.Repeat, generateMipmap: false, anisotropy: false
         });
