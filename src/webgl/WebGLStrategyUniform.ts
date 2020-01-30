@@ -212,7 +212,11 @@ mat3 get_normalMatrix(float instanceId) {
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
+      const buffer: Buffer|undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+      if (buffer == null) {
+        return;
+      }
+
       if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
@@ -220,8 +224,8 @@ mat3 get_normalMatrix(float instanceId) {
       if ((buffer.takenSizeInByte) / 4 / 4 < MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength) {
         paddingArrayBufferSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4 - buffer.takenSizeInByte;
       }
-      const concatArraybuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer()], [buffer.takenSizeInByte], paddingArrayBufferSize);
-      const floatDataTextureBuffer = new Float32Array(concatArraybuffer);
+      const concatArrayBuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer()], [buffer.takenSizeInByte], paddingArrayBufferSize);
+      const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
