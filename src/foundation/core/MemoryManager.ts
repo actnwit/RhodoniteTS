@@ -55,7 +55,13 @@ export default class MemoryManager {
     return buffer;
   }
 
-  getBuffer(bufferUse: BufferUseEnum): Buffer {
+
+  getBuffer(bufferUse: BufferUseEnum): Buffer|undefined {
+    let buffer = this.__buffers[bufferUse.toString()];
+    return buffer;
+  }
+
+  createOrGetBuffer(bufferUse: BufferUseEnum): Buffer {
     let buffer = this.__buffers[bufferUse.toString()];
     if (buffer == null) {
       buffer = this.__createBuffer(bufferUse);

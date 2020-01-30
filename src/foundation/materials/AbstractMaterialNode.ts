@@ -394,7 +394,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;
       if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
-        offset = memoryManager.getBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
+        offset = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
       }
       return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
     });

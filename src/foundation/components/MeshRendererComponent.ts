@@ -181,7 +181,7 @@ export default class MeshRendererComponent extends Component {
 
   private static __setupInstanceIDBuffer() {
     if (MeshRendererComponent.__instanceIdAccessor == null) {
-      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
       const count = Config.maxEntityNumber;
       const bufferView = buffer.takeBufferView({ byteLengthToNeed: 4/*byte*/ * count, byteStride: 0, isAoS: false });
       MeshRendererComponent.__instanceIdAccessor = bufferView.takeAccessor({ compositionType: CompositionType.Scalar, componentType: ComponentType.Float, count: count });

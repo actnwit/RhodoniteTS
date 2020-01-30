@@ -1156,7 +1156,7 @@ export default class ModelConverter {
 
   private __copyRnAccessorAndBufferView(srcRnAccessor: Accessor, primitive: Primitive) {
     const byteSize = srcRnAccessor.elementCount * 4 /* vec4 */ * 4 /* bytes */;
-    const dstRnBuffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUVertexData);
+    const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
       byteLengthToNeed: byteSize,
       byteStride: 4 /* vec4 */ * 4 /* bytes */,

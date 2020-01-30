@@ -246,7 +246,7 @@ export default class Mesh {
         }
 
         const vertexNum = primitive.getVertexCountAsIndicesBased();
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = positionAccessor.byteLength * 4 / 3;
         const tangentBufferView = buffer.takeBufferView({ byteLengthToNeed: tangentAttributeByteSize, byteStride: 0, isAoS: false });
@@ -388,7 +388,7 @@ export default class Mesh {
       }
 
       const vertexNum = primitive.getVertexCountAsIndicesBased();
-      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
 
       const normalAttributeByteSize = positionAccessor.byteLength;
       const normalBufferView = buffer.takeBufferView({ byteLengthToNeed: normalAttributeByteSize, byteStride: 0, isAoS: false });
@@ -407,7 +407,7 @@ export default class Mesh {
   makeVerticesSeparated() {
     for (let primitive of this.__primitives) {
       if (primitive.hasIndices()) {
-        const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
         const vertexCount = primitive.getVertexCountAsIndicesBased();
 
         const indexAccessor = primitive.indicesAccessor;
@@ -445,7 +445,7 @@ export default class Mesh {
     for (let primitive_i in this.__primitives) {
       let primitive = this.__primitives[primitive_i];
 
-      const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
@@ -477,7 +477,7 @@ export default class Mesh {
       return;
     }
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.CPUGeneric);
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
     for (let i = 0; i < this.__primitives.length; i++) {
       const primitive = this.__primitives[i];
       if (this.__morphPrimitives[i] == null) {
