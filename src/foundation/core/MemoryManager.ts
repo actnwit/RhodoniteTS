@@ -17,62 +17,18 @@ export default class MemoryManager {
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
   private __buffersOnDemand: Map<ObjectUID, Buffer> = new Map();
+  private __memorySizeRatios: {[s:string]: number} = {};
 
-  private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
-    // BufferForCPU
-    {
-
-      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * cpuGeneric;
-      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        buffer: arrayBuffer,
-        name: BufferUse.CPUGeneric.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
-
-    // BufferForGPUInstanceData
-    {
-      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuInstanceData;
-      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        buffer: arrayBuffer,
-        name: BufferUse.GPUInstanceData.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
-
-    // BufferForGPUVertexData
-    {
-      let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * gpuVertexData;
-      const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-      const buffer = new Buffer({
-        byteLength: arrayBuffer.byteLength,
-        buffer: arrayBuffer,
-        name: BufferUse.GPUVertexData.toString()
-      });
-      this.__buffers[buffer.name] = buffer;
-    }
-
-    // // BufferForUBO
-    // {
-    //   let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * UBOGeneric;
-    //   const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
-    //   const buffer = new Buffer({
-    //     byteLength: arrayBuffer.byteLength,
-    //     arrayBuffer: arrayBuffer,
-    //     name: BufferUse.UBOGeneric.toString()
-    //   });
-    //   this.__buffers[buffer.name] = buffer;
-    // }
+  private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number) {
+    this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
+    this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
+    this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
 
   }
 
-  static createInstanceIfNotCreated(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number, UBOGeneric: number) {
+  static createInstanceIfNotCreated(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number) {
     if (!this.__instance) {
-      this.__instance = new MemoryManager(cpuGeneric, gpuInstanceData, gpuVertexData, UBOGeneric);
+      this.__instance = new MemoryManager(cpuGeneric, gpuInstanceData, gpuVertexData);
       return this.__instance;
     }
     return this.__instance;
@@ -86,8 +42,25 @@ export default class MemoryManager {
     return this.__instance;
   }
 
+  private __createBuffer(bufferUse: BufferUseEnum) {
+    let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * this.__memorySizeRatios[bufferUse.str];
+    const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+    const buffer = new Buffer({
+      byteLength: arrayBuffer.byteLength,
+      buffer: arrayBuffer,
+      name: bufferUse.str
+    });
+    this.__buffers[buffer.name] = buffer;
+
+    return buffer;
+  }
+
   getBuffer(bufferUse: BufferUseEnum): Buffer {
-    return this.__buffers[bufferUse.toString()];
+    let buffer = this.__buffers[bufferUse.toString()];
+    if (buffer == null) {
+      buffer = this.__createBuffer(bufferUse);
+    }
+    return buffer;
   }
 
   createBufferOnDemand(size: Byte, object: RnObject) {

@@ -184,7 +184,7 @@ export default class System {
 
     gl!.enable(gl!.DEPTH_TEST);
 
-    MemoryManager.createInstanceIfNotCreated(0.125 * memoryUsageOrder, 0.0625 * memoryUsageOrder, 1.0 * memoryUsageOrder, 0.0 * memoryUsageOrder);
+    MemoryManager.createInstanceIfNotCreated(0.125 * memoryUsageOrder, 0.0625 * memoryUsageOrder, 0.9375 * memoryUsageOrder);
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize();
 
