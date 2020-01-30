@@ -152,7 +152,7 @@ export default class GlobalDataRepository {
   registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count) {
     const propertyIndex = Material._getPropertyIndex(semanticInfo);
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
 
     const alignedByteLength = Material._calcAlignedByteLength(semanticInfo);
 

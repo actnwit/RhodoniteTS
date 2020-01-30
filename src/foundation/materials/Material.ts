@@ -168,7 +168,7 @@ export default class Material extends RnObject {
     }
 
 
-    const buffer = MemoryManager.getInstance().getBuffer(BufferUse.GPUInstanceData);
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
     let bufferView;
     if (this.__bufferViews.has(materialTypeName)) {
       bufferView = this.__bufferViews.get(materialTypeName);

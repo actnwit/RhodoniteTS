@@ -244,7 +244,7 @@ export default class Component extends RnObject {
    * take a buffer view from the buffer.
    */
   static takeBufferView(bufferUse: BufferUseEnum, componentClass: Function, byteLengthSumOfMembers: Byte, count: Count) {
-    const buffer = MemoryManager.getInstance().getBuffer(bufferUse);
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
 
     if (!this.__bufferViews.has(componentClass)) {
       this.__bufferViews.set(componentClass, new Map())

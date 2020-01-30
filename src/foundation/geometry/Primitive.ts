@@ -71,7 +71,7 @@ export default class Primitive extends RnObject {
     //   //   ...
     //   //   prim1.attrb7.byteOffset, prim1.attrib7.byteStride, prim1.attrib7.compositionN, prim1.attrib7.componentSizeInByte
 
-    //   const buffer = MemoryManager.getInstance().getBuffer(BufferUse.UBOGeneric);
+    //   const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.UBOGeneric);
     //   const bufferView = buffer.takeBufferView({byteLengthToNeed: ((1*4) + (8*4)) * 4/*byte*/ * Primitive.maxPrimitiveCount, byteStride: 64, isAoS:false });
     //   Primitive.__headerAccessor = bufferView.takeAccessor(
     //     {compositionType: CompositionType.Vec4, componentType: ComponentType.Float, count: 9 * Primitive.maxPrimitiveCount})
