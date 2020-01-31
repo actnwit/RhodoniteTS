@@ -96,13 +96,15 @@ export default class MemoryManager {
     const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
     const gpuInstanceData = this.__buffers[BufferUse.GPUInstanceData.toString()];
     const gpuVertexData = this.__buffers[BufferUse.GPUVertexData.toString()];
-    const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
+    // const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
 
     console.log(`Memory Usage in Memory Manager:`);
     console.log(`CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${cpuGeneric.takenSizeInByte / cpuGeneric.byteLength * 100} %) `);
     console.log(`GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${gpuInstanceData.byteLength} bytes. (${gpuInstanceData.takenSizeInByte / gpuInstanceData.byteLength * 100} %) `);
-    console.log(`GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${gpuVertexData.byteLength} bytes. (${gpuVertexData.takenSizeInByte / gpuVertexData.byteLength * 100} %) `);
-    console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
+    if (gpuVertexData != null) {
+      console.log(`GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${gpuVertexData.byteLength} bytes. (${gpuVertexData.takenSizeInByte / gpuVertexData.byteLength * 100} %) `);
+    }
+    // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
   }
 
 }
