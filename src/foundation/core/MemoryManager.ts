@@ -35,7 +35,7 @@ export default class MemoryManager {
   }
 
   private __makeMultipleOf4byteSize(memorySize: number) {
-    return memorySize + 4 - memorySize % 4;
+    return memorySize + ((memorySize % 4 === 0) ? 0 : 4 - memorySize % 4);
   }
 
   static getInstance() {

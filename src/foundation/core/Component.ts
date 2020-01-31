@@ -304,7 +304,7 @@ export default class Component extends RnObject {
       const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
       let alignedBytes = bytes;
       if (bytes % 16 !== 0) {
-        alignedBytes += 16 - bytes % 16;
+        alignedBytes += (bytes % 16 === 0) ? 0 : 16 - bytes % 16;
       }
 
       const accessor = bufferViews.get(bufferUse)!.takeFlexibleAccessor({ compositionType: compositionType, componentType, count: count, byteStride: alignedBytes, byteAlign: 16 });

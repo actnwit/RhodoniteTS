@@ -64,7 +64,7 @@ export default class AccessorBase extends RnObject {
     if (this.__componentType.getSizeInBytes() === 8) {
       if (this.__byteOffsetInRawArrayBufferOfBuffer % 8 !== 0) {
         console.info('Padding added because of byteOffset of accessor is not 8 bytes aligned despite of Double precision.');
-        this.__byteOffsetInRawArrayBufferOfBuffer += 8 - this.__byteOffsetInRawArrayBufferOfBuffer % 8;
+        this.__byteOffsetInRawArrayBufferOfBuffer += (this.__byteOffsetInRawArrayBufferOfBuffer % 8 === 0) ? 0 : 8 - this.__byteOffsetInRawArrayBufferOfBuffer % 8;
       }
     }
     //  else if (this.__componentType.getSizeInBytes() === 4) {
@@ -75,7 +75,7 @@ export default class AccessorBase extends RnObject {
     // }
     if (this.__bufferView.isSoA) {
       if (this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer < this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count) {
-        console.error("Requesting a data size that exceeds the remaining capacity of the buffer.");
+        console.error(`Requesting a data size that exceeds the remaining capacity of the buffer: ${this.bufferView.buffer.name}.`);
       }
       this.__dataView = new DataView(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__count);
     } else {
