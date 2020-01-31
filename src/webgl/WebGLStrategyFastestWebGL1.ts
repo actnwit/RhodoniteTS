@@ -439,10 +439,11 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       const bufferSizeInByte = buffer.takenSizeInByte;
       const height = Math.min(Math.ceil(bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4), MemoryManager.bufferHeightLength);
       const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
-      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize);
-      if (bufferSizeInByte / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
+      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+      if (bufferSizeInByte > dataTextureByteSize) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize/4);
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
           level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: height,
@@ -471,10 +472,10 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
         morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
       const finalArrayBuffer = MiscUtil.concatArrayBuffers([buffer.getArrayBuffer(), morphBufferArrayBuffer], [buffer.takenSizeInByte, morphBufferTakenSizeInByte], paddingArrayBufferSize);
-      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
       if (finalArrayBuffer.byteLength / MemoryManager.bufferWidthLength / 4 / 4 > MemoryManager.bufferHeightLength) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
+      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
 
       const height = MemoryManager.bufferHeightLength;
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
