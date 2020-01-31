@@ -43,7 +43,7 @@ export default class MemoryManager {
   }
 
   private __createBuffer(bufferUse: BufferUseEnum) {
-    let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 8/*byte*/ * this.__memorySizeRatios[bufferUse.str];
+    let memorySize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength/*width*height*/ * 4/*rgba*/ * 4/*byte*/ * this.__memorySizeRatios[bufferUse.str];
     const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
