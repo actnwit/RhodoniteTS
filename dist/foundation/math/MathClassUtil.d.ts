@@ -7,8 +7,8 @@ import Matrix44 from './Matrix44';
 import { CompositionTypeEnum } from '../definitions/CompositionType';
 export default class MathClassUtil {
     constructor();
-    static arrayToVector(element: Array<number>): Vector4 | Vector2 | Vector3;
-    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Vector2 | Vector3 | Matrix33 | Matrix44;
+    static arrayToVector(element: Array<number>): Vector2 | Vector4 | Vector3;
+    static arrayToVectorOrMatrix(element: Array<number>): Vector2 | Vector4 | Vector3 | Matrix44 | Matrix33;
     static getImmutableValueClass(compositionType: CompositionTypeEnum): Function | undefined;
     static getMutableValueClass(compositionType: CompositionTypeEnum): Function | undefined;
     static cloneOfMathObjects(element: any): any;
@@ -21,14 +21,14 @@ export default class MathClassUtil {
      * @param element any Vector instance
      * @return number of Vector instance
      */
-    static compomentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number;
+    static componentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number;
     static packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[];
     static unProject(windowPosVec3: Vector3, inversePVMat44: Matrix44, viewportVec4: Vector4): Vector3;
     static add(lhs: any, rhs: any): any;
     static subtract(lhs: any, rhs: any): any;
     static multiplyNumber(lhs: any, rhs: number): any;
     static divideNumber(lhs: any, rhs: number): any;
-    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector4 | Vector2 | Vector3 | Quaternion | undefined;
+    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector2 | Vector4 | Vector3 | Quaternion | undefined;
     static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum): any;
     static _setForce(objForDetectType: any, val: any): void;
 }

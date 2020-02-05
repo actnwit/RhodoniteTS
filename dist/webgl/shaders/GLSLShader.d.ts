@@ -16,7 +16,7 @@ export default abstract class GLSLShader {
     get glsl_texture(): "texture" | "texture2D";
     get glsl_textureCube(): "texture" | "textureCube";
     get glsl_textureProj(): "textureProj" | "texture2DProj";
-    get glsl_versionText(): "" | "#version 300 es\n";
+    get glsl_versionText(): string;
     get glslPrecision(): string;
     get glslMainBegin(): string;
     get glslMainEnd(): string;

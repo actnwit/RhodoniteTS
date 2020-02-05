@@ -1,6 +1,6 @@
-version: 0.1.5-100-g0615-mod
-branch: feat/basis-mipmap
-56555d7c36bac6cb2a2a0e85fff7eadbc9bbcc942b9fceb7e3fea0a25e2555be ./dist/rhodonite.js
-df3df0217bab8088f359c7073ca8d22bf828fe21a4a232903724081a5eb2bc1f ./dist/rhodonite.min.js
-e09b2b9cf5ad4328309bab48de96d260009c1a0315ce0d117a14810f1ad4d1db ./dist/rhodonite-webgl.js
-b6c676736f24ef982e032e7f053241b470436fe2021f4239104638a61936dd56 ./dist/rhodonite-webgl.min.js
+version: 0.1.5-240-g77835-mod
+branch: master
+917ca3f7fc77f912ad86ce96433f67c568ad3788a45696cf8a58d2274e188a56 ./dist/rhodonite.js
+30fa73e82dca1abcc3ab51e1f4edadbc586615cff23b0f912afa922b545cd2fd ./dist/rhodonite.min.js
+1bede2a4d07ef127a730ad65fefdce193af29719eb58f4b9b866906cedcd8855 ./dist/rhodonite-webgl.js
+e082fc96724846b004a05dc126d6a0e8ea8fa1ba1ec8323e3d6e998904fe9b89 ./dist/rhodonite-webgl.min.js
