@@ -3,7 +3,7 @@ import RnPromise from "../foundation/misc/RnPromise";
 import { Index } from "./CommonTypes";
 import { ShaderSemanticsEnum } from "../foundation/definitions/ShaderSemantics";
 import CameraComponent from "../foundation/components/CameraComponent";
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 
 export type Gltf2Scene = {
   nodes?: any[],

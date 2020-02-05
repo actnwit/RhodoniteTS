@@ -40,7 +40,7 @@ import CameraControllerComponent from './foundation/components/CameraControllerC
 import detectFormat from './foundation/importer/FormatDetector';
 import Plane from './foundation/geometry/Plane';
 import Sphere from './foundation/geometry/Sphere';
-import Material from './foundation/materials/Material';
+import Material from './foundation/materials/core/Material';
 import RenderPass from './foundation/renderer/RenderPass';
 import FrameBuffer from './foundation/renderer/FrameBuffer';
 import Expression from './foundation/renderer/Expression';
@@ -50,15 +50,15 @@ import Texture from './foundation/textures/Texture';
 import MathClassUtil from './foundation/math/MathClassUtil';
 import Mesh from './foundation/geometry/Mesh';
 import Component from './foundation/core/Component';
-import EnvConstantSingleMaterialNode from './foundation/materials/EnvConstantSingleMaterialNode';
+import EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';
 import RnObject from './foundation/core/RnObject';
 import VRMImporter from './foundation/importer/VRMImporter';
 import BlendShapeComponent from './foundation/components/BlendShapeComponent';
 import AnimationAssigner from './foundation/importer/AnimationAssigner';
 import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
-import ShaderityUtility from './foundation/materials/ShaderityUtility';
-import AbstractMaterialNode from './foundation/materials/AbstractMaterialNode';
+import ShaderityUtility from './foundation/materials/core/ShaderityUtility';
+import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNode';
 declare let Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;

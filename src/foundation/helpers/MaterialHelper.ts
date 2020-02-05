@@ -1,19 +1,19 @@
 import Config from "../core/Config";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import RenderPass from "../renderer/RenderPass";
-import AbstractMaterialNode from "../materials/AbstractMaterialNode";
-import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
-import ClassicShadingSingleMaterialNode from "../materials/ClassicShadingSingleMaterialNode";
-import EnvConstantSingleMaterialNode from "../materials/EnvConstantSingleMaterialNode";
-import FXAA3QualitySingleMaterialNode from "../materials/FXAA3QualitySingleMaterialNode";
-import DepthEncodeSingleMaterialNode from "../materials/DepthEncodeSingleMaterialNode";
-import ShadowMapDecodeClassicSingleMaterialNode from "../materials/ShadowMapDecodeClassicSingleMaterialNode";
-import GammaCorrectionSingleMaterialNode from "../materials/GammaCorrectionSingleMaterialNode";
-import EntityUIDOutputSingleMaterialNode from "../materials/EntityUIDOutputSingleMaterialNode";
-import MToonSingleMaterialNode from "../materials/MToonSingleMaterialNode";
+import AbstractMaterialNode from "../materials/core/AbstractMaterialNode";
+import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleMaterialNode";
+import ClassicShadingSingleMaterialNode from "../materials/singles/ClassicShadingSingleMaterialNode";
+import EnvConstantSingleMaterialNode from "../materials/singles/EnvConstantSingleMaterialNode";
+import FXAA3QualitySingleMaterialNode from "../materials/singles/FXAA3QualitySingleMaterialNode";
+import DepthEncodeSingleMaterialNode from "../materials/singles/DepthEncodeSingleMaterialNode";
+import ShadowMapDecodeClassicSingleMaterialNode from "../materials/singles/ShadowMapDecodeClassicSingleMaterialNode";
+import GammaCorrectionSingleMaterialNode from "../materials/singles/GammaCorrectionSingleMaterialNode";
+import EntityUIDOutputSingleMaterialNode from "../materials/singles/EntityUIDOutputSingleMaterialNode";
+import MToonSingleMaterialNode from "../materials/singles/MToonSingleMaterialNode";
 import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.vert";
 import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
-import CustomSingleMaterialNode from "../materials/CustomSingleMaterialNode";
+import CustomSingleMaterialNode from "../materials/singles/CustomSingleMaterialNode";
 import Shaderity, { ShaderityObject } from "shaderity";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
@@ -45,7 +45,7 @@ function createPbrUberMaterial({
     + (isSkinning ? '+skinning' : '')
     + (isLighting ? '' : '-lighting');
 
-  const materialNode = new PbrShadingMaterialNode({ isMorphing, isSkinning, isLighting });
+  const materialNode = new PbrShadingSingleMaterialNode({ isMorphing, isSkinning, isLighting });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, [materialNode], maxInstancesNumber);

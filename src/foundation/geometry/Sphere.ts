@@ -7,7 +7,7 @@ import MemoryManager from "../core/MemoryManager";
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import AccessorBase from "../memory/AccessorBase";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import Vector3 from "../math/Vector3";
 import { Size } from "../../types/CommonTypes";
 

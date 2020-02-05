@@ -1,4 +1,4 @@
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import RenderPass from "../renderer/RenderPass";
 declare function createEmptyMaterial(): Material;
 declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, maxInstancesNumber }?: {

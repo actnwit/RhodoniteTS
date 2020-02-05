@@ -4,7 +4,7 @@ import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import BufferView from "../memory/BufferView";
 import { CompositionType } from "../definitions/CompositionType";
-import Material, { getShaderPropertyFunc } from "../materials/Material";
+import Material, { getShaderPropertyFunc } from "../materials/core/Material";
 import { ComponentType } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import MathClassUtil from "../math/MathClassUtil";

@@ -5,7 +5,7 @@ import RnObject from '../core/RnObject';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { CompositionTypeEnum } from '../definitions/CompositionType';
 import AABB from '../math/AABB';
-import Material from '../materials/Material';
+import Material from '../materials/core/Material';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { PrimitiveUID, TypedArray, Index } from '../../types/CommonTypes';
 import Vector3 from '../math/Vector3';

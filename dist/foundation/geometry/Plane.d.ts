@@ -1,5 +1,5 @@
 import Primitive from "./Primitive";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import { Size } from "../../types/CommonTypes";
 export default class Plane extends Primitive {
     constructor();

@@ -28,7 +28,7 @@ import { AlphaMode } from "../definitions/AlphaMode";
 import MaterialHelper from "../helpers/MaterialHelper";
 import { ShaderSemantics, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import Vector2 from "../math/Vector2";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import { ShadingModel } from "../definitions/ShadingModel";
 import Component from "../core/Component";
 import Accessor from "../memory/Accessor";
@@ -44,7 +44,7 @@ import MemoryManager from "../core/MemoryManager";
 import ILoaderExtension from "./ILoaderExtension";
 import BlendShapeComponent from "../components/BlendShapeComponent";
 import GlobalDataRepository from "../core/GlobalDataRepository";
-import PbrShadingMaterialNode from "../materials/PbrShadingMaterialNode";
+import PbrShadingSingleMaterialNode from "../materials/singles/PbrShadingSingleMaterialNode";
 import Scalar from "../math/Scalar";
 
 declare var DracoDecoderModule: any;
@@ -719,7 +719,7 @@ export default class ModelConverter {
         const rnTexture = ModelConverter._createTexture(baseColorTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
       }
-      ModelConverter._setupTextureTransform(baseColorTexture, material, PbrShadingMaterialNode.baseColorTextureTransform, PbrShadingMaterialNode.baseColorTextureRotation);
+      ModelConverter._setupTextureTransform(baseColorTexture, material, PbrShadingSingleMaterialNode.baseColorTextureTransform, PbrShadingSingleMaterialNode.baseColorTextureRotation);
 
       const occlusionTexture = materialJson.occlusionTexture;
       if (occlusionTexture != null) {
@@ -738,7 +738,7 @@ export default class ModelConverter {
         const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture, gltfModel)
         material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
       }
-      ModelConverter._setupTextureTransform(metallicRoughnessTexture, material, PbrShadingMaterialNode.metallicRoughnessTextureTransform, PbrShadingMaterialNode.metallicRoughnessTextureRotation);
+      ModelConverter._setupTextureTransform(metallicRoughnessTexture, material, PbrShadingSingleMaterialNode.metallicRoughnessTextureTransform, PbrShadingSingleMaterialNode.metallicRoughnessTextureRotation);
 
     } else {
       let param: Index = ShadingModel.Phong.index;
@@ -791,7 +791,7 @@ export default class ModelConverter {
       const rnTexture = ModelConverter._createTexture(normalTexture, gltfModel)
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
     }
-    ModelConverter._setupTextureTransform(normalTexture, material, PbrShadingMaterialNode.normalTextureTransform, PbrShadingMaterialNode.normalTextureRotation);
+    ModelConverter._setupTextureTransform(normalTexture, material, PbrShadingSingleMaterialNode.normalTextureTransform, PbrShadingSingleMaterialNode.normalTextureRotation);
 
 
     // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')

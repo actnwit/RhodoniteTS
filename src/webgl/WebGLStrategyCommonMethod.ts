@@ -1,5 +1,5 @@
 
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { AlphaMode } from "../foundation/definitions/AlphaMode";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";

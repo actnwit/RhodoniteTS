@@ -1,4 +1,4 @@
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 declare function setCullAndBlendSettings(material: Material, renderPass: RenderPass, gl: WebGLRenderingContext): void;
 declare function startDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: RenderPass): void;

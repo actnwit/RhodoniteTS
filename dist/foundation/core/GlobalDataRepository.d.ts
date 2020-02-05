@@ -1,6 +1,6 @@
 import { ShaderSemanticsInfo, ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import { Count, Index, CGAPIResourceHandle } from "../../types/CommonTypes";
-import { getShaderPropertyFunc } from "../materials/Material";
+import { getShaderPropertyFunc } from "../materials/core/Material";
 import Accessor from "../memory/Accessor";
 declare type GlobalPropertyStruct = {
     shaderSemanticsInfo: ShaderSemanticsInfo;

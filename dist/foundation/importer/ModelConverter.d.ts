@@ -2,7 +2,7 @@ import Entity from "../core/Entity";
 import Buffer from "../memory/Buffer";
 import Texture from "../textures/Texture";
 import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import { Byte, Size } from "../../types/CommonTypes";
 import { GltfLoadOption, glTF2 } from "../../types/glTF";
 /**

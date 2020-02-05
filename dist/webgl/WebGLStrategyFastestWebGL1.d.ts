@@ -3,7 +3,7 @@ import MeshComponent from "../foundation/components/MeshComponent";
 import Primitive from "../foundation/geometry/Primitive";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import Matrix44 from "../foundation/math/Matrix44";
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 import Mesh from "../foundation/geometry/Mesh";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import RenderPass from "../foundation/renderer/RenderPass";
