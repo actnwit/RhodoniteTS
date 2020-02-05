@@ -30,6 +30,14 @@ export default class CameraControllerComponent extends Component {
     }
   }
 
+  get type() {
+    if (this.__cameraController instanceof OrbitCameraController) {
+      return CameraControllerType.Orbit;
+    } else {
+      return CameraControllerType.WalkThrough
+    }
+  }
+
   $create() {
     this.__cameraComponent = this.__entityRepository.getComponentOfEntity(this.__entityUid, CameraComponent) as CameraComponent;
 
