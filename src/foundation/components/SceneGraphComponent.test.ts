@@ -9,7 +9,7 @@ function generateEntity() {
 }
 
 test('create Parents and children.', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   // generate entities
   const sceneEntity = generateEntity();

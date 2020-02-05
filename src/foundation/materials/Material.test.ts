@@ -124,7 +124,7 @@ test('Material works correctly', async () => {
 test('MaterialTID are processed correctly', () => {
 
   Rn.ModuleManager.getInstance().loadModule('webgl');
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   // 0st
   Rn.Material.registerMaterial('MyMaterial0', []);

@@ -19,6 +19,7 @@ import Vector3 from "../math/Vector3";
 import { CameraType } from "../definitions/CameraType";
 import Vector4 from "../math/Vector4";
 import Time from "../misc/Time";
+import SystemState from "./SystemState"
 import { RnXR } from "../../rhodonite-xr";
 
 export default class System {
@@ -190,6 +191,7 @@ export default class System {
 
     repo.addWebGLContext(gl!, canvas, true, rnWebGLDebug);
     this.__processApproach = approach;
+    SystemState.currentProcessApproach = approach;
 
     return gl;
   }

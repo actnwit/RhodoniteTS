@@ -2,10 +2,10 @@ import { CompositionTypeEnum } from "../../foundation/definitions/CompositionTyp
 import { ProcessApproach } from "../../foundation/definitions/ProcessApproach";
 import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
 import { ShaderSemanticsClass } from "../../foundation/definitions/ShaderSemantics";
-import System from "../../foundation/system/System";
 import { VertexAttributeEnum, VertexAttributeClass } from "../../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "../WebGLResourceRepository";
 import { WellKnownComponentTIDs } from "../../foundation/components/WellKnownComponentTIDs";
+import SystemState from "../../foundation/system/SystemState";
 
 export type AttributeNames = Array<string>;
 
@@ -401,7 +401,7 @@ vec3 descramble(vec3 v) {
   }
 
   get mainPrerequisites() {
-    const processApproach = System.getInstance().processApproach;
+    const processApproach = SystemState.currentProcessApproach;
     if (processApproach === ProcessApproach.FastestWebGL1) {
       return `
   float materialSID = u_currentComponentSIDs[0];

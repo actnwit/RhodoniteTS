@@ -26,10 +26,10 @@ import { VertexAttribute, VertexAttributeEnum } from "../definitions/VertexAttri
 import BlendShapeComponent from "../components/BlendShapeComponent";
 import MemoryManager from "../core/MemoryManager";
 import { BufferUse } from "../definitions/BufferUse";
-import System from "../system/System";
-import { ProcessApproach } from "../definitions/ProcessApproach";
+import { ProcessApproach, ProcessApproachEnum } from "../definitions/ProcessApproach";
 import { ShaderityObject } from "shaderity";
 import { BoneDataType } from "../definitions/BoneDataType";
+import SystemState from "../system/SystemState";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -392,7 +392,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     const array: number[] = primitive.targets.map((target: Attributes) => {
       const accessor = target.get(VertexAttribute.Position) as Accessor;
       let offset = 0;
-      if (System.getInstance().processApproach === ProcessApproach.FastestWebGL1) {
+      if (SystemState.currentProcessApproach === ProcessApproach.FastestWebGL1) {
         offset = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData).takenSizeInByte;
       }
       return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
