@@ -1,10 +1,6 @@
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from "../definitions/ShaderSemantics";
 import AbstractMaterialNode, { ShaderSocket } from "./AbstractMaterialNode";
-import { CompositionType } from "../definitions/CompositionType";
-import { ComponentType } from "../definitions/ComponentType";
-import EndShader from "../../webgl/shaders/nodes/EndShader";
 import GetVarsShader from "../../webgl/shaders/nodes/GetVarsShader";
-import { AttributeNames } from "../../webgl/shaders/GLSLShader";
 import { VertexAttributeClass } from "../definitions/VertexAttribute";
 import { ShaderType } from "../definitions/ShaderType";
 

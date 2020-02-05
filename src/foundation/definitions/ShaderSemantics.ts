@@ -1,10 +1,10 @@
 import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from "../misc/EnumIO";
-import { CompositionType } from "./CompositionType";
-import { CompositionTypeEnum, ComponentTypeEnum } from "../../rhodonite";
+import { CompositionType, CompositionTypeEnum } from "./CompositionType";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
 import Material from "../materials/Material";
 import { Count, Index } from "../../types/CommonTypes";
+import { ComponentTypeEnum } from "./ComponentType";
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsStr = string;

@@ -1,12 +1,11 @@
 import Primitive from "./Primitive";
 import { CompositionType } from "../definitions/CompositionType";
-import { VertexAttribute } from "../definitions/VertexAttribute";
+import { VertexAttribute, VertexAttributeEnum } from "../definitions/VertexAttribute";
 import { PrimitiveMode } from "../definitions/PrimitiveMode";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "../core/MemoryManager";
-import { ComponentType } from "../definitions/ComponentType";
+import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
-import { ComponentTypeEnum, VertexAttributeEnum } from "../../rhodonite";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/Material";
 import { Size } from "../../types/CommonTypes";
