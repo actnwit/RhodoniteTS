@@ -7,7 +7,7 @@ import ModuleManager from "../system/ModuleManager";
 test('dummy', async () => {
   expect(true).toBe(true);
 });
-/*
+
 
 test('GetVersMaterialNode vertex shader works correctly', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -42,7 +42,7 @@ test('GetVersMaterialNode vertex shader works correctly', async () => {
   );
 
 
-expect(getVarsMaterialNode.shader.vertexShaderDefinitions.replace(/\s+/g, "")).toEqual(`void getVars(
+expect((getVarsMaterialNode.shader! as any).vertexShaderDefinitions.replace(/\s+/g, "")).toEqual(`void getVars(
   out vec4 position_inLocal,
   in mat4 u_viewMatrix,
   out mat4 viewMatrix
@@ -86,16 +86,15 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
     }
   );
 
-  console.log(getVarsMaterialNode.shader.pixelShaderDefinitions);
+  // console.log(getVarsMaterialNode.shader.pixelShaderDefinitions);
 
-expect(getVarsMaterialNode.shader.pixelShaderDefinitions.replace(/\s+/g, "")).toEqual(`void getVars(
-  in vec4 v_position,
-  out vec4 position_inWorld,
-  out vec4 outColor
-)
-{
-  position_inWorld = v_position;
-  outColor = vec4(1.0, 0.0, 0.0, 0.0);
-}`.replace(/\s+/g, ""))
+  expect((getVarsMaterialNode.shader! as any).pixelShaderDefinitions.replace(/\s+/g, "")).toEqual(`void getVars(
+    in vec4 v_position,
+    out vec4 position_inWorld,
+    out vec4 outColor
+  )
+  {
+    position_inWorld = v_position;
+    outColor = vec4(1.0, 0.0, 0.0, 0.0);
+  }`.replace(/\s+/g, ""))
 });
-*/
