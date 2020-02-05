@@ -17,10 +17,13 @@ module.exports = {
       },
     ]
   },
+  target: 'node',
   resolve: {
     extensions: [
-      '.ts'
-    ]
+      '.ts',
+      '.js'
+    ],
+    modules: ["node_modules"]
   },
   output: {
     publicPath: "/dist/", // Change the path to load splitted code chunks according to your wish.
