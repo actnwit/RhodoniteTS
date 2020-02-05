@@ -89,16 +89,16 @@ export default class WalkThroughCameraController implements ICameraController {
     this._eventTargetDom = eventTargetDom;
 
     if (eventTargetDom) {
-      document.addEventListener("keydown", this._onKeydown);
-      document.addEventListener("keyup", this._onKeyup);
+      eventTargetDom.addEventListener("keydown", this._onKeydown);
+      eventTargetDom.addEventListener("keyup", this._onKeyup);
 
       if ("ontouchend" in document) {
-        eventTargetDom.addEventListener(
+        document.addEventListener(
           "touchstart",
           this._mouseDownBind
         );
         document.addEventListener("touchend", this._mouseUpBind);
-        eventTargetDom.addEventListener(
+        document.addEventListener(
           "touchmove",
           this._mouseMoveBind
         );
@@ -108,7 +108,7 @@ export default class WalkThroughCameraController implements ICameraController {
           "mousedown",
           this._mouseDownBind
         );
-        document.addEventListener("mouseup", this._mouseUpBind);
+        eventTargetDom.addEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.addEventListener(
           "mousemove",
           this._mouseMoveBind
@@ -124,24 +124,23 @@ export default class WalkThroughCameraController implements ICameraController {
     const eventTargetDom = this._eventTargetDom;
 
     if (eventTargetDom) {
-      document.removeEventListener("keydown", this._onKeydown);
-      document.removeEventListener("keyup", this._onKeyup);
+      eventTargetDom.removeEventListener("keydown", this._onKeydown);
+      eventTargetDom.removeEventListener("keyup", this._onKeyup);
 
       if ("ontouchend" in document) {
-        eventTargetDom.removeEventListener(
+        document.removeEventListener(
           "touchstart",
           (this._mouseDown as any).bind(this)
         );
         document.removeEventListener("touchend", this._mouseUpBind);
-        eventTargetDom
-          .removeEventListener("touchmove", this._mouseMoveBind)
+        document.removeEventListener("touchmove", this._mouseMoveBind)
       }
       if ("onmouseup" in document) {
         eventTargetDom.removeEventListener(
           "mousedown",
           this._mouseDownBind
         );
-        document.removeEventListener("mouseup", this._mouseUpBind);
+        eventTargetDom.removeEventListener("mouseup", this._mouseUpBind);
         eventTargetDom.removeEventListener(
           "mousemove",
           this._mouseMoveBind
