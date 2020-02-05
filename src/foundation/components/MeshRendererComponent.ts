@@ -26,7 +26,7 @@ import RnObject from '../core/RnObject';
 import WebGLStrategyFastestWebGL1 from '../../webgl/WebGLStrategyFastestWebGL1';
 import Primitive from '../geometry/Primitive';
 import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
-import AbstractMaterialNode from '../materials/AbstractMaterialNode';
+import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
 
 export default class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;

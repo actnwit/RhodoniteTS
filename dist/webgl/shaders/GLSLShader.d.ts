@@ -1,5 +1,5 @@
 import { CompositionTypeEnum } from "../../foundation/definitions/CompositionType";
-import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/AbstractMaterialNode";
+import { ShaderAttributeOrSemanticsOrString } from "../../foundation/materials/core/AbstractMaterialNode";
 import { VertexAttributeEnum } from "../../foundation/definitions/VertexAttribute";
 import WebGLResourceRepository from "../WebGLResourceRepository";
 export declare type AttributeNames = Array<string>;

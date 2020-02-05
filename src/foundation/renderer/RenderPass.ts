@@ -6,7 +6,7 @@ import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import CameraComponent from "../components/CameraComponent";
 import { EntityUID } from "../../types/CommonTypes";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import { WebGLStrategy } from "../../rhodonite-webgl";
 import System from "../system/System";
 import ModuleManager from '../system/ModuleManager';

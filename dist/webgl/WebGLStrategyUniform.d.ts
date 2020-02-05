@@ -8,7 +8,7 @@ import Entity from "../foundation/core/Entity";
 import { ShaderSemanticsInfo } from "../foundation/definitions/ShaderSemantics";
 import CubeTexture from "../foundation/textures/CubeTexture";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 import Mesh from "../foundation/geometry/Mesh";
 import { WebGLResourceHandle, Index, Count } from "../types/CommonTypes";

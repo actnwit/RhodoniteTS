@@ -1,6 +1,6 @@
 import { VertexAttributeEnum } from "../../../foundation/definitions/VertexAttribute";
 import GLSLShader from "../GLSLShader";
-import { ShaderSocket } from "../../../foundation/materials/AbstractMaterialNode";
+import { ShaderSocket } from "../../../foundation/materials/core/AbstractMaterialNode";
 import { CompositionTypeEnum } from "../../../foundation/definitions/CompositionType";
 export declare type AttributeNames = Array<string>;
 export default class GetVarsShader extends GLSLShader {

@@ -9,7 +9,7 @@ import { CompositionType, CompositionTypeEnum } from '../definitions/Composition
 import AccessorBase from '../memory/AccessorBase';
 import { BufferUse } from '../definitions/BufferUse';
 import AABB from '../math/AABB';
-import Material from '../materials/Material';
+import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';

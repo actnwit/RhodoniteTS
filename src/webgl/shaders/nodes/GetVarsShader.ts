@@ -1,7 +1,7 @@
 import { VertexAttributeEnum, VertexAttribute, VertexAttributeClass } from "../../../foundation/definitions/VertexAttribute";
 import GLSLShader from "../GLSLShader";
 import { ShaderNode } from "../../../foundation/definitions/ShaderNode";
-import { ShaderSocket } from "../../../foundation/materials/AbstractMaterialNode";
+import { ShaderSocket } from "../../../foundation/materials/core/AbstractMaterialNode";
 import { CompositionTypeEnum, CompositionType } from "../../../foundation/definitions/CompositionType";
 import { ShaderSemanticsEnum, ShaderSemanticsClass } from "../../../foundation/definitions/ShaderSemantics";
 

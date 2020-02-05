@@ -5,7 +5,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import MeshComponent from "../components/MeshComponent";
 import Vector4 from "../math/Vector4";
 import CameraComponent from "../components/CameraComponent";
-import Material from "../materials/Material";
+import Material from "../materials/core/Material";
 import Primitive from "../geometry/Primitive";
 /**
  * A render pass is a collection of the resources which is used in rendering process.

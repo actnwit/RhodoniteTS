@@ -45,7 +45,7 @@ import detectFormat from './foundation/importer/FormatDetector';
 import Config from './foundation/core/Config';
 import Plane from './foundation/geometry/Plane';
 import Sphere from './foundation/geometry/Sphere';
-import Material from './foundation/materials/Material';
+import Material from './foundation/materials/core/Material';
 import MaterialHelper from './foundation/helpers/MaterialHelper';
 import { ShaderSemantics } from './foundation/definitions/ShaderSemantics';
 import RenderPass from './foundation/renderer/RenderPass';
@@ -62,7 +62,7 @@ import MathClassUtil from './foundation/math/MathClassUtil';
 import Mesh from './foundation/geometry/Mesh';
 import { MathUtil } from './foundation/math/MathUtil';
 import Component from './foundation/core/Component';
-import EnvConstantSingleMaterialNode from './foundation/materials/EnvConstantSingleMaterialNode';
+import EnvConstantSingleMaterialNode from './foundation/materials/singles/EnvConstantSingleMaterialNode';
 import RnObject from './foundation/core/RnObject';
 import VRMImporter from './foundation/importer/VRMImporter';
 import BlendShapeComponent from './foundation/components/BlendShapeComponent';
@@ -71,8 +71,8 @@ import { MiscUtil } from './foundation/misc/MiscUtil';
 import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import { BoneDataType } from './foundation/definitions/BoneDataType';
-import ShaderityUtility from './foundation/materials/ShaderityUtility';
-import AbstractMaterialNode from './foundation/materials/AbstractMaterialNode';
+import ShaderityUtility from './foundation/materials/core/ShaderityUtility';
+import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNode';
 import { PixelFormat } from './foundation/definitions/PixelFormat';
 
 let Rn = {

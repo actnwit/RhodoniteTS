@@ -12,7 +12,7 @@ import WebGLContextWrapper from "./WebGLContextWrapper";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import { ShaderSemantics, ShaderSemanticsInfo, ShaderSemanticsClass } from "../foundation/definitions/ShaderSemantics";
-import Material from "../foundation/materials/Material";
+import Material from "../foundation/materials/core/Material";
 import { CompositionType } from "../foundation/definitions/CompositionType";
 import Component from "../foundation/core/Component";
 import SceneGraphComponent from "../foundation/components/SceneGraphComponent";
