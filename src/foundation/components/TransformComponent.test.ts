@@ -9,7 +9,7 @@ function generateEntity() {
 }
 
 test('Use translate simply', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  Rn.MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
