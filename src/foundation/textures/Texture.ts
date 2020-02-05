@@ -9,7 +9,6 @@ import { thisExpression } from "@babel/types";
 import { Size, TypedArray } from "../../types/CommonTypes";
 import Config from "../core/Config";
 import {BasisFile, BasisTranscoder, BASIS} from "../../types/BasisTexture";
-import { ComponentTypeEnum } from "../../rhodonite";
 
 declare const BASIS: BASIS;
 

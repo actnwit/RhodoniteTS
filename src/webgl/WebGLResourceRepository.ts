@@ -10,7 +10,6 @@ import { CompositionType } from "../foundation/definitions/CompositionType";
 import { ComponentType } from "../foundation/definitions/ComponentType";
 import WebGLContextWrapper from "./WebGLContextWrapper";
 import { MathUtil } from "../foundation/math/MathUtil"
-import Component from "../foundation/core/Component";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemantics } from "../foundation/definitions/ShaderSemantics";
 import AbstractTexture from "../foundation/textures/AbstractTexture";
 import RenderTargetTexture from "../foundation/textures/RenderTargetTexture";
