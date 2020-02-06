@@ -53,6 +53,7 @@ export default class OrbitCameraController implements ICameraController {
   private __doPreventDefault = true;
   public moveSpeed = 1;
   private __isPressingShift = false;
+  private __isPressingCtrl = false;
 
   private __pinchInOutControl = false;
   private __pinchInOutOriginalDistance?: number | null = null;
@@ -80,6 +81,8 @@ export default class OrbitCameraController implements ICameraController {
   private __contextMenuFunc = this.__contextMenu.bind(this);
   private __pressShiftFunc = this.__pressShift.bind(this);
   private __releaseShiftFunc = this.__releaseShift.bind(this);
+  private __pressCtrlFunc = this.__pressCtrl.bind(this);
+  private __releaseCtrlFunc = this.__releaseCtrl.bind(this);
   private _eventTargetDom?: any;
 
   private __resetDollyAndPositionFunc = this.__resetDollyAndPosition.bind(this);
@@ -132,6 +135,7 @@ export default class OrbitCameraController implements ICameraController {
   __mouseDown(e: MouseEvent) {
     this.__tryToPreventDefault(e);
     if (!this.__isKeyUp) return;
+    if (this.__isPressingCtrl) return;
 
     this.__originalX = e.clientX;
     this.__originalY = e.clientY;
@@ -148,6 +152,7 @@ export default class OrbitCameraController implements ICameraController {
   __mouseMove(e: MouseEvent) {
     this.__tryToPreventDefault(e);
     if (this.__isKeyUp) return;
+    if (this.__isPressingCtrl) return;
 
     if (this.__buttonNumber === 0) {
       this.__buttonNumber = e.buttons;
@@ -404,6 +409,18 @@ export default class OrbitCameraController implements ICameraController {
     }
   }
 
+  __pressCtrl(e: KeyboardEvent) {
+    if (e.keyCode === 17) {
+      this.__isPressingCtrl = true;
+    }
+  }
+
+  __releaseCtrl(e: KeyboardEvent) {
+    if (e.keyCode === 17) {
+      this.__isPressingCtrl = false;
+    }
+  }
+
 
   registerEventListeners(eventTargetDom: any = document) {
     this._eventTargetDom = eventTargetDom;
@@ -425,6 +442,9 @@ export default class OrbitCameraController implements ICameraController {
         eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("keydown", this.__pressShiftFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("keyup", this.__releaseShiftFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("keydown", this.__pressCtrlFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("keyup", this.__releaseCtrlFunc, { passive: !this.__doPreventDefault });
+
 
         eventTargetDom.addEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
