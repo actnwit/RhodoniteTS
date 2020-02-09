@@ -4,6 +4,7 @@ import Vector3 from './Vector3';
 import { IVector3 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
 
 export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
   v: TypedArray;
@@ -187,6 +188,13 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     return this.v[3];
   }
 
+  get glslStrAsFloat() {
+    return `vec4(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)}, ${MathUtil.convertToStringAsGLSLFloat(this.z)}, ${MathUtil.convertToStringAsGLSLFloat(this.w)})`;
+  }
+
+  get glslStrAsInt() {
+    return `ivec4(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)}, ${Math.floor(this.w)})`;
+  }
 }
 
 export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
