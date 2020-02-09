@@ -111,13 +111,13 @@ precision highp int;
     `
   }
 
-  get glslMainBegin() {
+  static get glslMainBegin() {
     return `
     void main() {
     `
   }
 
-  get glslMainEnd() {
+  static get glslMainEnd() {
     return `
     }
     `

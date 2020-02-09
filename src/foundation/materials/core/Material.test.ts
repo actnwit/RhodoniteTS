@@ -124,11 +124,6 @@ test('Material works correctly 1', async () => {
   const returnValues = material.createProgramString();
   console.log(returnValues.vertexShader+returnValues.pixelShader)
  expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
-       precision highp float;
-      precision highp int;
-
-
-
       uniform bool u_vertexAttributesExistenceArray[11];
       void getVars(
         out vec4 position_inLocal,
@@ -142,9 +137,22 @@ test('Material works correctly 1', async () => {
         baseColor = vec4(0.0, 0.2, 0.0, 1.0);
         specularColor = vec4(0.0, 0.5, 0.0, 1.0);
       }
-          void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-            outValue = lfs + rhs;
-          }
+
+      void add(in float lfs, in float rhs, out float outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in int lfs, in int rhs, out int outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+        outValue = lfs + rhs;
+      }
 
           void end(in vec4 inPosition) {
             gl_Position = inPosition;
@@ -165,8 +173,6 @@ test('Material works correctly 1', async () => {
       end(outValue_3_to_inPosition_4);
 
           }
-          precision highp float;
-      precision highp int;
 
       void getVars(
         out vec4 outColor
@@ -174,9 +180,22 @@ test('Material works correctly 1', async () => {
       {
         outColor = vec4(1.0, 0.0, 0.0, 1.0);
       }
-          void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
-            outValue = lfs + rhs;
-          }
+
+      void add(in float lfs, in float rhs, out float outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in int lfs, in int rhs, out int outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
+        outValue = lfs + rhs;
+      }
+      void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+        outValue = lfs + rhs;
+      }
 
           void end(in vec4 inColor) {
             vec4 rt0 = inColor;
