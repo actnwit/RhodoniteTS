@@ -3,6 +3,8 @@ import { TypedArray, Byte } from "../../types/CommonTypes";
 
 export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): Byte;
+  isFloatingPoint(): boolean;
+  isInteger(): boolean;
 }
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
@@ -14,6 +16,33 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
 
   getSizeInBytes(): Byte {
     return this.__sizeInBytes;
+  }
+
+  isFloatingPoint() {
+    if (
+      this.index === 5126 // Float
+      || this.index === 5127 // Double
+      || this.index === 0x8D61 // HalfFloat
+      ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  isInteger() {
+    if (
+      this.index === 5120 // Byte
+      || this.index === 5121 // UnsignedByte
+      || this.index === 5122 // Short
+      || this.index === 5123 // UnsignedShort
+      || this.index === 5124 // Int
+      || this.index === 5125 // UnsignedInt
+      ) {
+      return true;
+    }
+
+    return false;
   }
 }
 
