@@ -11,12 +11,13 @@ test('GetVersShader vertex shader works correctly', async () => {
       compositionType: Rn.CompositionType.Vec4,
       componentType: Rn.ComponentType.Float,
       name: 'a_position',
-      isImmediateValue: false
     },
     {
       compositionType: Rn.CompositionType.Vec4,
       componentType: Rn.ComponentType.Float,
       name: 'position_inLocal',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -25,12 +26,13 @@ test('GetVersShader vertex shader works correctly', async () => {
       compositionType: Rn.CompositionType.Mat4,
       componentType: Rn.ComponentType.Float,
       name: 'u_viewMatrix',
-      isImmediateValue: false
     },
     {
       compositionType: Rn.CompositionType.Mat4,
       componentType: Rn.ComponentType.Float,
       name: 'viewMatrix',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -58,12 +60,13 @@ test('GetVersShader pixel shader works correctly', async () => {
       compositionType: Rn.CompositionType.Vec4,
       componentType: Rn.ComponentType.Float,
       name: 'v_position',
-      isImmediateValue: false
     },
     {
       compositionType: Rn.CompositionType.Vec4,
       componentType: Rn.ComponentType.Float,
       name: 'position_inWorld',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -72,12 +75,13 @@ test('GetVersShader pixel shader works correctly', async () => {
       compositionType: Rn.CompositionType.Mat4,
       componentType: Rn.ComponentType.Float,
       name: 'u_viewMatrix',
-      isImmediateValue: false
     },
     {
       compositionType: Rn.CompositionType.Mat4,
       componentType: Rn.ComponentType.Float,
       name: 'viewMatrix',
+    },
+    {
       isImmediateValue: false
     }
   );

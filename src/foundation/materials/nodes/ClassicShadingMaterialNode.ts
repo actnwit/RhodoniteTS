@@ -33,7 +33,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         name: 'diffuseColor',
-        isImmediateValue: false
       });
 
     this.__vertexInputs.push(
@@ -41,14 +40,12 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         name: 'position_inWorld',
-        isImmediateValue: false
       });
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
         name: 'normal_inWorld',
-        isImmediateValue: false
       });
 
     // Output
@@ -56,7 +53,6 @@ export default class ClassicShadingMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       name: 'outColor',
-      isImmediateValue: false
     });
   }
 }

@@ -27,7 +27,6 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,
         name: 'inNormalMatrix',
-        isImmediateValue: false
       });
 
     this.__vertexOutputs.push(
@@ -35,13 +34,11 @@ export default class SkeletalMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         name: 'isSkinning',
-        isImmediateValue: false
       });
     this.__vertexOutputs.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       name: 'outNormalMatrix',
-      isImmediateValue: false
     });
   }
 

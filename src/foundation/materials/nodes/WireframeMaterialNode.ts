@@ -23,7 +23,6 @@ export default class WireframeMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'existingFragColor',
-      isImmediateValue: false
     });
 
     this.__vertexInputs.push(
@@ -31,7 +30,6 @@ export default class WireframeMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'wireframeColor',
-      isImmediateValue: false
     });
 
     // Output
@@ -39,7 +37,6 @@ export default class WireframeMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'outColor',
-      isImmediateValue: false
     });
   }
 }

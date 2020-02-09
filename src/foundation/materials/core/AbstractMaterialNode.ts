@@ -37,8 +37,6 @@ export type ShaderSocket = {
   compositionType: CompositionTypeEnum,
   componentType: ComponentTypeEnum,
   name: ShaderAttributeOrSemanticsOrString,
-  isImmediateValue: boolean,
-  immediateValue?: string
 }
 
 type MaterialNodeTypeName = string;

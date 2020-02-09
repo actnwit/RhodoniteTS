@@ -34,7 +34,6 @@ export default class TextureFetchMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Float,
       name: 'texcoord',
-      isImmediateValue: false
     });
 
     // Output
@@ -42,7 +41,6 @@ export default class TextureFetchMaterialNode extends AbstractMaterialNode {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'outColor',
-      isImmediateValue: false
     });
   }
 }

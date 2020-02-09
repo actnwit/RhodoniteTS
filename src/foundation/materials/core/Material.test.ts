@@ -13,7 +13,7 @@ import MemoryManager from "../../core/MemoryManager";
 import ModuleManager from "../../system/ModuleManager";
 
 
-test('Material works correctly', async () => {
+test('Material works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
@@ -26,14 +26,15 @@ test('Material works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'hoge',
-      isImmediateValue: true,
-      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'position_inLocal',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     }
   );
   getVarsMaterialNode.addVertexInputAndOutput(
@@ -41,14 +42,15 @@ test('Material works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'Muda',
-      isImmediateValue: true,
-      immediateValue: 'vec4(0.0, 0.0, 1.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'normal_inLocal',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.0, 1.0, 1.0)'
     }
   );
   getVarsMaterialNode.addVertexInputAndOutput(
@@ -56,14 +58,15 @@ test('Material works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'huga',
-      isImmediateValue: true,
-      immediateValue: 'vec4(0.0, 0.2, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'baseColor',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.2, 0.0, 1.0)'
     }
   );
   getVarsMaterialNode.addVertexInputAndOutput(
@@ -71,14 +74,15 @@ test('Material works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'huga2',
-      isImmediateValue: true,
-      immediateValue: 'vec4(0.0, 0.5, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'specularColor',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(0.0, 0.5, 0.0, 1.0)'
     }
   );
   getVarsMaterialNode.addPixelInputAndOutput(
@@ -86,14 +90,15 @@ test('Material works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'redColor',
-      isImmediateValue: true,
-      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'outColor',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 1.0)'
     }
   );
 
@@ -187,7 +192,6 @@ test('Material works correctly', async () => {
           }
 `.replace(/\s+/g, ""))
 });
-
 
 test('MaterialTID are processed correctly', () => {
 

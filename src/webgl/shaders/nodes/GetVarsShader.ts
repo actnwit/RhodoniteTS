@@ -4,6 +4,7 @@ import { ShaderNode } from "../../../foundation/definitions/ShaderNode";
 import { ShaderSocket } from "../../../foundation/materials/core/AbstractMaterialNode";
 import { CompositionTypeEnum, CompositionType } from "../../../foundation/definitions/CompositionType";
 import { ShaderSemanticsEnum, ShaderSemanticsClass } from "../../../foundation/definitions/ShaderSemantics";
+import { ShaderImmediateValue } from "../../../foundation/materials/nodes/GetVarsMaterialNode";
 
 export type AttributeNames = Array<string>;
 
@@ -13,8 +14,10 @@ export default class GetVarsShader extends GLSLShader {
 
   private __vertexInputs: ShaderSocket[] = [];
   private __vertexOutputs: ShaderSocket[] = [];
+  private __vertexImmediateInfoArray: ShaderImmediateValue[] = [];
   private __pixelInputs: ShaderSocket[] = [];
   private __pixelOutputs: ShaderSocket[] = [];
+  private __pixelImmediateInfoArray: ShaderImmediateValue[] = [];
   private __attributeNames: AttributeNames = [];
   private __attributeSemantics: Array<VertexAttributeEnum> = [];
   private __attributeCompositions: Array<CompositionTypeEnum> = []
@@ -23,7 +26,7 @@ export default class GetVarsShader extends GLSLShader {
     super();
   }
 
-  addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
+  addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket, immediateInfo: ShaderImmediateValue) {
     if (inShaderSocket.componentType !== outShaderSocket.componentType ||
       inShaderSocket.compositionType !== outShaderSocket.compositionType) {
         console.error('input and output type miss match!');
@@ -31,9 +34,10 @@ export default class GetVarsShader extends GLSLShader {
     }
     this.__vertexInputs.push(inShaderSocket);
     this.__vertexOutputs.push(outShaderSocket);
+    this.__vertexImmediateInfoArray.push(immediateInfo);
   }
 
-  addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
+  addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket, immediateInfo: ShaderImmediateValue) {
     if (inShaderSocket.componentType !== outShaderSocket.componentType ||
       inShaderSocket.compositionType !== outShaderSocket.compositionType) {
         console.error('input and output type miss match!');
@@ -41,6 +45,7 @@ export default class GetVarsShader extends GLSLShader {
     }
     this.__pixelInputs.push(inShaderSocket);
     this.__pixelOutputs.push(outShaderSocket);
+    this.__pixelImmediateInfoArray.push(immediateInfo);
   }
 
   get vertexShaderDefinitions() {
@@ -50,10 +55,11 @@ export default class GetVarsShader extends GLSLShader {
     let args = '';
     for (let i=0; i<this.__vertexInputs.length; i++) {
       const input = this.__vertexInputs[i];
+      const immediateInfo = this.__vertexImmediateInfoArray[i]
       if (i!=0) {
         args += ',\n  ';
       }
-      if (!(input.isImmediateValue ||
+      if (!(immediateInfo.isImmediateValue ||
         input.name instanceof VertexAttributeClass ||
         input.name instanceof ShaderSemanticsClass)) {
         const inputType = input.compositionType.getGlslStr(input.componentType);
@@ -79,9 +85,10 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__vertexInputs.length; i++) {
       const input = this.__vertexInputs[i];
       const output = this.__vertexOutputs[i];
+      const immediateInfo = this.__vertexImmediateInfoArray[i];
       let inputName;
-      if (input.isImmediateValue) {
-        inputName = input.immediateValue;
+      if (immediateInfo.isImmediateValue) {
+        inputName = immediateInfo.immediateValue;
       } else {
         inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
       }
@@ -112,10 +119,11 @@ export default class GetVarsShader extends GLSLShader {
     let args = '';
     for (let i=0; i<this.__pixelInputs.length; i++) {
       const input = this.__pixelInputs[i];
+      const immediateInfo = this.__pixelImmediateInfoArray[i];
       if (i!=0) {
         args += ',\n  ';
       }
-      if (!(input.isImmediateValue ||
+      if (!(immediateInfo.isImmediateValue ||
         input.name instanceof VertexAttributeClass ||
         input.name instanceof ShaderSemanticsClass)) {
         const inputType = input.compositionType.getGlslStr(input.componentType);
@@ -140,9 +148,10 @@ export default class GetVarsShader extends GLSLShader {
     for (let i=0; i<this.__pixelInputs.length; i++) {
       const input = this.__pixelInputs[i];
       const output = this.__pixelOutputs[i];
+      const immediateInfo = this.__pixelImmediateInfoArray[i];
       let inputName;
-      if (input.isImmediateValue) {
-        inputName = input.immediateValue;
+      if (immediateInfo.isImmediateValue) {
+        inputName = immediateInfo.immediateValue;
       } else {
         inputName = GLSLShader.getStringFromShaderAnyDataType(input.name);
       }
