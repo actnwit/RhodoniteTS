@@ -11,7 +11,7 @@ import MathClassUtil from "../../math/MathClassUtil";
 import { ComponentType } from "../../definitions/ComponentType";
 import Vector2 from "../../math/Vector2";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import { VertexAttribute } from "../../definitions/VertexAttribute";
+import { VertexAttribute, VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import AbstractTexture from "../../textures/AbstractTexture";
 import MemoryManager from "../../core/MemoryManager";
 import { BufferUse } from "../../definitions/BufferUse";
@@ -29,6 +29,7 @@ import { ProcessApproach } from "../../definitions/ProcessApproach";
 import ShaderityUtility from "./ShaderityUtility";
 import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
+import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -556,7 +557,7 @@ export default class Material extends RnObject {
     }
   }
 
-  /*
+
   createProgramString(vertexShaderMethodDefinitions_uniform = '') {
 
     // Find Start Node
@@ -619,15 +620,15 @@ export default class Material extends RnObject {
     } while (materialNodesPixel.length !== 0);
 
     // Get GLSL Beginning code
-    let vertexShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
-    let pixelShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
+    let vertexShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
+    let pixelShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
 
     // attribute variables definitions in Vertex Shader
     for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
       const materialNode = sortedNodeArrayVertex[i];
-      const attributeNames = materialNode.shader.attributeNames;
-      const attributeSemantics = materialNode.shader.attributeSemantics;
-      const attributeCompositions = materialNode.shader.attributeCompositions;
+      const attributeNames = materialNode.shader!.attributeNames;
+      const attributeSemantics = materialNode.shader!.attributeSemantics;
+      const attributeCompositions = materialNode.shader!.attributeCompositions;
       for (let j = 0; j < attributeSemantics.length; j++) {
         const attributeName = attributeNames[j];
         const attributeComposition = attributeCompositions[j];
@@ -689,14 +690,14 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       if (existFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      vertexShader += materialNode.shader.vertexShaderDefinitions;
-      pixelShader += materialNode.shader.pixelShaderDefinitions;
+      vertexShader += (materialNode.shader! as any).vertexShaderDefinitions;
+      pixelShader += (materialNode.shader! as any).pixelShaderDefinitions;
       existFunctions.push(materialNode.shaderFunctionName);
     }
 
     // vertex main process
     {
-      vertexShader += firstMaterialNodeVertex!.shader.glslMainBegin;
+      vertexShader += firstMaterialNodeVertex!.shader!.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i = 1; i < vertexMaterialNodes.length; i++) {
@@ -767,12 +768,12 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
         vertexShader += rowStr;
       }
 
-      vertexShader += firstMaterialNodeVertex!.shader.glslMainEnd;
+      vertexShader += firstMaterialNodeVertex!.shader!.glslMainEnd;
     }
 
     // pixel main process
     {
-      pixelShader += firstMaterialNodePixel!.shader.glslMainBegin;
+      pixelShader += firstMaterialNodePixel!.shader!.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i = 1; i < pixelMaterialNodes.length; i++) {
@@ -843,7 +844,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
         pixelShader += rowStr;
       }
 
-      pixelShader += firstMaterialNodePixel!.shader.glslMainEnd;
+      pixelShader += firstMaterialNodePixel!.shader!.glslMainEnd;
     }
 
 
@@ -851,8 +852,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     let attributeSemantics: Array<VertexAttributeEnum> = [];
     for (let i = 0; i < vertexMaterialNodes.length; i++) {
       const materialNode = vertexMaterialNodes[i];
-      Array.prototype.push.apply(attributeNames, materialNode.shader.attributeNames);
-      Array.prototype.push.apply(attributeSemantics, materialNode.shader.attributeSemantics);
+      Array.prototype.push.apply(attributeNames, materialNode.shader!.attributeNames);
+      Array.prototype.push.apply(attributeSemantics, materialNode.shader!.attributeSemantics);
     }
     // remove duplicate values
     attributeNames = Array.from(new Set(attributeNames))
@@ -860,7 +861,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     return { vertexShader, pixelShader, attributeNames, attributeSemantics };
   }
-  */
+
 
   createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
 

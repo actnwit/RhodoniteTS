@@ -12,10 +12,10 @@ import { ShaderSemantics } from "../../definitions/ShaderSemantics";
 import MemoryManager from "../../core/MemoryManager";
 import ModuleManager from "../../system/ModuleManager";
 
-/*
+
 test('Material works correctly', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1, 1, 1, 1);
+  MemoryManager.createInstanceIfNotCreated(1, 1, 1);
 
   Material.registerMaterial('MyMaterial', []);
   const material = Material.createMaterial('MyMaterial')!;
@@ -117,9 +117,77 @@ test('Material works correctly', async () => {
   material.setMaterialNodes([endMaterialNode, addMaterialNode2, addMaterialNode3, addMaterialNode, getVarsMaterialNode]);
 
   const returnValues = material.createProgramString();
- expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`precisionhighpfloat;precisionhighpint;uniformboolu_vertexAttributesExistenceArray[11];voidgetVars(outvec4position_inLocal,outvec4normal_inLocal,outvec4baseColor,outvec4specularColor){position_inLocal=vec4(1.0,0.0,0.0,1.0);normal_inLocal=vec4(0.0,0.0,1.0,1.0);baseColor=vec4(0.0,0.2,0.0,1.0);specularColor=vec4(0.0,0.5,0.0,1.0);}voidadd(invec4lfs,invec4rhs,outvec4outValue){outValue=lfs+rhs;}voidend(invec4inPosition){gl_Position=inPosition;}voidmain(){vec4position_inLocal_0_to_lhs_1;vec4normal_inLocal_0_to_rhs_1;vec4baseColor_0_to_lhs_2;vec4specularColor_0_to_rhs_2;vec4outValue_1_to_lhs_3;vec4outValue_2_to_rhs_3;vec4outValue_3_to_inPosition_4;getVars(position_inLocal_0_to_lhs_1,normal_inLocal_0_to_rhs_1,baseColor_0_to_lhs_2,specularColor_0_to_rhs_2);add(position_inLocal_0_to_lhs_1,normal_inLocal_0_to_rhs_1,outValue_1_to_lhs_3);add(baseColor_0_to_lhs_2,specularColor_0_to_rhs_2,outValue_2_to_rhs_3);add(outValue_1_to_lhs_3,outValue_2_to_rhs_3,outValue_3_to_inPosition_4);end(outValue_3_to_inPosition_4);}precisionhighpfloat;precisionhighpint;voidgetVars(outvec4outColor){outColor=vec4(1.0,0.0,0.0,1.0);}voidadd(invec4lfs,invec4rhs,outvec4outValue){outValue=lfs+rhs;}voidend(invec4inColor){vec4rt0=inColor;gl_FragColor=rt0;}voidmain(){vec4outColor_0_to_inColor_4;getVars(outColor_0_to_inColor_4);end(outColor_0_to_inColor_4);}`.replace(/\s+/g, ""))
+  console.log(returnValues.vertexShader+returnValues.pixelShader)
+ expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
+       precision highp float;
+      precision highp int;
+
+
+
+      uniform bool u_vertexAttributesExistenceArray[11];
+      void getVars(
+        out vec4 position_inLocal,
+        out vec4 normal_inLocal,
+        out vec4 baseColor,
+        out vec4 specularColor
+      )
+      {
+        position_inLocal = vec4(1.0, 0.0, 0.0, 1.0);
+        normal_inLocal = vec4(0.0, 0.0, 1.0, 1.0);
+        baseColor = vec4(0.0, 0.2, 0.0, 1.0);
+        specularColor = vec4(0.0, 0.5, 0.0, 1.0);
+      }
+          void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+            outValue = lfs + rhs;
+          }
+
+          void end(in vec4 inPosition) {
+            gl_Position = inPosition;
+          }
+
+          void main() {
+          vec4 position_inLocal_0_to_lhs_1;
+      vec4 normal_inLocal_0_to_rhs_1;
+      vec4 baseColor_0_to_lhs_2;
+      vec4 specularColor_0_to_rhs_2;
+      vec4 outValue_1_to_lhs_3;
+      vec4 outValue_2_to_rhs_3;
+      vec4 outValue_3_to_inPosition_4;
+      getVars(position_inLocal_0_to_lhs_1, normal_inLocal_0_to_rhs_1, baseColor_0_to_lhs_2, specularColor_0_to_rhs_2);
+      add(position_inLocal_0_to_lhs_1, normal_inLocal_0_to_rhs_1, outValue_1_to_lhs_3);
+      add(baseColor_0_to_lhs_2, specularColor_0_to_rhs_2, outValue_2_to_rhs_3);
+      add(outValue_1_to_lhs_3, outValue_2_to_rhs_3, outValue_3_to_inPosition_4);
+      end(outValue_3_to_inPosition_4);
+
+          }
+          precision highp float;
+      precision highp int;
+
+      void getVars(
+        out vec4 outColor
+      )
+      {
+        outColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+          void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+            outValue = lfs + rhs;
+          }
+
+          void end(in vec4 inColor) {
+            vec4 rt0 = inColor;
+            gl_FragColor = rt0;
+
+          }
+
+          void main() {
+          vec4 outColor_0_to_inColor_4;
+      getVars(outColor_0_to_inColor_4);
+      end(outColor_0_to_inColor_4);
+
+          }
+`.replace(/\s+/g, ""))
 });
-*/
+
 
 test('MaterialTID are processed correctly', () => {
 
