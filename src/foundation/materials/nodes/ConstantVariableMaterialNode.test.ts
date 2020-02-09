@@ -29,16 +29,96 @@ test('ConstantVariable works correctly 1', async () => {
 
   const endMaterialNode = new EndMaterialNode();
   endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
-  endMaterialNode.addPixelInputConnection(addMaterialNode, 'outValue', 'inColor');
+  endMaterialNode.addPixelInputConnection(constant2, 'outValue', 'inColor');
 
   // nodes are intentionally made the order random
   material.setMaterialNodes([endMaterialNode, addMaterialNode, constant1, constant2]);
 
   const returnValues = material.createProgramString();
-  console.log(returnValues.vertexShader+'\n###\n'+returnValues.pixelShader)
- expect((returnValues.vertexShader+'\n###\n'+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
-      uniform bool u_vertexAttributesExistenceArray[11];
+ expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
 
-          }
-`.replace(/\s+/g, ""))
+uniform bool u_vertexAttributesExistenceArray[11];
+
+    void constantVariable_1(
+      out vec4 outValue) {
+      outValue = vec4(4.0, 3.0, 2.0, 1.0);
+    }
+
+    void constantVariable_0(
+      out vec4 outValue) {
+      outValue = vec4(1.0, 2.0, 3.0, 4.0);
+    }
+
+void add(in float lfs, in float rhs, out float outValue) {
+  outValue = lfs + rhs;
+}
+void add(in int lfs, in int rhs, out int outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+  outValue = lfs + rhs;
+}
+
+    void end(in vec4 inPosition) {
+      gl_Position = inPosition;
+    }
+
+    void main() {
+    vec4 outValue_0_to_lhs_2;
+vec4 outValue_1_to_rhs_2;
+vec4 outValue_2_to_inPosition_3;
+constantVariable_1(outValue_1_to_rhs_2);
+constantVariable_0(outValue_0_to_lhs_2);
+add(outValue_0_to_lhs_2, outValue_1_to_rhs_2, outValue_2_to_inPosition_3);
+end(outValue_2_to_inPosition_3);
+
+    }
+
+
+
+    void constantVariable_1(
+      out vec4 outValue) {
+      outValue = vec4(4.0, 3.0, 2.0, 1.0);
+    }
+
+    void constantVariable_0(
+      out vec4 outValue) {
+      outValue = vec4(1.0, 2.0, 3.0, 4.0);
+    }
+
+void add(in float lfs, in float rhs, out float outValue) {
+  outValue = lfs + rhs;
+}
+void add(in int lfs, in int rhs, out int outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec2 lfs, in vec2 rhs, out vec2 outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec3 lfs, in vec3 rhs, out vec3 outValue) {
+  outValue = lfs + rhs;
+}
+void add(in vec4 lfs, in vec4 rhs, out vec4 outValue) {
+  outValue = lfs + rhs;
+}
+
+    void end(in vec4 inColor) {
+      vec4 rt0 = inColor;
+      gl_FragColor = rt0;
+
+    }
+
+    void main() {
+    vec4 outValue_1_to_inColor_3;
+constantVariable_1(outValue_1_to_inColor_3);
+end(outValue_1_to_inColor_3);
+
+    }
+    `.replace(/\s+/g, ""))
 });

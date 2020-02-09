@@ -20,13 +20,13 @@ const load = async function (time) {
 
   const endMaterialNode = new Rn.EndMaterialNode();
   endMaterialNode.addVertexInputConnection(addMaterialNode, 'outValue', 'inPosition');
-  endMaterialNode.addPixelInputConnection(addMaterialNode, 'outValue', 'inColor');
+  endMaterialNode.addPixelInputConnection(constant2, 'outValue', 'inColor');
 
   // nodes are intentionally made the order random
   material.setMaterialNodes([endMaterialNode, addMaterialNode, constant1, constant2]);
 
   const returnValues = material.createProgramString();
-  console.log(returnValues.vertexShader)
+  console.log(returnValues.pixelShader)
 }
 
 document.body.onload = load;

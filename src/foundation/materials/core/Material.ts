@@ -668,15 +668,11 @@ export default class Material extends RnObject {
     const pixelMaterialNodes = [];
     for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
       const materialNode = sortedNodeArrayVertex[i];
-      if (i === 0 || materialNode.vertexInputConnections.length > 0) {
-        vertexMaterialNodes.push(materialNode);
-      }
+      vertexMaterialNodes.push(materialNode);
     }
     for (let i = 0; i < sortedNodeArrayPixel.length; i++) {
       const materialNode = sortedNodeArrayPixel[i];
-      if (i === 0 || materialNode.pixelInputConnections.length > 0) {
-        pixelMaterialNodes.push(materialNode);
-      }
+      pixelMaterialNodes.push(materialNode);
     }
 
     // Add additional functions by system
@@ -764,6 +760,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i] = [];
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
+        if (varNames.length === 0) {
+          continue;
+        }
         let rowStr = `${functionName}(`;
         for (let k = 0; k < varNames.length; k++) {
           const varName = varNames[k];
@@ -840,6 +839,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i] = [];
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
+        if (varNames.length === 0) {
+          continue;
+        }
         let rowStr = `${functionName}(`;
         for (let k = 0; k < varNames.length; k++) {
           const varName = varNames[k];
