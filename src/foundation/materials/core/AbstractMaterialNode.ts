@@ -37,6 +37,7 @@ export type ShaderSocket = {
   compositionType: CompositionTypeEnum,
   componentType: ComponentTypeEnum,
   name: ShaderAttributeOrSemanticsOrString,
+  isClosed?: boolean
 }
 
 type MaterialNodeTypeName = string;
@@ -46,19 +47,19 @@ type InputConnectionType = { materialNodeUid: number, outputNameOfPrev: string, 
 export default abstract class AbstractMaterialNode extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   protected static __semanticsMap: Map<MaterialNodeTypeName, Map<ShaderSemanticsStr, ShaderSemanticsInfo>> = new Map();
-  private __shaderNode: ShaderNodeEnum[] = [];
   protected __vertexInputs: ShaderSocket[] = [];
   protected __pixelInputs: ShaderSocket[] = [];
   protected __vertexOutputs: ShaderSocket[] = [];
   protected __pixelOutputs: ShaderSocket[] = [];
+  protected __defaultInputValues: Map<string, any> = new Map();
   private static readonly __invalidMaterialNodeUid = -1;
   private static __invalidMaterialNodeCount = -1;
-  private __materialNodeUid: MaterialNodeUID;
+  protected __materialNodeUid: MaterialNodeUID;
   protected __vertexInputConnections: InputConnectionType[] = [];
   protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialNode[] = [];
-  public readonly shader: GLSLShader | null;
-  public readonly shaderFunctionName: string;
+  protected __shader: GLSLShader | null;
+  protected __shaderFunctionName: string;
   public isSingleOperation = false;
   protected __definitions = '';
 
@@ -85,8 +86,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
   constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject) {
     super();
-    this.shader = shader;
-    this.shaderFunctionName = shaderFunctionName;
+    this.__shader = shader;
+    this.__shaderFunctionName = shaderFunctionName;
     this.__materialNodeUid = ++AbstractMaterialNode.__invalidMaterialNodeCount;
     AbstractMaterialNode.materialNodes[AbstractMaterialNode.__invalidMaterialNodeCount] = this;
 
@@ -104,6 +105,14 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
+  }
+
+  get shaderFunctionName() {
+    return this.__shaderFunctionName;
+  }
+
+  get shader() {
+    return this.__shader;
   }
 
   get vertexShaderityObject() {
@@ -174,12 +183,12 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return map.get(name);
   }
 
-  addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
-    this.__vertexInputConnections.push({ materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
+  addVertexInputConnection(inputMaterialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
+    this.__vertexInputConnections.push({ materialNodeUid: inputMaterialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
   }
 
-  addPixelInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
-    this.__pixelInputConnections.push({ materialNodeUid: materialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
+  addPixelInputConnection(inputMaterialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string) {
+    this.__pixelInputConnections.push({ materialNodeUid: inputMaterialNode.materialNodeUid, outputNameOfPrev: outputNameOfPrev, inputNameOfThis: inputNameOfThis });
   }
 
   get vertexInputConnections(): InputConnectionType[] {
@@ -199,6 +208,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
+  _getVertexInputs() {
+    return this.__vertexInputs;
+  }
+
   getVertexOutput(name: string): ShaderSocket | undefined {
     for (let output of this.__vertexOutputs) {
       if (output.name === name) {
@@ -215,6 +228,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
       }
     }
     return void 0;
+  }
+
+  _getPixelInputs() {
+    return this.__pixelInputs;
   }
 
   getPixelOutput(name: string): ShaderSocket | undefined {
@@ -409,5 +426,9 @@ export default abstract class AbstractMaterialNode extends RnObject {
   }
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
+  }
+
+  setDefaultInputValue(inputName: string, value: any) {
+    this.__defaultInputValues.set(inputName, value)
   }
 }

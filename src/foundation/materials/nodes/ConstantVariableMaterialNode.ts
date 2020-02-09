@@ -1,56 +1,52 @@
 import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ComponentType } from "../../definitions/ComponentType";
-import AddShader from "../../../webgl/shaders/nodes/AddShader";
+import { CompositionType, CompositionTypeEnum } from "../../definitions/CompositionType";
+import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentType";
+import ConstantVariableShader from "../../../webgl/shaders/nodes/ConstantVariableShader";
 
 export default class ConstantVariableMaterialNode extends AbstractMaterialNode {
 
-  constructor() {
-    super(AddShader.getInstance(), 'add');
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
+    super(null, 'constantVariable');
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-    ];
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    this.__shaderFunctionName += '_' + this.__materialNodeUid;
+
+    this.__shader = new ConstantVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
     this.__vertexInputs.push(
       {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'lhs',
-      });
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'rhs',
+        compositionType: compositionType,
+        componentType: componentType,
+        name: 'value',
+        isClosed: true
       });
     this.__vertexOutputs.push(
       {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
+        compositionType: compositionType,
+        componentType: componentType,
         name: 'outValue',
       });
 
     this.__pixelInputs.push(
       {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'lhs',
-      });
-    this.__pixelInputs.push(
-      {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        name: 'rhs',
+        compositionType: compositionType,
+        componentType: componentType,
+        name: 'value',
+        isClosed: true
       });
     this.__pixelOutputs.push(
       {
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
+        compositionType: compositionType,
+        componentType: componentType,
         name: 'outValue',
       });
   }
 
+  setDefaultInputValue(inputName: string, value: any) {
+    super.setDefaultInputValue(inputName, value);
+    if (inputName === 'value') {
+      (this.__shader as ConstantVariableShader).setConstantValue(value);
+    }
+  }
 }
 

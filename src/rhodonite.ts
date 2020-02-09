@@ -74,6 +74,9 @@ import { BoneDataType } from './foundation/definitions/BoneDataType';
 import ShaderityUtility from './foundation/materials/core/ShaderityUtility';
 import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNode';
 import { PixelFormat } from './foundation/definitions/PixelFormat';
+import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
+import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
+import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -152,6 +155,9 @@ let Rn = {
   ShaderityUtility,
   AbstractMaterialNode,
   PixelFormat,
+  ConstantVariableMaterialNode,
+  AddMaterialNode,
+  EndMaterialNode
 };
 
 if (typeof exports !== 'undefined') {

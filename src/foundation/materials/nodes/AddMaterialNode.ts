@@ -2,7 +2,6 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddShader from "../../../webgl/shaders/nodes/AddShader";
 import AddShaerityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
 
 export default class AddMaterialNode extends AbstractMaterialNode {
