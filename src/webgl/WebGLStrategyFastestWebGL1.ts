@@ -250,7 +250,7 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       if (isGlobalData) {
         const globalDataRepository = GlobalDataRepository.getInstance();
         dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex)!;
-//        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
+        //        let maxCount = globalDataRepository.getGlobalPropertyStruct(propertyIndex)!.maxCount;
       } else {
         dataBeginPos = Material.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyIndex)!;
       }
@@ -429,7 +429,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const buffer: Buffer|undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+    const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
     if (buffer == null) {
       return;
@@ -443,7 +443,7 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
       if (bufferSizeInByte > dataTextureByteSize) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
-      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize/4);
+      const floatDataTextureBuffer = new Float32Array(buffer.getArrayBuffer(), 0, updateByteSize / 4);
       if (this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2) {
         this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
           level: 0, xoffset: 0, yoffset: 0, width: MemoryManager.bufferWidthLength, height: height,
@@ -579,9 +579,9 @@ ${returnType} get_${methodName}(highp float instanceId, const int index) {
 
   private __getViewport(renderPass: RenderPass) {
     let viewport = renderPass.getViewport();
-    // if (viewport == null) {
+    if (viewport == null) {
       viewport = this.__webglResourceRepository.currentWebGLContextWrapper!.viewport;
-    // }
+    }
     return viewport!;
   }
 
