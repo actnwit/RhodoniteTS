@@ -208,7 +208,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
-  _getVertexInputs() {
+  getVertexInputs() {
     return this.__vertexInputs;
   }
 
@@ -221,6 +221,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
+  getVertexOutputs() {
+    return this.__vertexOutputs;
+  }
+
   getPixelInput(name: string): ShaderSocket | undefined {
     for (let input of this.__pixelInputs) {
       if (input.name === name) {
@@ -230,7 +234,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     return void 0;
   }
 
-  _getPixelInputs() {
+  getPixelInputs() {
     return this.__pixelInputs;
   }
 
@@ -241,6 +245,10 @@ export default abstract class AbstractMaterialNode extends RnObject {
       }
     }
     return void 0;
+  }
+
+  getPixelOutputs() {
+    return this.__pixelOutputs;
   }
 
   public static initDefaultTextures() {
