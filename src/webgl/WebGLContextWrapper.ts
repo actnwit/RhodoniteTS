@@ -337,13 +337,12 @@ export default class WebGLContextWrapper {
     }
   }
 
-  setViewportAsVector4(viewport: Vector4): void
-  {
+  setViewportAsVector4(viewport: Vector4): void {
     const gl: any = this.__gl;
     if (this.__viewport_width === viewport.z && this.__viewport_height === viewport.w && this.__viewport_left === viewport.x && this.__viewport_top === viewport.y) {
       return;
     } else {
-      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.z);
+      gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
       this.__viewport_left = viewport.x;
       this.__viewport_top = viewport.y;
       this.__viewport_width = viewport.z;
