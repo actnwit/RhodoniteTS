@@ -76,10 +76,13 @@ import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNo
 import { PixelFormat } from './foundation/definitions/PixelFormat';
 import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
 import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
+import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
 import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
 import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
 import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
 import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMaterialNode';
+import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMaterialNode';
+import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -160,10 +163,13 @@ let Rn = {
   PixelFormat,
   ConstantVariableMaterialNode,
   AddMaterialNode,
+  MultiplyMaterialNode,
   EndMaterialNode,
   ScalarToVector4MaterialNode,
   AttributePositionMaterialNode,
-  WorldMatrixMaterialNode
+  WorldMatrixMaterialNode,
+  ViewMatrixMaterialNode,
+  ProjectionMatrixMaterialNode,
 };
 
 if (typeof exports !== 'undefined') {
