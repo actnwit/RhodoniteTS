@@ -3,6 +3,8 @@ import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 import { AlphaMode } from "../foundation/definitions/AlphaMode";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
+import MeshComponent from "../foundation/components/MeshComponent";
+import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -123,4 +125,50 @@ function endDepthMasking(idx: number, gl: WebGLRenderingContext, renderPass: Ren
   }
 }
 
-export default Object.freeze({ setCullAndBlendSettings, startDepthMasking, endDepthMasking });
+function isMeshSetup(meshComponent: MeshComponent) {
+
+  if (meshComponent.mesh!.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
+    let count = 0;
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+      if (primitive.vertexHandles != null) {
+        count++;
+      }
+    }
+
+    if (primitiveNum === count) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+
+}
+
+function isMaterialsSetup(meshComponent: MeshComponent) {
+
+  if (meshComponent.mesh!.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
+    let count = 0;
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+      if (primitive.material != null && primitive.material._shaderProgramUid !== -1) {
+        count++;
+      }
+    }
+
+    if (primitiveNum === count) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+
+}
+
+export default Object.freeze({ setCullAndBlendSettings, startDepthMasking, endDepthMasking, isMeshSetup, isMaterialsSetup });
