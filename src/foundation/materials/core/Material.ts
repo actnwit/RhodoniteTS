@@ -489,20 +489,7 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let vertexPropertiesStr = '';
-    let pixelPropertiesStr = '';
-    this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
-      const info = this.__fieldsInfo.get(propertyIndex);
-      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
-      }
-      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
-      }
-    });
-
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
 
     let definitions = materialNode.definitions;
 
@@ -559,7 +546,24 @@ export default class Material extends RnObject {
   }
 
 
-  createProgramString(vertexShaderMethodDefinitions_uniform = '') {
+  private __getProperties(propertySetter: getShaderPropertyFunc) {
+    let vertexPropertiesStr = '';
+    let pixelPropertiesStr = '';
+    this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
+      const info = this.__fieldsInfo.get(propertyIndex);
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+    });
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    return { vertexPropertiesStr, pixelPropertiesStr };
+  }
+
+  createProgramString(vertexShaderMethodDefinitions_uniform = '', propertySetter?: getShaderPropertyFunc) {
 
     // Find Start Node
     let firstMaterialNodeVertex: AbstractMaterialNode;
@@ -622,6 +626,8 @@ export default class Material extends RnObject {
 
     let vertexShaderPrerequisites = '';
     let pixelShaderPrerequisites = '';
+
+
     // // Get GLSL Beginning code
     // let vertexShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
     // let pixelShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
@@ -686,6 +692,12 @@ export default class Material extends RnObject {
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `
     vertexShaderPrerequisites += vertexShaderMethodDefinitions_uniform;
+
+    if (propertySetter) {
+      let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
+      vertexShaderPrerequisites += vertexPropertiesStr;
+      pixelShaderPrerequisites += pixelPropertiesStr;
+    }
 
     let vertexShaderBody = ''
     let pixelShaderBody = ''
@@ -894,31 +906,38 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     if (this.__materialNodes[0].isSingleOperation) {
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
     } else {
-      /*
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
 
-      const hash = DataUtil.toCRC32(returnValue.vertexShader + returnValue.pixelShader);
+      const wholeShaderText = returnValue.vertexShader + returnValue.pixelShader;
+
 
       // Cache
-      if (Material.__shaderMap.has(hash)) {
-        this._shaderProgramUid = Material.__shaderMap.get(hash)!;
+      let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
+      if (shaderProgramUid) {
+        this._shaderProgramUid = shaderProgramUid;
+        return shaderProgramUid;
+      }
+
+      const hash = DataUtil.toCRC32(wholeShaderText);
+      shaderProgramUid = Material.__shaderHashMap.get(hash);
+      if (shaderProgramUid) {
+        this._shaderProgramUid = shaderProgramUid;
         return this._shaderProgramUid;
       } else {
         this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-          {
-            materialTypeName: this.__materialTypeName,
-            vertexShaderStr: returnValue.vertexShader,
-            fragmentShaderStr: returnValue.pixelShader,
-            attributeNames: returnValue.attributeNames,
-            attributeSemantics: returnValue.attributeSemantics
-          }
+        {
+          materialTypeName: this.__materialTypeName,
+          vertexShaderStr: returnValue.vertexShader,
+          fragmentShaderStr: returnValue.pixelShader,
+          attributeNames: returnValue.attributeNames,
+          attributeSemantics: returnValue.attributeSemantics
+        }
         );
-        Material.__shaderMap.set(hash, this._shaderProgramUid);
+        Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
+        Material.__shaderHashMap.set(hash, this._shaderProgramUid);
         return this._shaderProgramUid;
       }
-      */
-      return -1;
     }
   }
 
