@@ -1,4 +1,4 @@
 
-void projectionMatrix(out outValue) {
+void projectionMatrix(out mat4 outValue) {
   outValue = get_projectionMatrix(a_instanceID);
 }
