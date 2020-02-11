@@ -620,8 +620,8 @@ export default class Material extends RnObject {
       materialNodesPixel.splice(materialNodesPixel.indexOf(materialNodeWhichHasNoInputs!), 1);
     } while (materialNodesPixel.length !== 0);
 
-    let vertexShader = '';
-    let pixelShader = '';
+    let vertexShaderPrerequisites = '';
+    let pixelShaderPrerequisites = '';
     // // Get GLSL Beginning code
     // let vertexShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
     // let pixelShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
@@ -681,11 +681,14 @@ export default class Material extends RnObject {
     if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
       in_ = 'in'
     }
-    vertexShader += `${in_} float a_instanceID;\n`;
-    vertexShader += `
+    vertexShaderPrerequisites += `${in_} float a_instanceID;\n`;
+    vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `
-    vertexShader += vertexShaderMethodDefinitions_uniform;
+    vertexShaderPrerequisites += vertexShaderMethodDefinitions_uniform;
+
+    let vertexShaderBody = ''
+    let pixelShaderBody = ''
 
     // function definitions
     const existFunctions: string[] = [];
@@ -695,21 +698,21 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
         continue;
       }
       if (materialNode.vertexShaderityObject) {
-        vertexShader += materialNode.vertexShaderityObject.code;
+        vertexShaderBody += materialNode.vertexShaderityObject.code;
       } else {
-        vertexShader += (materialNode.shader! as any).vertexShaderDefinitions;
+        vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
       }
       if (materialNode.pixelShaderityObject) {
-        pixelShader += materialNode.pixelShaderityObject.code;
+        pixelShaderBody += materialNode.pixelShaderityObject.code;
       } else {
-        pixelShader += (materialNode.shader! as any).pixelShaderDefinitions;
+        pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
       }
       existFunctions.push(materialNode.shaderFunctionName);
     }
 
     // vertex main process
     {
-      vertexShader += GLSLShader.glslMainBegin;
+      vertexShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i = 1; i < vertexMaterialNodes.length; i++) {
@@ -732,7 +735,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i].push(varName);
 
           const rowStr = `${glslTypeStr} ${varName};\n`;
-          vertexShader += rowStr;
+          vertexShaderBody += rowStr;
         }
         for (let j = i; j < vertexMaterialNodes.length; j++) {
           const materialNodeInner = vertexMaterialNodes[j];
@@ -780,15 +783,15 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           rowStr += varNames[k];
         }
         rowStr += ');\n';
-        vertexShader += rowStr;
+        vertexShaderBody += rowStr;
       }
 
-      vertexShader += GLSLShader.glslMainEnd;
+      vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
     // pixel main process
     {
-      pixelShader += GLSLShader.glslMainBegin;
+      pixelShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       for (let i = 1; i < pixelMaterialNodes.length; i++) {
@@ -811,7 +814,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i].push(varName);
 
           const rowStr = `${glslTypeStr} ${varName};\n`;
-          pixelShader += rowStr;
+          pixelShaderBody += rowStr;
         }
         for (let j = i; j < pixelMaterialNodes.length; j++) {
           const materialNodeInner = pixelMaterialNodes[j];
@@ -859,10 +862,10 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           rowStr += varNames[k];
         }
         rowStr += ');\n';
-        pixelShader += rowStr;
+        pixelShaderBody += rowStr;
       }
 
-      pixelShader += GLSLShader.glslMainEnd;
+      pixelShaderBody += GLSLShader.glslMainEnd;
     }
 
 
@@ -879,7 +882,10 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     attributeNames = Array.from(new Set(attributeNames))
     attributeSemantics = Array.from(new Set(attributeSemantics))
 
-    return { vertexShader, pixelShader, attributeNames, attributeSemantics };
+    const vertexShader = vertexShaderPrerequisites + vertexShaderBody;
+    const pixelShader = pixelShaderPrerequisites + pixelShaderBody;
+
+    return { vertexShader, pixelShader, attributeNames, attributeSemantics, vertexShaderBody, pixelShaderBody };
   }
 
 

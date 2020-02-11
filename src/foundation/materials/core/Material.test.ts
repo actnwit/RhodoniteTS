@@ -122,10 +122,7 @@ test('Material works correctly 1', async () => {
   material.setMaterialNodes([endMaterialNode, addMaterialNode2, addMaterialNode3, addMaterialNode, getVarsMaterialNode]);
 
   const returnValues = material.createProgramString();
-  console.log(returnValues.vertexShader+returnValues.pixelShader)
- expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
-      attribute float a_instanceID;
-      uniform bool u_vertexAttributesExistenceArray[11];
+  expect((returnValues.vertexShaderBody+returnValues.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
       void getVars(
         out vec4 position_inLocal,
         out vec4 normal_inLocal,

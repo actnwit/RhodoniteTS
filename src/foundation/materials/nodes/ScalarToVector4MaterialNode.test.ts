@@ -40,11 +40,8 @@ test('ScalarToVector4 works correctly 1', async () => {
   material.setMaterialNodes([endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4]);
 
   const returnValues = material.createProgramString();
-  console.log(returnValues.vertexShader+returnValues.pixelShader)
-  expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
+  expect((returnValues.vertexShaderBody+returnValues.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
 
-attribute float a_instanceID;
-uniform bool u_vertexAttributesExistenceArray[11];
 
 void constantVariable_3(
   out float outValue) {

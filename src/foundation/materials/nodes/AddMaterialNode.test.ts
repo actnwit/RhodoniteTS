@@ -25,11 +25,7 @@ test('AttributePosition works correctly 1', async () => {
   material.setMaterialNodes([endMaterialNode, a_position]);
 
   const returnValues = material.createProgramString();
-  console.log(returnValues.vertexShader)
-  expect((returnValues.vertexShader).replace(/\s+/g, "")).toEqual(`
-
-      attribute float a_instanceID;
-      uniform bool u_vertexAttributesExistenceArray[11];
+  expect((returnValues.vertexShaderBody).replace(/\s+/g, "")).toEqual(`
 
       in vec4 a_position;
 
