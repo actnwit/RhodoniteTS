@@ -15,6 +15,9 @@ import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSing
 import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
 import CustomSingleMaterialNode from "../materials/singles/CustomSingleMaterialNode";
 import Shaderity, { ShaderityObject } from "shaderity";
+import Primitive from "../geometry/Primitive";
+import Entity from "../core/Entity";
+import { ProcessStage } from "../definitions/ProcessStage";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const isRegistMaterialType = Material.isRegisteredMaterialType(materialName);
@@ -173,8 +176,13 @@ function createMToonMaterial({
   return material;
 }
 
+function changeMaterial(entity: Entity, primitive: Primitive, material: Material) {
+  const meshRendererComponent = entity.getMeshRenderer();
+  primitive.material = material;
+  meshRendererComponent.moveStageTo(ProcessStage.Load);
+}
 
 export default Object.freeze({
   createEmptyMaterial, createClassicUberMaterial, createPbrUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
-  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, changeMaterial
 });
