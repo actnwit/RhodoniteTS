@@ -28,6 +28,7 @@ test('AttributePosition works correctly 1', async () => {
   console.log(returnValues.vertexShader)
   expect((returnValues.vertexShader).replace(/\s+/g, "")).toEqual(`
 
+      attribute float a_instanceID;
       uniform bool u_vertexAttributesExistenceArray[11];
 
       in vec4 a_position;

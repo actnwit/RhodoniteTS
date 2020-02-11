@@ -124,6 +124,7 @@ test('Material works correctly 1', async () => {
   const returnValues = material.createProgramString();
   console.log(returnValues.vertexShader+returnValues.pixelShader)
  expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
+      attribute float a_instanceID;
       uniform bool u_vertexAttributesExistenceArray[11];
       void getVars(
         out vec4 position_inLocal,

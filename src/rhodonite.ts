@@ -79,6 +79,7 @@ import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
 import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
 import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
 import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
+import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -161,7 +162,8 @@ let Rn = {
   AddMaterialNode,
   EndMaterialNode,
   ScalarToVector4MaterialNode,
-  AttributePositionMaterialNode
+  AttributePositionMaterialNode,
+  WorldMatrixMaterialNode
 };
 
 if (typeof exports !== 'undefined') {

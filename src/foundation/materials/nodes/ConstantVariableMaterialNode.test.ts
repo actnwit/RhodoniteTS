@@ -37,6 +37,7 @@ test('ConstantVariable works correctly 1', async () => {
   const returnValues = material.createProgramString();
  expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
 
+attribute float a_instanceID;
 uniform bool u_vertexAttributesExistenceArray[11];
 
     void constantVariable_1(

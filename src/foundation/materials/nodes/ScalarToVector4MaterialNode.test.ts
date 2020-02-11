@@ -43,6 +43,7 @@ test('ScalarToVector4 works correctly 1', async () => {
   console.log(returnValues.vertexShader+returnValues.pixelShader)
   expect((returnValues.vertexShader+returnValues.pixelShader).replace(/\s+/g, "")).toEqual(`
 
+attribute float a_instanceID;
 uniform bool u_vertexAttributesExistenceArray[11];
 
 void constantVariable_3(

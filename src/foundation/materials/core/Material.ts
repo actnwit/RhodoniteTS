@@ -676,7 +676,12 @@ export default class Material extends RnObject {
     }
 
     // Add additional functions by system
-
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    let in_ = 'attribute'
+    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+      in_ = 'in'
+    }
+    vertexShader += `${in_} float a_instanceID;\n`;
     vertexShader += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `
