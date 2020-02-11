@@ -77,6 +77,8 @@ import { PixelFormat } from './foundation/definitions/PixelFormat';
 import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
 import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
 import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
+import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
+import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -157,7 +159,9 @@ let Rn = {
   PixelFormat,
   ConstantVariableMaterialNode,
   AddMaterialNode,
-  EndMaterialNode
+  EndMaterialNode,
+  ScalarToVector4MaterialNode,
+  AttributePositionMaterialNode
 };
 
 if (typeof exports !== 'undefined') {

@@ -2,12 +2,12 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4ShaerityObject from "../../../webgl/shaderity_shaders/nodes/scalarToVector4.glsl"
+import ScalarToVector4ShaderityObject from "../../../webgl/shaderity_shaders/nodes/scalarToVector4.glsl"
 
 export default class AddMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(null, 'scalarToVector4', {}, ScalarToVector4ShaerityObject, ScalarToVector4ShaerityObject);
+    super(null, 'scalarToVector4', {}, ScalarToVector4ShaderityObject, ScalarToVector4ShaderityObject);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];

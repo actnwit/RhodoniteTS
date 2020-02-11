@@ -2,16 +2,12 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddShaerityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
+import AddShaderityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
 
 export default class AddMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(null, 'add', {}, AddShaerityObject, AddShaerityObject);
-
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-    ];
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    super(null, 'add', {}, AddShaderityObject, AddShaderityObject);
 
     this.__vertexInputs.push(
       {
