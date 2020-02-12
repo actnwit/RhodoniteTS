@@ -30,6 +30,7 @@ import { ProcessApproach, ProcessApproachEnum } from "../../definitions/ProcessA
 import { ShaderityObject } from "shaderity";
 import { BoneDataType } from "../../definitions/BoneDataType";
 import SystemState from "../../system/SystemState";
+import { ShaderTypeEnum, ShaderType } from "../../definitions/ShaderType";
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -82,6 +83,8 @@ export default abstract class AbstractMaterialNode extends RnObject {
 
   protected __vertexShaderityObject?: ShaderityObject;
   protected __pixelShaderityObject?: ShaderityObject;
+
+  public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject) {
@@ -432,6 +435,7 @@ export default abstract class AbstractMaterialNode extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
 
   }
+
   setParametersForGPU({ material, shaderProgram, firstTime, args }: { material: Material, shaderProgram: WebGLProgram, firstTime: boolean, args?: any }) {
 
   }

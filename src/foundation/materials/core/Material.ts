@@ -566,17 +566,39 @@ export default class Material extends RnObject {
 
   createProgramString(vertexShaderMethodDefinitions_uniform = '', propertySetter?: getShaderPropertyFunc) {
 
+    const materialNodesVertex = this.__materialNodes.filter((node)=>{
+      if (node.shaderType === ShaderType.VertexShader || node.shaderType === ShaderType.VertexAndPixelShader) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const materialNodesPixel = this.__materialNodes.filter((node)=>{
+      if (node.shaderType === ShaderType.PixelShader || node.shaderType === ShaderType.VertexAndPixelShader) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
     // Find Start Node
     let firstMaterialNodeVertex: AbstractMaterialNode;
     let firstMaterialNodePixel: AbstractMaterialNode;
-    for (let i = 0; i < this.__materialNodes.length; i++) {
-      const materialNode = this.__materialNodes[i];
+    for (let i = 0; i < materialNodesVertex.length; i++) {
+      const materialNode = materialNodesVertex[i];
       if (materialNode.vertexInputConnections.length === 0) {
         firstMaterialNodeVertex = materialNode;
       }
+    }
+    for (let i = 0; i < materialNodesPixel.length; i++) {
+      const materialNode = materialNodesPixel[i];
       if (materialNode.pixelInputConnections.length === 0) {
         firstMaterialNodePixel = materialNode;
       }
+    }
+
+    if (firstMaterialNodeVertex! == null || firstMaterialNodePixel! == null) {
+      return void 0;
     }
 
     // Topological Sorting
@@ -585,8 +607,6 @@ export default class Material extends RnObject {
     const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.materialNodeUid];
     const sortedNodeArrayPixel: AbstractMaterialNode[] = [firstMaterialNodePixel!];
     /// delete first nodes from existing array
-    const materialNodesVertex = this.__materialNodes.concat();
-    const materialNodesPixel = this.__materialNodes.concat();
     materialNodesVertex.splice(materialNodesVertex.indexOf(firstMaterialNodeVertex!), 1);
     materialNodesPixel.splice(materialNodesPixel.indexOf(firstMaterialNodePixel!), 1);
     do {
@@ -688,11 +708,23 @@ export default class Material extends RnObject {
     if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
       in_ = 'in'
     }
-    vertexShaderPrerequisites += `${in_} float a_instanceID;\n`;
+    vertexShaderPrerequisites += `
+precision highp float;
+precision highp int;
+
+    ${in_} float a_instanceID;\n`;
     vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `
+    vertexShaderPrerequisites += '/* shaderity: ${matricesGetters} */'
+    vertexShaderPrerequisites += '/* shaderity: ${getters} */'
+
     vertexShaderPrerequisites += vertexShaderMethodDefinitions_uniform;
+
+    pixelShaderPrerequisites += `
+precision highp float;
+precision highp int;
+`
 
     if (propertySetter) {
       let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
@@ -704,23 +736,32 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     let pixelShaderBody = ''
 
     // function definitions
-    const existFunctions: string[] = [];
+    const existVertexFunctions: string[] = [];
     for (let i = 0; i < vertexMaterialNodes.length; i++) {
       const materialNode = vertexMaterialNodes[i];
-      if (existFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
+      if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      if (materialNode.vertexShaderityObject) {
-        vertexShaderBody += materialNode.vertexShaderityObject.code;
-      } else {
-        vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
+      if ((materialNode.shaderType === ShaderType.VertexShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
+        if (materialNode.vertexShaderityObject) {
+          vertexShaderBody += materialNode.vertexShaderityObject.code;
+        } else {
+          vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
+        }
+        existVertexFunctions.push(materialNode.shaderFunctionName);
       }
-      if (materialNode.pixelShaderityObject) {
-        pixelShaderBody += materialNode.pixelShaderityObject.code;
-      } else {
-        pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
+    }
+    const existPixelFunctions: string[] = [];
+    for (let i = 0; i < pixelMaterialNodes.length; i++) {
+      const materialNode = pixelMaterialNodes[i];
+      if ((materialNode.shaderType === ShaderType.PixelShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
+        if (materialNode.pixelShaderityObject) {
+          pixelShaderBody += materialNode.pixelShaderityObject.code;
+        } else {
+          pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
+        }
+        existPixelFunctions.push(materialNode.shaderFunctionName);
       }
-      existFunctions.push(materialNode.shaderFunctionName);
     }
 
     // vertex main process
@@ -908,7 +949,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
     } else {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
+      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform)!;
 
       const wholeShaderText = returnValue.vertexShader + returnValue.pixelShader;
 

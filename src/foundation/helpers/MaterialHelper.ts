@@ -30,6 +30,14 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
   return material;
 }
 
+function recreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
+
+  Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);
+
+  const material = Material.createMaterial(materialName, materialNodes);
+  return material;
+}
+
 function createEmptyMaterial() {
   const materialName = 'Empty';
   const material = createMaterial(materialName, [], Config.maxMaterialInstanceForEachType);
@@ -176,6 +184,25 @@ function createMToonMaterial({
   return material;
 }
 
+function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, {
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType
+} = {}) {
+  const materialName = 'Custom'
+    + `_${additionalName}_`
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
+
+  const materialNode = new CustomSingleMaterialNode({ name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    vertexShader: {code: vertexShaderStr, shaderStage: 'vertex'},
+    pixelShader: { code: pixelShaderStr, shaderStage: 'fragment'}}
+    );
+  materialNode.isSingleOperation = true;
+  const material = recreateMaterial(materialName, [materialNode], maxInstancesNumber);
+
+  return material;
+}
+
 function changeMaterial(entity: Entity, primitive: Primitive, material: Material) {
   const meshRendererComponent = entity.getMeshRenderer();
   primitive.material = material;
@@ -183,6 +210,7 @@ function changeMaterial(entity: Entity, primitive: Primitive, material: Material
 }
 
 export default Object.freeze({
+  createMaterial, recreateMaterial, recreateCustomMaterial,
   createEmptyMaterial, createClassicUberMaterial, createPbrUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, changeMaterial
 });

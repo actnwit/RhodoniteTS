@@ -52,6 +52,7 @@ import RenderPass from './foundation/renderer/RenderPass';
 import FrameBuffer from './foundation/renderer/FrameBuffer';
 import Expression from './foundation/renderer/Expression';
 import { HdriFormat } from './foundation/definitions/HdriFormat';
+import { ShaderType } from './foundation/definitions/ShaderType';
 import RenderTargetTexture from './foundation/textures/RenderTargetTexture';
 import RenderBuffer from './foundation/textures/RenderBuffer';
 import { TextureParameter } from './foundation/definitions/TextureParameter';
@@ -139,6 +140,7 @@ let Rn = {
   FrameBuffer,
   Expression,
   HdriFormat,
+  ShaderType,
   RenderTargetTexture,
   RenderBuffer,
   TextureParameter,
