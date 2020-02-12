@@ -90,6 +90,7 @@ export default class Material extends RnObject {
 
     Material.__materials.push(this);
     Material.__instancesByTypes.set(materialTypeName, this);
+    this.tryToSetUniqueName(materialTypeName, true);
     this.initialize();
   }
 
