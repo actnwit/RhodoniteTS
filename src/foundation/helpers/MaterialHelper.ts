@@ -32,7 +32,7 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
 
 function recreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
 
-  Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);
+  Material.forceRegisterMaterial(materialName, materialNodes!, maxInstancesNumber!);
 
   const material = Material.createMaterial(materialName, materialNodes);
   return material;

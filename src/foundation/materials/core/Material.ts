@@ -259,6 +259,20 @@ export default class Material extends RnObject {
     }
   }
 
+  static forceRegisterMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber: number = Config.maxMaterialInstanceForEachType) {
+      Material.__materialTypes.set(materialTypeName, materialNodes);
+
+      const materialTid = ++Material.__materialTidCount;
+      Material.__materialTids.set(materialTypeName, materialTid);
+      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
+
+      Material.__allocateBufferView(materialTypeName, materialNodes);
+      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
+
+      return true;
+
+  }
+
   static getAllMaterials() {
     return Material.__materials;
   }
