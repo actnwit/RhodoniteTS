@@ -184,8 +184,6 @@ export default class OrbitCameraController implements ICameraController {
   };
 
   __mouseUp(e: MouseEvent) {
-    if (e.buttons !== 0) return;
-
     this.__buttonNumber = 0;
     this.__originalX = -1;
     this.__originalY = -1;
@@ -439,12 +437,13 @@ export default class OrbitCameraController implements ICameraController {
       } else {
         eventTargetDom.addEventListener("mousedown", this.__mouseDownFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("mouseup", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
+        eventTargetDom.addEventListener("mouseleave", this.__mouseUpFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("mousemove", this.__mouseMoveFunc, { passive: !this.__doPreventDefault });
+
         eventTargetDom.addEventListener("keydown", this.__pressShiftFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("keyup", this.__releaseShiftFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("keydown", this.__pressCtrlFunc, { passive: !this.__doPreventDefault });
         eventTargetDom.addEventListener("keyup", this.__releaseCtrlFunc, { passive: !this.__doPreventDefault });
-
 
         eventTargetDom.addEventListener("contextmenu", (e: any) => { e.preventDefault() });
       }
@@ -475,6 +474,7 @@ export default class OrbitCameraController implements ICameraController {
       else {
         eventTargetDom.removeEventListener("mousedown", this.__mouseDownFunc);
         eventTargetDom.removeEventListener("mouseup", this.__mouseUpFunc);
+        eventTargetDom.removeEventListener("mouseleave", this.__mouseUpFunc);
         eventTargetDom.removeEventListener("mousemove", this.__mouseMoveFunc);
 
         eventTargetDom.removeEventListener("keydown", this.__pressShiftFunc);
