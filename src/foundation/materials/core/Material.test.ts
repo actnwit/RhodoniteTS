@@ -122,7 +122,7 @@ test('Material works correctly 1', async () => {
   material.setMaterialNodes([endMaterialNode, addMaterialNode2, addMaterialNode3, addMaterialNode, getVarsMaterialNode]);
 
   const returnValues = material.createProgramString();
-  expect((returnValues.vertexShaderBody+returnValues.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
+  expect((returnValues!.vertexShaderBody+returnValues!.pixelShaderBody).replace(/\s+/g, "")).toEqual(`
       void getVars(
         out vec4 position_inLocal,
         out vec4 normal_inLocal,
