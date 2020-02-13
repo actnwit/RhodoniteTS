@@ -768,6 +768,9 @@ precision highp int;
     const existPixelFunctions: string[] = [];
     for (let i = 0; i < pixelMaterialNodes.length; i++) {
       const materialNode = pixelMaterialNodes[i];
+      if (existPixelFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
+        continue;
+      }
       if ((materialNode.shaderType === ShaderType.PixelShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
         if (materialNode.pixelShaderityObject) {
           pixelShaderBody += materialNode.pixelShaderityObject.code;
