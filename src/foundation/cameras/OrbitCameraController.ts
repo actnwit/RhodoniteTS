@@ -246,6 +246,22 @@ export default class OrbitCameraController implements ICameraController {
     }
   }
 
+  set rotX(value: number) {
+    this.__rot_x = value;
+  }
+
+  set rotY(value: number) {
+    this.__rot_y = value;
+  }
+
+  get rotX() {
+    return this.__rot_x;
+  }
+
+  get rotY() {
+    return this.__rot_y;
+  }
+
   set maximumY(maximum_y: number) {
     this.__maximum_y = maximum_y;
   }
