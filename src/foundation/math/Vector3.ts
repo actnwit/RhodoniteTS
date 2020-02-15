@@ -31,16 +31,16 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
       this.v[1] = x[1];
       this.v[2] = x[2];
     } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
-      this.v[2] = (x as any).v[2];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
+      this.v[2] = (x as any).z;
     } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
-      this.v[2] = (x as any).v[2];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
+      this.v[2] = (x as any).z;
     } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
       this.v[2] = 0;
     } else {
       this.v[0] = ((x as any) as number);

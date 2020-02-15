@@ -25,18 +25,18 @@ export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
       this.v[2] = x[2];
       this.v[3] = x[3];
     } else if (typeof (x as any).w !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
-      this.v[2] = (x as any).v[2];
-      this.v[3] = (x as any).v[3];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
+      this.v[2] = (x as any).z;
+      this.v[3] = (x as any).w;
     } else if (typeof (x as any).z !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
-      this.v[2] = (x as any).v[2];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
+      this.v[2] = (x as any).z
       this.v[3] = 1;
     } else if (typeof (x as any).y !== 'undefined') {
-      this.v[0] = (x as any).v[0];
-      this.v[1] = (x as any).v[1];
+      this.v[0] = (x as any).x;
+      this.v[1] = (x as any).y;
       this.v[2] = 0;
       this.v[3] = 1;
     } else {
