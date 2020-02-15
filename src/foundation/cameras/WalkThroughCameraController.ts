@@ -109,6 +109,7 @@ export default class WalkThroughCameraController implements ICameraController {
           this._mouseDownBind
         );
         eventTargetDom.addEventListener("mouseup", this._mouseUpBind);
+        eventTargetDom.addEventListener("mouseleave", this._mouseUpBind);
         eventTargetDom.addEventListener(
           "mousemove",
           this._mouseMoveBind
@@ -141,6 +142,7 @@ export default class WalkThroughCameraController implements ICameraController {
           this._mouseDownBind
         );
         eventTargetDom.removeEventListener("mouseup", this._mouseUpBind);
+        eventTargetDom.removeEventListener("mouseleave", this._mouseUpBind);
         eventTargetDom.removeEventListener(
           "mousemove",
           this._mouseMoveBind

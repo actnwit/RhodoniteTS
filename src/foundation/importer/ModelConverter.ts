@@ -284,7 +284,7 @@ export default class ModelConverter {
 
         skeletalComponent._jointIndices = node.skin.jointsIndices;
         if (node.skin.bindShapeMatrix != null) {
-          skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix);
+          skeletalComponent._bindShapeMatrix = new Matrix44(node.skin.bindShapeMatrix, true);
         }
       }
 
