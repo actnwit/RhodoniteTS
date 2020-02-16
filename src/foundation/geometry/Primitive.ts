@@ -22,7 +22,8 @@ export type Attributes = Map<VertexAttributeEnum, Accessor>;
 
 export default class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
-  public material: Material = MaterialHelper.createEmptyMaterial();
+  private __material: Material = MaterialHelper.createEmptyMaterial();
+  public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();
   private __attributes: Attributes = new Map();
   private __indices?: Accessor;
   private static __primitiveCount: Count = 0;
@@ -36,6 +37,22 @@ export default class Primitive extends RnObject {
 
   constructor() {
     super();
+  }
+
+  set material(mat: Material) {
+    this.__material = mat;
+  }
+
+  get material() {
+    return this.__material;
+  }
+
+  _backupMaterial() {
+    this._prevMaterial = this.__material;
+  }
+
+  _restoreMaterial() {
+    this.__material = this._prevMaterial;
   }
 
   setData(

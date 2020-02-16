@@ -144,7 +144,14 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
       const gl = glw.getRawContext();
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
-      this.setupDefaultShaderSemantics(material, isPointSprite);
+      try {
+        this.setupDefaultShaderSemantics(material, isPointSprite);
+        primitive._backupMaterial();
+      } catch(e) {
+        console.log(e)
+        primitive._restoreMaterial();
+        this.setupDefaultShaderSemantics(primitive._prevMaterial, isPointSprite);
+      }
     }
   }
 
