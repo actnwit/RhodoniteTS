@@ -21,7 +21,7 @@ import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
-import { Index, CGAPIResourceHandle, Count, Byte } from "../../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../types/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";
@@ -786,6 +786,9 @@ precision highp int;
       vertexShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
+      const existingInputs: MaterialNodeUID[] = [];
+      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
+      const existingOutputs: MaterialNodeUID[] = [];
       for (let i = 1; i < vertexMaterialNodes.length; i++) {
         const materialNode = vertexMaterialNodes[i];
         if (varInputNames[i] == null) {
@@ -802,11 +805,17 @@ precision highp int;
           const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
+          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+            const rowStr = `${glslTypeStr} ${varName};\n`;
+            vertexShaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          if (existVarName) {
+            varName = existVarName;
+          }
           varInputNames[i].push(varName);
-
-          const rowStr = `${glslTypeStr} ${varName};\n`;
-          vertexShaderBody += rowStr;
+          existingInputs.push(inputConnection.materialNodeUid)
         }
         for (let j = i; j < vertexMaterialNodes.length; j++) {
           const materialNodeInner = vertexMaterialNodes[j];
@@ -817,15 +826,16 @@ precision highp int;
               continue;
             }
             const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
-            const inputSocketOfThis = materialNodeInner.getVertexInput(inputConnection.inputNameOfThis);
-            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+              const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
+              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
 
-            if (i - 1 >= 0) {
-              varOutputNames[i - 1].push(varName);
+              if (i - 1 >= 0) {
+                varOutputNames[i - 1].push(varName);
+              }
+              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
             }
-
+            existingOutputs.push(inputConnection.materialNodeUid)
           }
         }
 
@@ -860,11 +870,14 @@ precision highp int;
       vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
-    // pixel main process
+    // vertex main process
     {
       pixelShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
+      const existingInputs: MaterialNodeUID[] = [];
+      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
+      const existingOutputs: MaterialNodeUID[] = [];
       for (let i = 1; i < pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
         if (varInputNames[i] == null) {
@@ -881,11 +894,17 @@ precision highp int;
           const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
+          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+            const rowStr = `${glslTypeStr} ${varName};\n`;
+            pixelShaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          if (existVarName) {
+            varName = existVarName;
+          }
           varInputNames[i].push(varName);
-
-          const rowStr = `${glslTypeStr} ${varName};\n`;
-          pixelShaderBody += rowStr;
+          existingInputs.push(inputConnection.materialNodeUid)
         }
         for (let j = i; j < pixelMaterialNodes.length; j++) {
           const materialNodeInner = pixelMaterialNodes[j];
@@ -896,15 +915,16 @@ precision highp int;
               continue;
             }
             const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-            const inputSocketOfThis = materialNodeInner.getPixelInput(inputConnection.inputNameOfThis);
-            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+              const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
 
-            if (i - 1 >= 0) {
-              varOutputNames[i - 1].push(varName);
+              if (i - 1 >= 0) {
+                varOutputNames[i - 1].push(varName);
+              }
+              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
             }
-
+            existingOutputs.push(inputConnection.materialNodeUid)
           }
         }
 
