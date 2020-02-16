@@ -80,10 +80,12 @@ import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
 import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
 import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
 import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
+import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4MaterialNode';
 import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
 import AttributeNormalMaterialNode from './foundation/materials/nodes/AttributeNormalMaterialNode';
 import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMaterialNode';
 import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMaterialNode';
+import NormalMatrixMaterialNode from './foundation/materials/nodes/NormalMatrixMaterialNode';
 import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
 import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
 
@@ -170,12 +172,14 @@ let Rn = {
   MultiplyMaterialNode,
   EndMaterialNode,
   ScalarToVector4MaterialNode,
+  Vector3AndScalarToVector4MaterialNode,
   AttributePositionMaterialNode,
   AttributeNormalMaterialNode,
   WorldMatrixMaterialNode,
   ViewMatrixMaterialNode,
   ProjectionMatrixMaterialNode,
   VaryingVariableMaterialNode,
+  NormalMatrixMaterialNode,
 };
 
 if (typeof exports !== 'undefined') {

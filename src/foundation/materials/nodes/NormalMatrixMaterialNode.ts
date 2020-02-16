@@ -2,21 +2,19 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AttributeNormalShaderityObject from "../../../webgl/shaderity_shaders/nodes/AttributeNormal.vert"
+import NormalMatrixShaderityObject from "../../../webgl/shaderity_shaders/nodes/NormalMatrix.vert"
 
-export default class AttributePositionMaterialNode extends AbstractMaterialNode {
+export default class NormalMatrixMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(null, 'attributeNormal', {}, AttributeNormalShaderityObject, AttributeNormalShaderityObject);
+    super(null, 'normalMatrix', {}, NormalMatrixShaderityObject, NormalMatrixShaderityObject);
 
     this.__vertexOutputs.push(
       {
-        compositionType: CompositionType.Vec3,
+        compositionType: CompositionType.Mat3,
         componentType: ComponentType.Float,
         name: 'outValue',
       });
-
   }
 
 }
-

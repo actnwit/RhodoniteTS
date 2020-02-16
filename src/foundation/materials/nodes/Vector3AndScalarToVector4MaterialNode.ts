@@ -2,12 +2,12 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import ScalarToVector4ShaderityObject from "../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl"
+import Vector3AndScalarToVector4ShaderityObject from "../../../webgl/shaderity_shaders/nodes/Vector3AndScalarToVector4.glsl"
 
 export default class AddMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(null, 'scalarToVector4', {}, ScalarToVector4ShaderityObject, ScalarToVector4ShaderityObject);
+    super(null, 'vector3AndScalarToVector4', {}, Vector3AndScalarToVector4ShaderityObject, Vector3AndScalarToVector4ShaderityObject);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
     ];
@@ -15,21 +15,9 @@ export default class AddMaterialNode extends AbstractMaterialNode {
 
     this.__vertexInputs.push(
       {
-        compositionType: CompositionType.Scalar,
+        compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
-        name: 'x',
-      });
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        name: 'y',
-      });
-    this.__vertexInputs.push(
-      {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        name: 'z',
+        name: 'xyz',
       });
     this.__vertexInputs.push(
       {
@@ -46,27 +34,15 @@ export default class AddMaterialNode extends AbstractMaterialNode {
 
     this.__pixelInputs.push(
       {
-        compositionType: CompositionType.Scalar,
+        compositionType: CompositionType.Vec3,
         componentType: ComponentType.Float,
-        name: 'x',
+        name: 'xyz',
       });
     this.__pixelInputs.push(
       {
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         name: 'y',
-      });
-    this.__pixelInputs.push(
-      {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        name: 'z',
-      });
-    this.__pixelInputs.push(
-      {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Float,
-        name: 'w',
       });
      this.__pixelOutputs.push(
       {
