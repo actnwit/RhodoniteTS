@@ -77,6 +77,7 @@ import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNo
 import { PixelFormat } from './foundation/definitions/PixelFormat';
 import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
 import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
+import DotProductMaterialNode from './foundation/materials/nodes/DotProductMaterialNode';
 import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
 import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
 import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
@@ -169,6 +170,7 @@ let Rn = {
   PixelFormat,
   ConstantVariableMaterialNode,
   AddMaterialNode,
+  DotProductMaterialNode,
   MultiplyMaterialNode,
   EndMaterialNode,
   ScalarToVector4MaterialNode,
