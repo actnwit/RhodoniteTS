@@ -843,10 +843,16 @@ precision highp int;
 
       for (let i = 0; i < vertexMaterialNodes.length; i++) {
         const materialNode = vertexMaterialNodes[i];
-
         const functionName = materialNode.shaderFunctionName;
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
+        }
+        if (varOutputNames[i] == null) {
+          varOutputNames[i] = [];
+        }
+        if (materialNode.getVertexInputs().length != varInputNames[i].length ||
+          materialNode.getVertexOutputs().length != varOutputNames[i].length) {
+          continue;
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
         if (varNames.length === 0) {
@@ -932,10 +938,16 @@ precision highp int;
 
       for (let i = 0; i < pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
-
         const functionName = materialNode.shaderFunctionName;
         if (varInputNames[i] == null) {
           varInputNames[i] = [];
+        }
+        if (varOutputNames[i] == null) {
+          varOutputNames[i] = [];
+        }
+        if (materialNode.getPixelInputs().length != varInputNames[i].length ||
+          materialNode.getPixelOutputs().length != varOutputNames[i].length) {
+          continue;
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
         if (varNames.length === 0) {

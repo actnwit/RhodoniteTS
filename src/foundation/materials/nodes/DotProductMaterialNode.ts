@@ -2,15 +2,15 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddShaderityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
+import DotProductShaderityObject from "../../../webgl/shaderity_shaders/nodes/DotProduct.glsl"
 import { CompositionTypeEnum, ComponentTypeEnum } from "../../../rhodonite";
 
-export default class AddMaterialNode extends AbstractMaterialNode {
+export default class DotProductMaterialNode extends AbstractMaterialNode {
 
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super(null, 'add', {}, AddShaderityObject, AddShaderityObject);
+    super(null, 'dotProduct', {}, DotProductShaderityObject, DotProductShaderityObject);
 
-    this.__vertexInputs.push(
+        this.__vertexInputs.push(
       {
         compositionType: compositionType,
         componentType: componentType,
@@ -31,7 +31,7 @@ export default class AddMaterialNode extends AbstractMaterialNode {
 
     this.__pixelInputs.push(
       {
-        compositionType: compositionType,
+        compositionType: CompositionType.Scalar,
         componentType: componentType,
         name: 'lhs',
       });
@@ -43,7 +43,7 @@ export default class AddMaterialNode extends AbstractMaterialNode {
       });
     this.__pixelOutputs.push(
       {
-        compositionType: compositionType,
+        compositionType: CompositionType.Scalar,
         componentType: componentType,
         name: 'outValue',
       });
