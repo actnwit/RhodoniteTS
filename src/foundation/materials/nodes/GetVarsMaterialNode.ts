@@ -4,13 +4,18 @@ import GetVarsShader from "../../../webgl/shaders/nodes/GetVarsShader";
 import { VertexAttributeClass } from "../../definitions/VertexAttribute";
 import { ShaderType } from "../../definitions/ShaderType";
 
+export type ShaderImmediateValue = {
+  isImmediateValue: boolean,
+  immediateValue?: string
+}
+
 export default class GetVarsMaterialNode extends AbstractMaterialNode {
   constructor() {
     super(new GetVarsShader(), 'getVars');
 
   }
 
-  addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
+  addVertexInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket, immediateInfo: ShaderImmediateValue) {
     if (inShaderSocket.name instanceof VertexAttributeClass) {
       this.shader!.attributeSemantics.push(inShaderSocket.name);
       this.shader!.attributeNames.push(inShaderSocket.name.shaderStr);
@@ -29,10 +34,10 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
       });
     }
     this.__vertexOutputs.push(outShaderSocket);
-    (this.shader as GetVarsShader).addVertexInputAndOutput(inShaderSocket, outShaderSocket);
+    (this.shader as GetVarsShader).addVertexInputAndOutput(inShaderSocket, outShaderSocket, immediateInfo);
   }
 
-  addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket) {
+  addPixelInputAndOutput(inShaderSocket: ShaderSocket, outShaderSocket: ShaderSocket, immediateInfo: ShaderImmediateValue) {
     if (inShaderSocket.name instanceof ShaderSemanticsClass) {
       this.__semantics.push({
         semantic: inShaderSocket.name,
@@ -46,7 +51,7 @@ export default class GetVarsMaterialNode extends AbstractMaterialNode {
       });
     }
     this.__pixelOutputs.push(outShaderSocket);
-    (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket);
+    (this.shader as GetVarsShader).addPixelInputAndOutput(inShaderSocket, outShaderSocket, immediateInfo);
   }
 
 }

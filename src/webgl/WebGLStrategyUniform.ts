@@ -72,7 +72,14 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
       const gl = glw.getRawContext();
       const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
 
-      this.setupDefaultShaderSemantics(material, isPointSprite);
+      try {
+        this.setupDefaultShaderSemantics(material, isPointSprite);
+        primitive._backupMaterial();
+      } catch(e) {
+        console.log(e)
+        primitive._restoreMaterial();
+        this.setupDefaultShaderSemantics(primitive.material, isPointSprite);
+      }
     }
   }
 
@@ -164,21 +171,48 @@ mat3 get_normalMatrix(float instanceId) {
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
   }
 
-  async $load(meshComponent: MeshComponent) {
+  private __isMeshSetup(meshComponent: MeshComponent) {
+
+    if (meshComponent.mesh!.variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
+      let count = 0;
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = meshComponent.mesh!.getPrimitiveAt(i);
+        if (primitive.vertexHandles != null) {
+          count++;
+        }
+      }
+
+      if (primitiveNum === count) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+  }
+
+
+  $load(meshComponent: MeshComponent) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
 
-    this.setupShaderProgram(meshComponent);
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      primitive.create3DAPIVertexData();
+    if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
+      this.setupShaderProgram(meshComponent);
     }
-    meshComponent.mesh.updateVariationVBO();
 
+    if (!WebGLStrategyCommonMethod.isMeshSetup(meshComponent)) {
+      const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
+      for (let i = 0; i < primitiveNum; i++) {
+        const primitive = meshComponent!.mesh.getPrimitiveAt(i);
+        primitive.create3DAPIVertexData();
+      }
+      meshComponent.mesh.updateVariationVBO();
+    }
   }
 
   $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle) {

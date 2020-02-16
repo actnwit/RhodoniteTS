@@ -2,6 +2,7 @@ import { IVector2, IVector3, IVector4 } from "./IVector";
 import Vector4 from "./Vector4";
 import Vector3 from "./Vector3";
 import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
+import { MathUtil } from "./MathUtil";
 
 export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
   v: TypedArray;
@@ -68,6 +69,14 @@ export class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
 
   get raw() {
     return this.v;
+  }
+
+  get glslStrAsFloat() {
+    return `vec2(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)})`;
+  }
+
+  get glslStrAsInt() {
+    return `ivec2(${Math.floor(this.x)}, ${Math.floor(this.y)})`;
   }
 }
 

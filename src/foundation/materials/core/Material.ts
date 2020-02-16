@@ -11,7 +11,7 @@ import MathClassUtil from "../../math/MathClassUtil";
 import { ComponentType } from "../../definitions/ComponentType";
 import Vector2 from "../../math/Vector2";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
-import { VertexAttribute } from "../../definitions/VertexAttribute";
+import { VertexAttribute, VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import AbstractTexture from "../../textures/AbstractTexture";
 import MemoryManager from "../../core/MemoryManager";
 import { BufferUse } from "../../definitions/BufferUse";
@@ -21,7 +21,7 @@ import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
-import { Index, CGAPIResourceHandle, Count, Byte } from "../../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../types/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";
@@ -29,6 +29,8 @@ import { ProcessApproach } from "../../definitions/ProcessApproach";
 import ShaderityUtility from "./ShaderityUtility";
 import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
+import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
+import GLSLShader from "../../../webgl/shaders/GLSLShader";
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -88,6 +90,7 @@ export default class Material extends RnObject {
 
     Material.__materials.push(this);
     Material.__instancesByTypes.set(materialTypeName, this);
+    this.tryToSetUniqueName(materialTypeName, true);
     this.initialize();
   }
 
@@ -254,6 +257,20 @@ export default class Material extends RnObject {
       console.info(`${materialTypeName} is already registered.`);
       return false;
     }
+  }
+
+  static forceRegisterMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber: number = Config.maxMaterialInstanceForEachType) {
+      Material.__materialTypes.set(materialTypeName, materialNodes);
+
+      const materialTid = ++Material.__materialTidCount;
+      Material.__materialTids.set(materialTypeName, materialTid);
+      Material.__maxInstances.set(materialTypeName, maxInstanceNumber);
+
+      Material.__allocateBufferView(materialTypeName, materialNodes);
+      Material.__materialInstanceCountOfType.set(materialTypeName, 0);
+
+      return true;
+
   }
 
   static getAllMaterials() {
@@ -487,20 +504,7 @@ export default class Material extends RnObject {
     const materialNode = this.__materialNodes[0];
     const glslShader = materialNode.shader;
 
-    let vertexPropertiesStr = '';
-    let pixelPropertiesStr = '';
-    this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
-      const info = this.__fieldsInfo.get(propertyIndex);
-      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
-      }
-      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
-      }
-    });
-
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
 
     let definitions = materialNode.definitions;
 
@@ -556,20 +560,59 @@ export default class Material extends RnObject {
     }
   }
 
-  /*
-  createProgramString(vertexShaderMethodDefinitions_uniform = '') {
+
+  private __getProperties(propertySetter: getShaderPropertyFunc) {
+    let vertexPropertiesStr = '';
+    let pixelPropertiesStr = '';
+    this.__fieldsInfo.forEach((value, propertyIndex: Index) => {
+      const info = this.__fieldsInfo.get(propertyIndex);
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
+        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, propertyIndex, false);
+      }
+    });
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository.addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter);
+    return { vertexPropertiesStr, pixelPropertiesStr };
+  }
+
+  createProgramString(vertexShaderMethodDefinitions_uniform = '', propertySetter?: getShaderPropertyFunc) {
+
+    const materialNodesVertex = this.__materialNodes.filter((node)=>{
+      if (node.shaderType === ShaderType.VertexShader || node.shaderType === ShaderType.VertexAndPixelShader) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const materialNodesPixel = this.__materialNodes.filter((node)=>{
+      if (node.shaderType === ShaderType.PixelShader || node.shaderType === ShaderType.VertexAndPixelShader) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     // Find Start Node
     let firstMaterialNodeVertex: AbstractMaterialNode;
     let firstMaterialNodePixel: AbstractMaterialNode;
-    for (let i = 0; i < this.__materialNodes.length; i++) {
-      const materialNode = this.__materialNodes[i];
+    for (let i = 0; i < materialNodesVertex.length; i++) {
+      const materialNode = materialNodesVertex[i];
       if (materialNode.vertexInputConnections.length === 0) {
         firstMaterialNodeVertex = materialNode;
       }
+    }
+    for (let i = 0; i < materialNodesPixel.length; i++) {
+      const materialNode = materialNodesPixel[i];
       if (materialNode.pixelInputConnections.length === 0) {
         firstMaterialNodePixel = materialNode;
       }
+    }
+
+    if (firstMaterialNodeVertex! == null || firstMaterialNodePixel! == null) {
+      return void 0;
     }
 
     // Topological Sorting
@@ -578,8 +621,6 @@ export default class Material extends RnObject {
     const ignoredInputUidsPixel: Index[] = [firstMaterialNodePixel!.materialNodeUid];
     const sortedNodeArrayPixel: AbstractMaterialNode[] = [firstMaterialNodePixel!];
     /// delete first nodes from existing array
-    const materialNodesVertex = this.__materialNodes.concat();
-    const materialNodesPixel = this.__materialNodes.concat();
     materialNodesVertex.splice(materialNodesVertex.indexOf(firstMaterialNodeVertex!), 1);
     materialNodesPixel.splice(materialNodesPixel.indexOf(firstMaterialNodePixel!), 1);
     do {
@@ -618,45 +659,49 @@ export default class Material extends RnObject {
       materialNodesPixel.splice(materialNodesPixel.indexOf(materialNodeWhichHasNoInputs!), 1);
     } while (materialNodesPixel.length !== 0);
 
-    // Get GLSL Beginning code
-    let vertexShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
-    let pixelShader = firstMaterialNodePixel!.shader.glsl_versionText + firstMaterialNodeVertex!.shader.glslPrecision;
+    let vertexShaderPrerequisites = '';
+    let pixelShaderPrerequisites = '';
 
-    // attribute variables definitions in Vertex Shader
-    for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
-      const materialNode = sortedNodeArrayVertex[i];
-      const attributeNames = materialNode.shader.attributeNames;
-      const attributeSemantics = materialNode.shader.attributeSemantics;
-      const attributeCompositions = materialNode.shader.attributeCompositions;
-      for (let j = 0; j < attributeSemantics.length; j++) {
-        const attributeName = attributeNames[j];
-        const attributeComposition = attributeCompositions[j];
-        vertexShader += `${attributeComposition.getGlslStr(ComponentType.Float)} ${attributeName};\n`;
-      }
-    }
-    vertexShader += '\n';
+
+    // // Get GLSL Beginning code
+    // let vertexShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
+    // let pixelShader = firstMaterialNodePixel!.shader!.glsl_versionText + firstMaterialNodeVertex!.shader!.glslPrecision;
+
+    // // attribute variables definitions in Vertex Shader
+    // for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
+    //   const materialNode = sortedNodeArrayVertex[i];
+    //   const attributeNames = materialNode.shader!.attributeNames;
+    //   const attributeSemantics = materialNode.shader!.attributeSemantics;
+    //   const attributeCompositions = materialNode.shader!.attributeCompositions;
+    //   for (let j = 0; j < attributeSemantics.length; j++) {
+    //     const attributeName = attributeNames[j];
+    //     const attributeComposition = attributeCompositions[j];
+    //     vertexShader += `${attributeComposition.getGlslStr(ComponentType.Float)} ${attributeName};\n`;
+    //   }
+    // }
+    // vertexShader += '\n';
 
     // uniform variables definitions
-    for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
-      const materialNode = sortedNodeArrayVertex[i];
-      const semanticsInfoArray = materialNode._semanticsInfoArray;
-      for (let j = 0; j < semanticsInfoArray.length; j++) {
-        const semanticInfo = semanticsInfoArray[j];
-        const attributeComposition = semanticInfo.compositionType!;
-        vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
-      }
-    }
-    vertexShader += '\n';
-    for (let i = 0; i < sortedNodeArrayPixel.length; i++) {
-      const materialNode = sortedNodeArrayPixel[i];
-      const semanticsInfoArray = materialNode._semanticsInfoArray;
-      for (let j = 0; j < semanticsInfoArray.length; j++) {
-        const semanticInfo = semanticsInfoArray[j];
-        const attributeComposition = semanticInfo.compositionType!;
-        pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
-      }
-    }
-    pixelShader += '\n';
+    // for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
+    //   const materialNode = sortedNodeArrayVertex[i];
+    //   const semanticsInfoArray = materialNode._semanticsInfoArray;
+    //   for (let j = 0; j < semanticsInfoArray.length; j++) {
+    //     const semanticInfo = semanticsInfoArray[j];
+    //     const attributeComposition = semanticInfo.compositionType!;
+    //     vertexShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
+    //   }
+    // }
+    // vertexShader += '\n';
+    // for (let i = 0; i < sortedNodeArrayPixel.length; i++) {
+    //   const materialNode = sortedNodeArrayPixel[i];
+    //   const semanticsInfoArray = materialNode._semanticsInfoArray;
+    //   for (let j = 0; j < semanticsInfoArray.length; j++) {
+    //     const semanticInfo = semanticsInfoArray[j];
+    //     const attributeComposition = semanticInfo.compositionType!;
+    //     pixelShader += `uniform ${attributeComposition.getGlslStr(semanticInfo.componentType!)} u_${semanticInfo.semantic!.str};\n`;
+    //   }
+    // }
+    // pixelShader += '\n';
 
 
     // remove node which don't have inputConnections (except first node)
@@ -664,41 +709,86 @@ export default class Material extends RnObject {
     const pixelMaterialNodes = [];
     for (let i = 0; i < sortedNodeArrayVertex.length; i++) {
       const materialNode = sortedNodeArrayVertex[i];
-      if (i === 0 || materialNode.vertexInputConnections.length > 0) {
-        vertexMaterialNodes.push(materialNode);
-      }
+      vertexMaterialNodes.push(materialNode);
     }
     for (let i = 0; i < sortedNodeArrayPixel.length; i++) {
       const materialNode = sortedNodeArrayPixel[i];
-      if (i === 0 || materialNode.pixelInputConnections.length > 0) {
-        pixelMaterialNodes.push(materialNode);
-      }
+      pixelMaterialNodes.push(materialNode);
     }
 
     // Add additional functions by system
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    let in_ = 'attribute'
+    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
+      in_ = 'in'
+    }
+    vertexShaderPrerequisites += `
+precision highp float;
+precision highp int;
 
-    vertexShader += `
+    ${in_} float a_instanceID;\n`;
+    vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `
-    vertexShader += vertexShaderMethodDefinitions_uniform;
+    vertexShaderPrerequisites += '/* shaderity: ${matricesGetters} */'
+    vertexShaderPrerequisites += '/* shaderity: ${getters} */'
+
+    vertexShaderPrerequisites += vertexShaderMethodDefinitions_uniform;
+
+    pixelShaderPrerequisites += `
+precision highp float;
+precision highp int;
+`
+
+    if (propertySetter) {
+      let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
+      vertexShaderPrerequisites += vertexPropertiesStr;
+      pixelShaderPrerequisites += pixelPropertiesStr;
+    }
+
+    let vertexShaderBody = ''
+    let pixelShaderBody = ''
 
     // function definitions
-    const existFunctions: string[] = [];
+    const existVertexFunctions: string[] = [];
     for (let i = 0; i < vertexMaterialNodes.length; i++) {
       const materialNode = vertexMaterialNodes[i];
-      if (existFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
+      if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      vertexShader += materialNode.shader.vertexShaderDefinitions;
-      pixelShader += materialNode.shader.pixelShaderDefinitions;
-      existFunctions.push(materialNode.shaderFunctionName);
+      if ((materialNode.shaderType === ShaderType.VertexShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
+        if (materialNode.vertexShaderityObject) {
+          vertexShaderBody += materialNode.vertexShaderityObject.code;
+        } else {
+          vertexShaderBody += (materialNode.shader! as any).vertexShaderDefinitions;
+        }
+        existVertexFunctions.push(materialNode.shaderFunctionName);
+      }
+    }
+    const existPixelFunctions: string[] = [];
+    for (let i = 0; i < pixelMaterialNodes.length; i++) {
+      const materialNode = pixelMaterialNodes[i];
+      if (existPixelFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
+        continue;
+      }
+      if ((materialNode.shaderType === ShaderType.PixelShader || materialNode.shaderType === ShaderType.VertexAndPixelShader)) {
+        if (materialNode.pixelShaderityObject) {
+          pixelShaderBody += materialNode.pixelShaderityObject.code;
+        } else {
+          pixelShaderBody += (materialNode.shader! as any).pixelShaderDefinitions;
+        }
+        existPixelFunctions.push(materialNode.shaderFunctionName);
+      }
     }
 
     // vertex main process
     {
-      vertexShader += firstMaterialNodeVertex!.shader.glslMainBegin;
+      vertexShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
+      const existingInputs: MaterialNodeUID[] = [];
+      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
+      const existingOutputs: MaterialNodeUID[] = [];
       for (let i = 1; i < vertexMaterialNodes.length; i++) {
         const materialNode = vertexMaterialNodes[i];
         if (varInputNames[i] == null) {
@@ -715,11 +805,17 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getVertexInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
+          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+            const rowStr = `${glslTypeStr} ${varName};\n`;
+            vertexShaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          if (existVarName) {
+            varName = existVarName;
+          }
           varInputNames[i].push(varName);
-
-          const rowStr = `${glslTypeStr} ${varName};\n`;
-          vertexShader += rowStr;
+          existingInputs.push(inputConnection.materialNodeUid)
         }
         for (let j = i; j < vertexMaterialNodes.length; j++) {
           const materialNodeInner = vertexMaterialNodes[j];
@@ -730,15 +826,16 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
               continue;
             }
             const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
-            const inputSocketOfThis = materialNodeInner.getVertexInput(inputConnection.inputNameOfThis);
-            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+              const outputSocketOfPrev = inputNode.getVertexOutput(inputConnection.outputNameOfPrev);
+              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
 
-            if (i - 1 >= 0) {
-              varOutputNames[i - 1].push(varName);
+              if (i - 1 >= 0) {
+                varOutputNames[i - 1].push(varName);
+              }
+              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
             }
-
+            existingOutputs.push(inputConnection.materialNodeUid)
           }
         }
 
@@ -752,6 +849,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i] = [];
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
+        if (varNames.length === 0) {
+          continue;
+        }
         let rowStr = `${functionName}(`;
         for (let k = 0; k < varNames.length; k++) {
           const varName = varNames[k];
@@ -764,17 +864,20 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           rowStr += varNames[k];
         }
         rowStr += ');\n';
-        vertexShader += rowStr;
+        vertexShaderBody += rowStr;
       }
 
-      vertexShader += firstMaterialNodeVertex!.shader.glslMainEnd;
+      vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
-    // pixel main process
+    // vertex main process
     {
-      pixelShader += firstMaterialNodePixel!.shader.glslMainBegin;
+      pixelShaderBody += GLSLShader.glslMainBegin;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
+      const existingInputs: MaterialNodeUID[] = [];
+      const existingOutputsVarName: Map<MaterialNodeUID, string> = new Map()
+      const existingOutputs: MaterialNodeUID[] = [];
       for (let i = 1; i < pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
         if (varInputNames[i] == null) {
@@ -791,11 +894,17 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-          const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNode.materialNodeUid}`;
+          let varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNode.materialNodeUid}`;
+          if (existingInputs.indexOf(inputNode.materialNodeUid) === -1) {
+            const rowStr = `${glslTypeStr} ${varName};\n`;
+            pixelShaderBody += rowStr;
+          }
+          const existVarName = existingOutputsVarName.get(inputNode.materialNodeUid);
+          if (existVarName) {
+            varName = existVarName;
+          }
           varInputNames[i].push(varName);
-
-          const rowStr = `${glslTypeStr} ${varName};\n`;
-          pixelShader += rowStr;
+          existingInputs.push(inputConnection.materialNodeUid)
         }
         for (let j = i; j < pixelMaterialNodes.length; j++) {
           const materialNodeInner = pixelMaterialNodes[j];
@@ -806,15 +915,16 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
               continue;
             }
             const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-            const inputSocketOfThis = materialNodeInner.getPixelInput(inputConnection.inputNameOfThis);
-            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
-            const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${inputSocketOfThis!.name}_${materialNodeInner.materialNodeUid}`;
+            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+              const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
 
-            if (i - 1 >= 0) {
-              varOutputNames[i - 1].push(varName);
+              if (i - 1 >= 0) {
+                varOutputNames[i - 1].push(varName);
+              }
+              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
             }
-
+            existingOutputs.push(inputConnection.materialNodeUid)
           }
         }
 
@@ -828,6 +938,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           varInputNames[i] = [];
         }
         const varNames = varInputNames[i].concat(varOutputNames[i]);
+        if (varNames.length === 0) {
+          continue;
+        }
         let rowStr = `${functionName}(`;
         for (let k = 0; k < varNames.length; k++) {
           const varName = varNames[k];
@@ -840,10 +953,10 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
           rowStr += varNames[k];
         }
         rowStr += ');\n';
-        pixelShader += rowStr;
+        pixelShaderBody += rowStr;
       }
 
-      pixelShader += firstMaterialNodePixel!.shader.glslMainEnd;
+      pixelShaderBody += GLSLShader.glslMainEnd;
     }
 
 
@@ -851,47 +964,59 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     let attributeSemantics: Array<VertexAttributeEnum> = [];
     for (let i = 0; i < vertexMaterialNodes.length; i++) {
       const materialNode = vertexMaterialNodes[i];
-      Array.prototype.push.apply(attributeNames, materialNode.shader.attributeNames);
-      Array.prototype.push.apply(attributeSemantics, materialNode.shader.attributeSemantics);
+      if (materialNode.shader != null) {
+        Array.prototype.push.apply(attributeNames, materialNode.shader.attributeNames);
+        Array.prototype.push.apply(attributeSemantics, materialNode.shader.attributeSemantics);
+      }
     }
     // remove duplicate values
     attributeNames = Array.from(new Set(attributeNames))
     attributeSemantics = Array.from(new Set(attributeSemantics))
 
-    return { vertexShader, pixelShader, attributeNames, attributeSemantics };
+    const vertexShader = vertexShaderPrerequisites + vertexShaderBody;
+    const pixelShader = pixelShaderPrerequisites + pixelShaderBody;
+
+    return { vertexShader, pixelShader, attributeNames, attributeSemantics, vertexShaderBody, pixelShaderBody };
   }
-  */
+
 
   createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc) {
 
     if (this.__materialNodes[0].isSingleOperation) {
       return this.createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform, propertySetter);
     } else {
-      /*
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform);
+      let returnValue = this.createProgramString(vertexShaderMethodDefinitions_uniform)!;
 
-      const hash = DataUtil.toCRC32(returnValue.vertexShader + returnValue.pixelShader);
+      const wholeShaderText = returnValue.vertexShader + returnValue.pixelShader;
+
 
       // Cache
-      if (Material.__shaderMap.has(hash)) {
-        this._shaderProgramUid = Material.__shaderMap.get(hash)!;
+      let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
+      if (shaderProgramUid) {
+        this._shaderProgramUid = shaderProgramUid;
+        return shaderProgramUid;
+      }
+
+      const hash = DataUtil.toCRC32(wholeShaderText);
+      shaderProgramUid = Material.__shaderHashMap.get(hash);
+      if (shaderProgramUid) {
+        this._shaderProgramUid = shaderProgramUid;
         return this._shaderProgramUid;
       } else {
         this._shaderProgramUid = webglResourceRepository.createShaderProgram(
-          {
-            materialTypeName: this.__materialTypeName,
-            vertexShaderStr: returnValue.vertexShader,
-            fragmentShaderStr: returnValue.pixelShader,
-            attributeNames: returnValue.attributeNames,
-            attributeSemantics: returnValue.attributeSemantics
-          }
+        {
+          materialTypeName: this.__materialTypeName,
+          vertexShaderStr: returnValue.vertexShader,
+          fragmentShaderStr: returnValue.pixelShader,
+          attributeNames: returnValue.attributeNames,
+          attributeSemantics: returnValue.attributeSemantics
+        }
         );
-        Material.__shaderMap.set(hash, this._shaderProgramUid);
+        Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
+        Material.__shaderHashMap.set(hash, this._shaderProgramUid);
         return this._shaderProgramUid;
       }
-      */
-      return -1;
     }
   }
 

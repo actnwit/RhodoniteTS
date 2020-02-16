@@ -18,7 +18,6 @@ export default class EndMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'inPosition',
-        isImmediateValue: false
       });
 
 
@@ -27,7 +26,6 @@ export default class EndMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'inColor',
-        isImmediateValue: false
       });
 
   }

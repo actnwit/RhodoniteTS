@@ -15,6 +15,9 @@ import classicSingleShaderVertex from "../../webgl/shaderity_shaders/classicSing
 import classicSingleShaderFragment from "../../webgl/shaderity_shaders/classicSingleShader/classicSingleShader.frag";
 import CustomSingleMaterialNode from "../materials/singles/CustomSingleMaterialNode";
 import Shaderity, { ShaderityObject } from "shaderity";
+import Primitive from "../geometry/Primitive";
+import Entity from "../core/Entity";
+import { ProcessStage } from "../definitions/ProcessStage";
 
 function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
   const isRegistMaterialType = Material.isRegisteredMaterialType(materialName);
@@ -22,6 +25,14 @@ function createMaterial(materialName: string, materialNodes?: AbstractMaterialNo
   if (!isRegistMaterialType) {
     Material.registerMaterial(materialName, materialNodes!, maxInstancesNumber!);
   }
+
+  const material = Material.createMaterial(materialName, materialNodes);
+  return material;
+}
+
+function recreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material {
+
+  Material.forceRegisterMaterial(materialName, materialNodes!, maxInstancesNumber!);
 
   const material = Material.createMaterial(materialName, materialNodes);
   return material;
@@ -173,8 +184,33 @@ function createMToonMaterial({
   return material;
 }
 
+function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, {
+  additionalName = '', isSkinning = true, isLighting = false, isMorphing = false,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType
+} = {}) {
+  const materialName = 'Custom'
+    + `_${additionalName}_`
+    + (isSkinning ? '+skinning' : '')
+    + (isLighting ? '' : '-lighting');
+
+  const materialNode = new CustomSingleMaterialNode({ name: materialName, isSkinning: isSkinning, isLighting: isLighting, isMorphing: isMorphing,
+    vertexShader: {code: vertexShaderStr, shaderStage: 'vertex'},
+    pixelShader: { code: pixelShaderStr, shaderStage: 'fragment'}}
+    );
+  materialNode.isSingleOperation = true;
+  const material = recreateMaterial(materialName, [materialNode], maxInstancesNumber);
+
+  return material;
+}
+
+function changeMaterial(entity: Entity, primitive: Primitive, material: Material) {
+  const meshRendererComponent = entity.getMeshRenderer();
+  primitive.material = material;
+  meshRendererComponent.moveStageTo(ProcessStage.Load);
+}
 
 export default Object.freeze({
+  createMaterial, recreateMaterial, recreateCustomMaterial,
   createEmptyMaterial, createClassicUberMaterial, createPbrUberMaterial, createEnvConstantMaterial, createFXAA3QualityMaterial, createDepthEncodeMaterial,
-  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial
+  createShadowMapDecodeClassicSingleMaterial, createGammaCorrectionMaterial, createEntityUIDOutputMaterial, createMToonMaterial, changeMaterial
 });

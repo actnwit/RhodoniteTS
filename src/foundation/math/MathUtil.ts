@@ -99,4 +99,12 @@ function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, cr
   return [v0, v1];
 }
 
-export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2});
+function convertToStringAsGLSLFloat(value: number): string {
+  if (Number.isInteger(value)) {
+    return `${value}.0`;
+  } else {
+    return ''+value;
+  }
+}
+
+export const MathUtil = Object.freeze({radianToDegree, degreeToRadian, toHalfFloat, isPowerOfTwo, isPowerOfTwoTexture, packNormalizedVec4ToVec2, convertToStringAsGLSLFloat});

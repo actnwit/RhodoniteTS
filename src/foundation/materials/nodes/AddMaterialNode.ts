@@ -2,37 +2,30 @@ import { ShaderSemanticsInfo, ShaderSemantics, ShaderSemanticsEnum } from "../..
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import { CompositionType } from "../../definitions/CompositionType";
 import { ComponentType } from "../../definitions/ComponentType";
-import AddShader from "../../../webgl/shaders/nodes/AddShader";
+import AddShaderityObject from "../../../webgl/shaderity_shaders/nodes/Add.glsl"
 
 export default class AddMaterialNode extends AbstractMaterialNode {
 
   constructor() {
-    super(AddShader.getInstance(), 'add');
-
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-    ];
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    super(null, 'add', {}, AddShaderityObject, AddShaderityObject);
 
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'lhs',
-        isImmediateValue: false
       });
     this.__vertexInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'rhs',
-        isImmediateValue: false
       });
     this.__vertexOutputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'outValue',
-        isImmediateValue: false
       });
 
     this.__pixelInputs.push(
@@ -40,21 +33,18 @@ export default class AddMaterialNode extends AbstractMaterialNode {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'lhs',
-        isImmediateValue: false
       });
     this.__pixelInputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'rhs',
-        isImmediateValue: false
       });
     this.__pixelOutputs.push(
       {
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         name: 'outValue',
-        isImmediateValue: false
       });
   }
 

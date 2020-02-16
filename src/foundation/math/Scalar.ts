@@ -1,5 +1,6 @@
 import { IScalar } from "./IVector";
 import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
+import { MathUtil } from "./MathUtil";
 
 export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
   v: TypedArray;
@@ -50,6 +51,13 @@ export class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     }
   }
 
+  get glslStrAsFloat() {
+    return `${MathUtil.convertToStringAsGLSLFloat(this.x)}`;
+  }
+
+  get glslStrAsInt() {
+    return `${Math.floor(this.x)}`;
+  }
 }
 
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {

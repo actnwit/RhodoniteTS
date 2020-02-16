@@ -6,6 +6,7 @@ import { IVector3 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { MutableVector3_ } from './MutableVector3';
+import { MathUtil } from './MathUtil';
 
 
 export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
@@ -278,6 +279,14 @@ export class Vector3_<T extends TypedArrayConstructor> implements IVector3 {
 
   get raw() {
     return this.v;
+  }
+
+  get glslStrAsFloat() {
+    return `vec3(${MathUtil.convertToStringAsGLSLFloat(this.x)}, ${MathUtil.convertToStringAsGLSLFloat(this.y)}, ${MathUtil.convertToStringAsGLSLFloat(this.z)})`;
+  }
+
+  get glslStrAsInt() {
+    return `ivec3(${Math.floor(this.x)}, ${Math.floor(this.y)}, ${Math.floor(this.z)})`;
   }
 }
 

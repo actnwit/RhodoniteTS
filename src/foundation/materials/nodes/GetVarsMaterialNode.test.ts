@@ -17,12 +17,13 @@ test('GetVersMaterialNode vertex shader works correctly', async () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: VertexAttribute.Position,
-      isImmediateValue: false
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'position_inLocal',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -31,12 +32,13 @@ test('GetVersMaterialNode vertex shader works correctly', async () => {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       name: 'u_viewMatrix',
-      isImmediateValue: false
     },
     {
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       name: 'viewMatrix',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -61,12 +63,13 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'v_position',
-      isImmediateValue: false
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'position_inWorld',
+    },
+    {
       isImmediateValue: false
     }
   );
@@ -75,14 +78,15 @@ test('GetVersMaterialNode pixel shader works correctly', () => {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'redColor',
-      isImmediateValue: true,
-      immediateValue: 'vec4(1.0, 0.0, 0.0, 0.0)'
     },
     {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: 'outColor',
-      isImmediateValue: false
+    },
+    {
+      isImmediateValue: true,
+      immediateValue: 'vec4(1.0, 0.0, 0.0, 0.0)'
     }
   );
 
