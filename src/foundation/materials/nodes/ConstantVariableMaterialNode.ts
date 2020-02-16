@@ -13,13 +13,6 @@ export default class ConstantVariableMaterialNode extends AbstractMaterialNode {
 
     this.__shader = new ConstantVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
-    this.__vertexInputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'value',
-        isClosed: true
-      });
     this.__vertexOutputs.push(
       {
         compositionType: compositionType,
@@ -27,13 +20,6 @@ export default class ConstantVariableMaterialNode extends AbstractMaterialNode {
         name: 'outValue',
       });
 
-    this.__pixelInputs.push(
-      {
-        compositionType: compositionType,
-        componentType: componentType,
-        name: 'value',
-        isClosed: true
-      });
     this.__pixelOutputs.push(
       {
         compositionType: compositionType,
