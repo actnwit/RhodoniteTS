@@ -727,6 +727,7 @@ export default class Material extends RnObject {
     vertexShaderPrerequisites += `
 precision highp float;
 precision highp int;
+${prerequisitesShaderityObject.code}
 
     ${in_} float a_instanceID;\n`;
     vertexShaderPrerequisites += `
@@ -788,6 +789,7 @@ ${prerequisitesShaderityObject.code}
     // vertex main process
     {
       vertexShaderBody += GLSLShader.glslMainBegin;
+      vertexShaderBody += mainPrerequisitesShaderityObject.code;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       const existingInputs: MaterialNodeUID[] = [];
