@@ -89,6 +89,7 @@ import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMater
 import NormalMatrixMaterialNode from './foundation/materials/nodes/NormalMatrixMaterialNode';
 import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
 import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
+import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -182,6 +183,7 @@ let Rn = {
   ProjectionMatrixMaterialNode,
   VaryingVariableMaterialNode,
   NormalMatrixMaterialNode,
+  UniformDataMaterialNode,
 };
 
 if (typeof exports !== 'undefined') {

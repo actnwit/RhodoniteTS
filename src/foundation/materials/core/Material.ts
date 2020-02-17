@@ -31,6 +31,8 @@ import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 import GLSLShader from "../../../webgl/shaders/GLSLShader";
+import mainPrerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl"
+import prerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/prerequisites.glsl"
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -738,7 +740,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     pixelShaderPrerequisites += `
 precision highp float;
 precision highp int;
+${prerequisitesShaderityObject.code}
 `
+    pixelShaderPrerequisites += '/* shaderity: ${getters} */'
 
     if (propertySetter) {
       let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
@@ -876,9 +880,10 @@ precision highp int;
       vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
-    // vertex main process
+    // pixel main process
     {
       pixelShaderBody += GLSLShader.glslMainBegin;
+      pixelShaderBody += mainPrerequisitesShaderityObject.code;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       const existingInputs: MaterialNodeUID[] = [];
