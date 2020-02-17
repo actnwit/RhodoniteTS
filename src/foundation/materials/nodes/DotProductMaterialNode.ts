@@ -24,14 +24,14 @@ export default class DotProductMaterialNode extends AbstractMaterialNode {
       });
     this.__vertexOutputs.push(
       {
-        compositionType: compositionType,
+        compositionType: CompositionType.Scalar,
         componentType: componentType,
         name: 'outValue',
       });
 
     this.__pixelInputs.push(
       {
-        compositionType: CompositionType.Scalar,
+        compositionType: compositionType,
         componentType: componentType,
         name: 'lhs',
       });
