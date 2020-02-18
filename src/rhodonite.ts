@@ -91,6 +91,8 @@ import ProjectionMatrixMaterialNode from './foundation/materials/nodes/Projectio
 import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
 import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
 import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
+import IfStatementMaterialNode from './foundation/materials/nodes/IfStatementMaterialNode';
+import EndIfStatementMaterialNode from './foundation/materials/nodes/EndIfStatementMaterialNode';
 
 let Rn = {
   EntityRepository,
@@ -185,7 +187,9 @@ let Rn = {
   VaryingVariableMaterialNode,
   NormalMatrixMaterialNode,
   UniformDataMaterialNode,
-  NormalizeMaterialNode
+  NormalizeMaterialNode,
+  ifStatementMaterialNode,
+  EndifStatementMaterialNode
 };
 
 if (typeof exports !== 'undefined') {
