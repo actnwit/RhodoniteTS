@@ -1,6 +1,6 @@
 import Entity from "../core/Entity";
-import { glTF2 } from "../../types/glTF";
-import { VRM } from "../../types/VRM";
+import { glTF2 } from "../../commontypes/glTF";
+import { VRM } from "../../commontypes/VRM";
 export default class AnimationAssigner {
     private static __instance;
     assignAnimation(rootEntity: Entity, gltfModel: glTF2, vrmModel: VRM, isSameSkeleton?: boolean): Entity;

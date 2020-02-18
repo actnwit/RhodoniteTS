@@ -8,7 +8,7 @@ import Vector3 from '../math/Vector3';
 import SceneGraphComponent from './SceneGraphComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
 import Config from '../core/Config';
-import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
+import { ComponentTID, EntityUID, ComponentSID } from '../../commontypes/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import MutableVector4 from '../math/MutableVector4';

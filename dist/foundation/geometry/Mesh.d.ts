@@ -3,7 +3,7 @@ import Vector3 from "../math/Vector3";
 import Accessor from "../memory/Accessor";
 import Vector2 from "../math/Vector2";
 import AABB from "../math/AABB";
-import { Index, CGAPIResourceHandle } from "../../types/CommonTypes";
+import { Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 /**
  * The Mesh class.
  * This mesh object has primitives (geometries) or a reference of 'original mesh'.

@@ -21,10 +21,10 @@ import { RenderBufferTarget } from "../foundation/definitions/RenderBufferTarget
 import RenderPass from "../foundation/renderer/RenderPass";
 import { MiscUtil } from "../foundation/misc/MiscUtil";
 import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "../foundation/definitions/ShaderVariableUpdateInterval";
-import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../commontypes/CommonTypes";
 import DataUtil from "../foundation/misc/DataUtil";
 import RenderBuffer from "../foundation/textures/RenderBuffer";
-import { BasisFile } from "../types/BasisTexture";
+import { BasisFile } from "../commontypes/BasisTexture";
 import { BasisCompressionTypeEnum, BasisCompressionType } from "../foundation/definitions/BasisCompressionType";
 
 

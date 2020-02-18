@@ -5,7 +5,7 @@ import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import { Size, CGAPIResourceHandle, Index } from "../../types/CommonTypes";
+import { Size, CGAPIResourceHandle, Index } from "../../commontypes/CommonTypes";
 import FrameBuffer from "../renderer/FrameBuffer";
 import Vector4 from "../math/Vector4";
 

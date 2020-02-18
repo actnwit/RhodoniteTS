@@ -3,7 +3,7 @@ import { IMutableMatrix44 } from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Quaternion from "./Quaternion";
 import Vector3 from "./Vector3";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 declare const FloatArray: Float32ArrayConstructor;
 declare type FloatArray = Float32Array;
 export default class MutableMatrix44 extends Matrix44 implements IMutableMatrix44 {

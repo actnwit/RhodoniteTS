@@ -2,7 +2,7 @@ import Vector3 from "../math/Vector3";
 import MutableVector3 from "../math/MutableVector3";
 import CameraComponent from "../components/CameraComponent";
 import Entity from "../core/Entity";
-import { Size } from "../../types/CommonTypes";
+import { Size } from "../../commontypes/CommonTypes";
 import ICameraController from "./ICameraController";
 import AABB from "../math/AABB";
 export default class OrbitCameraController implements ICameraController {
@@ -45,6 +45,7 @@ export default class OrbitCameraController implements ICameraController {
     private __doPreventDefault;
     moveSpeed: number;
     private __isPressingShift;
+    private __isPressingCtrl;
     private __pinchInOutControl;
     private __pinchInOutOriginalDistance?;
     private static returnVector3Eye;
@@ -67,6 +68,8 @@ export default class OrbitCameraController implements ICameraController {
     private __contextMenuFunc;
     private __pressShiftFunc;
     private __releaseShiftFunc;
+    private __pressCtrlFunc;
+    private __releaseCtrlFunc;
     private _eventTargetDom?;
     private __resetDollyAndPositionFunc;
     private static __tmp_mat;
@@ -97,6 +100,10 @@ export default class OrbitCameraController implements ICameraController {
     __touchDown(e: TouchEvent): void;
     __touchMove(e: TouchEvent): void;
     __touchUp(e: TouchEvent): void;
+    set rotX(value: number);
+    set rotY(value: number);
+    get rotX(): number;
+    get rotY(): number;
     set maximumY(maximum_y: number);
     set minimumY(minimum_y: number);
     __rotateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size): void;
@@ -114,6 +121,8 @@ export default class OrbitCameraController implements ICameraController {
     __resetDollyAndPosition(e: TouchEvent): void;
     __pressShift(e: KeyboardEvent): void;
     __releaseShift(e: KeyboardEvent): void;
+    __pressCtrl(e: KeyboardEvent): void;
+    __releaseCtrl(e: KeyboardEvent): void;
     registerEventListeners(eventTargetDom?: any): void;
     unregisterEventListeners(): void;
     __getFovyFromCamera(camera: CameraComponent): number;

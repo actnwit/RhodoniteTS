@@ -1,5 +1,5 @@
 import { IVector2, IVector3, IVector4 } from "./IVector";
-import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
+import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 export declare class Vector2_<T extends TypedArrayConstructor> implements IVector2 {
     v: TypedArray;
     constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y: number, { type }: {
@@ -15,6 +15,8 @@ export declare class Vector2_<T extends TypedArrayConstructor> implements IVecto
     get x(): number;
     get y(): number;
     get raw(): TypedArray;
+    get glslStrAsFloat(): string;
+    get glslStrAsInt(): string;
 }
 export default class Vector2 extends Vector2_<Float32ArrayConstructor> {
     constructor(x: number | TypedArray | IVector2 | IVector3 | IVector4 | Array<number> | null, y?: number);

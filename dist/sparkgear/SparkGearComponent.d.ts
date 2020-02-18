@@ -2,7 +2,7 @@ import Component from "../foundation/core/Component";
 import EntityRepository from "../foundation/core/EntityRepository";
 import Matrix44 from "../foundation/math/Matrix44";
 import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
-import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
+import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
 export default class SparkGearComponent extends Component {
     url?: string;
     private __hSPFXInst;

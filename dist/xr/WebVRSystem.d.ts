@@ -1,6 +1,6 @@
 import Vector3 from "../foundation/math/Vector3";
 import MutableMatrix44 from "../foundation/math/MutableMatrix44";
-import { Index } from "../types/CommonTypes";
+import { Index } from "../commontypes/CommonTypes";
 import Vector4 from "../foundation/math/Vector4";
 export default class WebVRSystem {
     private static __instance;

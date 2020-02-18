@@ -13,8 +13,8 @@ import FrameBuffer from "../foundation/renderer/FrameBuffer";
 import { HdriFormatEnum } from "../foundation/definitions/HdriFormat";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
-import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../types/CommonTypes";
-import { BasisFile } from "../types/BasisTexture";
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle } from "../commontypes/CommonTypes";
+import { BasisFile } from "../commontypes/BasisTexture";
 export declare type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;

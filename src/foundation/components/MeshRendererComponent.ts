@@ -25,7 +25,7 @@ import { Visibility } from '../definitions/visibility';
 import RnObject from '../core/RnObject';
 import WebGLStrategyFastestWebGL1 from '../../webgl/WebGLStrategyFastestWebGL1';
 import Primitive from '../geometry/Primitive';
-import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
+import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
 import AbstractMaterialNode from '../materials/core/AbstractMaterialNode';
 
 export default class MeshRendererComponent extends Component {

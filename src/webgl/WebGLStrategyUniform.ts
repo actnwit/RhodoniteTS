@@ -24,7 +24,7 @@ import { ShaderVariableUpdateIntervalEnum, ShaderVariableUpdateInterval } from "
 import Mesh from "../foundation/geometry/Mesh";
 import MemoryManager from "../foundation/core/MemoryManager";
 import { ShaderType } from "../foundation/definitions/ShaderType";
-import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count } from "../commontypes/CommonTypes";
 import { BufferUse } from "../foundation/definitions/BufferUse";
 import Buffer from "../foundation/memory/Buffer";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";

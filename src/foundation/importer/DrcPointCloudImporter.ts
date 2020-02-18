@@ -4,8 +4,8 @@ import MaterialHelper from "../helpers/MaterialHelper";
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute, VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { TypedArray } from "../../types/CommonTypes";
-import { glTF2, GltfLoadOption, Gltf2Image } from "../../types/glTF";
+import { TypedArray } from "../../commontypes/CommonTypes";
+import { glTF2, GltfLoadOption, Gltf2Image } from "../../commontypes/glTF";
 import RnPromise from "../misc/RnPromise";
 
 declare var DracoDecoderModule: any;

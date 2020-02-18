@@ -1,6 +1,6 @@
 import Buffer from '../memory/Buffer';
 import { BufferUseEnum } from '../definitions/BufferUse';
-import { Size, Byte } from '../../types/CommonTypes';
+import { Size, Byte } from '../../commontypes/CommonTypes';
 import RnObject from './RnObject';
 /**
  * Usage

@@ -6,7 +6,7 @@ import { ComponentTypeEnum, ComponentType } from "../definitions/ComponentType";
 import { access } from "fs-extra";
 import AccessorBase from "./AccessorBase";
 import FlexibleAccessor from "./FlexibleAccessor";
-import { Byte, Count, Index, Size } from "../../types/CommonTypes";
+import { Byte, Count, Index, Size } from "../../commontypes/CommonTypes";
 
 
 export default class BufferView extends RnObject {

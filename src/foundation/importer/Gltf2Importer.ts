@@ -1,5 +1,5 @@
 import DataUtil from "../misc/DataUtil";
-import { glTF2, GltfLoadOption, Gltf2Image } from "../../types/glTF";
+import { glTF2, GltfLoadOption, Gltf2Image } from "../../commontypes/glTF";
 import RnPromise from "../misc/RnPromise";
 import { expression } from "@babel/template";
 

@@ -3,8 +3,8 @@ import Buffer from "../memory/Buffer";
 import Texture from "../textures/Texture";
 import { ShaderSemanticsEnum } from "../definitions/ShaderSemantics";
 import Material from "../materials/core/Material";
-import { Byte, Size } from "../../types/CommonTypes";
-import { GltfLoadOption, glTF2 } from "../../types/glTF";
+import { Byte, Size } from "../../commontypes/CommonTypes";
+import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */

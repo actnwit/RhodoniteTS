@@ -11,7 +11,7 @@ import Vector2 from "../math/Vector2";
 import AABB from "../math/AABB";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import Entity from "../core/Entity";
-import { Index, CGAPIResourceHandle, MeshUID } from "../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, MeshUID } from "../../commontypes/CommonTypes";
 import { thisExpression } from "@babel/types";
 
 /**

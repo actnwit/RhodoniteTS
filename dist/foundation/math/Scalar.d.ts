@@ -1,5 +1,5 @@
 import { IScalar } from "./IVector";
-import { TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
+import { TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 export declare class Scalar_<T extends TypedArrayConstructor> implements IScalar {
     v: TypedArray;
     constructor(x: number | TypedArray | null, { type }: {
@@ -11,6 +11,8 @@ export declare class Scalar_<T extends TypedArrayConstructor> implements IScalar
     get raw(): TypedArray;
     isStrictEqual(scalar: Scalar_<T>): boolean;
     isEqual(scalar: Scalar_<T>, delta?: number): boolean;
+    get glslStrAsFloat(): string;
+    get glslStrAsInt(): string;
 }
 export default class Scalar extends Scalar_<Float32ArrayConstructor> {
     constructor(x: number | TypedArray | null);

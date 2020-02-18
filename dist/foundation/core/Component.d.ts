@@ -10,7 +10,7 @@ import ComponentRepository from './ComponentRepository';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
-import { EntityUID, ComponentSID, Count, Byte } from '../../types/CommonTypes';
+import { EntityUID, ComponentSID, Count, Byte } from '../../commontypes/CommonTypes';
 /**
  * Component is a functional unit that can be added to an Entity instance.
  */

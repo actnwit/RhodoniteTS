@@ -3,7 +3,7 @@ import SceneGraphComponent from "../components/SceneGraphComponent";
 import Quaternion from "../math/Quaternion";
 import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
 import VRMColliderGroup from "./VRMColliderGroup";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 import PhysicsStrategy from "./PhysicsStrategy";
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     private static __tmp_vec3;

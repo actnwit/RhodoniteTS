@@ -11,7 +11,7 @@ import MeshRendererComponent from "../foundation/components/MeshRendererComponen
 import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 import Mesh from "../foundation/geometry/Mesh";
-import { WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, Count } from "../commontypes/CommonTypes";
 export default class WebGLStrategyUniform implements WebGLStrategy {
     private static __instance;
     private __webglResourceRepository;
@@ -26,7 +26,8 @@ export default class WebGLStrategyUniform implements WebGLStrategy {
     setupShaderProgram(meshComponent: MeshComponent): void;
     setupDefaultShaderSemantics(material: Material, isPointSprite: boolean): void;
     static setupMaterial(material: Material, args?: ShaderSemanticsInfo[]): void;
-    $load(meshComponent: MeshComponent): Promise<void>;
+    private __isMeshSetup;
+    $load(meshComponent: MeshComponent): void;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     common_$prerender(): void;
     attachGPUData(primitive: Primitive): void;

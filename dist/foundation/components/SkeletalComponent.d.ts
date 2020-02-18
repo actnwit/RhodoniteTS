@@ -4,7 +4,7 @@ import Matrix44 from '../math/Matrix44';
 import SceneGraphComponent from './SceneGraphComponent';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 export default class SkeletalComponent extends Component {
     _jointIndices: Index[];

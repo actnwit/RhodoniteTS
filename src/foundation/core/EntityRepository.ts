@@ -4,7 +4,7 @@ import ComponentRepository from './ComponentRepository';
 import is from '../misc/IsUtil';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { match } from 'minimatch';
-import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
+import { RnTags, EntityUID, ComponentTID } from '../../commontypes/CommonTypes';
 
 export default class EntityRepository {
   private __entity_uid_count: number;

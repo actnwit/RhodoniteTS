@@ -2,9 +2,11 @@ import RnObject from "../../core/RnObject";
 import { AlphaModeEnum } from "../../definitions/AlphaMode";
 import AbstractMaterialNode from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo } from "../../definitions/ShaderSemantics";
+import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import AbstractTexture from "../../textures/AbstractTexture";
 import Accessor from "../../memory/Accessor";
-import { Index, CGAPIResourceHandle } from "../../../types/CommonTypes";
+import { Index, CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
+import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 export declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean) => string;
 /**
  * The material class.
@@ -63,6 +65,7 @@ export default class Material extends RnObject {
      * @param maxInstancesNumber The maximum number to create the material instances.
      */
     static registerMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber?: number): boolean;
+    static forceRegisterMaterial(materialTypeName: string, materialNodes: AbstractMaterialNode[], maxInstanceNumber?: number): boolean;
     static getAllMaterials(): Material[];
     setMaterialNodes(materialNodes: AbstractMaterialNode[]): void;
     get materialSID(): number;
@@ -95,6 +98,15 @@ export default class Material extends RnObject {
     }): void;
     private __setupGlobalShaderDefinition;
     createProgramAsSingleOperation(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc): number;
+    private __getProperties;
+    createProgramString(vertexShaderMethodDefinitions_uniform?: string, propertySetter?: getShaderPropertyFunc): {
+        vertexShader: string;
+        pixelShader: string;
+        attributeNames: AttributeNames;
+        attributeSemantics: VertexAttributeEnum[];
+        vertexShaderBody: string;
+        pixelShaderBody: string;
+    } | undefined;
     createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc): number;
     isBlend(): boolean;
     static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): number;

@@ -1,5 +1,5 @@
 import { ShaderSemanticsIndex, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemanticsEnum, ShaderSemantics } from "../definitions/ShaderSemantics";
-import { Count, Index, CGAPIResourceHandle } from "../../types/CommonTypes";
+import { Count, Index, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 import { BufferUse } from "../definitions/BufferUse";
 import MemoryManager from "./MemoryManager";
 import BufferView from "../memory/BufferView";

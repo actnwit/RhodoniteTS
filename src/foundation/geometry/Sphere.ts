@@ -9,7 +9,7 @@ import Accessor from "../memory/Accessor";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/core/Material";
 import Vector3 from "../math/Vector3";
-import { Size } from "../../types/CommonTypes";
+import { Size } from "../../commontypes/CommonTypes";
 
 export default class Sphere extends Primitive {
   constructor() {

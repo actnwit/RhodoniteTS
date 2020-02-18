@@ -1,4 +1,4 @@
-import { Size, Index } from "../../types/CommonTypes";
+import { Size, Index } from "../../commontypes/CommonTypes";
 export default class TextureDataFloat {
     private __data;
     private __channels;

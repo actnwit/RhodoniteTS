@@ -3,7 +3,7 @@ import Entity from "../core/Entity";
 import CGAPIResourceRepository from "./CGAPIResourceRepository";
 import IRenderable from "../textures/IRenderable";
 import { RenderBufferTargetEnum, RenderBufferTarget } from "../definitions/RenderBufferTarget";
-import { Index, Size, CGAPIResourceHandle } from "../../types/CommonTypes";
+import { Index, Size, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 import RenderTargetTexture from "../textures/RenderTargetTexture";
 
 export default class FrameBuffer extends RnObject {

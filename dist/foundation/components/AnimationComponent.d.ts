@@ -5,7 +5,7 @@ import { CompositionTypeEnum } from "../definitions/CompositionType";
 import Quaternion from "../math/Quaternion";
 import MutableVector3 from "../math/MutableVector3";
 import MutableQuaternion from "../math/MutableQuaternion";
-import { ComponentTID, ComponentSID, EntityUID, Index } from "../../types/CommonTypes";
+import { ComponentTID, ComponentSID, EntityUID, Index } from "../../commontypes/CommonTypes";
 declare type AnimationLine = {
     input: number[];
     output: any[];

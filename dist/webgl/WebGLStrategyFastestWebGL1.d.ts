@@ -7,7 +7,7 @@ import Material from "../foundation/materials/core/Material";
 import Mesh from "../foundation/geometry/Mesh";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
 import RenderPass from "../foundation/renderer/RenderPass";
-import { WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, Count } from "../commontypes/CommonTypes";
 import Entity from "../foundation/core/Entity";
 import Matrix33 from "../foundation/math/Matrix33";
 import CubeTexture from "../foundation/textures/CubeTexture";
@@ -28,7 +28,6 @@ export default class WebGLStrategyFastestWebGL1 implements WebGLStrategy {
     setupDefaultShaderSemantics(material: Material, isPointSprite: boolean): void;
     private static __getOffsetOfShaderSemanticsInfo;
     private __getShaderProperty;
-    private __isLoaded;
     $load(meshComponent: MeshComponent): void;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     private __createAndUpdateDataTexture;

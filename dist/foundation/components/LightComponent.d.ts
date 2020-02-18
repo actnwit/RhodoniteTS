@@ -1,7 +1,7 @@
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
 import Vector3 from '../math/Vector3';
-import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
+import { ComponentTID, EntityUID, ComponentSID } from '../../commontypes/CommonTypes';
 export default class LightComponent extends Component {
     type: import("../definitions/LightType").LightTypeEnum;
     private __intensity;

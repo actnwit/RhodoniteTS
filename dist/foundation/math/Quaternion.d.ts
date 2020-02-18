@@ -3,7 +3,7 @@ import { IVector4 } from './IVector';
 import Matrix44 from './Matrix44';
 import Vector4 from './Vector4';
 import MutableQuaternion from './MutableQuaternion';
-import { TypedArray } from '../../types/CommonTypes';
+import { TypedArray } from '../../commontypes/CommonTypes';
 export default class Quaternion implements IVector4 {
     v: TypedArray;
     constructor(x?: number | TypedArray | Vector3 | Vector4 | Quaternion | Array<number> | null, y?: number, z?: number, w?: number);

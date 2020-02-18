@@ -1,6 +1,6 @@
 import Primitive from "./Primitive";
 import Material from "../materials/core/Material";
-import { Size } from "../../types/CommonTypes";
+import { Size } from "../../commontypes/CommonTypes";
 export default class Plane extends Primitive {
     constructor();
     generate({ width, height, uSpan, vSpan, isUVRepeat, material }: {

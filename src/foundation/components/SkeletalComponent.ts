@@ -15,7 +15,7 @@ import Vector4 from '../math/Vector4';
 import Scalar from '../math/Scalar';
 import MutableVector4 from '../math/MutableVector4';
 import MutableMatrix44 from '../math/MutableMatrix44';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 import MeshComponent from './MeshComponent';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';

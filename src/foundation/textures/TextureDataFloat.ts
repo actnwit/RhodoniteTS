@@ -1,4 +1,4 @@
-import { CGAPIResourceHandle, TextureUID, Size, Index, TypedArray, TypedArrayConstructor } from "../../types/CommonTypes";
+import { CGAPIResourceHandle, TextureUID, Size, Index, TypedArray, TypedArrayConstructor } from "../../commontypes/CommonTypes";
 
 export default class TextureDataFloat {
   private __data: Float32Array;

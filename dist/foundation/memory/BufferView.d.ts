@@ -4,7 +4,7 @@ import Accessor from "./Accessor";
 import { CompositionTypeEnum } from "../definitions/CompositionType";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import FlexibleAccessor from "./FlexibleAccessor";
-import { Byte, Count, Size } from "../../types/CommonTypes";
+import { Byte, Count, Size } from "../../commontypes/CommonTypes";
 export default class BufferView extends RnObject {
     private __buffer;
     private __byteOffsetInRawArrayBufferOfBuffer;

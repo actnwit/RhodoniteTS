@@ -1,6 +1,6 @@
 import GltfImporter from "./GltfImporter";
 import Gltf2Importer from "./Gltf2Importer";
-import { GltfLoadOption } from "../../types/glTF";
+import { GltfLoadOption } from "../../commontypes/glTF";
 import ModelConverter from "./ModelConverter";
 
 /**

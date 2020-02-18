@@ -1,11 +1,11 @@
 import Entity from "../core/Entity";
-import { glTF2 } from "../../types/glTF";
+import { glTF2 } from "../../commontypes/glTF";
 import ModelConverter from "./ModelConverter";
 import EntityRepository from "../core/EntityRepository";
 import AnimationComponent from "../components/AnimationComponent";
 import { AnimationInterpolation } from "../definitions/AnimationInterpolation";
-import { Index } from "../../types/CommonTypes";
-import { VRM } from "../../types/VRM";
+import { Index } from "../../commontypes/CommonTypes";
+import { VRM } from "../../commontypes/VRM";
 import Quaternion from "../math/Quaternion";
 import Matrix44 from "../math/Matrix44";
 import Vector3 from "../math/Vector3";

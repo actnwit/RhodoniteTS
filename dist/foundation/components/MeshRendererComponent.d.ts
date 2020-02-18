@@ -4,7 +4,7 @@ import { ProcessStageEnum } from '../definitions/ProcessStage';
 import EntityRepository from '../core/EntityRepository';
 import CubeTexture from '../textures/CubeTexture';
 import RenderPass from '../renderer/RenderPass';
-import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../types/CommonTypes';
+import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
 export default class MeshRendererComponent extends Component {
     private __meshComponent?;
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;

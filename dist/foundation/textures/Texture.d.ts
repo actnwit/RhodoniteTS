@@ -1,7 +1,7 @@
 import { PixelFormatEnum } from "../definitions/PixelFormat";
 import { TextureParameterEnum } from "../definitions/TextureParameter";
 import AbstractTexture from "./AbstractTexture";
-import { TypedArray } from "../../types/CommonTypes";
+import { TypedArray } from "../../commontypes/CommonTypes";
 export default class Texture extends AbstractTexture {
     private __imageData?;
     autoResize: boolean;

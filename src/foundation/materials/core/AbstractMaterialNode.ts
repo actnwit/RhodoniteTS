@@ -6,7 +6,7 @@ import { ComponentType, ComponentTypeEnum } from "../../definitions/ComponentTyp
 import GLSLShader from "../../../webgl/shaders/GLSLShader";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
 import Matrix44 from "../../math/Matrix44";
-import { CGAPIResourceHandle } from "../../../types/CommonTypes";
+import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import WebGLResourceRepository from "../../../webgl/WebGLResourceRepository";
 import Texture from "../../textures/Texture";
 import CubeTexture from "../../textures/CubeTexture";

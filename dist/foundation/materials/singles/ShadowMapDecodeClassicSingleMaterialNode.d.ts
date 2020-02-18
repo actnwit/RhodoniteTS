@@ -2,7 +2,7 @@ import { ShaderSemanticsEnum } from "../../definitions/ShaderSemantics";
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import Material from "../core/Material";
 import RenderPass from "../../renderer/RenderPass";
-import { Count } from "../../../types/CommonTypes";
+import { Count } from "../../../commontypes/CommonTypes";
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {
     static ShadowColor: ShaderSemanticsEnum;
     static ShadowAlpha: ShaderSemanticsEnum;

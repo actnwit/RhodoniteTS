@@ -1,6 +1,6 @@
 import Vector3 from './Vector3';
 import Matrix44 from './Matrix44';
-import { Index } from '../../types/CommonTypes';
+import { Index } from '../../commontypes/CommonTypes';
 export default class AABB {
     private __min;
     private __max;

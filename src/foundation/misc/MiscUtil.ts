@@ -1,4 +1,4 @@
-import { Byte } from "../../types/CommonTypes";
+import { Byte } from "../../commontypes/CommonTypes";
 
 const isMobile = function() {
   const ua = [

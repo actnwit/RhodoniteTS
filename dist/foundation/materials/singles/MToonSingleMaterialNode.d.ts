@@ -1,7 +1,7 @@
 import AbstractMaterialNode from "../core/AbstractMaterialNode";
 import Material from "../core/Material";
 import { ShaderSemanticsClass } from "../../definitions/ShaderSemantics";
-import { Count } from "../../../types/CommonTypes";
+import { Count } from "../../../commontypes/CommonTypes";
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
     static readonly _Cutoff: ShaderSemanticsClass;
     static readonly _Color: ShaderSemanticsClass;

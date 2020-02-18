@@ -1,6 +1,6 @@
 import Vector2 from './Vector2';
 import { IVector3 } from './IVector';
-import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 export declare class Vector4_<T extends TypedArrayConstructor> implements Vector4 {
     v: TypedArray;
     constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y: number, z: number, w: number, { type }: {
@@ -45,6 +45,8 @@ export declare class Vector4_<T extends TypedArrayConstructor> implements Vector
     get y(): number;
     get z(): number;
     get w(): number;
+    get glslStrAsFloat(): string;
+    get glslStrAsInt(): string;
 }
 export default class Vector4 extends Vector4_<Float32ArrayConstructor> {
     constructor(x: number | TypedArray | Vector2 | IVector3 | Vector4 | Array<number> | null, y?: number, z?: number, w?: number);

@@ -1,6 +1,6 @@
 import Component from './Component';
 import EntityRepository from './EntityRepository';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 /**
  * The class that generates and manages all kinds of components.
  */

@@ -1,6 +1,6 @@
 import { WebGLExtensionEnum } from "./WebGLExtension";
 import { RenderBufferTargetEnum } from "../foundation/definitions/RenderBufferTarget";
-import { Index, Size } from "../types/CommonTypes";
+import { Index, Size } from "../commontypes/CommonTypes";
 import Vector4 from "../foundation/math/Vector4";
 export default class WebGLContextWrapper {
     __gl: WebGLRenderingContext | any;

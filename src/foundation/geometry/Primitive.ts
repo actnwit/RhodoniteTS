@@ -13,7 +13,7 @@ import Material from '../materials/core/Material';
 import MaterialHelper from '../helpers/MaterialHelper';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import CGAPIResourceRepository from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
+import { PrimitiveUID, TypedArray, Count, Index } from '../../commontypes/CommonTypes';
 import Vector3 from '../math/Vector3';
 import Matrix33 from '../math/Matrix33';
 import MutableMatrix33 from '../math/MutableMatrix33';

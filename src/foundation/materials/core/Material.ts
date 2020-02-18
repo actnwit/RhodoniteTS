@@ -21,7 +21,7 @@ import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
-import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../commontypes/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";
@@ -31,6 +31,8 @@ import { BoneDataType } from "../../definitions/BoneDataType";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import { AttributeNames } from "../../../webgl/shaders/EnvConstantShader";
 import GLSLShader from "../../../webgl/shaders/GLSLShader";
+import mainPrerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl"
+import prerequisitesShaderityObject from "../../../webgl/shaderity_shaders/common/prerequisites.glsl"
 
 type MaterialTypeName = string;
 type PropertyName = string;
@@ -725,6 +727,7 @@ export default class Material extends RnObject {
     vertexShaderPrerequisites += `
 precision highp float;
 precision highp int;
+${prerequisitesShaderityObject.code}
 
     ${in_} float a_instanceID;\n`;
     vertexShaderPrerequisites += `
@@ -738,7 +741,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     pixelShaderPrerequisites += `
 precision highp float;
 precision highp int;
+${prerequisitesShaderityObject.code}
 `
+    pixelShaderPrerequisites += '/* shaderity: ${getters} */'
 
     if (propertySetter) {
       let { vertexPropertiesStr, pixelPropertiesStr } = this.__getProperties(propertySetter);
@@ -784,6 +789,7 @@ precision highp int;
     // vertex main process
     {
       vertexShaderBody += GLSLShader.glslMainBegin;
+      vertexShaderBody += mainPrerequisitesShaderityObject.code;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       const existingInputs: MaterialNodeUID[] = [];
@@ -876,9 +882,10 @@ precision highp int;
       vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
-    // vertex main process
+    // pixel main process
     {
       pixelShaderBody += GLSLShader.glslMainBegin;
+      pixelShaderBody += mainPrerequisitesShaderityObject.code;
       const varInputNames: Array<Array<string>> = [];
       const varOutputNames: Array<Array<string>> = [];
       const existingInputs: MaterialNodeUID[] = [];

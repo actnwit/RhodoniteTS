@@ -14,7 +14,7 @@ import AABB from '../math/AABB';
 import MutableVector3 from '../math/MutableVector3';
 import MeshComponent from './MeshComponent';
 import AnimationComponent from './AnimationComponent';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../commontypes/CommonTypes';
 import GlobalDataRepository from '../core/GlobalDataRepository';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
