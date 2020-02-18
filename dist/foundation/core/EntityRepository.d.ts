@@ -1,6 +1,6 @@
 import Entity from './Entity';
 import Component from './Component';
-import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
+import { RnTags, EntityUID, ComponentTID } from '../../commontypes/CommonTypes';
 export default class EntityRepository {
     private __entity_uid_count;
     private __entities;

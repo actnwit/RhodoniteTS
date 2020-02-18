@@ -3,7 +3,7 @@ import { PixelFormat, PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import { TextureParameter, TextureParameterEnum } from "../definitions/TextureParameter";
 import ModuleManager from "../system/ModuleManager";
-import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../types/CommonTypes";
+import { CGAPIResourceHandle, TextureUID, Size, Index } from "../../commontypes/CommonTypes";
 import TextureDataFloat from "./TextureDataFloat";
 
 export default abstract class AbstractTexture extends RnObject {

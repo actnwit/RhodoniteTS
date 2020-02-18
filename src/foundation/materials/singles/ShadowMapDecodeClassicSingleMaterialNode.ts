@@ -18,7 +18,7 @@ import Material from "../core/Material";
 import SkeletalComponent from "../../components/SkeletalComponent";
 import CGAPIResourceRepository from "../../renderer/CGAPIResourceRepository";
 import RenderPass from "../../renderer/RenderPass";
-import { Count } from "../../../types/CommonTypes";
+import { Count } from "../../../commontypes/CommonTypes";
 import MutableMatrix44 from "../../math/MutableMatrix44";
 
 export default class ShadowMapDecodeClassicSingleMaterialNode extends AbstractMaterialNode {

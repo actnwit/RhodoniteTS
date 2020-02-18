@@ -4,7 +4,7 @@ import Quaternion from "./Quaternion";
 import {IVector4} from "./IVector";
 import Matrix44 from "./Matrix44";
 import { CompositionType } from "../definitions/CompositionType";
-import { TypedArray } from "../../types/CommonTypes";
+import { TypedArray } from "../../commontypes/CommonTypes";
 
 export default class MutableQuaternion extends Quaternion implements IVector4 {
 

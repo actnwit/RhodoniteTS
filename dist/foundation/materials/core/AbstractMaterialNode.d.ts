@@ -18,13 +18,13 @@ import Primitive from "../../geometry/Primitive";
 import { VertexAttributeEnum } from "../../definitions/VertexAttribute";
 import BlendShapeComponent from "../../components/BlendShapeComponent";
 import { ShaderityObject } from "shaderity";
+import { ShaderTypeEnum } from "../../definitions/ShaderType";
 export declare type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 export declare type ShaderSocket = {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     name: ShaderAttributeOrSemanticsOrString;
-    isImmediateValue: boolean;
-    immediateValue?: string;
+    isClosed?: boolean;
 };
 declare type MaterialNodeTypeName = string;
 declare type MaterialNodeUID = number;
@@ -36,19 +36,19 @@ declare type InputConnectionType = {
 export default abstract class AbstractMaterialNode extends RnObject {
     protected __semantics: ShaderSemanticsInfo[];
     protected static __semanticsMap: Map<MaterialNodeTypeName, Map<ShaderSemanticsStr, ShaderSemanticsInfo>>;
-    private __shaderNode;
     protected __vertexInputs: ShaderSocket[];
     protected __pixelInputs: ShaderSocket[];
     protected __vertexOutputs: ShaderSocket[];
     protected __pixelOutputs: ShaderSocket[];
+    protected __defaultInputValues: Map<string, any>;
     private static readonly __invalidMaterialNodeUid;
     private static __invalidMaterialNodeCount;
-    private __materialNodeUid;
+    protected __materialNodeUid: MaterialNodeUID;
     protected __vertexInputConnections: InputConnectionType[];
     protected __pixelInputConnections: InputConnectionType[];
     static materialNodes: AbstractMaterialNode[];
-    readonly shader: GLSLShader | null;
-    readonly shaderFunctionName: string;
+    protected __shader: GLSLShader | null;
+    protected __shaderFunctionName: string;
     isSingleOperation: boolean;
     protected __definitions: string;
     protected __webglResourceRepository: WebGLResourceRepository;
@@ -68,11 +68,14 @@ export default abstract class AbstractMaterialNode extends RnObject {
     private static __lightIntensities;
     protected __vertexShaderityObject?: ShaderityObject;
     protected __pixelShaderityObject?: ShaderityObject;
+    shaderType: ShaderTypeEnum;
     constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing, isSkinning, isLighting }?: {
         isMorphing?: boolean | undefined;
         isSkinning?: boolean | undefined;
         isLighting?: boolean | undefined;
     }, vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject);
+    get shaderFunctionName(): string;
+    get shader(): GLSLShader | null;
     get vertexShaderityObject(): ShaderityObject | undefined;
     get pixelShaderityObject(): ShaderityObject | undefined;
     get definitions(): string;
@@ -84,14 +87,18 @@ export default abstract class AbstractMaterialNode extends RnObject {
     get isLighting(): boolean;
     setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]): void;
     getShaderSemanticInfoFromName(name: string): ShaderSemanticsInfo | undefined;
-    addVertexInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string): void;
-    addPixelInputConnection(materialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string): void;
+    addVertexInputConnection(inputMaterialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string): void;
+    addPixelInputConnection(inputMaterialNode: AbstractMaterialNode, outputNameOfPrev: string, inputNameOfThis: string): void;
     get vertexInputConnections(): InputConnectionType[];
     get pixelInputConnections(): InputConnectionType[];
     getVertexInput(name: string): ShaderSocket | undefined;
+    getVertexInputs(): ShaderSocket[];
     getVertexOutput(name: string): ShaderSocket | undefined;
+    getVertexOutputs(): ShaderSocket[];
     getPixelInput(name: string): ShaderSocket | undefined;
+    getPixelInputs(): ShaderSocket[];
     getPixelOutput(name: string): ShaderSocket | undefined;
+    getPixelOutputs(): ShaderSocket[];
     static initDefaultTextures(): void;
     static get dummyWhiteTexture(): Texture;
     static get dummyBlackTexture(): Texture;
@@ -110,5 +117,6 @@ export default abstract class AbstractMaterialNode extends RnObject {
         firstTime: boolean;
         args?: any;
     }): void;
+    setDefaultInputValue(inputName: string, value: any): void;
 }
 export {};

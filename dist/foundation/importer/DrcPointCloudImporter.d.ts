@@ -1,4 +1,4 @@
-import { glTF2, GltfLoadOption } from "../../types/glTF";
+import { glTF2, GltfLoadOption } from "../../commontypes/glTF";
 /**
  * The draco Importer class.
  */

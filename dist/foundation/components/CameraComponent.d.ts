@@ -7,7 +7,7 @@ import Matrix44 from '../math/Matrix44';
 import { WebGLStrategy } from '../../rhodonite-webgl';
 import MutableMatrix44 from '../math/MutableMatrix44';
 import Frustum from '../geometry/Frustum';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 export default class CameraComponent extends Component {
     private static readonly _eye;
     private _eyeInner;

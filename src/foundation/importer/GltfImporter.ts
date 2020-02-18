@@ -2,7 +2,7 @@ import Entity from "../core/Entity";
 import EntityRepository from "../core/EntityRepository";
 import detectFormat from "./FormatDetector";
 import Gltf2Importer from "./Gltf2Importer";
-import { GltfLoadOption, glTF2 } from "../../types/glTF";
+import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
 import ModelConverter from "./ModelConverter";
 import PhysicsComponent from "../components/PhysicsComponent";
 import SceneGraphComponent from "../components/SceneGraphComponent";
@@ -16,7 +16,7 @@ import Gltf1Importer from "./Gltf1Importer";
 import DrcPointCloudImporter from "./DrcPointCloudImporter";
 import Expression from "../renderer/Expression";
 import RenderPass from "../renderer/RenderPass";
-import { VRM } from "../../types/VRM";
+import { VRM } from "../../commontypes/VRM";
 
 /**
  * Importer class which can import GLTF and VRM.

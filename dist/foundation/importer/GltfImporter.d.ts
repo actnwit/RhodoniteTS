@@ -1,8 +1,8 @@
 import Entity from "../core/Entity";
-import { GltfLoadOption, glTF2 } from "../../types/glTF";
+import { GltfLoadOption, glTF2 } from "../../commontypes/glTF";
 import Texture from "../textures/Texture";
 import Expression from "../renderer/Expression";
-import { VRM } from "../../types/VRM";
+import { VRM } from "../../commontypes/VRM";
 /**
  * Importer class which can import GLTF and VRM.
  */

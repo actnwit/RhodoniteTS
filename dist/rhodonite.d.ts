@@ -59,6 +59,22 @@ import OrbitCameraController from './foundation/cameras/OrbitCameraController';
 import WalkThroughCameraController from './foundation/cameras/WalkThroughCameraController';
 import ShaderityUtility from './foundation/materials/core/ShaderityUtility';
 import AbstractMaterialNode from './foundation/materials/core/AbstractMaterialNode';
+import ConstantVariableMaterialNode from './foundation/materials/nodes/ConstantVariableMaterialNode';
+import AddMaterialNode from './foundation/materials/nodes/AddMaterialNode';
+import DotProductMaterialNode from './foundation/materials/nodes/DotProductMaterialNode';
+import MultiplyMaterialNode from './foundation/materials/nodes/MultiplyMaterialNode';
+import EndMaterialNode from './foundation/materials/nodes/EndMaterialNode';
+import ScalarToVector4MaterialNode from './foundation/materials/nodes/ScalarToVector4MaterialNode';
+import Vector3AndScalarToVector4MaterialNode from './foundation/materials/nodes/Vector3AndScalarToVector4MaterialNode';
+import AttributePositionMaterialNode from './foundation/materials/nodes/AttributePositionMaterialNode';
+import AttributeNormalMaterialNode from './foundation/materials/nodes/AttributeNormalMaterialNode';
+import WorldMatrixMaterialNode from './foundation/materials/nodes/WorldMatrixMaterialNode';
+import ViewMatrixMaterialNode from './foundation/materials/nodes/ViewMatrixMaterialNode';
+import NormalMatrixMaterialNode from './foundation/materials/nodes/NormalMatrixMaterialNode';
+import ProjectionMatrixMaterialNode from './foundation/materials/nodes/ProjectionMatrixMaterialNode';
+import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
+import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
+import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
 declare let Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;
@@ -101,7 +117,7 @@ declare let Rn: {
         Bool: componentTypeEnum;
         HalfFloat: componentTypeEnum;
         from: (index: number) => componentTypeEnum;
-        fromTypedArray: (typedArray: import("./types/CommonTypes").TypedArray) => componentTypeEnum;
+        fromTypedArray: (typedArray: import("./commontypes/CommonTypes").TypedArray) => componentTypeEnum;
         fromString: (str: string) => componentTypeEnum;
         fromGlslString: (str_: string) => componentTypeEnum;
     }>;
@@ -217,6 +233,15 @@ declare let Rn: {
     Sphere: typeof Sphere;
     Material: typeof Material;
     MaterialHelper: Readonly<{
+        createMaterial: (materialName: string, materialNodes?: AbstractMaterialNode[] | undefined, maxInstancesNumber?: number | undefined) => Material;
+        recreateMaterial: (materialName: string, materialNodes?: AbstractMaterialNode[] | undefined, maxInstancesNumber?: number | undefined) => Material;
+        recreateCustomMaterial: (vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+            additionalName?: string | undefined;
+            isSkinning?: boolean | undefined;
+            isLighting?: boolean | undefined;
+            isMorphing?: boolean | undefined;
+            maxInstancesNumber?: number | undefined;
+        }) => Material;
         createEmptyMaterial: () => Material;
         createClassicUberMaterial: ({ additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
             additionalName?: string | undefined;
@@ -272,6 +297,7 @@ declare let Rn: {
             debugMode?: undefined;
             maxInstancesNumber?: number | undefined;
         }) => Material;
+        changeMaterial: (entity: import("./foundation/core/Entity").default, primitive: Primitive, material: Material) => void;
     }>;
     ShaderSemantics: Readonly<{
         from: (index: number) => import("./foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -343,6 +369,14 @@ declare let Rn: {
         RGB9_E5_PNG: import("./foundation/definitions/HdriFormat").HdriFormatEnum;
         OpenEXR: import("./foundation/definitions/HdriFormat").HdriFormatEnum;
     }>;
+    ShaderType: Readonly<{
+        VertexShader: import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+        PixelShader: import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+        VertexAndPixelShader: import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+        ComputeShader: import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+        from: (index: number) => import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+        fromString: (str: string) => import("./foundation/definitions/ShaderType").ShaderTypeEnum;
+    }>;
     RenderTargetTexture: typeof RenderTargetTexture;
     RenderBuffer: typeof RenderBuffer;
     TextureParameter: Readonly<{
@@ -401,6 +435,7 @@ declare let Rn: {
         isPowerOfTwo: (x: number) => boolean;
         isPowerOfTwoTexture: (width: number, height: number) => boolean;
         packNormalizedVec4ToVec2: (x: number, y: number, z: number, w: number, criteria: number) => number[];
+        convertToStringAsGLSLFloat: (value: number) => string;
     }>;
     Component: typeof Component;
     EnvConstantSingleMaterialNode: typeof EnvConstantSingleMaterialNode;
@@ -435,6 +470,22 @@ declare let Rn: {
         Luminance: import("./foundation/definitions/PixelFormat").PixelFormatEnum;
         LuminanceAlpha: import("./foundation/definitions/PixelFormat").PixelFormatEnum;
     }>;
+    ConstantVariableMaterialNode: typeof ConstantVariableMaterialNode;
+    AddMaterialNode: typeof AddMaterialNode;
+    DotProductMaterialNode: typeof DotProductMaterialNode;
+    MultiplyMaterialNode: typeof MultiplyMaterialNode;
+    EndMaterialNode: typeof EndMaterialNode;
+    ScalarToVector4MaterialNode: typeof ScalarToVector4MaterialNode;
+    Vector3AndScalarToVector4MaterialNode: typeof Vector3AndScalarToVector4MaterialNode;
+    AttributePositionMaterialNode: typeof AttributePositionMaterialNode;
+    AttributeNormalMaterialNode: typeof AttributeNormalMaterialNode;
+    WorldMatrixMaterialNode: typeof WorldMatrixMaterialNode;
+    ViewMatrixMaterialNode: typeof ViewMatrixMaterialNode;
+    ProjectionMatrixMaterialNode: typeof ProjectionMatrixMaterialNode;
+    VaryingVariableMaterialNode: typeof VaryingVariableMaterialNode;
+    NormalMatrixMaterialNode: typeof NormalMatrixMaterialNode;
+    UniformDataMaterialNode: typeof UniformDataMaterialNode;
+    NormalizeMaterialNode: typeof NormalizeMaterialNode;
 };
 export declare type RnType = typeof Rn;
 export declare type CompositionTypeEnum = compositionTypeEnum;

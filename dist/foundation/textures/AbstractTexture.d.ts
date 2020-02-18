@@ -2,7 +2,7 @@ import RnObject from "../core/RnObject";
 import { PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import { TextureParameterEnum } from "../definitions/TextureParameter";
-import { CGAPIResourceHandle, Size, Index } from "../../types/CommonTypes";
+import { CGAPIResourceHandle, Size, Index } from "../../commontypes/CommonTypes";
 import TextureDataFloat from "./TextureDataFloat";
 export default abstract class AbstractTexture extends RnObject {
     protected __width: Size;

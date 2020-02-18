@@ -2,7 +2,7 @@ import Component from './Component';
 import is from '../misc/IsUtil';
 import EntityRepository from './EntityRepository';
 import Config from './Config';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 
 /**
  * The class that generates and manages all kinds of components.

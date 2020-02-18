@@ -4,7 +4,7 @@ import Vector3 from '../math/Vector3';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 import Mesh from '../geometry/Mesh';
-import { ComponentTID, EntityUID, ComponentSID } from '../../types/CommonTypes';
+import { ComponentTID, EntityUID, ComponentSID } from '../../commontypes/CommonTypes';
 export default class MeshComponent extends Component {
     private __viewDepth;
     private __mesh?;

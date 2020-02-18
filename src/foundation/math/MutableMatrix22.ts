@@ -3,7 +3,7 @@ import { IMutableMatrix22 } from "./IMatrix";
 import Matrix22 from "./Matrix22";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
 import Vector2 from "./Vector2";
 

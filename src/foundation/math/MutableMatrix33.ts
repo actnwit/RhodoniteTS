@@ -4,7 +4,7 @@ import {IMutableMatrix33} from "./IMatrix";
 import Matrix33 from "./Matrix33";
 import Vector3 from "./Vector3";
 import { CompositionType } from "../definitions/CompositionType";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 
 export default class MutableMatrix33 extends Matrix33 implements IMutableMatrix33 {
 

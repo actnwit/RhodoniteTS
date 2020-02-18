@@ -1,5 +1,5 @@
 import Component from "../core/Component";
-import { EntityUID, ComponentSID, ComponentTID } from "../../types/CommonTypes";
+import { EntityUID, ComponentSID, ComponentTID } from "../../commontypes/CommonTypes";
 import EntityRepository from "../core/EntityRepository";
 import ICameraController from "../cameras/ICameraController";
 import { CameraControllerTypeEnum } from "../definitions/CameraControllerType";

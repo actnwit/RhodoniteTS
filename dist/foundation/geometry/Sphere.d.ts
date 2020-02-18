@@ -1,6 +1,6 @@
 import Primitive from "./Primitive";
 import Material from "../materials/core/Material";
-import { Size } from "../../types/CommonTypes";
+import { Size } from "../../commontypes/CommonTypes";
 export default class Sphere extends Primitive {
     constructor();
     generate({ radius, widthSegments, heightSegments, material }: {

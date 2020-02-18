@@ -6,7 +6,7 @@ import CameraComponent from "../components/CameraComponent";
 import MutableMatrix33 from "../math/MutableMatrix33";
 import Entity from "../core/Entity";
 import Matrix44 from "../math/Matrix44";
-import { ComponentTID, ComponentSID, EntityUID, Count, Size } from "../../types/CommonTypes";
+import { ComponentTID, ComponentSID, EntityUID, Count, Size } from "../../commontypes/CommonTypes";
 import ICameraController from "./ICameraController";
 import MutableMatrix44 from "../math/MutableMatrix44";
 import AABB from "../math/AABB";

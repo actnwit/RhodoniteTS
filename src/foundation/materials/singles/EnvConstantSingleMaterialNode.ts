@@ -21,7 +21,7 @@ import { ShadingModel } from "../../definitions/ShadingModel";
 import EnvConstantShader from "../../../webgl/shaders/EnvConstantShader";
 import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../../types/CommonTypes";
+import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import Scalar from "../../math/Scalar";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";

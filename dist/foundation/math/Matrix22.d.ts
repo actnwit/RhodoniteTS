@@ -1,7 +1,7 @@
 import Matrix33 from './Matrix33';
 import Matrix44 from './Matrix44';
 import { IMatrix22 } from './IMatrix';
-import { TypedArray } from '../../types/CommonTypes';
+import { TypedArray } from '../../commontypes/CommonTypes';
 import Vector2 from './Vector2';
 export default class Matrix22 implements IMatrix22 {
     v: TypedArray;

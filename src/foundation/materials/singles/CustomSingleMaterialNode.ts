@@ -11,7 +11,7 @@ import Vector4 from "../../math/Vector4";
 import Vector3 from "../../math/Vector3";
 import AbstractTexture from "../../textures/AbstractTexture";
 import { ShaderType } from "../../definitions/ShaderType";
-import { CGAPIResourceHandle } from "../../../types/CommonTypes";
+import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUpdateInterval";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";

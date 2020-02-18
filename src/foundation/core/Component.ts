@@ -13,7 +13,7 @@ import MutableMatrix44 from '../math/MutableMatrix44';
 import WebGLStrategy from '../../webgl/WebGLStrategy';
 import RenderPass from '../renderer/RenderPass';
 import RnObject from './RnObject';
-import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
+import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../commontypes/CommonTypes';
 
 type MemberInfo = { memberName: string, bufferUse: BufferUseEnum, dataClassType: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, initValues: number[] };
 

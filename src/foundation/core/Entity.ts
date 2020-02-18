@@ -4,7 +4,7 @@ import SceneGraphComponent from '../components/SceneGraphComponent';
 import Component from './Component';
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs";
 import RnObject from './RnObject';
-import { ComponentTID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, EntityUID } from '../../commontypes/CommonTypes';
 import SkeletalComponent from '../components/SkeletalComponent';
 import MeshComponent from '../components/MeshComponent';
 import MeshRendererComponent from '../components/MeshRendererComponent';

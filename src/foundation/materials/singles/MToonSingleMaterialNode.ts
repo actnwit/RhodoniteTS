@@ -18,7 +18,7 @@ import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUp
 import Vector3 from "../../math/Vector3";
 import Vector4 from "../../math/Vector4";
 import VectorN from "../../math/VectorN";
-import { Count } from "../../../types/CommonTypes";
+import { Count } from "../../../commontypes/CommonTypes";
 
 export default class MToonSingleMaterialNode extends AbstractMaterialNode {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });

@@ -5,7 +5,7 @@ import Vector4 from './Vector4';
 import { CompositionType } from '../definitions/CompositionType';
 import MutableQuaternion from './MutableQuaternion';
 import LogQuaternion from './LogQuaternion';
-import { TypedArray } from '../../types/CommonTypes';
+import { TypedArray } from '../../commontypes/CommonTypes';
 
 export default class Quaternion implements IVector4 {
   v: TypedArray;

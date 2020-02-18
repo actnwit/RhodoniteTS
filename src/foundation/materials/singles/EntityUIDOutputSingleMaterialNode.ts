@@ -26,7 +26,7 @@ import { ShaderVariableUpdateInterval } from "../../definitions/ShaderVariableUp
 import Config from "../../core/Config";
 import ComponentRepository from "../../core/ComponentRepository";
 import CameraComponent from "../../components/CameraComponent";
-import { CGAPIResourceHandle } from "../../../types/CommonTypes";
+import { CGAPIResourceHandle } from "../../../commontypes/CommonTypes";
 import Material from "../core/Material";
 import SkeletalComponent from "../../components/SkeletalComponent";
 import MeshRendererComponent from "../../components/MeshRendererComponent";

@@ -25,7 +25,7 @@ import Config from "../foundation/core/Config";
 import Vector4 from "../foundation/math/Vector4";
 import RenderPass from "../foundation/renderer/RenderPass";
 import CameraComponent from "../foundation/components/CameraComponent";
-import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, Byte } from "../commontypes/CommonTypes";
 import GlobalDataRepository from "../foundation/core/GlobalDataRepository";
 import VectorN from "../foundation/math/VectorN";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";

@@ -8,7 +8,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import MutableVector3 from './MutableVector3';
 import MutableMatrix44 from './MutableMatrix44';
 import MutableVector4 from './MutableVector4';
-import { TypedArray } from '../../types/CommonTypes';
+import { TypedArray } from '../../commontypes/CommonTypes';
 import { IVector3 } from './IVector';
 
 const FloatArray = Float32Array;

@@ -1,4 +1,4 @@
-import { GltfLoadOption } from "../../types/glTF";
+import { GltfLoadOption } from "../../commontypes/glTF";
 /**
  * The VRM Importer class.
  * This class will be integrated into GltfImporter.

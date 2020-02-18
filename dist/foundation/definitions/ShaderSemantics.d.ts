@@ -2,7 +2,7 @@ import { EnumClass, EnumIO } from "../misc/EnumIO";
 import { CompositionTypeEnum } from "./CompositionType";
 import { ShaderVariableUpdateIntervalEnum } from "./ShaderVariableUpdateInterval";
 import { ShaderTypeEnum } from "./ShaderType";
-import { Count, Index } from "../../types/CommonTypes";
+import { Count, Index } from "../../commontypes/CommonTypes";
 import { ComponentTypeEnum } from "./ComponentType";
 export declare type ShaderSemanticsIndex = number;
 export declare type ShaderSemanticsStr = string;

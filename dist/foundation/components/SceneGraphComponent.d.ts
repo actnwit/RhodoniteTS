@@ -6,7 +6,7 @@ import MutableMatrix33 from '../math/MutableMatrix33';
 import Vector3 from '../math/Vector3';
 import AABB from '../math/AABB';
 import MeshComponent from './MeshComponent';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 import CameraComponent from './CameraComponent';
 import Vector4 from '../math/Vector4';
 export default class SceneGraphComponent extends Component {

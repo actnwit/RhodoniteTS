@@ -2,7 +2,7 @@ import RnObject from "../core/RnObject";
 import AbstractTexture from "./AbstractTexture";
 import { HdriFormat } from "../definitions/HdriFormat";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
-import {BasisFile, BasisTranscoder, BASIS} from "../../types/BasisTexture";
+import {BasisFile, BasisTranscoder, BASIS} from "../../commontypes/BasisTexture";
 import { PixelFormat } from "../definitions/PixelFormat";
 import { ComponentType } from "../definitions/ComponentType";
 import { TextureParameter } from "../definitions/TextureParameter";

@@ -8,7 +8,7 @@ import { ComponentType, ComponentTypeEnum } from "../definitions/ComponentType";
 import Accessor from "../memory/Accessor";
 import AccessorBase from "../memory/AccessorBase";
 import Material from "../materials/core/Material";
-import { Size } from "../../types/CommonTypes";
+import { Size } from "../../commontypes/CommonTypes";
 import RnObject from "../core/RnObject";
 
 export default class Plane extends Primitive {

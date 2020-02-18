@@ -1,6 +1,6 @@
 import Component from '../core/Component';
 import EntityRepository from '../core/EntityRepository';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID } from '../../commontypes/CommonTypes';
 export default class BlendShapeComponent extends Component {
     private __weights;
     private _dummy;

@@ -18,8 +18,8 @@ export default abstract class GLSLShader {
     get glsl_textureProj(): "textureProj" | "texture2DProj";
     get glsl_versionText(): string;
     get glslPrecision(): string;
-    get glslMainBegin(): string;
-    get glslMainEnd(): string;
+    static get glslMainBegin(): string;
+    static get glslMainEnd(): string;
     getGlslVertexShaderProperies(str?: string): string;
     get glsl1ShaderTextureLodExt(): "" | "#extension GL_EXT_shader_texture_lod : require";
     get glsl1ShaderDerivativeExt(): "" | "#extension GL_OES_standard_derivatives : require";

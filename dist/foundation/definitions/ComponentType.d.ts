@@ -1,7 +1,9 @@
 import { EnumIO } from "../misc/EnumIO";
-import { TypedArray, Byte } from "../../types/CommonTypes";
+import { TypedArray, Byte } from "../../commontypes/CommonTypes";
 export interface ComponentTypeEnum extends EnumIO {
     getSizeInBytes(): Byte;
+    isFloatingPoint(): boolean;
+    isInteger(): boolean;
 }
 declare const Byte: ComponentTypeEnum;
 declare function from(index: number): ComponentTypeEnum;

@@ -11,7 +11,7 @@ import WebGLResourceRepository from "../webgl/WebGLResourceRepository";
 import ModuleManager from "../foundation/system/ModuleManager";
 import { WellKnownComponentTIDs } from "../foundation/components/WellKnownComponentTIDs";
 import CGAPIResourceRepository from "../foundation/renderer/CGAPIResourceRepository";
-import { ComponentTID, EntityUID, ComponentSID } from "../types/CommonTypes";
+import { ComponentTID, EntityUID, ComponentSID } from "../commontypes/CommonTypes";
 import Config from "../foundation/core/Config";
 
 declare var effekseer: any;

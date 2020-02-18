@@ -1,7 +1,7 @@
 import Matrix44 from "./Matrix44";
 import { IMutableMatrix22 } from "./IMatrix";
 import Matrix22 from "./Matrix22";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 import Matrix33 from "./Matrix33";
 import Vector2 from "./Vector2";
 export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix22 {
@@ -30,7 +30,7 @@ export default class MutableMatrix22 extends Matrix22 implements IMutableMatrix2
      * zero matrix
      */
     zero(): this;
-    raw(): import("../../types/CommonTypes").TypedArray;
+    raw(): import("../../commontypes/CommonTypes").TypedArray;
     flattenAsArray(): number[];
     _swap(l: Index, r: Index): void;
     /**

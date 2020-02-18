@@ -3,7 +3,7 @@ import { TextureParameterEnum } from "../definitions/TextureParameter";
 import { PixelFormatEnum } from "../definitions/PixelFormat";
 import { ComponentTypeEnum } from "../definitions/ComponentType";
 import IRenderable from "./IRenderable";
-import { Size, Index } from "../../types/CommonTypes";
+import { Size, Index } from "../../commontypes/CommonTypes";
 import FrameBuffer from "../renderer/FrameBuffer";
 import Vector4 from "../math/Vector4";
 export default class RenderTargetTexture extends AbstractTexture implements IRenderable {

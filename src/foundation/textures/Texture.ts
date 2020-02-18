@@ -6,9 +6,9 @@ import ModuleManager from "../system/ModuleManager";
 import AbstractTexture from "./AbstractTexture";
 import CGAPIResourceRepository from "../renderer/CGAPIResourceRepository";
 import { thisExpression } from "@babel/types";
-import { Size, TypedArray } from "../../types/CommonTypes";
+import { Size, TypedArray } from "../../commontypes/CommonTypes";
 import Config from "../core/Config";
-import {BasisFile, BasisTranscoder, BASIS} from "../../types/BasisTexture";
+import {BasisFile, BasisTranscoder, BASIS} from "../../commontypes/BasisTexture";
 
 declare const BASIS: BASIS;
 

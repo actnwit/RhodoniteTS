@@ -3,7 +3,7 @@ import Vector2 from './Vector2';
 import Vector3 from './Vector3';
 import { IVector3 } from './IVector';
 import { CompositionType } from '../definitions/CompositionType';
-import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import { TypedArray, TypedArrayConstructor } from '../../commontypes/CommonTypes';
 import { MathUtil } from './MathUtil';
 
 export class Vector4_<T extends TypedArrayConstructor> implements Vector4 {

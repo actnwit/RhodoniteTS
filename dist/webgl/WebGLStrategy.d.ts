@@ -8,7 +8,7 @@ import CubeTexture from "../foundation/textures/CubeTexture";
 import Material from "../foundation/materials/core/Material";
 import RenderPass from "../foundation/renderer/RenderPass";
 import MeshRendererComponent from "../foundation/components/MeshRendererComponent";
-import { WebGLResourceHandle, Index, Count } from "../types/CommonTypes";
+import { WebGLResourceHandle, Index, Count } from "../commontypes/CommonTypes";
 export default interface WebGLStrategy {
     $load(meshComponent: MeshComponent): void;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;

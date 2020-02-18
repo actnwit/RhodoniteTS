@@ -1,7 +1,7 @@
 import RnObject from "../core/RnObject";
 import IRenderable from "../textures/IRenderable";
 import { RenderBufferTargetEnum } from "../definitions/RenderBufferTarget";
-import { Index, Size, CGAPIResourceHandle } from "../../types/CommonTypes";
+import { Index, Size, CGAPIResourceHandle } from "../../commontypes/CommonTypes";
 export default class FrameBuffer extends RnObject {
     private __entities?;
     private __colorAttachments;

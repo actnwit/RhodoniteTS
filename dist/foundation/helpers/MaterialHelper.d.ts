@@ -1,5 +1,10 @@
 import Material from "../materials/core/Material";
 import RenderPass from "../renderer/RenderPass";
+import AbstractMaterialNode from "../materials/core/AbstractMaterialNode";
+import Primitive from "../geometry/Primitive";
+import Entity from "../core/Entity";
+declare function createMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material;
+declare function recreateMaterial(materialName: string, materialNodes?: AbstractMaterialNode[], maxInstancesNumber?: number): Material;
 declare function createEmptyMaterial(): Material;
 declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, maxInstancesNumber }?: {
     additionalName?: string | undefined;
@@ -55,7 +60,18 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     debugMode?: undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
+declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber }?: {
+    additionalName?: string | undefined;
+    isSkinning?: boolean | undefined;
+    isLighting?: boolean | undefined;
+    isMorphing?: boolean | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
+declare function changeMaterial(entity: Entity, primitive: Primitive, material: Material): void;
 declare const _default: Readonly<{
+    createMaterial: typeof createMaterial;
+    recreateMaterial: typeof recreateMaterial;
+    recreateCustomMaterial: typeof recreateCustomMaterial;
     createEmptyMaterial: typeof createEmptyMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createPbrUberMaterial: typeof createPbrUberMaterial;
@@ -66,5 +82,6 @@ declare const _default: Readonly<{
     createGammaCorrectionMaterial: typeof createGammaCorrectionMaterial;
     createEntityUIDOutputMaterial: typeof createEntityUIDOutputMaterial;
     createMToonMaterial: typeof createMToonMaterial;
+    changeMaterial: typeof changeMaterial;
 }>;
 export default _default;

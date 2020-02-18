@@ -21,7 +21,7 @@ import Accessor from "../../memory/Accessor";
 import ISingleShader from "../../../webgl/shaders/ISingleShader";
 import { ShaderType } from "../../definitions/ShaderType";
 import { thisExpression } from "@babel/types";
-import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../types/CommonTypes";
+import { Index, CGAPIResourceHandle, Count, Byte, MaterialNodeUID } from "../../../commontypes/CommonTypes";
 import DataUtil from "../../misc/DataUtil";
 import GlobalDataRepository from "../../core/GlobalDataRepository";
 import System from "../../system/System";

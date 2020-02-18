@@ -11,7 +11,7 @@ import Time from "../misc/Time";
 import Entity from "../core/Entity";
 import VRMSpringBoneGroup from "./VRMSpringBoneGroup";
 import VRMColliderGroup from "./VRMColliderGroup";
-import { Index } from "../../types/CommonTypes";
+import { Index } from "../../commontypes/CommonTypes";
 import PhysicsStrategy from "./PhysicsStrategy";
 
 export default class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {

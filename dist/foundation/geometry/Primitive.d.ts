@@ -7,12 +7,13 @@ import { CompositionTypeEnum } from '../definitions/CompositionType';
 import AABB from '../math/AABB';
 import Material from '../materials/core/Material';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { PrimitiveUID, TypedArray, Index } from '../../types/CommonTypes';
+import { PrimitiveUID, TypedArray, Index } from '../../commontypes/CommonTypes';
 import Vector3 from '../math/Vector3';
 export declare type Attributes = Map<VertexAttributeEnum, Accessor>;
 export default class Primitive extends RnObject {
     private __mode;
-    material: Material;
+    private __material;
+    _prevMaterial: Material;
     private __attributes;
     private __indices?;
     private static __primitiveCount;
@@ -24,6 +25,10 @@ export default class Primitive extends RnObject {
     private __inverseArenbergMatrix;
     private __arenberg3rdPosition;
     constructor();
+    set material(mat: Material);
+    get material(): Material;
+    _backupMaterial(): void;
+    _restoreMaterial(): void;
     setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor): void;
     static get maxPrimitiveCount(): number;
     static get headerAccessor(): Accessor | undefined;

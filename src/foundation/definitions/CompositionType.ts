@@ -1,6 +1,6 @@
 import { EnumClass, EnumIO, _from, _fromString } from "../misc/EnumIO";
 import { ComponentType, ComponentTypeEnum } from "./ComponentType";
-import { Count } from "../../types/CommonTypes";
+import { Count } from "../../commontypes/CommonTypes";
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
