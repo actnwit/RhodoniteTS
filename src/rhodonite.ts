@@ -188,8 +188,8 @@ let Rn = {
   NormalMatrixMaterialNode,
   UniformDataMaterialNode,
   NormalizeMaterialNode,
-  ifStatementMaterialNode,
-  EndifStatementMaterialNode
+  IfStatementMaterialNode,
+  EndIfStatementMaterialNode
 };
 
 if (typeof exports !== 'undefined') {

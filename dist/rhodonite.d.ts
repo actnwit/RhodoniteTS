@@ -75,6 +75,8 @@ import ProjectionMatrixMaterialNode from './foundation/materials/nodes/Projectio
 import VaryingVariableMaterialNode from './foundation/materials/nodes/VaryingVariableMaterialNode';
 import UniformDataMaterialNode from './foundation/materials/nodes/UniformDataMaterialNode';
 import NormalizeMaterialNode from './foundation/materials/nodes/NormalizeMaterialNode';
+import IfStatementMaterialNode from './foundation/materials/nodes/IfStatementMaterialNode';
+import EndIfStatementMaterialNode from './foundation/materials/nodes/EndIfStatementMaterialNode';
 declare let Rn: {
     EntityRepository: typeof EntityRepository;
     ComponentRepository: typeof ComponentRepository;
@@ -486,6 +488,8 @@ declare let Rn: {
     NormalMatrixMaterialNode: typeof NormalMatrixMaterialNode;
     UniformDataMaterialNode: typeof UniformDataMaterialNode;
     NormalizeMaterialNode: typeof NormalizeMaterialNode;
+    IfStatementMaterialNode: typeof IfStatementMaterialNode;
+    EndIfStatementMaterialNode: typeof EndIfStatementMaterialNode;
 };
 export declare type RnType = typeof Rn;
 export declare type CompositionTypeEnum = compositionTypeEnum;
