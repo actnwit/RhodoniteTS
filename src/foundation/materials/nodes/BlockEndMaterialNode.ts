@@ -16,15 +16,15 @@ export default class BlockEndMaterialNode extends AbstractMaterialNode {
 
     this.__vertexInputs.push(
       {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
+        compositionType: CompositionType.Unknown,
+        componentType: ComponentType.Unknown,
         name: 'blockEnd',
       });
 
     this.__pixelInputs.push(
       {
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
+        compositionType: CompositionType.Unknown,
+        componentType: ComponentType.Unknown,
         name: 'blockEnd',
       });
 

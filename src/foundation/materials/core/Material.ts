@@ -4,7 +4,7 @@ import Texture from "../../textures/Texture";
 import Vector3 from "../../math/Vector3";
 import { AlphaMode, AlphaModeEnum } from "../../definitions/AlphaMode";
 import { ShaderNode } from "../../definitions/ShaderNode";
-import AbstractMaterialNode from "./AbstractMaterialNode";
+import AbstractMaterialNode, { ShaderSocket } from "./AbstractMaterialNode";
 import { ShaderSemanticsEnum, ShaderSemanticsInfo, ShaderSemanticsClass, ShaderSemantics, ShaderSemanticsIndex } from "../../definitions/ShaderSemantics";
 import { CompositionType } from "../../definitions/CompositionType";
 import MathClassUtil from "../../math/MathClassUtil";
@@ -882,6 +882,10 @@ ${prerequisitesShaderityObject.code}
       vertexShaderBody += GLSLShader.glslMainEnd;
     }
 
+    const isAnyTypeInput = function(input: ShaderSocket) {
+      return input.compositionType === CompositionType.Unknown ||
+            input.componentType === ComponentType.Unknown;
+    }
     // pixel main process
     {
       pixelShaderBody += GLSLShader.glslMainBegin;
@@ -904,6 +908,9 @@ ${prerequisitesShaderityObject.code}
         for (let j = 0; j < materialNode.pixelInputConnections.length; j++) {
           const inputConnection = materialNode.pixelInputConnections[j];
           const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
+          if (isAnyTypeInput(materialNode.getPixelInputs()[j])) {
+            continue
+          }
           const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = materialNode.getPixelInput(inputConnection.inputNameOfThis);
           const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(inputSocketOfThis!.componentType);
@@ -920,29 +927,32 @@ ${prerequisitesShaderityObject.code}
           existingInputs.push(inputConnection.materialNodeUid)
         }
         for (let j = i; j < pixelMaterialNodes.length; j++) {
-          const materialNodeInner = pixelMaterialNodes[j];
+          const targetMaterialNode = pixelMaterialNodes[j];
           const prevMaterialNodeInner = pixelMaterialNodes[i - 1];
-          for (let k = 0; k < materialNodeInner.pixelInputConnections.length; k++) {
-            const inputConnection = materialNodeInner.pixelInputConnections[k];
+          for (let k = 0; k < targetMaterialNode.pixelInputConnections.length; k++) {
+            const inputConnection = targetMaterialNode.pixelInputConnections[k];
             if (prevMaterialNodeInner != null && inputConnection.materialNodeUid !== prevMaterialNodeInner.materialNodeUid) {
               continue;
             }
             const inputNode = AbstractMaterialNode.materialNodes[inputConnection.materialNodeUid];
-            if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
-              const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
-              const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${materialNodeInner.materialNodeUid}`;
+            if (!isAnyTypeInput(targetMaterialNode.getPixelInputs()[k])) {
+              if (existingOutputs.indexOf(inputNode.materialNodeUid) === -1) {
+                const outputSocketOfPrev = inputNode.getPixelOutput(inputConnection.outputNameOfPrev);
+                const varName = `${outputSocketOfPrev!.name}_${inputConnection.materialNodeUid}_to_${targetMaterialNode.materialNodeUid}`;
 
-              if (i - 1 >= 0) {
-                varOutputNames[i - 1].push(varName);
+                if (i - 1 >= 0) {
+                  varOutputNames[i - 1].push(varName);
+                }
+                existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
               }
-              existingOutputsVarName.set(inputConnection.materialNodeUid, varName)
+              existingOutputs.push(inputConnection.materialNodeUid)
             }
-            existingOutputs.push(inputConnection.materialNodeUid)
           }
         }
 
       }
 
+      let ifCondition = ''
       for (let i = 0; i < pixelMaterialNodes.length; i++) {
         const materialNode = pixelMaterialNodes[i];
         const functionName = materialNode.shaderFunctionName;
@@ -952,26 +962,39 @@ ${prerequisitesShaderityObject.code}
         if (varOutputNames[i] == null) {
           varOutputNames[i] = [];
         }
-        if (materialNode.getPixelInputs().length != varInputNames[i].length ||
-          materialNode.getPixelOutputs().length != varOutputNames[i].length) {
-          continue;
-        }
-        const varNames = varInputNames[i].concat(varOutputNames[i]);
-        if (varNames.length === 0) {
-          continue;
-        }
-        let rowStr = `${functionName}(`;
-        for (let k = 0; k < varNames.length; k++) {
-          const varName = varNames[k];
-          if (varName == null) {
+
+        let rowStr = ''
+        if (functionName === 'ifStatement') {
+          ifCondition = varInputNames[i][0];
+        } else if (functionName === 'blockBegin') {
+          rowStr += `if (${ifCondition}) {\n`;
+          ifCondition = ''
+        } else if (functionName === 'blockEnd') {
+          rowStr += `}\n`;
+        } else {
+          if (materialNode.getPixelInputs().length != varInputNames[i].length ||
+            materialNode.getPixelOutputs().length != varOutputNames[i].length) {
             continue;
           }
-          if (k !== 0) {
-            rowStr += ', ';
+          const varNames = varInputNames[i].concat(varOutputNames[i]);
+          if (varNames.length === 0) {
+            continue;
           }
-          rowStr += varNames[k];
+          // Call node functions
+          rowStr += `${functionName}(`;
+          for (let k = 0; k < varNames.length; k++) {
+            const varName = varNames[k];
+            if (varName == null) {
+              continue;
+            }
+            if (k !== 0) {
+              rowStr += ', ';
+            }
+            rowStr += varNames[k];
+          }
+          rowStr += ');\n';
         }
-        rowStr += ');\n';
+
         pixelShaderBody += rowStr;
       }
 
